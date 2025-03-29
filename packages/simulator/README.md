@@ -1,5 +1,7 @@
 # D12 Simulator
 
+[![CI](https://github.com/luanpotter/shattered-wilds/actions/workflows/ci.yml/badge.svg)](https://github.com/luanpotter/shattered-wilds/actions/workflows/ci.yml)
+
 A simple simulator for testing the D12 System.
 
 Built using Bun, Vite, TypeScript and React.
