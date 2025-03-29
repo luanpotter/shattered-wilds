@@ -18,6 +18,7 @@ jobs:
           bun-version: latest
           
       - name: Install dependencies
+        working-directory: packages/simulator
         run: bun install
         
       - name: Run checks
