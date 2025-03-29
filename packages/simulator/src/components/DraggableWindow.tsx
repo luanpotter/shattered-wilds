@@ -7,11 +7,13 @@ import { Window } from '../types';
 interface DraggableWindowProps {
   window: Window;
   children: React.ReactNode;
+  onStartDrag: (e: React.MouseEvent) => void;
 }
 
 export const DraggableWindow: React.FC<DraggableWindowProps> = ({
   window,
   children,
+  onStartDrag,
 }) => {
   const updateWindow = useStore((state) => state.updateWindow);
   const removeWindow = useStore((state) => state.removeWindow);
@@ -19,26 +21,25 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.button === 0 && e.target instanceof Element && e.target.closest('.window-title')) {
-      e.preventDefault();
-      setIsDragging(true);
-      const rect = e.currentTarget.getBoundingClientRect();
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
+    if (e.button === 0) { // Left click only
+      const titleBar = e.target instanceof Element && e.target.closest('.window-title');
+      if (titleBar) {
+        e.preventDefault();
+        e.stopPropagation(); // Prevent grid from handling this
+        onStartDrag(e);
+      }
     }
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging && e.buttons === 1) {
+    if (isDragging) {
       e.preventDefault();
-      const newX = e.clientX - dragOffset.x;
-      const newY = e.clientY - dragOffset.y;
-      
       updateWindow({
         ...window,
-        position: { x: newX, y: newY },
+        position: {
+          x: e.clientX - dragOffset.x,
+          y: e.clientY - dragOffset.y,
+        },
       });
     }
   };
@@ -59,22 +60,20 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
   useEffect(() => {
     if (isDragging) {
       const handleDocumentMouseMove = (e: MouseEvent) => {
-        if (e.buttons === 1) {
-          e.preventDefault();
-          const newX = e.clientX - dragOffset.x;
-          const newY = e.clientY - dragOffset.y;
-          
-          updateWindow({
-            ...window,
-            position: { x: newX, y: newY },
-          });
-        } else {
-          // If left button is released outside, stop dragging
-          setIsDragging(false);
-        }
+        e.preventDefault();
+        e.stopPropagation();
+        updateWindow({
+          ...window,
+          position: {
+            x: e.clientX - dragOffset.x,
+            y: e.clientY - dragOffset.y,
+          },
+        });
       };
 
-      const handleDocumentMouseUp = () => {
+      const handleDocumentMouseUp = (e: MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
         setIsDragging(false);
       };
 
@@ -89,47 +88,64 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
   }, [isDragging, dragOffset, window, updateWindow]);
 
   return (
-    <div
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-      style={{
-        position: 'absolute',
-        left: window.position.x,
-        top: window.position.y,
-        width: '300px',
-        backgroundColor: 'var(--background)',
-        border: '1px solid var(--text)',
-        borderRadius: '4px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-        display: window.isMinimized ? 'none' : 'block',
-        userSelect: 'none',
-      }}
-    >
+    <>
+      {isDragging && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 9998,
+            cursor: 'grabbing'
+          }}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+        />
+      )}
       <div
-        className="window-title"
+        className="draggable-window"
+        onMouseDown={handleMouseDown}
         style={{
-          padding: '8px',
-          backgroundColor: 'var(--background-alt)',
-          borderBottom: '1px solid var(--text)',
-          cursor: isDragging ? 'grabbing' : 'grab',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          position: 'absolute',
+          left: window.position.x,
+          top: window.position.y,
+          width: '300px',
+          backgroundColor: 'var(--background)',
+          border: '1px solid var(--text)',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+          display: window.isMinimized ? 'none' : 'block',
+          userSelect: 'none',
+          zIndex: 9999
         }}
       >
-        <span>{window.title}</span>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button onClick={handleMinimize} className="icon-button">
-            <FaMinus />
-          </button>
-          <button onClick={handleClose} className="icon-button">
-            <FaTimes />
-          </button>
+        <div
+          className="window-title"
+          style={{
+            padding: '8px',
+            backgroundColor: 'var(--background-alt)',
+            borderBottom: '1px solid var(--text)',
+            cursor: isDragging ? 'grabbing' : 'grab',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <span>{window.title}</span>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={handleMinimize} className="icon-button">
+              <FaMinus />
+            </button>
+            <button onClick={handleClose} className="icon-button">
+              <FaTimes />
+            </button>
+          </div>
         </div>
+        <div style={{ padding: '16px' }}>{children}</div>
       </div>
-      <div style={{ padding: '16px' }}>{children}</div>
-    </div>
+    </>
   );
 }; 

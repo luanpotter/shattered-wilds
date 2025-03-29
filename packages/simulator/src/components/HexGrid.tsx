@@ -29,7 +29,11 @@ const Hex: React.FC<{
   );
 };
 
-export const BattleGrid: React.FC = () => {
+interface BattleGridProps {
+  disabled?: boolean;
+}
+
+export const BattleGrid: React.FC<BattleGridProps> = ({ disabled }) => {
   const gridRef = useRef<HTMLDivElement>(null);
   const characters = useStore((state) => state.characters);
   const gridState = useStore((state) => state.gridState);
@@ -61,7 +65,7 @@ export const BattleGrid: React.FC = () => {
   };
 
   const handleDrag = (e: React.MouseEvent) => {
-    // Only handle middle click (button 4) for grid dragging
+    if (disabled) return;
     if (e.buttons === 4) {
       updateGridState({
         offset: {
