@@ -1,0 +1,75 @@
+:root {
+  --primary: #4a9eff;
+  --background: #1a1a1a;
+  --background-alt: #2a2a2a;
+  --text: #ffffff;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  max-width: 100vw !important; /* overrides water.css */
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--background);
+  color: var(--text);
+}
+
+button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--text);
+  border-radius: 4px;
+  background-color: var(--background-alt);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: var(--primary);
+}
+
+.icon-button {
+  padding: 0.25rem;
+  border: none;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-button:hover {
+  color: var(--primary);
+}
+
+input {
+  padding: 0.5rem;
+  border: 1px solid var(--text);
+  border-radius: 4px;
+  background-color: var(--background-alt);
+  color: var(--text);
+  font-size: 1rem;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  overflow: hidden;
+} 
