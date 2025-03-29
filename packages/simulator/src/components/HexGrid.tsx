@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+
 import { useStore } from '../store';
 
 const generateHexes = (width: number, height: number) => {
@@ -16,7 +17,7 @@ const Hex: React.FC<{
   r: number;
   onDoubleClick: () => void;
   children?: React.ReactNode;
-}> = ({ q, r, onDoubleClick, children }) => {
+}> = ({ q, r, children }) => {
   // Convert axial coordinates to pixel coordinates
   const x = (q * 10) + (r * 5);
   const y = r * 8.66; // sqrt(3) * 5

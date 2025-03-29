@@ -43,9 +43,11 @@ const App = (): React.ReactElement => {
       <header style={{ 
         padding: '1rem',
         borderBottom: '1px solid var(--text)',
-        flexShrink: 0
+        flexShrink: 0,
+        width: '1200px',
+        margin: '0 auto'
       }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <div style={{ margin: '0 auto' }}>
           <div style={{ 
             display: 'flex',
             justifyContent: 'space-between',
@@ -84,9 +86,11 @@ const App = (): React.ReactElement => {
         padding: '1rem',
         borderTop: '1px solid var(--text)',
         flexShrink: 0,
-        marginTop: '-8px'
+        marginTop: '-8px',
+        width: '1200px',
+        margin: '0 auto',
       }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <div style={{ margin: '0 auto' }}>
           <p style={{ margin: 0, paddingBottom: '8px' }}>&copy; 2025 - D12 Simulator - Luan Nico</p>
         </div>
       </footer>

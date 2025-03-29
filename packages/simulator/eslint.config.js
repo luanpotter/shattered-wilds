@@ -64,9 +64,10 @@ export default tseslint.config(
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/await-thenable': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
+      'jsx-a11y/no-static-element-interactions': 'off',
       // use typescript-eslint/no-unused-vars instead
-      "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": ["error"],
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error'],
     },
   },
   {
