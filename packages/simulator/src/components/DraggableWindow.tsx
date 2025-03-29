@@ -18,7 +18,6 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
   const updateWindow = useStore((state) => state.updateWindow);
   const removeWindow = useStore((state) => state.removeWindow);
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button === 0) { // Left click only
@@ -37,8 +36,8 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
       updateWindow({
         ...window,
         position: {
-          x: e.clientX - dragOffset.x,
-          y: e.clientY - dragOffset.y,
+          x: e.clientX,
+          y: e.clientY,
         },
       });
     }
@@ -65,8 +64,8 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
         updateWindow({
           ...window,
           position: {
-            x: e.clientX - dragOffset.x,
-            y: e.clientY - dragOffset.y,
+            x: e.clientX,
+            y: e.clientY,
           },
         });
       };
@@ -85,7 +84,7 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
         document.removeEventListener('mouseup', handleDocumentMouseUp);
       };
     }
-  }, [isDragging, dragOffset, window, updateWindow]);
+  }, [isDragging, window, updateWindow]);
 
   return (
     <>

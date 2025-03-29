@@ -64,7 +64,7 @@ const App = (): React.ReactElement => {
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [dragState, gridState]);
+  }, [dragState, gridState, updateGridState, updateWindow, windows]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button === 1) { // Middle click for grid
