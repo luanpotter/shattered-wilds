@@ -133,7 +133,6 @@ const App = (): React.ReactElement => {
       title: 'Characters',
       type: 'character-list',
       position: { x: 100, y: 100 },
-      isMinimized: false,
     });
   };
 

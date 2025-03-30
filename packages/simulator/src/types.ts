@@ -21,7 +21,6 @@ export interface Window {
     x: number;
     y: number;
   };
-  isMinimized: boolean;
 }
 
 export interface GridState {

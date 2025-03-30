@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaMinus, FaTimes } from 'react-icons/fa';
+import { FaTimes } from 'react-icons/fa';
 
 import { useStore } from '../store';
 import { Window } from '../types';
@@ -45,10 +45,6 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
 
   const handleMouseUp = () => {
     setIsDragging(false);
-  };
-
-  const handleMinimize = () => {
-    updateWindow({ ...window, isMinimized: !window.isMinimized });
   };
 
   const handleClose = () => {
@@ -116,7 +112,7 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
           border: '1px solid var(--text)',
           borderRadius: '4px',
           boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-          display: window.isMinimized ? 'none' : 'block',
+          display: 'block',
           userSelect: 'none',
           zIndex: 9999
         }}
@@ -135,9 +131,6 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
         >
           <span>{window.title}</span>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button onClick={handleMinimize} className="icon-button">
-              <FaMinus />
-            </button>
             <button onClick={handleClose} className="icon-button">
               <FaTimes />
             </button>

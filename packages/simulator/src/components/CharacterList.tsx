@@ -27,7 +27,6 @@ export const CharacterList: React.FC = () => {
       type: 'character-sheet',
       characterId: character.id,
       position: { x: 100, y: 100 },
-      isMinimized: false,
     });
   };
 
