@@ -89,20 +89,28 @@ const StatRow: React.FC<StatRowProps> = ({
 						}}
 					>
 						{showFormula ? (
-							<span className="formula-display" style={{ 
-								fontSize: '0.9em',
-								padding: '2px 4px',
-								backgroundColor: 'var(--background-alt)',
-								borderRadius: '3px',
-							}}>
+							<span
+								className='formula-display'
+								style={{
+									fontSize: '0.9em',
+									padding: '2px 4px',
+									backgroundColor: 'var(--background-alt)',
+									borderRadius: '3px',
+								}}
+							>
 								{calculation}
 							</span>
 						) : (
-							<span style={{
-								cursor: 'help',
-								borderBottom: '1px dotted',
-								padding: '0 2px',
-							}} title={formula}>{showBar ? `${current}/${max}` : max >= 0 ? `+${max}` : max}</span>
+							<span
+								style={{
+									cursor: 'help',
+									borderBottom: '1px dotted',
+									padding: '0 2px',
+								}}
+								title={formula}
+							>
+								{showBar ? `${current}/${max}` : max >= 0 ? `+${max}` : max}
+							</span>
 						)}
 					</div>
 				) : (
@@ -147,32 +155,82 @@ export const DerivedStatsDisplay: React.FC<DerivedStatsDisplayProps> = ({ stats 
 	const calculations = {
 		maxVitality: (
 			<>
-				<span title={componentSources.baseVitality} style={tooltipComponentStyle}>4</span> + <span title={componentSources.bodyModifier} style={tooltipComponentStyle}>{stats.maxVitality - 4 >= 0 ? stats.maxVitality - 4 : `(${stats.maxVitality - 4})`}</span> = {stats.maxVitality >= 0 ? `+${stats.maxVitality}` : stats.maxVitality}
+				<span title={componentSources.baseVitality} style={tooltipComponentStyle}>
+					4
+				</span>{' '}
+				+{' '}
+				<span title={componentSources.bodyModifier} style={tooltipComponentStyle}>
+					{stats.maxVitality - 4 >= 0 ? stats.maxVitality - 4 : `(${stats.maxVitality - 4})`}
+				</span>{' '}
+				= {stats.maxVitality >= 0 ? `+${stats.maxVitality}` : stats.maxVitality}
 			</>
 		),
 		maxFocus: (
 			<>
-				<span title={componentSources.baseFocus} style={tooltipComponentStyle}>4</span> + <span title={componentSources.mindModifier} style={tooltipComponentStyle}>{stats.maxFocus - 4 >= 0 ? stats.maxFocus - 4 : `(${stats.maxFocus - 4})`}</span> = {stats.maxFocus >= 0 ? `+${stats.maxFocus}` : stats.maxFocus}
+				<span title={componentSources.baseFocus} style={tooltipComponentStyle}>
+					4
+				</span>{' '}
+				+{' '}
+				<span title={componentSources.mindModifier} style={tooltipComponentStyle}>
+					{stats.maxFocus - 4 >= 0 ? stats.maxFocus - 4 : `(${stats.maxFocus - 4})`}
+				</span>{' '}
+				= {stats.maxFocus >= 0 ? `+${stats.maxFocus}` : stats.maxFocus}
 			</>
 		),
 		maxSpirit: (
 			<>
-				<span title={componentSources.baseSpirit} style={tooltipComponentStyle}>4</span> + <span title={componentSources.soulModifier} style={tooltipComponentStyle}>{stats.maxSpirit - 4 >= 0 ? stats.maxSpirit - 4 : `(${stats.maxSpirit - 4})`}</span> = {stats.maxSpirit >= 0 ? `+${stats.maxSpirit}` : stats.maxSpirit}
+				<span title={componentSources.baseSpirit} style={tooltipComponentStyle}>
+					4
+				</span>{' '}
+				+{' '}
+				<span title={componentSources.soulModifier} style={tooltipComponentStyle}>
+					{stats.maxSpirit - 4 >= 0 ? stats.maxSpirit - 4 : `(${stats.maxSpirit - 4})`}
+				</span>{' '}
+				= {stats.maxSpirit >= 0 ? `+${stats.maxSpirit}` : stats.maxSpirit}
 			</>
 		),
 		maxHeroism: (
 			<>
-				<span title={componentSources.levelModifier} style={tooltipComponentStyle}>{stats.maxHeroism >= 0 ? stats.maxHeroism : `(${stats.maxHeroism})`}</span> = {stats.maxHeroism >= 0 ? `+${stats.maxHeroism}` : stats.maxHeroism}
+				<span title={componentSources.levelModifier} style={tooltipComponentStyle}>
+					{stats.maxHeroism >= 0 ? stats.maxHeroism : `(${stats.maxHeroism})`}
+				</span>{' '}
+				= {stats.maxHeroism >= 0 ? `+${stats.maxHeroism}` : stats.maxHeroism}
 			</>
 		),
 		initiative: (
 			<>
-				<span title={componentSources.awarenessModifier} style={tooltipComponentStyle}>{Math.floor(stats.initiative/2) >= 0 ? Math.floor(stats.initiative/2) : `(${Math.floor(stats.initiative/2)})`}</span> + <span title={componentSources.agilityModifier} style={tooltipComponentStyle}>{stats.initiative - Math.floor(stats.initiative/2) >= 0 ? stats.initiative - Math.floor(stats.initiative/2) : `(${stats.initiative - Math.floor(stats.initiative/2)})`}</span> = {stats.initiative >= 0 ? `+${stats.initiative}` : stats.initiative}
+				<span title={componentSources.awarenessModifier} style={tooltipComponentStyle}>
+					{Math.floor(stats.initiative / 2) >= 0
+						? Math.floor(stats.initiative / 2)
+						: `(${Math.floor(stats.initiative / 2)})`}
+				</span>{' '}
+				+{' '}
+				<span title={componentSources.agilityModifier} style={tooltipComponentStyle}>
+					{stats.initiative - Math.floor(stats.initiative / 2) >= 0
+						? stats.initiative - Math.floor(stats.initiative / 2)
+						: `(${stats.initiative - Math.floor(stats.initiative / 2)})`}
+				</span>{' '}
+				= {stats.initiative >= 0 ? `+${stats.initiative}` : stats.initiative}
 			</>
 		),
 		speed: (
 			<>
-				<span title={componentSources.baseSpeed} style={tooltipComponentStyle}>30</span> + <span title={componentSources.agilityModifier} style={tooltipComponentStyle}>{Math.floor((stats.speed - 30)/2) >= 0 ? Math.floor((stats.speed - 30)/2) : `(${Math.floor((stats.speed - 30)/2)})`}</span> + <span title={componentSources.staminaModifier} style={tooltipComponentStyle}>{(stats.speed - 30) - Math.floor((stats.speed - 30)/2) >= 0 ? (stats.speed - 30) - Math.floor((stats.speed - 30)/2) : `(${(stats.speed - 30) - Math.floor((stats.speed - 30)/2)})`}</span> = {stats.speed}
+				<span title={componentSources.baseSpeed} style={tooltipComponentStyle}>
+					30
+				</span>{' '}
+				+{' '}
+				<span title={componentSources.agilityModifier} style={tooltipComponentStyle}>
+					{Math.floor((stats.speed - 30) / 2) >= 0
+						? Math.floor((stats.speed - 30) / 2)
+						: `(${Math.floor((stats.speed - 30) / 2)})`}
+				</span>{' '}
+				+{' '}
+				<span title={componentSources.staminaModifier} style={tooltipComponentStyle}>
+					{stats.speed - 30 - Math.floor((stats.speed - 30) / 2) >= 0
+						? stats.speed - 30 - Math.floor((stats.speed - 30) / 2)
+						: `(${stats.speed - 30 - Math.floor((stats.speed - 30) / 2)})`}
+				</span>{' '}
+				= {stats.speed}
 			</>
 		),
 	};
