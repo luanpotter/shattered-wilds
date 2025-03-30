@@ -3,6 +3,7 @@ import { Window, Point } from './types';
 // Constants for window positioning
 const INITIAL_POSITION: Point = { x: 80, y: 80 };
 const MARGIN = 16; // Space between windows
+const OVERLAP_MARGIN = 8; // Additional buffer when checking for overlaps
 // Default window dimensions
 const WINDOW_SIZE = { width: 300, height: 200 };
 
@@ -41,9 +42,10 @@ export const findNextWindowPosition = (windows: Window[]): Point => {
 		return windows.some(window => {
 			// Check if this grid position would overlap with this window
 			// Use actual window position (after dragging)
+			// Add OVERLAP_MARGIN to create a buffer zone around each window
 			return (
-				Math.abs(pos.x - window.position.x) < WINDOW_SIZE.width &&
-				Math.abs(pos.y - window.position.y) < WINDOW_SIZE.height
+				Math.abs(pos.x - window.position.x) < WINDOW_SIZE.width + OVERLAP_MARGIN &&
+				Math.abs(pos.y - window.position.y) < WINDOW_SIZE.height + OVERLAP_MARGIN
 			);
 		});
 	});
