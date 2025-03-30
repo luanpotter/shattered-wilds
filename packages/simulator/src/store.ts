@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { Character, Window, GridState } from './types';
+import { Character, Window, GridState, AttributeMap, DerivedStats } from './types';
+import { calculateDerivedStats, calculateModifiers } from './utils';
 
 type AddCharacter = (character: Character) => void;
 type UpdateCharacter = (character: Character) => void;
@@ -10,10 +11,12 @@ type AddWindow = (window: Window) => void;
 type UpdateWindow = (window: Window) => void;
 type RemoveWindow = (id: string) => void;
 type UpdateGridState = (state: Partial<GridState>) => void;
+type UpdateCharacterStats = (characterId: string, derivedStats: Partial<DerivedStats>) => void;
+type UpdateCharacterAttributes = (characterId: string, attributes: AttributeMap) => void;
 
 interface AppState {
-	characters: Character[];
 	windows: Window[];
+	characters: Character[];
 	gridState: GridState;
 	addCharacter: AddCharacter;
 	updateCharacter: UpdateCharacter;
@@ -22,6 +25,8 @@ interface AppState {
 	updateWindow: UpdateWindow;
 	removeWindow: RemoveWindow;
 	updateGridState: UpdateGridState;
+	updateCharacterStats: UpdateCharacterStats;
+	updateCharacterAttributes: UpdateCharacterAttributes;
 }
 
 // Migrate any old characters data structure to the new one with sheet
@@ -49,8 +54,8 @@ const migrate = (state: any): AppState => {
 export const useStore = create<AppState>()(
 	persist(
 		set => ({
-			characters: [],
 			windows: [],
+			characters: [],
 			gridState: {
 				scale: 1,
 				offset: { x: 0, y: 0 },
@@ -82,6 +87,46 @@ export const useStore = create<AppState>()(
 			updateGridState: state =>
 				set(prev => ({
 					gridState: { ...prev.gridState, ...state },
+				})),
+			updateCharacterStats: (characterId, partialStats) =>
+				set(state => ({
+					characters: state.characters.map(character => {
+						if (character.id === characterId && character.sheet.derivedStats) {
+							return {
+								...character,
+								sheet: {
+									...character.sheet,
+									derivedStats: {
+										...character.sheet.derivedStats,
+										...partialStats,
+									},
+								},
+							};
+						}
+						return character;
+					}),
+				})),
+			updateCharacterAttributes: (characterId, attributes) =>
+				set(state => ({
+					characters: state.characters.map(character => {
+						if (character.id === characterId) {
+							// Recalculate modifiers
+							calculateModifiers(attributes);
+
+							// Recalculate derived stats
+							const derivedStats = calculateDerivedStats(attributes);
+
+							return {
+								...character,
+								sheet: {
+									...character.sheet,
+									attributes,
+									derivedStats,
+								},
+							};
+						}
+						return character;
+					}),
 				})),
 		}),
 		{

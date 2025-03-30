@@ -39,10 +39,159 @@ export enum CharacterClass {
 	Scout = 'Scout',
 }
 
+// Attribute system enums and types
+export enum AttributeType {
+	Level = 'Level',
+	Realm = 'Realm',
+	BasicAttribute = 'BasicAttribute',
+	Skill = 'Skill',
+}
+
+export enum RealmType {
+	Body = 'Body',
+	Mind = 'Mind',
+	Soul = 'Soul',
+}
+
+export enum BasicAttributeType {
+	// Body Realm
+	STR = 'STR',
+	DEX = 'DEX',
+	CON = 'CON',
+	// Mind Realm
+	INT = 'INT',
+	WIS = 'WIS',
+	CHA = 'CHA',
+	// Soul Realm
+	DIV = 'DIV',
+	FOW = 'FOW',
+	LCK = 'LCK',
+}
+
+export enum SkillType {
+	// STR Skills
+	Muscles = 'Muscles',
+	Stance = 'Stance',
+	Lift = 'Lift',
+	// DEX Skills
+	Finesse = 'Finesse',
+	Evasiveness = 'Evasiveness',
+	Agility = 'Agility',
+	// CON Skills
+	Toughness = 'Toughness',
+	Stamina = 'Stamina',
+	Resilience = 'Resilience',
+	// INT Skills
+	IQ = 'IQ',
+	Knowledge = 'Knowledge',
+	Memory = 'Memory',
+	// WIS Skills
+	Perception = 'Perception',
+	Awareness = 'Awareness',
+	Intuition = 'Intuition',
+	// CHA Skills
+	Speechcraft = 'Speechcraft',
+	Charm = 'Charm',
+	Appearance = 'Appearance',
+	// DIV Skills
+	Faith = 'Faith',
+	Attunement = 'Attunement',
+	Devotion = 'Devotion',
+	// FOW Skills
+	Discipline = 'Discipline',
+	Tenacity = 'Tenacity',
+	Resolve = 'Resolve',
+	// LCK Skills
+	Gambling = 'Gambling',
+	Fortune = 'Fortune',
+	Serendipity = 'Serendipity',
+}
+
+// Modifier represents bonuses/penalties from different sources
+export interface Modifier {
+	source: string;
+	value: number;
+	description?: string;
+}
+
+// The base AttributeNode interface that all attribute types extend
+export interface AttributeNode {
+	id: string;
+	type: AttributeType;
+	name: string;
+	abbreviation?: string;
+	description?: string;
+	baseValue: number;
+	modifiers: Modifier[];
+	finalModifier: number;
+}
+
+// Map of attributes to organize and access the attribute tree
+export interface AttributeMap {
+	// Root attribute
+	level: LevelAttribute;
+
+	// Realm attributes
+	body: RealmAttribute;
+	mind: RealmAttribute;
+	soul: RealmAttribute;
+
+	// Basic attributes
+	basicAttributes: Record<BasicAttributeType, BasicAttribute>;
+
+	// Skills
+	skills: Record<SkillType, SkillAttribute>;
+}
+
+// Level is the root attribute
+export interface LevelAttribute extends AttributeNode {
+	type: AttributeType.Level;
+}
+
+// Realms are the second tier
+export interface RealmAttribute extends AttributeNode {
+	type: AttributeType.Realm;
+	realmType: RealmType;
+	parentId: string;
+}
+
+// Basic attributes are the third tier
+export interface BasicAttribute extends AttributeNode {
+	type: AttributeType.BasicAttribute;
+	basicAttributeType: BasicAttributeType;
+	parentId: string;
+	realmType: RealmType;
+}
+
+// Skills are the fourth tier
+export interface SkillAttribute extends AttributeNode {
+	type: AttributeType.Skill;
+	skillType: SkillType;
+	parentId: string;
+	basicAttributeType: BasicAttributeType;
+}
+
+// Derived statistics interfaces
+export interface DerivedStats {
+	maxVitality: number;
+	currentVitality: number;
+	maxFocus: number;
+	currentFocus: number;
+	maxSpirit: number;
+	currentSpirit: number;
+	maxHeroism: number;
+	currentHeroism: number;
+	initiative: number;
+	speed: number;
+}
+
 export interface CharacterSheet {
 	name: string;
 	race: Race;
 	class: CharacterClass;
+	level: number;
+	attributes?: AttributeMap;
+	derivedStats?: DerivedStats;
 }
 
 export interface Character {

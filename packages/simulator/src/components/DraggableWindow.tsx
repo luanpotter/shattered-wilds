@@ -156,9 +156,10 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
 				<div
 					style={{
 						padding: '4px',
-						overflow: 'visible',
+						overflow: 'auto',
 						position: 'relative',
 						zIndex: 1000, // Higher z-index for content
+						maxHeight: 'calc(100vh - 100px)', // Limit height to viewport minus some space for header
 					}}
 				>
 					{children}

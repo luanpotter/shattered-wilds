@@ -1,7 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 
 import { useStore } from '../store';
-import { Character, Race, CharacterClass } from '../types';
+import { Character, Race, CharacterClass, AttributeMap } from '../types';
+import { initializeAttributeMap, calculateDerivedStats } from '../utils';
+
+import { AttributeTree } from './AttributeTree';
+import { DerivedStatsDisplay } from './DerivedStats';
 
 interface CharacterSheetProps {
 	character: Character;
@@ -194,6 +198,22 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character }) => 
 	const updateCharacter = useStore(state => state.updateCharacter);
 	const windows = useStore(state => state.windows);
 	const updateWindow = useStore(state => state.updateWindow);
+	const updateCharacterAttributes = useStore(state => state.updateCharacterAttributes);
+
+	// Initialize attributes if they don't exist
+	useEffect(() => {
+		if (!character.sheet.attributes) {
+			const attributes = initializeAttributeMap(character.sheet.level || 0);
+			updateCharacter({
+				...character,
+				sheet: {
+					...character.sheet,
+					attributes,
+					derivedStats: calculateDerivedStats(attributes),
+				},
+			});
+		}
+	}, [character, updateCharacter]);
 
 	// Update window title when character name changes
 	useEffect(() => {
@@ -244,6 +264,11 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character }) => 
 		});
 	};
 
+	const handleAttributeUpdate = (newAttributes: AttributeMap) => {
+		// Use the store's updateCharacterAttributes function
+		updateCharacterAttributes(character.id, newAttributes);
+	};
+
 	// Common styles for form rows - reduced margins for compactness
 	const formRowStyle = {
 		display: 'flex',
@@ -278,47 +303,75 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character }) => 
 		gap: '4px', // Maintain consistent gap
 	};
 
+	// If attributes are still loading, show loading state
+	if (!character.sheet.attributes || !character.sheet.derivedStats) {
+		return <div>Loading character data...</div>;
+	}
+
 	return (
-		<div style={{ margin: 0, padding: 0, width: '100%' }}>
-			<div style={formRowStyle}>
-				<label htmlFor='character-name' style={labelStyle}>
-					Name:
-				</label>
-				<input
-					id='character-name'
-					type='text'
-					value={character.sheet.name}
-					onChange={handleNameChange}
-					style={inputStyle}
-				/>
-			</div>
-
-			{/* Race and Class on the same line */}
-			<div style={formRowStyle}>
-				<div style={halfRowStyle}>
-					<label htmlFor='character-race' style={labelStyle}>
-						Race:
+		<div style={{ margin: 0, padding: 0, width: '100%', height: '100%', overflowY: 'scroll' }}>
+			{/* Basic Info Section */}
+			<div
+				style={{
+					marginBottom: '12px',
+					padding: '8px',
+					backgroundColor: 'var(--background-alt)',
+					borderRadius: '4px',
+				}}
+			>
+				<div style={formRowStyle}>
+					<label htmlFor='character-name' style={labelStyle}>
+						Name:
 					</label>
-					<DropdownSelect
-						id='character-race'
-						options={Race}
-						value={character.sheet.race}
-						onChange={handleRaceChange}
+					<input
+						id='character-name'
+						type='text'
+						value={character.sheet.name}
+						onChange={handleNameChange}
+						style={inputStyle}
 					/>
 				</div>
 
-				<div style={halfRowStyle}>
-					<label htmlFor='character-class' style={labelStyle}>
-						Class:
-					</label>
-					<DropdownSelect
-						id='character-class'
-						options={CharacterClass}
-						value={character.sheet.class}
-						onChange={handleClassChange}
-					/>
+				<div style={{ display: 'flex', gap: '8px', marginBottom: '4px' }}>
+					{/* Race/Class Row */}
+					<div style={{ ...formRowStyle, marginBottom: 0 }}>
+						<div style={halfRowStyle}>
+							<label htmlFor='character-race' style={labelStyle}>
+								Race:
+							</label>
+							<DropdownSelect
+								id='character-race'
+								options={Race}
+								value={character.sheet.race}
+								onChange={handleRaceChange}
+							/>
+						</div>
+
+						<div style={halfRowStyle}>
+							<label htmlFor='character-class' style={labelStyle}>
+								Class:
+							</label>
+							<DropdownSelect
+								id='character-class'
+								options={CharacterClass}
+								value={character.sheet.class}
+								onChange={handleClassChange}
+							/>
+						</div>
+					</div>
 				</div>
 			</div>
+
+			{/* Derived Stats */}
+			<div style={{ marginBottom: '12px' }}>
+				<DerivedStatsDisplay stats={character.sheet.derivedStats} />
+			</div>
+
+			{/* Attribute Tree */}
+			<AttributeTree
+				attributes={character.sheet.attributes}
+				onAttributeUpdate={handleAttributeUpdate}
+			/>
 		</div>
 	);
 };
