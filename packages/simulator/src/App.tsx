@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaUsers, FaCrosshairs } from 'react-icons/fa';
+import { FaUsers, FaCrosshairs, FaTimes } from 'react-icons/fa';
 
 import { CharacterList } from './components/CharacterList';
 import { CharacterSheet } from './components/CharacterSheet';
@@ -22,6 +22,7 @@ const App = (): React.ReactElement => {
   const updateGridState = useStore((state) => state.updateGridState);
   const updateWindow = useStore((state) => state.updateWindow);
   const updateCharacter = useStore((state) => state.updateCharacter);
+  const removeWindow = useStore((state) => state.removeWindow);
   const gridState = useStore((state) => state.gridState);
 
   useEffect(() => {
@@ -143,6 +144,13 @@ const App = (): React.ReactElement => {
     });
   };
 
+  const handleCloseAllWindows = () => {
+    // Close all windows by removing each one
+    windows.forEach(window => {
+      removeWindow(window.id);
+    });
+  };
+
   return (
     <div style={{ 
       height: '100vh', 
@@ -175,6 +183,9 @@ const App = (): React.ReactElement => {
               </button>
               <button onClick={handleRecenter}>
                 <FaCrosshairs /> Re-center
+              </button>
+              <button onClick={handleCloseAllWindows}>
+                <FaTimes /> Close All
               </button>
             </div>
           </div>
