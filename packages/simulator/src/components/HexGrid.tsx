@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 
 import { useStore } from "../store";
 import { Point, Character } from "../types";
@@ -42,6 +42,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
   onStartCharacterDrag,
 }) => {
   const gridRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
   const characters = useStore((state) => state.characters);
   const gridState = useStore((state) => state.gridState);
   const updateGridState = useStore((state) => state.updateGridState);
@@ -49,28 +50,51 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
   const addWindow = useStore((state) => state.addWindow);
   const [ghostPosition, setGhostPosition] = useState<Point | null>(null);
 
+  // This function converts screen coordinates to SVG user space coordinates
+  const screenToSvgCoordinates = useCallback(
+    (x: number, y: number): Point | null => {
+      if (!svgRef.current) return null;
+
+      // Get the SVG element's CTM (Current Transformation Matrix)
+      const svg = svgRef.current;
+
+      // Create a point in screen coordinates
+      const point = svg.createSVGPoint();
+      point.x = x;
+      point.y = y;
+
+      // Get the current transformation matrix and its inverse
+      const ctm = svg.getScreenCTM();
+      if (!ctm) return null;
+
+      const inverseCtm = ctm.inverse();
+
+      // Transform the point from screen to SVG user space
+      const transformedPoint = point.matrixTransform(inverseCtm);
+
+      return { x: transformedPoint.x, y: transformedPoint.y };
+    },
+    [],
+  );
+
   useEffect(() => {
-    const calculateSVGPosition = (p: Point): Point => {
-      if (!gridRef.current) return { x: 0, y: 0 };
+    if (
+      dragState.type === "character" &&
+      dragState.startPosition &&
+      svgRef.current
+    ) {
+      const svgCoords = screenToSvgCoordinates(
+        dragState.startPosition.x,
+        dragState.startPosition.y
+      );
 
-      const svgElement = gridRef.current.querySelector("svg");
-      if (!svgElement) return { x: 0, y: 0 };
-
-      const rect = svgElement.getBoundingClientRect();
-      // Account for scale and offset in both directions
-      const x = (p.x - rect.left) / gridState.scale;
-      const y = (p.y - rect.top) / gridState.scale;
-      return { x, y };
-    };
-
-    // Update ghost position when dragState.startPosition changes
-    if (dragState.type === "character" && dragState.startPosition) {
-      const pos = calculateSVGPosition(dragState.startPosition);
-      setGhostPosition(pos);
+      if (svgCoords) {
+        setGhostPosition(svgCoords);
+      }
     } else {
       setGhostPosition(null);
     }
-  }, [dragState, gridState.scale]);
+  }, [dragState, screenToSvgCoordinates]);
 
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
@@ -152,6 +176,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
       onMouseDown={handleMouseDown}
     >
       <svg
+        ref={svgRef}
         width="100%"
         height="100%"
         viewBox="-100 -100 200 200"
@@ -236,6 +261,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
                 fill="var(--primary)"
                 stroke="var(--text)"
                 strokeWidth="0.5"
+                opacity="0.7"
               />
               <text
                 x="0"
@@ -246,7 +272,12 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
                 fontSize="4"
                 style={{ userSelect: "none" }}
               >
-                {(characters.find(c => c.id === dragState.objectId)?.name || "??").slice(0, 2).toUpperCase()}
+                {(
+                  characters.find((c) => c.id === dragState.objectId)?.name ||
+                  "??"
+                )
+                  .slice(0, 2)
+                  .toUpperCase()}
               </text>
             </g>
           )}

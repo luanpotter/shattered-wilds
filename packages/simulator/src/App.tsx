@@ -25,11 +25,6 @@ const App = (): React.ReactElement => {
   const gridState = useStore((state) => state.gridState);
 
   useEffect(() => {
-    // eslint-disable-next-line no-undef
-    console.log('Drag state changed:', dragState);
-  }, [dragState]);
-
-  useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (dragState.type === 'window' && dragState.objectId && dragState.offset) {
         const newX = e.clientX - dragState.offset.x;
