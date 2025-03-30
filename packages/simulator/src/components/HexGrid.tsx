@@ -2,7 +2,12 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 
 import { useStore } from '../store';
 import { DragState, Point, Character, HexPosition } from '../types';
-import { findNextWindowPosition, findCharacterAtPosition, axialToPixel } from '../utils';
+import {
+	findNextWindowPosition,
+	findCharacterAtPosition,
+	axialToPixel,
+	findNextCharacterNumber,
+} from '../utils';
 
 import { CharacterToken } from './CharacterToken';
 
@@ -147,9 +152,12 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		const existingCharacter = findCharacterAtPosition(characters, q, r);
 
 		if (!existingCharacter) {
+			// Find the next available character number
+			const nextNumber = findNextCharacterNumber(characters);
+
 			addCharacter({
 				id: window.crypto.randomUUID(),
-				name: `Character ${characters.length + 1}`,
+				name: `Character ${nextNumber}`,
 				position: { q, r },
 			});
 		}

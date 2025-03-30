@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { useStore } from '../store';
+import { findNextCharacterNumber } from '../utils';
 
 interface CharacterCreationProps {
 	hexPosition?: { q: number; r: number };
@@ -13,10 +14,11 @@ export const CharacterCreation: React.FC<CharacterCreationProps> = ({ hexPositio
 	const windows = useStore(state => state.windows);
 	const [characterName, setCharacterName] = useState('');
 
-	// Set default name on mount
+	// Set default name on mount - use utility function to find next available number
 	useEffect(() => {
-		setCharacterName(`Character ${characters.length + 1}`);
-	}, [characters.length]);
+		const nextNumber = findNextCharacterNumber(characters);
+		setCharacterName(`Character ${nextNumber}`);
+	}, [characters]);
 
 	const handleCreateCharacter = () => {
 		if (characterName.trim()) {

@@ -91,6 +91,37 @@ export function findNextWindowPosition(windows: Window[]): Point {
 }
 
 /**
+ * Find the next available character number
+ * Skips numbers that are already used in existing character names
+ */
+export function findNextCharacterNumber(characters: Character[]): number {
+	// Extract numbers from existing character names
+	const usedNumbers = characters
+		.map(c => {
+			// Try to extract number from "Character X" format
+			const match = c.name.match(/^Character (\d+)$/);
+			return match ? parseInt(match[1], 10) : null;
+		})
+		.filter((num): num is number => num !== null) // Filter out non-matches
+		.sort((a, b) => a - b); // Sort numerically
+
+	// Find the first gap in the sequence starting from 1
+	let nextNumber = 1;
+	for (const num of usedNumbers) {
+		if (num > nextNumber) {
+			// Found a gap
+			break;
+		}
+		if (num === nextNumber) {
+			// This number is used, try next one
+			nextNumber++;
+		}
+	}
+
+	return nextNumber;
+}
+
+/**
  * Find the next available hex position for a character
  * Searches in a spiral pattern outward from the center
  * @param characters Array of existing characters to check positions against
