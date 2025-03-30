@@ -120,13 +120,14 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
         <div
           className="window-title"
           style={{
-            padding: '8px',
+            padding: '4px 8px',
             backgroundColor: 'var(--background-alt)',
             borderBottom: '1px solid var(--text)',
             cursor: isDragging ? 'grabbing' : 'grab',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            fontSize: '0.9em',
           }}
         >
           <span>{window.title}</span>
@@ -136,7 +137,7 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
             </button>
           </div>
         </div>
-        <div style={{ padding: '16px' }}>{children}</div>
+        <div style={{ padding: '8px' }}>{children}</div>
       </div>
     </>
   );

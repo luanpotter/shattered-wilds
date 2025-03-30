@@ -16,14 +16,19 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character }) => 
 
   return (
     <div>
-      <div style={{ marginBottom: '16px' }}>
-        <label htmlFor="character-name">Name:</label>
+      <div style={{ marginBottom: '8px' }}>
+        <label htmlFor="character-name" style={{ fontSize: '0.9em', display: 'block', marginBottom: '2px' }}>Name:</label>
         <input
           id="character-name"
           type="text"
           value={character.name}
           onChange={handleNameChange}
-          style={{ width: '100%' }}
+          style={{ 
+            width: 'calc(100% - 8px)', 
+            boxSizing: 'border-box',
+            fontSize: '0.9em',
+            padding: '4px'
+          }}
         />
       </div>
       {/* Add more character sheet fields here */}
