@@ -1,3 +1,8 @@
+export interface Point {
+  x: number;
+  y: number;
+}
+
 export interface Character {
   id: string;
   name: string;

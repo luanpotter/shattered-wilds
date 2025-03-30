@@ -1,6 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState } from "react";
 
-import { useStore } from '../store';
+import { useStore } from "../store";
+import { Point, Character } from "../types";
 
 const generateHexes = (width: number, height: number) => {
   const hexes = [];
@@ -19,14 +20,10 @@ const Hex: React.FC<{
   children?: React.ReactNode;
 }> = ({ q, r, children }) => {
   // Convert axial coordinates to pixel coordinates
-  const x = (q * 10) + (r * 5);
+  const x = q * 10 + r * 5;
   const y = r * 8.66; // sqrt(3) * 5
 
-  return (
-    <g transform={`translate(${x},${y})`}>
-      {children}
-    </g>
-  );
+  return <g transform={`translate(${x},${y})`}>{children}</g>;
 };
 
 interface BattleGridProps {
@@ -41,8 +38,12 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled }) => {
   const addCharacter = useStore((state) => state.addCharacter);
   const updateCharacter = useStore((state) => state.updateCharacter);
   const addWindow = useStore((state) => state.addWindow);
-  const [draggedCharacter, setDraggedCharacter] = useState<{ id: string; name: string; position?: { q: number; r: number } } | null>(null);
-  const [dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null);
+  const [draggedCharacter, setDraggedCharacter] = useState<{
+    id: string;
+    name: string;
+    position?: { q: number; r: number };
+  } | null>(null);
+  const [dragPosition, setDragPosition] = useState<Point | null>(null);
 
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
@@ -52,16 +53,16 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled }) => {
     });
   };
 
-  const calculateSVGPosition = (clientX: number, clientY: number) => {
-    const svgElement = gridRef.current?.querySelector('svg');
-    if (svgElement) {
-      const rect = svgElement.getBoundingClientRect();
-      // Account for scale and offset in both directions
-      const x = ((clientX - rect.left) / gridState.scale) - (gridState.offset.x / gridState.scale);
-      const y = ((clientY - rect.top) / gridState.scale) - (gridState.offset.y / gridState.scale);
-      return { x, y };
-    }
-    return null;
+  const calculateSVGPosition = (p: Point): Point => {
+    const svgElement = gridRef.current?.querySelector("svg")!;
+    const rect = svgElement.getBoundingClientRect();
+    // Account for scale and offset in both directions
+    const x =
+      (p.x - rect.left) / gridState.scale -
+      gridState.offset.x / gridState.scale;
+    const y =
+      (p.y - rect.top) / gridState.scale - gridState.offset.y / gridState.scale;
+    return { x, y };
   };
 
   const handleDrag = (e: React.MouseEvent) => {
@@ -69,20 +70,23 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled }) => {
     if (e.buttons === 4) {
       updateGridState({
         offset: {
-          x: gridState.offset.x + (e.movementX / gridState.scale),
-          y: gridState.offset.y + (e.movementY / gridState.scale),
+          x: gridState.offset.x + e.movementX / gridState.scale,
+          y: gridState.offset.y + e.movementY / gridState.scale,
         },
       });
     }
   };
 
-  const handleCharacterMouseDown = (e: React.MouseEvent, character: { id: string; name: string }) => {
+  const handleCharacterMouseDown = (
+    e: React.MouseEvent,
+    character: { id: string; name: string }
+  ) => {
     if (e.button === 0) {
       e.preventDefault();
       e.stopPropagation();
       setDraggedCharacter(character);
-      
-      const pos = calculateSVGPosition(e.clientX, e.clientY);
+
+      const pos = calculateSVGPosition({ x: e.clientX, y: e.clientY });
       if (pos) {
         setDragPosition(pos);
       }
@@ -122,11 +126,14 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled }) => {
     }
   };
 
-  const handleCharacterDoubleClick = (character: { id: string; name: string }) => {
+  const handleCharacterDoubleClick = (character: {
+    id: string;
+    name: string;
+  }) => {
     addWindow({
       id: window.crypto.randomUUID(),
       title: `${character.name}'s Sheet`,
-      type: 'character-sheet',
+      type: "character-sheet",
       characterId: character.id,
       position: { x: 100, y: 100 },
       isMinimized: false,
@@ -134,19 +141,50 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled }) => {
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.button === 1) { // Middle click
+    if (e.button === 1) {
+      // Middle click
       e.preventDefault(); // Prevent the scroll markers from appearing
     }
+  };
+
+  const renderGhostToken = (
+    draggedCharacter: Character,
+    dragPosition: Point
+  ) => {
+    const { x, y } = calculateSVGPosition(dragPosition);
+    return (
+      <g transform={`translate(${x*0},${y*0})`} style={{ pointerEvents: "none" }}>
+        <circle
+          cx="0"
+          cy="0"
+          r="3"
+          fill="var(--primary)"
+          stroke="var(--text)"
+          strokeWidth="0.5"
+        />
+        <text
+          x="0"
+          y="0"
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fill="var(--text)"
+          fontSize="4"
+          style={{ userSelect: "none" }}
+        >
+          {draggedCharacter.name.slice(0, 2).toUpperCase()}
+        </text>
+      </g>
+    );
   };
 
   return (
     <div
       ref={gridRef}
       style={{
-        width: '100%',
-        height: '100%',
-        overflow: 'hidden',
-        position: 'relative',
+        width: "100%",
+        height: "100%",
+        overflow: "hidden",
+        position: "relative",
       }}
       onWheel={handleWheel}
       onMouseMove={handleDrag}
@@ -173,7 +211,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled }) => {
               stroke="var(--text)"
               strokeWidth="0.5"
               onMouseUp={(e) => handleHexMouseUp(e, q, r)}
-              style={{ cursor: draggedCharacter ? 'grabbing' : 'pointer' }}
+              style={{ cursor: draggedCharacter ? "grabbing" : "pointer" }}
             />
             <g>
               {characters
@@ -183,9 +221,12 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled }) => {
                     key={character.id}
                     onMouseDown={(e) => handleCharacterMouseDown(e, character)}
                     onDoubleClick={() => handleCharacterDoubleClick(character)}
-                    style={{ 
-                      cursor: draggedCharacter?.id === character.id ? 'grabbing' : 'grab',
-                      opacity: draggedCharacter?.id === character.id ? 0.3 : 1 
+                    style={{
+                      cursor:
+                        draggedCharacter?.id === character.id
+                          ? "grabbing"
+                          : "grab",
+                      opacity: draggedCharacter?.id === character.id ? 0.3 : 1,
                     }}
                   >
                     <circle
@@ -203,7 +244,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled }) => {
                       dominantBaseline="middle"
                       fill="var(--text)"
                       fontSize="4"
-                      style={{ userSelect: 'none', pointerEvents: 'none' }}
+                      style={{ userSelect: "none", pointerEvents: "none" }}
                     >
                       {character.name.slice(0, 2).toUpperCase()}
                     </text>
@@ -213,34 +254,10 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled }) => {
           </Hex>
         ))}
 
-        {/* Ghost token that follows the cursor */}
-        {draggedCharacter && dragPosition && (
-          <g 
-            transform={`translate(${dragPosition.x},${dragPosition.y})`}
-            style={{ pointerEvents: 'none' }}
-          >
-            <circle
-              cx="0"
-              cy="0"
-              r="3"
-              fill="var(--primary)"
-              stroke="var(--text)"
-              strokeWidth="0.5"
-            />
-            <text
-              x="0"
-              y="0"
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fill="var(--text)"
-              fontSize="4"
-              style={{ userSelect: 'none' }}
-            >
-              {draggedCharacter.name.slice(0, 2).toUpperCase()}
-            </text>
-          </g>
-        )}
+        {draggedCharacter &&
+          dragPosition &&
+          renderGhostToken(draggedCharacter, dragPosition)}
       </svg>
     </div>
   );
-}; 
+};
