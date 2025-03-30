@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { useStore } from '../store';
 import { Character } from '../types';
@@ -9,6 +9,27 @@ interface CharacterSheetProps {
 
 export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character }) => {
 	const updateCharacter = useStore(state => state.updateCharacter);
+	const windows = useStore(state => state.windows);
+	const updateWindow = useStore(state => state.updateWindow);
+
+	// Update window title when character name changes
+	useEffect(() => {
+		// Find the window for this character
+		const characterWindow = windows.find(
+			w => w.type === 'character-sheet' && w.characterId === character.id
+		);
+
+		if (characterWindow) {
+			// Only update if the title doesn't match the current character name
+			const expectedTitle = `${character.sheet.name}'s Sheet`;
+			if (characterWindow.title !== expectedTitle) {
+				updateWindow({
+					...characterWindow,
+					title: expectedTitle,
+				});
+			}
+		}
+	}, [character.sheet.name, character.id, windows, updateWindow]);
 
 	const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		updateCharacter({
