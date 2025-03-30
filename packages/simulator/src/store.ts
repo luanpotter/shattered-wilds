@@ -24,6 +24,28 @@ interface AppState {
 	updateGridState: UpdateGridState;
 }
 
+// Migrate any old characters data structure to the new one with sheet
+const migrate = (state: any): AppState => {
+	// If there are any characters
+	if (state?.characters?.length) {
+		// Map over each character and ensure it has a sheet property
+		const migratedCharacters = state.characters.map((character: any) => {
+			// If character already has a sheet, return it as is
+			if (character.sheet) return character;
+
+			// Otherwise, create a sheet with the name from the character
+			return {
+				...character,
+				sheet: { name: character.name || 'Unknown Character' },
+			};
+		});
+
+		return { ...state, characters: migratedCharacters };
+	}
+
+	return state as AppState;
+};
+
 export const useStore = create<AppState>()(
 	persist(
 		set => ({
@@ -64,6 +86,8 @@ export const useStore = create<AppState>()(
 		}),
 		{
 			name: 'd12-simulator-storage',
+			version: 1, // Adding a version to help with future migrations
+			migrate,
 		}
 	)
 );

@@ -99,7 +99,7 @@ export function findNextCharacterNumber(characters: Character[]): number {
 	const usedNumbers = characters
 		.map(c => {
 			// Try to extract number from "Character X" format
-			const match = c.name.match(/^Character (\d+)$/);
+			const match = c.sheet.name.match(/^Character (\d+)$/);
 			return match ? parseInt(match[1], 10) : null;
 		})
 		.filter((num): num is number => num !== null) // Filter out non-matches

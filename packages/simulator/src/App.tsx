@@ -259,7 +259,9 @@ const App = (): React.ReactElement => {
 							character={
 								characters.find(c => c.id === window.characterId) ?? {
 									id: window.characterId,
-									name: 'Unknown Character',
+									sheet: {
+										name: 'Unknown Character',
+									},
 								}
 							}
 						/>

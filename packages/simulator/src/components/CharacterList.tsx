@@ -27,7 +27,7 @@ export const CharacterList: React.FC = () => {
 	const handleOpenCharacterSheet = (character: Character) => {
 		addWindow({
 			id: window.crypto.randomUUID(),
-			title: `${character.name}'s Sheet`,
+			title: `${character.sheet.name}'s Sheet`,
 			type: 'character-sheet',
 			characterId: character.id,
 			position: findNextWindowPosition(windows),
@@ -63,7 +63,7 @@ export const CharacterList: React.FC = () => {
 					}}
 				>
 					<p style={{ margin: '0 0 6px 0' }}>
-						Delete {characters.find(c => c.id === confirmDelete)?.name}?
+						Delete {characters.find(c => c.id === confirmDelete)?.sheet.name}?
 					</p>
 					<div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
 						<button onClick={handleCancelDelete} style={{ padding: '2px 6px', fontSize: '0.9em' }}>
@@ -104,7 +104,7 @@ export const CharacterList: React.FC = () => {
 							borderRadius: '4px',
 						}}
 					>
-						<span>{character.name}</span>
+						<span>{character.sheet.name}</span>
 						<div style={{ display: 'flex', gap: '4px' }}>
 							<button
 								onClick={() => handleOpenCharacterSheet(character)}

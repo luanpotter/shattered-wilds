@@ -24,7 +24,9 @@ export const CharacterCreation: React.FC<CharacterCreationProps> = ({ hexPositio
 		if (characterName.trim()) {
 			const newCharacter = {
 				id: window.crypto.randomUUID(),
-				name: characterName.trim(),
+				sheet: {
+					name: characterName.trim(),
+				},
 			};
 
 			// If we have hex position, add it to the character

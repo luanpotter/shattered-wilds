@@ -11,7 +11,13 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character }) => 
 	const updateCharacter = useStore(state => state.updateCharacter);
 
 	const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		updateCharacter({ ...character, name: e.target.value });
+		updateCharacter({
+			...character,
+			sheet: {
+				...character.sheet,
+				name: e.target.value,
+			},
+		});
 	};
 
 	return (
@@ -26,7 +32,7 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character }) => 
 				<input
 					id='character-name'
 					type='text'
-					value={character.name}
+					value={character.sheet.name}
 					onChange={handleNameChange}
 					style={{
 						width: 'calc(100% - 8px)',

@@ -17,10 +17,14 @@ export interface DragState {
 	offset?: Point;
 }
 
+export interface CharacterSheet {
+	name: string;
+}
+
 export interface Character {
 	id: string;
-	name: string;
 	position?: HexPosition;
+	sheet: CharacterSheet;
 }
 
 /**
@@ -29,7 +33,7 @@ export interface Character {
  * - For single-word names (e.g., "Warrior"), returns first two letters ("WA")
  */
 export function getCharacterInitials(character: Character): string {
-	const name = character.name.trim();
+	const name = character.sheet.name.trim();
 
 	// Check if name has multiple words
 	if (name.includes(' ')) {

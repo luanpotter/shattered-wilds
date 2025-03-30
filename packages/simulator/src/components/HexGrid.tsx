@@ -157,7 +157,9 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 			addCharacter({
 				id: window.crypto.randomUUID(),
-				name: `Character ${nextNumber}`,
+				sheet: {
+					name: `Character ${nextNumber}`,
+				},
 				position: { q, r },
 			});
 		}
@@ -166,7 +168,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	const handleOpenCharacterSheet = (character: Character) => {
 		addWindow({
 			id: window.crypto.randomUUID(),
-			title: `${character.name}'s Sheet`,
+			title: `${character.sheet.name}'s Sheet`,
 			type: 'character-sheet',
 			characterId: character.id,
 			position: findNextWindowPosition(windows),
