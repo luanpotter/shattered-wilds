@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 
 import { useStore } from "../store";
 import { Point, Character } from "../types";
@@ -28,22 +28,49 @@ const Hex: React.FC<{
 
 interface BattleGridProps {
   disabled?: boolean;
+  dragState: {
+    type: "none" | "window" | "grid" | "character";
+    objectId?: string;
+    startPosition?: Point;
+  };
+  onStartCharacterDrag: (character: Character, startPosition: Point) => void;
 }
 
-export const BattleGrid: React.FC<BattleGridProps> = ({ disabled }) => {
+export const BattleGrid: React.FC<BattleGridProps> = ({
+  disabled,
+  dragState,
+  onStartCharacterDrag,
+}) => {
   const gridRef = useRef<HTMLDivElement>(null);
   const characters = useStore((state) => state.characters);
   const gridState = useStore((state) => state.gridState);
   const updateGridState = useStore((state) => state.updateGridState);
   const addCharacter = useStore((state) => state.addCharacter);
-  const updateCharacter = useStore((state) => state.updateCharacter);
   const addWindow = useStore((state) => state.addWindow);
-  const [draggedCharacter, setDraggedCharacter] = useState<{
-    id: string;
-    name: string;
-    position?: { q: number; r: number };
-  } | null>(null);
-  const [dragPosition, setDragPosition] = useState<Point | null>(null);
+  const [ghostPosition, setGhostPosition] = useState<Point | null>(null);
+
+  useEffect(() => {
+    const calculateSVGPosition = (p: Point): Point => {
+      if (!gridRef.current) return { x: 0, y: 0 };
+
+      const svgElement = gridRef.current.querySelector("svg");
+      if (!svgElement) return { x: 0, y: 0 };
+
+      const rect = svgElement.getBoundingClientRect();
+      // Account for scale and offset in both directions
+      const x = (p.x - rect.left) / gridState.scale;
+      const y = (p.y - rect.top) / gridState.scale;
+      return { x, y };
+    };
+
+    // Update ghost position when dragState.startPosition changes
+    if (dragState.type === "character" && dragState.startPosition) {
+      const pos = calculateSVGPosition(dragState.startPosition);
+      setGhostPosition(pos);
+    } else {
+      setGhostPosition(null);
+    }
+  }, [dragState, gridState.scale]);
 
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
@@ -51,18 +78,6 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled }) => {
     updateGridState({
       scale: Math.max(0.5, Math.min(2, gridState.scale * delta)),
     });
-  };
-
-  const calculateSVGPosition = (p: Point): Point => {
-    const svgElement = gridRef.current?.querySelector("svg")!;
-    const rect = svgElement.getBoundingClientRect();
-    // Account for scale and offset in both directions
-    const x =
-      (p.x - rect.left) / gridState.scale -
-      gridState.offset.x / gridState.scale;
-    const y =
-      (p.y - rect.top) / gridState.scale - gridState.offset.y / gridState.scale;
-    return { x, y };
   };
 
   const handleDrag = (e: React.MouseEvent) => {
@@ -79,35 +94,14 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled }) => {
 
   const handleCharacterMouseDown = (
     e: React.MouseEvent,
-    character: { id: string; name: string }
+    character: Character
   ) => {
     if (e.button === 0) {
       e.preventDefault();
       e.stopPropagation();
-      setDraggedCharacter(character);
 
-      const pos = calculateSVGPosition({ x: e.clientX, y: e.clientY });
-      if (pos) {
-        setDragPosition(pos);
-      }
-    }
-  };
-
-  const handleHexMouseUp = (e: React.MouseEvent, q: number, r: number) => {
-    if (draggedCharacter && e.button === 0) {
-      e.preventDefault();
-      e.stopPropagation();
-      const existingCharacter = characters.find(
-        (c) => c.position?.q === q && c.position?.r === r
-      );
-      if (!existingCharacter) {
-        updateCharacter({
-          ...draggedCharacter,
-          position: { q, r },
-        });
-      }
-      setDragPosition(null);
-      setDraggedCharacter(null);
+      const pos = { x: e.clientX, y: e.clientY };
+      onStartCharacterDrag(character, pos);
     }
   };
 
@@ -126,10 +120,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled }) => {
     }
   };
 
-  const handleCharacterDoubleClick = (character: {
-    id: string;
-    name: string;
-  }) => {
+  const handleCharacterDoubleClick = (character: Character) => {
     addWindow({
       id: window.crypto.randomUUID(),
       title: `${character.name}'s Sheet`,
@@ -145,36 +136,6 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled }) => {
       // Middle click
       e.preventDefault(); // Prevent the scroll markers from appearing
     }
-  };
-
-  const renderGhostToken = (
-    draggedCharacter: Character,
-    dragPosition: Point
-  ) => {
-    const { x, y } = calculateSVGPosition(dragPosition);
-    return (
-      <g transform={`translate(${x*0},${y*0})`} style={{ pointerEvents: "none" }}>
-        <circle
-          cx="0"
-          cy="0"
-          r="3"
-          fill="var(--primary)"
-          stroke="var(--text)"
-          strokeWidth="0.5"
-        />
-        <text
-          x="0"
-          y="0"
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fill="var(--text)"
-          fontSize="4"
-          style={{ userSelect: "none" }}
-        >
-          {draggedCharacter.name.slice(0, 2).toUpperCase()}
-        </text>
-      </g>
-    );
   };
 
   return (
@@ -210,8 +171,10 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled }) => {
               fill="var(--background-alt)"
               stroke="var(--text)"
               strokeWidth="0.5"
-              onMouseUp={(e) => handleHexMouseUp(e, q, r)}
-              style={{ cursor: draggedCharacter ? "grabbing" : "pointer" }}
+              data-hex={`${q},${r}`}
+              style={{
+                cursor: dragState.type === "character" ? "grabbing" : "pointer",
+              }}
             />
             <g>
               {characters
@@ -223,10 +186,15 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled }) => {
                     onDoubleClick={() => handleCharacterDoubleClick(character)}
                     style={{
                       cursor:
-                        draggedCharacter?.id === character.id
+                        dragState.type === "character" &&
+                        dragState.objectId === character.id
                           ? "grabbing"
                           : "grab",
-                      opacity: draggedCharacter?.id === character.id ? 0.3 : 1,
+                      opacity:
+                        dragState.type === "character" &&
+                        dragState.objectId === character.id
+                          ? 0.3
+                          : 1,
                     }}
                   >
                     <circle
@@ -254,9 +222,34 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled }) => {
           </Hex>
         ))}
 
-        {draggedCharacter &&
-          dragPosition &&
-          renderGhostToken(draggedCharacter, dragPosition)}
+        {dragState.type === "character" &&
+          dragState.objectId &&
+          ghostPosition && (
+            <g
+              transform={`translate(${ghostPosition.x},${ghostPosition.y})`}
+              style={{ pointerEvents: "none" }}
+            >
+              <circle
+                cx="0"
+                cy="0"
+                r="3"
+                fill="var(--primary)"
+                stroke="var(--text)"
+                strokeWidth="0.5"
+              />
+              <text
+                x="0"
+                y="0"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill="var(--text)"
+                fontSize="4"
+                style={{ userSelect: "none" }}
+              >
+                {(characters.find(c => c.id === dragState.objectId)?.name || "??").slice(0, 2).toUpperCase()}
+              </text>
+            </g>
+          )}
       </svg>
     </div>
   );

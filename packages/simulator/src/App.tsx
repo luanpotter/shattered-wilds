@@ -6,12 +6,14 @@ import { CharacterSheet } from './components/CharacterSheet';
 import { DraggableWindow } from './components/DraggableWindow';
 import { BattleGrid } from './components/HexGrid';
 import { useStore } from './store';
+import { Point, Character } from './types';
 
 const App = (): React.ReactElement => {
   const [dragState, setDragState] = useState<{
-    type: 'none' | 'window' | 'grid';
-    windowId?: string;
-    offset?: { x: number; y: number };
+    type: 'none' | 'window' | 'grid' | 'character';
+    objectId?: string;
+    offset?: Point;
+    startPosition?: Point;
   }>({ type: 'none' });
 
   const windows = useStore((state) => state.windows);
@@ -19,6 +21,7 @@ const App = (): React.ReactElement => {
   const addWindow = useStore((state) => state.addWindow);
   const updateGridState = useStore((state) => state.updateGridState);
   const updateWindow = useStore((state) => state.updateWindow);
+  const updateCharacter = useStore((state) => state.updateCharacter);
   const gridState = useStore((state) => state.gridState);
 
   useEffect(() => {
@@ -28,12 +31,12 @@ const App = (): React.ReactElement => {
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (dragState.type === 'window' && dragState.windowId && dragState.offset) {
+      if (dragState.type === 'window' && dragState.objectId && dragState.offset) {
         const newX = e.clientX - dragState.offset.x;
         const newY = e.clientY - dragState.offset.y;
         
         updateWindow({
-          ...windows.find(w => w.id === dragState.windowId)!,
+          ...windows.find(w => w.id === dragState.objectId)!,
           position: { x: newX, y: newY }
         });
       } else if (dragState.type === 'grid') {
@@ -50,10 +53,55 @@ const App = (): React.ReactElement => {
             y: currentOffset.y + dy / currentScale
           }
         });
+      } else if (dragState.type === 'character' && dragState.objectId) {
+        // Just update the mouse position for the ghost token
+        setDragState(prev => ({
+          ...prev,
+          startPosition: { x: e.clientX, y: e.clientY }
+        }));
       }
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (e: MouseEvent) => {
+      if (dragState.type === 'character' && dragState.objectId) {
+        // Find the character
+        const character = characters.find(c => c.id === dragState.objectId);
+        if (!character) {
+          setDragState({ type: 'none' });
+          return;
+        }
+        
+        // Find the hex under the mouse
+        const element = document.elementFromPoint(e.clientX, e.clientY);
+        if (!element) {
+          setDragState({ type: 'none' });
+          return;
+        }
+        
+        // Try to find the closest element with data-hex attribute
+        let current = element;
+        while (current && !current.hasAttribute('data-hex') && current.parentElement) {
+          current = current.parentElement;
+        }
+        
+        if (current && current.hasAttribute('data-hex')) {
+          const hexData = current.getAttribute('data-hex');
+          if (hexData) {
+            const [q, r] = hexData.split(',').map(Number);
+            const existingCharacter = characters.find(
+              (c) => c.position?.q === q && c.position?.r === r
+            );
+            
+            if (!existingCharacter) {
+              updateCharacter({
+                ...character,
+                position: { q, r },
+              });
+            }
+          }
+        }
+      }
+      
       setDragState({ type: 'none' });
     };
 
@@ -65,7 +113,7 @@ const App = (): React.ReactElement => {
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [dragState, gridState, updateGridState, updateWindow, windows]);
+  }, [dragState, gridState, updateGridState, updateWindow, windows, characters, updateCharacter]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button === 1) { // Middle click for grid
@@ -73,6 +121,14 @@ const App = (): React.ReactElement => {
       e.stopPropagation();
       setDragState({ type: 'grid' });
     }
+  };
+
+  const handleStartCharacterDrag = (character: Character, startPosition: Point) => {
+    setDragState({
+      type: 'character',
+      objectId: character.id,
+      startPosition
+    });
   };
 
   const handleOpenCharacterList = () => {
@@ -143,7 +199,11 @@ const App = (): React.ReactElement => {
           padding: '0 16px',
           boxSizing: 'border-box'
         }}>
-          <BattleGrid disabled={dragState.type !== 'none'} />
+          <BattleGrid 
+            disabled={dragState.type !== 'none'} 
+            onStartCharacterDrag={handleStartCharacterDrag}
+            dragState={dragState}
+          />
         </div>
       </main>
       <footer style={{ 
@@ -166,7 +226,7 @@ const App = (): React.ReactElement => {
             const rect = e.currentTarget.getBoundingClientRect();
             setDragState({
               type: 'window',
-              windowId: window.id,
+              objectId: window.id,
               offset: {
                 x: e.clientX - rect.left,
                 y: e.clientY - rect.top,
