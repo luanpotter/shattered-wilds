@@ -8,11 +8,28 @@ import { CharacterToken } from './CharacterToken';
 
 const generateHexes = (width: number, height: number): HexPosition[] => {
 	const hexes = [];
-	for (let q = -width; q <= width; q++) {
-		for (let r = -height; r <= height; r++) {
+
+	// Create a true rectangular grid with a consistent number of hexes per row/column
+	// In axial coordinates:
+	// - Going along constant r-value = "diagonal rows"
+	// - Going along constant q-value = "vertical columns"
+
+	// Calculate the bounds to make a rectangular visual shape
+	// We need to offset the q-values for each row to make a rectangle
+	for (let r = -height; r <= height; r++) {
+		// Calculate q-offset based on row (r) to ensure a rectangular grid
+		// This makes sure each row starts at the right position to form a rectangle
+		const qOffset = Math.floor(r / 2);
+
+		// Each row has exactly the same number of hexes (2*width + 1)
+		for (let i = 0; i <= 2 * width; i++) {
+			// Calculate q value with offset to align the grid into a rectangle
+			const q = i - width - qOffset;
+
 			hexes.push({ q, r });
 		}
 	}
+
 	return hexes;
 };
 
