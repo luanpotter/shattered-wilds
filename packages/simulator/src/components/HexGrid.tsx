@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 
 import { useStore } from '../store';
 import { Point, Character } from '../types';
+import { findNextWindowPosition } from '../utils';
 
 const generateHexes = (width: number, height: number) => {
 	const hexes = [];
@@ -48,6 +49,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	const updateGridState = useStore(state => state.updateGridState);
 	const addCharacter = useStore(state => state.addCharacter);
 	const addWindow = useStore(state => state.addWindow);
+	const windows = useStore(state => state.windows);
 	const [ghostPosition, setGhostPosition] = useState<Point | null>(null);
 
 	// This function converts screen coordinates to SVG user space coordinates
@@ -145,7 +147,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			title: `${character.name}'s Sheet`,
 			type: 'character-sheet',
 			characterId: character.id,
-			position: { x: 100, y: 100 },
+			position: findNextWindowPosition(windows),
 		});
 	};
 
@@ -158,7 +160,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				id: window.crypto.randomUUID(),
 				title: 'Create Character',
 				type: 'character-creation',
-				position: { x: 200, y: 150 },
+				position: findNextWindowPosition(windows),
 				hexPosition: { q, r },
 			});
 		}

@@ -3,9 +3,11 @@ import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 
 import { useStore } from '../store';
 import { Character } from '../types';
+import { findNextWindowPosition } from '../utils';
 
 export const CharacterList: React.FC = () => {
 	const characters = useStore(state => state.characters);
+	const windows = useStore(state => state.windows);
 	const addWindow = useStore(state => state.addWindow);
 	const removeCharacter = useStore(state => state.removeCharacter);
 	const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
@@ -15,7 +17,7 @@ export const CharacterList: React.FC = () => {
 			id: window.crypto.randomUUID(),
 			title: 'Create Character',
 			type: 'character-creation',
-			position: { x: 200, y: 150 },
+			position: findNextWindowPosition(windows),
 		});
 	};
 
@@ -25,7 +27,7 @@ export const CharacterList: React.FC = () => {
 			title: `${character.name}'s Sheet`,
 			type: 'character-sheet',
 			characterId: character.id,
-			position: { x: 100, y: 100 },
+			position: findNextWindowPosition(windows),
 		});
 	};
 

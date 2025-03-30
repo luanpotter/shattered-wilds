@@ -8,6 +8,7 @@ import { DraggableWindow } from './components/DraggableWindow';
 import { BattleGrid } from './components/HexGrid';
 import { useStore } from './store';
 import { Point, Character } from './types';
+import { findNextWindowPosition } from './utils';
 
 const App = (): React.ReactElement => {
 	const [dragState, setDragState] = useState<{
@@ -134,7 +135,7 @@ const App = (): React.ReactElement => {
 			id: window.crypto.randomUUID(),
 			title: 'Characters',
 			type: 'character-list',
-			position: { x: 100, y: 100 },
+			position: findNextWindowPosition(windows),
 		});
 	};
 
