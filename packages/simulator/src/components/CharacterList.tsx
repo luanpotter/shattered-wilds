@@ -3,7 +3,7 @@ import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 
 import { useStore } from '../store';
 import { Character } from '../types';
-import { findNextWindowPosition } from '../utils';
+import { findNextWindowPosition, findNextEmptyHexPosition } from '../utils';
 
 export const CharacterList: React.FC = () => {
 	const characters = useStore(state => state.characters);
@@ -13,11 +13,14 @@ export const CharacterList: React.FC = () => {
 	const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
 	const handleOpenNewCharacterModal = () => {
+		const hexPosition = findNextEmptyHexPosition(characters);
+
 		addWindow({
 			id: window.crypto.randomUUID(),
-			title: 'Create Character',
+			title: `Create Character (${hexPosition.q}, ${hexPosition.r})`,
 			type: 'character-creation',
 			position: findNextWindowPosition(windows),
+			hexPosition: hexPosition,
 		});
 	};
 

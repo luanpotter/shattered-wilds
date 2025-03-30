@@ -80,3 +80,58 @@ export const findNextWindowPosition = (windows: Window[]): Point => {
 
 	return { x, y };
 };
+
+/**
+ * Find the next available hex position for a character
+ * Searches in a spiral pattern outward from the center
+ * @param characters Array of existing characters to check positions against
+ * @returns The next available hex coordinates {q, r}
+ */
+export const findNextEmptyHexPosition = (characters: { position?: { q: number; r: number } }[]) => {
+	// Start at center hex
+	const center = { q: 0, r: 0 };
+
+	// Check if center is available
+	if (!characters.some(c => c.position?.q === center.q && c.position?.r === center.r)) {
+		return center;
+	}
+
+	// Spiral out to find the next empty hex
+	// Direction vectors for the six neighbors of a hex in axial coordinates
+	const directions = [
+		{ q: 1, r: 0 }, // right
+		{ q: 0, r: 1 }, // down-right
+		{ q: -1, r: 1 }, // down-left
+		{ q: -1, r: 0 }, // left
+		{ q: 0, r: -1 }, // up-left
+		{ q: 1, r: -1 }, // up-right
+	];
+
+	// Spiral outward from center
+	for (let radius = 1; radius <= 10; radius++) {
+		// Limit search radius to 10
+		// Start at the top-right corner of the radius
+		let hex = { q: radius, r: -radius };
+
+		// Move along each of the six sides of the hexagonal ring
+		for (let side = 0; side < 6; side++) {
+			// Each side has 'radius' steps
+			for (let step = 0; step < radius; step++) {
+				// Check if this position is free
+				if (!characters.some(c => c.position?.q === hex.q && c.position?.r === hex.r)) {
+					return hex;
+				}
+
+				// Move to next hex in the ring
+				hex = {
+					q: hex.q + directions[side].q,
+					r: hex.r + directions[side].r,
+				};
+			}
+		}
+	}
+
+	// If we get here, we didn't find a free position within radius 10
+	// Return a random position as a fallback
+	return { q: Math.floor(Math.random() * 10) - 5, r: Math.floor(Math.random() * 10) - 5 };
+};

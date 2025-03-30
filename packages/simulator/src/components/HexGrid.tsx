@@ -158,7 +158,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		if (!existingCharacter) {
 			addWindow({
 				id: window.crypto.randomUUID(),
-				title: 'Create Character',
+				title: `Create Character (${q}, ${r})`,
 				type: 'character-creation',
 				position: findNextWindowPosition(windows),
 				hexPosition: { q, r },
