@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaUndo } from 'react-icons/fa';
+import { FaUndo, FaExclamationTriangle } from 'react-icons/fa';
 
 import { AttributeMap, AttributeType, RealmType, BasicAttributeType, SkillType } from '../types';
 import {
@@ -162,7 +162,7 @@ export const AttributeTree: React.FC<AttributeTreeProps> = ({ attributes, onAttr
 		if (attributes.level.baseValue > 0) {
 			// Check if all points from this level are unallocated
 			const allocatedAtCurrentLevel = allocatedPoints - (attributes.level.baseValue - 1);
-			
+
 			if (allocatedAtCurrentLevel <= 0) {
 				// Can decrease level if no points from this level are allocated
 				const newAttributes = JSON.parse(JSON.stringify(attributes)) as AttributeMap;
@@ -242,6 +242,12 @@ export const AttributeTree: React.FC<AttributeTreeProps> = ({ attributes, onAttr
 				<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 					<span style={{ fontWeight: 'bold', fontSize: '1.1em' }}>
 						{allocatedPoints}/{totalPoints} points
+						{allocatedPoints < totalPoints && (
+							<FaExclamationTriangle
+								style={{ marginLeft: '6px', color: 'orange' }}
+								title='You have unallocated points'
+							/>
+						)}
 					</span>
 				</div>
 			</div>
@@ -273,6 +279,15 @@ export const AttributeTree: React.FC<AttributeTreeProps> = ({ attributes, onAttr
 								getRealmAllocatedPoints(attributes, RealmType.Mind) +
 								getRealmAllocatedPoints(attributes, RealmType.Soul)}
 							/{totalPoints} points
+							{getRealmAllocatedPoints(attributes, RealmType.Body) +
+								getRealmAllocatedPoints(attributes, RealmType.Mind) +
+								getRealmAllocatedPoints(attributes, RealmType.Soul) <
+								totalPoints && (
+								<FaExclamationTriangle
+									style={{ marginLeft: '6px', color: 'orange' }}
+									title='You have unallocated points'
+								/>
+							)}
 						</span>
 						<button
 							onClick={() => {
@@ -498,6 +513,12 @@ export const AttributeTree: React.FC<AttributeTreeProps> = ({ attributes, onAttr
 									<span>{realm} Attributes</span>
 									<span style={{ fontSize: '0.8em' }}>
 										{allocatedPoints}/{realmPoints} points
+										{allocatedPoints < realmPoints && (
+											<FaExclamationTriangle
+												style={{ marginLeft: '4px', color: 'orange', fontSize: '0.9em' }}
+												title='You have unallocated points'
+											/>
+										)}
 									</span>
 								</div>
 								<div
@@ -643,6 +664,12 @@ export const AttributeTree: React.FC<AttributeTreeProps> = ({ attributes, onAttr
 									<span>{attrType} Skills</span>
 									<span style={{ fontSize: '0.8em' }}>
 										{allocatedPoints}/{basicAttrPoints} points
+										{allocatedPoints < basicAttrPoints && (
+											<FaExclamationTriangle
+												style={{ marginLeft: '4px', color: 'orange', fontSize: '0.9em' }}
+												title='You have unallocated points'
+											/>
+										)}
 									</span>
 								</div>
 								<div
