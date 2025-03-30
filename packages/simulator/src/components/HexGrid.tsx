@@ -121,11 +121,18 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
     character: Character
   ) => {
     if (e.button === 0) {
+      // Left click - drag
       e.preventDefault();
       e.stopPropagation();
 
       const pos = { x: e.clientX, y: e.clientY };
       onStartCharacterDrag(character, pos);
+    } else if (e.button === 2) {
+      // Right click - open character sheet
+      e.preventDefault();
+      e.stopPropagation();
+      
+      handleOpenCharacterSheet(character);
     }
   };
 
@@ -144,7 +151,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
     }
   };
 
-  const handleCharacterDoubleClick = (character: Character) => {
+  const handleOpenCharacterSheet = (character: Character) => {
     addWindow({
       id: window.crypto.randomUUID(),
       title: `${character.name}'s Sheet`,
@@ -159,6 +166,9 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
     if (e.button === 1) {
       // Middle click
       e.preventDefault(); // Prevent the scroll markers from appearing
+    } else if (e.button === 2) {
+      // Right click
+      e.preventDefault(); // Prevent context menu
     }
   };
 
@@ -174,6 +184,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
       onWheel={handleWheel}
       onMouseMove={handleDrag}
       onMouseDown={handleMouseDown}
+      onContextMenu={(e) => e.preventDefault()} // Prevent context menu globally
     >
       <svg
         ref={svgRef}
@@ -208,7 +219,6 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
                   <g
                     key={character.id}
                     onMouseDown={(e) => handleCharacterMouseDown(e, character)}
-                    onDoubleClick={() => handleCharacterDoubleClick(character)}
                     style={{
                       cursor:
                         dragState.type === "character" &&
