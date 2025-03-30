@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaUsers, FaCrosshairs, FaTimes } from 'react-icons/fa';
 
+import { CharacterCreation } from './components/CharacterCreation';
 import { CharacterList } from './components/CharacterList';
 import { CharacterSheet } from './components/CharacterSheet';
 import { DraggableWindow } from './components/DraggableWindow';
@@ -248,6 +249,9 @@ const App = (): React.ReactElement => {
             />
           )}
           {window.type === 'character-list' && <CharacterList />}
+          {window.type === 'character-creation' && (
+            <CharacterCreation hexPosition={window.hexPosition} />
+          )}
         </DraggableWindow>
       ))}
     </div>

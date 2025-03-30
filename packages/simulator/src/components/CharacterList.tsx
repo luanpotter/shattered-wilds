@@ -7,19 +7,16 @@ import { Character } from '../types';
 export const CharacterList: React.FC = () => {
   const characters = useStore((state) => state.characters);
   const addWindow = useStore((state) => state.addWindow);
-  const addCharacter = useStore((state) => state.addCharacter);
   const removeCharacter = useStore((state) => state.removeCharacter);
-  const [newCharacterName, setNewCharacterName] = useState('');
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
-  const handleAddCharacter = () => {
-    if (newCharacterName.trim()) {
-      addCharacter({
-        id: window.crypto.randomUUID(),
-        name: newCharacterName.trim(),
-      });
-      setNewCharacterName('');
-    }
+  const handleOpenNewCharacterModal = () => {
+    addWindow({
+      id: window.crypto.randomUUID(),
+      title: "Create Character",
+      type: "character-creation",
+      position: { x: 200, y: 150 }
+    });
   };
 
   const handleOpenCharacterSheet = (character: Character) => {
@@ -82,21 +79,12 @@ export const CharacterList: React.FC = () => {
           </div>
         </div>
       )}
-      <div style={{ marginBottom: '8px', display: 'flex', gap: '4px' }}>
-        <input
-          type="text"
-          value={newCharacterName}
-          onChange={(e) => setNewCharacterName(e.target.value)}
-          placeholder="New character name"
-          style={{ 
-            flex: 1, 
-            boxSizing: 'border-box', 
-            fontSize: '0.9em',
-            padding: '4px'
-          }}
-        />
-        <button onClick={handleAddCharacter} style={{ padding: '4px 8px', fontSize: '0.9em' }}>
-          <FaPlus /> Add
+      <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'flex-end' }}>
+        <button 
+          onClick={handleOpenNewCharacterModal} 
+          style={{ padding: '4px 8px', fontSize: '0.9em' }}
+        >
+          <FaPlus /> New Character
         </button>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.9em' }}>

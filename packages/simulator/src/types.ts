@@ -15,11 +15,15 @@ export interface Character {
 export interface Window {
   id: string;
   title: string;
-  type: 'character-sheet' | 'character-list';
+  type: 'character-sheet' | 'character-list' | 'character-creation';
   characterId?: string;
   position: {
     x: number;
     y: number;
+  };
+  hexPosition?: {
+    q: number;
+    r: number;
   };
 }
 

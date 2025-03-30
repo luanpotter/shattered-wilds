@@ -161,6 +161,23 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
     });
   };
 
+  const handleHexRightClick = (q: number, r: number) => {
+    // Check if there's already a character at this position
+    const existingCharacter = characters.find(
+      (c) => c.position?.q === q && c.position?.r === r
+    );
+    
+    if (!existingCharacter) {
+      addWindow({
+        id: window.crypto.randomUUID(),
+        title: "Create Character",
+        type: "character-creation",
+        position: { x: 200, y: 150 },
+        hexPosition: { q, r }
+      });
+    }
+  };
+
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button === 1) {
       // Middle click
@@ -209,6 +226,11 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
               data-hex={`${q},${r}`}
               style={{
                 cursor: dragState.type === "character" ? "grabbing" : "pointer",
+              }}
+              onContextMenu={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleHexRightClick(q, r);
               }}
             />
             <g>
