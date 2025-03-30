@@ -47,6 +47,21 @@ export const CharacterCreation: React.FC<CharacterCreationProps> = ({ hexPositio
 		}
 	};
 
+	const handleCancel = () => {
+		// Find and close this window
+		const currentWindow = windows.find(
+			w =>
+				w.type === 'character-creation' &&
+				(hexPosition
+					? w.hexPosition?.q === hexPosition.q && w.hexPosition?.r === hexPosition.r
+					: !w.hexPosition)
+		);
+
+		if (currentWindow) {
+			removeWindow(currentWindow.id);
+		}
+	};
+
 	return (
 		<div>
 			<div style={{ marginBottom: '8px' }}>
@@ -70,6 +85,9 @@ export const CharacterCreation: React.FC<CharacterCreationProps> = ({ hexPositio
 				/>
 			</div>
 			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px' }}>
+				<button onClick={handleCancel} style={{ fontSize: '0.9em', padding: '4px 8px' }}>
+					Cancel
+				</button>
 				<button onClick={handleCreateCharacter} style={{ fontSize: '0.9em', padding: '4px 8px' }}>
 					Create
 				</button>
