@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 
 import { useStore } from '../store';
-import { Point, Character } from '../types';
+import { Point, Character, getCharacterInitials } from '../types';
 import { findNextWindowPosition } from '../utils';
 
 const generateHexes = (width: number, height: number) => {
@@ -251,7 +251,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 											fontSize='4'
 											style={{ userSelect: 'none', pointerEvents: 'none' }}
 										>
-											{character.name.slice(0, 2).toUpperCase()}
+											{getCharacterInitials(character)}
 										</text>
 									</g>
 								))}
@@ -282,9 +282,9 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							fontSize='4'
 							style={{ userSelect: 'none' }}
 						>
-							{(characters.find(c => c.id === dragState.objectId)?.name || '??')
-								.slice(0, 2)
-								.toUpperCase()}
+							{characters.find(c => c.id === dragState.objectId)
+								? getCharacterInitials(characters.find(c => c.id === dragState.objectId)!)
+								: '??'}
 						</text>
 					</g>
 				)}
