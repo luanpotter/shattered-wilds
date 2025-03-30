@@ -3,13 +3,24 @@ export interface Point {
 	y: number;
 }
 
+export interface HexPosition {
+	q: number;
+	r: number;
+}
+
+export type DragType = 'none' | 'window' | 'grid' | 'character';
+
+export interface DragState {
+	type: DragType;
+	objectId?: string;
+	startPosition?: Point;
+	offset?: Point;
+}
+
 export interface Character {
 	id: string;
 	name: string;
-	position?: {
-		q: number;
-		r: number;
-	};
+	position?: HexPosition;
 }
 
 /**
@@ -38,20 +49,11 @@ export interface Window {
 	title: string;
 	type: 'character-sheet' | 'character-list' | 'character-creation';
 	characterId?: string;
-	position: {
-		x: number;
-		y: number;
-	};
-	hexPosition?: {
-		q: number;
-		r: number;
-	};
+	position: Point;
+	hexPosition?: HexPosition;
 }
 
 export interface GridState {
 	scale: number;
-	offset: {
-		x: number;
-		y: number;
-	};
+	offset: Point;
 }

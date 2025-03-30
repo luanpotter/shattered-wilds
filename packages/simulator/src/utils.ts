@@ -1,85 +1,94 @@
-import { Window, Point } from './types';
+import { Window, Point, Character, HexPosition } from './types';
 
 // Constants for window positioning
-const INITIAL_POSITION: Point = { x: 80, y: 80 };
-const MARGIN = 16; // Space between windows
+const INITIAL_POSITION: Point = { x: 20, y: 20 };
+const WINDOW_SIZE = { width: 300, height: 300 };
 const OVERLAP_MARGIN = 8; // Additional buffer when checking for overlaps
-// Default window dimensions
-const WINDOW_SIZE = { width: 300, height: 200 };
 
 /**
- * Find a position for a new window that doesn't overlap with existing windows
- * Places windows side by side with margins and tries to fill gaps
+ * Find the next available position for a new window
  */
-export const findNextWindowPosition = (windows: Window[]): Point => {
+export function findNextWindowPosition(windows: Window[]): Point {
+	// If no windows, return default position
 	if (windows.length === 0) {
-		return { ...INITIAL_POSITION };
+		return INITIAL_POSITION;
 	}
 
-	// Get available horizontal space
-	const viewportWidth = window.innerWidth;
-	const viewportHeight = window.innerHeight;
+	// Get viewport dimensions
+	const viewportWidth = window.innerWidth - WINDOW_SIZE.width;
+	const viewportHeight = window.innerHeight - WINDOW_SIZE.height;
 
-	// Calculate how many columns and rows we can fit
-	const maxCols = Math.floor((viewportWidth - INITIAL_POSITION.x) / (WINDOW_SIZE.width + MARGIN));
-	const maxRows = Math.floor((viewportHeight - INITIAL_POSITION.y) / (WINDOW_SIZE.height + MARGIN));
+	// Define step size for grid positions
+	const stepSize = 50; // Pixels between positions
 
-	// Create an array of grid positions
-	const gridPositions = [];
-	for (let row = 0; row < maxRows; row++) {
-		for (let col = 0; col < maxCols; col++) {
-			gridPositions.push({
-				row,
-				col,
-				x: INITIAL_POSITION.x + col * (WINDOW_SIZE.width + MARGIN),
-				y: INITIAL_POSITION.y + row * (WINDOW_SIZE.height + MARGIN),
-			});
+	// Compute grid size based on viewport dimensions and step size
+	const gridCols = Math.ceil(viewportWidth / stepSize);
+	const gridRows = Math.ceil(viewportHeight / stepSize);
+	const gridSize = Math.max(gridCols, gridRows);
+
+	// Create a grid to represent potential window positions
+	const grid: boolean[][] = [];
+
+	// Initialize the grid (all positions free)
+	for (let i = 0; i < gridSize; i++) {
+		grid[i] = [];
+		for (let j = 0; j < gridSize; j++) {
+			grid[i][j] = false;
 		}
 	}
 
-	// Mark positions that are too close to existing windows
-	const occupiedPositions = gridPositions.filter(pos => {
-		return windows.some(window => {
-			// Check if this grid position would overlap with this window
-			// Use actual window position (after dragging)
-			// Add OVERLAP_MARGIN to create a buffer zone around each window
-			return (
-				Math.abs(pos.x - window.position.x) < WINDOW_SIZE.width + OVERLAP_MARGIN &&
-				Math.abs(pos.y - window.position.y) < WINDOW_SIZE.height + OVERLAP_MARGIN
-			);
-		});
-	});
+	// Mark occupied positions based on existing windows
+	for (const window of windows) {
+		// Get the window's bounds
+		const winLeft = window.position.x;
+		const winRight = window.position.x + WINDOW_SIZE.width;
+		const winTop = window.position.y;
+		const winBottom = window.position.y + WINDOW_SIZE.height;
 
-	// Find first free position
-	const freePosition = gridPositions.find(
-		pos => !occupiedPositions.some(occupied => occupied.row === pos.row && occupied.col === pos.col)
-	);
+		// Check each grid cell to see if it overlaps with this window
+		for (let row = 0; row < gridSize; row++) {
+			for (let col = 0; col < gridSize; col++) {
+				// Calculate the grid cell's bounds
+				const cellLeft = col * stepSize + INITIAL_POSITION.x;
+				const cellRight = cellLeft + WINDOW_SIZE.width;
+				const cellTop = row * stepSize + INITIAL_POSITION.y;
+				const cellBottom = cellTop + WINDOW_SIZE.height;
 
-	// If we found a free position, use it
-	if (freePosition) {
-		return { x: freePosition.x, y: freePosition.y };
+				// Check for overlap (with margin)
+				if (
+					cellRight + OVERLAP_MARGIN > winLeft &&
+					cellLeft - OVERLAP_MARGIN < winRight &&
+					cellBottom + OVERLAP_MARGIN > winTop &&
+					cellTop - OVERLAP_MARGIN < winBottom
+				) {
+					grid[row][col] = true; // Mark as occupied
+				}
+			}
+		}
 	}
 
-	// If all grid positions are occupied, cascade from the last window
-	// Find the most bottom-right window to cascade from
-	let maxRight = INITIAL_POSITION.x;
-	let maxBottom = INITIAL_POSITION.y;
+	// Find the first free position
+	for (let row = 0; row < gridSize; row++) {
+		for (let col = 0; col < gridSize; col++) {
+			if (!grid[row][col]) {
+				const x = col * stepSize + INITIAL_POSITION.x;
+				const y = row * stepSize + INITIAL_POSITION.y;
 
-	windows.forEach(window => {
-		if (window.position.x > maxRight) {
-			maxRight = window.position.x;
+				// Ensure the position is within viewport bounds
+				if (x < viewportWidth && y < viewportHeight) {
+					return { x, y };
+				}
+			}
 		}
-		if (window.position.y > maxBottom) {
-			maxBottom = window.position.y;
-		}
-	});
+	}
 
-	// Add margin and make sure it's visible on screen
-	const x = Math.min(maxRight + MARGIN, viewportWidth - WINDOW_SIZE.width - MARGIN);
-	const y = Math.min(maxBottom + MARGIN, viewportHeight - WINDOW_SIZE.height - MARGIN);
+	// If no free position found, cascade from the last window
+	const lastWindow = windows[windows.length - 1];
+	const x = Math.min(lastWindow.position.x + 20, viewportWidth - 20);
+	const y = Math.min(lastWindow.position.y + 20, viewportHeight - 20);
 
 	return { x, y };
-};
+}
 
 /**
  * Find the next available hex position for a character
@@ -87,51 +96,65 @@ export const findNextWindowPosition = (windows: Window[]): Point => {
  * @param characters Array of existing characters to check positions against
  * @returns The next available hex coordinates {q, r}
  */
-export const findNextEmptyHexPosition = (characters: { position?: { q: number; r: number } }[]) => {
-	// Start at center hex
-	const center = { q: 0, r: 0 };
-
-	// Check if center is available
-	if (!characters.some(c => c.position?.q === center.q && c.position?.r === center.r)) {
-		return center;
+export function findNextEmptyHexPosition(
+	characters: Character[],
+	startQ: number = 0,
+	startR: number = 0
+): HexPosition {
+	// Check if the starting position is empty
+	if (!findCharacterAtPosition(characters, startQ, startR)) {
+		return { q: startQ, r: startR };
 	}
 
-	// Spiral out to find the next empty hex
-	// Direction vectors for the six neighbors of a hex in axial coordinates
+	// Spiral outward from the starting position
 	const directions = [
-		{ q: 1, r: 0 }, // right
-		{ q: 0, r: 1 }, // down-right
-		{ q: -1, r: 1 }, // down-left
-		{ q: -1, r: 0 }, // left
-		{ q: 0, r: -1 }, // up-left
-		{ q: 1, r: -1 }, // up-right
+		{ q: 1, r: 0 }, // east
+		{ q: 0, r: 1 }, // southeast
+		{ q: -1, r: 1 }, // southwest
+		{ q: -1, r: 0 }, // west
+		{ q: 0, r: -1 }, // northwest
+		{ q: 1, r: -1 }, // northeast
 	];
 
-	// Spiral outward from center
-	for (let radius = 1; radius <= 10; radius++) {
-		// Limit search radius to 10
-		// Start at the top-right corner of the radius
-		let hex = { q: radius, r: -radius };
+	let q = startQ;
+	let r = startR;
+	let radius = 1;
 
-		// Move along each of the six sides of the hexagonal ring
+	while (radius < 20) {
+		// Prevent infinite loop with a reasonable limit
 		for (let side = 0; side < 6; side++) {
-			// Each side has 'radius' steps
 			for (let step = 0; step < radius; step++) {
-				// Check if this position is free
-				if (!characters.some(c => c.position?.q === hex.q && c.position?.r === hex.r)) {
-					return hex;
-				}
+				q += directions[side].q;
+				r += directions[side].r;
 
-				// Move to next hex in the ring
-				hex = {
-					q: hex.q + directions[side].q,
-					r: hex.r + directions[side].r,
-				};
+				if (!findCharacterAtPosition(characters, q, r)) {
+					return { q, r };
+				}
 			}
 		}
+		radius++;
 	}
 
-	// If we get here, we didn't find a free position within radius 10
-	// Return a random position as a fallback
-	return { q: Math.floor(Math.random() * 10) - 5, r: Math.floor(Math.random() * 10) - 5 };
-};
+	// Fallback if no position found
+	return { q: 0, r: 0 };
+}
+
+/**
+ * Finds a character at the given hex position
+ */
+export function findCharacterAtPosition(
+	characters: Character[],
+	q: number,
+	r: number
+): Character | undefined {
+	return characters.find(c => c.position?.q === q && c.position?.r === r);
+}
+
+/**
+ * Convert axial hex coordinates to pixel coordinates
+ */
+export function axialToPixel(q: number, r: number): Point {
+	const x = q * 10 + r * 5;
+	const y = r * 8.66; // sqrt(3) * 5
+	return { x, y };
+}

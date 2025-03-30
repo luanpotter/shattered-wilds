@@ -1,10 +1,12 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 
 import { useStore } from '../store';
-import { Point, Character, getCharacterInitials } from '../types';
-import { findNextWindowPosition } from '../utils';
+import { DragState, Point, Character, HexPosition } from '../types';
+import { findNextWindowPosition, findCharacterAtPosition, axialToPixel } from '../utils';
 
-const generateHexes = (width: number, height: number) => {
+import { CharacterToken } from './CharacterToken';
+
+const generateHexes = (width: number, height: number): HexPosition[] => {
 	const hexes = [];
 	for (let q = -width; q <= width; q++) {
 		for (let r = -height; r <= height; r++) {
@@ -21,19 +23,14 @@ const Hex: React.FC<{
 	children?: React.ReactNode;
 }> = ({ q, r, children }) => {
 	// Convert axial coordinates to pixel coordinates
-	const x = q * 10 + r * 5;
-	const y = r * 8.66; // sqrt(3) * 5
+	const { x, y } = axialToPixel(q, r);
 
 	return <g transform={`translate(${x},${y})`}>{children}</g>;
 };
 
 interface BattleGridProps {
 	disabled?: boolean;
-	dragState: {
-		type: 'none' | 'window' | 'grid' | 'character';
-		objectId?: string;
-		startPosition?: Point;
-	};
+	dragState: DragState;
 	onStartCharacterDrag: (character: Character, startPosition: Point) => void;
 }
 
@@ -128,9 +125,9 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		}
 	};
 
-	const handleHexDoubleClick = ({ q, r }: { q: number; r: number }) => {
+	const handleHexDoubleClick = ({ q, r }: HexPosition) => {
 		// Check if there's already a character at this position
-		const existingCharacter = characters.find(c => c.position?.q === q && c.position?.r === r);
+		const existingCharacter = findCharacterAtPosition(characters, q, r);
 
 		if (!existingCharacter) {
 			addCharacter({
@@ -153,7 +150,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 	const handleHexRightClick = (q: number, r: number) => {
 		// Check if there's already a character at this position
-		const existingCharacter = characters.find(c => c.position?.q === q && c.position?.r === r);
+		const existingCharacter = findCharacterAtPosition(characters, q, r);
 
 		if (!existingCharacter) {
 			addWindow({
@@ -220,72 +217,26 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							{characters
 								.filter(c => c.position?.q === q && c.position?.r === r)
 								.map(character => (
-									<g
+									<CharacterToken
 										key={character.id}
-										onMouseDown={e => handleCharacterMouseDown(e, character)}
-										style={{
-											cursor:
-												dragState.type === 'character' && dragState.objectId === character.id
-													? 'grabbing'
-													: 'grab',
-											opacity:
-												dragState.type === 'character' && dragState.objectId === character.id
-													? 0.3
-													: 1,
-										}}
-									>
-										<circle
-											cx='0'
-											cy='0'
-											r='3'
-											fill='var(--primary)'
-											stroke='var(--text)'
-											strokeWidth='0.5'
-										/>
-										<text
-											x='0'
-											y='0.5'
-											textAnchor='middle'
-											dominantBaseline='middle'
-											fill='var(--text)'
-											fontSize='4'
-											style={{ userSelect: 'none', pointerEvents: 'none' }}
-										>
-											{getCharacterInitials(character)}
-										</text>
-									</g>
+										character={character}
+										onClick={e => handleCharacterMouseDown(e, character)}
+										onContextMenu={() => handleOpenCharacterSheet(character)}
+										isGhost={dragState.type === 'character' && dragState.objectId === character.id}
+									/>
 								))}
 						</g>
 					</Hex>
 				))}
 
 				{dragState.type === 'character' && dragState.objectId && ghostPosition && (
-					<g
-						transform={`translate(${ghostPosition.x},${ghostPosition.y})`}
-						style={{ pointerEvents: 'none' }}
-					>
-						<circle
-							cx='0'
-							cy='0'
-							r='3'
-							fill='var(--primary)'
-							stroke='var(--text)'
-							strokeWidth='0.5'
-							opacity='0.7'
-						/>
-						<text
-							x='0'
-							y='0.5'
-							textAnchor='middle'
-							dominantBaseline='middle'
-							fill='var(--text)'
-							fontSize='4'
-							style={{ userSelect: 'none' }}
-						>
-							{characters.find(c => c.id === dragState.objectId)
-								? getCharacterInitials(characters.find(c => c.id === dragState.objectId)!)
-								: '??'}
-						</text>
+					<g transform={`translate(${ghostPosition.x},${ghostPosition.y})`}>
+						{characters.find(c => c.id === dragState.objectId) && (
+							<CharacterToken
+								character={characters.find(c => c.id === dragState.objectId)!}
+								isGhost={true}
+							/>
+						)}
 					</g>
 				)}
 			</svg>
