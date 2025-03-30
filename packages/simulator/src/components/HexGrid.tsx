@@ -244,7 +244,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 										/>
 										<text
 											x='0'
-											y='0'
+											y='0.5'
 											textAnchor='middle'
 											dominantBaseline='middle'
 											fill='var(--text)'
@@ -275,7 +275,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 						/>
 						<text
 							x='0'
-							y='0'
+							y='0.5'
 							textAnchor='middle'
 							dominantBaseline='middle'
 							fill='var(--text)'
