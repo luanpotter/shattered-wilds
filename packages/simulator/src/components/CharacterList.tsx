@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaPlus, FaEdit } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 
 import { useStore } from '../store';
 import { Character } from '../types';
@@ -8,7 +8,9 @@ export const CharacterList: React.FC = () => {
   const characters = useStore((state) => state.characters);
   const addWindow = useStore((state) => state.addWindow);
   const addCharacter = useStore((state) => state.addCharacter);
+  const removeCharacter = useStore((state) => state.removeCharacter);
   const [newCharacterName, setNewCharacterName] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   const handleAddCharacter = () => {
     if (newCharacterName.trim()) {
@@ -30,8 +32,56 @@ export const CharacterList: React.FC = () => {
     });
   };
 
+  const handleRequestDelete = (id: string) => {
+    setConfirmDelete(id);
+  };
+
+  const handleConfirmDelete = () => {
+    if (confirmDelete) {
+      removeCharacter(confirmDelete);
+      setConfirmDelete(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setConfirmDelete(null);
+  };
+
   return (
     <div>
+      {confirmDelete && (
+        <div style={{
+          padding: '6px',
+          marginBottom: '8px',
+          backgroundColor: 'var(--background-alt)',
+          border: '1px solid var(--text)',
+          borderRadius: '4px',
+          fontSize: '0.9em'
+        }}>
+          <p style={{ margin: '0 0 6px 0' }}>
+            Delete {characters.find(c => c.id === confirmDelete)?.name}?
+          </p>
+          <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
+            <button 
+              onClick={handleCancelDelete}
+              style={{ padding: '2px 6px', fontSize: '0.9em' }}
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleConfirmDelete}
+              style={{ 
+                padding: '2px 6px', 
+                fontSize: '0.9em',
+                backgroundColor: 'var(--error)',
+                color: 'white'
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      )}
       <div style={{ marginBottom: '8px', display: 'flex', gap: '4px' }}>
         <input
           type="text"
@@ -63,9 +113,20 @@ export const CharacterList: React.FC = () => {
             }}
           >
             <span>{character.name}</span>
-            <button onClick={() => handleOpenCharacterSheet(character)} style={{ padding: '2px 6px', fontSize: '0.9em' }}>
-              <FaEdit /> Edit
-            </button>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <button onClick={() => handleOpenCharacterSheet(character)} style={{ padding: '2px 6px', fontSize: '0.9em' }}>
+                <FaEdit /> Edit
+              </button>
+              <button 
+                onClick={() => handleRequestDelete(character.id)}
+                style={{ 
+                  padding: '2px 6px', 
+                  fontSize: '0.9em',
+                }} 
+              >
+                <FaTrash /> Delete
+              </button>
+            </div>
           </div>
         ))}
       </div>
