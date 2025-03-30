@@ -25,5 +25,10 @@
     /* Types */
     "types": ["vite/client", "react"]
   },
-  "include": ["src"]
+  "include": ["src"],
+  "formatCodeSettings": {
+    "convertTabsToSpaces": false,
+    "indentSize": 1,
+    "tabSize": 1
+  }
 }

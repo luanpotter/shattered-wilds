@@ -24,6 +24,10 @@ export default tseslint.config(
     plugins: {
       '@typescript-eslint': tseslint.plugin,
     },
+    rules: {
+      'indent': ['error', 'tab'],
+      'no-mixed-spaces-and-tabs': ['error', 'smart-tabs'],
+    },
   },
   {
     files: ['src/**/*.{ts,tsx}'],
