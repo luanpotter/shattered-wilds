@@ -52,6 +52,14 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
 		removeWindow(window.id);
 	};
 
+	// Determine window width based on type
+	const getWindowWidth = () => {
+		if (window.type === 'character-sheet') {
+			return '900px'; // 3x the default width
+		}
+		return '300px'; // Default width
+	};
+
 	// Add useEffect to handle document-level mouse events
 	useEffect(() => {
 		if (isDragging) {
@@ -108,20 +116,21 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
 					position: 'absolute',
 					left: window.position.x,
 					top: window.position.y,
-					width: '300px',
+					width: getWindowWidth(),
 					backgroundColor: 'var(--background)',
 					border: '1px solid var(--text)',
 					borderRadius: '4px',
 					boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
 					display: 'block',
 					userSelect: 'none',
-					zIndex: 9999,
+					zIndex: 999,
+					overflow: 'visible', // Changed to visible for the entire window
 				}}
 			>
 				<div
 					className='window-title'
 					style={{
-						padding: '4px 8px',
+						padding: '2px 6px', // Reduced from 4px 8px
 						backgroundColor: 'var(--background-alt)',
 						borderBottom: '1px solid var(--text)',
 						cursor: isDragging ? 'grabbing' : 'grab',
@@ -129,16 +138,31 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
 						justifyContent: 'space-between',
 						alignItems: 'center',
 						fontSize: '0.9em',
+						height: '24px', // Fixed height for compactness
+						overflow: 'hidden', // Keep title bar with hidden overflow
 					}}
 				>
 					<span>{window.title}</span>
-					<div style={{ display: 'flex', gap: '8px' }}>
-						<button onClick={handleClose} className='icon-button'>
+					<div style={{ display: 'flex', gap: '4px' }}>
+						<button
+							onClick={handleClose}
+							className='icon-button'
+							style={{ padding: '1px', fontSize: '0.9em' }}
+						>
 							<FaTimes />
 						</button>
 					</div>
 				</div>
-				<div style={{ padding: '8px' }}>{children}</div>
+				<div
+					style={{
+						padding: '4px',
+						overflow: 'visible',
+						position: 'relative',
+						zIndex: 1000, // Higher z-index for content
+					}}
+				>
+					{children}
+				</div>
 			</div>
 		</>
 	);

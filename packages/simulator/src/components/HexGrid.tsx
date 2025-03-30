@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 
 import { useStore } from '../store';
-import { DragState, Point, Character, HexPosition } from '../types';
+import { DragState, Point, Character, HexPosition, Race, CharacterClass } from '../types';
 import {
 	findNextWindowPosition,
 	findCharacterAtPosition,
@@ -159,6 +159,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				id: window.crypto.randomUUID(),
 				sheet: {
 					name: `Character ${nextNumber}`,
+					race: Race.Human,
+					class: CharacterClass.Fighter,
 				},
 				position: { q, r },
 			});

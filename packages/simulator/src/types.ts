@@ -17,8 +17,32 @@ export interface DragState {
 	offset?: Point;
 }
 
+export enum Race {
+	Human = 'Human',
+	Elf = 'Elf',
+	Dwarf = 'Dwarf',
+	Orc = 'Orc',
+	Fey = 'Fey',
+	Goliath = 'Goliath',
+	Tellur = 'Tellur',
+}
+
+export enum CharacterClass {
+	Fighter = 'Fighter',
+	Berserker = 'Berserker',
+	Swashbuckler = 'Swashbuckler',
+	Marksman = 'Marksman',
+	Hunter = 'Hunter',
+	Rogue = 'Rogue',
+	Guardian = 'Guardian',
+	Barbarian = 'Barbarian',
+	Scout = 'Scout',
+}
+
 export interface CharacterSheet {
 	name: string;
+	race: Race;
+	class: CharacterClass;
 }
 
 export interface Character {

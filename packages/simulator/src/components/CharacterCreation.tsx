@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { useStore } from '../store';
+import { Race, CharacterClass } from '../types';
 import { findNextCharacterNumber } from '../utils';
 
 interface CharacterCreationProps {
@@ -26,6 +27,8 @@ export const CharacterCreation: React.FC<CharacterCreationProps> = ({ hexPositio
 				id: window.crypto.randomUUID(),
 				sheet: {
 					name: characterName.trim(),
+					race: Race.Human, // Default race
+					class: CharacterClass.Fighter, // Default class
 				},
 			};
 

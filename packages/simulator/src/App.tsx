@@ -7,7 +7,7 @@ import { CharacterSheet } from './components/CharacterSheet';
 import { DraggableWindow } from './components/DraggableWindow';
 import { BattleGrid } from './components/HexGrid';
 import { useStore } from './store';
-import { Point, Character } from './types';
+import { Point, Character, Race, CharacterClass } from './types';
 import { findNextWindowPosition } from './utils';
 
 const App = (): React.ReactElement => {
@@ -261,6 +261,8 @@ const App = (): React.ReactElement => {
 									id: window.characterId,
 									sheet: {
 										name: 'Unknown Character',
+										race: Race.Human,
+										class: CharacterClass.Fighter,
 									},
 								}
 							}
