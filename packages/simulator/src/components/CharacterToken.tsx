@@ -46,8 +46,14 @@ export const CharacterToken: React.FC<CharacterTokenProps> = ({
 				textAnchor='middle'
 				dominantBaseline='middle'
 				fill='var(--text)'
-				fontSize='4'
-				style={{ userSelect: 'none', pointerEvents: 'none' }}
+				fontSize='3.5'
+				style={{
+					userSelect: 'none',
+					pointerEvents: 'none',
+					fontFamily: 'Arial, sans-serif',
+					fontWeight: '500',
+					letterSpacing: '-0.2px',
+				}}
 			>
 				{getCharacterInitials(character)}
 			</text>
