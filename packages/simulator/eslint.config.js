@@ -25,7 +25,7 @@ export default tseslint.config(
       '@typescript-eslint': tseslint.plugin,
     },
     rules: {
-      'indent': ['error', 'tab', { 'SwitchCase': 1 }],
+      'indent': 'off',
       'no-mixed-spaces-and-tabs': ['error', 'smart-tabs'],
     },
   },
