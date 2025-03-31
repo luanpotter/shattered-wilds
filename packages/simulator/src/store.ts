@@ -1,55 +1,32 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { Character, Window, GridState, AttributeMap, DerivedStats } from './types';
-import { calculateDerivedStats, calculateModifiers } from './utils';
+import { Character, Window, GridState, HexPosition } from './types';
 
 type AddCharacter = (character: Character) => void;
-type UpdateCharacter = (character: Character) => void;
+type UpdateCharacterName = (character: Character, newName: string) => void;
+type UpdateCharacterProp = (character: Character, prop: string, value: string) => void;
+type UpdateCharacterPos = (character: Character, pos: HexPosition) => void;
 type RemoveCharacter = (id: string) => void;
 type AddWindow = (window: Window) => void;
 type UpdateWindow = (window: Window) => void;
 type RemoveWindow = (id: string) => void;
 type UpdateGridState = (state: Partial<GridState>) => void;
-type UpdateCharacterStats = (characterId: string, derivedStats: Partial<DerivedStats>) => void;
-type UpdateCharacterAttributes = (characterId: string, attributes: AttributeMap) => void;
 
 interface AppState {
 	windows: Window[];
 	characters: Character[];
 	gridState: GridState;
 	addCharacter: AddCharacter;
-	updateCharacter: UpdateCharacter;
+	updateCharacterName: UpdateCharacterName;
+	updateCharacterProp: UpdateCharacterProp;
+	updateCharacterPos: UpdateCharacterPos;
 	removeCharacter: RemoveCharacter;
 	addWindow: AddWindow;
 	updateWindow: UpdateWindow;
 	removeWindow: RemoveWindow;
 	updateGridState: UpdateGridState;
-	updateCharacterStats: UpdateCharacterStats;
-	updateCharacterAttributes: UpdateCharacterAttributes;
 }
-
-// Migrate any old characters data structure to the new one with sheet
-const migrate = (state: any): AppState => {
-	// If there are any characters
-	if (state?.characters?.length) {
-		// Map over each character and ensure it has a sheet property
-		const migratedCharacters = state.characters.map((character: any) => {
-			// If character already has a sheet, return it as is
-			if (character.sheet) return character;
-
-			// Otherwise, create a sheet with the name from the character
-			return {
-				...character,
-				sheet: { name: character.name || 'Unknown Character' },
-			};
-		});
-
-		return { ...state, characters: migratedCharacters };
-	}
-
-	return state as AppState;
-};
 
 export const useStore = create<AppState>()(
 	persist(
@@ -64,9 +41,23 @@ export const useStore = create<AppState>()(
 				set(state => ({
 					characters: [...state.characters, character],
 				})),
-			updateCharacter: character =>
+			updateCharacterName: (character, newName) =>
 				set(state => ({
-					characters: state.characters.map(c => (c.id === character.id ? character : c)),
+					characters: state.characters.map(c =>
+						c.id === character.id ? { ...c, props: { ...c.props, name: newName } } : c
+					),
+				})),
+			updateCharacterProp: (character, prop, value) =>
+				set(state => ({
+					characters: state.characters.map(c =>
+						c.id === character.id ? { ...c, props: { ...c.props, [prop]: value } } : c
+					),
+				})),
+			updateCharacterPos: (character, pos) =>
+				set(state => ({
+					characters: state.characters.map(c =>
+						c.id === character.id ? { ...c, position: pos } : c
+					),
 				})),
 			removeCharacter: id =>
 				set(state => ({
@@ -84,55 +75,14 @@ export const useStore = create<AppState>()(
 				set(state => ({
 					windows: state.windows.filter(w => w.id !== id),
 				})),
-			updateGridState: state =>
-				set(prev => ({
-					gridState: { ...prev.gridState, ...state },
-				})),
-			updateCharacterStats: (characterId, partialStats) =>
+			updateGridState: (gridState: Partial<GridState>) =>
 				set(state => ({
-					characters: state.characters.map(character => {
-						if (character.id === characterId && character.sheet.derivedStats) {
-							return {
-								...character,
-								sheet: {
-									...character.sheet,
-									derivedStats: {
-										...character.sheet.derivedStats,
-										...partialStats,
-									},
-								},
-							};
-						}
-						return character;
-					}),
-				})),
-			updateCharacterAttributes: (characterId, attributes) =>
-				set(state => ({
-					characters: state.characters.map(character => {
-						if (character.id === characterId) {
-							// Recalculate modifiers
-							calculateModifiers(attributes);
-
-							// Recalculate derived stats
-							const derivedStats = calculateDerivedStats(attributes);
-
-							return {
-								...character,
-								sheet: {
-									...character.sheet,
-									attributes,
-									derivedStats,
-								},
-							};
-						}
-						return character;
-					}),
+					gridState: { ...state.gridState, ...gridState },
 				})),
 		}),
 		{
 			name: 'd12-simulator-storage',
-			version: 1, // Adding a version to help with future migrations
-			migrate,
+			version: 1,
 		}
 	)
 );

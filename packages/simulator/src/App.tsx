@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { FaUsers, FaCrosshairs, FaTimes } from 'react-icons/fa';
 
-import { CharacterCreation } from './components/CharacterCreation';
+import { CharacterCreationModal } from './components/CharacterCreation';
 import { CharacterList } from './components/CharacterList';
-import { CharacterSheet } from './components/CharacterSheet';
+import { CharacterSheetModal } from './components/CharacterSheet';
 import { DraggableWindow } from './components/DraggableWindow';
 import { BattleGrid } from './components/HexGrid';
 import { useStore } from './store';
-import { Point, Character, Race, CharacterClass } from './types';
+import { Point, Character } from './types';
 import { findNextWindowPosition } from './utils';
 
 const App = (): React.ReactElement => {
@@ -23,7 +23,7 @@ const App = (): React.ReactElement => {
 	const addWindow = useStore(state => state.addWindow);
 	const updateGridState = useStore(state => state.updateGridState);
 	const updateWindow = useStore(state => state.updateWindow);
-	const updateCharacter = useStore(state => state.updateCharacter);
+	const updateCharacterPos = useStore(state => state.updateCharacterPos);
 	const removeWindow = useStore(state => state.removeWindow);
 	const gridState = useStore(state => state.gridState);
 
@@ -91,10 +91,7 @@ const App = (): React.ReactElement => {
 						);
 
 						if (!existingCharacter) {
-							updateCharacter({
-								...character,
-								position: { q, r },
-							});
+							updateCharacterPos(character, { q, r });
 						}
 					}
 				}
@@ -111,7 +108,15 @@ const App = (): React.ReactElement => {
 				document.removeEventListener('mouseup', handleMouseUp);
 			};
 		}
-	}, [dragState, gridState, updateGridState, updateWindow, windows, characters, updateCharacter]);
+	}, [
+		dragState,
+		gridState,
+		updateGridState,
+		updateWindow,
+		windows,
+		characters,
+		updateCharacterPos,
+	]);
 
 	const handleMouseDown = (e: React.MouseEvent) => {
 		if (e.button === 1) {
@@ -255,22 +260,11 @@ const App = (): React.ReactElement => {
 					}}
 				>
 					{window.type === 'character-sheet' && window.characterId && (
-						<CharacterSheet
-							character={
-								characters.find(c => c.id === window.characterId) ?? {
-									id: window.characterId,
-									sheet: {
-										name: 'Unknown Character',
-										race: Race.Human,
-										class: CharacterClass.Fighter,
-									},
-								}
-							}
-						/>
+						<CharacterSheetModal character={characters.find(c => c.id === window.characterId)!} />
 					)}
 					{window.type === 'character-list' && <CharacterList />}
 					{window.type === 'character-creation' && (
-						<CharacterCreation hexPosition={window.hexPosition} />
+						<CharacterCreationModal hexPosition={window.hexPosition} />
 					)}
 				</DraggableWindow>
 			))}

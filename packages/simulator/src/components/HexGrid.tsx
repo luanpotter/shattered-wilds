@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 
 import { useStore } from '../store';
-import { DragState, Point, Character, HexPosition, Race, CharacterClass } from '../types';
+import { DragState, Point, Character, HexPosition } from '../types';
 import {
 	findNextWindowPosition,
 	findCharacterAtPosition,
@@ -157,10 +157,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 			addCharacter({
 				id: window.crypto.randomUUID(),
-				sheet: {
+				props: {
 					name: `Character ${nextNumber}`,
-					race: Race.Human,
-					class: CharacterClass.Fighter,
 				},
 				position: { q, r },
 			});
@@ -170,7 +168,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	const handleOpenCharacterSheet = (character: Character) => {
 		addWindow({
 			id: window.crypto.randomUUID(),
-			title: `${character.sheet.name}'s Sheet`,
+			title: `${character.props.name}'s Sheet`,
 			type: 'character-sheet',
 			characterId: character.id,
 			position: findNextWindowPosition(windows),

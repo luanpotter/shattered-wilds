@@ -1,21 +1,11 @@
 import React from 'react';
 import { FaUndo, FaExclamationTriangle } from 'react-icons/fa';
 
-import { AttributeMap, AttributeType, RealmType, BasicAttributeType, SkillType } from '../types';
-import {
-	REALM_TO_BASIC_ATTRIBUTES,
-	BASIC_ATTRIBUTE_TO_SKILLS,
-	canAllocatePoint,
-	allocatePoint,
-	canDeallocatePoint,
-	deallocatePoint,
-	getUnallocatedPoints,
-	calculateModifiers,
-} from '../utils';
+import { Attribute, AttributeHierarchy, AttributeType } from '../types';
 
-interface AttributeTreeProps {
-	attributes: AttributeMap;
-	onAttributeUpdate: (newAttributes: AttributeMap) => void;
+interface AttributeTreeComponentProps {
+	tree: Attribute;
+	onUpdateCharacterProp: (key: string, value: string) => void;
 }
 
 // Value display with a colored background based on the value
@@ -88,94 +78,123 @@ const AttributeValue: React.FC<{
 	);
 };
 
-// Calculate allocated points for a specific realm
-const getRealmAllocatedPoints = (attributes: AttributeMap, realmType: RealmType): number => {
-	const realm =
-		realmType === RealmType.Body
-			? attributes.body
-			: realmType === RealmType.Mind
-				? attributes.mind
-				: attributes.soul;
-
-	return realm.baseValue;
-};
-
-// Calculate allocated points for a specific basic attribute
-const getBasicAttributeAllocatedPoints = (
-	attributes: AttributeMap,
-	basicAttrType: BasicAttributeType
-): number => {
-	return attributes.basicAttributes[basicAttrType].baseValue;
-};
-
-// Calculate total allocated points in a group of attributes
-const getGroupAllocatedPoints = (
-	attributes: AttributeMap,
-	group: BasicAttributeType[] | SkillType[]
-): number => {
-	if (!group.length) return 0;
-
-	// If it's a basic attribute group
-	if (Object.values(BasicAttributeType).includes(group[0] as BasicAttributeType)) {
-		return (group as BasicAttributeType[]).reduce(
-			(sum, attrType) => sum + attributes.basicAttributes[attrType].baseValue,
-			0
-		);
+export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
+	tree,
+	onUpdateCharacterProp,
+}) => {
+	if (!tree.grouped) {
+		return <div>Loading...</div>;
 	}
 
-	// If it's a skill group
-	return (group as SkillType[]).reduce(
-		(sum, skillType) => sum + attributes.skills[skillType].baseValue,
-		0
-	);
-};
+	const canAllocatePoint = (node: Attribute) => {
+		const parent = tree.getNode(node.type.parent);
+		return parent?.canChildrenAllocatePoint ?? true;
+	};
 
-export const AttributeTree: React.FC<AttributeTreeProps> = ({ attributes, onAttributeUpdate }) => {
-	const unallocatedPoints = getUnallocatedPoints(attributes);
-	const totalPoints = attributes.level.baseValue;
-	const allocatedPoints = totalPoints - unallocatedPoints;
-
-	const handleAllocatePoint = (type: AttributeType, id: string) => {
-		if (canAllocatePoint(attributes, type, id)) {
-			const newAttributes = allocatePoint(attributes, type, id);
-			onAttributeUpdate(newAttributes);
+	const handleAllocatePoint = (node: Attribute) => {
+		if (canAllocatePoint(node)) {
+			onUpdateCharacterProp(node.type.name, (node.baseValue + 1).toString());
 		}
 	};
 
-	const handleDeallocatePoint = (type: AttributeType, id: string) => {
-		if (canDeallocatePoint(attributes, type, id)) {
-			const newAttributes = deallocatePoint(attributes, type, id);
-			onAttributeUpdate(newAttributes);
+	const handleDeallocatePoint = (node: Attribute) => {
+		if (node.canDeallocatePoint) {
+			onUpdateCharacterProp(node.type.name, (node.baseValue - 1).toString());
 		}
 	};
 
-	const handleLevelIncrease = () => {
-		if (attributes.level.baseValue < 20) {
-			const newAttributes = JSON.parse(JSON.stringify(attributes)) as AttributeMap;
-			newAttributes.level.baseValue += 1;
-			calculateModifiers(newAttributes);
-			onAttributeUpdate(newAttributes);
-		}
+	const BaseValueAttributeNode: React.FC<{ node: Attribute }> = ({ node }) => {
+		return (
+			<div
+				style={{
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+					width: '24px',
+					height: '24px',
+					borderRadius: '50%',
+					backgroundColor: 'var(--background-alt)',
+					border: '1px solid var(--text)',
+					cursor: 'pointer',
+					fontSize: '0.9em',
+					fontWeight: 'bold',
+				}}
+				onClick={() => handleAllocatePoint(node)}
+				onContextMenu={e => {
+					e.preventDefault();
+					handleDeallocatePoint(node);
+				}}
+				onKeyDown={e => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
+						handleAllocatePoint(node);
+					}
+				}}
+				tabIndex={0}
+				role='button'
+				aria-label={`Level ${node.baseValue}. Left-click to increase, right-click to decrease.`}
+				title='Left-click to increase level, right-click to decrease'
+			>
+				{node.baseValue}
+			</div>
+		);
 	};
 
-	const handleLevelDecrease = () => {
-		if (attributes.level.baseValue > 0) {
-			// Check if all points from this level are unallocated
-			const allocatedAtCurrentLevel = allocatedPoints - (attributes.level.baseValue - 1);
+	const ModifierAttributeNode: React.FC<{ node: Attribute }> = ({ node }) => {
+		const modifier = tree.modifierOf(node.type);
+		return (
+			<div
+				style={{
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+					width: '24px',
+					height: '24px',
+					borderRadius: '4px',
+					backgroundColor: 'var(--background-alt)',
+					fontSize: '0.9em',
+					fontWeight: 'bold',
+				}}
+			>
+				{modifier >= 0 ? `+${modifier}` : modifier}
+			</div>
+		);
+	};
 
-			if (allocatedAtCurrentLevel <= 0) {
-				// Can decrease level if no points from this level are allocated
-				const newAttributes = JSON.parse(JSON.stringify(attributes)) as AttributeMap;
-				newAttributes.level.baseValue -= 1;
-				calculateModifiers(newAttributes);
-				onAttributeUpdate(newAttributes);
-			}
-		}
+	const PointsAllocation: React.FC<{ node: Attribute }> = ({ node }) => {
+		return (
+			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+				<span style={{ fontWeight: 'bold', fontSize: '1.1em' }}>
+					{node.childrenAllocatedPoints}/{node.totalPointsToPropagate} points
+					{node.childrenAllocatedPoints < node.totalPointsToPropagate &&
+						node.totalPointsToPropagate > 0 && (
+							<FaExclamationTriangle
+								style={{ marginLeft: '6px', color: 'orange' }}
+								title='You have unallocated points'
+							/>
+						)}
+				</span>
+			</div>
+		);
+	};
+
+	const AttributeValueNode = ({ node }: { node: Attribute }) => {
+		const modifier = tree.modifierOf(node.type);
+		return (
+			<AttributeValue
+				baseValue={node.baseValue}
+				finalModifier={modifier}
+				canAllocate={canAllocatePoint(node)}
+				canDeallocate={node.canDeallocatePoint}
+				onClick={() => handleAllocatePoint(node)}
+				onRightClick={() => handleDeallocatePoint(node)}
+			/>
+		);
 	};
 
 	return (
 		<div style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}>
-			{/* Level and Points Allocation */}
+			{/* Level Section */}
 			<div
 				style={{
 					display: 'flex',
@@ -189,67 +208,10 @@ export const AttributeTree: React.FC<AttributeTreeProps> = ({ attributes, onAttr
 			>
 				<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 					<span style={{ fontWeight: 'bold' }}>Level:</span>
-					<div
-						style={{
-							display: 'flex',
-							justifyContent: 'center',
-							alignItems: 'center',
-							width: '24px',
-							height: '24px',
-							borderRadius: '50%',
-							backgroundColor: 'var(--background-alt)',
-							border: '1px solid var(--text)',
-							cursor: 'pointer',
-							fontSize: '0.9em',
-							fontWeight: 'bold',
-						}}
-						onClick={handleLevelIncrease}
-						onContextMenu={e => {
-							e.preventDefault();
-							handleLevelDecrease();
-						}}
-						onKeyDown={e => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								e.preventDefault();
-								handleLevelIncrease();
-							}
-						}}
-						tabIndex={0}
-						role='button'
-						aria-label={`Level ${attributes.level.baseValue}. Left-click to increase, right-click to decrease.`}
-						title='Left-click to increase level, right-click to decrease'
-					>
-						{attributes.level.baseValue}
-					</div>
-					<div
-						style={{
-							display: 'flex',
-							justifyContent: 'center',
-							alignItems: 'center',
-							width: '24px',
-							height: '24px',
-							borderRadius: '4px',
-							backgroundColor: 'var(--background-alt)',
-							fontSize: '0.9em',
-							fontWeight: 'bold',
-						}}
-					>
-						{attributes.level.finalModifier >= 0
-							? `+${attributes.level.finalModifier}`
-							: attributes.level.finalModifier}
-					</div>
+					<BaseValueAttributeNode node={tree} />
+					<ModifierAttributeNode node={tree} />
 				</div>
-				<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-					<span style={{ fontWeight: 'bold', fontSize: '1.1em' }}>
-						{allocatedPoints}/{totalPoints} points
-						{allocatedPoints < totalPoints && (
-							<FaExclamationTriangle
-								style={{ marginLeft: '6px', color: 'orange' }}
-								title='You have unallocated points'
-							/>
-						)}
-					</span>
-				</div>
+				<PointsAllocation node={tree} />
 			</div>
 
 			{/* Realms Section */}
@@ -274,39 +236,13 @@ export const AttributeTree: React.FC<AttributeTreeProps> = ({ attributes, onAttr
 				>
 					<span>Realms</span>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-						<span style={{ fontSize: '0.9em' }}>
-							{getRealmAllocatedPoints(attributes, RealmType.Body) +
-								getRealmAllocatedPoints(attributes, RealmType.Mind) +
-								getRealmAllocatedPoints(attributes, RealmType.Soul)}
-							/{totalPoints} points
-							{getRealmAllocatedPoints(attributes, RealmType.Body) +
-								getRealmAllocatedPoints(attributes, RealmType.Mind) +
-								getRealmAllocatedPoints(attributes, RealmType.Soul) <
-								totalPoints && (
-								<FaExclamationTriangle
-									style={{ marginLeft: '6px', color: 'orange' }}
-									title='You have unallocated points'
-								/>
-							)}
-						</span>
+						<PointsAllocation node={tree} />
 						<button
 							onClick={() => {
-								// Reset all realms
-								const newAttributes = JSON.parse(JSON.stringify(attributes)) as AttributeMap;
-								newAttributes.body.baseValue = 0;
-								newAttributes.mind.baseValue = 0;
-								newAttributes.soul.baseValue = 0;
-
-								// Reset all basic attributes and skills
-								Object.values(BasicAttributeType).forEach(attrType => {
-									newAttributes.basicAttributes[attrType].baseValue = 0;
-									BASIC_ATTRIBUTE_TO_SKILLS[attrType].forEach(skillType => {
-										newAttributes.skills[skillType].baseValue = 0;
-									});
-								});
-
-								calculateModifiers(newAttributes);
-								onAttributeUpdate(newAttributes);
+								const updates = tree.children.flatMap(child => child.reset());
+								for (const update of updates) {
+									onUpdateCharacterProp(update.key, update.value);
+								}
 							}}
 							style={{
 								background: 'none',
@@ -333,101 +269,32 @@ export const AttributeTree: React.FC<AttributeTreeProps> = ({ attributes, onAttr
 							gap: '8px',
 						}}
 					>
-						{/* Body Realm */}
-						<div
-							style={{
-								padding: '8px',
-								border: '1px solid var(--text)',
-								borderRadius: '4px',
-								backgroundColor: 'rgba(255, 100, 100, 0.1)',
-							}}
-						>
+						{tree.children.map(realm => (
 							<div
+								key={realm.type.name}
 								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-									alignItems: 'center',
-									marginBottom: '4px',
+									padding: '8px',
+									border: '1px solid var(--text)',
+									borderRadius: '4px',
+									backgroundColor: 'rgba(255, 100, 100, 0.1)',
 								}}
 							>
-								<span style={{ fontWeight: 'bold' }}>{RealmType.Body}</span>
-								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-									<AttributeValue
-										baseValue={attributes.body.baseValue}
-										finalModifier={attributes.body.finalModifier}
-										canAllocate={canAllocatePoint(attributes, AttributeType.Realm, 'body')}
-										canDeallocate={canDeallocatePoint(attributes, AttributeType.Realm, 'body')}
-										onClick={() => handleAllocatePoint(AttributeType.Realm, 'body')}
-										onRightClick={() => handleDeallocatePoint(AttributeType.Realm, 'body')}
-									/>
+								<div
+									style={{
+										display: 'flex',
+										justifyContent: 'space-between',
+										alignItems: 'center',
+										marginBottom: '4px',
+									}}
+								>
+									<span style={{ fontWeight: 'bold' }}>{realm.type.name}</span>
+									<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+										<AttributeValueNode node={realm} />
+									</div>
 								</div>
+								<div style={{ fontSize: '0.8em', opacity: 0.8 }}>{realm.type.description}</div>
 							</div>
-							<div style={{ fontSize: '0.8em', opacity: 0.8 }}>{attributes.body.description}</div>
-						</div>
-
-						{/* Mind Realm */}
-						<div
-							style={{
-								padding: '8px',
-								border: '1px solid var(--text)',
-								borderRadius: '4px',
-								backgroundColor: 'rgba(100, 100, 255, 0.1)',
-							}}
-						>
-							<div
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-									alignItems: 'center',
-									marginBottom: '4px',
-								}}
-							>
-								<span style={{ fontWeight: 'bold' }}>{RealmType.Mind}</span>
-								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-									<AttributeValue
-										baseValue={attributes.mind.baseValue}
-										finalModifier={attributes.mind.finalModifier}
-										canAllocate={canAllocatePoint(attributes, AttributeType.Realm, 'mind')}
-										canDeallocate={canDeallocatePoint(attributes, AttributeType.Realm, 'mind')}
-										onClick={() => handleAllocatePoint(AttributeType.Realm, 'mind')}
-										onRightClick={() => handleDeallocatePoint(AttributeType.Realm, 'mind')}
-									/>
-								</div>
-							</div>
-							<div style={{ fontSize: '0.8em', opacity: 0.8 }}>{attributes.mind.description}</div>
-						</div>
-
-						{/* Soul Realm */}
-						<div
-							style={{
-								padding: '8px',
-								border: '1px solid var(--text)',
-								borderRadius: '4px',
-								backgroundColor: 'rgba(100, 255, 100, 0.1)',
-							}}
-						>
-							<div
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-									alignItems: 'center',
-									marginBottom: '4px',
-								}}
-							>
-								<span style={{ fontWeight: 'bold' }}>{RealmType.Soul}</span>
-								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-									<AttributeValue
-										baseValue={attributes.soul.baseValue}
-										finalModifier={attributes.soul.finalModifier}
-										canAllocate={canAllocatePoint(attributes, AttributeType.Realm, 'soul')}
-										canDeallocate={canDeallocatePoint(attributes, AttributeType.Realm, 'soul')}
-										onClick={() => handleAllocatePoint(AttributeType.Realm, 'soul')}
-										onRightClick={() => handleDeallocatePoint(AttributeType.Realm, 'soul')}
-									/>
-								</div>
-							</div>
-							<div style={{ fontSize: '0.8em', opacity: 0.8 }}>{attributes.soul.description}</div>
-						</div>
+						))}
 					</div>
 				</div>
 			</div>
@@ -453,54 +320,21 @@ export const AttributeTree: React.FC<AttributeTreeProps> = ({ attributes, onAttr
 					}}
 				>
 					<span>Basic Attributes</span>
-					<button
-						onClick={() => {
-							// Reset all basic attributes and skills
-							const newAttributes = JSON.parse(JSON.stringify(attributes)) as AttributeMap;
-							Object.values(BasicAttributeType).forEach(attrType => {
-								newAttributes.basicAttributes[attrType].baseValue = 0;
-								BASIC_ATTRIBUTE_TO_SKILLS[attrType].forEach(skillType => {
-									newAttributes.skills[skillType].baseValue = 0;
-								});
-							});
-
-							calculateModifiers(newAttributes);
-							onAttributeUpdate(newAttributes);
-						}}
-						style={{
-							background: 'none',
-							border: 'none',
-							cursor: 'pointer',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							fontSize: '0.9em',
-							padding: '2px',
-							color: 'var(--text)',
-						}}
-						title='Reset all basic attributes'
-					>
-						<FaUndo />
-					</button>
 				</div>
 				<div style={{ padding: '8px' }}>
-					{/* Group by Realm */}
-					{Object.values(RealmType).map(realm => {
-						const basicAttrs = REALM_TO_BASIC_ATTRIBUTES[realm];
-						const allocatedPoints = getGroupAllocatedPoints(attributes, basicAttrs);
-						const realmPoints = getRealmAllocatedPoints(attributes, realm);
-
+					{tree.children.map(realm => {
 						return (
-							<div key={realm} style={{ marginBottom: '12px' }}>
+							<div key={realm.type.name} style={{ marginBottom: '12px' }}>
 								<div
 									style={{
 										padding: '4px 8px',
 										fontSize: '0.9em',
 										fontWeight: 'bold',
+										// TODO: add color as property of attributes
 										backgroundColor:
-											realm === RealmType.Body
+											realm.type === AttributeType.Body
 												? 'rgba(255, 100, 100, 0.1)'
-												: realm === RealmType.Mind
+												: realm.type === AttributeType.Mind
 													? 'rgba(100, 100, 255, 0.1)'
 													: 'rgba(100, 255, 100, 0.1)',
 										borderRadius: '4px',
@@ -510,16 +344,8 @@ export const AttributeTree: React.FC<AttributeTreeProps> = ({ attributes, onAttr
 										alignItems: 'center',
 									}}
 								>
-									<span>{realm} Attributes</span>
-									<span style={{ fontSize: '0.8em' }}>
-										{allocatedPoints}/{realmPoints} points
-										{allocatedPoints < realmPoints && (
-											<FaExclamationTriangle
-												style={{ marginLeft: '4px', color: 'orange', fontSize: '0.9em' }}
-												title='You have unallocated points'
-											/>
-										)}
-									</span>
+									<span>{realm.type.name} Attributes</span>
+									<PointsAllocation node={realm} />
 								</div>
 								<div
 									style={{
@@ -528,11 +354,10 @@ export const AttributeTree: React.FC<AttributeTreeProps> = ({ attributes, onAttr
 										gap: '8px',
 									}}
 								>
-									{REALM_TO_BASIC_ATTRIBUTES[realm].map(attrType => {
-										const attr = attributes.basicAttributes[attrType];
+									{realm.children.map(attr => {
 										return (
 											<div
-												key={attrType}
+												key={attr.type.name}
 												style={{
 													padding: '8px',
 													border: '1px solid var(--text)',
@@ -547,34 +372,15 @@ export const AttributeTree: React.FC<AttributeTreeProps> = ({ attributes, onAttr
 														marginBottom: '4px',
 													}}
 												>
-													<span style={{ fontWeight: 'bold' }}>{attrType}</span>
+													<span style={{ fontWeight: 'bold' }}>{attr.type.name}</span>
 													<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-														<span style={{ fontSize: '0.8em' }}>
-															{getBasicAttributeAllocatedPoints(attributes, attrType)} points
-														</span>
-														<AttributeValue
-															baseValue={attr.baseValue}
-															finalModifier={attr.finalModifier}
-															canAllocate={canAllocatePoint(
-																attributes,
-																AttributeType.BasicAttribute,
-																attr.id
-															)}
-															canDeallocate={canDeallocatePoint(
-																attributes,
-																AttributeType.BasicAttribute,
-																attr.id
-															)}
-															onClick={() =>
-																handleAllocatePoint(AttributeType.BasicAttribute, attr.id)
-															}
-															onRightClick={() =>
-																handleDeallocatePoint(AttributeType.BasicAttribute, attr.id)
-															}
-														/>
+														<span style={{ fontSize: '0.8em' }}>{attr.baseValue} points</span>
+														<AttributeValueNode node={attr} />
 													</div>
 												</div>
-												<div style={{ fontSize: '0.8em', opacity: 0.8 }}>{attr.description}</div>
+												<div style={{ fontSize: '0.8em', opacity: 0.8 }}>
+													{attr.type.description}
+												</div>
 											</div>
 										);
 									})}
@@ -605,53 +411,22 @@ export const AttributeTree: React.FC<AttributeTreeProps> = ({ attributes, onAttr
 					}}
 				>
 					<span>Skills</span>
-					<button
-						onClick={() => {
-							// Reset all skills
-							const newAttributes = JSON.parse(JSON.stringify(attributes)) as AttributeMap;
-							Object.values(SkillType).forEach(skillType => {
-								newAttributes.skills[skillType].baseValue = 0;
-							});
-
-							calculateModifiers(newAttributes);
-							onAttributeUpdate(newAttributes);
-						}}
-						style={{
-							background: 'none',
-							border: 'none',
-							cursor: 'pointer',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							fontSize: '0.9em',
-							padding: '2px',
-							color: 'var(--text)',
-						}}
-						title='Reset all skills'
-					>
-						<FaUndo />
-					</button>
 				</div>
 				<div style={{ padding: '8px' }}>
 					{/* Group by Basic Attribute */}
-					{Object.values(BasicAttributeType).map(attrType => {
-						const attr = attributes.basicAttributes[attrType];
-						const realm = attr.realmType;
-						const skills = BASIC_ATTRIBUTE_TO_SKILLS[attrType];
-						const allocatedPoints = getGroupAllocatedPoints(attributes, skills);
-						const basicAttrPoints = getBasicAttributeAllocatedPoints(attributes, attrType);
-
+					{tree.grouped(AttributeHierarchy.BasicAttribute).map(attr => {
+						const realm = attr.type.parent;
 						return (
-							<div key={attrType} style={{ marginBottom: '12px' }}>
+							<div key={attr.type.name} style={{ marginBottom: '12px' }}>
 								<div
 									style={{
 										padding: '4px 8px',
 										fontSize: '0.9em',
 										fontWeight: 'bold',
 										backgroundColor:
-											realm === RealmType.Body
+											realm === AttributeType.Body
 												? 'rgba(255, 100, 100, 0.1)'
-												: realm === RealmType.Mind
+												: realm === AttributeType.Mind
 													? 'rgba(100, 100, 255, 0.1)'
 													: 'rgba(100, 255, 100, 0.1)',
 										borderRadius: '4px',
@@ -661,16 +436,8 @@ export const AttributeTree: React.FC<AttributeTreeProps> = ({ attributes, onAttr
 										alignItems: 'center',
 									}}
 								>
-									<span>{attrType} Skills</span>
-									<span style={{ fontSize: '0.8em' }}>
-										{allocatedPoints}/{basicAttrPoints} points
-										{allocatedPoints < basicAttrPoints && (
-											<FaExclamationTriangle
-												style={{ marginLeft: '4px', color: 'orange', fontSize: '0.9em' }}
-												title='You have unallocated points'
-											/>
-										)}
-									</span>
+									<span>{attr.type.name} Skills</span>
+									<PointsAllocation node={attr} />
 								</div>
 								<div
 									style={{
@@ -679,11 +446,10 @@ export const AttributeTree: React.FC<AttributeTreeProps> = ({ attributes, onAttr
 										gap: '8px',
 									}}
 								>
-									{BASIC_ATTRIBUTE_TO_SKILLS[attrType].map(skillType => {
-										const skill = attributes.skills[skillType];
+									{attr.children.map(skill => {
 										return (
 											<div
-												key={skillType}
+												key={skill.type.name}
 												style={{
 													padding: '8px',
 													border: '1px solid var(--text)',
@@ -698,27 +464,12 @@ export const AttributeTree: React.FC<AttributeTreeProps> = ({ attributes, onAttr
 														marginBottom: '4px',
 													}}
 												>
-													<span>{skillType}</span>
-													<AttributeValue
-														baseValue={skill.baseValue}
-														finalModifier={skill.finalModifier}
-														canAllocate={canAllocatePoint(
-															attributes,
-															AttributeType.Skill,
-															skill.id
-														)}
-														canDeallocate={canDeallocatePoint(
-															attributes,
-															AttributeType.Skill,
-															skill.id
-														)}
-														onClick={() => handleAllocatePoint(AttributeType.Skill, skill.id)}
-														onRightClick={() =>
-															handleDeallocatePoint(AttributeType.Skill, skill.id)
-														}
-													/>
+													<span>{skill.type.name}</span>
+													<AttributeValueNode node={skill} />
 												</div>
-												<div style={{ fontSize: '0.8em', opacity: 0.8 }}>{skill.description}</div>
+												<div style={{ fontSize: '0.8em', opacity: 0.8 }}>
+													{skill.type.description}
+												</div>
 											</div>
 										);
 									})}

@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 
 import { useStore } from '../store';
-import { Race, CharacterClass } from '../types';
 import { findNextCharacterNumber } from '../utils';
 
-interface CharacterCreationProps {
+interface CharacterCreationModalProps {
 	hexPosition?: { q: number; r: number };
 }
 
-export const CharacterCreation: React.FC<CharacterCreationProps> = ({ hexPosition }) => {
+export const CharacterCreationModal: React.FC<CharacterCreationModalProps> = ({ hexPosition }) => {
 	const addCharacter = useStore(state => state.addCharacter);
 	const characters = useStore(state => state.characters);
 	const removeWindow = useStore(state => state.removeWindow);
@@ -25,10 +24,8 @@ export const CharacterCreation: React.FC<CharacterCreationProps> = ({ hexPositio
 		if (characterName.trim()) {
 			const newCharacter = {
 				id: window.crypto.randomUUID(),
-				sheet: {
+				props: {
 					name: characterName.trim(),
-					race: Race.Human, // Default race
-					class: CharacterClass.Fighter, // Default class
 				},
 			};
 

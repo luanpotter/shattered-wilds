@@ -1,13 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 
 import { useStore } from '../store';
-import { Character, Race, CharacterClass, AttributeMap } from '../types';
-import { initializeAttributeMap, calculateDerivedStats } from '../utils';
+import { Character, Race, CharacterClass, CharacterSheet } from '../types';
 
-import { AttributeTree } from './AttributeTree';
-import { DerivedStatsDisplay } from './DerivedStats';
+import { AttributeTreeComponent } from './AttributeTree';
 
-interface CharacterSheetProps {
+interface CharacterSheetModalProps {
 	character: Character;
 }
 
@@ -194,26 +192,11 @@ function DropdownSelect<T extends string>({
 	);
 }
 
-export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character }) => {
-	const updateCharacter = useStore(state => state.updateCharacter);
+export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ character }) => {
+	const updateCharacterName = useStore(state => state.updateCharacterName);
+	const updateCharacterProp = useStore(state => state.updateCharacterProp);
 	const windows = useStore(state => state.windows);
 	const updateWindow = useStore(state => state.updateWindow);
-	const updateCharacterAttributes = useStore(state => state.updateCharacterAttributes);
-
-	// Initialize attributes if they don't exist
-	useEffect(() => {
-		if (!character.sheet.attributes) {
-			const attributes = initializeAttributeMap(character.sheet.level || 0);
-			updateCharacter({
-				...character,
-				sheet: {
-					...character.sheet,
-					attributes,
-					derivedStats: calculateDerivedStats(attributes),
-				},
-			});
-		}
-	}, [character, updateCharacter]);
 
 	// Update window title when character name changes
 	useEffect(() => {
@@ -224,7 +207,7 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character }) => 
 
 		if (characterWindow) {
 			// Only update if the title doesn't match the current character name
-			const expectedTitle = `${character.sheet.name}'s Sheet`;
+			const expectedTitle = `${character.props.name}'s Sheet`;
 			if (characterWindow.title !== expectedTitle) {
 				updateWindow({
 					...characterWindow,
@@ -232,41 +215,18 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character }) => 
 				});
 			}
 		}
-	}, [character.sheet.name, character.id, windows, updateWindow]);
+	}, [character.props.name, character.id, windows, updateWindow]);
 
 	const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		updateCharacter({
-			...character,
-			sheet: {
-				...character.sheet,
-				name: e.target.value,
-			},
-		});
+		updateCharacterName(character, e.target.value);
 	};
 
 	const handleRaceChange = (race: Race) => {
-		updateCharacter({
-			...character,
-			sheet: {
-				...character.sheet,
-				race,
-			},
-		});
+		updateCharacterProp(character, 'race', race);
 	};
 
 	const handleClassChange = (characterClass: CharacterClass) => {
-		updateCharacter({
-			...character,
-			sheet: {
-				...character.sheet,
-				class: characterClass,
-			},
-		});
-	};
-
-	const handleAttributeUpdate = (newAttributes: AttributeMap) => {
-		// Use the store's updateCharacterAttributes function
-		updateCharacterAttributes(character.id, newAttributes);
+		updateCharacterProp(character, 'class', characterClass);
 	};
 
 	// Common styles for form rows - reduced margins for compactness
@@ -303,11 +263,7 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character }) => 
 		gap: '4px', // Maintain consistent gap
 	};
 
-	// If attributes are still loading, show loading state
-	if (!character.sheet.attributes || !character.sheet.derivedStats) {
-		return <div>Loading character data...</div>;
-	}
-
+	const sheet = CharacterSheet.from(character.props);
 	return (
 		<div style={{ margin: 0, padding: 0, width: '100%', height: '100%', overflowY: 'scroll' }}>
 			{/* Basic Info Section */}
@@ -326,7 +282,7 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character }) => 
 					<input
 						id='character-name'
 						type='text'
-						value={character.sheet.name}
+						value={character.props.name}
 						onChange={handleNameChange}
 						style={inputStyle}
 					/>
@@ -342,7 +298,7 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character }) => 
 							<DropdownSelect
 								id='character-race'
 								options={Race}
-								value={character.sheet.race}
+								value={sheet.race}
 								onChange={handleRaceChange}
 							/>
 						</div>
@@ -354,7 +310,7 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character }) => 
 							<DropdownSelect
 								id='character-class'
 								options={CharacterClass}
-								value={character.sheet.class}
+								value={sheet.characterClass}
 								onChange={handleClassChange}
 							/>
 						</div>
@@ -363,14 +319,14 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character }) => 
 			</div>
 
 			{/* Derived Stats */}
-			<div style={{ marginBottom: '12px' }}>
+			{/* <div style={{ marginBottom: '12px' }}>
 				<DerivedStatsDisplay stats={character.sheet.derivedStats} />
-			</div>
+			</div> */}
 
 			{/* Attribute Tree */}
-			<AttributeTree
-				attributes={character.sheet.attributes}
-				onAttributeUpdate={handleAttributeUpdate}
+			<AttributeTreeComponent
+				tree={sheet.attributes}
+				onUpdateCharacterProp={(key, value) => updateCharacterProp(character, key, value)}
 			/>
 		</div>
 	);
