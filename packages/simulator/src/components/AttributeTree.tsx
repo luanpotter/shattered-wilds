@@ -12,6 +12,7 @@ interface AttributeTreeComponentProps {
 const AttributeValue: React.FC<{
 	baseValue: number;
 	finalModifier: number;
+	level: number;
 	onClick?: () => void;
 	onRightClick?: () => void;
 	canAllocate?: boolean;
@@ -19,6 +20,7 @@ const AttributeValue: React.FC<{
 }> = ({
 	baseValue,
 	finalModifier,
+	level,
 	onClick,
 	onRightClick,
 	canAllocate = false,
@@ -31,6 +33,9 @@ const AttributeValue: React.FC<{
 			onRightClick();
 		}
 	};
+
+	const isCapped = finalModifier > level;
+	const displayModifier = isCapped ? level : finalModifier;
 
 	return (
 		<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -69,10 +74,25 @@ const AttributeValue: React.FC<{
 					borderRadius: '4px',
 					backgroundColor: 'var(--background-alt)',
 					fontSize: '0.9em',
-					fontWeight: finalModifier >= 0 ? 'bold' : 'normal',
+					fontWeight: displayModifier >= 0 ? 'bold' : 'normal',
+					position: 'relative',
 				}}
 			>
-				{finalModifier >= 0 ? `+${finalModifier}` : finalModifier}
+				{displayModifier >= 0 ? `+${displayModifier}` : displayModifier}
+				{isCapped && (
+					<FaExclamationTriangle
+						style={{
+							position: 'absolute',
+							bottom: '-2px',
+							right: '-2px',
+							width: '10px',
+							height: '10px',
+							color: 'orange',
+							cursor: 'default',
+						}}
+						title={`Actual modifier: +${finalModifier} (capped to +${level} due to level)`}
+					/>
+				)}
 			</div>
 		</div>
 	);
@@ -122,10 +142,12 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 
 	const AttributeValueNode = ({ node }: { node: Attribute }) => {
 		const modifier = tree.modifierOf(node);
+		const level = tree.baseValue; // Get level from root node
 		return (
 			<AttributeValue
 				baseValue={node.baseValue}
 				finalModifier={modifier}
+				level={level}
 				canAllocate={canAllocatePoint(node)}
 				canDeallocate={node.canDeallocatePoint}
 				onClick={() => handleAllocatePoint(node)}
