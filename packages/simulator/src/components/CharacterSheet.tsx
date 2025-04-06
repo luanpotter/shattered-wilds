@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 
 import { useStore } from '../store';
-import { Character, CharacterClass, CharacterSheet } from '../types';
+import { Character, CharacterClass, CharacterSheet, Size } from '../types';
 import { findNextWindowPosition } from '../utils';
 
 import { AttributeTreeComponent } from './AttributeTree';
@@ -100,6 +100,20 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 	const sheet = CharacterSheet.from(character.props);
 	const allModifiers = sheet.getAllModifiers();
 
+	// Map size enum to display value
+	const getSizeDisplay = (size: Size): string => {
+		switch (size) {
+			case Size.S:
+				return 'Small';
+			case Size.M:
+				return 'Medium';
+			case Size.L:
+				return 'Large';
+			default:
+				return 'Unknown';
+		}
+	};
+
 	return (
 		<div style={{ margin: 0, padding: 0, width: '100%', height: '100%', overflowY: 'scroll' }}>
 			{/* Basic Info Section */}
@@ -158,6 +172,30 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 								onChange={handleClassChange}
 							/>
 						</div>
+					</div>
+				</div>
+
+				{/* Derived Stats Section */}
+				<div style={{ marginTop: '8px' }}>
+					<div style={{ display: 'flex', gap: '8px' }}>
+						{/* Size */}
+						<div style={{ ...halfRowStyle, flex: 1 }}>
+							<label htmlFor="character-size" style={labelStyle}>Size:</label>
+							<div
+								id="character-size"
+								style={{
+									...inputStyle,
+									display: 'flex',
+									alignItems: 'center',
+									backgroundColor: 'var(--background)',
+								}}
+							>
+								{getSizeDisplay(sheet.derivedStats.size)}
+							</div>
+						</div>
+
+						{/* Reserved space for future derived stats */}
+						<div style={{ flex: 1 }}></div>
 					</div>
 				</div>
 			</div>

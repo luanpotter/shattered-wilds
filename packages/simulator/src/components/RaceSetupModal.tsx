@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import { useStore } from '../store';
-import { CharacterSheet, Race, RaceInfo } from '../types';
+import { CharacterSheet, Race, RaceInfo, Size } from '../types';
 
 import DropdownSelect from './DropdownSelect';
 
@@ -35,6 +35,20 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 		'race.half.combined-stats': combineStats ? 'true' : 'false',
 	});
 	const raceModifiers = sheet.race.getModifiers();
+
+	// Map size enum to display value
+	const getSizeDisplay = (size: Size): string => {
+		switch (size) {
+			case Size.S:
+				return 'Small';
+			case Size.M:
+				return 'Medium';
+			case Size.L:
+				return 'Large';
+			default:
+				return 'Unknown';
+		}
+	};
 
 	// Handle saving changes
 	const handleSave = () => {
@@ -144,6 +158,31 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 					</label>
 				</div>
 			)}
+
+			{/* Character Size Display */}
+			<div
+				style={{
+					marginBottom: '15px',
+					padding: '8px',
+					backgroundColor: 'var(--background-alt)',
+					borderRadius: '4px',
+				}}
+			>
+				<h3 style={{ margin: '0 0 8px 0', fontSize: '1em' }}>Character Size</h3>
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'space-between',
+						fontSize: '0.9em',
+						padding: '2px 0',
+					}}
+				>
+					<span>Size is determined by your primary race</span>
+					<span style={{ fontWeight: 'bold' }}>
+						{getSizeDisplay(sheet.derivedStats.size)}
+					</span>
+				</div>
+			</div>
 
 			{/* Race Modifiers Display */}
 			{raceModifiers.length > 0 && (

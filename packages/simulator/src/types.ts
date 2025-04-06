@@ -27,6 +27,12 @@ export enum Race {
 	Tellur = 'Tellur',
 }
 
+export enum Size {
+	S = 'Small',
+	M = 'Medium',
+	L = 'Large',
+}
+
 // Define a structure for race attribute modifiers, but move the implementation after AttributeType is defined
 export interface RaceAttributeModifier {
 	attributeType: any; // Temporarily use any, will be properly typed later
@@ -36,6 +42,7 @@ export interface RaceAttributeModifier {
 export interface RaceDefinition {
 	name: Race;
 	modifiers: RaceAttributeModifier[];
+	size: Size;
 }
 
 export class RaceInfo {
@@ -538,17 +545,42 @@ export interface Modifier {
 	description?: string;
 }
 
+// Forward declaration for DerivedStats
+export class DerivedStats {
+	size: Size;
+	
+	// Other derived stats will be added here
+	// maxVitality: number;
+	// currentVitality: number;
+	// maxFocus: number;
+	// currentFocus: number;
+	// maxSpirit: number;
+	// currentSpirit: number;
+	// maxHeroism: number;
+	// currentHeroism: number;
+	// initiative: number;
+	// speed: number;
+
+	constructor(size: Size) {
+		this.size = size;
+	}
+}
+
 export class CharacterSheet {
 	name: string;
 	race: RaceInfo;
 	characterClass: CharacterClass;
 	attributes: Attribute;
+	derivedStats!: DerivedStats;
 
 	constructor(name: string, race: RaceInfo, characterClass: CharacterClass, attributes: Attribute) {
 		this.name = name;
 		this.race = race;
 		this.characterClass = characterClass;
 		this.attributes = attributes;
+		
+		// Create the derived stats
+		this.computeDerivedStats();
 	}
 
 	// Get all modifiers from all sources (race, class, etc.)
@@ -563,6 +595,17 @@ export class CharacterSheet {
 		//   ...this.equipment.getModifiers(),
 		//   ...etc.
 		// ];
+	}
+
+	// Compute derived stats based on current character state
+	computeDerivedStats(): void {
+		// Get the race definition for the primary race
+		const raceDefinition = RACE_DEFINITIONS[this.race.primaryRace];
+		
+		// Create new derived stats with size based on primary race
+		this.derivedStats = new DerivedStats(raceDefinition.size);
+		
+		// We can add more derived stats calculations here in the future
 	}
 
 	static from(props: Record<string, string>): CharacterSheet {
@@ -621,6 +664,7 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 	[Race.Human]: {
 		name: Race.Human,
 		modifiers: [], // Neutral - no modifiers
+		size: Size.M,
 	},
 	[Race.Elf]: {
 		name: Race.Elf,
@@ -628,6 +672,7 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 			{ attributeType: AttributeType.DEX, value: 1 },
 			{ attributeType: AttributeType.CON, value: -1 },
 		],
+		size: Size.M,
 	},
 	[Race.Dwarf]: {
 		name: Race.Dwarf,
@@ -635,6 +680,7 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 			{ attributeType: AttributeType.CON, value: 1 },
 			{ attributeType: AttributeType.DEX, value: -1 },
 		],
+		size: Size.S,
 	},
 	[Race.Orc]: {
 		name: Race.Orc,
@@ -642,6 +688,7 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 			{ attributeType: AttributeType.STR, value: 1 },
 			{ attributeType: AttributeType.DEX, value: -1 },
 		],
+		size: Size.L,
 	},
 	[Race.Fey]: {
 		name: Race.Fey,
@@ -649,6 +696,7 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 			{ attributeType: AttributeType.DEX, value: 1 },
 			{ attributeType: AttributeType.STR, value: -1 },
 		],
+		size: Size.S,
 	},
 	[Race.Goliath]: {
 		name: Race.Goliath,
@@ -656,6 +704,7 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 			{ attributeType: AttributeType.STR, value: 1 },
 			{ attributeType: AttributeType.CON, value: -1 },
 		],
+		size: Size.L,
 	},
 	[Race.Tellur]: {
 		name: Race.Tellur,
@@ -663,6 +712,7 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 			{ attributeType: AttributeType.CON, value: 1 },
 			{ attributeType: AttributeType.STR, value: -1 },
 		],
+		size: Size.S,
 	},
 };
 
