@@ -27,6 +27,30 @@ export enum Race {
 	Tellur = 'Tellur',
 }
 
+export class RaceInfo {
+	primaryRace: Race;
+	halfRace: Race | null;
+
+	constructor(primaryRace: Race, halfRace: Race | null = null) {
+		this.primaryRace = primaryRace;
+		this.halfRace = halfRace;
+	}
+
+	static from(props: Record<string, string>): RaceInfo {
+		const primaryRace = (props.race as Race) ?? Race.Human;
+		const halfRace = props['race.half'] ? (props['race.half'] as Race) : null;
+
+		return new RaceInfo(primaryRace, halfRace);
+	}
+
+	toString(): string {
+		if (this.halfRace) {
+			return `Half ${this.primaryRace} / Half ${this.halfRace}`;
+		}
+		return this.primaryRace;
+	}
+}
+
 export enum CharacterClass {
 	Fighter = 'Fighter',
 	Berserker = 'Berserker',
@@ -67,19 +91,19 @@ export class AttributeType {
 		AttributeHierarchy.Realm,
 		AttributeType.Level,
 		'Body',
-		'Physique; determines your Vitality Points',
+		'Physique; determines your Vitality Points'
 	);
 	static readonly Mind = new AttributeType(
 		AttributeHierarchy.Realm,
 		AttributeType.Level,
 		'Mind',
-		'Intellect; determines your Focus Points',
+		'Intellect; determines your Focus Points'
 	);
 	static readonly Soul = new AttributeType(
 		AttributeHierarchy.Realm,
 		AttributeType.Level,
 		'Soul',
-		'Life force; determines your Spirit Points',
+		'Life force; determines your Spirit Points'
 	);
 	static readonly STR = new AttributeType(
 		AttributeHierarchy.BasicAttribute,
@@ -358,7 +382,9 @@ export class Attribute {
 	}
 
 	hasUnallocatedPoints(): boolean {
-		return this.canChildrenAllocatePoint || this.children.some(child => child.hasUnallocatedPoints());
+		return (
+			this.canChildrenAllocatePoint || this.children.some(child => child.hasUnallocatedPoints())
+		);
 	}
 
 	reset(): { key: string; value: string }[] {
@@ -381,7 +407,6 @@ export class Attribute {
 		return this.modifierOf(parent) ?? 0;
 	}
 
-
 	getNode(type: AttributeType | null): Attribute | null {
 		if (type == null) {
 			return null;
@@ -389,9 +414,7 @@ export class Attribute {
 		if (this.type === type) {
 			return this;
 		}
-		return this.children
-			.map(child => child.getNode(type))
-			.find(child => child !== null) || null;
+		return this.children.map(child => child.getNode(type)).find(child => child !== null) || null;
 	}
 
 	grouped(hierarchy: AttributeHierarchy): Attribute[] {
@@ -484,11 +507,11 @@ export interface DerivedStats {
 }
 export class CharacterSheet {
 	name: string;
-	race: Race;
+	race: RaceInfo;
 	characterClass: CharacterClass;
 	attributes: Attribute;
 
-	constructor(name: string, race: Race, characterClass: CharacterClass, attributes: Attribute) {
+	constructor(name: string, race: RaceInfo, characterClass: CharacterClass, attributes: Attribute) {
 		this.name = name;
 		this.race = race;
 		this.characterClass = characterClass;
@@ -498,7 +521,7 @@ export class CharacterSheet {
 	static from(props: Record<string, string>): CharacterSheet {
 		return new CharacterSheet(
 			props.name,
-			(props.race as Race) ?? Race.Human,
+			RaceInfo.from(props),
 			(props.class as CharacterClass) ?? CharacterClass.Fighter,
 			makeAttributeTree(props)
 		);
@@ -535,7 +558,7 @@ export function getCharacterInitials(character: Character): string {
 export interface Window {
 	id: string;
 	title: string;
-	type: 'character-sheet' | 'character-list' | 'character-creation';
+	type: 'character-sheet' | 'character-list' | 'character-creation' | 'race-setup';
 	characterId?: string;
 	position: Point;
 	hexPosition?: HexPosition;

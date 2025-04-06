@@ -6,8 +6,9 @@ import { CharacterList } from './components/CharacterList';
 import { CharacterSheetModal } from './components/CharacterSheet';
 import { DraggableWindow } from './components/DraggableWindow';
 import { BattleGrid } from './components/HexGrid';
+import RaceSetupModal from './components/RaceSetupModal';
 import { useStore } from './store';
-import { Point, Character } from './types';
+import { Point, Character, CharacterSheet } from './types';
 import { findNextWindowPosition } from './utils';
 
 const App = (): React.ReactElement => {
@@ -265,6 +266,16 @@ const App = (): React.ReactElement => {
 					{window.type === 'character-list' && <CharacterList />}
 					{window.type === 'character-creation' && (
 						<CharacterCreationModal hexPosition={window.hexPosition} />
+					)}
+					{window.type === 'race-setup' && window.characterId && (
+						<RaceSetupModal
+							characterId={window.characterId}
+							currentRace={
+								CharacterSheet.from(characters.find(c => c.id === window.characterId)?.props || {})
+									.race
+							}
+							onClose={() => removeWindow(window.id)}
+						/>
 					)}
 				</DraggableWindow>
 			))}

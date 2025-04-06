@@ -265,7 +265,7 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 		children?: React.ReactNode
 	) => {
 		const selectedTabIndex = selectedTab ? tabs.findIndex(t => t.type.name === selectedTab) : -1;
-		
+
 		return (
 			<div style={{ marginBottom: tabLevel === 'realm' ? '12px' : 0 }}>
 				{/* Tab headers row */}
@@ -281,7 +281,7 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 					{tabs.map(tab => {
 						const isSelected = tab.type.name === selectedTab;
 						let tabStyle: React.CSSProperties = {};
-						
+
 						if (tabLevel === 'realm') {
 							tabStyle = {
 								backgroundColor: getRealmBackgroundColor(tab.type),
@@ -297,7 +297,7 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 								zIndex: isSelected ? 1 : 0,
 							};
 						}
-						
+
 						return (
 							<AttributeBox
 								key={tab.type.name}
@@ -312,7 +312,7 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 						);
 					})}
 				</div>
-				
+
 				{/* Tab content panel */}
 				{selectedTab && (
 					<div
@@ -390,9 +390,9 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 				selectedRealm
 					? getRealmBackgroundColor(
 							tree.children.find(r => r.type.name === selectedRealm)?.type || AttributeType.Body
-					  )
+						)
 					: undefined,
-				selectedRealm && (
+				selectedRealm &&
 					// Basic Attributes Tab Panel (nested)
 					createTabPanel(
 						tree.children.find(realm => realm.type.name === selectedRealm)?.children || [],
@@ -426,7 +426,6 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 							</div>
 						)
 					)
-				)
 			)}
 		</div>
 	);
