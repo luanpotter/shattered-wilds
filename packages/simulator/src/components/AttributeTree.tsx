@@ -1,5 +1,5 @@
-import React from 'react';
-import { FaUndo, FaExclamationTriangle } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { FaUndo, FaExclamationTriangle, FaChevronDown, FaChevronRight } from 'react-icons/fa';
 
 import { Attribute, AttributeHierarchy, AttributeType } from '../types';
 
@@ -106,6 +106,10 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 		return <div>Loading...</div>;
 	}
 
+	// State for tracking expanded tabs
+	const [selectedRealm, setSelectedRealm] = useState<string | null>(null);
+	const [selectedBasicAttribute, setSelectedBasicAttribute] = useState<string | null>(null);
+
 	const canAllocatePoint = (node: Attribute) => {
 		const parent = tree.getNode(node.type.parent);
 		return parent?.canChildrenAllocatePoint ?? true;
@@ -156,6 +160,24 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 		);
 	};
 
+	// Check if any children of a node have unallocated points
+	const hasUnallocatedPoints = (node: Attribute): boolean => {
+		if (node.childrenAllocatedPoints < node.totalPointsToPropagate && node.totalPointsToPropagate > 0) {
+			return true;
+		}
+		
+		return node.children.some(child => hasUnallocatedPoints(child));
+	};
+
+	// Get the background color for a realm
+	const getRealmBackgroundColor = (realmType: AttributeType) => {
+		return realmType === AttributeType.Body
+			? 'rgba(255, 100, 100, 0.1)'
+			: realmType === AttributeType.Mind
+				? 'rgba(100, 100, 255, 0.1)'
+				: 'rgba(100, 255, 100, 0.1)';
+	};
+
 	return (
 		<div style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}>
 			{/* Level Section */}
@@ -181,66 +203,35 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 			<div
 				style={{
 					marginBottom: '12px',
-					border: '1px solid var(--text)',
 					borderRadius: '4px',
 					overflow: 'hidden',
 				}}
 			>
 				<div
 					style={{
-						padding: '4px 8px',
-						backgroundColor: 'var(--background-alt)',
-						borderBottom: '1px solid var(--text)',
-						fontWeight: 'bold',
-						display: 'flex',
-						justifyContent: 'space-between',
-						alignItems: 'center',
+						display: 'grid',
+						gridTemplateColumns: 'repeat(3, 1fr)',
+						gap: '8px',
 					}}
 				>
-					<span>Realms</span>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-						<PointsAllocation node={tree} />
-						<button
-							onClick={() => {
-								const updates = tree.children.flatMap(child => child.reset());
-								for (const update of updates) {
-									onUpdateCharacterProp(update.key, update.value);
-								}
-							}}
-							style={{
-								background: 'none',
-								border: 'none',
-								cursor: 'pointer',
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								fontSize: '0.9em',
-								padding: '2px',
-								color: 'var(--text)',
-							}}
-							title='Reset all realm points'
-						>
-							<FaUndo />
-						</button>
-					</div>
-				</div>
-				<div style={{ padding: '8px' }}>
-					<div
-						style={{
-							display: 'grid',
-							gridTemplateColumns: 'repeat(3, 1fr)',
-							gap: '8px',
-						}}
-					>
-						{tree.children.map(realm => (
+					{tree.children.map(realm => {
+						const isSelected = selectedRealm === realm.type.name;
+						const backgroundColor = getRealmBackgroundColor(realm.type);
+						const hasUnallocated = hasUnallocatedPoints(realm);
+						
+						return (
 							<div
 								key={realm.type.name}
 								style={{
 									padding: '8px',
 									border: '1px solid var(--text)',
-									borderRadius: '4px',
-									backgroundColor: 'rgba(255, 100, 100, 0.1)',
+									borderRadius: isSelected ? '4px 4px 0 0' : '4px',
+									backgroundColor,
+									position: 'relative',
+									cursor: 'pointer',
+									borderBottom: isSelected ? 'none' : '1px solid var(--text)',
 								}}
+								onClick={() => setSelectedRealm(isSelected ? null : realm.type.name)}
 							>
 								<div
 									style={{
@@ -250,157 +241,101 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 										marginBottom: '4px',
 									}}
 								>
-									<span style={{ fontWeight: 'bold' }}>{realm.type.name}</span>
-									<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-										<AttributeValueNode node={realm} />
+									<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+										{isSelected ? <FaChevronDown size={14} /> : <FaChevronRight size={14} />}
+										<span style={{ fontWeight: 'bold' }}>{realm.type.name}</span>
+										{hasUnallocated && (
+											<FaExclamationTriangle
+												style={{ color: 'orange', marginLeft: '4px' }}
+												title='Contains unallocated points'
+											/>
+										)}
 									</div>
+									<AttributeValueNode node={realm} />
 								</div>
 								<div style={{ fontSize: '0.8em', opacity: 0.8 }}>{realm.type.description}</div>
-							</div>
-						))}
-					</div>
-				</div>
-			</div>
-
-			{/* Basic Attributes Section */}
-			<div
-				style={{
-					marginBottom: '12px',
-					border: '1px solid var(--text)',
-					borderRadius: '4px',
-					overflow: 'hidden',
-				}}
-			>
-				<div
-					style={{
-						padding: '4px 8px',
-						backgroundColor: 'var(--background-alt)',
-						borderBottom: '1px solid var(--text)',
-						fontWeight: 'bold',
-						display: 'flex',
-						justifyContent: 'space-between',
-						alignItems: 'center',
-					}}
-				>
-					<span>Basic Attributes</span>
-				</div>
-				<div style={{ padding: '8px' }}>
-					{tree.children.map(realm => {
-						return (
-							<div key={realm.type.name} style={{ marginBottom: '12px' }}>
-								<div
-									style={{
-										padding: '4px 8px',
-										fontSize: '0.9em',
-										fontWeight: 'bold',
-										// TODO: add color as property of attributes
-										backgroundColor:
-											realm.type === AttributeType.Body
-												? 'rgba(255, 100, 100, 0.1)'
-												: realm.type === AttributeType.Mind
-													? 'rgba(100, 100, 255, 0.1)'
-													: 'rgba(100, 255, 100, 0.1)',
-										borderRadius: '4px',
-										marginBottom: '4px',
-										display: 'flex',
-										justifyContent: 'space-between',
-										alignItems: 'center',
-									}}
-								>
-									<span>{realm.type.name} Attributes</span>
-									<PointsAllocation node={realm} />
-								</div>
-								<div
-									style={{
-										display: 'grid',
-										gridTemplateColumns: 'repeat(3, 1fr)',
-										gap: '8px',
-									}}
-								>
-									{realm.children.map(attr => {
-										return (
-											<div
-												key={attr.type.name}
-												style={{
-													padding: '8px',
-													border: '1px solid var(--text)',
-													borderRadius: '4px',
-												}}
-											>
-												<div
-													style={{
-														display: 'flex',
-														justifyContent: 'space-between',
-														alignItems: 'center',
-														marginBottom: '4px',
-													}}
-												>
-													<span style={{ fontWeight: 'bold' }}>{attr.type.name}</span>
-													<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-														<AttributeValueNode node={attr} />
-													</div>
-												</div>
-												<div style={{ fontSize: '0.8em', opacity: 0.8 }}>
-													{attr.type.description}
-												</div>
-											</div>
-										);
-									})}
-								</div>
 							</div>
 						);
 					})}
 				</div>
-			</div>
+				
+				{/* Basic Attributes for Selected Realm */}
+				{selectedRealm && (
+					<div
+						style={{
+							border: '1px solid var(--text)',
+							borderTop: 'none',
+							borderRadius: '0 0 4px 4px',
+							padding: '8px',
+							marginBottom: '12px',
+							backgroundColor: getRealmBackgroundColor(
+								tree.children.find(r => r.type.name === selectedRealm)?.type || AttributeType.Body
+							),
+						}}
+					>
+						<div
+							style={{
+								display: 'grid',
+								gridTemplateColumns: 'repeat(3, 1fr)',
+								gap: '8px',
+							}}
+						>
+							{tree.children
+								.find(realm => realm.type.name === selectedRealm)
+								?.children.map(attr => {
+									const isSelected = selectedBasicAttribute === attr.type.name;
+									const hasUnallocated = hasUnallocatedPoints(attr);
 
-			{/* Skills Section */}
-			<div
-				style={{
-					border: '1px solid var(--text)',
-					borderRadius: '4px',
-					overflow: 'hidden',
-				}}
-			>
-				<div
-					style={{
-						padding: '4px 8px',
-						backgroundColor: 'var(--background-alt)',
-						borderBottom: '1px solid var(--text)',
-						fontWeight: 'bold',
-						display: 'flex',
-						justifyContent: 'space-between',
-						alignItems: 'center',
-					}}
-				>
-					<span>Skills</span>
-				</div>
-				<div style={{ padding: '8px' }}>
-					{/* Group by Basic Attribute */}
-					{tree.grouped(AttributeHierarchy.BasicAttribute).map(attr => {
-						const realm = attr.type.parent;
-						return (
-							<div key={attr.type.name} style={{ marginBottom: '12px' }}>
-								<div
-									style={{
-										padding: '4px 8px',
-										fontSize: '0.9em',
-										fontWeight: 'bold',
-										backgroundColor:
-											realm === AttributeType.Body
-												? 'rgba(255, 100, 100, 0.1)'
-												: realm === AttributeType.Mind
-													? 'rgba(100, 100, 255, 0.1)'
-													: 'rgba(100, 255, 100, 0.1)',
-										borderRadius: '4px',
-										marginBottom: '4px',
-										display: 'flex',
-										justifyContent: 'space-between',
-										alignItems: 'center',
-									}}
-								>
-									<span>{attr.type.name} Skills</span>
-									<PointsAllocation node={attr} />
-								</div>
+									return (
+										<div
+											key={attr.type.name}
+											style={{
+												padding: '8px',
+												border: '1px solid var(--text)',
+												borderRadius: isSelected ? '4px 4px 0 0' : '4px',
+												backgroundColor: 'rgba(255, 255, 255, 0.1)',
+												cursor: 'pointer',
+												borderBottom: isSelected ? 'none' : '1px solid var(--text)',
+											}}
+											onClick={() => setSelectedBasicAttribute(isSelected ? null : attr.type.name)}
+										>
+											<div
+												style={{
+													display: 'flex',
+													justifyContent: 'space-between',
+													alignItems: 'center',
+													marginBottom: '4px',
+												}}
+											>
+												<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+													{isSelected ? <FaChevronDown size={14} /> : <FaChevronRight size={14} />}
+													<span style={{ fontWeight: 'bold' }}>{attr.type.name}</span>
+													{hasUnallocated && (
+														<FaExclamationTriangle
+															style={{ color: 'orange', marginLeft: '4px' }}
+															title='Contains unallocated points'
+														/>
+													)}
+												</div>
+												<AttributeValueNode node={attr} />
+											</div>
+											<div style={{ fontSize: '0.8em', opacity: 0.8 }}>{attr.type.description}</div>
+										</div>
+									);
+								})}
+						</div>
+
+						{/* Skills for Selected Basic Attribute */}
+						{selectedBasicAttribute && (
+							<div
+								style={{
+									border: '1px solid var(--text)',
+									borderTop: 'none',
+									borderRadius: '0 0 4px 4px',
+									padding: '8px',
+									backgroundColor: 'rgba(255, 255, 255, 0.05)',
+								}}
+							>
 								<div
 									style={{
 										display: 'grid',
@@ -408,14 +343,17 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 										gap: '8px',
 									}}
 								>
-									{attr.children.map(skill => {
-										return (
+									{tree.children
+										.find(realm => realm.type.name === selectedRealm)
+										?.children.find(attr => attr.type.name === selectedBasicAttribute)
+										?.children.map(skill => (
 											<div
 												key={skill.type.name}
 												style={{
 													padding: '8px',
 													border: '1px solid var(--text)',
 													borderRadius: '4px',
+													backgroundColor: 'rgba(255, 255, 255, 0.1)',
 												}}
 											>
 												<div
@@ -433,13 +371,39 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 													{skill.type.description}
 												</div>
 											</div>
-										);
-									})}
+										))}
 								</div>
 							</div>
-						);
-					})}
-				</div>
+						)}
+					</div>
+				)}
+			</div>
+
+			{/* Reset Points Button */}
+			<div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
+				<button
+					onClick={() => {
+						const updates = tree.children.flatMap(child => child.reset());
+						for (const update of updates) {
+							onUpdateCharacterProp(update.key, update.value);
+						}
+					}}
+					style={{
+						background: 'none',
+						border: '1px solid var(--text)',
+						borderRadius: '4px',
+						cursor: 'pointer',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '4px',
+						padding: '4px 8px',
+						color: 'var(--text)',
+					}}
+					title='Reset all points'
+				>
+					<FaUndo />
+					<span>Reset All Points</span>
+				</button>
 			</div>
 		</div>
 	);
