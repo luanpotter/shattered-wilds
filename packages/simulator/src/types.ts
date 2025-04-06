@@ -67,19 +67,19 @@ export class AttributeType {
 		AttributeHierarchy.Realm,
 		AttributeType.Level,
 		'Body',
-		'Physique'
+		'Physique; determines your Vitality Points',
 	);
 	static readonly Mind = new AttributeType(
 		AttributeHierarchy.Realm,
 		AttributeType.Level,
 		'Mind',
-		'Intellect'
+		'Intellect; determines your Focus Points',
 	);
 	static readonly Soul = new AttributeType(
 		AttributeHierarchy.Realm,
 		AttributeType.Level,
 		'Soul',
-		'Spirit'
+		'Life force; determines your Spirit Points',
 	);
 	static readonly STR = new AttributeType(
 		AttributeHierarchy.BasicAttribute,
@@ -335,6 +335,9 @@ export class Attribute {
 	}
 
 	get canChildrenAllocatePoint(): boolean {
+		if (this.children.length === 0) {
+			return false;
+		}
 		return this.unallocatedPoints > 0;
 	}
 
@@ -352,6 +355,10 @@ export class Attribute {
 		return Math.ceil(
 			this.baseValue * AttributeHierarchyProperties[this.type.hierarchy].baseMultiplier
 		);
+	}
+
+	hasUnallocatedPoints(): boolean {
+		return this.canChildrenAllocatePoint || this.children.some(child => child.hasUnallocatedPoints());
 	}
 
 	reset(): { key: string; value: string }[] {
