@@ -103,64 +103,6 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 		}
 	};
 
-	const BaseValueAttributeNode: React.FC<{ node: Attribute }> = ({ node }) => {
-		return (
-			<div
-				style={{
-					display: 'flex',
-					justifyContent: 'center',
-					alignItems: 'center',
-					width: '24px',
-					height: '24px',
-					borderRadius: '50%',
-					backgroundColor: 'var(--background-alt)',
-					border: '1px solid var(--text)',
-					cursor: 'pointer',
-					fontSize: '0.9em',
-					fontWeight: 'bold',
-				}}
-				onClick={() => handleAllocatePoint(node)}
-				onContextMenu={e => {
-					e.preventDefault();
-					handleDeallocatePoint(node);
-				}}
-				onKeyDown={e => {
-					if (e.key === 'Enter' || e.key === ' ') {
-						e.preventDefault();
-						handleAllocatePoint(node);
-					}
-				}}
-				tabIndex={0}
-				role='button'
-				aria-label={`Level ${node.baseValue}. Left-click to increase, right-click to decrease.`}
-				title='Left-click to increase level, right-click to decrease'
-			>
-				{node.baseValue}
-			</div>
-		);
-	};
-
-	const ModifierAttributeNode: React.FC<{ node: Attribute }> = ({ node }) => {
-		const modifier = tree.modifierOf(node.type);
-		return (
-			<div
-				style={{
-					display: 'flex',
-					justifyContent: 'center',
-					alignItems: 'center',
-					width: '24px',
-					height: '24px',
-					borderRadius: '4px',
-					backgroundColor: 'var(--background-alt)',
-					fontSize: '0.9em',
-					fontWeight: 'bold',
-				}}
-			>
-				{modifier >= 0 ? `+${modifier}` : modifier}
-			</div>
-		);
-	};
-
 	const PointsAllocation: React.FC<{ node: Attribute }> = ({ node }) => {
 		return (
 			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -179,7 +121,7 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 	};
 
 	const AttributeValueNode = ({ node }: { node: Attribute }) => {
-		const modifier = tree.modifierOf(node.type);
+		const modifier = tree.modifierOf(node);
 		return (
 			<AttributeValue
 				baseValue={node.baseValue}
@@ -208,8 +150,7 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 			>
 				<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 					<span style={{ fontWeight: 'bold' }}>Level:</span>
-					<BaseValueAttributeNode node={tree} />
-					<ModifierAttributeNode node={tree} />
+					<AttributeValueNode node={tree} />
 				</div>
 				<PointsAllocation node={tree} />
 			</div>
@@ -374,7 +315,6 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 												>
 													<span style={{ fontWeight: 'bold' }}>{attr.type.name}</span>
 													<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-														<span style={{ fontSize: '0.8em' }}>{attr.baseValue} points</span>
 														<AttributeValueNode node={attr} />
 													</div>
 												</div>

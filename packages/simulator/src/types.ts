@@ -46,6 +46,7 @@ export enum AttributeHierarchy {
 	BasicAttribute = 'BasicAttribute',
 	Skill = 'Skill',
 }
+
 export const AttributeHierarchyProperties: {
 	[key in AttributeHierarchy]: { baseMultiplier: number };
 } = {
@@ -357,10 +358,22 @@ export class Attribute {
 		return [{ key: this.type.name, value: '0' }, ...this.children.flatMap(child => child.reset())];
 	}
 
-	modifierOf(type: AttributeType): number {
-		const parentModifier = this.getNode(type.parent)?.nodeModifier ?? 0;
-		return this.nodeModifier + parentModifier;
+	modifierOf(node: Attribute): number {
+		return node.nodeModifier + this.parentModifier(node);
 	}
+
+	parentModifier(node: Attribute): number {
+		const parentType = node.type.parent;
+		if (parentType == null) {
+			return 0;
+		}
+		const parent = this.getNode(parentType);
+		if (parent == null) {
+			return 0;
+		}
+		return this.modifierOf(parent) ?? 0;
+	}
+
 
 	getNode(type: AttributeType | null): Attribute | null {
 		if (type == null) {
@@ -369,7 +382,9 @@ export class Attribute {
 		if (this.type === type) {
 			return this;
 		}
-		return this.children.find(child => child.type === type) || null;
+		return this.children
+			.map(child => child.getNode(type))
+			.find(child => child !== null) || null;
 	}
 
 	grouped(hierarchy: AttributeHierarchy): Attribute[] {
