@@ -98,6 +98,8 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 	};
 
 	const sheet = CharacterSheet.from(character.props);
+	const allModifiers = sheet.getAllModifiers();
+
 	return (
 		<div style={{ margin: 0, padding: 0, width: '100%', height: '100%', overflowY: 'scroll' }}>
 			{/* Basic Info Section */}
@@ -160,15 +162,11 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 				</div>
 			</div>
 
-			{/* Derived Stats */}
-			{/* <div style={{ marginBottom: '12px' }}>
-				<DerivedStatsDisplay stats={character.sheet.derivedStats} />
-			</div> */}
-
 			{/* Attribute Tree */}
 			<AttributeTreeComponent
 				tree={sheet.attributes}
 				onUpdateCharacterProp={(key, value) => updateCharacterProp(character, key, value)}
+				modifiers={allModifiers}
 			/>
 		</div>
 	);

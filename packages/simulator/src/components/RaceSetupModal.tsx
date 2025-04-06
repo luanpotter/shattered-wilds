@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import { useStore } from '../store';
-import { Race, RaceInfo } from '../types';
+import { CharacterSheet, Race, RaceInfo } from '../types';
 
 import DropdownSelect from './DropdownSelect';
 
@@ -19,12 +19,22 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 	const [primaryRace, setPrimaryRace] = useState<Race>(currentRace.primaryRace);
 	const [halfRace, setHalfRace] = useState<Race | null>(currentRace.halfRace);
 	const [showHalfRace, setShowHalfRace] = useState<boolean>(currentRace.halfRace !== null);
+	const [combineStats, setCombineStats] = useState<boolean>(currentRace.combineHalfRaceStats);
 
 	// Find the character by ID
 	const character = characters.find(c => c.id === characterId);
 	if (!character) {
 		return null;
 	}
+
+	// Get modifiers for the preview
+	const sheet = CharacterSheet.from({
+		...character.props,
+		race: primaryRace,
+		'race.half': showHalfRace && halfRace ? halfRace : '',
+		'race.half.combined-stats': combineStats ? 'true' : 'false',
+	});
+	const raceModifiers = sheet.race.getModifiers();
 
 	// Handle saving changes
 	const handleSave = () => {
@@ -40,6 +50,13 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 			// Clear the half race if it was previously set but is now disabled
 			updateCharacterProp(character, 'race.half', '');
 		}
+
+		// Update combine stats setting
+		updateCharacterProp(
+			character,
+			'race.half.combined-stats',
+			combineStats ? 'true' : 'false'
+		);
 
 		onClose();
 	};
@@ -105,6 +122,60 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 					)}
 				</div>
 			</div>
+
+			{/* Combine racial stats toggle */}
+			{showHalfRace && halfRace && (
+				<div style={{ marginBottom: '15px' }}>
+					<label
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							cursor: 'pointer',
+							userSelect: 'none',
+						}}
+					>
+						<input
+							type='checkbox'
+							checked={combineStats}
+							onChange={() => setCombineStats(!combineStats)}
+							style={{ marginRight: '6px' }}
+						/>
+						Combine racial attribute bonuses from both races
+					</label>
+				</div>
+			)}
+
+			{/* Race Modifiers Display */}
+			{raceModifiers.length > 0 && (
+				<div
+					style={{
+						marginBottom: '15px',
+						padding: '8px',
+						backgroundColor: 'var(--background-alt)',
+						borderRadius: '4px',
+					}}
+				>
+					<h3 style={{ margin: '0 0 8px 0', fontSize: '1em' }}>Racial Modifiers</h3>
+					<div>
+						{raceModifiers.map((mod, index) => (
+							<div
+								key={index}
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									fontSize: '0.9em',
+									padding: '2px 0',
+								}}
+							>
+								<span>{mod.source}</span>
+								<span>
+									{mod.attributeType?.name}: {mod.value > 0 ? `+${mod.value}` : mod.value}
+								</span>
+							</div>
+						))}
+					</div>
+				</div>
+			)}
 
 			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
 				<button

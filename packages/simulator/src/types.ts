@@ -27,20 +27,44 @@ export enum Race {
 	Tellur = 'Tellur',
 }
 
+// Define a structure for race attribute modifiers, but move the implementation after AttributeType is defined
+export interface RaceAttributeModifier {
+	attributeType: any; // Temporarily use any, will be properly typed later
+	value: number;
+}
+
+export interface RaceDefinition {
+	name: Race;
+	modifiers: RaceAttributeModifier[];
+}
+
 export class RaceInfo {
 	primaryRace: Race;
 	halfRace: Race | null;
+	combineHalfRaceStats: boolean;
 
-	constructor(primaryRace: Race, halfRace: Race | null = null) {
+	constructor(
+		primaryRace: Race,
+		halfRace: Race | null = null,
+		combineHalfRaceStats: boolean = false
+	) {
 		this.primaryRace = primaryRace;
 		this.halfRace = halfRace;
+		this.combineHalfRaceStats = combineHalfRaceStats;
 	}
 
 	static from(props: Record<string, string>): RaceInfo {
 		const primaryRace = (props.race as Race) ?? Race.Human;
 		const halfRace = props['race.half'] ? (props['race.half'] as Race) : null;
+		const combineHalfRaceStats = props['race.half.combined-stats'] === 'true';
 
-		return new RaceInfo(primaryRace, halfRace);
+		return new RaceInfo(primaryRace, halfRace, combineHalfRaceStats);
+	}
+
+	// Get modifiers that apply to this race configuration
+	getModifiers(): Modifier[] {
+		// This implementation will be replaced later
+		return [];
 	}
 
 	toString(): string {
@@ -345,6 +369,21 @@ export class Attribute {
 		this.children = children;
 	}
 
+	// Get modifiers applicable to this attribute from a list of modifiers
+	getApplicableModifiers(modifiers: Modifier[]): Modifier[] {
+		return modifiers.filter(mod => mod.attributeType === this.type);
+	}
+
+	// Calculate total modifier value for this attribute
+	getTotalModifierValue(modifiers: Modifier[]): number {
+		return this.getApplicableModifiers(modifiers).reduce((total, mod) => total + mod.value, 0);
+	}
+
+	// Get the effective value including all modifiers
+	getEffectiveValue(modifiers: Modifier[]): number {
+		return this.baseValue + this.getTotalModifierValue(modifiers);
+	}
+
 	// Computed properties
 	get totalPointsToPropagate(): number {
 		return Math.max(this.baseValue - 1, 0);
@@ -375,10 +414,32 @@ export class Attribute {
 		return this.childrenAllocatedPoints < this.totalPointsToPropagate;
 	}
 
-	get nodeModifier(): number {
-		return Math.ceil(
+	// Get the effective value including all modifiers
+	getNodeModifier(modifiers: Modifier[] = []): number {
+		const baseModifier = Math.ceil(
 			this.baseValue * AttributeHierarchyProperties[this.type.hierarchy].baseMultiplier
 		);
+
+		// Apply additional modifiers if provided
+		return baseModifier + this.getTotalModifierValue(modifiers);
+	}
+
+	// Get the effective value including all modifiers
+	modifierOf(node: Attribute, modifiers: Modifier[] = []): number {
+		return node.getNodeModifier(modifiers) + this.parentModifier(node, modifiers);
+	}
+
+	// Get the effective value including all modifiers
+	parentModifier(node: Attribute, modifiers: Modifier[] = []): number {
+		const parentType = node.type.parent;
+		if (parentType == null) {
+			return 0;
+		}
+		const parent = this.getNode(parentType);
+		if (parent == null) {
+			return 0;
+		}
+		return this.modifierOf(parent, modifiers) ?? 0;
 	}
 
 	hasUnallocatedPoints(): boolean {
@@ -389,22 +450,6 @@ export class Attribute {
 
 	reset(): { key: string; value: string }[] {
 		return [{ key: this.type.name, value: '0' }, ...this.children.flatMap(child => child.reset())];
-	}
-
-	modifierOf(node: Attribute): number {
-		return node.nodeModifier + this.parentModifier(node);
-	}
-
-	parentModifier(node: Attribute): number {
-		const parentType = node.type.parent;
-		if (parentType == null) {
-			return 0;
-		}
-		const parent = this.getNode(parentType);
-		if (parent == null) {
-			return 0;
-		}
-		return this.modifierOf(parent) ?? 0;
 	}
 
 	getNode(type: AttributeType | null): Attribute | null {
@@ -489,22 +534,10 @@ export const makeAttributeTree = (values: Record<string, string> = {}): Attribut
 export interface Modifier {
 	source: string;
 	value: number;
+	attributeType?: AttributeType;
 	description?: string;
 }
 
-// Derived statistics interfaces
-export interface DerivedStats {
-	maxVitality: number;
-	currentVitality: number;
-	maxFocus: number;
-	currentFocus: number;
-	maxSpirit: number;
-	currentSpirit: number;
-	maxHeroism: number;
-	currentHeroism: number;
-	initiative: number;
-	speed: number;
-}
 export class CharacterSheet {
 	name: string;
 	race: RaceInfo;
@@ -516,6 +549,20 @@ export class CharacterSheet {
 		this.race = race;
 		this.characterClass = characterClass;
 		this.attributes = attributes;
+	}
+
+	// Get all modifiers from all sources (race, class, etc.)
+	getAllModifiers(): Modifier[] {
+		// For now, just return race modifiers
+		return this.race.getModifiers();
+
+		// In the future, we can add more sources like:
+		// return [
+		//   ...this.race.getModifiers(),
+		//   ...this.characterClass.getModifiers(),
+		//   ...this.equipment.getModifiers(),
+		//   ...etc.
+		// ];
 	}
 
 	static from(props: Record<string, string>): CharacterSheet {
@@ -568,3 +615,82 @@ export interface GridState {
 	scale: number;
 	offset: Point;
 }
+
+// Define the modifiers for each race
+export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
+	[Race.Human]: {
+		name: Race.Human,
+		modifiers: [], // Neutral - no modifiers
+	},
+	[Race.Elf]: {
+		name: Race.Elf,
+		modifiers: [
+			{ attributeType: AttributeType.DEX, value: 1 },
+			{ attributeType: AttributeType.CON, value: -1 },
+		],
+	},
+	[Race.Dwarf]: {
+		name: Race.Dwarf,
+		modifiers: [
+			{ attributeType: AttributeType.CON, value: 1 },
+			{ attributeType: AttributeType.DEX, value: -1 },
+		],
+	},
+	[Race.Orc]: {
+		name: Race.Orc,
+		modifiers: [
+			{ attributeType: AttributeType.STR, value: 1 },
+			{ attributeType: AttributeType.DEX, value: -1 },
+		],
+	},
+	[Race.Fey]: {
+		name: Race.Fey,
+		modifiers: [
+			{ attributeType: AttributeType.DEX, value: 1 },
+			{ attributeType: AttributeType.STR, value: -1 },
+		],
+	},
+	[Race.Goliath]: {
+		name: Race.Goliath,
+		modifiers: [
+			{ attributeType: AttributeType.STR, value: 1 },
+			{ attributeType: AttributeType.CON, value: -1 },
+		],
+	},
+	[Race.Tellur]: {
+		name: Race.Tellur,
+		modifiers: [
+			{ attributeType: AttributeType.CON, value: 1 },
+			{ attributeType: AttributeType.STR, value: -1 },
+		],
+	},
+};
+
+// Override the placeholder implementation of RaceInfo.getModifiers
+RaceInfo.prototype.getModifiers = function (this: RaceInfo): Modifier[] {
+	const modifiers: Modifier[] = [];
+
+	// Always apply primary race modifiers
+	const primaryRaceDefinition = RACE_DEFINITIONS[this.primaryRace];
+	primaryRaceDefinition.modifiers.forEach(mod => {
+		modifiers.push({
+			source: `${this.primaryRace} Race`,
+			value: mod.value,
+			attributeType: mod.attributeType,
+		});
+	});
+
+	// Apply half race modifiers if enabled and we have a half race
+	if (this.halfRace && this.combineHalfRaceStats) {
+		const halfRaceDefinition = RACE_DEFINITIONS[this.halfRace];
+		halfRaceDefinition.modifiers.forEach(mod => {
+			modifiers.push({
+				source: `${this.halfRace} Race`,
+				value: mod.value,
+				attributeType: mod.attributeType,
+			});
+		});
+	}
+
+	return modifiers;
+};
