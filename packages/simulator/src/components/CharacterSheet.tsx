@@ -180,9 +180,11 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 					<div style={{ display: 'flex', gap: '8px' }}>
 						{/* Size */}
 						<div style={{ ...halfRowStyle, flex: 1 }}>
-							<label htmlFor="character-size" style={labelStyle}>Size:</label>
+							<label htmlFor='character-size' style={labelStyle}>
+								Size:
+							</label>
 							<div
-								id="character-size"
+								id='character-size'
 								style={{
 									...inputStyle,
 									display: 'flex',

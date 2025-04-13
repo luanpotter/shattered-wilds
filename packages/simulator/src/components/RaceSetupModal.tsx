@@ -66,11 +66,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 		}
 
 		// Update combine stats setting
-		updateCharacterProp(
-			character,
-			'race.half.combined-stats',
-			combineStats ? 'true' : 'false'
-		);
+		updateCharacterProp(character, 'race.half.combined-stats', combineStats ? 'true' : 'false');
 
 		onClose();
 	};
@@ -178,9 +174,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 					}}
 				>
 					<span>Size is determined by your primary race</span>
-					<span style={{ fontWeight: 'bold' }}>
-						{getSizeDisplay(sheet.derivedStats.size)}
-					</span>
+					<span style={{ fontWeight: 'bold' }}>{getSizeDisplay(sheet.derivedStats.size)}</span>
 				</div>
 			</div>
 

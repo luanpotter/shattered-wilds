@@ -548,7 +548,7 @@ export interface Modifier {
 // Forward declaration for DerivedStats
 export class DerivedStats {
 	size: Size;
-	
+
 	// Other derived stats will be added here
 	// maxVitality: number;
 	// currentVitality: number;
@@ -578,7 +578,7 @@ export class CharacterSheet {
 		this.race = race;
 		this.characterClass = characterClass;
 		this.attributes = attributes;
-		
+
 		// Create the derived stats
 		this.computeDerivedStats();
 	}
@@ -601,10 +601,10 @@ export class CharacterSheet {
 	computeDerivedStats(): void {
 		// Get the race definition for the primary race
 		const raceDefinition = RACE_DEFINITIONS[this.race.primaryRace];
-		
+
 		// Create new derived stats with size based on primary race
 		this.derivedStats = new DerivedStats(raceDefinition.size);
-		
+
 		// We can add more derived stats calculations here in the future
 	}
 
