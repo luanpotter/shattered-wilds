@@ -695,13 +695,13 @@ export class DerivedStats {
 	}
 
 	private computeMovement(attributeTree: AttributeTree): DerivedStat<number> {
-		const HUMANOID_BASE = 3;
+		const HUMANOID_BASE = 2;
 		const sizeModifier = SizeModifiers[this.size.value];
 		const agility = attributeTree.valueOf(AttributeType.Agility);
 		const value = HUMANOID_BASE + sizeModifier + Math.ceil(agility / 3);
 		return new DerivedStat(
-			value,
-			`Movement = ${HUMANOID_BASE} (base) + ${sizeModifier} (size) + ${agility} (Agility/3)`
+			Math.max(value, 1),
+			`Movement = ${HUMANOID_BASE} (base) + ${sizeModifier} (size) + ${agility} (Agility) / 3`
 		);
 	}
 }
