@@ -174,7 +174,9 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 					}}
 				>
 					<span>Size is determined by your primary race</span>
-					<span style={{ fontWeight: 'bold' }}>{getSizeDisplay(sheet.derivedStats.size)}</span>
+					<span style={{ fontWeight: 'bold' }}>
+						{getSizeDisplay(sheet.derivedStats.size.value)}
+					</span>
 				</div>
 			</div>
 

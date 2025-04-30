@@ -2,12 +2,7 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 
 import { useStore } from '../store';
 import { DragState, Point, Character, HexPosition } from '../types';
-import {
-	findNextWindowPosition,
-	findCharacterAtPosition,
-	axialToPixel,
-	findNextCharacterNumber,
-} from '../utils';
+import { findNextWindowPosition, findCharacterAtPosition, axialToPixel } from '../utils';
 
 import { CharacterToken } from './CharacterToken';
 
@@ -41,7 +36,6 @@ const generateHexes = (width: number, height: number): HexPosition[] => {
 const Hex: React.FC<{
 	q: number;
 	r: number;
-	onDoubleClick: () => void;
 	children?: React.ReactNode;
 }> = ({ q, r, children }) => {
 	// Convert axial coordinates to pixel coordinates
@@ -66,7 +60,6 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	const characters = useStore(state => state.characters);
 	const gridState = useStore(state => state.gridState);
 	const updateGridState = useStore(state => state.updateGridState);
-	const addCharacter = useStore(state => state.addCharacter);
 	const addWindow = useStore(state => state.addWindow);
 	const windows = useStore(state => state.windows);
 	const [ghostPosition, setGhostPosition] = useState<Point | null>(null);
@@ -147,24 +140,6 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		}
 	};
 
-	const handleHexDoubleClick = ({ q, r }: HexPosition) => {
-		// Check if there's already a character at this position
-		const existingCharacter = findCharacterAtPosition(characters, q, r);
-
-		if (!existingCharacter) {
-			// Find the next available character number
-			const nextNumber = findNextCharacterNumber(characters);
-
-			addCharacter({
-				id: window.crypto.randomUUID(),
-				props: {
-					name: `Character ${nextNumber}`,
-				},
-				position: { q, r },
-			});
-		}
-	};
-
 	const handleOpenCharacterSheet = (character: Character) => {
 		addWindow({
 			id: window.crypto.randomUUID(),
@@ -224,7 +199,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				}}
 			>
 				{generateHexes(10, 10).map(({ q, r }, i) => (
-					<Hex key={i} q={q} r={r} onDoubleClick={() => handleHexDoubleClick({ q, r })}>
+					<Hex key={i} q={q} r={r}>
 						<path
 							d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
 							fill='var(--background-alt)'

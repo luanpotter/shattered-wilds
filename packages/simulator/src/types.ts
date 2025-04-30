@@ -691,10 +691,7 @@ export class DerivedStats {
 
 	private computeSize(race: RaceInfo): DerivedStat<Size> {
 		const size = RACE_DEFINITIONS[race.primaryRace].size;
-		return new DerivedStat(
-			size,
-			`Size is determined by your primary race (${size})`
-		);
+		return new DerivedStat(size, `Size is determined by your primary race (${size})`);
 	}
 
 	private computeMovement(attributeTree: AttributeTree): DerivedStat<number> {
