@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
 import { useStore } from '../store';
+import { HexPosition } from '../types';
 import { findNextCharacterNumber } from '../utils';
 
 interface CharacterCreationModalProps {
-	hexPosition?: { q: number; r: number };
+	hexPosition: HexPosition | undefined;
 }
 
 export const CharacterCreationModal: React.FC<CharacterCreationModalProps> = ({ hexPosition }) => {

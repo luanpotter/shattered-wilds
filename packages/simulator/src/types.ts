@@ -61,7 +61,7 @@ export class RaceInfo {
 	}
 
 	static from(props: Record<string, string>): RaceInfo {
-		const primaryRace = (props.race as Race) ?? Race.Human;
+		const primaryRace = (props['race'] as Race) ?? Race.Human;
 		const halfRace = props['race.half'] ? (props['race.half'] as Race) : null;
 		const combineHalfRaceStats = props['race.half.combined-stats'] === 'true';
 
@@ -626,18 +626,6 @@ export interface Modifier {
 export class DerivedStats {
 	size: Size;
 
-	// Other derived stats will be added here
-	// maxVitality: number;
-	// currentVitality: number;
-	// maxFocus: number;
-	// currentFocus: number;
-	// maxSpirit: number;
-	// currentSpirit: number;
-	// maxHeroism: number;
-	// currentHeroism: number;
-	// initiative: number;
-	// speed: number;
-
 	constructor(size: Size) {
 		this.size = size;
 	}
@@ -691,9 +679,9 @@ export class CharacterSheet {
 
 	static from(props: Record<string, string>): CharacterSheet {
 		return new CharacterSheet(
-			props.name,
+			props['name']!!,
 			RaceInfo.from(props),
-			(props.class as CharacterClass) ?? CharacterClass.Fighter,
+			(props['class'] as CharacterClass) ?? CharacterClass.Fighter,
 			makeAttributeTree(props)
 		);
 	}

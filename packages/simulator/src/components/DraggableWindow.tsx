@@ -92,6 +92,8 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
 				document.removeEventListener('mouseup', handleDocumentMouseUp);
 			};
 		}
+
+		return () => {};
 	}, [isDragging, window, updateWindow]);
 
 	return (

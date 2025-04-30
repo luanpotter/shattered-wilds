@@ -109,6 +109,8 @@ const App = (): React.ReactElement => {
 				document.removeEventListener('mouseup', handleMouseUp);
 			};
 		}
+
+		return () => {};
 	}, [
 		dragState,
 		gridState,
