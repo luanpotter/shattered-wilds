@@ -86,10 +86,32 @@ export class RaceInfo {
 		return new RaceInfo(primaryRace, halfRace, combineHalfRaceStats);
 	}
 
-	// Get modifiers that apply to this race configuration
 	getModifiers(): Modifier[] {
-		// This implementation will be replaced later
-		return [];
+		const modifiers: Modifier[] = [];
+
+		// Always apply primary race modifiers
+		const primaryRaceDefinition = RACE_DEFINITIONS[this.primaryRace];
+		primaryRaceDefinition.modifiers.forEach(mod => {
+			modifiers.push({
+				source: `${this.primaryRace} Race`,
+				value: mod.value,
+				attributeType: mod.attributeType,
+			});
+		});
+
+		// Apply half race modifiers if enabled and we have a half race
+		if (this.halfRace && this.combineHalfRaceStats) {
+			const halfRaceDefinition = RACE_DEFINITIONS[this.halfRace];
+			halfRaceDefinition.modifiers.forEach(mod => {
+				modifiers.push({
+					source: `${this.halfRace} Race`,
+					value: mod.value,
+					attributeType: mod.attributeType,
+				});
+			});
+		}
+
+		return modifiers;
 	}
 
 	toString(): string {
@@ -643,9 +665,23 @@ export interface Modifier {
 // Forward declaration for DerivedStats
 export class DerivedStats {
 	size: Size;
+	movement: number;
 
-	constructor(size: Size) {
-		this.size = size;
+	constructor(race: RaceInfo, attributeTree: AttributeTree) {
+		this.size = this.computeSize(race);
+		this.movement = this.calculateMovement(attributeTree);
+	}
+
+	private computeSize(race: RaceInfo): Size {
+		return RACE_DEFINITIONS[race.primaryRace].size;
+	}
+
+	private calculateMovement(attributeTree: AttributeTree): number {
+		const HUMANOID_BASE = 3;
+		const sizeModifier = SizeModifiers[this.size];
+		const agilityNode = attributeTree.root.getNode(AttributeType.Agility);
+		const agilityBonus = Math.ceil((agilityNode?.baseValue ?? 0) / 3);
+		return HUMANOID_BASE + sizeModifier + agilityBonus;
 	}
 }
 
@@ -662,8 +698,7 @@ export class CharacterSheet {
 		this.characterClass = characterClass;
 		this.attributes = attributes;
 
-		// Create the derived stats
-		this.computeDerivedStats();
+		this.derivedStats = new DerivedStats(this.race, this.getAttributeTree());
 	}
 
 	getAttributeTree(): AttributeTree {
@@ -682,17 +717,6 @@ export class CharacterSheet {
 		//   ...this.equipment.getModifiers(),
 		//   ...etc.
 		// ];
-	}
-
-	// Compute derived stats based on current character state
-	computeDerivedStats(): void {
-		// Get the race definition for the primary race
-		const raceDefinition = RACE_DEFINITIONS[this.race.primaryRace];
-
-		// Create new derived stats with size based on primary race
-		this.derivedStats = new DerivedStats(raceDefinition.size);
-
-		// We can add more derived stats calculations here in the future
 	}
 
 	static from(props: Record<string, string>): CharacterSheet {
@@ -801,33 +825,4 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 		],
 		size: Size.S,
 	},
-};
-
-// Override the placeholder implementation of RaceInfo.getModifiers
-RaceInfo.prototype.getModifiers = function (this: RaceInfo): Modifier[] {
-	const modifiers: Modifier[] = [];
-
-	// Always apply primary race modifiers
-	const primaryRaceDefinition = RACE_DEFINITIONS[this.primaryRace];
-	primaryRaceDefinition.modifiers.forEach(mod => {
-		modifiers.push({
-			source: `${this.primaryRace} Race`,
-			value: mod.value,
-			attributeType: mod.attributeType,
-		});
-	});
-
-	// Apply half race modifiers if enabled and we have a half race
-	if (this.halfRace && this.combineHalfRaceStats) {
-		const halfRaceDefinition = RACE_DEFINITIONS[this.halfRace];
-		halfRaceDefinition.modifiers.forEach(mod => {
-			modifiers.push({
-				source: `${this.halfRace} Race`,
-				value: mod.value,
-				attributeType: mod.attributeType,
-			});
-		});
-	}
-
-	return modifiers;
 };

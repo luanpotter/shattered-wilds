@@ -188,8 +188,23 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 							</div>
 						</div>
 
-						{/* Reserved space for future derived stats */}
-						<div style={{ flex: 1 }}></div>
+						{/* Movement */}
+						<div style={{ ...halfRowStyle, flex: 1 }}>
+							<label htmlFor='character-movement' style={labelStyle}>
+								Movement:
+							</label>
+							<div
+								id='character-movement'
+								style={{
+									...inputStyle,
+									display: 'flex',
+									alignItems: 'center',
+									backgroundColor: 'var(--background)',
+								}}
+							>
+								{sheet.derivedStats.movement}
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
