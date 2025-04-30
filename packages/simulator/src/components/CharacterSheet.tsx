@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 
 import { useStore } from '../store';
-import { Character, CharacterClass, CharacterSheet, Size } from '../types';
+import { Character, CharacterClass, CharacterSheet, Size, SizeModifiers } from '../types';
 import { findNextWindowPosition } from '../utils';
 
 import { AttributeTreeComponent } from './AttributeTreeComponent';
@@ -101,16 +101,9 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 
 	// Map size enum to display value
 	const getSizeDisplay = (size: Size): string => {
-		switch (size) {
-			case Size.S:
-				return 'Small';
-			case Size.M:
-				return 'Medium';
-			case Size.L:
-				return 'Large';
-			default:
-				return 'Unknown';
-		}
+		const modifier = SizeModifiers[size];
+		const modifierStr = modifier >= 0 ? `+${modifier}` : `${modifier}`;
+		return `${size} (${modifierStr})`;
 	};
 
 	return (
