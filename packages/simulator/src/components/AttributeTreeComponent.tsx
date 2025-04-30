@@ -7,34 +7,23 @@ import {
 	FaInfoCircle,
 } from 'react-icons/fa';
 
-import { Attribute, AttributeType, Modifier } from '../types';
+import { Attribute, AttributeTree, AttributeType, AttributeValue } from '../types';
 
 interface AttributeTreeComponentProps {
-	tree: Attribute;
+	tree: AttributeTree;
 	onUpdateCharacterProp: (key: string, value: string) => void;
-	modifiers?: Modifier[]; // Add modifiers to receive race and other bonuses
 }
 
 // Value display with a colored background based on the value
-const AttributeValue: React.FC<{
-	baseValue: number;
-	finalModifier: number;
-	level: number;
+const AttributeValueComponent: React.FC<{
+	modifier: AttributeValue;
 	onClick?: () => void;
 	onRightClick?: () => void;
 	canAllocate?: boolean;
 	canDeallocate?: boolean;
-	raceModifiers?: Modifier[]; // Add modifiers
-}> = ({
-	baseValue,
-	finalModifier,
-	level,
-	onClick,
-	onRightClick,
-	canAllocate = false,
-	canDeallocate = false,
-	raceModifiers = [],
-}) => {
+}> = ({ modifier, onClick, onRightClick, canAllocate = false, canDeallocate = false }) => {
+	const value = modifier.value;
+
 	const handleContextMenu = (e: React.MouseEvent) => {
 		// Always prevent default context menu
 		e.preventDefault();
@@ -51,24 +40,24 @@ const AttributeValue: React.FC<{
 		}
 	};
 
-	// The level cap applies to the base value, not to the final modifier
-	// We should allow modifiers to push attributes above the level cap
-	const displayModifier = finalModifier;
-
-	// Get tooltip text from modifiers if any
+	// Get tooltip text from modifiers and level cap
 	const getModifierTooltip = () => {
-		if (raceModifiers.length === 0) return undefined;
-
-		return (
-			`Base value: ${baseValue}\n` +
-			raceModifiers
-				.map(mod => `${mod.source}: ${mod.value > 0 ? '+' + mod.value : mod.value}`)
-				.join('\n')
+		const tooltip = [];
+		if (modifier.wasLevelCapped) {
+			tooltip.push(
+				`Base value (${modifier.uncappedBaseValue}) exceeds level cap (${modifier.levelCap})`
+			);
+		}
+		tooltip.push(
+			...modifier.modifiers.map(
+				mod => `${mod.source}: ${mod.value > 0 ? '+' + mod.value : mod.value}`
+			)
 		);
+		return tooltip.join('\n');
 	};
 
-	// Indicate if there are modifiers affecting this value
-	const hasModifiers = raceModifiers.length > 0;
+	const tooltip = getModifierTooltip();
+	const hasTooltip = tooltip.length > 0;
 
 	return (
 		<div
@@ -96,26 +85,9 @@ const AttributeValue: React.FC<{
 				onKeyDown={canAllocate ? e => e.key === 'Enter' && onClick?.() : undefined}
 				tabIndex={canAllocate ? 0 : undefined}
 				role={canAllocate ? 'button' : undefined}
-				aria-label={
-					canAllocate ? `Allocate point to attribute (current value: ${baseValue})` : undefined
-				}
+				aria-label={canAllocate ? `Allocate point to attribute` : undefined}
 			>
-				{baseValue}
-				{/* Level cap indicator if base value exceeds level */}
-				{baseValue > level && (
-					<FaExclamationTriangle
-						style={{
-							position: 'absolute',
-							bottom: '-2px',
-							right: '-2px',
-							width: '10px',
-							height: '10px',
-							color: 'orange',
-							cursor: 'default',
-						}}
-						title={`Base value (${baseValue}) exceeds character level (${level})`}
-					/>
-				)}
+				{modifier.nodeValue}
 			</div>
 			<div
 				style={{
@@ -127,14 +99,13 @@ const AttributeValue: React.FC<{
 					borderRadius: '4px',
 					backgroundColor: 'var(--background-alt)',
 					fontSize: '0.9em',
-					fontWeight: displayModifier >= 0 ? 'bold' : 'normal',
+					fontWeight: value >= 0 ? 'bold' : 'normal',
 					position: 'relative',
 				}}
-				title={getModifierTooltip()}
+				title={tooltip}
 			>
-				{displayModifier >= 0 ? `+${displayModifier}` : displayModifier}
-				{/* Moved info icon here to indicate modifiers affect this value */}
-				{hasModifiers && (
+				{value >= 0 ? `+${value}` : value}
+				{hasTooltip && (
 					<FaInfoCircle
 						style={{
 							position: 'absolute',
@@ -229,18 +200,13 @@ const AttributeBox: React.FC<AttributeBoxProps> = ({
 export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 	tree,
 	onUpdateCharacterProp,
-	modifiers = [], // Default to empty array if not provided
 }) => {
 	// Initialize state at the top level to fix conditional Hook calls
 	const [selectedRealm, setSelectedRealm] = useState<string | null>(null);
 	const [selectedBasicAttribute, setSelectedBasicAttribute] = useState<string | null>(null);
 
-	if (!tree.grouped) {
-		return <div>Loading...</div>;
-	}
-
 	const canAllocatePoint = (node: Attribute) => {
-		const parent = tree.getNode(node.type.parent);
+		const parent = tree.root.getNode(node.type.parent);
 		return parent?.canChildrenAllocatePoint ?? true;
 	};
 
@@ -274,23 +240,14 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 	};
 
 	const AttributeValueNode = ({ node }: { node: Attribute }) => {
-		// Get modifiers specifically for this attribute type
-		const nodeModifiers = modifiers.filter(mod => mod.attributeType === node.type);
-
-		// Calculate modifier
-		const modifier = tree.modifierOf(node, modifiers);
-		const level = tree.baseValue; // Get level from root node
-
+		const modifier = tree.getFinalModifier(node);
 		return (
-			<AttributeValue
-				baseValue={node.baseValue}
-				finalModifier={modifier}
-				level={level}
+			<AttributeValueComponent
+				modifier={modifier}
 				canAllocate={canAllocatePoint(node)}
 				canDeallocate={node.canDeallocatePoint}
 				onClick={() => handleAllocatePoint(node)}
 				onRightClick={() => handleDeallocatePoint(node)}
-				raceModifiers={nodeModifiers}
 			/>
 		);
 	};
@@ -400,13 +357,13 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 			>
 				<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 					<span style={{ fontWeight: 'bold' }}>Level:</span>
-					<AttributeValueNode node={tree} />
+					<AttributeValueNode node={tree.root} />
 				</div>
 				<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-					<PointsAllocation node={tree} />
+					<PointsAllocation node={tree.root} />
 					<button
 						onClick={() => {
-							const updates = tree.children.flatMap(child => child.reset());
+							const updates = tree.root.children.flatMap(child => child.reset());
 							for (const update of updates) {
 								onUpdateCharacterProp(update.key, update.value);
 							}
@@ -432,19 +389,20 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 
 			{/* Realms Section with Tab Panel */}
 			{createTabPanel(
-				tree.children,
+				tree.root.children,
 				selectedRealm,
 				setSelectedRealm,
 				'realm',
 				selectedRealm
 					? getRealmBackgroundColor(
-							tree.children.find(r => r.type.name === selectedRealm)?.type || AttributeType.Body
+							tree.root.children.find(r => r.type.name === selectedRealm)?.type ||
+								AttributeType.Body
 						)
 					: undefined,
 				selectedRealm &&
 					// Basic Attributes Tab Panel (nested)
 					createTabPanel(
-						tree.children.find(realm => realm.type.name === selectedRealm)?.children || [],
+						tree.root.children.find(realm => realm.type.name === selectedRealm)?.children || [],
 						selectedBasicAttribute,
 						setSelectedBasicAttribute,
 						'basic',
@@ -458,7 +416,7 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 									gap: '8px',
 								}}
 							>
-								{tree.children
+								{tree.root.children
 									.find(realm => realm.type.name === selectedRealm)
 									?.children.find(attr => attr.type.name === selectedBasicAttribute)
 									?.children.map(skill => (

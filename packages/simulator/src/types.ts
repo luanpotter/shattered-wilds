@@ -365,6 +365,62 @@ export class AttributeType {
 	}
 }
 
+export class AttributeTree {
+	root: Attribute;
+	modifiers: Modifier[];
+
+	constructor(root: Attribute, modifiers: Modifier[]) {
+		this.root = root;
+		this.modifiers = modifiers;
+	}
+
+	// level getter
+	get level(): number {
+		return this.root.baseValue;
+	}
+
+	// Get modifiers applicable to this attribute from a list of modifiers
+	getApplicableModifiers(node: Attribute): Modifier[] {
+		return this.modifiers.filter(mod => mod.attributeType === node.type);
+	}
+
+	// Calculate total modifier value for this attribute
+	getTotalModifierValue(node: Attribute): number {
+		return this.getApplicableModifiers(node).reduce((total, mod) => total + mod.value, 0);
+	}
+
+	// Get the base modifier (node + parent) with level cap applied
+	private getBaseModifier(node: Attribute): number {
+		return Math.ceil(
+			node.baseValue * AttributeHierarchyProperties[node.type.hierarchy].baseMultiplier
+		);
+	}
+
+	// Get the parent modifier with level cap applied
+	private getParentModifier(node: Attribute): number {
+		const parentType = node.type.parent;
+		if (parentType == null) {
+			return 0;
+		}
+		const parent = this.root.getNode(parentType);
+		if (parent == null) {
+			return 0;
+		}
+		return this.getFinalModifier(parent).value;
+	}
+
+	// Get the final modifier including derived modifiers
+	getFinalModifier(node: Attribute): AttributeValue {
+		return new AttributeValue(
+			this.getParentModifier(node),
+			node.baseValue,
+			this.getBaseModifier(node),
+			this.level, // level cap
+			this.getApplicableModifiers(node) // modifiers
+		);
+	}
+}
+
 export class Attribute {
 	type: AttributeType;
 	baseValue: number;
@@ -374,21 +430,6 @@ export class Attribute {
 		this.type = type;
 		this.baseValue = baseValue;
 		this.children = children;
-	}
-
-	// Get modifiers applicable to this attribute from a list of modifiers
-	getApplicableModifiers(modifiers: Modifier[]): Modifier[] {
-		return modifiers.filter(mod => mod.attributeType === this.type);
-	}
-
-	// Calculate total modifier value for this attribute
-	getTotalModifierValue(modifiers: Modifier[]): number {
-		return this.getApplicableModifiers(modifiers).reduce((total, mod) => total + mod.value, 0);
-	}
-
-	// Get the effective value including all modifiers
-	getEffectiveValue(modifiers: Modifier[]): number {
-		return this.baseValue + this.getTotalModifierValue(modifiers);
 	}
 
 	// Computed properties
@@ -421,34 +462,6 @@ export class Attribute {
 		return this.childrenAllocatedPoints < this.totalPointsToPropagate;
 	}
 
-	// Get the effective value including all modifiers
-	getNodeModifier(modifiers: Modifier[] = []): number {
-		const baseModifier = Math.ceil(
-			this.baseValue * AttributeHierarchyProperties[this.type.hierarchy].baseMultiplier
-		);
-
-		// Apply additional modifiers if provided
-		return baseModifier + this.getTotalModifierValue(modifiers);
-	}
-
-	// Get the effective value including all modifiers
-	modifierOf(node: Attribute, modifiers: Modifier[] = []): number {
-		return node.getNodeModifier(modifiers) + this.parentModifier(node, modifiers);
-	}
-
-	// Get the effective value including all modifiers
-	parentModifier(node: Attribute, modifiers: Modifier[] = []): number {
-		const parentType = node.type.parent;
-		if (parentType == null) {
-			return 0;
-		}
-		const parent = this.getNode(parentType);
-		if (parent == null) {
-			return 0;
-		}
-		return this.modifierOf(parent, modifiers) ?? 0;
-	}
-
 	hasUnallocatedPoints(): boolean {
 		return (
 			this.canChildrenAllocatePoint || this.children.some(child => child.hasUnallocatedPoints())
@@ -474,6 +487,59 @@ export class Attribute {
 			return [this];
 		}
 		return this.children.flatMap(child => child.grouped(hierarchy));
+	}
+}
+
+export class AttributeValue {
+	parentValue?: number;
+	nodeValue: number;
+	nodeModifier: number;
+	levelCap: number;
+	modifiers: Modifier[];
+
+	constructor(
+		parentValue: number,
+		nodeValue: number,
+		nodeModifier: number,
+		levelCap: number,
+		modifiers: Modifier[]
+	) {
+		this.parentValue = parentValue;
+		this.nodeValue = nodeValue;
+		this.nodeModifier = nodeModifier;
+		this.levelCap = levelCap;
+		this.modifiers = modifiers;
+	}
+
+	get uncappedBaseValue(): number {
+		return this.nodeModifier + (this.parentValue ?? 0);
+	}
+
+	get baseValue(): number {
+		let baseValue = this.uncappedBaseValue;
+		if (this.levelCap) {
+			baseValue = Math.min(baseValue, this.levelCap);
+		}
+		return baseValue;
+	}
+
+	get modifierValue(): number {
+		return this.modifiers.reduce((acc, mod) => acc + mod.value, 0);
+	}
+
+	get value(): number {
+		return this.baseValue + this.modifierValue;
+	}
+
+	get wasLevelCapped(): boolean {
+		if (this.levelCap == null) {
+			return false;
+		}
+		return this.uncappedBaseValue > this.levelCap;
+	}
+
+	get hasModifiers(): boolean {
+		return this.modifiers.length > 0;
 	}
 }
 
@@ -581,6 +647,10 @@ export class CharacterSheet {
 
 		// Create the derived stats
 		this.computeDerivedStats();
+	}
+
+	getAttributeTree(): AttributeTree {
+		return new AttributeTree(this.attributes, this.getAllModifiers());
 	}
 
 	// Get all modifiers from all sources (race, class, etc.)

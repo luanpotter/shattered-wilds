@@ -4,7 +4,7 @@ import { useStore } from '../store';
 import { Character, CharacterClass, CharacterSheet, Size } from '../types';
 import { findNextWindowPosition } from '../utils';
 
-import { AttributeTreeComponent } from './AttributeTree';
+import { AttributeTreeComponent } from './AttributeTreeComponent';
 import DropdownSelect from './DropdownSelect';
 
 interface CharacterSheetModalProps {
@@ -98,7 +98,6 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 	};
 
 	const sheet = CharacterSheet.from(character.props);
-	const allModifiers = sheet.getAllModifiers();
 
 	// Map size enum to display value
 	const getSizeDisplay = (size: Size): string => {
@@ -204,9 +203,8 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 
 			{/* Attribute Tree */}
 			<AttributeTreeComponent
-				tree={sheet.attributes}
+				tree={sheet.getAttributeTree()}
 				onUpdateCharacterProp={(key, value) => updateCharacterProp(character, key, value)}
-				modifiers={allModifiers}
 			/>
 		</div>
 	);
