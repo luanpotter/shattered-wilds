@@ -177,14 +177,16 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 							</label>
 							<div
 								id='character-size'
+								title={sheet.derivedStats.size.description}
 								style={{
 									...inputStyle,
 									display: 'flex',
 									alignItems: 'center',
 									backgroundColor: 'var(--background)',
+									cursor: 'help',
 								}}
 							>
-								{getSizeDisplay(sheet.derivedStats.size)}
+								{getSizeDisplay(sheet.derivedStats.size.value)}
 							</div>
 						</div>
 
@@ -195,14 +197,16 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 							</label>
 							<div
 								id='character-movement'
+								title={sheet.derivedStats.movement.description}
 								style={{
 									...inputStyle,
 									display: 'flex',
 									alignItems: 'center',
 									backgroundColor: 'var(--background)',
+									cursor: 'help',
 								}}
 							>
-								{sheet.derivedStats.movement}
+								{sheet.derivedStats.movement.value}
 							</div>
 						</div>
 					</div>

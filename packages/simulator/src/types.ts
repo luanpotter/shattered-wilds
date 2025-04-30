@@ -440,6 +440,14 @@ export class AttributeTree {
 		return this.getApplicableModifiers(node).reduce((total, mod) => total + mod.value, 0);
 	}
 
+	valueOf(type: AttributeType): number {
+		const node = this.root.getNode(type);
+		if (node == null) {
+			throw new Error(`Attribute type ${type} not found`);
+		}
+		return this.getFinalModifier(node).value;
+	}
+
 	// Get the base modifier (node + parent) with level cap applied
 	private getBaseModifier(node: Attribute): number {
 		return Math.ceil(
@@ -662,26 +670,42 @@ export interface Modifier {
 	description?: string;
 }
 
-// Forward declaration for DerivedStats
+export class DerivedStat<T> {
+	value: T;
+	description: string;
+
+	constructor(value: T, description: string) {
+		this.value = value;
+		this.description = description;
+	}
+}
+
 export class DerivedStats {
-	size: Size;
-	movement: number;
+	size: DerivedStat<Size>;
+	movement: DerivedStat<number>;
 
 	constructor(race: RaceInfo, attributeTree: AttributeTree) {
 		this.size = this.computeSize(race);
-		this.movement = this.calculateMovement(attributeTree);
+		this.movement = this.computeMovement(attributeTree);
 	}
 
-	private computeSize(race: RaceInfo): Size {
-		return RACE_DEFINITIONS[race.primaryRace].size;
+	private computeSize(race: RaceInfo): DerivedStat<Size> {
+		const size = RACE_DEFINITIONS[race.primaryRace].size;
+		return new DerivedStat(
+			size,
+			`Size is determined by your primary race (${size})`
+		);
 	}
 
-	private calculateMovement(attributeTree: AttributeTree): number {
+	private computeMovement(attributeTree: AttributeTree): DerivedStat<number> {
 		const HUMANOID_BASE = 3;
-		const sizeModifier = SizeModifiers[this.size];
-		const agilityNode = attributeTree.root.getNode(AttributeType.Agility);
-		const agilityBonus = Math.ceil((agilityNode?.baseValue ?? 0) / 3);
-		return HUMANOID_BASE + sizeModifier + agilityBonus;
+		const sizeModifier = SizeModifiers[this.size.value];
+		const agility = attributeTree.valueOf(AttributeType.Agility);
+		const value = HUMANOID_BASE + sizeModifier + Math.ceil(agility / 3);
+		return new DerivedStat(
+			value,
+			`Movement = ${HUMANOID_BASE} (base) + ${sizeModifier} (size) + ${agility} (Agility/3)`
+		);
 	}
 }
 
@@ -690,7 +714,7 @@ export class CharacterSheet {
 	race: RaceInfo;
 	characterClass: CharacterClass;
 	attributes: Attribute;
-	derivedStats!: DerivedStats;
+	derivedStats: DerivedStats;
 
 	constructor(name: string, race: RaceInfo, characterClass: CharacterClass, attributes: Attribute) {
 		this.name = name;
