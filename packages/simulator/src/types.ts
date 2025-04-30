@@ -379,9 +379,20 @@ export class AttributeTree {
 		return this.root.baseValue;
 	}
 
+	private isApplicableModifier(mod: Modifier, node: Attribute): boolean {
+		if (mod.attributeType === node.type) {
+			return true;
+		}
+		const parent = this.root.getNode(node.type.parent);
+		if (parent !== null) {
+			return this.isApplicableModifier(mod, parent);
+		}
+		return false;
+	}
+
 	// Get modifiers applicable to this attribute from a list of modifiers
 	getApplicableModifiers(node: Attribute): Modifier[] {
-		return this.modifiers.filter(mod => mod.attributeType === node.type);
+		return this.modifiers.filter(mod => this.isApplicableModifier(mod, node));
 	}
 
 	// Calculate total modifier value for this attribute
@@ -406,7 +417,7 @@ export class AttributeTree {
 		if (parent == null) {
 			return 0;
 		}
-		return this.getFinalModifier(parent).value;
+		return this.getFinalModifier(parent).baseValue;
 	}
 
 	// Get the final modifier including derived modifiers
@@ -607,7 +618,7 @@ export const makeAttributeTree = (values: Record<string, string> = {}): Attribut
 export interface Modifier {
 	source: string;
 	value: number;
-	attributeType?: AttributeType;
+	attributeType: AttributeType;
 	description?: string;
 }
 
