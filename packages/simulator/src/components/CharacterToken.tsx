@@ -4,16 +4,20 @@ import { Character, getCharacterInitials } from '../types';
 
 export interface CharacterTokenProps {
 	character: Character;
-	isGhost?: boolean;
 	onClick?: (e: React.MouseEvent) => void;
-	onContextMenu?: (e: React.MouseEvent) => void;
+	onContextMenu?: () => void;
+	onMouseEnter?: () => void;
+	onMouseLeave?: () => void;
+	isGhost?: boolean;
 }
 
 export const CharacterToken: React.FC<CharacterTokenProps> = ({
 	character,
-	isGhost = false,
 	onClick,
 	onContextMenu,
+	onMouseEnter,
+	onMouseLeave,
+	isGhost = false,
 }) => {
 	const handleMouseDown = (e: React.MouseEvent) => {
 		if (onClick && e.button === 0) {
@@ -25,7 +29,21 @@ export const CharacterToken: React.FC<CharacterTokenProps> = ({
 		e.preventDefault();
 		e.stopPropagation();
 		if (onContextMenu) {
-			onContextMenu(e);
+			onContextMenu();
+		}
+	};
+
+	const handleMouseEnter = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		if (onMouseEnter) {
+			onMouseEnter();
+		}
+	};
+
+	const handleMouseLeave = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		if (onMouseLeave) {
+			onMouseLeave();
 		}
 	};
 
@@ -33,6 +51,8 @@ export const CharacterToken: React.FC<CharacterTokenProps> = ({
 		<g
 			onMouseDown={handleMouseDown}
 			onContextMenu={handleContextMenu}
+			onMouseEnter={handleMouseEnter}
+			onMouseLeave={handleMouseLeave}
 			style={{
 				cursor: isGhost ? 'grabbing' : 'grab',
 				opacity: isGhost ? 0.7 : 1,

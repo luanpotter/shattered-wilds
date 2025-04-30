@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 
 import { useStore } from '../store';
-import { DragState, Point, Character, HexPosition } from '../types';
+import { CharacterSheet, DragState, Point, Character, HexPosition } from '../types';
 import { findNextWindowPosition, findCharacterAtPosition, axialToPixel } from '../utils';
 
 import { CharacterToken } from './CharacterToken';
@@ -63,6 +63,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	const addWindow = useStore(state => state.addWindow);
 	const windows = useStore(state => state.windows);
 	const [ghostPosition, setGhostPosition] = useState<Point | null>(null);
+	const [hoveredCharacter, setHoveredCharacter] = useState<Character | null>(null);
 
 	// This function converts screen coordinates to SVG user space coordinates
 	const screenToSvgCoordinates = useCallback((x: number, y: number): Point | null => {
@@ -123,6 +124,17 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		}
 	};
 
+	const handleCharacterMouseEnter = (character: Character) => {
+		setHoveredCharacter(character);
+	};
+
+	const handleCharacterMouseLeave = () => {
+		// Only clear hover state if we're not dragging
+		if (dragState.type !== 'character') {
+			setHoveredCharacter(null);
+		}
+	};
+
 	const handleCharacterMouseDown = (e: React.MouseEvent, character: Character) => {
 		if (e.button === 0) {
 			// Left click - drag
@@ -131,6 +143,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 			const pos = { x: e.clientX, y: e.clientY };
 			onStartCharacterDrag(character, pos);
+			// Keep the hover state when starting drag
+			setHoveredCharacter(character);
 		} else if (e.button === 2) {
 			// Right click - open character sheet
 			e.preventDefault();
@@ -175,6 +189,23 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		}
 	};
 
+	// Function to get all hexes within range
+	const getHexesInRange = (center: HexPosition, range: number): HexPosition[] => {
+		const hexes: HexPosition[] = [];
+		for (let q = -range; q <= range; q++) {
+			for (let r = -range; r <= range; r++) {
+				// Check if this hex is within range
+				if (Math.abs(q + r) <= range) {
+					hexes.push({
+						q: center.q + q,
+						r: center.r + r,
+					});
+				}
+			}
+		}
+		return hexes;
+	};
+
 	return (
 		<div
 			ref={gridRef}
@@ -187,7 +218,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			onWheel={handleWheel}
 			onMouseMove={handleDrag}
 			onMouseDown={handleMouseDown}
-			onContextMenu={e => e.preventDefault()} // Prevent context menu globally
+			onContextMenu={e => e.preventDefault()}
 		>
 			<svg
 				ref={svgRef}
@@ -198,24 +229,52 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					transform: `scale(${gridState.scale}) translate(${gridState.offset.x}px, ${gridState.offset.y}px)`,
 				}}
 			>
-				{generateHexes(10, 10).map(({ q, r }, i) => (
-					<Hex key={i} q={q} r={r}>
-						<path
-							d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
-							fill='var(--background-alt)'
-							stroke='var(--text)'
-							strokeWidth='0.5'
-							data-hex={`${q},${r}`}
-							style={{
-								cursor: dragState.type === 'character' ? 'grabbing' : 'pointer',
-							}}
-							onContextMenu={e => {
-								e.preventDefault();
-								e.stopPropagation();
-								handleHexRightClick(q, r);
-							}}
-						/>
-						<g>
+				{/* Base Grid Layer */}
+				<g>
+					{generateHexes(10, 10).map(({ q, r }, i) => (
+						<Hex key={i} q={q} r={r}>
+							<path
+								d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
+								fill='var(--background-alt)'
+								stroke='var(--text)'
+								strokeWidth='0.5'
+								data-hex={`${q},${r}`}
+								style={{
+									cursor: dragState.type === 'character' ? 'grabbing' : 'pointer',
+								}}
+								onContextMenu={e => {
+									e.preventDefault();
+									e.stopPropagation();
+									handleHexRightClick(q, r);
+								}}
+							/>
+						</Hex>
+					))}
+				</g>
+
+				{/* Movement Range Highlight Layer */}
+				{hoveredCharacter?.position && (
+					<g style={{ pointerEvents: 'none' }}>
+						{getHexesInRange(
+							hoveredCharacter.position,
+							CharacterSheet.from(hoveredCharacter.props).derivedStats.movement.value
+						).map(({ q, r }, i) => (
+							<Hex key={`range-${i}`} q={q} r={r}>
+								<path
+									d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
+									fill='rgba(0, 255, 0, 0.2)'
+									stroke='rgba(0, 255, 0, 0.5)'
+									strokeWidth='0.5'
+								/>
+							</Hex>
+						))}
+					</g>
+				)}
+
+				{/* Character Tokens Layer */}
+				<g>
+					{generateHexes(10, 10).map(({ q, r }, i) => (
+						<Hex key={`char-${i}`} q={q} r={r}>
 							{characters
 								.filter(c => c.position?.q === q && c.position?.r === r)
 								.map(character => (
@@ -224,13 +283,16 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 										character={character}
 										onClick={e => handleCharacterMouseDown(e, character)}
 										onContextMenu={() => handleOpenCharacterSheet(character)}
+										onMouseEnter={() => handleCharacterMouseEnter(character)}
+										onMouseLeave={handleCharacterMouseLeave}
 										isGhost={dragState.type === 'character' && dragState.objectId === character.id}
 									/>
 								))}
-						</g>
-					</Hex>
-				))}
+						</Hex>
+					))}
+				</g>
 
+				{/* Ghost Token Layer */}
 				{dragState.type === 'character' && dragState.objectId && ghostPosition && (
 					<g transform={`translate(${ghostPosition.x},${ghostPosition.y})`}>
 						{characters.find(c => c.id === dragState.objectId) && (
