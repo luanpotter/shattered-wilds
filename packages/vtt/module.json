@@ -1,0 +1,24 @@
+{
+    "id": "d12-system",
+    "title": "D12 System",
+    "description": "Custom D12 dice system implementation",
+    "version": "0.1.0",
+    "compatibility": {
+        "minimum": "13",
+        "verified": "13",
+        "maximum": "13"
+    },
+    "authors": [
+        {
+            "name": "Luan Nico"
+        }
+    ],
+    "esmodules": [
+        "scripts/d12-system.js"
+    ],
+    "languages": [],
+    "socket": false,
+    "url": "",
+    "manifest": "",
+    "download": ""
+} 
