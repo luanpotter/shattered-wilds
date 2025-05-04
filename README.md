@@ -109,13 +109,13 @@ There are two steps to determine criticality; first, you get:
  * +6 to your roll if you have at least one 12
  * +6 to your roll if you have at least a pair
 
-Then be compared against the contested roll (remember the passive participant do not consider Crits in their roll). Also note that you can get each one of the +6's only once per roll, for a max total of +12.
+Then the result is compared against the contested roll (remember the passive participant do not consider Crits in their roll). Also note that you can get each one of the +6's only once per roll, for a max total of +12.
 
 If the active participant wins the contested roll, finally you can convert back any extra +6's into a Crit, even if they didn't originate from the cases above.
 
 So for a few examples, you attack the enemy and roll a 10 and 7, and have a total modifier of +3. That will be a 20 without any +6; however if the opponent contests rolling a total of 12, since you an advantage of 8 points, you get +1 Crit.
 
-What does this "Crit" mean? Firstly, if the active contestant has a Crit, it means they will win ties (whereas normally the passive contestant will win ties). But that is an additional benefit. The main effect of a Crit will depend on the nature of the contested check. If it is an Attack, that means an additional damage to the enemy's Vitality. If it is some other form of contest, it means an advantage to be determined by the DM. For example, if you are trying to influence an ally to do you a favor, they might not just do it but somehow consider it as you doing them a favor for the honor of asking them. This is similar to how Shifts work on Core FATE.
+What does this "Crit" mean? The effect of a Crit will depend on the nature of the contested check. If it is a Basic Attack, that means additional damage to the enemy's Vitality Points. If it is some other form of contest, it means an advantage to be determined by the DM. For example, if you are trying to influence an ally to do you a favor, they might not just do it but somehow consider it as you doing them a favor for the honor of asking them. This is similar to how Shifts work on Core FATE.
 
 So in essence the Crit's are two-folded; if you would otherwise be below target, they help you get over, and if you are already over, they give you an extra advantage or extra damage.
 
