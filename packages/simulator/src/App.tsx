@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaUsers, FaCrosshairs, FaTimes } from 'react-icons/fa';
+import { FaUsers, FaCrosshairs, FaTimes, FaEdit, FaPlay } from 'react-icons/fa';
 
 import { BasicAttacksModal } from './components/BasicAttacksModal';
 import { CharacterCreationModal } from './components/CharacterCreation';
@@ -28,6 +28,8 @@ const App = (): React.ReactElement => {
 	const updateCharacterPos = useStore(state => state.updateCharacterPos);
 	const removeWindow = useStore(state => state.removeWindow);
 	const gridState = useStore(state => state.gridState);
+	const editMode = useStore(state => state.editMode);
+	const toggleEditMode = useStore(state => state.toggleEditMode);
 
 	useEffect(() => {
 		const handleMouseMove = (e: MouseEvent) => {
@@ -197,6 +199,10 @@ const App = (): React.ReactElement => {
 						<div style={{ display: 'flex', gap: '1rem' }}>
 							<button onClick={handleOpenCharacterList}>
 								<FaUsers /> Characters
+							</button>
+							<button onClick={toggleEditMode}>
+								{editMode ? <FaPlay /> : <FaEdit />}{' '}
+								{editMode ? 'Switch to Play' : 'Switch to Edit'}
 							</button>
 							<button onClick={handleRecenter}>
 								<FaCrosshairs /> Re-center

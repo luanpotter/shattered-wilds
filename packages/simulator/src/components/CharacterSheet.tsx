@@ -25,6 +25,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 	const windows = useStore(state => state.windows);
 	const updateWindow = useStore(state => state.updateWindow);
 	const addWindow = useStore(state => state.addWindow);
+	const editMode = useStore(state => state.editMode);
 
 	// Update window title when character name changes
 	useEffect(() => {
@@ -168,6 +169,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 						type='text'
 						value={character.props.name}
 						onChange={handleNameChange}
+						disabled={!editMode}
 						style={inputStyle}
 					/>
 				</div>
@@ -185,10 +187,10 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 									type='text'
 									value={sheet.race.toString()}
 									readOnly
-									onClick={handleOpenRaceSetup}
+									onClick={editMode ? handleOpenRaceSetup : undefined}
 									style={{
 										...inputStyle,
-										cursor: 'pointer',
+										cursor: editMode ? 'pointer' : 'default',
 										backgroundColor: 'var(--background)',
 									}}
 								/>
@@ -204,6 +206,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 								options={CharacterClass}
 								value={sheet.characterClass}
 								onChange={handleClassChange}
+								disabled={!editMode}
 							/>
 						</div>
 					</div>
@@ -548,7 +551,10 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 			{/* Attribute Tree */}
 			<AttributeTreeComponent
 				tree={sheet.getAttributeTree()}
-				onUpdateCharacterProp={(key, value) => updateCharacterProp(character, key, value)}
+				onUpdateCharacterProp={(key, value) =>
+					editMode && updateCharacterProp(character, key, value)
+				}
+				disabled={!editMode}
 			/>
 		</div>
 	);

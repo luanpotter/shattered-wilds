@@ -12,11 +12,13 @@ type AddWindow = (window: Window) => void;
 type UpdateWindow = (window: Window) => void;
 type RemoveWindow = (id: string) => void;
 type UpdateGridState = (state: Partial<GridState>) => void;
+type ToggleEditMode = () => void;
 
 interface AppState {
 	windows: Window[];
 	characters: Character[];
 	gridState: GridState;
+	editMode: boolean;
 	addCharacter: AddCharacter;
 	updateCharacterName: UpdateCharacterName;
 	updateCharacterProp: UpdateCharacterProp;
@@ -26,6 +28,7 @@ interface AppState {
 	updateWindow: UpdateWindow;
 	removeWindow: RemoveWindow;
 	updateGridState: UpdateGridState;
+	toggleEditMode: ToggleEditMode;
 }
 
 export const useStore = create<AppState>()(
@@ -37,6 +40,7 @@ export const useStore = create<AppState>()(
 				scale: 1,
 				offset: { x: 0, y: 0 },
 			},
+			editMode: true,
 			addCharacter: character =>
 				set(state => ({
 					characters: [...state.characters, character],
@@ -78,6 +82,10 @@ export const useStore = create<AppState>()(
 			updateGridState: (gridState: Partial<GridState>) =>
 				set(state => ({
 					gridState: { ...state.gridState, ...gridState },
+				})),
+			toggleEditMode: () =>
+				set(state => ({
+					editMode: !state.editMode,
 				})),
 		}),
 		{

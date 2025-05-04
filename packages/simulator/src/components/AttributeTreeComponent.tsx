@@ -12,6 +12,7 @@ import { Attribute, AttributeTree, AttributeType, AttributeValue } from '../type
 interface AttributeTreeComponentProps {
 	tree: AttributeTree;
 	onUpdateCharacterProp: (key: string, value: string) => void;
+	disabled?: boolean;
 }
 
 // Value display with a colored background based on the value
@@ -200,12 +201,14 @@ const AttributeBox: React.FC<AttributeBoxProps> = ({
 export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 	tree,
 	onUpdateCharacterProp,
+	disabled = false,
 }) => {
 	// Initialize state at the top level to fix conditional Hook calls
 	const [selectedRealm, setSelectedRealm] = useState<string | null>(null);
 	const [selectedBasicAttribute, setSelectedBasicAttribute] = useState<string | null>(null);
 
 	const canAllocatePoint = (node: Attribute) => {
+		if (disabled) return false;
 		const parent = tree.root.getNode(node.type.parent);
 		return parent?.canChildrenAllocatePoint ?? true;
 	};
@@ -217,7 +220,7 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 	};
 
 	const handleDeallocatePoint = (node: Attribute) => {
-		if (node.canDeallocatePoint) {
+		if (!disabled && node.canDeallocatePoint) {
 			onUpdateCharacterProp(node.type.name, (node.baseValue - 1).toString());
 		}
 	};
