@@ -210,6 +210,28 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 							</div>
 						</div>
 					</div>
+
+					{/* Initiative */}
+					<div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+						<div style={{ ...halfRowStyle, flex: 1 }}>
+							<label htmlFor='character-initiative' style={labelStyle}>
+								Initiative:
+							</label>
+							<div
+								id='character-initiative'
+								title={sheet.derivedStats.initiative.description}
+								style={{
+									...inputStyle,
+									display: 'flex',
+									alignItems: 'center',
+									backgroundColor: 'var(--background)',
+									cursor: 'help',
+								}}
+							>
+								{sheet.derivedStats.initiative.value}
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 

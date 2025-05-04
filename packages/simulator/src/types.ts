@@ -683,10 +683,12 @@ export class DerivedStat<T> {
 export class DerivedStats {
 	size: DerivedStat<Size>;
 	movement: DerivedStat<number>;
+	initiative: DerivedStat<number>;
 
 	constructor(race: RaceInfo, attributeTree: AttributeTree) {
 		this.size = this.computeSize(race);
 		this.movement = this.computeMovement(attributeTree);
+		this.initiative = this.computeInitiative(attributeTree);
 	}
 
 	private computeSize(race: RaceInfo): DerivedStat<Size> {
@@ -702,6 +704,16 @@ export class DerivedStats {
 		return new DerivedStat(
 			Math.max(value, 1),
 			`Movement = ${HUMANOID_BASE} (base) + ${sizeModifier} (size) + ${agility} (Agility) / 4`
+		);
+	}
+
+	private computeInitiative(attributeTree: AttributeTree): DerivedStat<number> {
+		const agility = attributeTree.valueOf(AttributeType.Agility);
+		const awareness = attributeTree.valueOf(AttributeType.Awareness);
+		const value = agility + awareness;
+		return new DerivedStat(
+			value,
+			`Initiative = ${agility} (Agility) + ${awareness} (Awareness)`
 		);
 	}
 }
