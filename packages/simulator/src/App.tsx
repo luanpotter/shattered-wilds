@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaUsers, FaCrosshairs, FaTimes } from 'react-icons/fa';
 
+import { BasicAttacksModal } from './components/BasicAttacksModal';
 import { CharacterCreationModal } from './components/CharacterCreation';
 import { CharacterList } from './components/CharacterList';
 import { CharacterSheetModal } from './components/CharacterSheet';
@@ -275,6 +276,15 @@ const App = (): React.ReactElement => {
 							currentRace={
 								CharacterSheet.from(characters.find(c => c.id === window.characterId)?.props || {})
 									.race
+							}
+							onClose={() => removeWindow(window.id)}
+						/>
+					)}
+					{window.type === 'basic-attacks' && window.characterId && (
+						<BasicAttacksModal
+							attacks={
+								CharacterSheet.from(characters.find(c => c.id === window.characterId)?.props || {})
+									.derivedStats.basicAttacks
 							}
 							onClose={() => removeWindow(window.id)}
 						/>

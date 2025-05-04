@@ -57,7 +57,7 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
 		if (window.type === 'character-sheet') {
 			return '900px'; // 3x the default width
 		}
-		if (window.type === 'race-setup') {
+		if (window.type === 'race-setup' || window.type === 'basic-attacks') {
 			return '400px'; // Wider than default but not as wide as character sheet
 		}
 		return '300px'; // Default width

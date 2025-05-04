@@ -59,6 +59,24 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 		}
 	};
 
+	const handleOpenBasicAttacks = () => {
+		// Check if a basic attacks window is already open for this character
+		const basicAttacksWindow = windows.find(
+			w => w.type === 'basic-attacks' && w.characterId === character.id
+		);
+
+		// If not, open a new basic attacks window
+		if (!basicAttacksWindow) {
+			addWindow({
+				id: window.crypto.randomUUID(),
+				title: `${character.props.name}'s Basic Attacks`,
+				type: 'basic-attacks',
+				characterId: character.id,
+				position: findNextWindowPosition(windows),
+			});
+		}
+	};
+
 	const handleClassChange = (characterClass: CharacterClass) => {
 		updateCharacterProp(character, 'class', characterClass);
 	};
@@ -104,6 +122,11 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 		const modifier = SizeModifiers[size];
 		const modifierStr = modifier >= 0 ? `+${modifier}` : `${modifier}`;
 		return `${size} (${modifierStr})`;
+	};
+
+	const formatAttackDisplay = (attacks: CharacterSheet['derivedStats']['basicAttacks']) => {
+		const formatValue = (value: number) => (value > 0 ? `+${value}` : value);
+		return `Light Melee (${formatValue(attacks.lightMelee.value)}) / Heavy Melee (${formatValue(attacks.heavyMelee.value)}) / Ranged (${formatValue(attacks.ranged.value)}) / Thrown (${formatValue(attacks.thrown.value)})`;
 	};
 
 	return (
@@ -209,10 +232,8 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 								{sheet.derivedStats.movement.value}
 							</div>
 						</div>
-					</div>
 
-					{/* Initiative */}
-					<div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+						{/* Initiative */}
 						<div style={{ ...halfRowStyle, flex: 1 }}>
 							<label htmlFor='character-initiative' style={labelStyle}>
 								Initiative:
@@ -229,6 +250,61 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 								}}
 							>
 								{sheet.derivedStats.initiative.value}
+							</div>
+						</div>
+					</div>
+
+					{/* Combat Stats Row */}
+					<div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+						{/* Basic Attacks */}
+						<div style={{ ...halfRowStyle, flex: 1 }}>
+							<label htmlFor='character-attacks' style={labelStyle}>
+								Basic Attacks:
+							</label>
+							<div
+								id='character-attacks'
+								title={sheet.derivedStats.basicAttacks.lightMelee.description}
+								onClick={handleOpenBasicAttacks}
+								onKeyDown={e => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										handleOpenBasicAttacks();
+									}
+								}}
+								tabIndex={0}
+								role='button'
+								aria-label='Show basic attacks details'
+								style={{
+									...inputStyle,
+									display: 'flex',
+									alignItems: 'center',
+									backgroundColor: 'var(--background)',
+									cursor: 'pointer',
+									whiteSpace: 'nowrap',
+									overflow: 'hidden',
+									textOverflow: 'ellipsis',
+								}}
+							>
+								{formatAttackDisplay(sheet.derivedStats.basicAttacks)}
+							</div>
+						</div>
+
+						{/* Basic Defense */}
+						<div style={{ ...halfRowStyle, flex: 1 }}>
+							<label htmlFor='character-defense' style={labelStyle}>
+								Basic Defense:
+							</label>
+							<div
+								id='character-defense'
+								title={sheet.derivedStats.basicDefense.description}
+								style={{
+									...inputStyle,
+									display: 'flex',
+									alignItems: 'center',
+									backgroundColor: 'var(--background)',
+									cursor: 'help',
+								}}
+							>
+								{sheet.derivedStats.basicDefense.value}
 							</div>
 						</div>
 					</div>

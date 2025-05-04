@@ -680,15 +680,26 @@ export class DerivedStat<T> {
 	}
 }
 
+export interface BasicAttacks {
+	lightMelee: DerivedStat<number>;
+	heavyMelee: DerivedStat<number>;
+	ranged: DerivedStat<number>;
+	thrown: DerivedStat<number>;
+}
+
 export class DerivedStats {
 	size: DerivedStat<Size>;
 	movement: DerivedStat<number>;
 	initiative: DerivedStat<number>;
+	basicAttacks: BasicAttacks;
+	basicDefense: DerivedStat<number>;
 
 	constructor(race: RaceInfo, attributeTree: AttributeTree) {
 		this.size = this.computeSize(race);
 		this.movement = this.computeMovement(attributeTree);
 		this.initiative = this.computeInitiative(attributeTree);
+		this.basicAttacks = this.computeBasicAttacks(attributeTree);
+		this.basicDefense = this.computeBasicDefense(attributeTree);
 	}
 
 	private computeSize(race: RaceInfo): DerivedStat<Size> {
@@ -711,9 +722,47 @@ export class DerivedStats {
 		const agility = attributeTree.valueOf(AttributeType.Agility);
 		const awareness = attributeTree.valueOf(AttributeType.Awareness);
 		const value = agility + awareness;
+		return new DerivedStat(value, `Initiative = ${agility} (Agility) + ${awareness} (Awareness)`);
+	}
+
+	private computeBasicAttacks(attributeTree: AttributeTree): BasicAttacks {
+		const dex = attributeTree.valueOf(AttributeType.DEX);
+		const str = attributeTree.valueOf(AttributeType.STR);
+
+		// For now, we'll use 0 as the weapon bonus. This should be updated when equipment is implemented
+		const weaponBonus = 0;
+
+		return {
+			lightMelee: new DerivedStat(
+				dex + weaponBonus,
+				`Light Melee = ${dex} (DEX) + ${weaponBonus} (weapon bonus)`
+			),
+			heavyMelee: new DerivedStat(
+				str + weaponBonus,
+				`Heavy Melee = ${str} (STR) + ${weaponBonus} (weapon bonus)`
+			),
+			ranged: new DerivedStat(
+				dex + weaponBonus,
+				`Ranged = ${dex} (DEX) + ${weaponBonus} (weapon bonus)`
+			),
+			thrown: new DerivedStat(
+				str + weaponBonus,
+				`Thrown = ${str} (STR) + ${weaponBonus} (weapon bonus)`
+			),
+		};
+	}
+
+	private computeBasicDefense(attributeTree: AttributeTree): DerivedStat<number> {
+		const body = attributeTree.valueOf(AttributeType.Body);
+		const sizeModifier = SizeModifiers[this.size.value];
+
+		// For now, we'll use 0 as the armor bonus. This should be updated when equipment is implemented
+		const armorBonus = 0;
+
+		const value = body - sizeModifier + armorBonus;
 		return new DerivedStat(
 			value,
-			`Initiative = ${agility} (Agility) + ${awareness} (Awareness)`
+			`Basic Defense = ${body} (Body) - ${sizeModifier} (size) + ${armorBonus} (armor bonus)`
 		);
 	}
 }
@@ -792,7 +841,12 @@ export function getCharacterInitials(character: Character): string {
 export interface Window {
 	id: string;
 	title: string;
-	type: 'character-sheet' | 'character-list' | 'character-creation' | 'race-setup';
+	type:
+		| 'character-sheet'
+		| 'character-list'
+		| 'character-creation'
+		| 'race-setup'
+		| 'basic-attacks';
 	characterId?: string;
 	position: Point;
 	hexPosition?: HexPosition;
