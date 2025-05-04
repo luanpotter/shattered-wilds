@@ -7,6 +7,7 @@ import {
 	FaInfoCircle,
 } from 'react-icons/fa';
 
+import { useStore } from '../store';
 import { Attribute, AttributeTree, AttributeType, AttributeValue } from '../types';
 
 interface AttributeTreeComponentProps {
@@ -22,13 +23,23 @@ const AttributeValueComponent: React.FC<{
 	onRightClick?: () => void;
 	canAllocate?: boolean;
 	canDeallocate?: boolean;
-}> = ({ modifier, onClick, onRightClick, canAllocate = false, canDeallocate = false }) => {
+	attributeName: string;
+}> = ({
+	modifier,
+	onClick,
+	onRightClick,
+	canAllocate = false,
+	canDeallocate = false,
+	attributeName,
+}) => {
+	const editMode = useStore(state => state.editMode);
+	const addWindow = useStore(state => state.addWindow);
 	const value = modifier.value;
 
 	const handleContextMenu = (e: React.MouseEvent) => {
 		// Always prevent default context menu
 		e.preventDefault();
-		if (canDeallocate && onRightClick) {
+		if (canDeallocate && onRightClick && editMode) {
 			onRightClick();
 		}
 	};
@@ -36,8 +47,20 @@ const AttributeValueComponent: React.FC<{
 	const handleClick = (e: React.MouseEvent) => {
 		// Prevent click from reaching parent elements
 		e.stopPropagation();
-		if (canAllocate && onClick) {
-			onClick();
+		if (editMode) {
+			if (canAllocate && onClick) {
+				onClick();
+			}
+		} else {
+			// In play mode, open dice roll modal
+			addWindow({
+				id: window.crypto.randomUUID(),
+				title: `Roll ${attributeName} Check`,
+				type: 'dice-roll',
+				position: { x: e.clientX, y: e.clientY },
+				modifier: value,
+				attributeName,
+			});
 		}
 	};
 
@@ -60,6 +83,19 @@ const AttributeValueComponent: React.FC<{
 	const tooltip = getModifierTooltip();
 	const hasTooltip = tooltip.length > 0;
 
+	const commonClickProps = !editMode
+		? {
+				onClick: handleClick,
+				onKeyDown: (e: React.KeyboardEvent) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						handleClick(e as unknown as React.MouseEvent);
+					}
+				},
+				role: 'button',
+				tabIndex: 0,
+			}
+		: {};
+
 	return (
 		<div
 			style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
@@ -74,9 +110,12 @@ const AttributeValueComponent: React.FC<{
 					width: '24px',
 					height: '24px',
 					borderRadius: '50%',
-					backgroundColor: canAllocate || canDeallocate ? 'var(--background-alt)' : 'transparent',
+					backgroundColor:
+						(editMode && (canAllocate || canDeallocate)) || !editMode
+							? 'var(--background-alt)'
+							: 'transparent',
 					border: '1px solid var(--text)',
-					cursor: canAllocate || canDeallocate ? 'pointer' : 'default',
+					cursor: (editMode && (canAllocate || canDeallocate)) || !editMode ? 'pointer' : 'default',
 					fontSize: '0.9em',
 					fontWeight: 'bold',
 					position: 'relative',
@@ -102,8 +141,10 @@ const AttributeValueComponent: React.FC<{
 					fontSize: '0.9em',
 					fontWeight: value >= 0 ? 'bold' : 'normal',
 					position: 'relative',
+					cursor: !editMode ? 'pointer' : 'default',
 				}}
 				title={tooltip}
+				{...commonClickProps}
 			>
 				{value >= 0 ? `+${value}` : value}
 				{hasTooltip && (
@@ -251,6 +292,7 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 				canDeallocate={node.canDeallocatePoint}
 				onClick={() => handleAllocatePoint(node)}
 				onRightClick={() => handleDeallocatePoint(node)}
+				attributeName={node.type.name}
 			/>
 		);
 	};

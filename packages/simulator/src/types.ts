@@ -909,10 +909,13 @@ export interface Window {
 		| 'character-list'
 		| 'character-creation'
 		| 'race-setup'
-		| 'basic-attacks';
+		| 'basic-attacks'
+		| 'dice-roll';
 	characterId?: string;
 	position: Point;
 	hexPosition?: HexPosition;
+	modifier?: number;
+	attributeName?: string;
 }
 
 export interface GridState {

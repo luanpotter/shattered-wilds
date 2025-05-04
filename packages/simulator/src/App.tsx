@@ -5,6 +5,7 @@ import { BasicAttacksModal } from './components/BasicAttacksModal';
 import { CharacterCreationModal } from './components/CharacterCreation';
 import { CharacterList } from './components/CharacterList';
 import { CharacterSheetModal } from './components/CharacterSheet';
+import { DiceRollModal } from './components/DiceRollModal';
 import { DraggableWindow } from './components/DraggableWindow';
 import { BattleGrid } from './components/HexGrid';
 import RaceSetupModal from './components/RaceSetupModal';
@@ -293,6 +294,13 @@ const App = (): React.ReactElement => {
 									.derivedStats.basicAttacks
 							}
 							onClose={() => removeWindow(window.id)}
+						/>
+					)}
+					{window.type === 'dice-roll' && window.modifier !== undefined && window.attributeName && (
+						<DiceRollModal
+							modifier={window.modifier}
+							onClose={() => removeWindow(window.id)}
+							attributeName={window.attributeName}
 						/>
 					)}
 				</DraggableWindow>
