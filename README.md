@@ -96,32 +96,40 @@ Other derived stats are:
 
 ### Checks
 
-A base Check is `2d12 + [Modifiers]` and is either matched against a DC (Difficulty Class) of the task (static roll), or matched against a roll from an opponent (contested roll). On contested rolls, there is always an active participant, which is the one taking the Action, and one or more passive recipients of the action, which have the advantage in case of a tie (i.e. ties means no change in the status quo; except for Crits, see below).
+A base Check is `2d12 + [Modifiers]`, and is either matched against a DC (Difficulty Class) of the task (Static Check, which is always considered Active), or matched against a check from an opponent (Contested Check). On Contested Checks, there is always an active participant, which is the one taking the Action (Active Contested Check), and one or more passive recipients of the action (Passive Contested Checks).
 
-There is also the possibility of rolling extra D12s, up to two, for two different mechanics, Extras and Luck (see below). However, unlike other systems, these are not awarded for in-game situational advantages or disadvantages, because these are always modelled as Modifiers to the roll. Whenever you roll more than 2 dice, you get to pick which 2 to use, as you can never sum up more than 2 dies. So if you are using Extra and Luck in the same roll, you will be able to roll 4d12, and pick any 2 of your choice.
+Success means having a result greater than the DC (or Passive Contested Check), meaning that a tie normally means maintain the status quo (no change). However, if the Active Participant has a Crit Modifier (see below), they will win ties.
 
-#### Crits
+There is also the possibility of rolling extra D12s, up to two, for two different mechanics, Extras and Luck (see below). Whenever you roll more than 2 dice, you get to pick which 2 to use, as you can never sum up more than 2 dies (think D&D Advantage). So if you are using Extra and Luck in the same roll, you will be able to roll 4d12, and pick any 2 of your choice.  Note that, unlike other systems, extra dice rolls are not awarded for in-game situational "advantages" or "disadvantages", as these factors are _always_ modelled as Modifiers to the roll (player modifiers or circumstantial modifiers).
 
-Critical Rolls are handled differently in the D12 system. Firstly, Crits are only considered for the active participant in a contested roll - all other checks just consider the sum of the dice normally.
+#### Crit Modifiers
 
-There are two steps to determine criticality; first, you get:
+Critical Rolls are handled differently in the D12 system. There are two steps to determine criticality; first, you apply Crit Modifiers to your roll:
 
  * +6 to your roll if you have at least one 12
  * +6 to your roll if you have at least a pair
 
-Then the result is compared against the contested roll (remember the passive participant do not consider Crits in their roll). Also note that you can get each one of the +6's only once per roll, for a max total of +12.
+Note that you can get each one of the +6's only once per roll, for a max total of +12. That means the maximum natural roll is 36 (2 * 12 + 6 + 6), with a probability of 1/144 (0.69%).
 
-If the active participant wins the contested roll, finally you can convert back any extra +6's into a Crit, even if they didn't originate from the cases above.
+Crit Modifiers are applied to all types of Checks. However, if you are rolling an Active Check (typically an Active Contested Check), you can also accumulate Crit Consequences.
 
-So for a few examples, you attack the enemy and roll a 10 and 7, and have a total modifier of +3. That will be a 20 without any +6; however if the opponent contests rolling a total of 12, since you an advantage of 8 points, you get +1 Crit.
+#### Crit Consequences
 
-What does this "Crit" mean? The effect of a Crit will depend on the nature of the contested check. If it is a Basic Attack, that means additional damage to the enemy's Vitality Points. If it is some other form of contest, it means an advantage to be determined by the DM. For example, if you are trying to influence an ally to do you a favor, they might not just do it but somehow consider it as you doing them a favor for the honor of asking them. This is similar to how Shifts work on Core FATE.
+If the active participant passes the check, finally they can convert any excesses of +6 into a Crit Consequence, even if they didn't originate from a Crit Modifier.
 
-So in essence the Crit's are two-folded; if you would otherwise be below target, they help you get over, and if you are already over, they give you an extra advantage or extra damage.
+These Crit Consequences are typically only applicable for Active Contested Checks, however they could also be used for some Static Checks, depending on the situation.
 
-Note, however, that there is also an Auto Fail side to the Crits; if you roll a pair of 1s, you instantly fail the check, regardless of anything else. This condition is checked across all the dies you roll, even ones you did not pick or even ones that were not valid (for Extra and Luck dice).
+So for a few examples, you attack the enemy and roll a 10 and 7, and have a total modifier of +3. That will be a 20 without any Crit Modifier; however if the opponent contests rolling a total of 12, since you an advantage of 8 points, you get 1 Crit Consequence.
 
-If Crits are considered, the highest possible roll is 36 (2 * 12 + 6 + 6), with a probability of 1/144 (0.69%). That is also the probability of an Auto Fail, if rolling two dice (though that is bumped to 3.72% if rolling 4 dice).
+What does this "Consequence" mean? The effect of a Crit Consequence will depend on the nature of the check. If it is a Basic Attack, that means additional damage to the enemy's Vitality Points. If it is some other form of contest, it means an advantage to be determined by the DM. For example, if you are trying to influence an ally to do you a favor, they might not just do it but somehow consider it as you doing them a favor for the honor of asking them. This is similar to how Shifts work on Core FATE. If it is a Static Check, typically Crit Consequences are not applicable, but could depending on the specific situation.
+
+So in essence, the Crit Modifiers are two-folded; if you would otherwise be below target, they help you get over, and if you are already over, they can give you extra Consequences.
+
+#### Auto Fail
+
+There is also an Auto Fail condition to any Active Checks; if you roll a pair of 1s, you instantly fail the check, regardless of anything else. This condition is checked across all the dies you roll, even ones you did not pick or even ones that were not valid (for Extra and Luck dice).
+
+The probability of an Auto Fail, if rolling two dice, is of 0.69% (though that is bumped to 3.72% if rolling 4 dice).
 
 #### Extra
 
