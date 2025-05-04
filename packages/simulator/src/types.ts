@@ -693,6 +693,10 @@ export class DerivedStats {
 	initiative: DerivedStat<number>;
 	basicAttacks: BasicAttacks;
 	basicDefense: DerivedStat<number>;
+	maxHeroism: DerivedStat<number>;
+	maxVitality: DerivedStat<number>;
+	maxFocus: DerivedStat<number>;
+	maxSpirit: DerivedStat<number>;
 
 	constructor(race: RaceInfo, attributeTree: AttributeTree) {
 		this.size = this.computeSize(race);
@@ -700,6 +704,10 @@ export class DerivedStats {
 		this.initiative = this.computeInitiative(attributeTree);
 		this.basicAttacks = this.computeBasicAttacks(attributeTree);
 		this.basicDefense = this.computeBasicDefense(attributeTree);
+		this.maxHeroism = this.computeMaxHeroism(attributeTree);
+		this.maxVitality = this.computeMaxVitality(attributeTree);
+		this.maxFocus = this.computeMaxFocus(attributeTree);
+		this.maxSpirit = this.computeMaxSpirit(attributeTree);
 	}
 
 	private computeSize(race: RaceInfo): DerivedStat<Size> {
@@ -765,6 +773,36 @@ export class DerivedStats {
 			`Basic Defense = ${body} (Body) - ${sizeModifier} (size) + ${armorBonus} (armor bonus)`
 		);
 	}
+
+	private computeMaxHeroism(attributeTree: AttributeTree): DerivedStat<number> {
+		const level = attributeTree.root.baseValue;
+		return new DerivedStat(level, `Max Heroism Points = ${level} (Level)`);
+	}
+
+	private computeMaxVitality(attributeTree: AttributeTree): DerivedStat<number> {
+		const body = attributeTree.valueOf(AttributeType.Body);
+		const value = Math.max(1, 4 + body);
+		return new DerivedStat(value, `Max Vitality Points = max(1, 4 + ${body} (Body))`);
+	}
+
+	private computeMaxFocus(attributeTree: AttributeTree): DerivedStat<number> {
+		const mind = attributeTree.valueOf(AttributeType.Mind);
+		const value = Math.max(1, 4 + mind);
+		return new DerivedStat(value, `Max Focus Points = max(1, 4 + ${mind} (Mind))`);
+	}
+
+	private computeMaxSpirit(attributeTree: AttributeTree): DerivedStat<number> {
+		const soul = attributeTree.valueOf(AttributeType.Soul);
+		const value = Math.max(1, 4 + soul);
+		return new DerivedStat(value, `Max Spirit Points = max(1, 4 + ${soul} (Soul))`);
+	}
+}
+
+export interface CurrentValues {
+	currentHeroism: number;
+	currentVitality: number;
+	currentFocus: number;
+	currentSpirit: number;
 }
 
 export class CharacterSheet {
@@ -773,14 +811,38 @@ export class CharacterSheet {
 	characterClass: CharacterClass;
 	attributes: Attribute;
 	derivedStats: DerivedStats;
+	currentValues: CurrentValues;
 
-	constructor(name: string, race: RaceInfo, characterClass: CharacterClass, attributes: Attribute) {
+	constructor(
+		name: string,
+		race: RaceInfo,
+		characterClass: CharacterClass,
+		attributes: Attribute,
+		props: Record<string, string>
+	) {
 		this.name = name;
 		this.race = race;
 		this.characterClass = characterClass;
 		this.attributes = attributes;
 
 		this.derivedStats = new DerivedStats(this.race, this.getAttributeTree());
+
+		// Initialize current values from props or use max values as defaults
+		const tree = this.getAttributeTree();
+		this.currentValues = {
+			currentHeroism: parseInt(
+				props['currentHeroism'] ?? tree.valueOf(AttributeType.Level).toString()
+			),
+			currentVitality: parseInt(
+				props['currentVitality'] ?? (4 + tree.valueOf(AttributeType.Body)).toString()
+			),
+			currentFocus: parseInt(
+				props['currentFocus'] ?? (4 + tree.valueOf(AttributeType.Mind)).toString()
+			),
+			currentSpirit: parseInt(
+				props['currentSpirit'] ?? (4 + tree.valueOf(AttributeType.Soul)).toString()
+			),
+		};
 	}
 
 	getAttributeTree(): AttributeTree {
@@ -806,7 +868,8 @@ export class CharacterSheet {
 			props['name']!!,
 			RaceInfo.from(props),
 			(props['class'] as CharacterClass) ?? CharacterClass.Fighter,
-			makeAttributeTree(props)
+			makeAttributeTree(props),
+			props
 		);
 	}
 }

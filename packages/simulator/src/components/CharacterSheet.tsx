@@ -1,7 +1,15 @@
 import React, { useEffect } from 'react';
+import { FaPlus, FaMinus } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { Character, CharacterClass, CharacterSheet, Size, SizeModifiers } from '../types';
+import {
+	Character,
+	CharacterClass,
+	CharacterSheet,
+	DerivedStat,
+	Size,
+	SizeModifiers,
+} from '../types';
 import { findNextWindowPosition } from '../utils';
 
 import { AttributeTreeComponent } from './AttributeTreeComponent';
@@ -79,6 +87,17 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 
 	const handleClassChange = (characterClass: CharacterClass) => {
 		updateCharacterProp(character, 'class', characterClass);
+	};
+
+	const handlePointChange = (pointType: string, delta: number) => {
+		const maxValue = (
+			sheet.derivedStats[
+				`max${pointType}` as keyof typeof sheet.derivedStats
+			] as DerivedStat<number>
+		).value;
+		const currentValue = parseInt(character.props[`current${pointType}`] ?? maxValue.toString());
+		const newValue = Math.max(0, Math.min(maxValue, currentValue + delta));
+		updateCharacterProp(character, `current${pointType}`, newValue.toString());
 	};
 
 	// Common styles for form rows - reduced margins for compactness
@@ -305,6 +324,221 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 								}}
 							>
 								{sheet.derivedStats.basicDefense.value}
+							</div>
+						</div>
+					</div>
+
+					{/* Points Row */}
+					<div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+						{/* Heroism Points */}
+						<div style={{ ...halfRowStyle, flex: 1 }}>
+							<label htmlFor='character-heroism' style={labelStyle}>
+								Heroism:
+							</label>
+							<div style={{ display: 'flex', gap: '4px', flex: 1 }}>
+								<div
+									id='character-heroism'
+									title={sheet.derivedStats.maxHeroism.description}
+									style={{
+										...inputStyle,
+										display: 'flex',
+										alignItems: 'center',
+										backgroundColor: 'var(--background)',
+										cursor: 'help',
+										flex: 1,
+									}}
+								>
+									{sheet.currentValues.currentHeroism}/{sheet.derivedStats.maxHeroism.value}
+								</div>
+								<button
+									onClick={() => handlePointChange('Heroism', -1)}
+									style={{
+										padding: '2px 4px',
+										backgroundColor: 'var(--background-alt)',
+										border: '1px solid var(--text)',
+										borderRadius: '4px',
+										cursor: 'pointer',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+									}}
+								>
+									<FaMinus size={10} />
+								</button>
+								<button
+									onClick={() => handlePointChange('Heroism', 1)}
+									style={{
+										padding: '2px 4px',
+										backgroundColor: 'var(--background-alt)',
+										border: '1px solid var(--text)',
+										borderRadius: '4px',
+										cursor: 'pointer',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+									}}
+								>
+									<FaPlus size={10} />
+								</button>
+							</div>
+						</div>
+
+						{/* Vitality Points */}
+						<div style={{ ...halfRowStyle, flex: 1 }}>
+							<label htmlFor='character-vitality' style={labelStyle}>
+								Vitality:
+							</label>
+							<div style={{ display: 'flex', gap: '4px', flex: 1 }}>
+								<div
+									id='character-vitality'
+									title={sheet.derivedStats.maxVitality.description}
+									style={{
+										...inputStyle,
+										display: 'flex',
+										alignItems: 'center',
+										backgroundColor: 'var(--background)',
+										cursor: 'help',
+										flex: 1,
+									}}
+								>
+									{sheet.currentValues.currentVitality}/{sheet.derivedStats.maxVitality.value}
+								</div>
+								<button
+									onClick={() => handlePointChange('Vitality', -1)}
+									style={{
+										padding: '2px 4px',
+										backgroundColor: 'var(--background-alt)',
+										border: '1px solid var(--text)',
+										borderRadius: '4px',
+										cursor: 'pointer',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+									}}
+								>
+									<FaMinus size={10} />
+								</button>
+								<button
+									onClick={() => handlePointChange('Vitality', 1)}
+									style={{
+										padding: '2px 4px',
+										backgroundColor: 'var(--background-alt)',
+										border: '1px solid var(--text)',
+										borderRadius: '4px',
+										cursor: 'pointer',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+									}}
+								>
+									<FaPlus size={10} />
+								</button>
+							</div>
+						</div>
+
+						{/* Focus Points */}
+						<div style={{ ...halfRowStyle, flex: 1 }}>
+							<label htmlFor='character-focus' style={labelStyle}>
+								Focus:
+							</label>
+							<div style={{ display: 'flex', gap: '4px', flex: 1 }}>
+								<div
+									id='character-focus'
+									title={sheet.derivedStats.maxFocus.description}
+									style={{
+										...inputStyle,
+										display: 'flex',
+										alignItems: 'center',
+										backgroundColor: 'var(--background)',
+										cursor: 'help',
+										flex: 1,
+									}}
+								>
+									{sheet.currentValues.currentFocus}/{sheet.derivedStats.maxFocus.value}
+								</div>
+								<button
+									onClick={() => handlePointChange('Focus', -1)}
+									style={{
+										padding: '2px 4px',
+										backgroundColor: 'var(--background-alt)',
+										border: '1px solid var(--text)',
+										borderRadius: '4px',
+										cursor: 'pointer',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+									}}
+								>
+									<FaMinus size={10} />
+								</button>
+								<button
+									onClick={() => handlePointChange('Focus', 1)}
+									style={{
+										padding: '2px 4px',
+										backgroundColor: 'var(--background-alt)',
+										border: '1px solid var(--text)',
+										borderRadius: '4px',
+										cursor: 'pointer',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+									}}
+								>
+									<FaPlus size={10} />
+								</button>
+							</div>
+						</div>
+
+						{/* Spirit Points */}
+						<div style={{ ...halfRowStyle, flex: 1 }}>
+							<label htmlFor='character-spirit' style={labelStyle}>
+								Spirit:
+							</label>
+							<div style={{ display: 'flex', gap: '4px', flex: 1 }}>
+								<div
+									id='character-spirit'
+									title={sheet.derivedStats.maxSpirit.description}
+									style={{
+										...inputStyle,
+										display: 'flex',
+										alignItems: 'center',
+										backgroundColor: 'var(--background)',
+										cursor: 'help',
+										flex: 1,
+									}}
+								>
+									{sheet.currentValues.currentSpirit}/{sheet.derivedStats.maxSpirit.value}
+								</div>
+								<button
+									onClick={() => handlePointChange('Spirit', -1)}
+									style={{
+										padding: '2px 4px',
+										backgroundColor: 'var(--background-alt)',
+										border: '1px solid var(--text)',
+										borderRadius: '4px',
+										cursor: 'pointer',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+									}}
+								>
+									<FaMinus size={10} />
+								</button>
+								<button
+									onClick={() => handlePointChange('Spirit', 1)}
+									style={{
+										padding: '2px 4px',
+										backgroundColor: 'var(--background-alt)',
+										border: '1px solid var(--text)',
+										borderRadius: '4px',
+										cursor: 'pointer',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+									}}
+								>
+									<FaPlus size={10} />
+								</button>
 							</div>
 						</div>
 					</div>
