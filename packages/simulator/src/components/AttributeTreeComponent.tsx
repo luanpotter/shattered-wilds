@@ -8,12 +8,13 @@ import {
 } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { Attribute, AttributeTree, AttributeType, AttributeValue } from '../types';
+import { Attribute, AttributeTree, AttributeType, AttributeValue, CharacterSheet } from '../types';
 
 interface AttributeTreeComponentProps {
 	tree: AttributeTree;
 	onUpdateCharacterProp: (key: string, value: string) => void;
 	disabled?: boolean;
+	characterSheet?: CharacterSheet;
 }
 
 // Value display with a colored background based on the value
@@ -24,6 +25,7 @@ const AttributeValueComponent: React.FC<{
 	canAllocate?: boolean;
 	canDeallocate?: boolean;
 	attributeName: string;
+	characterSheet: CharacterSheet | undefined;
 }> = ({
 	modifier,
 	onClick,
@@ -31,6 +33,7 @@ const AttributeValueComponent: React.FC<{
 	canAllocate = false,
 	canDeallocate = false,
 	attributeName,
+	characterSheet,
 }) => {
 	const editMode = useStore(state => state.editMode);
 	const addWindow = useStore(state => state.addWindow);
@@ -53,14 +56,17 @@ const AttributeValueComponent: React.FC<{
 			}
 		} else {
 			// In play mode, open dice roll modal
-			addWindow({
-				id: window.crypto.randomUUID(),
-				title: `Roll ${attributeName} Check`,
-				type: 'dice-roll',
-				position: { x: e.clientX, y: e.clientY },
-				modifier: value,
-				attributeName,
-			});
+			if (characterSheet) {
+				addWindow({
+					id: window.crypto.randomUUID(),
+					title: `Roll ${attributeName} Check`,
+					type: 'dice-roll',
+					position: { x: e.clientX, y: e.clientY },
+					modifier: value,
+					attributeName,
+					characterSheet,
+				});
+			}
 		}
 	};
 
@@ -243,6 +249,7 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 	tree,
 	onUpdateCharacterProp,
 	disabled = false,
+	characterSheet,
 }) => {
 	// Initialize state at the top level to fix conditional Hook calls
 	const [selectedRealm, setSelectedRealm] = useState<string | null>(null);
@@ -293,6 +300,7 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 				onClick={() => handleAllocatePoint(node)}
 				onRightClick={() => handleDeallocatePoint(node)}
 				attributeName={node.type.name}
+				characterSheet={characterSheet}
 			/>
 		);
 	};

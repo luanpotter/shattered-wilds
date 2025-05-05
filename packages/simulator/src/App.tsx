@@ -301,6 +301,7 @@ const App = (): React.ReactElement => {
 							modifier={window.modifier}
 							onClose={() => removeWindow(window.id)}
 							attributeName={window.attributeName}
+							characterSheet={window.characterSheet}
 						/>
 					)}
 				</DraggableWindow>

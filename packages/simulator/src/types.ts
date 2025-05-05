@@ -916,6 +916,7 @@ export interface Window {
 	hexPosition?: HexPosition;
 	modifier?: number;
 	attributeName?: string;
+	characterSheet?: CharacterSheet;
 }
 
 export interface GridState {

@@ -555,6 +555,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 					editMode && updateCharacterProp(character, key, value)
 				}
 				disabled={!editMode}
+				characterSheet={sheet}
 			/>
 		</div>
 	);
