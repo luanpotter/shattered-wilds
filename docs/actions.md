@@ -26,6 +26,7 @@ Movement actions are associated with movement, and can take several forms. All m
 * **Swim (1 AP)**: Swim up to `Speed / 2` (round up) hexes.
 * **Escape (1 AP)**: Contested Evasiveness check to clear Immobilized against grappler.
 * **Drag Grappler (1+ AP)**: Move 1 hex while Immobilized, dragging your grapple. Requires a contested Muscles check against Stance with a -3 modifier. You can use more APs to move extra hexes.
+* **Stumble Through (1 AP)**: Contested Finesse check against opponent's Stance. Move past one enemy to an adjacent hex, as long as your `Speed` is 2 or more.
 * **Ride Mount (2 AP)**: TODO.
 * **Sneak (1+ AP)**: Move `Speed - 1` hexes making an additional Finesse check. Any other participant for which you are Concealed can make a contested Awareness check to spot you.
 * **Charge (2 + X AP)** (this is a combined Movement + Attack action): Move `Speed + 1` hexes in a straight line, followed by Melee Attack with Muscles instead of STR. This can be used for a "Tackle" if the "Shove" Attack Action is chosen, in which case a Circumstance Bonus of +3 is granted to the attacker.
@@ -74,6 +75,7 @@ Turns in Shattered Wilds are very reactive due to the higher possibility of Reac
 * **Shield Block (1 AP)**: Add Shield Bonus to a Defend Body contested check.
 * **Shrug Off (1 AP)**: Immediately as taking damage, you can attempt a Medium Toughness (DC 20) check to reduce the damage by 1 (+ Crit Shifts).
 * **Flank (1 AP)**: When an ally attack, if on Flanking position, give them a +3 Circumstance Bonus.
+* **Taunt (1 AP)**: Spend 1 FP; roll a Speechcraft check against targets Resolve to persuade an enemy attempting to Melee attack a different target to instead attack you (when you are also in range and would be a valid target).
 * **Distract (1 AP)**: ...
 * **Counterattack (2 AP)**: ...
 
