@@ -44,7 +44,7 @@ The Attributes in the D12 System are a ternary tree featuring a trickle down mec
 |       |            |                 | Muscles     | Raw power you can impact in a short burst, e.g. pulling a stuck lever, breaking down an inanimate object, smashing a mug on your hands |
 |       |            |       STR       | Stance      | How hard it is to move or push you around, how well you can keep your stance, resist being pushed back                                 |
 |       |            |    (Strength)   | Lift        | How much weight you can lift and carry for short periods of times, including yourself (climbing, using ropes, etc)                     |
-|       |            |                 | Finesse     | Aim, Quick Fingers, Sleight of Hand, precise hand movement                                                                             |
+|       |            |                 | Finesse     | Aim, Quick Fingers, Stealth, Sleight of Hand, precise hand movement, delicate body movements                                                                             |
 |       |    Body    |       DEX       | Evasiveness | Evasion, Acrobatics, precise movement of the body                                                                                      |
 |       | (Vitality) |   (Dexterity)   | Agility     | Speed, how fast you can move and do things                                                                                             |
 |       |            |                 | Toughness   | Damage reduction, tough skin, fall damage                                                                                              |
@@ -111,19 +111,19 @@ Critical Rolls are handled differently in the D12 system. There are two steps to
 
 Note that you can get each one of the +6's only once per roll, for a max total of +12. That means the maximum natural roll is 36 (2 * 12 + 6 + 6), with a probability of 1/144 (0.69%).
 
-Crit Modifiers are applied to all types of Checks. However, if you are rolling an Active Check (typically an Active Contested Check), you can also accumulate Crit Consequences.
+Crit Modifiers are applied to all types of Checks. However, if you are rolling an Active Check (typically an Active Contested Check), you can also accumulate Crit Shifts.
 
-#### Crit Consequences
+#### Crit Shifts
 
-If the active participant passes the check, finally they can convert any excesses of +6 into a Crit Consequence, even if they didn't originate from a Crit Modifier.
+If the active participant passes the check, finally they can convert any excesses of +6 into a Crit Shift, even if they didn't originate from a Crit Modifier.
 
-These Crit Consequences are typically only applicable for Active Contested Checks, however they could also be used for some Static Checks, depending on the situation.
+These Crit Shifts are typically only applicable for Active Contested Checks, however they could also be used for some Static Checks, depending on the situation.
 
-So for a few examples, you attack the enemy and roll a 10 and 7, and have a total modifier of +3. That will be a 20 without any Crit Modifier; however if the opponent contests rolling a total of 12, since you an advantage of 8 points, you get 1 Crit Consequence.
+So for a few examples, you attack the enemy and roll a 10 and 7, and have a total modifier of +3. That will be a 20 without any Crit Modifier; however if the opponent contests rolling a total of 12, since you an advantage of 8 points, you get 1 Crit Shift.
 
-What does this "Consequence" mean? The effect of a Crit Consequence will depend on the nature of the check. If it is a Basic Attack, that means additional damage to the enemy's Vitality Points. If it is some other form of contest, it means an advantage to be determined by the DM. For example, if you are trying to influence an ally to do you a favor, they might not just do it but somehow consider it as you doing them a favor for the honor of asking them. This is similar to how Shifts work on Core FATE. If it is a Static Check, typically Crit Consequences are not applicable, but could depending on the specific situation.
+What does this "Shift" mean? The effect of a Crit Shift will depend on the nature of the check. If it is a Basic Attack, that means additional damage to the enemy's Vitality Points. If it is some other form of contest, it means an advantage to be determined by the DM. For example, if you are trying to influence an ally to do you a favor, they might not just do it but somehow consider it as you doing them a favor for the honor of asking them. This is similar to how Shifts work on Core FATE. If it is a Static Check, typically Crit Shifts are not applicable, but could depending on the specific situation.
 
-So in essence, the Crit Modifiers are two-folded; if you would otherwise be below target, they help you get over, and if you are already over, they can give you extra Consequences.
+So in essence, the Crit Modifiers are two-folded; if you would otherwise be below target, they help you get over, and if you are already over, they can give you extra Shifts.
 
 #### Auto Fail
 
