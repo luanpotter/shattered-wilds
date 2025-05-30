@@ -93,7 +93,7 @@ Consequences are longer-term harms and injuries incurred to creatures that do no
 
 ## Death
 
-Death is the ultimate consequence. In Shattered Wilds, there is no revival - once your Soul is severed from your Body, they can never go back. That means stakes are always high and some decisions are final (not only regarding the players, but more importantly, NPCs and enemies). However, Death doesn't come from just reaching zero resources - 
+Death is the ultimate consequence. In Shattered Wilds, there is no revival - once your Soul is severed from your Body, they can never go back. That means stakes are always high and some decisions are final (not only regarding the players, but more importantly, NPCs and enemies). However, Death doesn't come from just reaching zero resources - and in fact doesn't comme (necessarily) from the accumulation of Consequences. However, a totally incapacitated creature (thus helpless) can be executed with a Coup de Grace, which will still require a contested check (failing will cause severe injuries instead). This is a longer action that cannot be taken during a combat, but it is typically considered that after the danger has passed the winners will execute the losers, unless otherwise specified by the victors.
 
 ## Exhaustion
 
