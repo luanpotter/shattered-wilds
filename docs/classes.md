@@ -47,6 +47,7 @@ Tank Warriors focus on Constitution, and thus are focused on defense and therefo
 * **Shield Bash** (Level 3):
 * **Improved Taunt** (Level 3):
 better armor - less penalty.
+advantage on resist stumble through
 
 ### Martial Warriors Feats
 
