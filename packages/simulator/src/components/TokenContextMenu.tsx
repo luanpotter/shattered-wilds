@@ -1,13 +1,14 @@
 import React from 'react';
-import { FaUser } from 'react-icons/fa';
+import { FaUser, FaFistRaised } from 'react-icons/fa';
 
-import { Character } from '../types';
+import { Character, CharacterSheet } from '../types';
 
 interface TokenContextMenuProps {
 	character: Character;
 	position: { x: number; y: number };
 	onClose: () => void;
 	onOpenCharacterSheet: (character: Character) => void;
+	onAttackAction?: (character: Character, attackIndex: number) => void;
 }
 
 export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
@@ -15,7 +16,11 @@ export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
 	position,
 	onClose,
 	onOpenCharacterSheet,
+	onAttackAction,
 }) => {
+	const sheet = CharacterSheet.from(character.props);
+	const basicAttacks = sheet.getBasicAttacks();
+
 	const menuStyle: React.CSSProperties = {
 		position: 'fixed',
 		left: position.x,
@@ -64,6 +69,7 @@ export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
 
 	return (
 		<div className='token-context-menu' style={menuStyle} role='menu'>
+			{/* Character Sheet Option */}
 			<div
 				role='menuitem'
 				tabIndex={0}
@@ -87,6 +93,43 @@ export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
 				<FaUser size={14} />
 				<span>See Character Sheet</span>
 			</div>
+
+			{/* Attack Options */}
+			{basicAttacks.length > 0 && onAttackAction && (
+				<>
+					{/* Separator */}
+					<div
+						style={{ height: '1px', backgroundColor: 'var(--text)', margin: '4px 0', opacity: 0.3 }}
+					/>
+
+					{basicAttacks.map((attack, index) => (
+						<div
+							key={`attack-${index}`}
+							role='menuitem'
+							tabIndex={0}
+							style={{
+								...menuItemStyle,
+								...(hoveredItem === `attack-${index}` ? menuItemHoverStyle : {}),
+							}}
+							onMouseEnter={() => setHoveredItem(`attack-${index}`)}
+							onMouseLeave={() => setHoveredItem(null)}
+							onClick={() => {
+								onAttackAction(character, index);
+								onClose();
+							}}
+							onKeyDown={e =>
+								handleKeyDown(e, () => {
+									onAttackAction(character, index);
+									onClose();
+								})
+							}
+						>
+							<FaFistRaised size={14} />
+							<span>Attack: {attack.name}</span>
+						</div>
+					))}
+				</>
+			)}
 		</div>
 	);
 };

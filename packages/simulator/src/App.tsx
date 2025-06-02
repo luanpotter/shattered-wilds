@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaUsers, FaCrosshairs, FaTimes, FaEdit, FaPlay } from 'react-icons/fa';
 
+import { AttackActionModal } from './components/AttackActionModal';
 import { BasicAttacksModal } from './components/BasicAttacksModal';
 import { CharacterCreationModal } from './components/CharacterCreation';
 import { CharacterList } from './components/CharacterList';
@@ -305,8 +306,20 @@ const App = (): React.ReactElement => {
 							attributeName={window.attributeName}
 							characterSheet={window.characterSheet}
 							initialRollType={window.initialRollType ?? 'Static'}
+							{...(window.onDiceRollComplete && { onDiceRollComplete: window.onDiceRollComplete })}
 						/>
 					)}
+					{window.type === 'attack-action' &&
+						window.attackerId &&
+						window.defenderId &&
+						window.attackIndex !== undefined && (
+							<AttackActionModal
+								attackerId={window.attackerId}
+								defenderId={window.defenderId}
+								attackIndex={window.attackIndex}
+								onClose={() => removeWindow(window.id)}
+							/>
+						)}
 				</DraggableWindow>
 			))}
 		</div>

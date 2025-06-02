@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 
 import { useStore } from '../store';
-import { CharacterSheet, DragState, Point, Character, HexPosition } from '../types';
+import { CharacterSheet, DragState, Point, Character, HexPosition, Weapon } from '../types';
 import { findNextWindowPosition, findCharacterAtPosition, axialToPixel } from '../utils';
 
 import { CharacterToken } from './CharacterToken';
@@ -67,6 +67,11 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	const [contextMenu, setContextMenu] = useState<{
 		character: Character;
 		position: Point;
+	} | null>(null);
+	const [attackState, setAttackState] = useState<{
+		attacker: Character;
+		attackIndex: number;
+		isSelectingTarget: boolean;
 	} | null>(null);
 
 	// This function converts screen coordinates to SVG user space coordinates
@@ -139,9 +144,87 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		}
 	};
 
+	const handleOpenCharacterSheet = (character: Character) => {
+		addWindow({
+			id: window.crypto.randomUUID(),
+			title: `${character.props.name}'s Sheet`,
+			type: 'character-sheet',
+			characterId: character.id,
+			position: findNextWindowPosition(windows),
+		});
+	};
+
+	const handleAttackAction = (attacker: Character, attackIndex: number) => {
+		setAttackState({
+			attacker,
+			attackIndex,
+			isSelectingTarget: true,
+		});
+	};
+
+	const getAttackRange = (attacker: Character, attackIndex: number): number => {
+		const sheet = CharacterSheet.from(attacker.props);
+		const attacks = sheet.getBasicAttacks();
+		const attack = attacks[attackIndex];
+
+		if (!attack) return 1;
+
+		// Get the weapon from equipment to check traits and range
+		const weapon = sheet.equipment.items.find(item => item.name === attack.name);
+		if (!weapon) {
+			return 1; // Default melee range
+		}
+
+		// Check if it's a weapon
+		if (weapon instanceof Weapon) {
+			// Check for polearm trait (2 hex range)
+			if (weapon.traits.some(trait => trait.toLowerCase().includes('polearm'))) {
+				return 2;
+			}
+
+			// Check for ranged weapon with explicit range
+			if (weapon.range && weapon.range > 0) {
+				return weapon.range; // Range in meters = range in hexes
+			}
+		}
+
+		// Default to adjacent (1 hex) for melee
+		return 1;
+	};
+
 	const handleCharacterMouseDown = (e: React.MouseEvent, character: Character) => {
 		if (e.button === 0) {
-			// Left click - drag
+			// Left click
+			if (attackState?.isSelectingTarget) {
+				// We're in attack mode - select this character as target
+				e.preventDefault();
+				e.stopPropagation();
+
+				// Check if the target is within range
+				const attackRange = getAttackRange(attackState.attacker, attackState.attackIndex);
+				const distance = getHexDistance(attackState.attacker.position!, character.position!);
+
+				if (distance <= attackRange) {
+					// Valid target - open Attack Action Modal
+					addWindow({
+						id: window.crypto.randomUUID(),
+						title: 'Attack Action',
+						type: 'attack-action',
+						position: findNextWindowPosition(windows),
+						attackerId: attackState.attacker.id,
+						defenderId: character.id,
+						attackIndex: attackState.attackIndex,
+					});
+
+					// Clear attack state
+					setAttackState(null);
+				}
+				// If not in range, do nothing (could add feedback later)
+
+				return;
+			}
+
+			// Normal drag behavior
 			e.preventDefault();
 			e.stopPropagation();
 
@@ -171,16 +254,6 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				}
 			}
 		}
-	};
-
-	const handleOpenCharacterSheet = (character: Character) => {
-		addWindow({
-			id: window.crypto.randomUUID(),
-			title: `${character.props.name}'s Sheet`,
-			type: 'character-sheet',
-			characterId: character.id,
-			position: findNextWindowPosition(windows),
-		});
 	};
 
 	const handleHexRightClick = (q: number, r: number) => {
@@ -223,6 +296,16 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			}
 		}
 		return hexes;
+	};
+
+	// Function to calculate hex distance between two positions
+	const getHexDistance = (pos1: HexPosition, pos2: HexPosition): number => {
+		return (
+			(Math.abs(pos1.q - pos2.q) +
+				Math.abs(pos1.q + pos1.r - pos2.q - pos2.r) +
+				Math.abs(pos1.r - pos2.r)) /
+			2
+		);
 	};
 
 	return (
@@ -272,7 +355,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				</g>
 
 				{/* Movement Range Highlight Layer */}
-				{hoveredCharacter?.position && (
+				{hoveredCharacter?.position && !attackState?.isSelectingTarget && (
 					<g style={{ pointerEvents: 'none' }}>
 						{getHexesInRange(
 							hoveredCharacter.position,
@@ -283,6 +366,25 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 									d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
 									fill='rgba(0, 255, 0, 0.2)'
 									stroke='rgba(0, 255, 0, 0.5)'
+									strokeWidth='0.5'
+								/>
+							</Hex>
+						))}
+					</g>
+				)}
+
+				{/* Attack Range Highlight Layer */}
+				{attackState?.isSelectingTarget && attackState.attacker.position && (
+					<g style={{ pointerEvents: 'none' }}>
+						{getHexesInRange(
+							attackState.attacker.position,
+							getAttackRange(attackState.attacker, attackState.attackIndex)
+						).map(({ q, r }, i) => (
+							<Hex key={`attack-range-${i}`} q={q} r={r}>
+								<path
+									d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
+									fill='rgba(255, 0, 0, 0.2)'
+									stroke='rgba(255, 0, 0, 0.5)'
 									strokeWidth='0.5'
 								/>
 							</Hex>
@@ -329,6 +431,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					position={contextMenu.position}
 					onClose={() => setContextMenu(null)}
 					onOpenCharacterSheet={handleOpenCharacterSheet}
+					onAttackAction={handleAttackAction}
 				/>
 			)}
 		</div>

@@ -51,6 +51,7 @@ export interface DiceRollModalProps {
 	attributeName: string;
 	characterSheet?: CharacterSheet | undefined;
 	initialRollType?: RollType;
+	onDiceRollComplete?: (result: { total: number; shifts: number }) => void;
 }
 
 interface RollResults {
@@ -62,7 +63,7 @@ interface RollResults {
 	autoFail: boolean;
 	total: number;
 	critModifiers: number;
-	critConsequences: number;
+	critShifts: number;
 	success: boolean | undefined;
 	selectedDice: number[];
 }
@@ -73,6 +74,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 	attributeName,
 	characterSheet,
 	initialRollType = 'Static',
+	onDiceRollComplete,
 }) => {
 	const [circumstantialModifier, setCircumstantialModifier] = useState(0);
 	const [rollType, setRollType] = useState<RollType>(initialRollType);
@@ -89,7 +91,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 		const currentDc = newDc ?? dc;
 
 		let success = false;
-		let critConsequences = 0;
+		let critShifts = 0;
 
 		if (!rollResults.autoFail && currentDc !== null) {
 			// For Active rolls, ties are losses unless there's a crit modifier
@@ -98,12 +100,12 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 					rollResults.total > currentDc ||
 					(rollResults.total === currentDc && rollResults.critModifiers > 0);
 				if (success) {
-					critConsequences = Math.floor((rollResults.total - currentDc) / 6);
+					critShifts = Math.floor((rollResults.total - currentDc) / 6);
 				}
 			} else {
 				success = rollResults.total >= currentDc;
 				if (success && currentType === 'Static') {
-					critConsequences = Math.floor((rollResults.total - currentDc) / 6);
+					critShifts = Math.floor((rollResults.total - currentDc) / 6);
 				}
 			}
 		}
@@ -111,7 +113,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 		setRollResults({
 			...rollResults,
 			success,
-			critConsequences,
+			critShifts,
 		});
 	};
 
@@ -203,19 +205,19 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 		const total = baseTotal + critModifiers;
 
 		let success = false;
-		let critConsequences = 0;
+		let critShifts = 0;
 
 		if (!autoFail && dc !== null) {
 			// For Active rolls, ties are losses unless there's a crit modifier
 			if (rollType === 'Contested (Active)') {
 				success = total > dc || (total === dc && critModifiers > 0);
 				if (success) {
-					critConsequences = Math.floor((total - dc) / 6);
+					critShifts = Math.floor((total - dc) / 6);
 				}
 			} else {
 				success = total >= dc;
 				if (success && rollType === 'Static') {
-					critConsequences = Math.floor((total - dc) / 6);
+					critShifts = Math.floor((total - dc) / 6);
 				}
 			}
 		}
@@ -229,7 +231,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 			autoFail,
 			total,
 			critModifiers,
-			critConsequences,
+			critShifts,
 			success,
 			selectedDice,
 		};
@@ -332,6 +334,17 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 				)}
 			</div>
 		);
+	};
+
+	const handleCloseWithCallback = () => {
+		// If we have roll results and a callback, pass the results back
+		if (rollResults && onDiceRollComplete) {
+			onDiceRollComplete({
+				total: rollResults.total,
+				shifts: rollResults.critShifts,
+			});
+		}
+		onClose();
 	};
 
 	if (rollResults) {
@@ -471,9 +484,9 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 							</div>
 						)}
 
-						{rollResults.critConsequences > 0 && (
+						{rollResults.critShifts > 0 && (
 							<div style={{ color: 'green', fontWeight: 'bold' }}>
-								Crit Consequences: {rollResults.critConsequences}
+								Crit Shifts: {rollResults.critShifts}
 							</div>
 						)}
 					</div>
@@ -511,7 +524,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 						Copy Result
 					</button>
 					<button
-						onClick={onClose}
+						onClick={handleCloseWithCallback}
 						style={{
 							padding: '8px 16px',
 							backgroundColor: 'var(--background-alt)',

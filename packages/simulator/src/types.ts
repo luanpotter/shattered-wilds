@@ -919,7 +919,8 @@ export interface Window {
 		| 'character-creation'
 		| 'race-setup'
 		| 'basic-attacks'
-		| 'dice-roll';
+		| 'dice-roll'
+		| 'attack-action';
 	characterId?: string;
 	position: Point;
 	hexPosition?: HexPosition;
@@ -927,6 +928,10 @@ export interface Window {
 	attributeName?: string;
 	characterSheet?: CharacterSheet;
 	initialRollType?: RollType;
+	attackerId?: string;
+	defenderId?: string;
+	attackIndex?: number;
+	onDiceRollComplete?: (result: { total: number; shifts: number }) => void;
 }
 
 export interface GridState {
