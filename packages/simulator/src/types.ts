@@ -1,3 +1,5 @@
+import type { RollType } from './components/DiceRollModal';
+
 export interface Point {
 	x: number;
 	y: number;
@@ -924,6 +926,7 @@ export interface Window {
 	modifier?: number;
 	attributeName?: string;
 	characterSheet?: CharacterSheet;
+	initialRollType?: RollType;
 }
 
 export interface GridState {

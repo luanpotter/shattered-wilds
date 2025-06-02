@@ -292,6 +292,9 @@ const App = (): React.ReactElement => {
 							attacks={CharacterSheet.from(
 								characters.find(c => c.id === window.characterId)?.props || {}
 							).getBasicAttacks()}
+							characterSheet={CharacterSheet.from(
+								characters.find(c => c.id === window.characterId)?.props || {}
+							)}
 							onClose={() => removeWindow(window.id)}
 						/>
 					)}
@@ -301,6 +304,7 @@ const App = (): React.ReactElement => {
 							onClose={() => removeWindow(window.id)}
 							attributeName={window.attributeName}
 							characterSheet={window.characterSheet}
+							initialRollType={window.initialRollType ?? 'Static'}
 						/>
 					)}
 				</DraggableWindow>

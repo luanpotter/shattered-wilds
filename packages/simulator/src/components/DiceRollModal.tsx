@@ -6,7 +6,7 @@ import { CharacterSheet, AttributeType } from '../types';
 
 import DropdownSelect from './DropdownSelect';
 
-type RollType = 'Static' | 'Contested (Active)' | 'Contested (Passive)';
+export type RollType = 'Static' | 'Contested (Active)' | 'Contested (Passive)';
 
 // Define the skills directly from AttributeType
 const SKILL_OPTIONS = {
@@ -50,6 +50,7 @@ export interface DiceRollModalProps {
 	onClose: () => void;
 	attributeName: string;
 	characterSheet?: CharacterSheet | undefined;
+	initialRollType?: RollType;
 }
 
 interface RollResults {
@@ -71,9 +72,10 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 	onClose,
 	attributeName,
 	characterSheet,
+	initialRollType = 'Static',
 }) => {
 	const [circumstantialModifier, setCircumstantialModifier] = useState(0);
-	const [rollType, setRollType] = useState<RollType>('Static');
+	const [rollType, setRollType] = useState<RollType>(initialRollType);
 	const [dc, setDc] = useState<number | null>(null);
 	const [useExtra, setUseExtra] = useState(false);
 	const [useLuck, setUseLuck] = useState(false);

@@ -88,6 +88,50 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 		}
 	};
 
+	const handleBasicAttackClick = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		if (editMode) {
+			handleOpenBasicAttacks();
+		} else {
+			// In play mode, behavior depends on number of attacks
+			if (basicAttacks.length === 1) {
+				// Only one attack - roll dice directly
+				const attack = basicAttacks[0];
+				addWindow({
+					id: window.crypto.randomUUID(),
+					title: `Roll ${attack.name} Attack`,
+					type: 'dice-roll',
+					position: { x: e.clientX, y: e.clientY },
+					modifier: attack.check.modifier,
+					attributeName: `${attack.name} (${attack.check.attribute.name})`,
+					characterSheet: sheet,
+					initialRollType: 'Contested (Active)',
+				});
+			} else if (basicAttacks.length > 1) {
+				// Multiple attacks - show Basic Attacks modal for selection
+				handleOpenBasicAttacks();
+			}
+			// If no attacks (basicAttacks.length === 0), do nothing
+		}
+	};
+
+	const handleBasicDefenseClick = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		if (!editMode) {
+			// In play mode, roll a defense check
+			addWindow({
+				id: window.crypto.randomUUID(),
+				title: `Roll Defense Check`,
+				type: 'dice-roll',
+				position: { x: e.clientX, y: e.clientY },
+				modifier: basicDefense.value,
+				attributeName: 'Basic Defense',
+				characterSheet: sheet,
+				initialRollType: 'Contested (Passive)',
+			});
+		}
+	};
+
 	const handleClassChange = (characterClass: CharacterClass) => {
 		updateCharacterProp(character, 'class', characterClass);
 	};
@@ -290,15 +334,15 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 							<div
 								id='character-attacks'
 								title={basicAttacks.map(attack => attack.name).join(' / ')}
-								onClick={handleOpenBasicAttacks}
+								onClick={handleBasicAttackClick}
 								onKeyDown={e => {
 									if (e.key === 'Enter' || e.key === ' ') {
-										handleOpenBasicAttacks();
+										handleBasicAttackClick(e as any);
 									}
 								}}
 								tabIndex={0}
 								role='button'
-								aria-label='Show basic attacks details'
+								aria-label={editMode ? 'Show basic attacks details' : 'Roll basic attack'}
 								style={{
 									...inputStyle,
 									display: 'flex',
@@ -322,12 +366,21 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 							<div
 								id='character-defense'
 								title={basicDefense.description}
+								onClick={handleBasicDefenseClick}
+								onKeyDown={e => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										handleBasicDefenseClick(e as any);
+									}
+								}}
+								tabIndex={editMode ? -1 : 0}
+								role={editMode ? undefined : 'button'}
+								aria-label={editMode ? undefined : 'Roll defense check'}
 								style={{
 									...inputStyle,
 									display: 'flex',
 									alignItems: 'center',
 									backgroundColor: 'var(--background)',
-									cursor: 'help',
+									cursor: editMode ? 'help' : 'pointer',
 								}}
 							>
 								{basicDefense.value}
