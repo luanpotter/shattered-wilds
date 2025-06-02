@@ -111,14 +111,11 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 
 	const modalStyle: React.CSSProperties = {
 		padding: '20px',
-		width: '900px',
-		maxWidth: '95vw',
+		maxWidth: '90vw',
 		backgroundColor: 'var(--background)',
 		border: '1px solid var(--text)',
 		borderRadius: '8px',
 		boxSizing: 'border-box',
-		maxHeight: '80vh',
-		overflowY: 'auto',
 	};
 
 	const halfStyle: React.CSSProperties = {

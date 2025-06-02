@@ -52,20 +52,6 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
 		removeWindow(window.id);
 	};
 
-	// Determine window width based on type
-	const getWindowWidth = () => {
-		if (window.type === 'character-sheet') {
-			return '900px'; // 3x the default width
-		}
-		if (window.type === 'attack-action') {
-			return '950px'; // Wide enough for two-column attack action layout
-		}
-		if (window.type === 'race-setup' || window.type === 'basic-attacks') {
-			return '400px'; // Wider than default but not as wide as character sheet
-		}
-		return '300px'; // Default width
-	};
-
 	// Add useEffect to handle document-level mouse events
 	useEffect(() => {
 		if (isDragging) {
@@ -124,7 +110,11 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
 					position: 'absolute',
 					left: window.position.x,
 					top: window.position.y,
-					width: getWindowWidth(),
+					width: window.width || 'fit-content',
+					height: window.height || 'auto',
+					minWidth: '250px',
+					maxWidth: '95vw',
+					maxHeight: '90vh',
 					backgroundColor: 'var(--background)',
 					border: '1px solid var(--text)',
 					borderRadius: '4px',
@@ -132,7 +122,7 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
 					display: 'block',
 					userSelect: 'none',
 					zIndex: 999,
-					overflow: 'visible', // Changed to visible for the entire window
+					overflow: 'visible',
 				}}
 			>
 				<div

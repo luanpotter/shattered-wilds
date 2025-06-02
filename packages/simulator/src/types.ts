@@ -932,6 +932,8 @@ export interface Window {
 	defenderId?: string;
 	attackIndex?: number;
 	onDiceRollComplete?: (result: { total: number; shifts: number }) => void;
+	width?: string;
+	height?: string;
 }
 
 export interface GridState {
