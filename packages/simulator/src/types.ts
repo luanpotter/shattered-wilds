@@ -815,9 +815,9 @@ export class CharacterSheet {
 		this.race = race;
 		this.characterClass = characterClass;
 		this.attributes = attributes;
+		this.equipment = equipment;
 
 		this.derivedStats = new DerivedStats(this.race, this.getAttributeTree());
-		this.equipment = equipment;
 		this.currentValues = currentValues;
 	}
 
@@ -825,18 +825,29 @@ export class CharacterSheet {
 		return new AttributeTree(this.attributes, this.getAllModifiers());
 	}
 
-	// Get all modifiers from all sources (race, class, etc.)
+	// Get all modifiers from all sources (race, equipment, etc.)
 	getAllModifiers(): Modifier[] {
-		// For now, just return race modifiers
-		return this.race.getModifiers();
+		const modifiers: Modifier[] = [];
 
-		// In the future, we can add more sources like:
-		// return [
-		//   ...this.race.getModifiers(),
-		//   ...this.characterClass.getModifiers(),
-		//   ...this.equipment.getModifiers(),
-		//   ...etc.
-		// ];
+		// Add race modifiers
+		modifiers.push(...this.race.getModifiers());
+
+		// Add equipment modifiers (armor DEX penalties)
+		this.equipment.items
+			.filter(item => item instanceof Armor)
+			.forEach(item => {
+				const armor = item as Armor;
+				if (armor.dexPenalty !== 0) {
+					modifiers.push({
+						source: `${armor.name} (${armor.type})`,
+						value: armor.dexPenalty, // dexPenalty is already stored as negative
+						attributeType: AttributeType.DEX,
+						description: `Dexterity penalty from wearing ${armor.name}`,
+					});
+				}
+			});
+
+		return modifiers;
 	}
 
 	getBasicAttacks(): BasicAttack[] {
