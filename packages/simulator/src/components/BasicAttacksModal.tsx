@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { BasicAttacks } from '../types';
+import { BasicAttack } from '../types';
 
 import { FormRow, ReadOnlyInput } from './shared/FormComponents';
 
 interface BasicAttacksModalProps {
-	attacks: BasicAttacks;
+	attacks: BasicAttack[];
 	onClose: () => void;
 }
 
@@ -22,45 +22,16 @@ export const BasicAttacksModal: React.FC<BasicAttacksModalProps> = ({ attacks, o
 					borderRadius: '4px',
 				}}
 			>
-				<FormRow label='Light Melee' id='light-melee'>
-					<ReadOnlyInput
-						id='light-melee'
-						value={
-							attacks.lightMelee.value > 0
-								? `+${attacks.lightMelee.value}`
-								: attacks.lightMelee.value
-						}
-						tooltip={attacks.lightMelee.description}
-					/>
-				</FormRow>
-
-				<FormRow label='Heavy Melee' id='heavy-melee'>
-					<ReadOnlyInput
-						id='heavy-melee'
-						value={
-							attacks.heavyMelee.value > 0
-								? `+${attacks.heavyMelee.value}`
-								: attacks.heavyMelee.value
-						}
-						tooltip={attacks.heavyMelee.description}
-					/>
-				</FormRow>
-
-				<FormRow label='Ranged' id='ranged'>
-					<ReadOnlyInput
-						id='ranged'
-						value={attacks.ranged.value > 0 ? `+${attacks.ranged.value}` : attacks.ranged.value}
-						tooltip={attacks.ranged.description}
-					/>
-				</FormRow>
-
-				<FormRow label='Thrown' id='thrown'>
-					<ReadOnlyInput
-						id='thrown'
-						value={attacks.thrown.value > 0 ? `+${attacks.thrown.value}` : attacks.thrown.value}
-						tooltip={attacks.thrown.description}
-					/>
-				</FormRow>
+				{attacks.map(attack => {
+					const bonus = attack.check.bonus > 0 ? `+${attack.check.bonus}` : attack.check.bonus;
+					const name = `${attack.name} ${bonus}`;
+					const desc = `${attack.check.attribute.name} ${bonus} = ${attack.check.modifier}`;
+					return (
+						<FormRow key={name} label={name} id={name.toLowerCase()}>
+							<ReadOnlyInput id={name} value={attack.check.modifier} tooltip={desc} />
+						</FormRow>
+					);
+				})}
 			</div>
 
 			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>

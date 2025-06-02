@@ -289,10 +289,9 @@ const App = (): React.ReactElement => {
 					)}
 					{window.type === 'basic-attacks' && window.characterId && (
 						<BasicAttacksModal
-							attacks={
-								CharacterSheet.from(characters.find(c => c.id === window.characterId)?.props || {})
-									.derivedStats.basicAttacks
-							}
+							attacks={CharacterSheet.from(
+								characters.find(c => c.id === window.characterId)?.props || {}
+							).getBasicAttacks()}
 							onClose={() => removeWindow(window.id)}
 						/>
 					)}

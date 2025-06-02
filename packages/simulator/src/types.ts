@@ -52,14 +52,14 @@ export const SizeModifiers: Record<Size, number> = {
 };
 
 // Define a structure for race attribute modifiers, but move the implementation after AttributeType is defined
-export interface RaceAttributeModifier {
-	attributeType: any; // Temporarily use any, will be properly typed later
+export interface AttributeModifier {
+	attributeType: AttributeType;
 	value: number;
 }
 
 export interface RaceDefinition {
 	name: Race;
-	modifiers: RaceAttributeModifier[];
+	modifiers: AttributeModifier[];
 	size: Size;
 }
 
@@ -443,7 +443,7 @@ export class AttributeTree {
 	valueOf(type: AttributeType): number {
 		const node = this.root.getNode(type);
 		if (node == null) {
-			throw new Error(`Attribute type ${type} not found`);
+			throw new Error(`Attribute type ${type.name} not found`);
 		}
 		return this.getFinalModifier(node).value;
 	}
@@ -535,7 +535,7 @@ export class Attribute {
 		if (type == null) {
 			return null;
 		}
-		if (this.type === type) {
+		if (this.type.name === type.name) {
 			return this;
 		}
 		return this.children.map(child => child.getNode(type)).find(child => child !== null) || null;
@@ -680,19 +680,10 @@ export class DerivedStat<T> {
 	}
 }
 
-export interface BasicAttacks {
-	lightMelee: DerivedStat<number>;
-	heavyMelee: DerivedStat<number>;
-	ranged: DerivedStat<number>;
-	thrown: DerivedStat<number>;
-}
-
 export class DerivedStats {
 	size: DerivedStat<Size>;
 	movement: DerivedStat<number>;
 	initiative: DerivedStat<number>;
-	basicAttacks: BasicAttacks;
-	basicDefense: DerivedStat<number>;
 	maxHeroism: DerivedStat<number>;
 	maxVitality: DerivedStat<number>;
 	maxFocus: DerivedStat<number>;
@@ -702,8 +693,6 @@ export class DerivedStats {
 		this.size = this.computeSize(race);
 		this.movement = this.computeMovement(attributeTree);
 		this.initiative = this.computeInitiative(attributeTree);
-		this.basicAttacks = this.computeBasicAttacks(attributeTree);
-		this.basicDefense = this.computeBasicDefense(attributeTree);
 		this.maxHeroism = this.computeMaxHeroism(attributeTree);
 		this.maxVitality = this.computeMaxVitality(attributeTree);
 		this.maxFocus = this.computeMaxFocus(attributeTree);
@@ -733,47 +722,6 @@ export class DerivedStats {
 		return new DerivedStat(value, `Initiative = ${agility} (Agility) + ${awareness} (Awareness)`);
 	}
 
-	private computeBasicAttacks(attributeTree: AttributeTree): BasicAttacks {
-		const dex = attributeTree.valueOf(AttributeType.DEX);
-		const str = attributeTree.valueOf(AttributeType.STR);
-
-		// For now, we'll use 0 as the weapon bonus. This should be updated when equipment is implemented
-		const weaponBonus = 0;
-
-		return {
-			lightMelee: new DerivedStat(
-				dex + weaponBonus,
-				`Light Melee = ${dex} (DEX) + ${weaponBonus} (weapon bonus)`
-			),
-			heavyMelee: new DerivedStat(
-				str + weaponBonus,
-				`Heavy Melee = ${str} (STR) + ${weaponBonus} (weapon bonus)`
-			),
-			ranged: new DerivedStat(
-				dex + weaponBonus,
-				`Ranged = ${dex} (DEX) + ${weaponBonus} (weapon bonus)`
-			),
-			thrown: new DerivedStat(
-				str + weaponBonus,
-				`Thrown = ${str} (STR) + ${weaponBonus} (weapon bonus)`
-			),
-		};
-	}
-
-	private computeBasicDefense(attributeTree: AttributeTree): DerivedStat<number> {
-		const body = attributeTree.valueOf(AttributeType.Body);
-		const sizeModifier = SizeModifiers[this.size.value];
-
-		// For now, we'll use 0 as the armor bonus. This should be updated when equipment is implemented
-		const armorBonus = 0;
-
-		const value = body - sizeModifier + armorBonus;
-		return new DerivedStat(
-			value,
-			`Basic Defense = ${body} (Body) - ${sizeModifier} (size) + ${armorBonus} (armor bonus)`
-		);
-	}
-
 	private computeMaxHeroism(attributeTree: AttributeTree): DerivedStat<number> {
 		const level = attributeTree.root.baseValue;
 		return new DerivedStat(level, `Max Heroism Points = ${level} (Level)`);
@@ -798,11 +746,50 @@ export class DerivedStats {
 	}
 }
 
-export interface CurrentValues {
+export class CurrentValues {
 	currentHeroism: number;
 	currentVitality: number;
 	currentFocus: number;
 	currentSpirit: number;
+
+	constructor(
+		currentHeroism: number,
+		currentVitality: number,
+		currentFocus: number,
+		currentSpirit: number
+	) {
+		this.currentHeroism = currentHeroism;
+		this.currentVitality = currentVitality;
+		this.currentFocus = currentFocus;
+		this.currentSpirit = currentSpirit;
+	}
+
+	static MAX_VALUE = -1;
+
+	static from(props: Record<string, string>): CurrentValues {
+		const parse = (value?: string): number => {
+			return value ? parseInt(value) : CurrentValues.MAX_VALUE;
+		};
+		const currentHeroism = parse(props['currentHeroism']);
+		const currentVitality = parse(props['currentVitality']);
+		const currentFocus = parse(props['currentFocus']);
+		const currentSpirit = parse(props['currentSpirit']);
+
+		return new CurrentValues(currentHeroism, currentVitality, currentFocus, currentSpirit);
+	}
+
+	backfill(sheet: CharacterSheet) {
+		const fallback = (value: number, fallback: () => number): number => {
+			return value === CurrentValues.MAX_VALUE ? fallback() : value;
+		};
+		this.currentHeroism = fallback(this.currentHeroism, () => sheet.derivedStats.maxHeroism.value);
+		this.currentVitality = fallback(
+			this.currentVitality,
+			() => sheet.derivedStats.maxVitality.value
+		);
+		this.currentFocus = fallback(this.currentFocus, () => sheet.derivedStats.maxFocus.value);
+		this.currentSpirit = fallback(this.currentSpirit, () => sheet.derivedStats.maxSpirit.value);
+	}
 }
 
 export class CharacterSheet {
@@ -812,13 +799,15 @@ export class CharacterSheet {
 	attributes: Attribute;
 	derivedStats: DerivedStats;
 	currentValues: CurrentValues;
+	equipment: Equipment;
 
 	constructor(
 		name: string,
 		race: RaceInfo,
 		characterClass: CharacterClass,
 		attributes: Attribute,
-		props: Record<string, string>
+		equipment: Equipment,
+		currentValues: CurrentValues
 	) {
 		this.name = name;
 		this.race = race;
@@ -826,23 +815,8 @@ export class CharacterSheet {
 		this.attributes = attributes;
 
 		this.derivedStats = new DerivedStats(this.race, this.getAttributeTree());
-
-		// Initialize current values from props or use max values as defaults
-		const tree = this.getAttributeTree();
-		this.currentValues = {
-			currentHeroism: parseInt(
-				props['currentHeroism'] ?? tree.valueOf(AttributeType.Level).toString()
-			),
-			currentVitality: parseInt(
-				props['currentVitality'] ?? (4 + tree.valueOf(AttributeType.Body)).toString()
-			),
-			currentFocus: parseInt(
-				props['currentFocus'] ?? (4 + tree.valueOf(AttributeType.Mind)).toString()
-			),
-			currentSpirit: parseInt(
-				props['currentSpirit'] ?? (4 + tree.valueOf(AttributeType.Soul)).toString()
-			),
-		};
+		this.equipment = equipment;
+		this.currentValues = currentValues;
 	}
 
 	getAttributeTree(): AttributeTree {
@@ -863,14 +837,47 @@ export class CharacterSheet {
 		// ];
 	}
 
+	getBasicAttacks(): BasicAttack[] {
+		const tree = this.getAttributeTree();
+		return this.equipment.items
+			.filter(item => item instanceof Weapon)
+			.map(item => {
+				const weapon = item as Weapon;
+				return {
+					name: weapon.name,
+					check: {
+						attribute: weapon.attribute,
+						bonus: weapon.bonus,
+						modifier: tree.valueOf(weapon.attribute) + weapon.bonus,
+					},
+				};
+			});
+	}
+
+	getBasicDefense(): DerivedStat<number> {
+		const body = this.getAttributeTree().valueOf(AttributeType.Body);
+		const armorBonus = this.equipment.items
+			.filter(item => item instanceof Armor)
+			.reduce((acc, item) => acc + (item as Armor).bonus, 0);
+		const defense = body + armorBonus;
+		return {
+			value: defense,
+			description: `Basic Defense = ${body} (Body) + ${armorBonus} (armor bonus)`,
+		};
+	}
+
 	static from(props: Record<string, string>): CharacterSheet {
-		return new CharacterSheet(
+		const sheet = new CharacterSheet(
 			props['name']!!,
 			RaceInfo.from(props),
 			(props['class'] as CharacterClass) ?? CharacterClass.Fighter,
 			makeAttributeTree(props),
-			props
+			Equipment.from(props['equipment']),
+			CurrentValues.from(props)
 		);
+		// backfill maximal current values from attribute tree if needed
+		sheet.currentValues.backfill(sheet);
+		return sheet;
 	}
 }
 
@@ -980,3 +987,134 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 		size: Size.S,
 	},
 };
+
+export enum PrimaryWeaponType {
+	Unarmed = 'Unarmed',
+	Thrown = 'Thrown',
+	LightMelee = 'Light Melee',
+	Ranged = 'Ranged',
+	HeavyMelee = 'Heavy Melee',
+}
+
+export enum ArmorType {
+	Light = 'Light Armor',
+	Medium = 'Medium Armor',
+	Heavy = 'Heavy Armor',
+}
+
+export enum ShieldType {
+	Small = 'Small Shield',
+	Large = 'Large Shield',
+}
+
+export class Weapon implements Item {
+	name: string;
+	type: PrimaryWeaponType;
+	bonus: number;
+	traits: string[];
+	range: number | undefined; // in meters, for thrown/ranged weapons
+	attribute: AttributeType;
+
+	constructor(
+		name: string,
+		type: PrimaryWeaponType,
+		bonus: number,
+		traits: string[],
+		attribute: AttributeType,
+		range?: number
+	) {
+		this.name = name;
+		this.type = type;
+		this.bonus = bonus;
+		this.traits = traits;
+		this.attribute = attribute;
+		this.range = range;
+	}
+}
+
+export class Armor implements Item {
+	name: string;
+	type: ArmorType;
+	bonus: number;
+	dexPenalty: number;
+
+	constructor(name: string, type: ArmorType, bonus: number, dexPenalty: number) {
+		this.name = name;
+		this.type = type;
+		this.bonus = bonus;
+		this.dexPenalty = dexPenalty;
+	}
+}
+
+export class Shield implements Item {
+	name: string;
+	type: ShieldType;
+	bonus: number;
+	twoHanded: boolean;
+
+	constructor(name: string, type: ShieldType, bonus: number, twoHanded: boolean) {
+		this.name = name;
+		this.type = type;
+		this.bonus = bonus;
+		this.twoHanded = twoHanded;
+	}
+}
+
+export interface Item {
+	name: string;
+}
+
+export class Equipment {
+	items: Item[];
+
+	constructor(items: Item[] = []) {
+		this.items = items;
+	}
+
+	static from(prop: string): Equipment {
+		if (!prop) return new Equipment([]);
+		const raw = JSON.parse(prop) as any[];
+		const items: Item[] = raw.map(obj => {
+			switch (obj.type) {
+				case PrimaryWeaponType.Unarmed:
+				case PrimaryWeaponType.Thrown:
+				case PrimaryWeaponType.LightMelee:
+				case PrimaryWeaponType.Ranged:
+				case PrimaryWeaponType.HeavyMelee:
+					return new Weapon(
+						obj.name,
+						obj.type,
+						obj.bonus,
+						obj.traits || [],
+						obj.attribute,
+						obj.range
+					);
+				case ArmorType.Light:
+				case ArmorType.Medium:
+				case ArmorType.Heavy:
+					return new Armor(obj.name, obj.type, obj.bonus, obj.dexPenalty);
+				case ShieldType.Small:
+				case ShieldType.Large:
+					return new Shield(obj.name, obj.type, obj.bonus, obj.twoHanded);
+				default:
+					throw new Error(`Unknown item type: ${obj.type}`);
+			}
+		});
+		return new Equipment(items);
+	}
+
+	toProp(): string {
+		return JSON.stringify(this.items);
+	}
+}
+
+export interface BasicAttack {
+	name: string;
+	check: Check;
+}
+
+export interface Check {
+	attribute: AttributeType;
+	bonus: number;
+	modifier: number;
+}

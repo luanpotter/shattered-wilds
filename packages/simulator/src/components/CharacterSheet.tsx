@@ -9,11 +9,13 @@ import {
 	DerivedStat,
 	Size,
 	SizeModifiers,
+	Equipment,
 } from '../types';
 import { findNextWindowPosition } from '../utils';
 
 import { AttributeTreeComponent } from './AttributeTreeComponent';
 import DropdownSelect from './DropdownSelect';
+import { EquipmentSection } from './EquipmentSection';
 
 interface CharacterSheetModalProps {
 	character: Character;
@@ -101,6 +103,10 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 		updateCharacterProp(character, `current${pointType}`, newValue.toString());
 	};
 
+	const handleUpdateEquipment = (equipment: Equipment) => {
+		updateCharacterProp(character, 'equipment', equipment.toProp());
+	};
+
 	// Common styles for form rows - reduced margins for compactness
 	const formRowStyle = {
 		display: 'flex',
@@ -144,10 +150,8 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 		return `${size} (${modifierStr})`;
 	};
 
-	const formatAttackDisplay = (attacks: CharacterSheet['derivedStats']['basicAttacks']) => {
-		const formatValue = (value: number) => (value > 0 ? `+${value}` : value);
-		return `Light Melee (${formatValue(attacks.lightMelee.value)}) / Heavy Melee (${formatValue(attacks.heavyMelee.value)}) / Ranged (${formatValue(attacks.ranged.value)}) / Thrown (${formatValue(attacks.thrown.value)})`;
-	};
+	const basicAttacks = sheet.getBasicAttacks();
+	const basicDefense = sheet.getBasicDefense();
 
 	return (
 		<div style={{ margin: 0, padding: 0, width: '100%', height: '100%', overflowY: 'scroll' }}>
@@ -285,7 +289,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 							</label>
 							<div
 								id='character-attacks'
-								title={sheet.derivedStats.basicAttacks.lightMelee.description}
+								title={basicAttacks.map(attack => attack.name).join(' / ')}
 								onClick={handleOpenBasicAttacks}
 								onKeyDown={e => {
 									if (e.key === 'Enter' || e.key === ' ') {
@@ -306,7 +310,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 									textOverflow: 'ellipsis',
 								}}
 							>
-								{formatAttackDisplay(sheet.derivedStats.basicAttacks)}
+								{basicAttacks.map(attack => attack.name).join(' / ')}
 							</div>
 						</div>
 
@@ -317,7 +321,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 							</label>
 							<div
 								id='character-defense'
-								title={sheet.derivedStats.basicDefense.description}
+								title={basicDefense.description}
 								style={{
 									...inputStyle,
 									display: 'flex',
@@ -326,7 +330,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 									cursor: 'help',
 								}}
 							>
-								{sheet.derivedStats.basicDefense.value}
+								{basicDefense.value}
 							</div>
 						</div>
 					</div>
@@ -556,6 +560,13 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 				}
 				disabled={!editMode}
 				characterSheet={sheet}
+			/>
+
+			{/* Equipment Section */}
+			<EquipmentSection
+				character={character}
+				onUpdateEquipment={handleUpdateEquipment}
+				editMode={editMode}
 			/>
 		</div>
 	);
