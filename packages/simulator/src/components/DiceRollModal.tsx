@@ -494,6 +494,23 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 						Roll Again
 					</button>
 					<button
+						onClick={() => {
+							void window.navigator.clipboard.writeText(rollResults.total.toString()).catch(() => {
+								// Ignore clipboard errors
+							});
+						}}
+						style={{
+							padding: '8px 16px',
+							backgroundColor: 'var(--background-alt)',
+							border: '1px solid var(--text)',
+							borderRadius: '4px',
+							color: 'var(--text)',
+							cursor: 'pointer',
+						}}
+					>
+						Copy Result
+					</button>
+					<button
 						onClick={onClose}
 						style={{
 							padding: '8px 16px',
