@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { FaPlus, FaMinus } from 'react-icons/fa';
+import { FaPlus, FaMinus, FaBatteryFull } from 'react-icons/fa';
 
 import { useStore } from '../store';
 import {
@@ -149,6 +149,18 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 
 	const handleUpdateEquipment = (equipment: Equipment) => {
 		updateCharacterProp(character, 'equipment', equipment.toProp());
+	};
+
+	const handleRefillPoints = () => {
+		const pointTypes = ['Heroism', 'Vitality', 'Focus', 'Spirit'];
+		pointTypes.forEach(pointType => {
+			const maxValue = (
+				sheet.derivedStats[
+					`max${pointType}` as keyof typeof sheet.derivedStats
+				] as DerivedStat<number>
+			).value;
+			updateCharacterProp(character, `current${pointType}`, maxValue.toString());
+		});
 	};
 
 	// Common styles for form rows - reduced margins for compactness
@@ -601,6 +613,28 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 								</button>
 							</div>
 						</div>
+					</div>
+
+					{/* Refill Points Button Row */}
+					<div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
+						<button
+							onClick={handleRefillPoints}
+							style={{
+								background: 'none',
+								border: '1px solid var(--text)',
+								borderRadius: '4px',
+								cursor: 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '4px',
+								padding: '4px 8px',
+								color: 'var(--text)',
+							}}
+							title='Refill all points to maximum'
+						>
+							<FaBatteryFull />
+							<span>Refill Points</span>
+						</button>
 					</div>
 				</div>
 			</div>
