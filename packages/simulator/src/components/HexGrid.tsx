@@ -5,6 +5,16 @@ import { CharacterSheet, DragState, Point, Character, HexPosition } from '../typ
 import { findNextWindowPosition, findCharacterAtPosition, axialToPixel } from '../utils';
 
 import { CharacterToken } from './CharacterToken';
+import { TokenContextMenu } from './TokenContextMenu';
+
+const Hex: React.FC<{ q: number; r: number; children?: React.ReactNode }> = ({
+	q,
+	r,
+	children,
+}) => {
+	const { x, y } = axialToPixel(q, r);
+	return <g transform={`translate(${x},${y})`}>{children}</g>;
+};
 
 const generateHexes = (width: number, height: number): HexPosition[] => {
 	const hexes = [];
@@ -33,17 +43,6 @@ const generateHexes = (width: number, height: number): HexPosition[] => {
 	return hexes;
 };
 
-const Hex: React.FC<{
-	q: number;
-	r: number;
-	children?: React.ReactNode;
-}> = ({ q, r, children }) => {
-	// Convert axial coordinates to pixel coordinates
-	const { x, y } = axialToPixel(q, r);
-
-	return <g transform={`translate(${x},${y})`}>{children}</g>;
-};
-
 interface BattleGridProps {
 	disabled?: boolean;
 	dragState: DragState;
@@ -62,8 +61,13 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	const updateGridState = useStore(state => state.updateGridState);
 	const addWindow = useStore(state => state.addWindow);
 	const windows = useStore(state => state.windows);
+	const editMode = useStore(state => state.editMode);
 	const [ghostPosition, setGhostPosition] = useState<Point | null>(null);
 	const [hoveredCharacter, setHoveredCharacter] = useState<Character | null>(null);
+	const [contextMenu, setContextMenu] = useState<{
+		character: Character;
+		position: Point;
+	} | null>(null);
 
 	// This function converts screen coordinates to SVG user space coordinates
 	const screenToSvgCoordinates = useCallback((x: number, y: number): Point | null => {
@@ -146,11 +150,26 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			// Keep the hover state when starting drag
 			setHoveredCharacter(character);
 		} else if (e.button === 2) {
-			// Right click - open character sheet
+			// Right click - handle based on mode
 			e.preventDefault();
 			e.stopPropagation();
 
-			handleOpenCharacterSheet(character);
+			if (editMode) {
+				// In edit mode, directly open character sheet
+				handleOpenCharacterSheet(character);
+			} else {
+				// In play mode, show context menu at correct position relative to grid
+				if (gridRef.current) {
+					const rect = gridRef.current.getBoundingClientRect();
+					setContextMenu({
+						character,
+						position: {
+							x: e.clientX - rect.left,
+							y: e.clientY - rect.top,
+						},
+					});
+				}
+			}
 		}
 	};
 
@@ -282,7 +301,6 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 										key={character.id}
 										character={character}
 										onClick={e => handleCharacterMouseDown(e, character)}
-										onContextMenu={() => handleOpenCharacterSheet(character)}
 										onMouseEnter={() => handleCharacterMouseEnter(character)}
 										onMouseLeave={handleCharacterMouseLeave}
 										isGhost={dragState.type === 'character' && dragState.objectId === character.id}
@@ -304,6 +322,15 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					</g>
 				)}
 			</svg>
+
+			{contextMenu && (
+				<TokenContextMenu
+					character={contextMenu.character}
+					position={contextMenu.position}
+					onClose={() => setContextMenu(null)}
+					onOpenCharacterSheet={handleOpenCharacterSheet}
+				/>
+			)}
 		</div>
 	);
 };

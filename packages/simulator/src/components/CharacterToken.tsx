@@ -5,7 +5,6 @@ import { Character, getCharacterInitials } from '../types';
 export interface CharacterTokenProps {
 	character: Character;
 	onClick?: (e: React.MouseEvent) => void;
-	onContextMenu?: () => void;
 	onMouseEnter?: () => void;
 	onMouseLeave?: () => void;
 	isGhost?: boolean;
@@ -14,22 +13,13 @@ export interface CharacterTokenProps {
 export const CharacterToken: React.FC<CharacterTokenProps> = ({
 	character,
 	onClick,
-	onContextMenu,
 	onMouseEnter,
 	onMouseLeave,
 	isGhost = false,
 }) => {
 	const handleMouseDown = (e: React.MouseEvent) => {
-		if (onClick && e.button === 0) {
+		if (onClick) {
 			onClick(e);
-		}
-	};
-
-	const handleContextMenu = (e: React.MouseEvent) => {
-		e.preventDefault();
-		e.stopPropagation();
-		if (onContextMenu) {
-			onContextMenu();
 		}
 	};
 
@@ -50,7 +40,6 @@ export const CharacterToken: React.FC<CharacterTokenProps> = ({
 	return (
 		<g
 			onMouseDown={handleMouseDown}
-			onContextMenu={handleContextMenu}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
 			style={{
