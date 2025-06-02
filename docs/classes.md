@@ -26,7 +26,7 @@ The Role will define your primary attribute (STR, DEX or CON), while the Flavor 
 
 ### Melee Warriors Feats
 
-Melee Warriors focus on Strength, and thus are favored to use Heavy Melee or Thrown weapons.
+Melee Warriors focus on Strength, and thus are favored to use Heavy Melee or Thrown weapons (see a Weapons breakdown under [Equipment](equipment.md)).
 
 * **Spin Attack** (Level 3): 
 * **Sweep Attack** (Level 3):
