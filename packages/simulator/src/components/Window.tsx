@@ -11,6 +11,7 @@ import { CharacterSheetModal } from './CharacterSheet';
 import { ClassSetupModal } from './ClassSetupModal';
 import { DiceRollModal } from './DiceRollModal';
 import { DraggableWindow } from './DraggableWindow';
+import { MeasureModal } from './MeasureModal';
 import RaceSetupModal from './RaceSetupModal';
 
 interface WindowComponentProps {
@@ -91,6 +92,25 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({ window, onStar
 						onClose={() => removeWindow(window.id)}
 					/>
 				);
+			case 'measure': {
+				const fromCharacter = characters.find(c => c.id === window.fromCharacterId);
+				if (!fromCharacter || !window.toPosition) {
+					return <div>Missing measure data</div>;
+				}
+				return (
+					<MeasureModal
+						fromCharacter={fromCharacter}
+						toPosition={window.toPosition}
+						distance={window.distance ?? 0}
+						onClose={() => removeWindow(window.id)}
+						onMove={() => {
+							const updateCharacterPos = useStore.getState().updateCharacterPos;
+							updateCharacterPos(fromCharacter, window.toPosition!);
+							removeWindow(window.id);
+						}}
+					/>
+				);
+			}
 			default:
 				return <div>Unknown window type</div>;
 		}

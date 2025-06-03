@@ -73,6 +73,11 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		attackIndex: number;
 		isSelectingTarget: boolean;
 	} | null>(null);
+	const [measureState, setMeasureState] = useState<{
+		fromCharacter: Character;
+		isSelectingTarget: boolean;
+		hoveredPosition?: HexPosition;
+	} | null>(null);
 
 	// This function converts screen coordinates to SVG user space coordinates
 	const screenToSvgCoordinates = useCallback((x: number, y: number): Point | null => {
@@ -113,24 +118,37 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		}
 	}, [dragState, screenToSvgCoordinates]);
 
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				if (measureState?.isSelectingTarget) {
+					setMeasureState(null);
+				} else if (attackState?.isSelectingTarget) {
+					setAttackState(null);
+				}
+			}
+		};
+
+		document.addEventListener('keydown', handleKeyDown);
+		return () => document.removeEventListener('keydown', handleKeyDown);
+	}, [measureState, attackState]);
+
+	// Clear measure state when measure window is closed
+	useEffect(() => {
+		if (measureState && !measureState.isSelectingTarget) {
+			const hasMeasureWindow = windows.some(window => window.type === 'measure');
+			if (!hasMeasureWindow) {
+				setMeasureState(null);
+			}
+		}
+	}, [windows, measureState]);
+
 	const handleWheel = (e: React.WheelEvent) => {
 		e.preventDefault();
 		const delta = e.deltaY > 0 ? 0.9 : 1.1;
 		updateGridState({
 			scale: Math.max(0.5, Math.min(2, gridState.scale * delta)),
 		});
-	};
-
-	const handleDrag = (e: React.MouseEvent) => {
-		if (disabled) return;
-		if (e.buttons === 4) {
-			updateGridState({
-				offset: {
-					x: gridState.offset.x + e.movementX / gridState.scale,
-					y: gridState.offset.y + e.movementY / gridState.scale,
-				},
-			});
-		}
 	};
 
 	const handleCharacterMouseEnter = (character: Character) => {
@@ -237,6 +255,12 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			e.preventDefault();
 			e.stopPropagation();
 
+			if (measureState?.isSelectingTarget) {
+				// Cancel measure mode when right-clicking on character
+				setMeasureState(null);
+				return;
+			}
+
 			if (editMode) {
 				// In edit mode, directly open character sheet
 				handleOpenCharacterSheet(character);
@@ -308,6 +332,151 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		);
 	};
 
+	// Function to calculate shortest path between two hex positions
+	const findShortestPath = (start: HexPosition, end: HexPosition): HexPosition[] => {
+		// If same position, return single hex
+		if (start.q === end.q && start.r === end.r) {
+			return [start];
+		}
+
+		// Convert axial to cube coordinates for line algorithm
+		const axialToCube = (hex: HexPosition) => ({
+			x: hex.q,
+			y: -hex.q - hex.r,
+			z: hex.r,
+		});
+
+		const cubeToAxial = (cube: { x: number; y: number; z: number }) => ({
+			q: cube.x,
+			r: cube.z,
+		});
+
+		const cubeRound = (cube: { x: number; y: number; z: number }) => {
+			let rx = Math.round(cube.x);
+			let ry = Math.round(cube.y);
+			let rz = Math.round(cube.z);
+
+			const xDiff = Math.abs(rx - cube.x);
+			const yDiff = Math.abs(ry - cube.y);
+			const zDiff = Math.abs(rz - cube.z);
+
+			if (xDiff > yDiff && xDiff > zDiff) {
+				rx = -ry - rz;
+			} else if (yDiff > zDiff) {
+				ry = -rx - rz;
+			} else {
+				rz = -rx - ry;
+			}
+
+			return { x: rx, y: ry, z: rz };
+		};
+
+		const startCube = axialToCube(start);
+		const endCube = axialToCube(end);
+		const distance = getHexDistance(start, end);
+
+		const path: HexPosition[] = [];
+
+		for (let i = 0; i <= distance; i++) {
+			const t = distance === 0 ? 0 : i / distance;
+			const cube = {
+				x: startCube.x + (endCube.x - startCube.x) * t,
+				y: startCube.y + (endCube.y - startCube.y) * t,
+				z: startCube.z + (endCube.z - startCube.z) * t,
+			};
+			const rounded = cubeRound(cube);
+			path.push(cubeToAxial(rounded));
+		}
+
+		return path;
+	};
+
+	// Handle measure action
+	const handleMeasureAction = (character: Character) => {
+		setMeasureState({
+			fromCharacter: character,
+			isSelectingTarget: true,
+		});
+	};
+
+	// Handle mouse move for measure hover
+	const handleMouseMove = (e: React.MouseEvent) => {
+		if (disabled) return;
+
+		// Handle drag
+		if (e.buttons === 4) {
+			updateGridState({
+				offset: {
+					x: gridState.offset.x + e.movementX / gridState.scale,
+					y: gridState.offset.y + e.movementY / gridState.scale,
+				},
+			});
+		}
+
+		// Handle measure hover
+		if (measureState?.isSelectingTarget && svgRef.current) {
+			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
+			if (svgCoords) {
+				// Convert SVG coordinates to hex coordinates
+				const hoveredHex = pixelToAxial(svgCoords.x, svgCoords.y);
+				setMeasureState(prev => (prev ? { ...prev, hoveredPosition: hoveredHex } : null));
+			}
+		}
+	};
+
+	// Convert pixel coordinates to axial hex coordinates
+	const pixelToAxial = (x: number, y: number): HexPosition => {
+		// Inverse of axialToPixel: x = q * 10 + r * 5, y = r * 8.66
+		const r = Math.round(y / 8.66);
+		const q = Math.round((x - r * 5) / 10);
+		return { q, r };
+	};
+
+	// Handle hex click for measure
+	const handleHexClick = (q: number, r: number) => {
+		if (measureState?.isSelectingTarget && measureState.fromCharacter.position) {
+			const toPosition = { q, r };
+			const distance = getHexDistance(measureState.fromCharacter.position, toPosition);
+
+			// Open measure modal
+			addWindow({
+				id: window.crypto.randomUUID(),
+				title: 'Measure Distance',
+				type: 'measure',
+				position: findNextWindowPosition(windows),
+				fromCharacterId: measureState.fromCharacter.id,
+				toPosition,
+				distance,
+			});
+
+			// Keep measure state active to maintain highlight
+			setMeasureState(prev => (prev ? { ...prev, isSelectingTarget: false } : null));
+		}
+	};
+
+	// Handle right-click outside character token
+	const handleGridRightClick = (e: React.MouseEvent) => {
+		e.preventDefault();
+
+		if (measureState?.isSelectingTarget) {
+			// Cancel measure mode
+			setMeasureState(null);
+			return;
+		}
+
+		// Get hex coordinates from click position
+		const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
+		if (svgCoords) {
+			const { q, r } = pixelToAxial(svgCoords.x, svgCoords.y);
+
+			// Only show create character modal if there's no character at this position
+			const existingCharacter = findCharacterAtPosition(characters, q, r);
+			if (!existingCharacter) {
+				handleHexRightClick(q, r);
+			}
+		}
+	};
+
 	return (
 		<div
 			ref={gridRef}
@@ -318,9 +487,12 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				position: 'relative',
 			}}
 			onWheel={handleWheel}
-			onMouseMove={handleDrag}
+			onMouseMove={handleMouseMove}
 			onMouseDown={handleMouseDown}
-			onContextMenu={e => e.preventDefault()}
+			onContextMenu={e => {
+				e.preventDefault();
+				handleGridRightClick(e);
+			}}
 		>
 			<svg
 				ref={svgRef}
@@ -342,12 +514,28 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 								strokeWidth='0.5'
 								data-hex={`${q},${r}`}
 								style={{
-									cursor: dragState.type === 'character' ? 'grabbing' : 'pointer',
+									cursor: measureState?.isSelectingTarget
+										? 'crosshair'
+										: dragState.type === 'character'
+											? 'grabbing'
+											: 'pointer',
+								}}
+								onClick={e => {
+									if (measureState?.isSelectingTarget) {
+										e.preventDefault();
+										e.stopPropagation();
+										handleHexClick(q, r);
+									}
 								}}
 								onContextMenu={e => {
-									e.preventDefault();
-									e.stopPropagation();
-									handleHexRightClick(q, r);
+									if (!measureState?.isSelectingTarget) {
+										e.preventDefault();
+										e.stopPropagation();
+										const existingCharacter = findCharacterAtPosition(characters, q, r);
+										if (!existingCharacter) {
+											handleHexRightClick(q, r);
+										}
+									}
 								}}
 							/>
 						</Hex>
@@ -355,23 +543,25 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				</g>
 
 				{/* Movement Range Highlight Layer */}
-				{hoveredCharacter?.position && !attackState?.isSelectingTarget && (
-					<g style={{ pointerEvents: 'none' }}>
-						{getHexesInRange(
-							hoveredCharacter.position,
-							CharacterSheet.from(hoveredCharacter.props).derivedStats.movement.value
-						).map(({ q, r }, i) => (
-							<Hex key={`range-${i}`} q={q} r={r}>
-								<path
-									d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
-									fill='rgba(0, 255, 0, 0.2)'
-									stroke='rgba(0, 255, 0, 0.5)'
-									strokeWidth='0.5'
-								/>
-							</Hex>
-						))}
-					</g>
-				)}
+				{hoveredCharacter?.position &&
+					!attackState?.isSelectingTarget &&
+					!measureState?.isSelectingTarget && (
+						<g style={{ pointerEvents: 'none' }}>
+							{getHexesInRange(
+								hoveredCharacter.position,
+								CharacterSheet.from(hoveredCharacter.props).derivedStats.movement.value
+							).map(({ q, r }, i) => (
+								<Hex key={`range-${i}`} q={q} r={r}>
+									<path
+										d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
+										fill='rgba(0, 255, 0, 0.2)'
+										stroke='rgba(0, 255, 0, 0.5)'
+										strokeWidth='0.5'
+									/>
+								</Hex>
+							))}
+						</g>
+					)}
 
 				{/* Attack Range Highlight Layer */}
 				{attackState?.isSelectingTarget && attackState.attacker.position && (
@@ -386,6 +576,25 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 									fill='rgba(255, 0, 0, 0.2)'
 									stroke='rgba(255, 0, 0, 0.5)'
 									strokeWidth='0.5'
+								/>
+							</Hex>
+						))}
+					</g>
+				)}
+
+				{/* Measure Path Highlight Layer */}
+				{measureState?.fromCharacter.position && measureState.hoveredPosition && (
+					<g style={{ pointerEvents: 'none' }}>
+						{findShortestPath(
+							measureState.fromCharacter.position,
+							measureState.hoveredPosition
+						).map(({ q, r }, i) => (
+							<Hex key={`measure-path-${i}`} q={q} r={r}>
+								<path
+									d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
+									fill='rgba(0, 255, 0, 0.3)'
+									stroke='rgba(0, 255, 0, 0.7)'
+									strokeWidth='1'
 								/>
 							</Hex>
 						))}
@@ -432,6 +641,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					onClose={() => setContextMenu(null)}
 					onOpenCharacterSheet={handleOpenCharacterSheet}
 					onAttackAction={handleAttackAction}
+					onMeasureAction={handleMeasureAction}
 				/>
 			)}
 		</div>

@@ -1013,7 +1013,8 @@ export interface Window {
 		| 'class-setup'
 		| 'basic-attacks'
 		| 'dice-roll'
-		| 'attack-action';
+		| 'attack-action'
+		| 'measure';
 	characterId?: string;
 	position: Point;
 	hexPosition?: HexPosition;
@@ -1024,6 +1025,9 @@ export interface Window {
 	attackerId?: string;
 	defenderId?: string;
 	attackIndex?: number;
+	fromCharacterId?: string;
+	toPosition?: HexPosition;
+	distance?: number;
 	onDiceRollComplete?: (result: { total: number; shifts: number }) => void;
 	width?: string;
 	height?: string;

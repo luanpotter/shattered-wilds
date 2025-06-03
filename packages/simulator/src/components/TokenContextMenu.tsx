@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaUser, FaFistRaised } from 'react-icons/fa';
+import { FaUser, FaFistRaised, FaRuler } from 'react-icons/fa';
 
 import { Character, CharacterSheet } from '../types';
 
@@ -9,6 +9,7 @@ interface TokenContextMenuProps {
 	onClose: () => void;
 	onOpenCharacterSheet: (character: Character) => void;
 	onAttackAction?: (character: Character, attackIndex: number) => void;
+	onMeasureAction?: (character: Character) => void;
 }
 
 export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
@@ -17,6 +18,7 @@ export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
 	onClose,
 	onOpenCharacterSheet,
 	onAttackAction,
+	onMeasureAction,
 }) => {
 	const sheet = CharacterSheet.from(character.props);
 	const basicAttacks = sheet.getBasicAttacks();
@@ -93,6 +95,33 @@ export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
 				<FaUser size={14} />
 				<span>See Character Sheet</span>
 			</div>
+
+			{/* Measure Option */}
+			{onMeasureAction && (
+				<div
+					role='menuitem'
+					tabIndex={0}
+					style={{
+						...menuItemStyle,
+						...(hoveredItem === 'measure' ? menuItemHoverStyle : {}),
+					}}
+					onMouseEnter={() => setHoveredItem('measure')}
+					onMouseLeave={() => setHoveredItem(null)}
+					onClick={() => {
+						onMeasureAction(character);
+						onClose();
+					}}
+					onKeyDown={e =>
+						handleKeyDown(e, () => {
+							onMeasureAction(character);
+							onClose();
+						})
+					}
+				>
+					<FaRuler size={14} />
+					<span>Measure</span>
+				</div>
+			)}
 
 			{/* Attack Options */}
 			{basicAttacks.length > 0 && onAttackAction && (
