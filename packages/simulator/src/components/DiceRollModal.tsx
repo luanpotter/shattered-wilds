@@ -90,10 +90,19 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 		const currentType = newRollType ?? rollType;
 		const currentDc = newDc ?? dc;
 
+		// Recalculate auto-fail status based on roll type
+		const allDice = [
+			...rollResults.dice,
+			...(rollResults.extraResult && rollResults.extraValid ? [rollResults.extraResult] : []),
+			...(rollResults.luckResult && rollResults.luckValid ? [rollResults.luckResult] : []),
+		];
+		const hasPairOfOnes = allDice.filter(n => n === 1).length >= 2;
+		const autoFail = hasPairOfOnes && currentType !== 'Contested (Passive)';
+
 		let success = false;
 		let critShifts = 0;
 
-		if (!rollResults.autoFail && currentDc !== null) {
+		if (!autoFail && currentDc !== null) {
 			// For Active rolls, ties are losses unless there's a crit modifier
 			if (currentType === 'Contested (Active)') {
 				success =
@@ -112,6 +121,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 
 		setRollResults({
 			...rollResults,
+			autoFail,
 			success,
 			critShifts,
 		});
@@ -170,11 +180,12 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 			luckValid = luckResult <= fortuneValue;
 		}
 
-		// Check for auto fail (any pair of 1s)
+		// Check for auto fail (any pair of 1s) - but contested passive rolls cannot auto fail
 		const allDice = [...dice];
 		if (extraResult && extraValid) allDice.push(extraResult);
 		if (luckResult && luckValid) allDice.push(luckResult);
-		const autoFail = allDice.filter(n => n === 1).length >= 2;
+		const hasPairOfOnes = allDice.filter(n => n === 1).length >= 2;
+		const autoFail = hasPairOfOnes && rollType !== 'Contested (Passive)';
 
 		// Calculate crit modifiers
 		let critModifiers = 0;
@@ -448,9 +459,41 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 						}}
 					>
 						Auto Fail
-						<div style={{ fontSize: '14px', color: 'var(--text)' }}>Rolled pair of 1s</div>
+						<div style={{ fontSize: '14px', color: 'var(--text)' }}>
+							Rolled pair of 1s (Contested Passive rolls cannot auto-fail)
+						</div>
 					</div>
 				)}
+
+				{/* Pair of 1s on Contested Passive (no auto-fail) */}
+				{!rollResults.autoFail &&
+					rollType === 'Contested (Passive)' &&
+					(() => {
+						const allDice = [
+							...rollResults.dice,
+							...(rollResults.extraResult && rollResults.extraValid
+								? [rollResults.extraResult]
+								: []),
+							...(rollResults.luckResult && rollResults.luckValid ? [rollResults.luckResult] : []),
+						];
+						const hasPairOfOnes = allDice.filter(n => n === 1).length >= 2;
+						return hasPairOfOnes;
+					})() && (
+						<div
+							style={{
+								textAlign: 'center',
+								marginBottom: '16px',
+								color: 'orange',
+								fontSize: '16px',
+								fontWeight: 'bold',
+							}}
+						>
+							Pair of 1s Rolled
+							<div style={{ fontSize: '14px', color: 'var(--text)' }}>
+								No auto-fail on Contested Passive rolls
+							</div>
+						</div>
+					)}
 
 				{/* Results */}
 				{!rollResults.autoFail && (
