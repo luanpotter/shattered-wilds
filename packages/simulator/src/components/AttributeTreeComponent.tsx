@@ -254,6 +254,7 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 	// Initialize state at the top level to fix conditional Hook calls
 	const [selectedRealm, setSelectedRealm] = useState<string | null>(null);
 	const [selectedBasicAttribute, setSelectedBasicAttribute] = useState<string | null>(null);
+	const editMode = useStore(state => state.editMode);
 
 	const canAllocatePoint = (node: Attribute) => {
 		if (disabled) return false;
@@ -414,29 +415,31 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 				</div>
 				<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 					<PointsAllocation node={tree.root} />
-					<button
-						onClick={() => {
-							const updates = tree.root.children.flatMap(child => child.reset());
-							for (const update of updates) {
-								onUpdateCharacterProp(update.key, update.value);
-							}
-						}}
-						style={{
-							background: 'none',
-							border: '1px solid var(--text)',
-							borderRadius: '4px',
-							cursor: 'pointer',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '4px',
-							padding: '4px 8px',
-							color: 'var(--text)',
-						}}
-						title='Reset all points'
-					>
-						<FaUndo />
-						<span>Reset All Points</span>
-					</button>
+					{editMode && (
+						<button
+							onClick={() => {
+								const updates = tree.root.children.flatMap(child => child.reset());
+								for (const update of updates) {
+									onUpdateCharacterProp(update.key, update.value);
+								}
+							}}
+							style={{
+								background: 'none',
+								border: '1px solid var(--text)',
+								borderRadius: '4px',
+								cursor: 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '4px',
+								padding: '4px 8px',
+								color: 'var(--text)',
+							}}
+							title='Reset all points'
+						>
+							<FaUndo />
+							<span>Reset All Points</span>
+						</button>
+					)}
 				</div>
 			</div>
 
