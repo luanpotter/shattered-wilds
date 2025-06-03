@@ -5,11 +5,12 @@ import { Character, CharacterClass, ClassInfo, CLASS_DEFINITIONS } from '../type
 
 interface ClassSetupModalProps {
 	character: Character;
+	onClose?: () => void;
 }
 
 type ArchetypeTab = 'Warrior' | 'Caster' | 'Mystic';
 
-export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character }) => {
+export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onClose }) => {
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
 	const [selectedTab, setSelectedTab] = useState<ArchetypeTab>('Warrior');
 
@@ -342,6 +343,27 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character }) =
 
 			{/* Selected Class Info */}
 			{renderSelectedClassInfo()}
+
+			{/* Action Buttons */}
+			{onClose && (
+				<div
+					style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '16px' }}
+				>
+					<button
+						onClick={onClose}
+						style={{
+							padding: '6px 12px',
+							border: '1px solid var(--text)',
+							backgroundColor: 'var(--background-alt)',
+							color: 'var(--text)',
+							borderRadius: '4px',
+							cursor: 'pointer',
+						}}
+					>
+						Close
+					</button>
+				</div>
+			)}
 		</div>
 	);
 };

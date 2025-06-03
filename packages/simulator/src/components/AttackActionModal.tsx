@@ -86,9 +86,11 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			attackResult.total > defenseResult.total ||
 			(attackResult.total === defenseResult.total && attackResult.shifts > 0);
 
-		const damage = hit ? 1 + attackResult.shifts : 0;
+		// Calculate shifts based on how much attack exceeded defense
+		const shifts = hit ? Math.floor((attackResult.total - defenseResult.total) / 6) : 0;
+		const damage = hit ? 1 + shifts : 0;
 
-		return { hit, damage };
+		return { hit, damage, shifts };
 	};
 
 	const handleExecute = () => {
@@ -226,7 +228,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 					<h4 style={{ margin: '0 0 8px 0' }}>{outcome.hit ? '🎯 HIT!' : '🛡️ MISS!'}</h4>
 					{outcome.hit && (
 						<p style={{ margin: '0' }}>
-							Damage: {outcome.damage} VP (1 base + {attackResult!.shifts} shifts)
+							Damage: {outcome.damage} VP (1 base + {outcome.shifts} shifts)
 						</p>
 					)}
 				</div>
