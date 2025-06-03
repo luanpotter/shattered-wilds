@@ -2,7 +2,7 @@
 
 There are a total of 30 classes available in Shattered Wilds, but this large number is just all combinations of a few different archetypes, so it is easier to break it down by type than providing a complete list upfront.
 
-Each class provides a number of Feats that become available on each level. When you level up, you can pick two perk from any of the previous levels, or you can pick a Generic Feat (available to all classes). There is no multi-classing rules, as the classes already represented broken down combinations of different archetypes. Each class maps directly to one of the 9 attribute, and at level 1 you will automatically get a +1 to that attribute as the Class Feat Bonus (shared by all classes) plus a unique feat to that class. Starting at level 2, you can start to make choices amongst the available feats (including the Generic Feats). TODO: revisit this 2-feat-per-level system
+Each class provides a number of Feats that become available on each level. When you level up, you can pick any two feats from your class or Generic Feats (available to all classes) from your level or any previous level. There is no multi-classing rules, as the classes already represented broken-down combinations of different archetypes. Each class maps directly to one of the 9 attribute, and at level 1, you will automatically get a +1 bonus to that attribute as one of the Class Feat Bonus (shared by all classes) plus a unique feat to that class. Starting at level 2, you can start to make choices amongst the available feats (including the Generic Feats). TODO: revisit this 2-feat-per-level system
 
 The first major decision is whether you will be a **Warrior**, a **Caster**, or a **Mystic**. These basically map to the primary Realm that is embodied by the character (Body, Mind, and Soul, respectively).
 
@@ -16,11 +16,11 @@ Finally, **Mystics** are the equivalent of the divine spellcasters in D&D, and t
 
 There are 9 Warrior classes, which are divided in a 3x3 matrix of Roles and Flavors. Each class will then have one unique feat, plus then set of feats that are shared with the other classes in their Role and Flavor.
 
-| Role / Flavor | Martial | Survivalist | Scoundrel |
-|---------------|---------|-------------|-----------|
+| Role / Flavor | Martial | Survivalist | Scoundrel    |
+|---------------|---------|-------------|--------------|
 | Melee (STR)   | Fighter | Berserker   | Swashbuckler |
-| Ranged (DEX)  | Marksman| Hunter      | Rogue      |
-| Tank (CON)    | Guardian| Barbarian   | Scout      |
+| Ranged (DEX)  | Marksman| Hunter      | Rogue        |
+| Tank (CON)    | Guardian| Barbarian   | Scout        |
 
 The Role will define your primary attribute (STR, DEX or CON), while the Flavor will grant you other unique feats.
 
@@ -33,7 +33,7 @@ Melee Warriors focus on Strength, and thus are favored to use Heavy Melee or Thr
 
 ### Ranged Warriors Feats
 
-Ranged Warriors focus on Dexterity, and thus are favored to use Light Melee or Ranged weapons (a bit of a misnomer if you decide to focus on Light Weapons, but I could not find a better name).
+Ranged Warriors focus on Dexterity, and thus are favored to use Light Melee or Ranged weapons (or both).
 
 * **Take Aim** (Level 3):
 * **Rapid Fire** (Level 3):
@@ -46,8 +46,8 @@ Tank Warriors focus on Constitution, and thus are focused on defense and therefo
 
 * **Shield Bash** (Level 3):
 * **Improved Taunt** (Level 3):
-better armor - less penalty.
-advantage on resist stumble through
+* better armor - less penalty.
+* advantage on resist stumble through
 
 ### Martial Warriors Feats
 
@@ -65,17 +65,17 @@ Allows you to pick Feats with the `Nature` background.
 
 * **Leverage** (Level 2): (sneak attack equivalent)
 * **Skilled** (Level 2):
-something traps and lockpicking related. skulk?
+* something traps plus lockpicking related. skulk?
 
 ## Casters
 
 There are a total of 12 Caster classes, which are divided in a 3x4 matrix depending on their Role (primary attribute and source of their powers) and Flavor (exact nature and manifestation of that power).
 
-| Role / Flavor | Arcanist | Mechanist | Naturalist | Musicist |
-|---------------|----------|-----------|------------|----------|
+| Role / Flavor | Arcanist | Mechanist | Naturalist | Musicist    |
+|---------------|----------|-----------|------------|-------------|
 | Erudite (INT) | Wizard   | Engineer  | Alchemist  | Storyteller |
-| Intuitive (WIS)| Mage    | Artificer | Druid      | Minstrel  |
-| Innate (CHA)  | Sorcerer | Machinist | Shaman     | Bard      
+| Intuitive (WIS)| Mage    | Artificer | Druid      | Minstrel    |
+| Innate (CHA)  | Sorcerer | Machinist | Shaman     | Bard        |
 
 ## Mystics
 
@@ -85,7 +85,7 @@ There are a total of 9 Mystic classes, which are divided in a 3x3 matrix dependi
 |---------------|----------|-----------|-----------|
 | Adept (DIV)   | Cleric   | Warlock   | Paladin   |
 | Disciple (FOW)| Sage     | Monk      | Ranger    |
-| Inspired (LCK)| Wanderer | Mystic    | Warden    |
+| Inspired (LCK)| Wanderer | Wayfarer  | Warden    |
 
 ## Generic Feats
 
