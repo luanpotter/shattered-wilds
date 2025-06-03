@@ -65,6 +65,20 @@ export interface RaceDefinition {
 	size: Size;
 }
 
+export class ClassInfo {
+	characterClass: CharacterClass;
+
+	constructor(characterClass: CharacterClass) {
+		this.characterClass = characterClass;
+	}
+
+	static from(props: Record<string, string>): ClassInfo {
+		const characterClass = (props['class'] as CharacterClass) ?? CharacterClass.Fighter;
+
+		return new ClassInfo(characterClass);
+	}
+}
+
 export class RaceInfo {
 	primaryRace: Race;
 	halfRace: Race | null;
@@ -797,7 +811,7 @@ export class CurrentValues {
 export class CharacterSheet {
 	name: string;
 	race: RaceInfo;
-	characterClass: CharacterClass;
+	characterClass: ClassInfo;
 	attributes: Attribute;
 	derivedStats: DerivedStats;
 	currentValues: CurrentValues;
@@ -806,7 +820,7 @@ export class CharacterSheet {
 	constructor(
 		name: string,
 		race: RaceInfo,
-		characterClass: CharacterClass,
+		characterClass: ClassInfo,
 		attributes: Attribute,
 		equipment: Equipment,
 		currentValues: CurrentValues
@@ -883,7 +897,7 @@ export class CharacterSheet {
 		const sheet = new CharacterSheet(
 			props['name']!!,
 			RaceInfo.from(props),
-			(props['class'] as CharacterClass) ?? CharacterClass.Fighter,
+			ClassInfo.from(props),
 			makeAttributeTree(props),
 			Equipment.from(props['equipment']),
 			CurrentValues.from(props)

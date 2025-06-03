@@ -264,7 +264,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 							<DropdownSelect
 								id='character-class'
 								options={CharacterClass}
-								value={sheet.characterClass}
+								value={sheet.characterClass.characterClass}
 								onChange={handleClassChange}
 								disabled={!editMode}
 							/>
