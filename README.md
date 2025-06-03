@@ -8,7 +8,7 @@ In Shattered Wilds, the world is ever-shifting. Not fast enough that you could s
 
 Travel, therefore, is a risky proposition. The Wilds, when uncharted, are perilous, presenting harsh conditions for the unprepared, and filled with dangerous creatures - both beasts and people - and of course the Hollow. Adventurers double as cartographers, and venture forth into the wild to establish new temporary routes, to allow for bursts of commerce and passage for the common folk, at least for a brief period of time. Some strong enough to withstand the Wilds choose to live by themselves; others form parties to explore and learn more about the world.
 
-On smaller settlements, such as the villages the players are from, or the one they shall gather on, knowledge is not lacking but limited. People know of stories of the world and the past, but many have never left their birthplaces. Well-known in all villages is the elusive city known as the The Citadel, a huge and prospers settlement where members of all races live in harmony, and where magic and technology flourish. It is possible to find some that have been there, and while they are rare in each village, the knowledge of its existence is not disputed. Getting there, however, as with any traveling, is a different matter entirely.
+On smaller settlements, such as the villages the players are from, or the one they shall gather on, knowledge is not lacking but limited. People know of stories of the world and the past, but many have never left their birthplaces. Well-known in all villages is the elusive city known as the The Citadel, a huge and prosperous settlement where members of all races live in harmony, and where magic and technology flourish. It is possible to find some that have been there, and while they are rare in each village, the knowledge of its existence is not disputed. Getting there, however, as with any traveling, is a different matter entirely.
 
 Smaller villages often house a majority of one or two races, but the others are common enough occurrences to be known. As even the smallest village can be a pivotal point in the paths of many travelers and adventurers, the commoners are not stranger to seeing adventurers, other people, heroes or magic, though very powerful champions are exceedingly rare.
 
@@ -27,9 +27,9 @@ The Hollow seem to emerge from cracks and rifts leftover of recent shifts in the
 Some known tropes from other high-fantasy TTRPG settings that are not present or are different in Shattered Wilds:
 
  * there is no teleportation of matter or energy
- * action-at-a-distance is limited to the Aether, and even then it is not infinite
- * gods (the Protean) are not all-powerful and definitely not omni-present, though they can be very powerful
- * there is no known way to resurrect the dead, once a mortal spark is severed from its body, while it can linger in the Aether for a few minutes, it will eventually fade away
+ * action-at-a-distance is limited to the Aether, and even then, it is not infinite
+ * gods (the Protean) are not all-powerful and definitely not omnipresent, though they can be very powerful
+ * there is no known way to resurrect the dead; once a mortal spark is severed from its body, while it can linger in the Aether for a few minutes, it will eventually fade away
 
 ## System
 
@@ -69,7 +69,7 @@ The Attributes in the D12 System are a ternary tree featuring a trickle down mec
 |       |            |       LCK       | Fortune     | Your personal luck for your own actions, mainly used for the Luck Die mechanic                                                         |
 |       |            |      (Luck)     | Serendipity | Expectations for the external world, also used for the Write History mechanic                                                          |
 
-The way the trickle down works is, for every point you earn on a node past the first, you get to propagate that point to one of the three children. So at Level 1, every single adventurer has the same attributes (bar racial and class bonuses of course). But when they level up to 2, they get to propagate to the Body/Mind/Soul tier, and thus make their first attribute choice. On Level 3, you can propagate to the same node as before, doubling down on one of the 3 realms, and getting to propagate again, or you can generalize and pick a second realm to focus on.
+The way the trickle down works is, for every point you earn on a node past the first, you get to propagate that point to one of the three children. So at Level 1, every single adventurer has the same attributes (bar racial, class and feat bonuses of course). But when they level up to 2, they get to propagate to the Body/Mind/Soul tier, and thus make their first attribute choice. On Level 3, you can propagate to the same node as before, doubling down on one of the 3 realms, and getting to propagate again, or you can generalize and pick a second realm to focus on.
 
 The way modifiers work is that you always roll the most specific check you can, normally a Skill check for skills or a Basic Attribute for core game actions (such as attacks); your modifier on each node is based on its value and the values of the parents:
 
@@ -78,27 +78,27 @@ The way modifiers work is that you always roll the most specific check you can, 
 * Your Basic Attribute modifier is the Basic Attribute node + the Realm node / 2 (rounded up) + the Level node / 4 (rounded up)
 * Your Skill modifier is 2 * the skill node + the Basic Attribute modifier
 
-Note that will shall very rarely need to use modifiers for nodes other than Basic Attributes and Skills.
+Note that will shall very rarely need to use modifiers for nodes other than Basic Attributes and Skills. The final value of a node is also subject to a Level cap: the final node modifier (before applying any external modifiers) is capped at your current level. That means there are diminishing returns to over-specializing, and players are encouraged to have at least a minimal level of spread.
 
 ### Derived Stats
 
 You have 4 pools of points that are derived from your attributes:
 
-* Heroism Points are based on your Level; each character has a max number of Heroism Points equal to their Level value. They can be used to invoke Extras and Luck (see below), to call for Write History. These are harder to recover, at one per long rest rate plus the DM can award Heroism Points (within your maximum) to reward good roleplaying or other out-of-the-box thinking (similar to the Inspiration mechanic in D&D 5e).
-* Vitality Points are based on your Body and represent your physical ability to keep going during intense situations. They are analogous to Health on other games, but in the D12 System, you only take real damage after you are exhausted. You have a max Vitality Points equal to 4 + your Body modifier. You lose Vitality when you are attacked, and they can also spend it to power special abilities.
+* Heroism Points are based on your Level; each character has a max number of Heroism Points equal to their Level value. They can be used to invoke Extras and Luck (see below), to call for Write History, amongst other powerful actions. These are harder to recover, at one per long rest rate plus the DM can award Heroism Points (within your maximum) to reward good roleplaying or other out-of-the-box thinking (similar to the Inspiration mechanic in D&D 5e).
+* Vitality Points are based on your Body and represent your physical ability to keep going during intense situations. They are analogous to Health on other games, but in the D12 System, you only take real damage after you are Incapacitated. You have a max Vitality Points equal to 4 + your Body modifier. You lose Vitality when you are attacked, and they can also be spent to power special abilities.
 * Focus Points are based on your Mind and represent your mental vigor and ability to focus during intense situations. They are analogous to Mana in other games for Arcane casters, but they are also used by any characters to power special abilities that require focus, mental acuity and concentration. You have a max Focus Points equal to 4 + your Mind modifier. You can lose Focus Points when you are distracted.
 * Spirit Points are based on your Soul and represent your morale and spiritual strength. They are a different form of Mana (for non-Arcane powers) or a form of mental stress or morale in other games, but they are also used by any characters to power special abilities. You have a max Spirit Points equal to 4 + your Soul modifier.
 
 Other derived stats are:
 
 * Initiative = Awareness + Agility, used to determine order in combat via an Initiative Check
-* Speed = BASE + Agility + Stamina, used to determine how far you can move in a turn
+* Movement = [3 (humanoid base) + Size Modifier + (Agility / 4) (rounded down)] hexes / turn
 
 ### Checks
 
 A base Check is `2d12 + [Modifiers]`, and is either matched against a DC (Difficulty Class) of the task (Static Check, which is always considered Active), or matched against a check from an opponent (Contested Check). On Contested Checks, there is always an active participant, which is the one taking the Action (Active Contested Check), and one or more passive recipients of the action (Passive Contested Checks).
 
-Success means having a result greater than the DC (or Passive Contested Check), meaning that a tie normally means maintain the status quo (no change). However, if the Active Participant has a Crit Modifier (see below), they will win ties.
+Success means having a result greater than the DC (or Passive Contested Check), meaning that a tie will typically maintain the status quo (no change). However, if the Active Participant has a Crit Modifier (see below), they will win ties.
 
 There is also the possibility of rolling extra D12s, up to two, for two different mechanics, Extras and Luck (see below). Whenever you roll more than 2 dice, you get to pick which 2 to use, as you can never sum up more than 2 dies (think D&D Advantage). So if you are using Extra and Luck in the same roll, you will be able to roll 4d12, and pick any 2 of your choice.  Note that, unlike other systems, extra dice rolls are not awarded for in-game situational "advantages" or "disadvantages", as these factors are _always_ modelled as Modifiers to the roll (player modifiers or circumstantial modifiers).
 
@@ -123,13 +123,13 @@ So for a few examples, you attack the enemy and roll a 10 and 7, and have a tota
 
 What does this "Shift" mean? The effect of a Crit Shift will depend on the nature of the check. If it is a Basic Attack, that means additional damage to the enemy's Vitality Points. If it is some other form of contest, it means an advantage to be determined by the DM. For example, if you are trying to influence an ally to do you a favor, they might not just do it but somehow consider it as you doing them a favor for the honor of asking them. This is similar to how Shifts work on Core FATE. If it is a Static Check, typically Crit Shifts are not applicable, but could depending on the specific situation.
 
-So in essence, the Crit Modifiers are two-folded; if you would otherwise be below target, they help you get over, and if you are already over, they can give you extra Shifts.
+So in essence, the Crits are two-folded; if you would otherwise be below target, they help you get over, and if you are already over, they can give you extra Shifts.
 
 #### Auto Fail
 
 There is also an Auto Fail condition to any Active Checks; if you roll a pair of 1s, you instantly fail the check, regardless of anything else. This condition is checked across all the dies you roll, even ones you did not pick or even ones that were not valid (for Extra and Luck dice).
 
-The probability of an Auto Fail, if rolling two dice, is of 0.69% (though that is bumped to 3.72% if rolling 4 dice).
+The probability of an Auto Fail, if rolling two dice, is of 0.69% (though that is bumped to 3.72% if rolling 4 dice). This does not apply to Passive Checks.
 
 #### Extra
 
