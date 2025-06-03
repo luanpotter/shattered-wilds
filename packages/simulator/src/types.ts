@@ -126,26 +126,26 @@ export class RaceInfo {
 
 export class ClassInfo {
 	characterClass: CharacterClass;
-	selectedPerks: string[];
+	selectedFeats: string[];
 
-	constructor(characterClass: CharacterClass, selectedPerks: string[] = []) {
+	constructor(characterClass: CharacterClass, selectedFeats: string[] = []) {
 		this.characterClass = characterClass;
-		this.selectedPerks = selectedPerks;
+		this.selectedFeats = selectedFeats;
 
-		// Ensure the first perk (attribute specialization) is always included
-		const firstPerk = `${CLASS_DEFINITIONS[characterClass].primaryAttribute.name} Attribute Specialization`;
-		if (!this.selectedPerks.includes(firstPerk)) {
-			this.selectedPerks.unshift(firstPerk);
+		// Ensure the first feat (attribute specialization) is always included
+		const firstFeat = `${CLASS_DEFINITIONS[characterClass].primaryAttribute.name} Attribute Specialization`;
+		if (!this.selectedFeats.includes(firstFeat)) {
+			this.selectedFeats.unshift(firstFeat);
 		}
 	}
 
 	static from(props: Record<string, string>): ClassInfo {
 		const characterClass = (props['class'] as CharacterClass) ?? CharacterClass.Fighter;
-		const selectedPerks = props['class.perks']
-			? (JSON.parse(props['class.perks']) as string[])
+		const selectedFeats = props['class.feats']
+			? (JSON.parse(props['class.feats']) as string[])
 			: [];
 
-		return new ClassInfo(characterClass, selectedPerks);
+		return new ClassInfo(characterClass, selectedFeats);
 	}
 
 	getModifiers(): Modifier[] {
@@ -168,7 +168,7 @@ export class ClassInfo {
 	}
 
 	toProp(): string {
-		return JSON.stringify(this.selectedPerks);
+		return JSON.stringify(this.selectedFeats);
 	}
 }
 

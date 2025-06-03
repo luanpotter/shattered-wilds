@@ -528,8 +528,8 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 						)}
 
 						{rollResults.critShifts > 0 && (
-							<div style={{ color: 'green', fontWeight: 'bold' }}>
-								Crit Shifts: {rollResults.critShifts}
+							<div style={{ color: 'var(--success)', fontWeight: 'bold' }}>
+								Shifts: {rollResults.critShifts}
 							</div>
 						)}
 					</div>

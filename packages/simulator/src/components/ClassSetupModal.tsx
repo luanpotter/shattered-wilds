@@ -21,7 +21,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character }) =
 
 		// Update character props
 		updateCharacterProp(character, 'class', characterClass);
-		updateCharacterProp(character, 'class.perks', newClassInfo.toProp());
+		updateCharacterProp(character, 'class.feats', newClassInfo.toProp());
 	};
 
 	const isSelected = (characterClass: CharacterClass) => {
@@ -247,7 +247,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character }) =
 		const definition = currentClassInfo.characterClass
 			? CLASS_DEFINITIONS[currentClassInfo.characterClass]
 			: null;
-		const firstPerk = currentClassInfo.selectedPerks[0];
+		const firstFeat = currentClassInfo.selectedFeats[0];
 
 		return (
 			<div
@@ -267,7 +267,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character }) =
 							<strong> Primary Attribute:</strong> {definition.primaryAttribute.name}
 						</p>
 						<div style={{ marginTop: '8px' }}>
-							<strong>Starting Perk:</strong>
+							<strong>Starting Feat:</strong>
 							<div
 								style={{
 									marginTop: '4px',
@@ -277,7 +277,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character }) =
 									fontSize: '0.9em',
 								}}
 							>
-								{firstPerk}
+								{firstFeat}
 							</div>
 						</div>
 					</>
