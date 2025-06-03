@@ -1,17 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { FaUsers, FaCrosshairs, FaTimes, FaEdit, FaPlay } from 'react-icons/fa';
 
-import { AttackActionModal } from './components/AttackActionModal';
-import { BasicAttacksModal } from './components/BasicAttacksModal';
-import { CharacterCreationModal } from './components/CharacterCreation';
-import { CharacterList } from './components/CharacterList';
-import { CharacterSheetModal } from './components/CharacterSheet';
-import { DiceRollModal } from './components/DiceRollModal';
-import { DraggableWindow } from './components/DraggableWindow';
 import { BattleGrid } from './components/HexGrid';
-import RaceSetupModal from './components/RaceSetupModal';
+import { WindowComponent } from './components/Window';
 import { useStore } from './store';
-import { Point, Character, CharacterSheet } from './types';
+import { Point, Character } from './types';
 import { findNextWindowPosition } from './utils';
 
 const App = (): React.ReactElement => {
@@ -256,7 +249,7 @@ const App = (): React.ReactElement => {
 				</div>
 			</footer>
 			{windows.map(window => (
-				<DraggableWindow
+				<WindowComponent
 					key={window.id}
 					window={window}
 					onStartDrag={(e: React.MouseEvent) => {
@@ -270,57 +263,7 @@ const App = (): React.ReactElement => {
 							},
 						});
 					}}
-				>
-					{window.type === 'character-sheet' && window.characterId && (
-						<CharacterSheetModal character={characters.find(c => c.id === window.characterId)!} />
-					)}
-					{window.type === 'character-list' && <CharacterList />}
-					{window.type === 'character-creation' && (
-						<CharacterCreationModal hexPosition={window.hexPosition} />
-					)}
-					{window.type === 'race-setup' && window.characterId && (
-						<RaceSetupModal
-							characterId={window.characterId}
-							currentRace={
-								CharacterSheet.from(characters.find(c => c.id === window.characterId)?.props || {})
-									.race
-							}
-							onClose={() => removeWindow(window.id)}
-						/>
-					)}
-					{window.type === 'basic-attacks' && window.characterId && (
-						<BasicAttacksModal
-							attacks={CharacterSheet.from(
-								characters.find(c => c.id === window.characterId)?.props || {}
-							).getBasicAttacks()}
-							characterSheet={CharacterSheet.from(
-								characters.find(c => c.id === window.characterId)?.props || {}
-							)}
-							onClose={() => removeWindow(window.id)}
-						/>
-					)}
-					{window.type === 'dice-roll' && window.modifier !== undefined && window.attributeName && (
-						<DiceRollModal
-							modifier={window.modifier}
-							onClose={() => removeWindow(window.id)}
-							attributeName={window.attributeName}
-							characterSheet={window.characterSheet}
-							initialRollType={window.initialRollType ?? 'Static'}
-							{...(window.onDiceRollComplete && { onDiceRollComplete: window.onDiceRollComplete })}
-						/>
-					)}
-					{window.type === 'attack-action' &&
-						window.attackerId &&
-						window.defenderId &&
-						window.attackIndex !== undefined && (
-							<AttackActionModal
-								attackerId={window.attackerId}
-								defenderId={window.defenderId}
-								attackIndex={window.attackIndex}
-								onClose={() => removeWindow(window.id)}
-							/>
-						)}
-				</DraggableWindow>
+				/>
 			))}
 		</div>
 	);

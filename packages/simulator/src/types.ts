@@ -65,20 +65,6 @@ export interface RaceDefinition {
 	size: Size;
 }
 
-export class ClassInfo {
-	characterClass: CharacterClass;
-
-	constructor(characterClass: CharacterClass) {
-		this.characterClass = characterClass;
-	}
-
-	static from(props: Record<string, string>): ClassInfo {
-		const characterClass = (props['class'] as CharacterClass) ?? CharacterClass.Fighter;
-
-		return new ClassInfo(characterClass);
-	}
-}
-
 export class RaceInfo {
 	primaryRace: Race;
 	halfRace: Race | null;
@@ -138,16 +124,94 @@ export class RaceInfo {
 	}
 }
 
+export class ClassInfo {
+	characterClass: CharacterClass;
+	selectedPerks: string[];
+
+	constructor(characterClass: CharacterClass, selectedPerks: string[] = []) {
+		this.characterClass = characterClass;
+		this.selectedPerks = selectedPerks;
+
+		// Ensure the first perk (attribute specialization) is always included
+		const firstPerk = `${CLASS_DEFINITIONS[characterClass].primaryAttribute.name} Attribute Specialization`;
+		if (!this.selectedPerks.includes(firstPerk)) {
+			this.selectedPerks.unshift(firstPerk);
+		}
+	}
+
+	static from(props: Record<string, string>): ClassInfo {
+		const characterClass = (props['class'] as CharacterClass) ?? CharacterClass.Fighter;
+		const selectedPerks = props['class.perks']
+			? (JSON.parse(props['class.perks']) as string[])
+			: [];
+
+		return new ClassInfo(characterClass, selectedPerks);
+	}
+
+	getModifiers(): Modifier[] {
+		const modifiers: Modifier[] = [];
+
+		// Add the attribute specialization modifier (+1 to primary attribute)
+		const primaryAttribute = CLASS_DEFINITIONS[this.characterClass].primaryAttribute;
+		modifiers.push({
+			source: `${this.characterClass} Class`,
+			value: 1,
+			attributeType: primaryAttribute,
+			description: `${primaryAttribute.name} Attribute Specialization from ${this.characterClass} class`,
+		});
+
+		return modifiers;
+	}
+
+	toString(): string {
+		return this.characterClass;
+	}
+
+	toProp(): string {
+		return JSON.stringify(this.selectedPerks);
+	}
+}
+
 export enum CharacterClass {
+	// Warriors - Melee (STR)
 	Fighter = 'Fighter',
 	Berserker = 'Berserker',
 	Swashbuckler = 'Swashbuckler',
+	// Warriors - Ranged (DEX)
 	Marksman = 'Marksman',
 	Hunter = 'Hunter',
 	Rogue = 'Rogue',
+	// Warriors - Tank (CON)
 	Guardian = 'Guardian',
 	Barbarian = 'Barbarian',
 	Scout = 'Scout',
+	// Casters - Erudite (INT)
+	Wizard = 'Wizard',
+	Engineer = 'Engineer',
+	Alchemist = 'Alchemist',
+	Storyteller = 'Storyteller',
+	// Casters - Intuitive (WIS)
+	Mage = 'Mage',
+	Artificer = 'Artificer',
+	Druid = 'Druid',
+	Minstrel = 'Minstrel',
+	// Casters - Innate (CHA)
+	Sorcerer = 'Sorcerer',
+	Machinist = 'Machinist',
+	Shaman = 'Shaman',
+	Bard = 'Bard',
+	// Mystics - Adept (DIV)
+	Cleric = 'Cleric',
+	Warlock = 'Warlock',
+	Paladin = 'Paladin',
+	// Mystics - Disciple (FOW)
+	Sage = 'Sage',
+	Monk = 'Monk',
+	Ranger = 'Ranger',
+	// Mystics - Inspired (LCK)
+	Wanderer = 'Wanderer',
+	Wayfarer = 'Wayfarer',
+	Warden = 'Warden',
 }
 
 // Attribute system enums and types
@@ -839,12 +903,15 @@ export class CharacterSheet {
 		return new AttributeTree(this.attributes, this.getAllModifiers());
 	}
 
-	// Get all modifiers from all sources (race, equipment, etc.)
+	// Get all modifiers from all sources (race, class, equipment, etc.)
 	getAllModifiers(): Modifier[] {
 		const modifiers: Modifier[] = [];
 
 		// Add race modifiers
 		modifiers.push(...this.race.getModifiers());
+
+		// Add class modifiers
+		modifiers.push(...this.characterClass.getModifiers());
 
 		// Add equipment modifiers (armor DEX penalties)
 		this.equipment.items
@@ -943,6 +1010,7 @@ export interface Window {
 		| 'character-list'
 		| 'character-creation'
 		| 'race-setup'
+		| 'class-setup'
 		| 'basic-attacks'
 		| 'dice-roll'
 		| 'attack-action';
@@ -1020,6 +1088,237 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 			{ attributeType: AttributeType.STR, value: -1 },
 		],
 		size: Size.S,
+	},
+};
+
+export interface ClassDefinition {
+	name: CharacterClass;
+	primaryAttribute: AttributeType;
+	archetype: 'Warrior' | 'Caster' | 'Mystic';
+	role: string;
+	flavor: string;
+}
+
+// Define the class definitions for all 30 classes
+export const CLASS_DEFINITIONS: Record<CharacterClass, ClassDefinition> = {
+	// Warriors - Melee (STR)
+	[CharacterClass.Fighter]: {
+		name: CharacterClass.Fighter,
+		primaryAttribute: AttributeType.STR,
+		archetype: 'Warrior',
+		role: 'Melee',
+		flavor: 'Martial',
+	},
+	[CharacterClass.Berserker]: {
+		name: CharacterClass.Berserker,
+		primaryAttribute: AttributeType.STR,
+		archetype: 'Warrior',
+		role: 'Melee',
+		flavor: 'Survivalist',
+	},
+	[CharacterClass.Swashbuckler]: {
+		name: CharacterClass.Swashbuckler,
+		primaryAttribute: AttributeType.STR,
+		archetype: 'Warrior',
+		role: 'Melee',
+		flavor: 'Scoundrel',
+	},
+	// Warriors - Ranged (DEX)
+	[CharacterClass.Marksman]: {
+		name: CharacterClass.Marksman,
+		primaryAttribute: AttributeType.DEX,
+		archetype: 'Warrior',
+		role: 'Ranged',
+		flavor: 'Martial',
+	},
+	[CharacterClass.Hunter]: {
+		name: CharacterClass.Hunter,
+		primaryAttribute: AttributeType.DEX,
+		archetype: 'Warrior',
+		role: 'Ranged',
+		flavor: 'Survivalist',
+	},
+	[CharacterClass.Rogue]: {
+		name: CharacterClass.Rogue,
+		primaryAttribute: AttributeType.DEX,
+		archetype: 'Warrior',
+		role: 'Ranged',
+		flavor: 'Scoundrel',
+	},
+	// Warriors - Tank (CON)
+	[CharacterClass.Guardian]: {
+		name: CharacterClass.Guardian,
+		primaryAttribute: AttributeType.CON,
+		archetype: 'Warrior',
+		role: 'Tank',
+		flavor: 'Martial',
+	},
+	[CharacterClass.Barbarian]: {
+		name: CharacterClass.Barbarian,
+		primaryAttribute: AttributeType.CON,
+		archetype: 'Warrior',
+		role: 'Tank',
+		flavor: 'Survivalist',
+	},
+	[CharacterClass.Scout]: {
+		name: CharacterClass.Scout,
+		primaryAttribute: AttributeType.CON,
+		archetype: 'Warrior',
+		role: 'Tank',
+		flavor: 'Scoundrel',
+	},
+	// Casters - Erudite (INT)
+	[CharacterClass.Wizard]: {
+		name: CharacterClass.Wizard,
+		primaryAttribute: AttributeType.INT,
+		archetype: 'Caster',
+		role: 'Erudite',
+		flavor: 'Arcanist',
+	},
+	[CharacterClass.Engineer]: {
+		name: CharacterClass.Engineer,
+		primaryAttribute: AttributeType.INT,
+		archetype: 'Caster',
+		role: 'Erudite',
+		flavor: 'Mechanist',
+	},
+	[CharacterClass.Alchemist]: {
+		name: CharacterClass.Alchemist,
+		primaryAttribute: AttributeType.INT,
+		archetype: 'Caster',
+		role: 'Erudite',
+		flavor: 'Naturalist',
+	},
+	[CharacterClass.Storyteller]: {
+		name: CharacterClass.Storyteller,
+		primaryAttribute: AttributeType.INT,
+		archetype: 'Caster',
+		role: 'Erudite',
+		flavor: 'Musicist',
+	},
+	// Casters - Intuitive (WIS)
+	[CharacterClass.Mage]: {
+		name: CharacterClass.Mage,
+		primaryAttribute: AttributeType.WIS,
+		archetype: 'Caster',
+		role: 'Intuitive',
+		flavor: 'Arcanist',
+	},
+	[CharacterClass.Artificer]: {
+		name: CharacterClass.Artificer,
+		primaryAttribute: AttributeType.WIS,
+		archetype: 'Caster',
+		role: 'Intuitive',
+		flavor: 'Mechanist',
+	},
+	[CharacterClass.Druid]: {
+		name: CharacterClass.Druid,
+		primaryAttribute: AttributeType.WIS,
+		archetype: 'Caster',
+		role: 'Intuitive',
+		flavor: 'Naturalist',
+	},
+	[CharacterClass.Minstrel]: {
+		name: CharacterClass.Minstrel,
+		primaryAttribute: AttributeType.WIS,
+		archetype: 'Caster',
+		role: 'Intuitive',
+		flavor: 'Musicist',
+	},
+	// Casters - Innate (CHA)
+	[CharacterClass.Sorcerer]: {
+		name: CharacterClass.Sorcerer,
+		primaryAttribute: AttributeType.CHA,
+		archetype: 'Caster',
+		role: 'Innate',
+		flavor: 'Arcanist',
+	},
+	[CharacterClass.Machinist]: {
+		name: CharacterClass.Machinist,
+		primaryAttribute: AttributeType.CHA,
+		archetype: 'Caster',
+		role: 'Innate',
+		flavor: 'Mechanist',
+	},
+	[CharacterClass.Shaman]: {
+		name: CharacterClass.Shaman,
+		primaryAttribute: AttributeType.CHA,
+		archetype: 'Caster',
+		role: 'Innate',
+		flavor: 'Naturalist',
+	},
+	[CharacterClass.Bard]: {
+		name: CharacterClass.Bard,
+		primaryAttribute: AttributeType.CHA,
+		archetype: 'Caster',
+		role: 'Innate',
+		flavor: 'Musicist',
+	},
+	// Mystics - Adept (DIV)
+	[CharacterClass.Cleric]: {
+		name: CharacterClass.Cleric,
+		primaryAttribute: AttributeType.DIV,
+		archetype: 'Mystic',
+		role: 'Adept',
+		flavor: 'Pure',
+	},
+	[CharacterClass.Warlock]: {
+		name: CharacterClass.Warlock,
+		primaryAttribute: AttributeType.DIV,
+		archetype: 'Mystic',
+		role: 'Adept',
+		flavor: 'Mixed',
+	},
+	[CharacterClass.Paladin]: {
+		name: CharacterClass.Paladin,
+		primaryAttribute: AttributeType.DIV,
+		archetype: 'Mystic',
+		role: 'Adept',
+		flavor: 'Martial',
+	},
+	// Mystics - Disciple (FOW)
+	[CharacterClass.Sage]: {
+		name: CharacterClass.Sage,
+		primaryAttribute: AttributeType.FOW,
+		archetype: 'Mystic',
+		role: 'Disciple',
+		flavor: 'Pure',
+	},
+	[CharacterClass.Monk]: {
+		name: CharacterClass.Monk,
+		primaryAttribute: AttributeType.FOW,
+		archetype: 'Mystic',
+		role: 'Disciple',
+		flavor: 'Mixed',
+	},
+	[CharacterClass.Ranger]: {
+		name: CharacterClass.Ranger,
+		primaryAttribute: AttributeType.FOW,
+		archetype: 'Mystic',
+		role: 'Disciple',
+		flavor: 'Martial',
+	},
+	// Mystics - Inspired (LCK)
+	[CharacterClass.Wanderer]: {
+		name: CharacterClass.Wanderer,
+		primaryAttribute: AttributeType.LCK,
+		archetype: 'Mystic',
+		role: 'Inspired',
+		flavor: 'Pure',
+	},
+	[CharacterClass.Wayfarer]: {
+		name: CharacterClass.Wayfarer,
+		primaryAttribute: AttributeType.LCK,
+		archetype: 'Mystic',
+		role: 'Inspired',
+		flavor: 'Mixed',
+	},
+	[CharacterClass.Warden]: {
+		name: CharacterClass.Warden,
+		primaryAttribute: AttributeType.LCK,
+		archetype: 'Mystic',
+		role: 'Inspired',
+		flavor: 'Martial',
 	},
 };
 

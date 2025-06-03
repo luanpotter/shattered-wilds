@@ -1,94 +1,103 @@
 import React from 'react';
 
-interface WindowProps {
-	title: string;
-	onClose: () => void;
-	children: React.ReactNode;
-	style?: React.CSSProperties;
+import { useStore } from '../store';
+import { Window, CharacterSheet } from '../types';
+
+import { AttackActionModal } from './AttackActionModal';
+import { BasicAttacksModal } from './BasicAttacksModal';
+import { CharacterCreationModal } from './CharacterCreation';
+import { CharacterList } from './CharacterList';
+import { CharacterSheetModal } from './CharacterSheet';
+import { ClassSetupModal } from './ClassSetupModal';
+import { DiceRollModal } from './DiceRollModal';
+import { DraggableWindow } from './DraggableWindow';
+import RaceSetupModal from './RaceSetupModal';
+
+interface WindowComponentProps {
+	window: Window;
+	onStartDrag: (e: React.MouseEvent) => void;
 }
 
-export const Window: React.FC<WindowProps> = ({ title, onClose, children, style }) => {
-	const handleKeyDown = (e: React.KeyboardEvent) => {
-		if (e.key === 'Escape') {
-			onClose();
+export const WindowComponent: React.FC<WindowComponentProps> = ({ window, onStartDrag }) => {
+	const characters = useStore(state => state.characters);
+
+	const renderContent = () => {
+		switch (window.type) {
+			case 'character-list':
+				return <CharacterList />;
+			case 'character-creation':
+				return <CharacterCreationModal hexPosition={window.hexPosition} />;
+			case 'character-sheet': {
+				const character = characters.find(c => c.id === window.characterId);
+				return character ? (
+					<CharacterSheetModal character={character} />
+				) : (
+					<div>Character not found</div>
+				);
+			}
+			case 'race-setup': {
+				const character = characters.find(c => c.id === window.characterId);
+				if (!character) return <div>Character not found</div>;
+				const characterSheet = CharacterSheet.from(character.props);
+				return (
+					<RaceSetupModal
+						characterId={character.id}
+						currentRace={characterSheet.race}
+						onClose={() => {}}
+					/>
+				);
+			}
+			case 'class-setup': {
+				const character = characters.find(c => c.id === window.characterId);
+				if (!character) {
+					return <div>Character not found</div>;
+				}
+				return <ClassSetupModal character={character} />;
+			}
+			case 'basic-attacks': {
+				const character = characters.find(c => c.id === window.characterId);
+				if (!character) return <div>Character not found</div>;
+				const characterSheet = CharacterSheet.from(character.props);
+				return (
+					<BasicAttacksModal
+						attacks={characterSheet.getBasicAttacks()}
+						characterSheet={characterSheet}
+						onClose={() => {}}
+					/>
+				);
+			}
+			case 'dice-roll': {
+				const props: any = {
+					modifier: window.modifier ?? 0,
+					onClose: () => {},
+					attributeName: window.attributeName ?? '',
+					characterSheet: window.characterSheet,
+					initialRollType: window.initialRollType ?? 'Static',
+				};
+
+				if (window.onDiceRollComplete) {
+					props.onDiceRollComplete = window.onDiceRollComplete;
+				}
+
+				return <DiceRollModal {...props} />;
+			}
+			case 'attack-action':
+				return (
+					<AttackActionModal
+						attackerId={window.attackerId ?? ''}
+						defenderId={window.defenderId ?? ''}
+						attackIndex={window.attackIndex ?? 0}
+						onClose={() => {}}
+					/>
+				);
+			default:
+				return <div>Unknown window type</div>;
 		}
 	};
 
 	return (
-		<div
-			role='presentation'
-			style={{
-				position: 'fixed',
-				top: 0,
-				left: 0,
-				right: 0,
-				bottom: 0,
-				backgroundColor: 'rgba(0, 0, 0, 0.5)',
-				display: 'flex',
-				justifyContent: 'center',
-				alignItems: 'center',
-				zIndex: 1000,
-				...style,
-			}}
-			onClick={onClose}
-		>
-			<button
-				type='button'
-				aria-labelledby='window-title'
-				style={{
-					backgroundColor: 'var(--background)',
-					borderRadius: '8px',
-					boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
-					minWidth: '300px',
-					maxWidth: '500px',
-					display: 'flex',
-					flexDirection: 'column',
-					border: 'none',
-					padding: 0,
-					cursor: 'default',
-				}}
-				onClick={e => e.stopPropagation()}
-				onKeyDown={handleKeyDown}
-			>
-				{/* Title Bar */}
-				<header
-					style={{
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'space-between',
-						padding: '8px 12px',
-						backgroundColor: 'var(--background-alt)',
-						borderTopLeftRadius: '8px',
-						borderTopRightRadius: '8px',
-						borderBottom: '1px solid var(--border)',
-						cursor: 'move',
-					}}
-				>
-					<h2 id='window-title' style={{ margin: 0, fontSize: '1.2em' }}>
-						{title}
-					</h2>
-					<button
-						type='button'
-						onClick={onClose}
-						style={{
-							background: 'none',
-							border: 'none',
-							color: 'var(--text)',
-							cursor: 'pointer',
-							padding: '4px',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-						}}
-						aria-label='Close'
-					>
-						×
-					</button>
-				</header>
-
-				{/* Content */}
-				<div style={{ flex: 1 }}>{children}</div>
-			</button>
-		</div>
+		<DraggableWindow window={window} onStartDrag={onStartDrag}>
+			{renderContent()}
+		</DraggableWindow>
 	);
 };

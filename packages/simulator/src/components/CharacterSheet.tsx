@@ -2,19 +2,10 @@ import React, { useEffect } from 'react';
 import { FaPlus, FaMinus, FaBatteryFull } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import {
-	Character,
-	CharacterClass,
-	CharacterSheet,
-	DerivedStat,
-	Size,
-	SizeModifiers,
-	Equipment,
-} from '../types';
+import { Character, CharacterSheet, DerivedStat, Size, SizeModifiers, Equipment } from '../types';
 import { findNextWindowPosition } from '../utils';
 
 import { AttributeTreeComponent } from './AttributeTreeComponent';
-import DropdownSelect from './DropdownSelect';
 import { EquipmentSection } from './EquipmentSection';
 
 interface CharacterSheetModalProps {
@@ -66,6 +57,26 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 				type: 'race-setup',
 				characterId: character.id,
 				position: findNextWindowPosition(windows),
+				width: '500px',
+			});
+		}
+	};
+
+	const handleOpenClassSetup = () => {
+		// Check if a class setup window is already open for this character
+		const classSetupWindow = windows.find(
+			w => w.type === 'class-setup' && w.characterId === character.id
+		);
+
+		// If not, open a new class setup window
+		if (!classSetupWindow) {
+			addWindow({
+				id: window.crypto.randomUUID(),
+				title: `${character.props.name}'s Class Setup`,
+				type: 'class-setup',
+				characterId: character.id,
+				position: findNextWindowPosition(windows),
+				width: '700px',
 			});
 		}
 	};
@@ -130,10 +141,6 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 				initialRollType: 'Contested (Passive)',
 			});
 		}
-	};
-
-	const handleClassChange = (characterClass: CharacterClass) => {
-		updateCharacterProp(character, 'class', characterClass);
 	};
 
 	const handlePointChange = (pointType: string, delta: number) => {
@@ -261,12 +268,17 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 							<label htmlFor='character-class' style={labelStyle}>
 								Class:
 							</label>
-							<DropdownSelect
+							<input
 								id='character-class'
-								options={CharacterClass}
+								type='text'
 								value={sheet.characterClass.characterClass}
-								onChange={handleClassChange}
-								disabled={!editMode}
+								onClick={editMode ? handleOpenClassSetup : undefined}
+								readOnly
+								style={{
+									...inputStyle,
+									cursor: editMode ? 'pointer' : 'default',
+									backgroundColor: 'var(--background)',
+								}}
 							/>
 						</div>
 					</div>

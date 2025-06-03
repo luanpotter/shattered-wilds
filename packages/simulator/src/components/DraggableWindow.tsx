@@ -113,13 +113,15 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
 					width: window.width || 'fit-content',
 					height: window.height || 'auto',
 					minWidth: '250px',
+					minHeight: window.width ? '200px' : 'auto', // If width is set, ensure minimum height
 					maxWidth: '95vw',
 					maxHeight: '90vh',
 					backgroundColor: 'var(--background)',
 					border: '1px solid var(--text)',
 					borderRadius: '4px',
 					boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-					display: 'block',
+					display: 'flex',
+					flexDirection: 'column',
 					userSelect: 'none',
 					zIndex: 999,
 					overflow: 'visible',
@@ -158,6 +160,8 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
 						position: 'relative',
 						zIndex: 1000, // Higher z-index for content
 						maxHeight: 'calc(100vh - 100px)', // Limit height to viewport minus some space for header
+						flex: '1', // Take up remaining space in flexbox
+						minHeight: '0', // Allow shrinking but respect child minHeight
 					}}
 				>
 					{children}
