@@ -7,6 +7,7 @@ type AddCharacter = (character: Character) => void;
 type UpdateCharacterName = (character: Character, newName: string) => void;
 type UpdateCharacterProp = (character: Character, prop: string, value: string) => void;
 type UpdateCharacterPos = (character: Character, pos: HexPosition) => void;
+type UpdateCharacterAutomaticMode = (character: Character, automaticMode: boolean) => void;
 type RemoveCharacter = (id: string) => void;
 type AddWindow = (window: Window) => void;
 type UpdateWindow = (window: Window) => void;
@@ -23,6 +24,7 @@ interface AppState {
 	updateCharacterName: UpdateCharacterName;
 	updateCharacterProp: UpdateCharacterProp;
 	updateCharacterPos: UpdateCharacterPos;
+	updateCharacterAutomaticMode: UpdateCharacterAutomaticMode;
 	removeCharacter: RemoveCharacter;
 	addWindow: AddWindow;
 	updateWindow: UpdateWindow;
@@ -61,6 +63,12 @@ export const useStore = create<AppState>()(
 				set(state => ({
 					characters: state.characters.map(c =>
 						c.id === character.id ? { ...c, position: pos } : c
+					),
+				})),
+			updateCharacterAutomaticMode: (character, automaticMode) =>
+				set(state => ({
+					characters: state.characters.map(c =>
+						c.id === character.id ? { ...c, automaticMode } : c
 					),
 				})),
 			removeCharacter: id =>

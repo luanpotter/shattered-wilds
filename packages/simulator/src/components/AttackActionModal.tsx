@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaDice, FaFistRaised, FaUserShield } from 'react-icons/fa';
 
 import { useStore } from '../store';
@@ -34,6 +34,35 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	const [defenseResult, setDefenseResult] = useState<RollResult | null>(null);
 	const [attackResult, setAttackResult] = useState<RollResult | null>(null);
 
+	// Auto-calculate values for automatic mode characters
+	const getAutomaticResult = (modifier: number): RollResult => {
+		const total = 13.5 + modifier;
+		return {
+			total,
+			shifts: 0, // Base automatic roll has no crit shifts
+			success: true,
+		};
+	};
+
+	// Automatically set results for automatic mode characters on mount
+	useEffect(() => {
+		if (attacker && defender) {
+			const attackerSheet = CharacterSheet.from(attacker.props);
+			const defenderSheet = CharacterSheet.from(defender.props);
+			const attack = attackerSheet.getBasicAttacks()[attackIndex];
+			const defense = defenderSheet.getBasicDefense();
+
+			if (attack && defender.automaticMode) {
+				const autoResult = getAutomaticResult(defense.value);
+				setDefenseResult(autoResult);
+			}
+			if (attack && attacker.automaticMode) {
+				const autoResult = getAutomaticResult(attack.check.modifier);
+				setAttackResult(autoResult);
+			}
+		}
+	}, [attacker, defender, attackIndex]);
+
 	if (!attacker || !defender) {
 		return <div>Error: Characters not found</div>;
 	}
@@ -48,35 +77,49 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	}
 
 	const handleDefenseRoll = () => {
-		addWindow({
-			id: window.crypto.randomUUID(),
-			title: `Roll Defense - ${defender.props.name}`,
-			type: 'dice-roll',
-			position: findNextWindowPosition(useStore.getState().windows),
-			modifier: defense.value,
-			attributeName: 'Basic Defense',
-			characterSheet: defenderSheet,
-			initialRollType: 'Contested (Passive)',
-			onDiceRollComplete: (result: { total: number; shifts: number }) => {
-				setDefenseResult(result);
-			},
-		});
+		if (defender.automaticMode && !defenseResult) {
+			// Use automatic value for defense (initial)
+			const autoResult = getAutomaticResult(defense.value);
+			setDefenseResult(autoResult);
+		} else {
+			// Open dice roll modal for manual rolling (override)
+			addWindow({
+				id: window.crypto.randomUUID(),
+				title: `Roll Defense - ${defender.props.name}`,
+				type: 'dice-roll',
+				position: findNextWindowPosition(useStore.getState().windows),
+				modifier: defense.value,
+				attributeName: 'Basic Defense',
+				characterSheet: defenderSheet,
+				initialRollType: 'Contested (Passive)',
+				onDiceRollComplete: (result: { total: number; shifts: number }) => {
+					setDefenseResult(result);
+				},
+			});
+		}
 	};
 
 	const handleAttackRoll = () => {
-		addWindow({
-			id: window.crypto.randomUUID(),
-			title: `Roll Attack - ${attacker.props.name}`,
-			type: 'dice-roll',
-			position: findNextWindowPosition(useStore.getState().windows),
-			modifier: attack.check.modifier,
-			attributeName: `${attack.name} (${attack.check.attribute.name})`,
-			characterSheet: attackerSheet,
-			initialRollType: 'Contested (Active)',
-			onDiceRollComplete: (result: { total: number; shifts: number }) => {
-				setAttackResult(result);
-			},
-		});
+		if (attacker.automaticMode && !attackResult) {
+			// Use automatic value for attack (initial)
+			const autoResult = getAutomaticResult(attack.check.modifier);
+			setAttackResult(autoResult);
+		} else {
+			// Open dice roll modal for manual rolling (override)
+			addWindow({
+				id: window.crypto.randomUUID(),
+				title: `Roll Attack - ${attacker.props.name}`,
+				type: 'dice-roll',
+				position: findNextWindowPosition(useStore.getState().windows),
+				modifier: attack.check.modifier,
+				attributeName: `${attack.name} (${attack.check.attribute.name})`,
+				characterSheet: attackerSheet,
+				initialRollType: 'Contested (Active)',
+				onDiceRollComplete: (result: { total: number; shifts: number }) => {
+					setAttackResult(result);
+				},
+			});
+		}
 	};
 
 	const calculateOutcome = () => {
@@ -157,7 +200,12 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 					<p>Defense Value: {defense.value}</p>
 
 					<button style={buttonStyle} onClick={handleDefenseRoll}>
-						<FaDice /> Roll Defense
+						<FaDice />{' '}
+						{defender.automaticMode && defenseResult
+							? 'Override Defense'
+							: defender.automaticMode
+								? 'Use Auto Defense'
+								: 'Roll Defense'}
 					</button>
 
 					{defenseResult && (
@@ -169,7 +217,10 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 								borderRadius: '4px',
 							}}
 						>
-							<strong>Defense Result: {defenseResult.total}</strong>
+							<strong>
+								Defense Result:{' '}
+								{defender.automaticMode ? `Auto: ${defenseResult.total}` : defenseResult.total}
+							</strong>
 							{defenseResult.shifts > 0 && <div>Shifts: {defenseResult.shifts}</div>}
 						</div>
 					)}
@@ -193,7 +244,12 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 						onClick={handleAttackRoll}
 						disabled={!defenseResult}
 					>
-						<FaDice /> Roll Attack{' '}
+						<FaDice />{' '}
+						{attacker.automaticMode && attackResult
+							? 'Override Attack'
+							: attacker.automaticMode
+								? 'Use Auto Attack'
+								: 'Roll Attack'}{' '}
 						{defenseResult ? `(DC ${defenseResult.total})` : '(Roll Defense First)'}
 					</button>
 
@@ -206,7 +262,10 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 								borderRadius: '4px',
 							}}
 						>
-							<strong>Attack Result: {attackResult.total}</strong>
+							<strong>
+								Attack Result:{' '}
+								{attacker.automaticMode ? `Auto: ${attackResult.total}` : attackResult.total}
+							</strong>
 							{attackResult.shifts > 0 && <div>Shifts: {attackResult.shifts}</div>}
 						</div>
 					)}

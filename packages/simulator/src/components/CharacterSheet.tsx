@@ -15,6 +15,7 @@ interface CharacterSheetModalProps {
 export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ character }) => {
 	const updateCharacterName = useStore(state => state.updateCharacterName);
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
+	const updateCharacterAutomaticMode = useStore(state => state.updateCharacterAutomaticMode);
 	const windows = useStore(state => state.windows);
 	const updateWindow = useStore(state => state.updateWindow);
 	const addWindow = useStore(state => state.addWindow);
@@ -41,6 +42,10 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 
 	const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		updateCharacterName(character, e.target.value);
+	};
+
+	const handleAutomaticModeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		updateCharacterAutomaticMode(character, e.target.checked);
 	};
 
 	const handleOpenRaceSetup = () => {
@@ -237,8 +242,20 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 						value={character.props.name}
 						onChange={handleNameChange}
 						disabled={!editMode}
-						style={inputStyle}
+						style={{ ...inputStyle, flex: 1 }}
 					/>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '8px' }}>
+						<input
+							id='automatic-mode'
+							type='checkbox'
+							checked={character.automaticMode ?? false}
+							onChange={handleAutomaticModeChange}
+							style={{ margin: 0 }}
+						/>
+						<label htmlFor='automatic-mode' style={{ ...labelStyle, fontSize: '0.8em' }}>
+							Auto Mode
+						</label>
+					</div>
 				</div>
 
 				<div style={{ display: 'flex', gap: '8px', marginBottom: '4px' }}>

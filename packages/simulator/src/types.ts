@@ -978,6 +978,7 @@ export class CharacterSheet {
 export interface Character {
 	id: string;
 	position?: HexPosition;
+	automaticMode?: boolean;
 	props: { name: string } & Record<string, string>;
 }
 
