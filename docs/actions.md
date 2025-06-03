@@ -73,7 +73,7 @@ Turns in Shattered Wilds are very reactive due to the higher possibility of Reac
 * **Opportunity Attack (1+ AP)**: Triggered by an opponent either (1) leaving your threat area or (2) performing an action on your threat area that triggers an opportunity attack (such as concentrating or channeling). You can choose what kind of Melee Basic Attack to perform as your opportunity attack (this will cost the same amount of AP as that Action would).
 * **Dodge (1 AP)**: Defend Body against a Basic Attack with Evasiveness + 3 instead.
 * **Shield Block (1 AP)**: Add Shield Bonus to a Defend Body contested check.
-* **Shrug Off (1 AP)**: Immediately as taking damage, you can attempt a Medium Toughness (DC 20) check to reduce the damage by 1 (+ Crit Shifts).
+* **Shrug Off (1 AP)**: Immediately as taking >1 VP damage, you can attempt a Medium Toughness (DC 20) check to reduce the damage by 1 (+ Crit Shifts) (min 1).
 * **Flank (1 AP)**: When an ally attack, if on Flanking position, give them a +3 Circumstance Bonus.
 * **Taunt (1 AP)**: Spend 1 FP; roll a Speechcraft check against targets Resolve to persuade an enemy attempting to Melee attack a different target to instead attack you (when you are also in range and would be a valid target).
 * **Distract (1 AP)**: ...
