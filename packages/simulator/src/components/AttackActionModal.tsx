@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaDice, FaFistRaised, FaUserShield } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { CharacterSheet } from '../types';
+import { CharacterSheet, AttributeType } from '../types';
 import { findNextWindowPosition } from '../utils';
 
 interface AttackActionModalProps {
@@ -33,6 +33,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 
 	const [defenseResult, setDefenseResult] = useState<RollResult | null>(null);
 	const [attackResult, setAttackResult] = useState<RollResult | null>(null);
+	const [usedDodge, setUsedDodge] = useState(false);
 
 	// Auto-calculate values for automatic mode characters
 	const getAutomaticResult = (modifier: number): RollResult => {
@@ -72,6 +73,10 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	const attack = attackerSheet.getBasicAttacks()[attackIndex];
 	const defense = defenderSheet.getBasicDefense();
 
+	// Calculate dodge value (Evasiveness + 3)
+	const evasivenessValue = defenderSheet.getAttributeTree().valueOf(AttributeType.Evasiveness);
+	const dodgeValue = evasivenessValue + 3;
+
 	if (!attack) {
 		return <div>Error: Attack not found</div>;
 	}
@@ -81,6 +86,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			// Use automatic value for defense (initial)
 			const autoResult = getAutomaticResult(defense.value);
 			setDefenseResult(autoResult);
+			setUsedDodge(false);
 		} else {
 			// Open dice roll modal for manual rolling (override)
 			addWindow({
@@ -94,9 +100,28 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 				initialRollType: 'Contested (Passive)',
 				onDiceRollComplete: (result: { total: number; shifts: number }) => {
 					setDefenseResult(result);
+					setUsedDodge(false);
 				},
 			});
 		}
+	};
+
+	const handleDodgeRoll = () => {
+		// Open dice roll modal for dodge (always manual, even for automatic mode)
+		addWindow({
+			id: window.crypto.randomUUID(),
+			title: `Roll Dodge - ${defender.props.name}`,
+			type: 'dice-roll',
+			position: findNextWindowPosition(useStore.getState().windows),
+			modifier: dodgeValue,
+			attributeName: 'Dodge (Evasiveness + 3)',
+			characterSheet: defenderSheet,
+			initialRollType: 'Contested (Passive)',
+			onDiceRollComplete: (result: { total: number; shifts: number }) => {
+				setDefenseResult(result);
+				setUsedDodge(true);
+			},
+		});
 	};
 
 	const handleAttackRoll = () => {
@@ -198,15 +223,22 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 					</h4>
 
 					<p>Defense Value: {defense.value}</p>
+					<p>Dodge Value: {dodgeValue} (Evasiveness {evasivenessValue} + 3)</p>
 
-					<button style={buttonStyle} onClick={handleDefenseRoll}>
-						<FaDice />{' '}
-						{defender.automaticMode && defenseResult
-							? 'Override Defense'
-							: defender.automaticMode
-								? 'Use Auto Defense'
-								: 'Roll Defense'}
-					</button>
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+						<button style={buttonStyle} onClick={handleDefenseRoll}>
+							<FaDice />{' '}
+							{defender.automaticMode && defenseResult && !usedDodge
+								? 'Override Defense'
+								: defender.automaticMode
+									? 'Use Auto Defense'
+									: 'Roll Defense'}
+						</button>
+
+						<button style={buttonStyle} onClick={handleDodgeRoll}>
+							<FaDice /> Roll Dodge (1 AP)
+						</button>
+					</div>
 
 					{defenseResult && (
 						<div
@@ -218,10 +250,11 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 							}}
 						>
 							<strong>
-								Defense Result:{' '}
-								{defender.automaticMode ? `Auto: ${defenseResult.total}` : defenseResult.total}
+								{usedDodge ? 'Dodge' : 'Defense'} Result:{' '}
+								{defender.automaticMode && !usedDodge ? `Auto: ${defenseResult.total}` : defenseResult.total}
 							</strong>
 							{defenseResult.shifts > 0 && <div>Shifts: {defenseResult.shifts}</div>}
+							{usedDodge && <div style={{ fontSize: '0.8em', opacity: 0.8 }}>Used Dodge reaction</div>}
 						</div>
 					)}
 				</div>
