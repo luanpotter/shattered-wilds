@@ -53,7 +53,7 @@ Attack Actions are actions in which the intent is to inflict damage (either to V
 
 ## Miscellaneous Actions
 
-* **Sheathe / Unsheathe (1 AP)**: Equip / unequip carried weapons or shields.
+* **Sheathe / Unsheathe (1 AP)**: Equip / unequip carried weapons and/or shields.
 * **Hide (1 AP)**: [Concentrate] Try to conceal yourself; make a Finesse active check that can be contested by each opponent's Perception Check.
 * **Catch Breath (3 AP)**: Medium Stamina Check (DC 20): +1 VP. Regardless of result: Clears Off-guard
 * **Focus (3 AP)**: [Concentrate] Medium Discipline Check (DC 20): +1 FP, Regardless of result: Clears Distracted
@@ -102,6 +102,7 @@ Exhaustion represents a slightly longer term form of tiredness that cannot be he
 Circumstances that cause the level of Exhaustion to increase include:
 
 * Being cleared from Incapacitated.
+* Short Rest (?) - not sure yet
 * TODO
 
 Exhaustion Levels and their effects:
