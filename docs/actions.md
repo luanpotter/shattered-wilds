@@ -28,6 +28,7 @@ Movement actions are associated with movement, and can take several forms. All m
 * **Drag Grappler (1+ AP)**: Move 1 hex while Immobilized, dragging your grapple. Requires a contested Muscles check against Stance with a -3 modifier. You can use more APs to move extra hexes.
 * **Stumble Through (1 AP)**: Contested Finesse check against opponent's Stance. Move past one enemy to an adjacent hex, as long as your `Speed` is 2 or more.
 * **Ride Mount (2 AP)**: TODO.
+* **Hide (1 AP)**: [Concentrate] Try to conceal yourself; make a Finesse active check that can be contested by each opponent's Perception Check.
 * **Sneak (1+ AP)**: Move `Speed - 1` hexes making an additional Finesse check. Any other participant for which you are Concealed can make a contested Awareness check to spot you.
 * **Charge (2 + X AP)** (this is a combined Movement + Attack action): Move `Speed + 1` hexes in a straight line, followed by Melee Attack with Muscles instead of STR. This can be used for a "Tackle" if the "Shove" Attack Action is chosen, in which case a Circumstance Bonus of +3 is granted to the attacker.
 
@@ -47,14 +48,21 @@ Attack Actions are actions in which the intent is to inflict damage (either to V
 ### Types of Attacks
 
 * Melee
-* Ranged []
+* Ranged [Concentrate]
 * Thrown
-* Spell []
+* Spell [Concentrate]
+
+#### Basic Cover
+
+When there is not a clear line of sight for a ranged attack, there are enemies or allies in the way, or the target is adjacent to a wall, you automatically benefit from Basic Cover against ranged attacks.
+
+Basic Cover can be:
+* 
 
 ## Miscellaneous Actions
 
 * **Sheathe / Unsheathe (1 AP)**: Equip / unequip carried weapons and/or shields.
-* **Hide (1 AP)**: [Concentrate] Try to conceal yourself; make a Finesse active check that can be contested by each opponent's Perception Check.
+* **Reload** (1 AP): Reload a weapon with the [Reload] trait.
 * **Catch Breath (3 AP)**: Medium Stamina Check (DC 20): +1 VP. Regardless of result: Clears Off-guard
 * **Focus (3 AP)**: [Concentrate] Medium Discipline Check (DC 20): +1 FP, Regardless of result: Clears Distracted
 * **Inspire (3 AP)**: Medium Speechcraft Check (DC 20): +1 MP to one ally within hearing range. -3 Circumstance bonus if they cannot see you.
@@ -72,6 +80,7 @@ Turns in Shattered Wilds are very reactive due to the higher possibility of Reac
 
 * **Opportunity Attack (1+ AP)**: Triggered by an opponent either (1) leaving your threat area or (2) performing an action on your threat area that triggers an opportunity attack (such as concentrating or channeling). You can choose what kind of Melee Basic Attack to perform as your opportunity attack (this will cost the same amount of AP as that Action would).
 * **Dodge (1 AP)**: Defend Body against a Basic Attack with Evasiveness + 3 instead.
+* **Take Cover (1 AP)**: Defend Body against a Ranged Basic Attack with Speed + 6 instead when already benefiting from Basic Cover.
 * **Shield Block (1 AP)**: Add Shield Bonus to a Defend Body contested check.
 * **Shrug Off (1 AP)**: Immediately as taking >1 VP damage, you can attempt a Medium Toughness (DC 20) check to reduce the damage by 1 (+ Crit Shifts) (min 1).
 * **Flank (1 AP)**: When an ally attack, if on Flanking position, give them a +3 Circumstance Bonus.

@@ -4,7 +4,7 @@
 
 Unlike other games, weapons don't have separate damage dice, as damage is determined by Shifts. Every weapon can be simply described by it's Primary Weapon Type, it's Weapon Bonus, and any special traits it has. The Weapon Bonus is the final value to be added to your attack roll, which will be a STR or DEX roll + [weapon bonus].
 
-Different Primary Weapon Types have different "power levels". This means that two similarly rare weapons of different types will typically have different bonuses. For example, a common Dagger (Light Melee) will be have a +2 bonus, while a common Longsword (Heavy Melee) will have a +4 bonus. However more powerful weapons of any kind can have higher bonuses, and the weapon bonus is the only modifier that matters for your Basic Attack Check.
+Different Primary Weapon Types have different "power levels". This means that two similarly rare weapons of different types will typically have different bonuses. For example, a common Dagger (Light Melee) will be have a +2 bonus, while a common Longsword (Heavy Melee) will have a +4 bonus, because a Longsword is inherently more powerful. However more powerful weapons of any kind can have higher bonuses, and the weapon bonus is the only modifier that matters for your Basic Attack Check.
 
 | Primary Weapon Type | Base Attribute | Power Level |
 |---------------------|----------------|-------------|
