@@ -950,13 +950,14 @@ export class CharacterSheet {
 
 	getBasicDefense(): DerivedStat<number> {
 		const body = this.getAttributeTree().valueOf(AttributeType.Body);
+		const sizeModifier = SizeModifiers[this.derivedStats.size.value];
 		const armorBonus = this.equipment.items
 			.filter(item => item instanceof Armor)
 			.reduce((acc, item) => acc + (item as Armor).bonus, 0);
-		const defense = body + armorBonus;
+		const defense = body - sizeModifier + armorBonus;
 		return {
 			value: defense,
-			description: `Basic Defense = ${body} (Body) + ${armorBonus} (armor bonus)`,
+			description: `Basic Defense = ${body} (Body) - ${sizeModifier} (size modifier) + ${armorBonus} (armor bonus)`,
 		};
 	}
 
