@@ -223,7 +223,9 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 					</h4>
 
 					<p>Defense Value: {defense.value}</p>
-					<p>Dodge Value: {dodgeValue} (Evasiveness {evasivenessValue} + 3)</p>
+					<p>
+						Dodge Value: {dodgeValue} (Evasiveness {evasivenessValue} + 3)
+					</p>
 
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 						<button style={buttonStyle} onClick={handleDefenseRoll}>
@@ -251,10 +253,14 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 						>
 							<strong>
 								{usedDodge ? 'Dodge' : 'Defense'} Result:{' '}
-								{defender.automaticMode && !usedDodge ? `Auto: ${defenseResult.total}` : defenseResult.total}
+								{defender.automaticMode && !usedDodge
+									? `Auto: ${defenseResult.total}`
+									: defenseResult.total}
 							</strong>
 							{defenseResult.shifts > 0 && <div>Shifts: {defenseResult.shifts}</div>}
-							{usedDodge && <div style={{ fontSize: '0.8em', opacity: 0.8 }}>Used Dodge reaction</div>}
+							{usedDodge && (
+								<div style={{ fontSize: '0.8em', opacity: 0.8 }}>Used Dodge reaction</div>
+							)}
 						</div>
 					)}
 				</div>
