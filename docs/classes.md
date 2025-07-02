@@ -71,11 +71,11 @@ Allows you to pick Feats with the `Nature` background.
 
 There are a total of 12 Caster classes, which are divided in a 3x4 matrix depending on their Role (primary attribute and source of their powers) and Flavor (exact nature and manifestation of that power).
 
-| Role / Flavor | Arcanist | Mechanist | Naturalist | Musicist    |
-|---------------|----------|-----------|------------|-------------|
-| Erudite (INT) | Wizard   | Engineer  | Alchemist  | Storyteller |
-| Intuitive (WIS)| Mage    | Artificer | Druid      | Minstrel    |
-| Innate (CHA)  | Sorcerer | Machinist | Shaman     | Bard        |
+| Role / Flavor  | Arcanist | Mechanist | Naturalist | Musicist    |
+|----------------|----------|-----------|------------|-------------|
+| Erudite (INT)  | Wizard   | Engineer  | Alchemist  | Storyteller |
+| Intuitive (WIS)| Mage     | Artificer | Druid      | Minstrel    |
+| Innate (CHA)   | Sorcerer | Machinist | Shaman     | Bard        |
 
 ## Mystics
 
