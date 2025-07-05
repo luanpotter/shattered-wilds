@@ -19,23 +19,61 @@ module.exports = function (eleventyConfig) {
 
   // Add global data for lexicon files
   eleventyConfig.addGlobalData("lexiconFiles", function () {
-    const lexiconDir = path.join(__dirname, "src/_includes/docs/lexicon");
+    const lexiconDir = path.join(__dirname, "../../docs/lexicon");
     if (!fs.existsSync(lexiconDir)) return [];
 
-    const files = fs
-      .readdirSync(lexiconDir)
-      .filter((file) => file.endsWith(".md"));
+    function getAllMarkdownFiles(dir, basePath = "") {
+      const files = [];
+      const items = fs.readdirSync(dir);
 
-    return files.map((file) => {
-      const filePath = path.join(lexiconDir, file);
-      const content = fs.readFileSync(filePath, "utf8");
-      const slug = path.basename(file, ".md");
+      for (const item of items) {
+        const fullPath = path.join(dir, item);
+        const stat = fs.statSync(fullPath);
+
+        if (stat.isDirectory()) {
+          // Recursively scan subdirectories
+          const subFiles = getAllMarkdownFiles(
+            fullPath,
+            path.join(basePath, item)
+          );
+          files.push(...subFiles);
+        } else if (item.endsWith(".md")) {
+          // Create slug from relative path to lexicon root
+          const relativePath = path.relative(lexiconDir, fullPath);
+          const slug = relativePath
+            .replace(/\.md$/, "")
+            .replace(/[\/\\]/g, "_");
+
+          // Create title with colon format (e.g., "Action: Move")
+          const titleParts = relativePath.replace(/\.md$/, "").split(/[\/\\]/);
+          let title =
+            titleParts.length > 1
+              ? `${titleParts[0]}: ${titleParts.slice(1).join(" ")}`
+              : titleParts[0];
+          title = title.replace(/_/g, " ");
+
+          files.push({
+            filePath: fullPath,
+            slug: slug,
+            title: title,
+            basePath: basePath,
+          });
+        }
+      }
+
+      return files;
+    }
+
+    const markdownFiles = getAllMarkdownFiles(lexiconDir);
+
+    return markdownFiles.map((file) => {
+      const content = fs.readFileSync(file.filePath, "utf8");
 
       return {
-        slug: slug,
-        title: slug.replace(/_/g, " "),
+        slug: file.slug,
+        title: file.title,
         content: content,
-        url: `/wiki/${slug}/`,
+        url: `/wiki/${file.slug}/`,
       };
     });
   });
