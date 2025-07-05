@@ -52,11 +52,49 @@ module.exports = function (eleventyConfig) {
               : titleParts[0];
           title = title.replace(/_/g, " ");
 
+          // Parse frontmatter if present
+          const content = fs.readFileSync(fullPath, "utf8");
+          let frontMatter = {};
+          let markdownContent = content;
+
+          // Use regex to extract YAML frontmatter
+          const fmMatch = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n?/);
+          if (fmMatch) {
+            try {
+              frontMatter = yaml.load(fmMatch[1]);
+              markdownContent = content.slice(fmMatch[0].length).trim();
+            } catch (e) {
+              console.warn(
+                `Failed to parse frontmatter for ${fullPath}:`,
+                e.message
+              );
+            }
+          }
+
+          const parseFrontMatter = (frontMatter) => {
+            if (!frontMatter || typeof frontMatter !== "object") {
+              return [];
+            }
+            const specialTitles = {
+              ap: "AP",
+            };
+            return Object.entries(frontMatter).map(([key, value]) => ({
+              key: key,
+              title: (specialTitles[key] || key).replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()),
+              value: value,
+              cssClass: `metadata-${key.replace(/_/g, "-")}`,
+            }));
+          };
+
           files.push({
             filePath: fullPath,
             slug: slug,
             title: title,
             basePath: basePath,
+            content: markdownContent,
+            metadata: parseFrontMatter(frontMatter),
+            isCategory: titleParts.length === 1, // Root level files are categories
+            category: titleParts.length > 1 ? titleParts[0] : null,
           });
         }
       }
@@ -66,14 +104,42 @@ module.exports = function (eleventyConfig) {
 
     const markdownFiles = getAllMarkdownFiles(lexiconDir);
 
-    return markdownFiles.map((file) => {
-      const content = fs.readFileSync(file.filePath, "utf8");
+    // Group items by category for category pages
+    const categoryGroups = {};
+    markdownFiles.forEach((file) => {
+      if (file.category) {
+        if (!categoryGroups[file.category]) {
+          categoryGroups[file.category] = [];
+        }
+        categoryGroups[file.category].push(file);
+      }
+    });
 
+    // Build a lookup for slug to url
+    const slugToUrl = {};
+    markdownFiles.forEach((file) => {
+      slugToUrl[file.slug] = `/wiki/${file.slug}/`;
+    });
+
+    return markdownFiles.map((file) => {
+      let categoryItems = null;
+      if (file.isCategory && categoryGroups[file.title]) {
+        categoryItems = categoryGroups[file.title]
+          .filter((item) => item.slug !== file.slug)
+          .map((item) => ({
+            ...item,
+            url: slugToUrl[item.slug],
+          }));
+      }
       return {
         slug: file.slug,
         title: file.title,
-        content: content,
+        content: file.content,
+        metadata: file.metadata,
         url: `/wiki/${file.slug}/`,
+        isCategory: file.isCategory,
+        category: file.category,
+        categoryItems: categoryItems,
       };
     });
   });

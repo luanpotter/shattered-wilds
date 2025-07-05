@@ -6,7 +6,7 @@
 
 ## Movement Actions
 
-Movement actions are associated with movement, and can take several forms. All movement forms can move at least 1 hex, regardless of the Speed formula.
+Movement actions are associated with movement, and can take several forms. All movement forms can move at least 1 hex, regardless of the character's Speed. Unused movement cannot be saved for later.
 
 * **Move (1 AP)**: Move up to `Speed` hexes. Movement cannot be saved for later.
 * **Side Step (1 AP)**: Move 1 hex in any direction. This does not trigger Opportunity Attacks.

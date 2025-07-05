@@ -10,4 +10,47 @@ title: "{{ lexicon.title }}"
 
 <h1>{{ lexicon.title }}</h1>
 
-{{ lexicon.content | markdown }}
+{% if lexicon.isCategory and lexicon.categoryItems and lexicon.categoryItems.size > 0 %}
+  <!-- Category page with definition and auto-generated list -->
+  {{ lexicon.content | markdown }}
+
+  <h2>{{ lexicon.title }} List</h2>
+  <ul class="category-list">
+    {% for item in lexicon.categoryItems %}
+      <li class="category-list-item">
+        <a href="{{ item.url }}">{{ item.title | replace: "Action: ", "" }}</a>
+        {% if item.metadata %}
+          <span class="item-metadata">
+            {% for meta in item.metadata %}
+              <span class="{{ meta.cssClass }}">{{ meta.key | capitalize }}: {{ meta.value }}</span>
+            {% endfor %}
+          </span>
+        {% endif %}
+        {% if item.content %}
+          : {{ item.content | split: "\n\n" | first | strip | md }}
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <!-- Category page with no sub-items or individual item page -->
+  {% if lexicon.category or lexicon.metadata %}
+    <div class="item-header">
+      {% if lexicon.metadata %}
+        <div class="item-metadata">
+          {% for meta in lexicon.metadata %}
+            <span class="{{ meta.cssClass }}">{{ meta.title }}: {{ meta.value }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% if lexicon.category %}
+        <div class="breadcrumb">
+          <a href="/wiki/{{ lexicon.category }}/">← Back to {{ lexicon.category }}</a>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {{ lexicon.content | markdown }}
+{% endif %}

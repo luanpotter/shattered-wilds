@@ -242,3 +242,135 @@ div.pagination p {
     display: none;
   }
 }
+
+/* Category and metadata styles */
+.category-items {
+  margin-top: 2rem;
+}
+
+.category-item {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: var(--accent-bg);
+}
+
+.category-item h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.category-item h3 a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.category-item h3 a:hover {
+  text-decoration: underline;
+}
+
+/* Simplified category list styles */
+.category-list {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin-top: 2rem;
+}
+
+.category-list-item {
+  padding: 0.25rem 0;
+  line-height: 1.4;
+}
+
+.category-list-item a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.category-list-item a:hover {
+  text-decoration: underline;
+}
+
+.category-list-item .item-metadata {
+  display: inline-flex;
+  gap: 0.5rem;
+  margin-left: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.category-list-item .item-metadata span {
+  background: var(--bg);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  font-size: 0.7em;
+  border: 1px solid var(--border);
+}
+
+.item-excerpt {
+  margin: 0.5rem 0 0 0;
+  color: var(--text-light);
+  font-size: 0.9em;
+}
+
+.item-metadata {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.item-metadata span {
+  background: var(--bg);
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.8em;
+  border: 1px solid var(--border);
+}
+
+.metadata-type {
+  color: #4ecdc4;
+}
+
+.metadata-ap {
+  color: #ff6b6b;
+}
+
+/* Breadcrumb styles */
+.breadcrumb {
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.breadcrumb a {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.9em;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+/* Item header layout */
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.item-header .item-metadata {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.item-header .breadcrumb {
+  margin-bottom: 0;
+  padding: 0;
+  border-bottom: none;
+  text-align: right;
+}
