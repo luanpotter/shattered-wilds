@@ -147,6 +147,7 @@ Depending on the the School, duration of the spell works in different ways:
 The typical range of the Basic Arcane Spell is 1m (i.e. same hex or adjacent hex). This can be increased according to the following the following table (using Tax Brackets rules)
 
 | Distance | Modifier |
+|----------|----------|
 | 2-5m     | +1/m     |
 | 6-12m    | +2/m     |
 | 13-24m   | +4/m     |
