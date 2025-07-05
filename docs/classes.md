@@ -77,6 +77,8 @@ There are a total of 12 Caster classes, which are divided in a 3x4 matrix depend
 | Intuitive (WIS)| Mage     | Artificer | Druid      | Minstrel    |
 | Innate (CHA)   | Sorcerer | Machinist | Shaman     | Bard        |
 
+See [Arcane Spellcasting](arcane.md) for a detailed breakdown of what each Role and Flavor entails.
+
 ## Mystics
 
 There are a total of 9 Mystic classes, which are divided in a 3x3 matrix depending on their Role (primary attribute and source of their powers) and Flavor (wether they purely dedicate to their channeling or have some mixed martial characteristics).

@@ -28,7 +28,9 @@ The Base DC for an uncontested Basic Arcane Spell with no Augmentation (i.e. the
 
 ## Concentration
 
-Depending on the chosen School and desired effect, spells can be instantaneous, meaning they are done after the Casting Time over which the Components are executed; or they can be held in Concentration. While Concentrating, the caster must spend an additional 1FP at the end of their turn, cannot take any actions with the Focus trait, and can drop Concentration at will. See more details about which types of effects can be instantaneous or not under Augmentations > Duration below.
+Depending on the chosen School and desired effect, spells can be instantaneous, meaning they are done after the Casting Time over which the Components are executed; or they can be held in Concentration. While Concentrating, the Caster cannot take any actions with the Focus trait (such as other Spells). A Caster can always just drop Concentration at will. See more details about which types of effects can be instantaneous or not under Augmentations > Duration below.
+
+As with any other Focus Actions, if the Caster is disrupted during concentration (or during the Spell Casting), they must roll a Tenacity check to sustain Concentration or finalize the cast. See more details on the [Actions](/docs/actions.md) page.
 
 ## Contested Checks
 
@@ -46,15 +48,15 @@ Note that a creature can choose not to resist; in which case the Base DC is used
 
 Narratively, if the Check rolls between the Spell DC using the Base DC and the (higher) Spell DC using the Contested Check, the spell succeeds but is resisted by the target, while if it fails even the Base DC, the spell just fails.
 
+## Basic Spell Attacks
+
+Regardless of specific narrative flavor (see Predefined Spells below for inspiration), a Caster can use a Basic Arcane Spell (2AP, 1FP) with Spell DC 18 to harm an enemy within 1m as a Basic Attack against a target's Body or Soul. The most typical Augmentations for a Basic Spell Attack are Range, Multi-target, and Casting Time.
+
 ## Shifts
 
 For spells being used as attacks, Shifts deal extra damage as usual. Otherwise, depending on DM, they can be used to increase the potency of the desired effect. However, Spells are all or nothing - if the Check fails, no effect happens. So the caster must chose their essential Augmentations carefully.
 
 For example, imagine a caster chooses to expand the Area of a Poison Cloud by 1 Hex, bringing the final DC from 20 to 24. If they roll a 23, the spell fails, and nothing happens. But if they stick to the plan of just a single Hex, and roll a 26, they get 1 Shift over the DC 20, and the DM might decide that the poison cloud expanded into a random adjacent hex (or some other consequence).
-
-## Scrolls
-
-Scrolls can be crafted by really powerful Arcanists that are able capture the essence of the immutable parts of instructions for a very specific effect. They can be used by any Arcane Spellcasters, but using them still requires figuring out the rest of the movements given the current state of the world. Heroes might often find specific scrolls written in the past during their adventures. Casting a Spell using a Scroll will provide a bonus to the Check, but the Scrolls are tied to very specific outcomes, and not customizable.
 
 ## Components
 
@@ -104,6 +106,11 @@ The execution of Focal components require touching and minor manipulation of the
 
 -- TODO: potentially rethink Focal components.
 
+### Scrolls
+
+While not exactly a Component per se, Scrolls can be crafted by really powerful Arcanists that are able capture the essence of the immutable parts of instructions for a very specific effect. They can be used by any Arcane Spellcaster, but using them still requires figuring out the rest of the movements given the current state of the world (so they cannot be used by non-Casters). Heroes might often find specific scrolls written in the past during their adventures. Casting a Spell using a Scroll will provide a bonus to the Check, but the Scrolls are tied to very specific outcomes, and not customizable.
+
+
 ## Augmentations
 
 Every spell is essentially a specialization of the Basic Arcane Spell, with a specific choice of School (Verb + Noun) and a set of augmentations depending on the desired effect. Each Augmentation will add either a positive or a negative modifier to the Check, to the discretion of the DM. Below some traditional augmentations are listed, but circumstances might require additional ones.
@@ -123,7 +130,7 @@ Extending the casting time over several time has severe diminishing returns, and
 
 ### Focus Cost
 
-The typical focus cost of the Basic Arcane Spell is 2FP. Each additional FP will add a +1 modifier, up to twice the number of AP used (one can't just cram that much focus into too little time). If the spell is being cast as a Ritual, there is no limit on the amount of FP that can be spent.
+The typical focus cost of the Basic Arcane Spell is 1FP. Each additional FP will add a +1 modifier, up to twice the number of AP used (one can't just cram that much focus into too little time). If the spell is being cast as a Ritual, there is no limit on the amount of FP that can be spent.
 
 ### Duration
 
@@ -177,36 +184,122 @@ While the Player can control the exact effect they aim to achieve, the DM has th
 
 While a Caster can choose any effect within the realms of the Arcane, below is a list of predefined spells with predefined Spell DC making it easier for Players and DMs; they can both be used exactly as-is, or used to judge Spell DC by comparison.
 
-Across all Schools, the Basic Arcane Spell takes 2AP and 2FP to cast, with Spell DC 15 (or contested if highest).
+Across all Schools, the Basic Arcane Spell takes 2AP and 1FP to cast, with Spell DC 15 (or contested if highest).
 
 ### Conjuration
 
 The Conjuration Basic Arcane Spell can be used to create between 1-10L of simple, homogeneous, inorganic matter of a simple material (dirt, gravel, sand, weak rocks), within 1m of the Caster, in a space unoccupied (by solid matter or Beings), arranged in a vaguely, imprecise, contiguous spherical blob (or to fill an existing hole). Any fluid matter in the location will be displaced (therefore matter cannot be created in hermetically sealed containers).
 
-The Caster must be familiar with the material being created; we can assume all Heroes are familiar with simple materials, water or other common matter. However certain spell below will require the Caster to have been familiar with the specific matter being created.
+The Caster must be familiar with the material being conjured; we can assume all Heroes are familiar with simple materials, water or other common matter. However certain spell below will require the Caster to have been familiar with the specific matter being created.
 
-#### Create Water
+#### Conjure Water
 
-The Caster creates 1L of pure water in an unoccupied space within 1m of them.
+The Caster conjures 1L of pure water in an unoccupied space within 1m of them.
 N.B.: with no other mineral/electrolyte intake, drinking exclusively pure water can start to cause side effects after a few days.
 **Spell DC**: 18 (15 [Base DC] + 3 [Material: Water]).
 **Volume Augmentation**:  +2 for each additional 1L of water created, up to 10L.
 
-#### Poison Cloud
+#### Poison Cloud [Special Attack]
 
-The Caster creates a 1m radius cloud of Noxious Gas in a Hex within 1m of them. The Hex _can_ be occupied by other creatures or objects, as the gas will be created around them.
-**Noxious Gas**: A purple-ish toxic gas sometimes found in the Wilds; every creature at the end of turn must make a Resilience Check (DC 15 if passed through; DC 20 if they ended their turn within the cloud) or suffer 1VP of poison damage. If an incapacitated creature fails their check, they start to stack a Poisoned (1) Injury.
+The Caster conjures a 1m radius cloud of Noxious Gas in a Hex within 1m of them. The Hex _can_ be occupied by other creatures or objects, as the gas will be created around them.
+As the gas disperses, it lose its potency after 3 rounds. Creating more gas on the same space will just dislodge the excess poison around.
+**Noxious Gas**: A purple-ish toxic gas sometimes found in the Wilds; every creature at the end of turn must make a Resilience Check (DC 15 if passed through; DC 20 if they ended their turn within the cloud) or suffer 1VP of poison damage. If an incapacitated creature fails their check, they start to stack a Poisoned (1) Consequence.
 **Requirements**: Caster must be familiar with Noxious Gas, having experienced it first hand at least once or studied it extensively.
 **Spell DC**: 24 (15 [Base DC] + 8 [Material: Noxious Gas]).
 **Area Augmentation**: +4 for each additional contiguous Hex of area.
 **Range Augmentation**: +1/m up to 5m (see Range table above).
 
-#### Rock Smash
+#### Rock Smash [Special Attack]
 
-The Caster creates a medium-sized (20L) boulder of weak rock above the target, within 1m, which can resist with an Evasiveness Check to avoid being hit by the falling debris, which causes 1VP of damage.
-**Spell DC**: Evasiveness + 2 [Volume: 20L].
+The Caster conjures a medium-sized (20L) boulder of weak rock above the target, within 1m, which can resist with an Evasiveness Check to avoid being hit by the falling debris, which causes 1VP of damage.
+**Spell DC**: 18 (15 [Base DC] + 3 [Volume: 20L]).
 **Range Augmentation**: +1/m up to 5m (see Range table above).
 
 ### Evocation
 
-#### Create Light
+The Evocation Basic Arcane Spell can be used to create a small amount of energy of a simple type (light, fire), in a space unoccupied (by solid matter or Beings; though it can be adjacent to inanimate objects, for example, it can set fire to a torch), within 1m of the Caster. The energy will dissipate over time (depending on the type of energy), and will spread/behave in its natural way (e.g. fire will spread to adjacent flammable objects, light will illuminate the area, etc.), but not otherwise move.
+
+#### Evoke Light
+
+The Caster evokes forth a harmless fist-sized ball of light, which will float in the air illuminating a 12m radius around it, lasting for at least 1 hour (as it fades). The Light is ethereal, and cannot be manipulated by physical means, though passing your hand through it will result in a slightly warm sensation. The Light can be moved and control with a subsequent cast of using Telekinesis.
+**Spell DC**: 15 (Base DC).
+
+#### Blinding Light [Special Attack]
+
+The Caster evokes a momentary flash of bright light within 1m of them, potentially affecting any seeing creatures within a 4m radius.
+The Caster and any creatures that were made aware of what was about to happen can Avert their gaze; other creatures must succeed an Agility Check against the Spell Check to do so.
+Creatures who were unable to Avert their gaze take the Blinded condition until the end of their next round.
+**Spell DC**: 18 (15 [Base DC] + 3 [Potency: Greater Intensity]
+**Area Augmentation**: +4 for each additional +1m of radius.
+
+#### Evoke Fire [Basic Attack]
+
+The Caster evokes a small flame, which can be used to ignite flammable objects, lasting for 1 turn, within 1m of them. While energy cannot be evoked within the same space as solid matter, it can be done so adjacently as to cause it to ignite. This can also be done offensively as a Stun or Feint Basic Body Attack as the enemy must avoid the small flame.
+**Spell DC**: 15 (Base DC).
+**Potency Augmentation**: +3 to produce a more intense flame, which can be used as a Strike Basic Body Attack.
+
+### Transmutation
+
+The Transmutation Basic Arcane Spell can be used to change the state of a small amount of matter, between 1-10L, within 1m of the Caster. The matter can be changed from one simple material to another (e.g. dirt to sand, gravel to pebbles), or be modified in its change or properties. Changing the physical state (solid, liquid, gas) is a more complex proposition. Other augmentations can be at play if trying to change specific parts, detailed aspects, or complex materials.
+
+#### Mud Feet [Special Attack]
+
+The Caster strategically transforms a small patch of ground underneath a target's feet (within 1m) into slimy mud. The target must check Evasiveness against the Spell Check or become Off-Guard. A Shift will cause the target to become Prone instead.
+**Spell DC**: 16 (15 [Base DC] + 1 [Material: Slimy Mud]).
+
+### Telekinesis
+
+The Telekinesis Basic Arcane Spell can be used to impart motion up to 2kg of matter consistently but at moderate speeds, within the selected range (the object can be thrown outside the range but control is lost at that point). Telekinesis can be used to manipulate objects, such as doors or levers, but the required level of dexterity will add some Augmentation. While Beings cannot be directly imparted energy, the Caster can control the air around them to push or shove, in a however less effective and precise manner.
+
+#### Mage Hand
+While but the most studious Arcanists know why this spell is commonly referred to as "Mage Hand", all do know that this is in fact not any form of spectral hand, but rather a simple application of Telekinesis to manipulate small objects within 10m of the Caster. It can open doors, move items up to 2kg, pet a dog. Anything more dextrous will warrant Augmentations.
+**Spell DC**: 20 (15 [Base DC] + 5 [Range: 10m (discounted)]).
+
+#### Control Fire [Basic Attack]
+The Caster can use Telekinesis to move around flames, potentially extinguishing very small fires, spreading to nearby materials, or propelling them onto a target within range. The basic cast is for 1m range, and can cause a Stun or Feint Basic Attack against the target. For a more forceful push of +6 Augmentation, it can be used as a Strike Basic Strike.
+**Spell DC**: 15 (Base DC).
+**Range Augmentation**: +1/m up to 5m (see Range table above).
+
+#### Magic Shove [Special Attack]
+The Caster uses Telekinesis to control a gust of wind towards a target, shoving them back 1m. The target can resist with a Stance check. Shifts can be used to push the target further back, make them Prone, or deal 1VP of damage.
+**Spell DC**: 20 (15 [Base DC] + 5 [Potency: Greater Intensity]).
+
+### Transfiguration
+
+The Transfiguration Basic Arcane Spell can be used to change the body of a Being, within 1m of the Caster. The basic spell can cause superficial changes (e.g. changing hair color, creating calluses, deformities, or other minor changes), and anything more complex changes will require Augmentations. The changes are always temporary, and require Concentration to maintain. The target can choose wether to resist or not as they feel an external force molding their body.
+
+#### Disguise Being
+The Caster transfigures the facial appearance and features of a Being, within 1m of them, applying some physical deformations on an attempt to make them unrecognizable (making them look like someone else specifically would be much more difficult; also, they probably won't end up prettier than what they started as). The target can resist with a Toughness or Muscles Check. Creatures unaware of the disguise will need to roll an Awareness Check (or Perception if they have reason to doubt) against the Spell Check to recognize a person they are familiar with (of course they will get circumstantial modifiers if they know the person very well).
+**Spell DC**: 18 (15 [Base DC] + 3 [Potency: Multiple Changes]).
+
+#### Hideous Visage [Special Attack]
+The Caster transfigures a desired surface-level aspect of a target's appearance (within 1m), making it hideous and slightly repulsive. The target can resist the transformation itself with a Toughness or Muscles Check. If successful, the target then must resist again with a Tenacity check or take 1SP and become Demoralized while transformed. Regardless of their self-perception, they will get a -6 CHA circumstantial penalty to any social task involving their appearance to others.
+**Spell DC**: 18 (15 [Base DC] + 3 [Potency: Significant Change]).
+
+### Command
+
+The Command Basic Arcane Spell can be used to mentally tax a sentient Being's willpower, causing them to lose 1SP unless resist; or try to control simple beasts and plants. More Augmented casts can try to issue specific commands, and forcing them to do something fundamentally against their nature will require a very high DC.
+
+#### Confuse Mind [Special Attack]
+The Caster tries to mentally confuse a sentient Being's mind (within 1m), causing them to become Distracted unless they resist with a Tenacity Check. Shifts can be used to cause FP damage.
+**Spell DC**: 15 (Base DC).
+
+#### Erode Will [Special Attack]
+The Caster tries to mentally tax a sentient Being's willpower (within 1m), causing them to lose 1SP unless they resist with a Resolve Check.
+**Spell DC**: 18 (15 [Base DC] + 3 [Potency: Greater Intensity]).
+
+#### Ensnare [Special Attack]
+If on a suitable environment, the Caster can use Command to control vines or other plant matter on the floor to grow and try to Grapple or Trip a target (within 1m). The target can resist with an Evasiveness check.
+**Spell DC**: 18 (15 [Base DC] + 3 [Potency: Greater Intensity]).
+
+#### Command Being [Special Attack]
+The Caster gives a simple single word command to a sentient Being (within 1m). The target can resist with a Resolve Check. If they fail, they will feel compelled to follow the command, as long as it doesn't go against their nature. The Being might interpret the command in their own way.
+**Spell DC**: 20 for non sentient Beings (15 [Base DC] + 5 [Potency: Greater Intensity]); 30 for sentient Beings (15 [Base DC] + 15 [Potency: Multiple Changes]).
+
+### Combined Spells
+
+These spells are actually a combination of two Basic Arcane Spell casts, and therefore by default require 4AP (a whole turn) and 2FP to cast. Since they are cast together, for simplicity, the Caster can roll a single Spell Check against the combined **Spell DC** specified.
+
+#### Energy Bolt [Basic Attack]
+The Caster evokes a sphere of pure energy of their choice and use Telekinesis to hurl it towards an enemy within 10m with force; this can be used as a stronger Strike Basic Attack, you get two additional Shifts.
+**Spell DC**: 18 (15 [Base DC] + 3 [Potency: Greater Intensity (for both the harmful Evoke and the forceful Telekinesis)]).

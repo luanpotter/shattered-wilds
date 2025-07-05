@@ -27,7 +27,7 @@ Movement actions are associated with movement, and can take several forms. All m
 * **Escape (1 AP)**: Contested Evasiveness check to clear Immobilized against grappler.
 * **Drag Grappler (1+ AP)**: Move 1 hex while Immobilized, dragging your grapple. Requires a contested Muscles check against Stance with a -3 modifier. You can use more APs to move extra hexes.
 * **Stumble Through (1 AP)**: Contested Finesse check against opponent's Stance. Move past one enemy to an adjacent hex, as long as your `Speed` is 2 or more.
-* **Ride Mount (2 AP)**: TODO.
+* **Ride Mount (2 AP)**: -- TODO.
 * **Hide (1 AP)**: [Concentrate] Try to conceal yourself; make a Finesse active check that can be contested by each opponent's Perception Check.
 * **Sneak (1+ AP)**: Move `Speed - 1` hexes making an additional Finesse check. Any other participant for which you are Concealed can make a contested Awareness check to spot you.
 * **Charge (2 + X AP)** (this is a combined Movement + Attack action): Move `Speed + 1` hexes in a straight line, followed by Melee Attack with Muscles instead of STR. This can be used for a "Tackle" if the "Shove" Attack Action is chosen, in which case a Circumstance Bonus of +3 is granted to the attacker.
@@ -95,10 +95,14 @@ Turns in Shattered Wilds are very reactive due to the higher possibility of Reac
 * **Distracted**: Until the end of your next turn, you cannot concentrate.
 * **Distraught**: Until the end of your next turn, you cannot channel.
 * **Immobilized**: Grappled by an opponent; cannot take Move Actions (except Escape or Drag Grappler). Can still take Attack Actions with -3 Circumstance Modifier. Can still take Misc Actions to the DM discretion.
+* **Blinded**: -- TODO
+* **Prone**: -- TODO
 
 # Consequences
 
 Consequences are longer-term harms and injuries incurred to creatures that do not get cleared on a simple Short Rest. Consequences involve a specific penalty and specific ways to treat it (normally this can take a longer amount of time). There is not a set number of Consequences one can have, though as they start to severely debilitated, you might incur the ultimate Consequence: Death.
+
+## Poisoned (X)
 
 ## Death
 
