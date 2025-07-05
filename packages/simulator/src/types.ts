@@ -933,19 +933,37 @@ export class CharacterSheet {
 
 	getBasicAttacks(): BasicAttack[] {
 		const tree = this.getAttributeTree();
-		return this.equipment.items
+		const attacks: BasicAttack[] = [];
+
+		// Add weapon attacks
+		this.equipment.items
 			.filter(item => item instanceof Weapon)
-			.map(item => {
+			.forEach(item => {
 				const weapon = item as Weapon;
-				return {
+				attacks.push({
 					name: weapon.name,
 					check: {
 						attribute: weapon.attribute,
 						bonus: weapon.bonus,
 						modifier: tree.valueOf(weapon.attribute) + weapon.bonus,
 					},
-				};
+				});
 			});
+
+		// Add Shield Bash if a shield is equipped
+		const hasShield = this.equipment.items.some(item => item instanceof Shield);
+		if (hasShield) {
+			attacks.push({
+				name: 'Shield Bash',
+				check: {
+					attribute: AttributeType.STR,
+					bonus: 1,
+					modifier: tree.valueOf(AttributeType.STR) + 1,
+				},
+			});
+		}
+
+		return attacks;
 	}
 
 	getBasicDefense(): DerivedStat<number> {

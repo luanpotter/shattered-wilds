@@ -17,12 +17,12 @@ import {
 
 // Predefined equipment (mapping from name to a factory function that returns an Item)
 const predefinedEquipment: Record<string, () => Item> = {
-	Javelin: () => new Weapon('Javelin', PrimaryWeaponType.Thrown, 1, [], AttributeType.STR, 5),
+	Javelin: () => new Weapon('Javelin', PrimaryWeaponType.Thrown, 2, [], AttributeType.STR, 7),
 	Hatchet: () =>
 		new Weapon(
 			'Hatchet',
 			PrimaryWeaponType.LightMelee,
-			1,
+			2,
 			['Thrown (Range 5m)'],
 			AttributeType.DEX,
 			5
@@ -31,30 +31,30 @@ const predefinedEquipment: Record<string, () => Item> = {
 		new Weapon(
 			'Dagger',
 			PrimaryWeaponType.LightMelee,
-			2,
+			3,
 			['Concealable', 'Thrown (Range 5m)'],
 			AttributeType.DEX,
 			5
 		),
-	Rapier: () => new Weapon('Rapier', PrimaryWeaponType.LightMelee, 3, [], AttributeType.DEX),
+	Rapier: () => new Weapon('Rapier', PrimaryWeaponType.LightMelee, 4, [], AttributeType.DEX),
 	Spear: () =>
 		new Weapon(
 			'Spear',
 			PrimaryWeaponType.HeavyMelee,
-			4,
+			5,
 			['Polearm', 'Two-Handed'],
 			AttributeType.STR
 		),
-	Mace: () => new Weapon('Mace', PrimaryWeaponType.HeavyMelee, 4, [], AttributeType.STR),
+	Mace: () => new Weapon('Mace', PrimaryWeaponType.HeavyMelee, 5, [], AttributeType.STR),
 	Longsword: () =>
-		new Weapon('Longsword', PrimaryWeaponType.HeavyMelee, 5, ['Two-Handed'], AttributeType.STR),
+		new Weapon('Longsword', PrimaryWeaponType.HeavyMelee, 6, ['Two-Handed'], AttributeType.STR),
 	'Bow & Arrows': () =>
-		new Weapon('Bow & Arrows', PrimaryWeaponType.Ranged, 3, ['Two-Handed'], AttributeType.DEX, 20),
+		new Weapon('Bow & Arrows', PrimaryWeaponType.Ranged, 4, ['Two-Handed'], AttributeType.DEX, 20),
 	'Crossbow & Darts': () =>
 		new Weapon(
 			'Crossbow & Darts',
 			PrimaryWeaponType.Ranged,
-			4,
+			6,
 			['Two-Handed (for Reloading)', 'Reload'],
 			AttributeType.DEX,
 			20
