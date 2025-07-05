@@ -9,8 +9,8 @@ const fs = require("fs");
 const path = require("path");
 
 module.exports = function (eleventyConfig) {
-  const pathPrefix =
-    process.env.ENV === "production" ? "/projects/shattered-wilds/" : "";
+  // NOTE: kept to allow for a different prefix in the future
+  const pathPrefix = process.env.ENV === "production" ? "" : "";
 
   eleventyConfig.setDataDeepMerge(true);
   eleventyConfig.addPlugin(EleventyHtmlBasePlugin, { baseHref: pathPrefix });
