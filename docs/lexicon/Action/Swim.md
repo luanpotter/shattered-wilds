@@ -1,6 +1,6 @@
 ---
 type: "Movement"
-ap_cost: 1
+ap: 1
 ---
 
 Swim up to `Speed / 2` (round up) hexes. 

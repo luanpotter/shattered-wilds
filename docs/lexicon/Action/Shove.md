@@ -1,6 +1,6 @@
 ---
 type: "Attack"
-ap_cost: 1
+ap: 1
 range: "Melee"
 ---
 

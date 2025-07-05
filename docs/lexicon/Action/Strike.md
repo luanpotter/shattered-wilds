@@ -1,6 +1,6 @@
 ---
 type: "Attack"
-ap_cost: 2
+ap: 2
 ---
 
 Basic Attack

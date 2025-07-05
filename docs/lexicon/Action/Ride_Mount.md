@@ -1,6 +1,6 @@
 ---
 type: "Movement"
-ap_cost: 2
+ap: 2
 ---
 
 -- TODO. 
