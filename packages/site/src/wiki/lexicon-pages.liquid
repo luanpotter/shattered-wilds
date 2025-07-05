@@ -22,7 +22,11 @@ title: "{{ lexicon.title }}"
         {% if item.metadata %}
           <span class="item-metadata">
             {% for meta in item.metadata %}
-              <span class="{{ meta.cssClass }}">{{ meta.key | capitalize }}: {{ meta.value }}</span>
+              {% if meta.value %}
+                <span class="{{ meta.cssClass }}">{{ meta.title }}: {{ meta.value }}</span>
+              {% else %}
+                <span class="{{ meta.cssClass }}">{{ meta.title }}</span>
+              {% endif %}
             {% endfor %}
           </span>
         {% endif %}
@@ -39,7 +43,11 @@ title: "{{ lexicon.title }}"
       {% if lexicon.metadata %}
         <div class="item-metadata">
           {% for meta in lexicon.metadata %}
-            <span class="{{ meta.cssClass }}">{{ meta.title }}: {{ meta.value }}</span>
+            {% if meta.value %}
+              <span class="{{ meta.cssClass }}">{{ meta.title }}: {{ meta.value }}</span>
+            {% else %}
+              <span class="{{ meta.cssClass }}">{{ meta.title }}</span>
+            {% endif %}
           {% endfor %}
         </div>
       {% endif %}

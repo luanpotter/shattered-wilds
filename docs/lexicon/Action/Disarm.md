@@ -1,7 +1,8 @@
 ---
-type: "Special Attack"
+type: "Attack"
 ap: 2
-range: "Melee"
+melee: true
+concentrate: true
 ---
 
-[Concentrate] Melee only; Special Attack against Muscles or Finesse. Requires at least one Shift to succeed. 
+Melee only; Special Attack against Muscles or Finesse. Requires at least one Shift to succeed. 

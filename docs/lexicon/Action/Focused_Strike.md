@@ -1,6 +1,7 @@
 ---
-type: "Basic Attack"
+type: "Attack"
 ap: 3
+concentrate: true
 ---
 
-[Concentrate] Pay 1 FP; Basic Attack with a +3 Circumstance bonus. 
+Pay 1 FP; Basic Attack with a +3 Circumstance bonus. 

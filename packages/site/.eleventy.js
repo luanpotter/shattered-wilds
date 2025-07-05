@@ -22,34 +22,31 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addGlobalData("lexiconFiles", lexiconFiles);
 
   // Add a generic Liquid shortcode to render any lexicon entry as a bullet item
-  eleventyConfig.addLiquidShortcode("item", function (path) {
-    // Convert path like 'Action/Charge' to slug 'Action_Charge'
-    const slug = path.replace(/[\/\\]/g, "_");
-    const entry = lexiconFiles.find((e) => e.slug === slug);
+  eleventyConfig.addShortcode("item", function(path) {
+    const slug = path.replace(/[\/\\]/g, '_');
+    const lexiconFiles = this.globalData && this.globalData.lexiconFiles;
+    if (!lexiconFiles) {
+      return `<span style='color:red'>[lexiconFiles not found]</span>`;
+    }
+    const entry = lexiconFiles.find(e => e.slug === slug);
     if (!entry) {
       return `<span style='color:red'>[Missing lexicon entry: ${slug}]</span>`;
     }
     // Build metadata HTML
     let metaHtml = "";
     if (entry.frontmatter && Object.keys(entry.frontmatter).length > 0) {
-      metaHtml =
-        '<span class="item-metadata">' +
-        Object.entries(entry.frontmatter)
-          .map(
-            ([key, value]) =>
-              `<span class="metadata-${key.replace(/_/g, "-")}">${
-                key.charAt(0).toUpperCase() + key.slice(1)
-              }: ${value}</span>`
-          )
-          .join(" ") +
-        "</span>";
+      metaHtml = '<span class="item-metadata">' +
+        Object.entries(entry.frontmatter).map(([key, value]) => {
+          if (value === true) {
+            return `<span class="metadata-${key.replace(/_/g, '-')}">${key.charAt(0).toUpperCase() + key.slice(1)}</span>`;
+          } else {
+            return `<span class="metadata-${key.replace(/_/g, '-')}">${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}</span>`;
+          }
+        }).join(' ') +
+        '</span>';
     }
-    // Get first paragraph
     const para = entry.content.split(/\n\n/)[0].trim();
-    // Render as bullet item (no <li> so user can use * in markdown)
-    return `<strong><a href="${
-      entry.url
-    }">${entry.title.replace(/^[^:]+: /, "")}</a></strong> ${metaHtml} : ${para}`;
+    return `<strong><a href="${entry.url}">${entry.title.replace(/^[^:]+: /, '')}</a></strong> ${metaHtml} : ${para}`;
   });
 
   eleventyConfig.addPassthroughCopy({
@@ -188,8 +185,8 @@ const parseLexicon = () => {
             title: (specialTitles[key] || key)
               .replace(/_/g, " ")
               .replace(/\b\w/g, (char) => char.toUpperCase()),
-            value: value,
-            cssClass: `metadata-${key.replace(/_/g, "-")}`,
+            value: value === true ? undefined : value,
+            cssClass: value === true ? `metadata-trait` : `metadata-${key.replace(/_/g, "-")}`,
           }));
         };
 
