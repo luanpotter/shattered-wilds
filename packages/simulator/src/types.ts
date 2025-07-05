@@ -963,6 +963,16 @@ export class CharacterSheet {
 			});
 		}
 
+		// Add Unarmed attack (always available)
+		attacks.push({
+			name: 'Unarmed',
+			check: {
+				attribute: AttributeType.STR,
+				bonus: 0,
+				modifier: tree.valueOf(AttributeType.STR),
+			},
+		});
+
 		return attacks;
 	}
 
