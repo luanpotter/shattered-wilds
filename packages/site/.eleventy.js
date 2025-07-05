@@ -18,130 +18,38 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPlugin(eleventyGoogleFonts);
 
   // Add global data for lexicon files
-  eleventyConfig.addGlobalData("lexiconFiles", function () {
-    const lexiconDir = path.join(__dirname, "../../docs/lexicon");
-    if (!fs.existsSync(lexiconDir)) return [];
+  const lexiconFiles = parseLexicon();
+  eleventyConfig.addGlobalData("lexiconFiles", lexiconFiles);
 
-    function getAllMarkdownFiles(dir, basePath = "") {
-      const files = [];
-      const items = fs.readdirSync(dir);
-
-      for (const item of items) {
-        const fullPath = path.join(dir, item);
-        const stat = fs.statSync(fullPath);
-
-        if (stat.isDirectory()) {
-          // Recursively scan subdirectories
-          const subFiles = getAllMarkdownFiles(
-            fullPath,
-            path.join(basePath, item)
-          );
-          files.push(...subFiles);
-        } else if (item.endsWith(".md")) {
-          // Create slug from relative path to lexicon root
-          const relativePath = path.relative(lexiconDir, fullPath);
-          const slug = relativePath
-            .replace(/\.md$/, "")
-            .replace(/[\/\\]/g, "_");
-
-          // Create title with colon format (e.g., "Action: Move")
-          const titleParts = relativePath.replace(/\.md$/, "").split(/[\/\\]/);
-          let title =
-            titleParts.length > 1
-              ? `${titleParts[0]}: ${titleParts.slice(1).join(" ")}`
-              : titleParts[0];
-          title = title.replace(/_/g, " ");
-
-          // Parse frontmatter if present
-          const content = fs.readFileSync(fullPath, "utf8");
-          let frontMatter = {};
-          let markdownContent = content;
-
-          // Use regex to extract YAML frontmatter
-          const fmMatch = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n?/);
-          if (fmMatch) {
-            try {
-              frontMatter = yaml.load(fmMatch[1]);
-              markdownContent = content.slice(fmMatch[0].length).trim();
-            } catch (e) {
-              console.warn(
-                `Failed to parse frontmatter for ${fullPath}:`,
-                e.message
-              );
-            }
-          }
-
-          const parseFrontMatter = (frontMatter) => {
-            if (!frontMatter || typeof frontMatter !== "object") {
-              return [];
-            }
-            const specialTitles = {
-              ap: "AP",
-            };
-            return Object.entries(frontMatter).map(([key, value]) => ({
-              key: key,
-              title: (specialTitles[key] || key).replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()),
-              value: value,
-              cssClass: `metadata-${key.replace(/_/g, "-")}`,
-            }));
-          };
-
-          files.push({
-            filePath: fullPath,
-            slug: slug,
-            title: title,
-            basePath: basePath,
-            content: markdownContent,
-            metadata: parseFrontMatter(frontMatter),
-            isCategory: titleParts.length === 1, // Root level files are categories
-            category: titleParts.length > 1 ? titleParts[0] : null,
-          });
-        }
-      }
-
-      return files;
+  // Add a generic Liquid shortcode to render any lexicon entry as a bullet item
+  eleventyConfig.addLiquidShortcode("item", function (path) {
+    // Convert path like 'Action/Charge' to slug 'Action_Charge'
+    const slug = path.replace(/[\/\\]/g, "_");
+    const entry = lexiconFiles.find((e) => e.slug === slug);
+    if (!entry) {
+      return `<span style='color:red'>[Missing lexicon entry: ${slug}]</span>`;
     }
-
-    const markdownFiles = getAllMarkdownFiles(lexiconDir);
-
-    // Group items by category for category pages
-    const categoryGroups = {};
-    markdownFiles.forEach((file) => {
-      if (file.category) {
-        if (!categoryGroups[file.category]) {
-          categoryGroups[file.category] = [];
-        }
-        categoryGroups[file.category].push(file);
-      }
-    });
-
-    // Build a lookup for slug to url
-    const slugToUrl = {};
-    markdownFiles.forEach((file) => {
-      slugToUrl[file.slug] = `/wiki/${file.slug}/`;
-    });
-
-    return markdownFiles.map((file) => {
-      let categoryItems = null;
-      if (file.isCategory && categoryGroups[file.title]) {
-        categoryItems = categoryGroups[file.title]
-          .filter((item) => item.slug !== file.slug)
-          .map((item) => ({
-            ...item,
-            url: slugToUrl[item.slug],
-          }));
-      }
-      return {
-        slug: file.slug,
-        title: file.title,
-        content: file.content,
-        metadata: file.metadata,
-        url: `/wiki/${file.slug}/`,
-        isCategory: file.isCategory,
-        category: file.category,
-        categoryItems: categoryItems,
-      };
-    });
+    // Build metadata HTML
+    let metaHtml = "";
+    if (entry.frontmatter && Object.keys(entry.frontmatter).length > 0) {
+      metaHtml =
+        '<span class="item-metadata">' +
+        Object.entries(entry.frontmatter)
+          .map(
+            ([key, value]) =>
+              `<span class="metadata-${key.replace(/_/g, "-")}">${
+                key.charAt(0).toUpperCase() + key.slice(1)
+              }: ${value}</span>`
+          )
+          .join(" ") +
+        "</span>";
+    }
+    // Get first paragraph
+    const para = entry.content.split(/\n\n/)[0].trim();
+    // Render as bullet item (no <li> so user can use * in markdown)
+    return `<strong><a href="${
+      entry.url
+    }">${entry.title.replace(/^[^:]+: /, "")}</a></strong> ${metaHtml} : ${para}`;
   });
 
   eleventyConfig.addPassthroughCopy({
@@ -215,4 +123,130 @@ module.exports = function (eleventyConfig) {
     passthroughFileCopy: true,
     dir: { input: "src", output: "_site" },
   };
+};
+
+const parseLexicon = () => {
+  const lexiconDir = path.join(__dirname, "../../docs/lexicon");
+  if (!fs.existsSync(lexiconDir)) return [];
+
+  function getAllMarkdownFiles(dir, basePath = "") {
+    const files = [];
+    const items = fs.readdirSync(dir);
+
+    for (const item of items) {
+      const fullPath = path.join(dir, item);
+      const stat = fs.statSync(fullPath);
+
+      if (stat.isDirectory()) {
+        // Recursively scan subdirectories
+        const subFiles = getAllMarkdownFiles(
+          fullPath,
+          path.join(basePath, item)
+        );
+        files.push(...subFiles);
+      } else if (item.endsWith(".md")) {
+        // Create slug from relative path to lexicon root
+        const relativePath = path.relative(lexiconDir, fullPath);
+        const slug = relativePath.replace(/\.md$/, "").replace(/[\/\\]/g, "_");
+
+        // Create title with colon format (e.g., "Action: Move")
+        const titleParts = relativePath.replace(/\.md$/, "").split(/[\/\\]/);
+        let title =
+          titleParts.length > 1
+            ? `${titleParts[0]}: ${titleParts.slice(1).join(" ")}`
+            : titleParts[0];
+        title = title.replace(/_/g, " ");
+
+        // Parse frontmatter if present
+        const content = fs.readFileSync(fullPath, "utf8");
+        let frontMatter = {};
+        let markdownContent = content;
+
+        // Use regex to extract YAML frontmatter
+        const fmMatch = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n?/);
+        if (fmMatch) {
+          try {
+            frontMatter = yaml.load(fmMatch[1]);
+            markdownContent = content.slice(fmMatch[0].length).trim();
+          } catch (e) {
+            console.warn(
+              `Failed to parse frontmatter for ${fullPath}:`,
+              e.message
+            );
+          }
+        }
+
+        const parseFrontMatter = (frontMatter) => {
+          if (!frontMatter || typeof frontMatter !== "object") {
+            return [];
+          }
+          const specialTitles = {
+            ap: "AP",
+          };
+          return Object.entries(frontMatter).map(([key, value]) => ({
+            key: key,
+            title: (specialTitles[key] || key)
+              .replace(/_/g, " ")
+              .replace(/\b\w/g, (char) => char.toUpperCase()),
+            value: value,
+            cssClass: `metadata-${key.replace(/_/g, "-")}`,
+          }));
+        };
+
+        files.push({
+          filePath: fullPath,
+          slug: slug,
+          title: title,
+          basePath: basePath,
+          content: markdownContent,
+          metadata: parseFrontMatter(frontMatter),
+          isCategory: titleParts.length === 1, // Root level files are categories
+          category: titleParts.length > 1 ? titleParts[0] : null,
+        });
+      }
+    }
+
+    return files;
+  }
+
+  const markdownFiles = getAllMarkdownFiles(lexiconDir);
+
+  // Group items by category for category pages
+  const categoryGroups = {};
+  markdownFiles.forEach((file) => {
+    if (file.category) {
+      if (!categoryGroups[file.category]) {
+        categoryGroups[file.category] = [];
+      }
+      categoryGroups[file.category].push(file);
+    }
+  });
+
+  // Build a lookup for slug to url
+  const slugToUrl = {};
+  markdownFiles.forEach((file) => {
+    slugToUrl[file.slug] = `/wiki/${file.slug}/`;
+  });
+
+  return markdownFiles.map((file) => {
+    let categoryItems = null;
+    if (file.isCategory && categoryGroups[file.title]) {
+      categoryItems = categoryGroups[file.title]
+        .filter((item) => item.slug !== file.slug)
+        .map((item) => ({
+          ...item,
+          url: slugToUrl[item.slug],
+        }));
+    }
+    return {
+      slug: file.slug,
+      title: file.title,
+      content: file.content,
+      metadata: file.metadata,
+      url: `/wiki/${file.slug}/`,
+      isCategory: file.isCategory,
+      category: file.category,
+      categoryItems: categoryItems,
+    };
+  });
 };
