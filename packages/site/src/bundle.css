@@ -314,7 +314,7 @@ div.pagination p {
 }
 
 .item-metadata {
-  display: flex;
+  display: inline;
   gap: 1rem;
   margin-bottom: 0.5rem;
   flex-wrap: wrap;

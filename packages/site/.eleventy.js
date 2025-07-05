@@ -22,26 +22,21 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addGlobalData("lexiconFiles", lexiconFiles);
 
   // Add a generic Liquid shortcode to render any lexicon entry as a bullet item
-  eleventyConfig.addShortcode("item", function(path) {
+  eleventyConfig.addShortcode("item", (path, excludeTags = []) => {
     const slug = path.replace(/[\/\\]/g, '_');
-    const lexiconFiles = this.globalData && this.globalData.lexiconFiles;
-    if (!lexiconFiles) {
-      return `<span style='color:red'>[lexiconFiles not found]</span>`;
-    }
     const entry = lexiconFiles.find(e => e.slug === slug);
     if (!entry) {
       return `<span style='color:red'>[Missing lexicon entry: ${slug}]</span>`;
     }
     // Build metadata HTML
     let metaHtml = "";
-    if (entry.frontmatter && Object.keys(entry.frontmatter).length > 0) {
+    if (entry.metadata && Object.keys(entry.metadata).length > 0) {
       metaHtml = '<span class="item-metadata">' +
-        Object.entries(entry.frontmatter).map(([key, value]) => {
-          if (value === true) {
-            return `<span class="metadata-${key.replace(/_/g, '-')}">${key.charAt(0).toUpperCase() + key.slice(1)}</span>`;
-          } else {
-            return `<span class="metadata-${key.replace(/_/g, '-')}">${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}</span>`;
+        Object.values(entry.metadata).map((tag) => {
+          if (excludeTags.includes(tag.key)) {
+            return '';
           }
+          return `<span class="${tag.cssClass}">${tag.title}${tag.value ? `: ${tag.value}` : ""}</span>`;
         }).join(' ') +
         '</span>';
     }
