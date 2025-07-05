@@ -5,14 +5,40 @@ const markdownItAttrs = require("markdown-it-attrs");
 const markdownItWiki = require("markdown-it-wikilinks");
 const yaml = require("js-yaml");
 const eleventyGoogleFonts = require("eleventy-google-fonts");
+const fs = require("fs");
+const path = require("path");
 
 module.exports = function (eleventyConfig) {
-  const pathPrefix = process.env.ENV === "production" ? "/projects/shattered-wilds/" : "";
+  const pathPrefix =
+    process.env.ENV === "production" ? "/projects/shattered-wilds/" : "";
 
   eleventyConfig.setDataDeepMerge(true);
   eleventyConfig.addPlugin(EleventyHtmlBasePlugin, { baseHref: pathPrefix });
 
   eleventyConfig.addPlugin(eleventyGoogleFonts);
+
+  // Add global data for lexicon files
+  eleventyConfig.addGlobalData("lexiconFiles", function () {
+    const lexiconDir = path.join(__dirname, "src/_includes/docs/lexicon");
+    if (!fs.existsSync(lexiconDir)) return [];
+
+    const files = fs
+      .readdirSync(lexiconDir)
+      .filter((file) => file.endsWith(".md"));
+
+    return files.map((file) => {
+      const filePath = path.join(lexiconDir, file);
+      const content = fs.readFileSync(filePath, "utf8");
+      const slug = path.basename(file, ".md");
+
+      return {
+        slug: slug,
+        title: slug.replace(/_/g, " "),
+        content: content,
+        url: `/wiki/${slug}/`,
+      };
+    });
+  });
 
   eleventyConfig.addPassthroughCopy({
     "node_modules/simpledotcss/simple.min.css": "simple.min.css",

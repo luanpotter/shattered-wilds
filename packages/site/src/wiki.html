@@ -12,11 +12,11 @@ layout: wiki
 
 <ul id="wiki-list">
 
-{% assign pages = collections.wiki | concat: eleventyComputed.terms.wiki | sort_natural: 'fileSlug' %}
+{% assign pages = collections.wiki | concat: lexiconFiles | where: "slug" | sort_natural: 'slug' %}
 
 {% for page in pages %}
   <li>
-    <a href="{{ page.url }}">{{ page.fileSlug | replace: "_", " " }}</a>
+    <a href="{{ page.url }}">{{ page.slug | replace: "_", " " }}</a>
   </li>
 {% endfor %}
 </ul>

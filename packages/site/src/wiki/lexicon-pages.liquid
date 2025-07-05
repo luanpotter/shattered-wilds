@@ -1,0 +1,13 @@
+---
+pagination:
+  data: lexiconFiles
+  size: 1
+  alias: lexicon
+permalink: "wiki/{{ lexicon.slug }}/index.html"
+layout: wiki
+title: "{{ lexicon.title }}"
+---
+
+<h1>{{ lexicon.title }}</h1>
+
+{{ lexicon.content | markdown }}
