@@ -1,0 +1,26 @@
+{
+  "name": "shattered-wilds-site",
+  "version": "0.1.0",
+  "description": "Website dedicated to host information about Shattered Wilds.",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx @11ty/eleventy",
+    "serve": "npx @11ty/eleventy --serve"
+  },
+  "keywords": [],
+  "author": "Luan Nico",
+  "license": "MIT",
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1",
+    "eleventy-google-fonts": "^0.1.0",
+    "js-yaml": "^4.1.0",
+    "lodash": "^4.17.21",
+    "markdown-it": "^13.0.1",
+    "markdown-it-anchor": "^8.6.7",
+    "markdown-it-attrs": "^4.1.6"
+  },
+  "dependencies": {
+    "markdown-it-wikilinks": "^1.4.0",
+    "simpledotcss": "^2.2.1"
+  }
+}
