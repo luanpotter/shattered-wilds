@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaDice, FaFistRaised, FaUserShield } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { CharacterSheet, AttributeType } from '../types';
+import { CharacterSheet, AttributeType, Shield } from '../types';
 import { findNextWindowPosition } from '../utils';
 
 interface AttackActionModalProps {
@@ -34,6 +34,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	const [defenseResult, setDefenseResult] = useState<RollResult | null>(null);
 	const [attackResult, setAttackResult] = useState<RollResult | null>(null);
 	const [usedDodge, setUsedDodge] = useState(false);
+	const [usedShieldBlock, setUsedShieldBlock] = useState(false);
 
 	// Auto-calculate values for automatic mode characters
 	const getAutomaticResult = (modifier: number): RollResult => {
@@ -77,6 +78,15 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	const evasivenessValue = defenderSheet.getAttributeTree().valueOf(AttributeType.Evasiveness);
 	const dodgeValue = evasivenessValue + 3;
 
+	// Check if defender has a shield and calculate shield block value
+	const hasShield = defenderSheet.equipment.items.some(item => item instanceof Shield);
+	const shieldBonus = hasShield
+		? defenderSheet.equipment.items
+				.filter(item => item instanceof Shield)
+				.reduce((total, item) => total + (item as Shield).bonus, 0)
+		: 0;
+	const shieldBlockValue = defense.value + shieldBonus;
+
 	if (!attack) {
 		return <div>Error: Attack not found</div>;
 	}
@@ -101,6 +111,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 				onDiceRollComplete: (result: { total: number; shifts: number }) => {
 					setDefenseResult(result);
 					setUsedDodge(false);
+					setUsedShieldBlock(false);
 				},
 			});
 		}
@@ -120,6 +131,26 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			onDiceRollComplete: (result: { total: number; shifts: number }) => {
 				setDefenseResult(result);
 				setUsedDodge(true);
+				setUsedShieldBlock(false);
+			},
+		});
+	};
+
+	const handleShieldBlockRoll = () => {
+		// Open dice roll modal for shield block (always manual, even for automatic mode)
+		addWindow({
+			id: window.crypto.randomUUID(),
+			title: `Roll Shield Block - ${defender.props.name}`,
+			type: 'dice-roll',
+			position: findNextWindowPosition(useStore.getState().windows),
+			modifier: shieldBlockValue,
+			attributeName: `Shield Block (Body Defense + ${shieldBonus})`,
+			characterSheet: defenderSheet,
+			initialRollType: 'Contested (Passive)',
+			onDiceRollComplete: (result: { total: number; shifts: number }) => {
+				setDefenseResult(result);
+				setUsedShieldBlock(true);
+				setUsedDodge(false);
 			},
 		});
 	};
@@ -230,7 +261,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 						<button style={buttonStyle} onClick={handleDefenseRoll}>
 							<FaDice />{' '}
-							{defender.automaticMode && defenseResult && !usedDodge
+							{defender.automaticMode && defenseResult && !usedDodge && !usedShieldBlock
 								? 'Override Defense'
 								: defender.automaticMode
 									? 'Use Auto Defense'
@@ -240,6 +271,12 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 						<button style={buttonStyle} onClick={handleDodgeRoll}>
 							<FaDice /> Roll Dodge (1 AP)
 						</button>
+
+						{hasShield && (
+							<button style={buttonStyle} onClick={handleShieldBlockRoll}>
+								<FaDice /> Roll Shield Block (1 AP) +{shieldBonus}
+							</button>
+						)}
 					</div>
 
 					{defenseResult && (
@@ -252,14 +289,17 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 							}}
 						>
 							<strong>
-								{usedDodge ? 'Dodge' : 'Defense'} Result:{' '}
-								{defender.automaticMode && !usedDodge
+								{usedDodge ? 'Dodge' : usedShieldBlock ? 'Shield Block' : 'Defense'} Result:{' '}
+								{defender.automaticMode && !usedDodge && !usedShieldBlock
 									? `Auto: ${defenseResult.total}`
 									: defenseResult.total}
 							</strong>
 							{defenseResult.shifts > 0 && <div>Shifts: {defenseResult.shifts}</div>}
 							{usedDodge && (
 								<div style={{ fontSize: '0.8em', opacity: 0.8 }}>Used Dodge reaction</div>
+							)}
+							{usedShieldBlock && (
+								<div style={{ fontSize: '0.8em', opacity: 0.8 }}>Used Shield Block reaction</div>
 							)}
 						</div>
 					)}
