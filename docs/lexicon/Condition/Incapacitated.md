@@ -8,4 +8,4 @@ When Incapacitated, a character is:
 
 When a character recovers from Incapacitated (by any means), they gain one level of [[Consequence_Exhaustion | Exhaustion]]. This represents the physical and mental toll of being pushed to the brink of consciousness.
 
-Incapacitated characters are vulnerable to taking further [[Consequence | Consequences]].
+Incapacitated characters are vulnerable to taking further Consequences.

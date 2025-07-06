@@ -83,35 +83,8 @@ Turns in Shattered Wilds are very reactive due to the higher possibility of Reac
 
 ## Consequences
 
-Consequences are longer-term harms and injuries incurred to creatures that do not get cleared on a simple Short Rest. Consequences involve a specific penalty and specific ways to treat it (normally this can take a longer amount of time). There is not a set number of Consequences one can have, though as they start to severely debilitated, you might incur the ultimate Consequence: Death.
+{% include "docs/lexicon/Consequence.md" %}
 
-### Poisoned (X)
-
-### Death
-
-Death is the ultimate consequence. In Shattered Wilds, there is no revival - once your Soul is severed from your Body, they can never go back. That means stakes are always high and some decisions are final (not only regarding the players, but more importantly, NPCs and enemies). However, Death doesn't come from just reaching zero resources - and in fact doesn't comme (necessarily) from the accumulation of Consequences. However, a totally [[Condition_Incapacitated | incapacitated]] creature (thus helpless) can be executed with a Coup de Grace, which will still require a contested check (failing will cause severe injuries instead). This is a longer action that cannot be taken during a combat, but it is typically considered that after the danger has passed the winners will execute the losers, unless otherwise specified by the victors.
-
-### Exhaustion
-
-Exhaustion represents a slightly longer term form of tiredness that cannot be healing by a simple Short Rest. Exhaustion comes in levels, each character starting at 0 Levels of Exhaustion. Several different circumstances can cause the Exhaustion. While initial Levels of Exhaustion just accumulate without causing negative consequences, further levels will require Checks to prevent issues. Exhaustion is cleared on a Long Rest.
-
-Circumstances that cause the level of Exhaustion to increase include:
-
-* Being cleared from [[Condition_Incapacitated | Incapacitated]].
-* Short Rest (?) - not sure yet
-* TODO
-
-Exhaustion Levels and their effects:
-
-* Levels 0-3: No effects.
-* Level 4: -1 to all checks.
-* Level 5: -2 to all checks.
-* Level 6: -4 to all checks.
-* Level 7: -8 to all checks.
-* Level 8: -16 to all checks.
-* Level 9: -32 to all checks.
-* Level 10+: Death.
-
-### Other Consequences
-
-TODO: Bleeding, Injuries, Broken Bones, Concussions, Mental or Spiritual Injuries, etc.
+* {% item "Consequence/Exhaustion" %}
+* {% item "Consequence/Poisoned" %}
+* {% item "Consequence/Death" %}
