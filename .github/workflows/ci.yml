@@ -7,35 +7,31 @@ on:
     branches: [ master ]
 
 jobs:
-  simulator:
+  lint-and-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
-      - name: Install simulator dependencies
-        working-directory: packages/simulator
-        run: bun install
-      - name: Lint simulator
-        working-directory: packages/simulator
-        run: bun run lint
-      - name: Build simulator
-        working-directory: packages/simulator
-        run: bun run build
-
-  site:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Install site dependencies
-        working-directory: packages/site
-        run: npm install
+      
+      - name: Make lint script executable
+        run: chmod +x scripts/lint.sh
+      
+      - name: Run linting checks
+        run: ./scripts/lint.sh
+      
+      - name: Build simulator
+        working-directory: packages/simulator
+        run: bun run build
+      
       - name: Build site
         working-directory: packages/site
         run: npm run build 
