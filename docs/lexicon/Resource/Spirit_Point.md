@@ -1,0 +1,1 @@
+A **Spirit Point (SP)** is a [[Resource]] that represents a character's morale and spiritual strength. They are a different form of Mana (for non-Arcane powers) or a form of mental stress or morale in other games, but they are also used by any characters to power special abilities. You have a max Spirit Points equal to 4 + your [[Soul]] modifier.

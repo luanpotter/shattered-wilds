@@ -24,7 +24,7 @@ Movement actions are associated with movement, and can take several forms. All m
 
 ### Attack Actions
 
-Attack Actions are actions in which the intent is to inflict damage (either to VP, FP or SP) to an opponent. Attack Actions are an active contested check against the target's Defense (which depends on the nature of the Attack). Attack Actions can be either Basic or Special. Basic Attack actions are always an Attribute Check (STR or DEX for Physical attacks or the Spellcasting Attribute for Spell Attacks) contested by the target's Body as Defense. Special Attacks are contested against specific Skills, depending on the nature of the attack. Unless otherwise specified, an Attack typically causes one damage when it succeeds, and Shifts cause extra damage points.
+Attack Actions are actions in which the intent is to inflict damage (either to [[Resource_Vitality_Point | VP]], [[Resource_Focus_Point | FP]] or [[Resource_Spirit_Point | SP]]) to an opponent. Attack Actions are an active contested check against the target's Defense (which depends on the nature of the Attack). Attack Actions can be either Basic or Special. Basic Attack actions are always an Attribute Check (STR or DEX for Physical attacks or the Spellcasting Attribute for Spell Attacks) contested by the target's Body as Defense. Special Attacks are contested against specific Skills, depending on the nature of the attack. Unless otherwise specified, an Attack typically causes one damage when it succeeds, and Shifts cause extra damage points.
 
 * {% item "Action/Stun", "type" %}
 * {% item "Action/Feint", "type" %}
@@ -79,7 +79,7 @@ Turns in Shattered Wilds are very reactive due to the higher possibility of Reac
 
 ## Conditions
 
-* **Incapacitated**: You become Incapacitated when your VP, FP or SP = 0. You are Prone and unconscious, and cannot take actions (except the Heroic Relentlessness). By whichever means you regain enough resources to leave this condition, you will gain one level of Exhaustion.
+* **Incapacitated**: You become Incapacitated when your [[Resource_Vitality_Point | VP]], [[Resource_Focus_Point | FP]] or [[Resource_Spirit_Point | SP]] = 0. You are Prone and unconscious, and cannot take actions (except the Heroic Relentlessness). By whichever means you regain enough resources to leave this condition, you will gain one level of Exhaustion.
 * **Off-Guard**: Until the end of your next turn, you have a -3 Circumstance penalty to Body Defense checks.
 * **Distracted**: Until the end of your next turn, you cannot concentrate.
 * **Distraught**: Until the end of your next turn, you cannot channel.

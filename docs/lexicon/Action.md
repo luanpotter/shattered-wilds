@@ -1,4 +1,4 @@
-Actions are the fundamental building blocks of combat and interaction in Shattered Wilds. Each character has a limited number of Action Points (AP) per turn that they can spend to perform actions.
+Actions are the fundamental building blocks of combat and interaction in Shattered Wilds. Each character has a limited number of {% item "Resource/Action_Point" %} (AP) per turn that they can spend to perform actions.
 
 ### Type: Movement
 
@@ -6,7 +6,7 @@ These are actions associated with movement, and can take several forms. All move
 
 ### Type: Attack
 
-These are actions in which the intent is to inflict damage (either to VP, FP or SP) to an opponent. Attack Actions are an active contested check against the target's Defense (which depends on the nature of the Attack).
+These are actions in which the intent is to inflict damage (either to [[Resource_Vitality_Point | VP]], [[Resource_Focus_Point | FP]] or [[Resource_Spirit_Point | SP]]) to an opponent. Attack Actions are an active contested check against the target's Defense (which depends on the nature of the Attack).
 
 Attack Actions can be either **Basic** or **Special**. Basic Attack actions are always an Attribute Check (STR or DEX for Physical attacks or the Spellcasting Attribute for Spell Attacks) contested by the target's Realm as Defense (for example, a STR check against a target's Body). Basic Attacks typically cause one damage when they succeed, and Shifts cause extra damage points.
 

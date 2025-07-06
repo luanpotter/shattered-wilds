@@ -16,7 +16,7 @@ Arcane spells are first and foremost a specific combination of a verb and a noun
 
 In the view of the Arcane, the bodies of Beings are not just material, as they are tied to their Spark (or Soul). Think of Beings having an impenetrable aura that prevents Matter and Energy manipulation inside. However, the Being can still be manipulated directly, via Transfiguration or Command. While Telekinesis cannot be used directly on beings, the air around beings can be controlled to cause gusts of wind While Telekinesis cannot be used directly on beings, the air around beings can be controlled to cause gusts of wind for various effects.
 
-Casting a spell typically will require a certain amount of AP (Action Points) and FP (Focus Points) to be spent (see Basic Arcane Spell below), requires executing some non-zero amount of Spell Components, and will require a Check on the Spellcaster's Base Attribute:
+Casting a spell typically will require a certain amount of AP ([[Resource_Action_Point | Action Points]]) and FP ([[Resource_Focus_Point | Focus Points]]) to be spent (see Basic Arcane Spell below), requires executing some non-zero amount of Spell Components, and will require a Check on the Spellcaster's Base Attribute:
 
 > Roll Base Spellcasting Attribute + Component Modifiers [+ Other Circumstance Modifiers]
 
@@ -51,7 +51,7 @@ Narratively, if the Check rolls between the Spell DC using the Base DC and the (
 
 ## Basic Spell Attacks
 
-Regardless of specific narrative flavor (see Predefined Spells below for inspiration), a Caster can use a Basic Arcane Spell (2AP, 1FP) with Spell DC 18 to harm an enemy within 1m as a Basic Attack against a target's Body or Soul. The most typical Augmentations for a Basic Spell Attack are Range, Multi-target, and Casting Time.
+Regardless of specific narrative flavor (see Predefined Spells below for inspiration), a Caster can use a Basic Arcane Spell (2[[Resource_Action_Point | AP]], 1[[Resource_Focus_Point | FP]]) with Spell DC 18 to harm an enemy within 1m as a Basic Attack against a target's Body or Soul. The most typical Augmentations for a Basic Spell Attack are Range, Multi-target, and Casting Time.
 
 ## Shifts
 
@@ -130,7 +130,7 @@ Extending the casting time over several time has severe diminishing returns, and
 
 ### Focus Cost
 
-The typical focus cost of the Basic Arcane Spell is 1FP. Each additional FP will add a +1 modifier, up to twice the number of AP used (one can't just cram that much focus into too little time). If the spell is being cast as a Ritual, there is no limit on the amount of FP that can be spent.
+The typical focus cost of the Basic Arcane Spell is 1[[Resource_Focus_Point | FP]]. Each additional [[Resource_Focus_Point | FP]] will add a +1 modifier, up to twice the number of [[Resource_Action_Point | AP]] used (one can't just cram that much focus into too little time). If the spell is being cast as a Ritual, there is no limit on the amount of [[Resource_Focus_Point | FP]] that can be spent.
 
 ### Duration
 
@@ -185,7 +185,7 @@ While the Player can control the exact effect they aim to achieve, the DM has th
 
 While a Caster can choose any effect within the realms of the Arcane, below is a list of predefined spells with predefined Spell DC making it easier for Players and DMs; they can both be used exactly as-is, or used to judge Spell DC by comparison.
 
-Across all Schools, the Basic Arcane Spell takes 2AP and 1FP to cast, with Spell DC 15 (or contested if highest).
+Across all Schools, the Basic Arcane Spell takes 2[[Resource_Action_Point | AP]] and 1[[Resource_Focus_Point | FP]] to cast, with Spell DC 15 (or contested if highest).
 
 ### Conjuration
 
@@ -204,7 +204,7 @@ N.B.: with no other mineral/electrolyte intake, drinking exclusively pure water 
 
 The Caster conjures a 1m radius cloud of Noxious Gas in a Hex within 1m of them. The Hex _can_ be occupied by other creatures or objects, as the gas will be created around them.
 As the gas disperses, it lose its potency after 3 rounds. Creating more gas on the same space will just dislodge the excess poison around.
-**Noxious Gas**: A purple-ish toxic gas sometimes found in the Wilds; every creature at the end of turn must make a Resilience Check (DC 15 if passed through; DC 20 if they ended their turn within the cloud) or suffer 1VP of poison damage. If an incapacitated creature fails their check, they start to stack a Poisoned (1) Consequence.
+**Noxious Gas**: A purple-ish toxic gas sometimes found in the Wilds; every creature at the end of turn must make a Resilience Check (DC 15 if passed through; DC 20 if they ended their turn within the cloud) or suffer 1[[Resource_Vitality_Point | VP]] of poison damage. If an incapacitated creature fails their check, they start to stack a Poisoned (1) Consequence.
 **Requirements**: Caster must be familiar with Noxious Gas, having experienced it first hand at least once or studied it extensively.
 **Spell DC**: 24 (15 [Base DC] + 8 [Material: Noxious Gas]).
 **Area Augmentation**: +4 for each additional contiguous Hex of area.
@@ -212,7 +212,7 @@ As the gas disperses, it lose its potency after 3 rounds. Creating more gas on t
 
 #### Rock Smash [Special Attack]
 
-The Caster conjures a medium-sized (20L) boulder of weak rock above the target, within 1m, which can resist with an Evasiveness Check to avoid being hit by the falling debris, which causes 1VP of damage.
+The Caster conjures a medium-sized (20L) boulder of weak rock above the target, within 1m, which can resist with an Evasiveness Check to avoid being hit by the falling debris, which causes 1[[Resource_Vitality_Point | VP]] of damage.
 **Spell DC**: 18 (15 [Base DC] + 3 [Volume: 20L]).
 **Range Augmentation**: +1/m up to 5m (see Range table above).
 
@@ -265,7 +265,7 @@ The Caster can use Telekinesis to move around flames, potentially extinguishing 
 
 #### Magic Shove [Special Attack]
 
-The Caster uses Telekinesis to control a gust of wind towards a target, shoving them back 1m. The target can resist with a Stance check. Shifts can be used to push the target further back, make them Prone, or deal 1VP of damage.
+The Caster uses Telekinesis to control a gust of wind towards a target, shoving them back 1m. The target can resist with a Stance check. Shifts can be used to push the target further back, make them Prone, or deal 1[[Resource_Vitality_Point | VP]] of damage.
 **Spell DC**: 20 (15 [Base DC] + 5 [Potency: Greater Intensity]).
 
 ### Transfiguration
@@ -288,12 +288,12 @@ The Command Basic Arcane Spell can be used to mentally tax a sentient Being's wi
 
 #### Confuse Mind [Special Attack]
 
-The Caster tries to mentally confuse a sentient Being's mind (within 1m), causing them to become Distracted unless they resist with a Tenacity Check. Shifts can be used to cause FP damage.
+The Caster tries to mentally confuse a sentient Being's mind (within 1m), causing them to become Distracted unless they resist with a Tenacity Check. Shifts can be used to cause [[Resource_Focus_Point | FP]] damage.
 **Spell DC**: 15 (Base DC).
 
 #### Erode Will [Special Attack]
 
-The Caster tries to mentally tax a sentient Being's willpower (within 1m), causing them to lose 1SP unless they resist with a Resolve Check.
+The Caster tries to mentally tax a sentient Being's willpower (within 1m), causing them to lose 1[[Resource_Spirit_Point | SP]] unless they resist with a Resolve Check.
 **Spell DC**: 18 (15 [Base DC] + 3 [Potency: Greater Intensity]).
 
 #### Ensnare [Special Attack]
@@ -308,7 +308,7 @@ The Caster gives a simple single word command to a sentient Being (within 1m). T
 
 ### Combined Spells
 
-These spells are actually a combination of two Basic Arcane Spell casts, and therefore by default require 4AP (a whole turn) and 2FP to cast. Since they are cast together, for simplicity, the Caster can roll a single Spell Check against the combined **Spell DC** specified.
+These spells are actually a combination of two Basic Arcane Spell casts, and therefore by default require 4[[Resource_Action_Point | AP]] (a whole turn) and 2[[Resource_Focus_Point | FP]] to cast. Since they are cast together, for simplicity, the Caster can roll a single Spell Check against the combined **Spell DC** specified.
 
 #### Energy Bolt [Basic Attack]
 
