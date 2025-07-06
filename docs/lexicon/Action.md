@@ -6,6 +6,8 @@ Each character has a limited number of [[Resource_Action_Point | Action Points]]
 
 These are actions associated with movement, and can take several forms. All movement forms can move at least 1 Hex, regardless of the character's Speed. Unused movement cannot be saved for later.
 
+-- TODO: difficult terrain
+
 <details>
   <summary>Movement Actions</summary>
   <ul>

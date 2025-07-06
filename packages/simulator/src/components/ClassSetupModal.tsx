@@ -174,9 +174,9 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 	};
 
 	const renderMysticClasses = () => {
-		const roles = ['Adept', 'Disciple', 'Inspired'];
+		const roles = ['Disciple', 'Adept', 'Inspired'];
 		const flavors = ['Pure', 'Mixed', 'Martial'];
-		const attributeMap = { Adept: 'DIV', Disciple: 'FOW', Inspired: 'LCK' };
+		const attributeMap = { Disciple: 'DIV', Adept: 'FOW', Inspired: 'LCK' };
 
 		return (
 			<div>

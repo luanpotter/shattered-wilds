@@ -200,11 +200,11 @@ export enum CharacterClass {
 	Machinist = 'Machinist',
 	Shaman = 'Shaman',
 	Bard = 'Bard',
-	// Mystics - Adept (DIV)
+	// Mystics - Disciple (DIV)
 	Cleric = 'Cleric',
 	Warlock = 'Warlock',
 	Paladin = 'Paladin',
-	// Mystics - Disciple (FOW)
+	// Mystics - Adept (FOW)
 	Sage = 'Sage',
 	Monk = 'Monk',
 	Ranger = 'Ranger',

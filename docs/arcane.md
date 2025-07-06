@@ -185,11 +185,13 @@ While a Caster can choose any effect within the realms of the Arcane, below is a
 
 Across all Schools, the Basic Arcane Spell takes **2 [[Resource_Action_Point | AP]]** and **1 [[Resource_Focus_Point | FP]]** to cast, with **Spell DC 15** (or contested if higher).
 
+Some typical Augmentations for each are listed after the **Spell DC**; do note that every single spell can be Augmented by Range, which is the most common Augmentation, so that will not be included.
+
 ### Conjuration
 
 The Conjuration Basic Arcane Spell can be used to create between 1-10L of simple, homogeneous, inorganic matter of a simple material (dirt, gravel, sand, weak rocks), within 1m of the Caster, in a space unoccupied (by solid matter or Beings), arranged in a vaguely, imprecise, contiguous spherical blob (or to fill an existing hole). Any fluid matter in the location will be displaced (therefore matter cannot be created in hermetically sealed containers).
 
-The Caster must be familiar with the material being conjured; we can assume all Heroes are familiar with simple materials, water or other common matter. However certain spell below will require the Caster to have been familiar with the specific matter being created.
+The Caster must be familiar with the material being conjured; we can assume all Heroes are familiar with simple materials, water or other common matter. However, certain spell below will require the Caster to have been familiar with the specific matter being created.
 
 #### Conjure Water
 
@@ -197,6 +199,16 @@ The Caster conjures 1L of pure water in an unoccupied space within 1m of them.
 N.B.: with no other mineral/electrolyte intake, drinking exclusively pure water can start to cause side effects after a few days.
 **Spell DC**: 18 (15 [Base DC] + 3 [Material: Water]).
 **Volume Augmentation**:  +2 for each additional 1L of water created, up to 10L.
+
+#### Rock Smash [Special Attack]
+
+The Caster conjures a medium-sized (20L) boulder of weak rock above the target, within 1m, which can resist with an Evasiveness Check to avoid being hit by the falling debris, which causes 1[[Resource_Vitality_Point | VP]] of damage.
+**Spell DC**: 18 (15 [Base DC] + 3 [Volume: 20L]).
+
+#### Conjure Debris
+
+The caster creates loose weak rocks, pebbles and/or gravel over 1 Hex, causing it to count as Difficult Terrain. The debris can be cleared gradually with 4 [[Resource_Action_Point | AP]] worth of actions.
+**Spell DC**: 18 (15 [Base DC] + 3 [Volume: 20L]).
 
 #### Poison Cloud [Special Attack]
 
@@ -206,13 +218,6 @@ As the gas disperses, it lose its potency after 3 rounds. Creating more gas on t
 **Requirements**: Caster must be familiar with Noxious Gas, having experienced it first hand at least once or studied it extensively.
 **Spell DC**: 24 (15 [Base DC] + 8 [Material: Noxious Gas]).
 **Area Augmentation**: +4 for each additional contiguous Hex of area.
-**Range Augmentation**: +1/m up to 5m (see Range table above).
-
-#### Rock Smash [Special Attack]
-
-The Caster conjures a medium-sized (20L) boulder of weak rock above the target, within 1m, which can resist with an Evasiveness Check to avoid being hit by the falling debris, which causes 1[[Resource_Vitality_Point | VP]] of damage.
-**Spell DC**: 18 (15 [Base DC] + 3 [Volume: 20L]).
-**Range Augmentation**: +1/m up to 5m (see Range table above).
 
 ### Evocation
 
@@ -246,6 +251,11 @@ The Transmutation Basic Arcane Spell can be used to change the state of a small 
 The Caster strategically transforms a small patch of ground underneath a target's feet (within 1m) into slimy mud. The target must check Evasiveness against the Spell Check or become [[Condition_Off_Guard | Off-Guard]]. A Shift will cause the target to become [[Condition_Prone | Prone]] instead.
 **Spell DC**: 16 (15 [Base DC] + 1 [Material: Slimy Mud]).
 
+#### Mend Object
+
+The Caster can use Transmutation to mend a small tear in a simple solid object made of a simple material (e.g. a piece cloth or garment, a parchment or book, etc).
+**Spell DC**: 27 (15 [Base DC] + 12 [Duration: Permanent]).
+
 ### Telekinesis
 
 The Telekinesis Basic Arcane Spell can be used to impart motion up to 2kg of matter consistently but at moderate speeds, within the selected range (the object can be thrown outside the range but control is lost at that point). Telekinesis can be used to manipulate objects, such as doors or levers, but the required level of dexterity will add some Augmentation. While Beings cannot be directly imparted energy, the Caster can control the air around them to push or shove, in a however less effective and precise manner.
@@ -259,7 +269,6 @@ While but the most studious Arcanists know why this spell is commonly referred t
 
 The Caster can use Telekinesis to move around flames, potentially extinguishing very small fires, spreading to nearby materials, or propelling them onto a target within range. The basic cast is for 1m range, and can cause a Stun or Feint Basic Attack against the target. For a more forceful push of +6 Augmentation, it can be used as a Strike Basic Strike.
 **Spell DC**: 15 (Base DC).
-**Range Augmentation**: +1/m up to 5m (see Range table above).
 
 #### Magic Shove [Special Attack]
 
@@ -269,6 +278,16 @@ The Caster uses Telekinesis to control a gust of wind towards a target, shoving 
 ### Transfiguration
 
 The Transfiguration Basic Arcane Spell can be used to change the body of a Being, within 1m of the Caster. The basic spell can cause superficial changes (e.g. changing hair color, creating calluses, deformities, or other minor changes), and anything more complex changes will require Augmentations. The changes are always temporary, and require Concentration to maintain. The target can choose wether to resist or not as they feel an external force molding their body.
+
+#### Harden Fists
+
+The Caster transfigures target's fists to be harder than normal, giving them a +3 bonus to their Unarmed Basic Body Attacks.
+**Spell DC**: 15 (Base DC).
+
+#### Harden Skin
+
+The Caster transfigures target's skin to be harder than normal, giving them a +6 bonus to their [[Action_Shrug_Off | Shrug Off]] Toughness Checks.
+**Spell DC**: 18 (15 [Base DC] + 3 [Area: Whole Body]).
 
 #### Disguise Being
 
@@ -299,6 +318,12 @@ The Caster tries to mentally tax a sentient Being's willpower (within 1m), causi
 If on a suitable environment, the Caster can use Command to control vines or other plant matter on the floor to grow and try to Grapple or Trip a target (within 1m). The target can resist with an Evasiveness check.
 **Spell DC**: 18 (15 [Base DC] + 3 [Potency: Greater Intensity]).
 
+#### Message Being
+
+The Caster can use Command to send a small (few words) message to a sentient Being (within 1m). The target can resist with a Resolve Check if desired. If they fail, they will hear the message as a command, but will not feel compelled to follow it.
+**Spell DC**: 18 (15 [Base DC] + 3 [Detail: Specificity]).
+**Length Augmentation**: Approximately +1 CM/word after 5 words (words are just being used as a proxy for complexity).
+
 #### Command Being [Special Attack]
 
 The Caster gives a simple single word command to a sentient Being (within 1m). The target can resist with a Resolve Check. If they fail, they will feel compelled to follow the command, as long as it doesn't go against their nature. The Being might interpret the command in their own way.
@@ -308,7 +333,17 @@ The Caster gives a simple single word command to a sentient Being (within 1m). T
 
 These spells are actually a combination of two Basic Arcane Spell casts, and therefore by default require 4[[Resource_Action_Point | AP]] (a whole turn) and 2[[Resource_Focus_Point | FP]] to cast. Since they are cast together, for simplicity, the Caster can roll a single Spell Check against the combined **Spell DC** specified.
 
+#### Hurl Spikes [Special Attack]
+
+The Caster conjures and then telekinetically throws a small amount of spikes and shards at a target within 10m. The target can resist with an Evasiveness Check, or become [[Condition_Off_Guard | Off-Guard]] and [[Condition_Distracted | Distracted]] if they fail. Shifts deal [[Resource_Vitality_Point | VP]] damage.
+**Spell DC**: 15 (Base DC).
+
 #### Energy Bolt [Basic Attack]
 
-The Caster evokes a sphere of pure energy of their choice and use Telekinesis to hurl it towards an enemy within 10m with force; this can be used as a stronger Strike Basic Attack, you get two additional Shifts.
+The Caster evokes a sphere of pure energy of their choice and use Telekinesis to hurl it towards an enemy within 10m with force; this can be used as a stronger Strike Basic Body Attack; on a success, you get an additional Shift of damage.
 **Spell DC**: 18 (15 [Base DC] + 3 [Potency: Greater Intensity (for both the harmful Evoke and the forceful Telekinesis)]).
+
+#### Prestidigitation
+
+You use a combination of several Spells to create small effects used by magicians, in order to entertain or bemuse an audience. This is a whole turn action (4 AP) but can be sustained for more turns, paying 1 FP per turn.
+**Spell DC**: 15 (Base DC).
