@@ -75,7 +75,6 @@ Turns in Shattered Wilds are very reactive due to the higher possibility of Reac
 * {% item "Action/Flank", "type" %}
 * {% item "Action/Taunt", "type" %}
 * {% item "Action/Distract", "type" %}
-* {% item "Action/Counterattack", "type" %}
 
 # Conditions
 
