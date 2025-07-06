@@ -1,5 +1,3 @@
-# Races
-
 There are 7 humanoid races in the world of Shattered Wilds, all belonging to the same humanoid species. These are all the rational material Beings known to exist, and they seen to share a common ancestry, though the details have been lost to time.
 
 | Race   | Physical Stats | Size |

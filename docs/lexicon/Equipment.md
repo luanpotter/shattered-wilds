@@ -1,12 +1,10 @@
-# Equipment
+Equipments can be used to add [[Circumstance Modifier | CM (Circumstance Modifiers)]] to different checks, notably Attack Checks (for Weapons) and Body Defense Checks (for Armor).
 
-Equipments can be used to add [[Circumstance Modifier | CM (Circumstance Modifiers)]] to different checks, notably Attack Checks (for Weapons), Body Defense Checks (for Armor).
+# Weapons
 
-## Weapons
+Unlike other games, weapons don't have separate damage dice, as damage is determined by Shifts. Every weapon can be simply described by its **Primary Weapon Type** (which defines the Base Attribute use for its [[Check]]), its **Weapon Bonus**, and any special traits it has. The Weapon Bonus is the final value to be added to your attack roll [[Check]], which will be a [[STR]] or [[DEX]] roll + [weapon bonus] (+ [[Circumstance Modifier | CM]]).
 
-Unlike other games, weapons don't have separate damage dice, as damage is determined by Shifts. Every weapon can be simply described by its Primary Weapon Type (which defines the Base Attribute), its Weapon Bonus, and any special traits it has. The Weapon Bonus is the final value to be added to your attack roll, which will be a STR or DEX roll + [weapon bonus].
-
-Different Primary Weapon Types have different "power levels". This means that two similarly rare weapons of different types will typically have different bonuses. For example, a common Dagger (Light Melee) will be have a +3 bonus, while a common Longsword (Heavy Melee) will have a +8 bonus, because a Longsword is inherently more powerful. However, rarer and more powerful weapons of any kind can have higher bonuses, and the weapon bonus is the only modifier that matters for your Basic Attack Check. So a Dagger +10 has the same bonus as a Longsword +10, but finding or forging such a powerful dagger would be much more difficult.
+Different **Primary Weapon Types** have different "power levels". This means that two similarly rare weapons of different types will _typically_ have different bonuses. For example, a common _Dagger (Light Melee)_ will be have a +3 bonus, while a common _Longsword (Heavy Melee)_ will have a +8 bonus, because a _Longsword_ is inherently more powerful. However, rarer and more powerful weapons of any kind can have higher bonuses, and the weapon bonus is the only modifier that matters for your Basic Attack Check. So a _Dagger +10_ has the same bonus as a _Longsword +10_, but finding or forging such a powerful dagger would be much more difficult.
 
 | Primary Weapon Type | Base Attribute | Power Level |
 |---------------------|----------------|-------------|
@@ -29,15 +27,15 @@ The list below contains an assortment of common weapons that could be find in bl
 * **Bow & Arrows**: Ranged +4 [Two-Handed](Range 20m) (Shortbow, Longbow, Composite Bow)
 * **Crossbow & Darts**: Ranged +6 (Range 20m) [Two-Handed] [Reload] (Light Crossbow, Heavy Crossbow, Hand Crossbow)
 
-## Armor
+# Armor
 
-Similarly to Weapons, Armor is described by its Armor Bonus, and any special traits (typically a DEX penalty).
+Similarly to Weapons, a piece of Armor is described by its Armor Bonus, and any special traits (typically a DEX penalty).
 
 * **Light Armor** +1 (Leather Armor)
 * **Medium Armor** +3, -1 DEX (Chainmail)
 * **Heavy Armor** +5, -3 DEX (Full Plate)
 
-## Shields
+# Shields
 
 Shields can be used to perform the Shield Block reaction. Note that they do not confer any other bonuses (other than being able to be used as a weapon for a Shield Bash).
 
