@@ -1,6 +1,7 @@
----
-layout: main.liquid
----
 # Rules
 
-{% include "docs/d12.md" %}
+<ol>
+    <li><a href="/rules/setting">Setting</a></li>
+    <li><a href="/rules/basics">Basics</a></li>
+    <li><a href="/rules/combat">Combat</a></li>
+</ol>

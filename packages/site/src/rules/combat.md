@@ -1,9 +1,9 @@
 ---
-next:
+prev:
     url: "/rules/basics"
     text: "Basics"
 ---
 
-# Setting
+# Rules - Combat
 
-{% include "docs/setting.md" %}
+{% include "docs/combat.md" %}

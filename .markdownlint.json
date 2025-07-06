@@ -1,13 +1,11 @@
 {
   "default": true,
-  "MD013": false,
-  "MD033": false,
+  "MD001": false, // header levels (TODO: figure out nested docs)
+  "MD013": false, // line length
+  "MD033": false, // allow HTML in markdown
   "MD041": false,
   "MD024": false,
   "MD029": false,
   "MD030": false,
-  "MD026": false,
-  "MD033": {
-    "allowed_elements": ["kbd", "code"]
-  }
+  "MD026": false
 }

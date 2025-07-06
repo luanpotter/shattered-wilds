@@ -21,8 +21,8 @@ module.exports = function (eleventyConfig) {
   const lexiconFiles = parseLexicon();
   eleventyConfig.addGlobalData("lexiconFiles", lexiconFiles);
 
-  // Add a generic Liquid shortcode to render any lexicon entry as a bullet item
-  eleventyConfig.addShortcode("item", (path, excludeTags = []) => {
+  // Shared function to render lexicon items
+  const renderLexiconItem = (path, excludeTags = []) => {
     const slug = path.replace(/[\/\\]/g, "_");
     const entry = lexiconFiles.find((e) => e.slug === slug);
     if (!entry) {
@@ -31,25 +31,32 @@ module.exports = function (eleventyConfig) {
     // Build metadata HTML
     let metaHtml = "";
     if (entry.metadata && Object.keys(entry.metadata).length > 0) {
+      const excludeTagsArray = Array.isArray(excludeTags) ? excludeTags : excludeTags.split(',').map(tag => tag.trim());
       metaHtml =
         '<span class="item-metadata">' +
         Object.values(entry.metadata)
           .map((tag) => {
-            if (excludeTags.includes(tag.key)) {
+            if (excludeTagsArray.includes(tag.key)) {
               return "";
             }
             return `<span class="${tag.cssClass}">${tag.title}${
               tag.value ? `: ${tag.value}` : ""
             }</span>`;
           })
+          .filter(html => html !== "")
           .join(" ") +
         "</span>";
     }
-    const para = entry.content.split(/\n\n/)[0].trim();
+    const desc = entry.content.split(/\n\n/)[0].trim();
     return `<strong><a href="${entry.url}">${entry.title.replace(
       /^[^:]+: /,
       ""
-    )}</a></strong> ${metaHtml} : ${para}`;
+    )}</a></strong> ${metaHtml} : ${md.renderInline(desc)}`;
+  };
+
+  // Add a generic Liquid shortcode to render any lexicon entry as a bullet item
+  eleventyConfig.addShortcode("item", (path, excludeTags = []) => {
+    return renderLexiconItem(path, excludeTags);
   });
 
   eleventyConfig.addPassthroughCopy({
@@ -118,6 +125,14 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addDataExtension("yaml", (contents) => yaml.load(contents));
   eleventyConfig.addLiquidFilter("markdown", (value) => md.render(value));
   eleventyConfig.addLiquidFilter("md", filterMarkdown);
+  
+  // Add a filter to process shortcodes in content
+  eleventyConfig.addLiquidFilter("processShortcodes", (value) => {
+    // Process item shortcodes before markdown rendering
+    return value.replace(/\{%\s*item\s+"([^"]+)"(?:\s*,\s*"([^"]+)")?\s*%\}/g, (_, path, excludeTags) => {
+      return renderLexiconItem(path, excludeTags);
+    });
+  });
 
   return {
     passthroughFileCopy: true,

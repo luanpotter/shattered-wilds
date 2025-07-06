@@ -1,1 +1,1 @@
-Represents the amount of effort a character can expend in a given turn. Each character has **4 AP** per round, refilled at the end of their turn.
+Represents the amount of effort a character can expend in a given turn. Each character has **4 AP** per round, refilled at the end of their turn, which can be used to perform different [[Action | Actions]].

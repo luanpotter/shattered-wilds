@@ -24,8 +24,8 @@ The list below contains an assortment of common weapons that could be find in bl
 * **Spear**: Heavy Melee +5 [Polearm] [Two-Handed] (Glaive, Halberd, Pike)
 * **Mace**: Heavy Melee +5 (Club, Mace, Morningstar)
 * **Longsword**: Heavy Melee +6 [Two-Handed] (Bastard Sword, Claymore)
-* **Bow & Arrows**: Ranged +4 [Two-Handed](Range 20m) (Shortbow, Longbow, Composite Bow)
-* **Crossbow & Darts**: Ranged +6 (Range 20m) [Two-Handed] [Reload] (Light Crossbow, Heavy Crossbow, Hand Crossbow)
+* **Bow & Arrows**: Ranged +4 [Concentrate] [Two-Handed](Range 20m) (Shortbow, Longbow, Composite Bow)
+* **Crossbow & Darts**: Ranged +6 (Range 20m) [Concentrate] [Two-Handed] [Reload] (Light Crossbow, Heavy Crossbow, Hand Crossbow)
 
 # Armor
 

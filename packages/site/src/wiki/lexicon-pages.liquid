@@ -12,7 +12,7 @@ title: "{{ lexicon.title }}"
 
 {% if lexicon.isCategory and lexicon.categoryItems and lexicon.categoryItems.size > 0 %}
   <!-- Category page with definition and auto-generated list -->
-  {{ lexicon.content | markdown }}
+  {{ lexicon.content | processShortcodes | markdown }}
 
   <h2>{{ lexicon.title }} List</h2>
   <ul class="category-list">
@@ -60,5 +60,5 @@ title: "{{ lexicon.title }}"
     </div>
   {% endif %}
 
-  {{ lexicon.content | markdown }}
+  {{ lexicon.content | processShortcodes | markdown }}
 {% endif %}
