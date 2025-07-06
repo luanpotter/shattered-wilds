@@ -183,7 +183,7 @@ While the Player can control the exact effect they aim to achieve, the DM has th
 
 While a Caster can choose any effect within the realms of the Arcane, below is a list of predefined spells with predefined Spell DC making it easier for Players and DMs; they can both be used exactly as-is, or used to judge Spell DC by comparison.
 
-Across all Schools, the Basic Arcane Spell takes 2[[Resource_Action_Point | AP]] and 1[[Resource_Focus_Point | FP]] to cast, with Spell DC 15 (or contested if highest).
+Across all Schools, the Basic Arcane Spell takes **2 [[Resource_Action_Point | AP]]** and **1 [[Resource_Focus_Point | FP]]** to cast, with **Spell DC 15** (or contested if higher).
 
 ### Conjuration
 
