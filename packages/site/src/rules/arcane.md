@@ -1,5 +1,5 @@
 ---
-prev:
+previous:
     url: "/rules/combat"
     text: "Combat"
 next:
