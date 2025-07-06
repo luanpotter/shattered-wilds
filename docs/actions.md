@@ -79,13 +79,7 @@ Turns in Shattered Wilds are very reactive due to the higher possibility of Reac
 
 ## Conditions
 
-* **Incapacitated**: You become Incapacitated when your [[Resource_Vitality_Point | VP]], [[Resource_Focus_Point | FP]] or [[Resource_Spirit_Point | SP]] = 0. You are Prone and unconscious, and cannot take actions (except the Heroic Relentlessness). By whichever means you regain enough resources to leave this condition, you will gain one level of Exhaustion.
-* **Off-Guard**: Until the end of your next turn, you have a -3 Circumstance penalty to Body Defense checks.
-* **Distracted**: Until the end of your next turn, you cannot concentrate.
-* **Distraught**: Until the end of your next turn, you cannot channel.
-* **Immobilized**: Grappled by an opponent; cannot take Move Actions (except Escape or Drag Grappler). Can still take Attack Actions with -3 Circumstance Modifier. Can still take Misc Actions to the DM discretion.
-* **Blinded**: -- TODO
-* **Prone**: -- TODO
+{% include "docs/lexicon/Condition.md" %}
 
 ## Consequences
 
@@ -95,7 +89,7 @@ Consequences are longer-term harms and injuries incurred to creatures that do no
 
 ### Death
 
-Death is the ultimate consequence. In Shattered Wilds, there is no revival - once your Soul is severed from your Body, they can never go back. That means stakes are always high and some decisions are final (not only regarding the players, but more importantly, NPCs and enemies). However, Death doesn't come from just reaching zero resources - and in fact doesn't comme (necessarily) from the accumulation of Consequences. However, a totally incapacitated creature (thus helpless) can be executed with a Coup de Grace, which will still require a contested check (failing will cause severe injuries instead). This is a longer action that cannot be taken during a combat, but it is typically considered that after the danger has passed the winners will execute the losers, unless otherwise specified by the victors.
+Death is the ultimate consequence. In Shattered Wilds, there is no revival - once your Soul is severed from your Body, they can never go back. That means stakes are always high and some decisions are final (not only regarding the players, but more importantly, NPCs and enemies). However, Death doesn't come from just reaching zero resources - and in fact doesn't comme (necessarily) from the accumulation of Consequences. However, a totally [[Condition_Incapacitated | incapacitated]] creature (thus helpless) can be executed with a Coup de Grace, which will still require a contested check (failing will cause severe injuries instead). This is a longer action that cannot be taken during a combat, but it is typically considered that after the danger has passed the winners will execute the losers, unless otherwise specified by the victors.
 
 ### Exhaustion
 
@@ -103,7 +97,7 @@ Exhaustion represents a slightly longer term form of tiredness that cannot be he
 
 Circumstances that cause the level of Exhaustion to increase include:
 
-* Being cleared from Incapacitated.
+* Being cleared from [[Condition_Incapacitated | Incapacitated]].
 * Short Rest (?) - not sure yet
 * TODO
 

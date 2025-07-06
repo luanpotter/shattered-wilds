@@ -1,6 +1,6 @@
 # Equipment
 
-Equipments can be used to add Circumstance Modifiers to different checks, notably Attack Checks (for Weapons), Body Defense Checks (for Armor)
+Equipments can be used to add [[Circumstance Modifier | CM (Circumstance Modifiers)]] to different checks, notably Attack Checks (for Weapons), Body Defense Checks (for Armor).
 
 ## Weapons
 

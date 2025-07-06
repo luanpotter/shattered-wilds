@@ -4,4 +4,4 @@ ap: 1
 melee: true
 ---
 
-Melee only; Special Attack against Stance. Causes opponent to be Prone. Shifts deal [[Resource_Vitality_Point | VP]] damage.
+Melee only; Special Attack against Stance. Causes opponent to be [[Condition_Prone | Prone]]. Shifts deal [[Resource_Vitality_Point | VP]] damage.

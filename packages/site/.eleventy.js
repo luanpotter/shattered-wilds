@@ -23,25 +23,33 @@ module.exports = function (eleventyConfig) {
 
   // Add a generic Liquid shortcode to render any lexicon entry as a bullet item
   eleventyConfig.addShortcode("item", (path, excludeTags = []) => {
-    const slug = path.replace(/[\/\\]/g, '_');
-    const entry = lexiconFiles.find(e => e.slug === slug);
+    const slug = path.replace(/[\/\\]/g, "_");
+    const entry = lexiconFiles.find((e) => e.slug === slug);
     if (!entry) {
       return `<span style='color:red'>[Missing lexicon entry: ${slug}]</span>`;
     }
     // Build metadata HTML
     let metaHtml = "";
     if (entry.metadata && Object.keys(entry.metadata).length > 0) {
-      metaHtml = '<span class="item-metadata">' +
-        Object.values(entry.metadata).map((tag) => {
-          if (excludeTags.includes(tag.key)) {
-            return '';
-          }
-          return `<span class="${tag.cssClass}">${tag.title}${tag.value ? `: ${tag.value}` : ""}</span>`;
-        }).join(' ') +
-        '</span>';
+      metaHtml =
+        '<span class="item-metadata">' +
+        Object.values(entry.metadata)
+          .map((tag) => {
+            if (excludeTags.includes(tag.key)) {
+              return "";
+            }
+            return `<span class="${tag.cssClass}">${tag.title}${
+              tag.value ? `: ${tag.value}` : ""
+            }</span>`;
+          })
+          .join(" ") +
+        "</span>";
     }
     const para = entry.content.split(/\n\n/)[0].trim();
-    return `<strong><a href="${entry.url}">${entry.title.replace(/^[^:]+: /, '')}</a></strong> ${metaHtml} : ${para}`;
+    return `<strong><a href="${entry.url}">${entry.title.replace(
+      /^[^:]+: /,
+      ""
+    )}</a></strong> ${metaHtml} : ${para}`;
   });
 
   eleventyConfig.addPassthroughCopy({
@@ -175,20 +183,26 @@ const parseLexicon = () => {
           const specialTitles = {
             ap: "AP",
           };
-          return Object.entries(frontMatter).map(([key, value]) => ({
-            key: key,
-            title: (specialTitles[key] || key)
+          return Object.entries(frontMatter).map(([key, value]) => {
+            return {
+              key: key,
+              title: (specialTitles[key] || key)
               .replace(/_/g, " ")
               .replace(/\b\w/g, (char) => char.toUpperCase()),
-            value: value === true ? undefined : value,
-            cssClass: value === true ? `metadata-trait` : `metadata-${key.replace(/_/g, "-")}`,
-          }));
+              value: value === true ? undefined : value,
+              cssClass:
+                value === true
+                  ? `metadata-trait`
+                  : `metadata-${key.replace(/_/g, "-")}`,
+            };
+          });
         };
 
         files.push({
           filePath: fullPath,
           slug: slug,
           title: title,
+          shortTitle: title.replace(/^[^:]+: /, ""),
           basePath: basePath,
           content: markdownContent,
           metadata: parseFrontMatter(frontMatter),

@@ -81,7 +81,7 @@ The verbal component can include shouting, chanting, singing, or music produced 
 **One-Handed Instrument**: +2
 **Two-Handed Instrument**: +3
 
-The execution of Verbal components requires a baseline freedom of speech; so they cannot be performed while under the Silenced condition.
+The execution of Verbal components requires a baseline freedom of speech; so they cannot be performed while under the [[Condition_Silenced | Silenced]] condition.
 
 -- TODO: can verbal components be disrupted by making other noises? [Verbal Distraction]
 
@@ -93,7 +93,7 @@ The somatic component can include hand gestures, body movements, or tool-assiste
 **One-Handed Tool Use**: +2
 **Two-Handed Tool Use**: +3
 
-The execution of Somatic components require a baseline freedom of movement; so they cannot be performed while under the Grappled condition.
+The execution of Somatic components require a baseline freedom of movement; so they cannot be performed while under the [[Condition_Immobilized | Immobilized]] condition.
 
 ### Focal
 
@@ -229,7 +229,7 @@ The Caster evokes forth a harmless fist-sized ball of light, which will float in
 
 The Caster evokes a momentary flash of bright light within 1m of them, potentially affecting any seeing creatures within a 4m radius.
 The Caster and any creatures that were made aware of what was about to happen can Avert their gaze; other creatures must succeed an Agility Check against the Spell Check to do so.
-Creatures who were unable to Avert their gaze take the Blinded condition until the end of their next round.
+Creatures who were unable to Avert their gaze take the [[Condition_Blinded | Blinded]] condition until the end of their next round.
 **Spell DC**: 18 (15 [Base DC] + 3 [Potency: Greater Intensity]
 **Area Augmentation**: +4 for each additional +1m of radius.
 
@@ -245,7 +245,7 @@ The Transmutation Basic Arcane Spell can be used to change the state of a small 
 
 #### Mud Feet [Special Attack]
 
-The Caster strategically transforms a small patch of ground underneath a target's feet (within 1m) into slimy mud. The target must check Evasiveness against the Spell Check or become Off-Guard. A Shift will cause the target to become Prone instead.
+The Caster strategically transforms a small patch of ground underneath a target's feet (within 1m) into slimy mud. The target must check Evasiveness against the Spell Check or become [[Condition_Off_Guard | Off-Guard]]. A Shift will cause the target to become [[Condition_Prone | Prone]] instead.
 **Spell DC**: 16 (15 [Base DC] + 1 [Material: Slimy Mud]).
 
 ### Telekinesis
@@ -265,7 +265,7 @@ The Caster can use Telekinesis to move around flames, potentially extinguishing 
 
 #### Magic Shove [Special Attack]
 
-The Caster uses Telekinesis to control a gust of wind towards a target, shoving them back 1m. The target can resist with a Stance check. Shifts can be used to push the target further back, make them Prone, or deal 1[[Resource_Vitality_Point | VP]] of damage.
+The Caster uses Telekinesis to control a gust of wind towards a target, shoving them back 1m. The target can resist with a Stance check. Shifts can be used to push the target further back, make them [[Condition_Prone | Prone]], or deal 1[[Resource_Vitality_Point | VP]] of damage.
 **Spell DC**: 20 (15 [Base DC] + 5 [Potency: Greater Intensity]).
 
 ### Transfiguration
@@ -288,7 +288,7 @@ The Command Basic Arcane Spell can be used to mentally tax a sentient Being's wi
 
 #### Confuse Mind [Special Attack]
 
-The Caster tries to mentally confuse a sentient Being's mind (within 1m), causing them to become Distracted unless they resist with a Tenacity Check. Shifts can be used to cause [[Resource_Focus_Point | FP]] damage.
+The Caster tries to mentally confuse a sentient Being's mind (within 1m), causing them to become [[Condition_Distracted | Distracted]] unless they resist with a Tenacity Check. Shifts can be used to cause [[Resource_Focus_Point | FP]] damage.
 **Spell DC**: 15 (Base DC).
 
 #### Erode Will [Special Attack]
