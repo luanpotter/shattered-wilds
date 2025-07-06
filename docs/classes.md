@@ -28,44 +28,44 @@ The Role will define your primary attribute (STR, DEX or CON), while the Flavor 
 
 Melee Warriors focus on Strength, and thus are favored to use Heavy Melee or Thrown weapons (see a Weapons breakdown under [Equipment](equipment.md)).
 
-* **Spin Attack** (Level 3): 
-* **Sweep Attack** (Level 3):
+* **Spin Attack** (Level 3): TODO
+* **Sweep Attack** (Level 3): TODO
 
 ### Ranged Warriors Feats
 
 Ranged Warriors focus on Dexterity, and thus are favored to use Light Melee or Ranged weapons (or both).
 
-* **Take Aim** (Level 3):
-* **Rapid Fire** (Level 3):
-* **Double Shot** (Level 3):
-* **Pinning Shot** (Level 3):
+* **Take Aim** (Level 3): TODO
+* **Rapid Fire** (Level 3): TODO
+* **Double Shot** (Level 3): TODO
+* **Pinning Shot** (Level 3): TODO
 
 ### Tank Warriors Feats
 
 Tank Warriors focus on Constitution, and thus are focused on defense and therefore do not have a specific weapon focus.
 
-* **Shield Bash** (Level 3):
-* **Improved Taunt** (Level 3):
+* **Shield Bash** (Level 3): TODO
+* **Improved Taunt** (Level 3): TODO
 * better armor - less penalty.
 * advantage on resist stumble through
 
 ### Martial Warriors Feats
 
-* **Exert Authority** (Level 2):
-* **Distributed Shifts** (Level 2):
-* **Weapon Mastery (?)** (Level 2):
+* **Exert Authority** (Level 2): TODO
+* **Distributed Shifts** (Level 2): TODO
+* **Weapon Mastery (?)** (Level 2): TODO
 
 ### Survivalist Warriors Feats
 
 Allows you to pick Feats with the `Nature` background.
 
-* **Rage** (Level 2):
+* **Rage** (Level 2): TODO
 
 ### Scoundrel Warriors Feats
 
-* **Leverage** (Level 2): (sneak attack equivalent)
-* **Skilled** (Level 2):
-* something traps plus lockpicking related. skulk?
+* **Leverage** (Level 2): TODO(sneak attack equivalent)
+* **Skilled** (Level 2): TODO
+* something traps plus lockpicking related. skulk? TODO
 
 ## Casters
 
@@ -93,10 +93,11 @@ There are a total of 9 Mystic classes, which are divided in a 3x3 matrix dependi
 
 Generic Feats can be picked by any class, as long as the requirements are met.
 
-should this be locked to warriors? probably not
-* **Thrown Weapons Expertise** (Level 2): 
-* **Reach Weapons Expertise** (Level 2): 
-* **Mounted Combat Expertise** (Level 2): 
+-- should this be locked to warriors? probably not
+
+* **Thrown Weapons Expertise** (Level 2): TODO
+* **Reach Weapons Expertise** (Level 2): TODO
+* **Mounted Combat Expertise** (Level 2): TODO
 
 Nature Feats:
 plus x to Knowledge or Intuition checks about or regarding the natural world

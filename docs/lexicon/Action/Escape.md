@@ -3,4 +3,4 @@ type: "Movement"
 ap: 1
 ---
 
-Contested Evasiveness check to clear Immobilized against grappler. 
+Contested Evasiveness check to clear Immobilized against grappler.

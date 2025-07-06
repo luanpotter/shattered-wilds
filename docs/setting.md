@@ -20,7 +20,7 @@ The Hollow seem to emerge from cracks and rifts leftover of recent shifts in the
 
 Some known tropes from other high-fantasy TTRPG settings that are not present or are different in Shattered Wilds:
 
- * there is no teleportation of matter or energy
- * action-at-a-distance is limited to the Aether, and even then, it is not infinite
- * gods (the Protean) are not all-powerful and definitely not omnipresent, though they can be very powerful
- * there is no known way to resurrect the dead; once a mortal spark is severed from its body, while it can linger in the Aether for a few minutes, it will eventually fade away
+* there is no teleportation of matter or energy
+* action-at-a-distance is limited to the Aether, and even then, it is not infinite
+* gods (the Protean) are not all-powerful and definitely not omnipresent, though they can be very powerful
+* there is no known way to resurrect the dead; once a mortal spark is severed from its body, while it can linger in the Aether for a few minutes, it will eventually fade away

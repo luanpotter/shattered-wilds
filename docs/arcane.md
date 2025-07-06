@@ -39,6 +39,7 @@ When directly trying to affect a creature with a spell, the Base DC is replaced 
 Launching a projectile, be it matter or energy, onto a creature, is considered a Basic Attack, and therefore is contested with a Basic Defense Check.
 
 Other effects are considered Special Attacks, and therefore are contested by specific Skills. For example:
+
 * Using Telekinesis to form a gust of wind to push a creature: Stance
 * Using Command to control a creature: Resolve
 * Using Transfiguration to modify a creature's body: Resilience or Toughness (depending on the nature of the transformation)
@@ -109,7 +110,6 @@ The execution of Focal components require touching and minor manipulation of the
 ### Scrolls
 
 While not exactly a Component per se, Scrolls can be crafted by really powerful Arcanists that are able capture the essence of the immutable parts of instructions for a very specific effect. They can be used by any Arcane Spellcaster, but using them still requires figuring out the rest of the movements given the current state of the world (so they cannot be used by non-Casters). Heroes might often find specific scrolls written in the past during their adventures. Casting a Spell using a Scroll will provide a bonus to the Check, but the Scrolls are tied to very specific outcomes, and not customizable.
-
 
 ## Augmentations
 
@@ -253,15 +253,18 @@ The Caster strategically transforms a small patch of ground underneath a target'
 The Telekinesis Basic Arcane Spell can be used to impart motion up to 2kg of matter consistently but at moderate speeds, within the selected range (the object can be thrown outside the range but control is lost at that point). Telekinesis can be used to manipulate objects, such as doors or levers, but the required level of dexterity will add some Augmentation. While Beings cannot be directly imparted energy, the Caster can control the air around them to push or shove, in a however less effective and precise manner.
 
 #### Mage Hand
+
 While but the most studious Arcanists know why this spell is commonly referred to as "Mage Hand", all do know that this is in fact not any form of spectral hand, but rather a simple application of Telekinesis to manipulate small objects within 10m of the Caster. It can open doors, move items up to 2kg, pet a dog. Anything more dextrous will warrant Augmentations.
 **Spell DC**: 20 (15 [Base DC] + 5 [Range: 10m (discounted)]).
 
 #### Control Fire [Basic Attack]
+
 The Caster can use Telekinesis to move around flames, potentially extinguishing very small fires, spreading to nearby materials, or propelling them onto a target within range. The basic cast is for 1m range, and can cause a Stun or Feint Basic Attack against the target. For a more forceful push of +6 Augmentation, it can be used as a Strike Basic Strike.
 **Spell DC**: 15 (Base DC).
 **Range Augmentation**: +1/m up to 5m (see Range table above).
 
 #### Magic Shove [Special Attack]
+
 The Caster uses Telekinesis to control a gust of wind towards a target, shoving them back 1m. The target can resist with a Stance check. Shifts can be used to push the target further back, make them Prone, or deal 1VP of damage.
 **Spell DC**: 20 (15 [Base DC] + 5 [Potency: Greater Intensity]).
 
@@ -270,10 +273,12 @@ The Caster uses Telekinesis to control a gust of wind towards a target, shoving 
 The Transfiguration Basic Arcane Spell can be used to change the body of a Being, within 1m of the Caster. The basic spell can cause superficial changes (e.g. changing hair color, creating calluses, deformities, or other minor changes), and anything more complex changes will require Augmentations. The changes are always temporary, and require Concentration to maintain. The target can choose wether to resist or not as they feel an external force molding their body.
 
 #### Disguise Being
+
 The Caster transfigures the facial appearance and features of a Being, within 1m of them, applying some physical deformations on an attempt to make them unrecognizable (making them look like someone else specifically would be much more difficult; also, they probably won't end up prettier than what they started as). The target can resist with a Toughness or Muscles Check. Creatures unaware of the disguise will need to roll an Awareness Check (or Perception if they have reason to doubt) against the Spell Check to recognize a person they are familiar with (of course they will get circumstantial modifiers if they know the person very well).
 **Spell DC**: 18 (15 [Base DC] + 3 [Potency: Multiple Changes]).
 
 #### Hideous Visage [Special Attack]
+
 The Caster transfigures a desired surface-level aspect of a target's appearance (within 1m), making it hideous and slightly repulsive. The target can resist the transformation itself with a Toughness or Muscles Check. If successful, the target then must resist again with a Tenacity check or take 1SP and become Demoralized while transformed. Regardless of their self-perception, they will get a -6 CHA circumstantial penalty to any social task involving their appearance to others.
 **Spell DC**: 18 (15 [Base DC] + 3 [Potency: Significant Change]).
 
@@ -282,18 +287,22 @@ The Caster transfigures a desired surface-level aspect of a target's appearance 
 The Command Basic Arcane Spell can be used to mentally tax a sentient Being's willpower, causing them to lose 1SP unless resist; or try to control simple beasts and plants. More Augmented casts can try to issue specific commands, and forcing them to do something fundamentally against their nature will require a very high DC.
 
 #### Confuse Mind [Special Attack]
+
 The Caster tries to mentally confuse a sentient Being's mind (within 1m), causing them to become Distracted unless they resist with a Tenacity Check. Shifts can be used to cause FP damage.
 **Spell DC**: 15 (Base DC).
 
 #### Erode Will [Special Attack]
+
 The Caster tries to mentally tax a sentient Being's willpower (within 1m), causing them to lose 1SP unless they resist with a Resolve Check.
 **Spell DC**: 18 (15 [Base DC] + 3 [Potency: Greater Intensity]).
 
 #### Ensnare [Special Attack]
+
 If on a suitable environment, the Caster can use Command to control vines or other plant matter on the floor to grow and try to Grapple or Trip a target (within 1m). The target can resist with an Evasiveness check.
 **Spell DC**: 18 (15 [Base DC] + 3 [Potency: Greater Intensity]).
 
 #### Command Being [Special Attack]
+
 The Caster gives a simple single word command to a sentient Being (within 1m). The target can resist with a Resolve Check. If they fail, they will feel compelled to follow the command, as long as it doesn't go against their nature. The Being might interpret the command in their own way.
 **Spell DC**: 20 for non sentient Beings (15 [Base DC] + 5 [Potency: Greater Intensity]); 30 for sentient Beings (15 [Base DC] + 15 [Potency: Multiple Changes]).
 
@@ -302,5 +311,6 @@ The Caster gives a simple single word command to a sentient Being (within 1m). T
 These spells are actually a combination of two Basic Arcane Spell casts, and therefore by default require 4AP (a whole turn) and 2FP to cast. Since they are cast together, for simplicity, the Caster can roll a single Spell Check against the combined **Spell DC** specified.
 
 #### Energy Bolt [Basic Attack]
+
 The Caster evokes a sphere of pure energy of their choice and use Telekinesis to hurl it towards an enemy within 10m with force; this can be used as a stronger Strike Basic Attack, you get two additional Shifts.
 **Spell DC**: 18 (15 [Base DC] + 3 [Potency: Greater Intensity (for both the harmful Evoke and the forceful Telekinesis)]).

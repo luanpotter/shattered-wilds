@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -uo pipefail
 
 # Go to repo root
 cd "$(dirname "$0")/.."
@@ -32,6 +32,14 @@ fi
 if ! command_exists npm; then
     print_status "31" "❌ Error: npm is not installed"
     exit 1
+fi
+
+# Check for markdownlint (optional but recommended)
+if ! command_exists markdownlint; then
+    print_status "33" "⚠️  Warning: markdownlint is not installed. Install with: npm install -g markdownlint-cli"
+    MARKDOWNLINT_AVAILABLE=false
+else
+    MARKDOWNLINT_AVAILABLE=true
 fi
 
 # Lint simulator project
@@ -117,6 +125,50 @@ fi
 
 cd ../..
 
+# Lint docs project
+print_status "34" "📦 Linting docs project..."
+cd docs
+
+# Check for common issues in docs files
+print_status "36" "🔧 Checking docs files..." 1
+DOCS_ISSUES=0
+
+# Check for broken links in markdown files (basic check)
+if command_exists grep; then
+    BROKEN_LINKS=$(find . -name "*.md" -not -path "./node_modules/*" -exec grep -l "\[.*\]()" {} \; 2>/dev/null || true)
+    if [ -n "$BROKEN_LINKS" ]; then
+        print_status "33" "⚠️  Warning: Found potential broken links in markdown files" 2
+        echo "$BROKEN_LINKS"
+        DOCS_ISSUES=$((DOCS_ISSUES + 1))
+    else
+        print_status "32" "✅ No broken links found" 2
+    fi
+fi
+
+# Check for common markdown issues
+if [ "$MARKDOWNLINT_AVAILABLE" = true ]; then
+    print_status "36" "🔧 Running markdownlint..." 1
+    MARKDOWNLINT_OUTPUT=$(markdownlint "**/*.md" -c ../.markdownlint.json 2>&1)
+    if [ $? -eq 0 ]; then
+        print_status "32" "✅ Docs markdownlint passed" 1
+    else
+        print_status "31" "❌ Docs markdownlint failed" 1
+        echo "$MARKDOWNLINT_OUTPUT"
+        DOCS_ISSUES=$((DOCS_ISSUES + 1))
+    fi
+else
+    print_status "33" "⚠️  markdownlint not installed, skipping markdown checks" 1
+fi
+
+if [ $DOCS_ISSUES -eq 0 ]; then
+    print_status "32" "✅ Docs checks passed" 1
+else
+    print_status "31" "❌ Docs checks failed ($DOCS_ISSUES issues)" 1
+    DOCS_FAILED=true
+fi
+
+cd ..
+
 # Summary
 echo ""
 print_status "34" "📊 Linting Summary:"
@@ -133,8 +185,14 @@ else
     print_status "32" "✅ Site: Passed"
 fi
 
+if [ "${DOCS_FAILED:-false}" = true ]; then
+    print_status "31" "❌ Docs: Failed"
+else
+    print_status "32" "✅ Docs: Passed"
+fi
+
 # Exit with error if any project failed
-if [ "${SIMULATOR_LINT_FAILED:-false}" = true ] || [ "${SITE_BUILD_FAILED:-false}" = true ] || [ "${SITE_FAILED:-false}" = true ]; then
+if [ "${SIMULATOR_LINT_FAILED:-false}" = true ] || [ "${SITE_BUILD_FAILED:-false}" = true ] || [ "${SITE_FAILED:-false}" = true ] || [ "${DOCS_FAILED:-false}" = true ]; then
     echo ""
     print_status "31" "❌ Linting failed! Please fix the issues above."
     exit 1
