@@ -10,3 +10,11 @@ next:
 # Rules - Basics
 
 {% include "docs/d12.md" %}
+
+## Attributes
+
+{% include "docs/attributes.md" %}
+
+## Feats
+
+{% include "docs/feats.md" %}
