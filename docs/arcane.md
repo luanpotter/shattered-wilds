@@ -1,5 +1,3 @@
-# Arcane Spellcasting
-
 The Arcane is a science about the laws of physics, the art of controlling the world by recreating shockwaves in reality by precise hand movements and sounds in order to produce certain effects based on the current state of the world. It requires a strong level of focus and mental ability to concoct the exact movements for any desired outcome given any current circumstances.
 
 While creating the necessary movements and sounds can be assisted through the use of mechanical devices, it appears that their primordial source must be tied to a Soul, so it is not possible to completely automate the process. Some sequences of movements can be combined by crafting mechanical devices (the specialty of the Mechanistic caster), but those must still be executed by the caster. Also since the exact movements depend on the circumstances, it cannot be fully prepared ahead of time, requiring intense focus during the moment of casting.
@@ -8,11 +6,11 @@ You can think of Arcane as a spell system where the Player chooses the desired e
 
 Arcane spells are first and foremost a specific combination of a verb and a noun, which together define their School.
 
-| Verb / Noun | Matter        | Energy      | Being           |
-|-------------|---------------|-------------|-----------------|
-| Create      | Conjuration   | Evocation   | -               |
-| Transform   | Transmutation | -           | Transfiguration |
-| Control     | -             | Telekinesis | Command         |
+| Verb / Noun     | Matter        | Energy      | Being           |
+|-----------------|---------------|-------------|-----------------|
+| **Create**      | Conjuration   | Evocation   | -               |
+| **Transform**   | Transmutation | -           | Transfiguration |
+| **Control**     | -             | Telekinesis | Command         |
 
 In the view of the Arcane, the bodies of Beings are not just material, as they are tied to their Spark (or Soul). Think of Beings having an impenetrable aura that prevents Matter and Energy manipulation inside. However, the Being can still be manipulated directly, via Transfiguration or Command. While Telekinesis cannot be used directly on beings, the air around beings can be controlled to cause gusts of wind While Telekinesis cannot be used directly on beings, the air around beings can be controlled to cause gusts of wind for various effects.
 
@@ -89,9 +87,9 @@ The execution of Verbal components requires a baseline freedom of speech; so the
 
 The somatic component can include hand gestures, body movements, or tool-assisted movements. Typically, this will be done in the form of fast and precise hand gestures. Mechanistics are able to concoct and use tools to replace their Somatic component.
 
-**Basic Hand Gestures**: +1
-**One-Handed Tool Use**: +2
-**Two-Handed Tool Use**: +3
+* **Basic Hand Gestures**: +1
+* **One-Handed Tool Use**: +2
+* **Two-Handed Tool Use**: +3
 
 The execution of Somatic components require a baseline freedom of movement; so they cannot be performed while under the [[Condition_Immobilized | Immobilized]] condition.
 
@@ -99,9 +97,9 @@ The execution of Somatic components require a baseline freedom of movement; so t
 
 The focal component can include the simple presence of a specific magical object as a focus. Naturalists are able to create and bind themselves to custom foci by crafting them from materials.
 
-**One-Handed Wand**: +1
-**Two-Handed Staff**: +2
-**Custom Focus**: +3
+* **One-Handed Wand**: +1
+* **Two-Handed Staff**: +2
+* **Custom Focus**: +3
 
 The execution of Focal components require touching and minor manipulation of the focus; the Disarm action can be used to try to remove the focus from a caster's hand.
 
@@ -119,18 +117,18 @@ Every spell is essentially a specialization of the Basic Arcane Spell, with a sp
 
 The typical casting time of the Basic Arcane Spell is 2AP. The table below shows other options:
 
-| AP | Modifier |
-|----|----------|
-| 1  | -12      |
-| 2  | 0        |
-| 3  | +2       |
-| 4  | +4       |
+| AP | CM  |
+|----|-----|
+| 1  | -12 |
+| 2  | 0   |
+| 3  | +2  |
+| 4  | +4  |
 
-Extending the casting time over several time has severe diminishing returns, and can be impractical on combat. When casting a spell with no time sensitivity, the caster can choose to cast as a Ritual, taking 15 minutes for a maximum of +6 bonus.
+Extending the casting time over longer periods has severe diminishing returns, and would be impractical during an Encounter. When casting a Spell with no time sensitivity, the caster can choose to cast as a **Ritual**, taking 15 minutes for a maximum of +6 [[Circumstance_Modifier | CM]].
 
 ### Focus Cost
 
-The typical focus cost of the Basic Arcane Spell is 1[[Resource_Focus_Point | FP]]. Each additional [[Resource_Focus_Point | FP]] will add a +1 modifier, up to twice the number of [[Resource_Action_Point | AP]] used (one can't just cram that much focus into too little time). If the spell is being cast as a Ritual, there is no limit on the amount of [[Resource_Focus_Point | FP]] that can be spent.
+The typical focus cost of the Basic Arcane Spell is 1 [[Resource_Focus_Point | FP]]. Each additional [[Resource_Focus_Point | FP]] will add a +1 modifier, up to twice the number of [[Resource_Action_Point | AP]] used (one can't just cram that much focus into too little time). If the spell is being cast as a Ritual, there is no limit on the amount of [[Resource_Focus_Point | FP]] that can be spent.
 
 ### Duration
 
