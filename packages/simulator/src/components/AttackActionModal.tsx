@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaDice, FaFistRaised, FaUserShield } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { CharacterSheet, AttributeType, Shield } from '../types';
+import { CharacterSheet, Shield, DefenseType } from '../types';
 import { findNextWindowPosition } from '../utils';
 
 interface AttackActionModalProps {
@@ -52,7 +52,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			const attackerSheet = CharacterSheet.from(attacker.props);
 			const defenderSheet = CharacterSheet.from(defender.props);
 			const attack = attackerSheet.getBasicAttacks()[attackIndex];
-			const defense = defenderSheet.getBasicDefense();
+			const defense = defenderSheet.getBasicDefense(DefenseType.Basic);
 
 			if (attack && defender.automaticMode) {
 				const autoResult = getAutomaticResult(defense.value);
@@ -72,20 +72,13 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	const attackerSheet = CharacterSheet.from(attacker.props);
 	const defenderSheet = CharacterSheet.from(defender.props);
 	const attack = attackerSheet.getBasicAttacks()[attackIndex];
-	const defense = defenderSheet.getBasicDefense();
 
-	// Calculate dodge value (Evasiveness + 3)
-	const evasivenessValue = defenderSheet.getAttributeTree().valueOf(AttributeType.Evasiveness);
-	const dodgeValue = evasivenessValue + 3;
+	const basicDefense = defenderSheet.getBasicDefense(DefenseType.Basic);
+	const dodgeDefense = defenderSheet.getBasicDefense(DefenseType.Dodge);
+	const shieldDefense = defenderSheet.getBasicDefense(DefenseType.Shield);
 
 	// Check if defender has a shield and calculate shield block value
 	const hasShield = defenderSheet.equipment.items.some(item => item instanceof Shield);
-	const shieldBonus = hasShield
-		? defenderSheet.equipment.items
-				.filter(item => item instanceof Shield)
-				.reduce((total, item) => total + (item as Shield).bonus, 0)
-		: 0;
-	const shieldBlockValue = defense.value + shieldBonus;
 
 	if (!attack) {
 		return <div>Error: Attack not found</div>;
@@ -94,7 +87,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	const handleDefenseRoll = () => {
 		if (defender.automaticMode && !defenseResult) {
 			// Use automatic value for defense (initial)
-			const autoResult = getAutomaticResult(defense.value);
+			const autoResult = getAutomaticResult(basicDefense.value);
 			setDefenseResult(autoResult);
 			setUsedDodge(false);
 		} else {
@@ -104,8 +97,8 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 				title: `Roll Defense - ${defender.props.name}`,
 				type: 'dice-roll',
 				position: findNextWindowPosition(useStore.getState().windows),
-				modifier: defense.value,
-				attributeName: 'Basic Defense',
+				modifier: basicDefense.value,
+				attributeName: basicDefense.description,
 				characterSheet: defenderSheet,
 				initialRollType: 'Contested (Passive)',
 				onDiceRollComplete: (result: { total: number; shifts: number }) => {
@@ -124,8 +117,8 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			title: `Roll Dodge - ${defender.props.name}`,
 			type: 'dice-roll',
 			position: findNextWindowPosition(useStore.getState().windows),
-			modifier: dodgeValue,
-			attributeName: 'Dodge (Evasiveness + 3)',
+			modifier: dodgeDefense.value,
+			attributeName: dodgeDefense.description,
 			characterSheet: defenderSheet,
 			initialRollType: 'Contested (Passive)',
 			onDiceRollComplete: (result: { total: number; shifts: number }) => {
@@ -143,8 +136,8 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			title: `Roll Shield Block - ${defender.props.name}`,
 			type: 'dice-roll',
 			position: findNextWindowPosition(useStore.getState().windows),
-			modifier: shieldBlockValue,
-			attributeName: `Shield Block (Body Defense + ${shieldBonus})`,
+			modifier: shieldDefense.value,
+			attributeName: shieldDefense.description,
 			characterSheet: defenderSheet,
 			initialRollType: 'Contested (Passive)',
 			onDiceRollComplete: (result: { total: number; shifts: number }) => {
@@ -253,10 +246,9 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 						<FaUserShield /> Defender: {defender.props.name}
 					</h4>
 
-					<p>Defense Value: {defense.value}</p>
-					<p>
-						Dodge Value: {dodgeValue} (Evasiveness {evasivenessValue} + 3)
-					</p>
+					<p>Basic Defense: {basicDefense.value}</p>
+					<p>Dodge Defense: {dodgeDefense.value}</p>
+					{hasShield ? <p>Shield Defense: {shieldDefense.value}</p> : ''}
 
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 						<button style={buttonStyle} onClick={handleDefenseRoll}>
@@ -274,7 +266,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 
 						{hasShield && (
 							<button style={buttonStyle} onClick={handleShieldBlockRoll}>
-								<FaDice /> Roll Shield Block (1 AP) +{shieldBonus}
+								<FaDice /> Roll Shield Block (1 AP) +{shieldDefense.value}
 							</button>
 						)}
 					</div>

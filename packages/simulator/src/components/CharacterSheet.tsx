@@ -2,7 +2,15 @@ import React, { useEffect } from 'react';
 import { FaPlus, FaMinus, FaBatteryFull } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { Character, CharacterSheet, DerivedStat, Size, SizeModifiers, Equipment } from '../types';
+import {
+	Character,
+	CharacterSheet,
+	DerivedStat,
+	Size,
+	SizeModifiers,
+	Equipment,
+	DefenseType,
+} from '../types';
 import { findNextWindowPosition } from '../utils';
 
 import { AttributeTreeComponent } from './AttributeTreeComponent';
@@ -219,7 +227,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 	};
 
 	const basicAttacks = sheet.getBasicAttacks();
-	const basicDefense = sheet.getBasicDefense();
+	const basicDefense = sheet.getBasicDefense(DefenseType.Basic);
 
 	return (
 		<div style={{ margin: 0, padding: 0, width: '100%', height: '100%', overflowY: 'scroll' }}>

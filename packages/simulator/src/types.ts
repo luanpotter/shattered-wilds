@@ -976,17 +976,40 @@ export class CharacterSheet {
 		return attacks;
 	}
 
-	getBasicDefense(): DerivedStat<number> {
-		const body = this.getAttributeTree().valueOf(AttributeType.Body);
+	getBasicDefense(type: DefenseType): DerivedStat<number> {
 		const sizeModifier = SizeModifiers[this.derivedStats.size.value];
 		const armorBonus = this.equipment.items
 			.filter(item => item instanceof Armor)
 			.reduce((acc, item) => acc + (item as Armor).bonus, 0);
-		const defense = body - sizeModifier + armorBonus;
-		return {
-			value: defense,
-			description: `Basic Defense = ${body} (Body) - ${sizeModifier} (size modifier) + ${armorBonus} (armor bonus)`,
-		};
+		switch (type) {
+			case DefenseType.Basic: {
+				const body = this.getAttributeTree().valueOf(AttributeType.Body);
+				const defense = body - sizeModifier + armorBonus;
+				return {
+					value: defense,
+					description: `Basic Defense = ${body} (Body) - ${sizeModifier} (size modifier) + ${armorBonus} (armor bonus)`,
+				};
+			}
+			case DefenseType.Dodge: {
+				const evasiveness = this.getAttributeTree().valueOf(AttributeType.Evasiveness);
+				const defense = evasiveness - sizeModifier + armorBonus + 3;
+				return {
+					value: defense,
+					description: `Dodge Defense = ${evasiveness} (Evasiveness) - ${sizeModifier} (size modifier) + ${armorBonus} (armor bonus) + 3 (base)`,
+				};
+			}
+			case DefenseType.Shield: {
+				const body = this.getAttributeTree().valueOf(AttributeType.Body);
+				const shieldBonus = this.equipment.items
+					.filter(item => item instanceof Shield)
+					.reduce((acc, item) => acc + (item as Shield).bonus, 0);
+				const defense = body - sizeModifier + armorBonus + shieldBonus;
+				return {
+					value: defense,
+					description: `Shield Defense = ${body} (Body) - ${sizeModifier} (size modifier) + ${armorBonus} (armor bonus) + ${shieldBonus} (shield bonus)`,
+				};
+			}
+		}
 	}
 
 	static from(props: Record<string, string>): CharacterSheet {
@@ -1485,4 +1508,10 @@ export interface Check {
 	attribute: AttributeType;
 	bonus: number;
 	modifier: number;
+}
+
+export enum DefenseType {
+	Basic = 'Basic',
+	Dodge = 'Dodge',
+	Shield = 'Shield',
 }
