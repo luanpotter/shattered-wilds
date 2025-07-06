@@ -41,7 +41,14 @@ cd packages/simulator
 # Install dependencies if needed
 if [ ! -d "node_modules" ]; then
     print_status "33" "📥 Installing simulator dependencies..." 1
-    bun install
+    SIMULATOR_INSTALL_OUTPUT=$(bun install 2>&1)
+    if [ $? -eq 0 ]; then
+        print_status "32" "✅ Simulator dependencies installed" 1
+    else
+        print_status "31" "❌ Simulator dependencies installation failed" 1
+        echo "$SIMULATOR_INSTALL_OUTPUT"
+        exit 1
+    fi
 fi
 
 # Run simulator linting checks
@@ -64,7 +71,14 @@ cd packages/site
 # Install dependencies if needed
 if [ ! -d "node_modules" ]; then
     print_status "33" "📥 Installing site dependencies..." 1
-    npm install
+    SITE_INSTALL_OUTPUT=$(npm install 2>&1)
+    if [ $? -eq 0 ]; then
+        print_status "32" "✅ Site dependencies installed" 1
+    else
+        print_status "31" "❌ Site dependencies installation failed" 1
+        echo "$SITE_INSTALL_OUTPUT"
+        exit 1
+    fi
 fi
 
 # Basic site project checks
