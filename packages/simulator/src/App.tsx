@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaUsers, FaCrosshairs, FaTimes, FaEdit, FaPlay } from 'react-icons/fa';
+import { FaUsers, FaCrosshairs, FaTimes, FaEdit, FaPlay, FaHome } from 'react-icons/fa';
 
 import { BattleGrid } from './components/HexGrid';
 import { WindowComponent } from './components/Window';
@@ -192,6 +192,9 @@ const App = (): React.ReactElement => {
 					>
 						<h1 style={{ margin: 0 }}>D12 Simulator</h1>
 						<div style={{ display: 'flex', gap: '1rem' }}>
+							<button onClick={() => (window.location.href = '/')}>
+								<FaHome /> Back to Site
+							</button>
 							<button onClick={handleOpenCharacterList}>
 								<FaUsers /> Characters
 							</button>
@@ -242,10 +245,11 @@ const App = (): React.ReactElement => {
 					marginTop: '-8px',
 					width: '1200px',
 					margin: '0 auto',
+					fontSize: '12px',
 				}}
 			>
-				<div style={{ margin: '0 auto' }}>
-					<p style={{ margin: 0, paddingBottom: '8px' }}>&copy; 2025 - D12 Simulator - Luan Nico</p>
+				<div style={{ margin: '0 auto', textAlign: 'right' }}>
+					<p style={{ margin: 0, paddingBottom: '8px' }}>&copy; 2025 Shattered Wilds - Luan Nico</p>
 				</div>
 			</footer>
 			{windows.map(window => (

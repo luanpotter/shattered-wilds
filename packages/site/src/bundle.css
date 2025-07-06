@@ -15,8 +15,8 @@ header h1 {
 
 /* override: force dark mode */
 :root {
-  --bg: #212121;
-  --accent-bg: #2b2b2b;
+  --bg: #202B38;
+  --accent-bg: #0C151C;
   --text: #dcdcdc;
   --text-light: #ababab;
   --border: #666;
@@ -54,7 +54,7 @@ header h1 a {
 
 body > footer {
   padding: 4px;
-  font-size: 0.5em;
+  font-size: 12px;
 }
 
 body > footer > p {
