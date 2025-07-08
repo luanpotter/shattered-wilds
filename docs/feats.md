@@ -1,19 +1,19 @@
-Alongside Stats (and modifiers), a character also has a collection of Feats, which can represent a wide variety of things. Typically a Player character will gain 2 Feats per level, a **Skill Feat** and an **Action Feat**.
+Alongside Stats (and modifiers), a character also has a collection of Feats, which can represent a wide variety of things. Typically a Player character will gain 2 Feats per level, a **Minor Feat** and an **Major Feat**.
 
-**Skill Feats** will typically give [[Circumstance Modifier | CM]] to a certain Checks under certain circumstances; though they can also grant more qualitative minor benefits.
+**Minor Feats** will typically give [[Circumstance Modifier | CM]] to a certain Checks under certain circumstances; though they can also grant more qualitative minor benefits.
 
-**Action Feats** typically allow you to perform a unique action, be it an actual [[Action]] during an Encounter, or just the ability of doing something (such as _Dark Vision_). These are more qualitative in nature - though the lines can be blurry.
+**Major Feats** typically allow you to perform a unique action, be it an actual [[Action]] during an Encounter, or just the ability of doing something (such as _Dark Vision_). These are more qualitative in nature - though the lines can be blurry.
 
-The reason they are separated is to allow Players to choose a Skill Feat every level. For example, in D&D 5e, if you pick the Chef feat you are probably "underpowered". Since Players must always pick one of each type of Feat, this enables Players to pick Skill Feats without being tempted into over-optimizing for combat damage.
+The reason they are separated is to allow Players to choose a Minor Feat every level. For example, in D&D 5e, if you pick the Chef feat you are probably "underpowered". Since Players must always pick one of each type of Feat, this enables Players to pick Minor Feats without being tempted into over-optimizing for combat damage.
 
 There are three sources of Feats as you level up:
 
 * At Level 0, you receive your two **Race and Upbringing-related Feats** (and stat modifiers).
   * **Note**: Level 0 characters are peasants and not adventurers.
-* At Level 1, you pick your Class, and thus receive your mandatory **Class Skill & Action Feats**. The Skill Feat will always be a +1 to your Primary Attribute, and the Action Feat will be the quintessential ability of your class.
-* At Level 2 upwards, you can pick any one Skill and Action Feat from your **Class Feats** or the **General Feats**.
+* At Level 1, you pick your Class, and thus receive your mandatory **Class Skill & Major Feats**. The Minor Feat will always be a +1 to your Primary Attribute, and the Major Feat will be the quintessential ability of your class.
+* At Level 2 upwards, you can pick any one Skill and Major Feat from your **Class Feats** or the **General Feats**.
 
-## General Skill Feats
+## General Minor Feats
 
 * **Skill Proficiency**: Choose one skill to get +2 to and another from the same Realm to get -2 to. This can bypass your level cap.
 
@@ -23,7 +23,7 @@ There are three sources of Feats as you level up:
 
 * **Animal Mimicry**: You have an uncanny knack for mimicking animal sounds. If you are familiar with it, and a humanoid could conceivably reproduce it, you can make a good-enough impression that an untrained ear could not distinguish it. An expert (such as someone with the Sylvan Upbringing) could run an [[Stat_Intuition | Intuition]] Check (or [[Stat_Knowledge | Knowledge]] if they have reason to suspect) to try to assess the veracity of the sound.
 
-## General Action Feats
+## General Major Feats
 
 * **Quick Draw**: If you have at least one hand free, you can spend 1 [[Focus Point | FP]] to draw a Light Melee Weapon without spending an action.
 

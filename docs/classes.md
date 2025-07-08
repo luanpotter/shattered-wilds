@@ -63,7 +63,7 @@ Allows you to pick Feats with the `Nature` background.
 
 ### Scoundrel Warriors Feats
 
-* **Thieves's Fingers (Skill Feat)** (Level 2): lock picking, trap disarming, etc.
+* **Thieves's Fingers (Minor Feat)** (Level 2): lock picking, trap disarming, etc.
 * auto disengage (swashbuckler)
 * **Leverage** (Level 2): TODO(sneak attack equivalent)
 * **Skilled** (Level 2): TODO

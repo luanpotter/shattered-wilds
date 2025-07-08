@@ -35,8 +35,8 @@ A character gets the size of their primary race and they can decide to get the c
 Your upbringing grants you three things:
 
 * Upbringing Modifier: A pair of [[Stat_Mind | Mind]]/[[Stat_Soul | Soul]] Realms modifiers (+1 in one Attribute, -1 in another)
-* Your [[Stat_Level | Level]] 0 **Action Feat**
-* Your [[Stat_Level | Level]] 0 **Skill Feat: Specialized Knowledge ([Upbringing])**: You have +3 to [[Stat_Knowledge | Knowledge]] or [[Stat_Intuition | Intuition]] Checks about aspects related to your upbringing environment.
+* Your [[Stat_Level | Level]] 0 **Major Feat**
+* Your [[Stat_Level | Level]] 0 **Minor Feat: Specialized Knowledge ([Upbringing])**: You have +3 to [[Stat_Knowledge | Knowledge]] or [[Stat_Intuition | Intuition]] Checks about aspects related to your upbringing environment.
 
 Players are welcome to craft their own Cultural Background with their DM, but there are five pre-defined backgrounds to choose from. You can still choose any attributes for the modifiers, but you should choose a pair of modifiers that make sense with your backstory. If your class is a Caster or Mystic, choosing your the +1 to your Main Attribute is always inherently justifiable.
 
@@ -44,9 +44,9 @@ Players are welcome to craft their own Cultural Background with their DM, but th
 
 This character lived their childhood in a medium-sized village or town (much larger cities are extremely rare and hard to find). Human and Elven communities are often Urban.
 
-* **Action Feat: Specialized Training**: Choose any two Skill Feats from the General list.
+* **Major Feat: Specialized Training**: Choose any two Minor Feats from the General list.
 * **Typical Upbringing Modifier**: + [[Stat_INT | INT]]/[[Stat_CHA | CHA]]/[[Stat_LCK | LCK]], - [[Stat_WIS | WIS]]/[[Stat_DIV | DIV]]/[[Stat_FOW | FOW]]
-* **Typical Skill Feat Application**: recall urban lore, politics, commerce, something specific about the city, etc.
+* **Typical Minor Feat Application**: recall urban lore, politics, commerce, something specific about the city, etc.
 
 ### Nomadic
 
@@ -54,30 +54,30 @@ This character grew up as a nomad, traveling in a small party, family or group v
 
 A typical scenario is a small group of low-level adventurers, that eventually have (or encounter) a child, and now must find a way to raise them until they can find the next safe village to drop them off (which can be rare to find depending on where they are).
 
-* **Action Feat: Nomadic Alertness**: Can make [[Stat_Awareness | Awareness]] Checks to spot danger while sleeping in the Wilds with no [[Circumstance Modifier | CM]] penalty.
+* **Major Feat: Nomadic Alertness**: Can make [[Stat_Awareness | Awareness]] Checks to spot danger while sleeping in the Wilds with no [[Circumstance Modifier | CM]] penalty.
 * **Typical Upbringing Modifier**: + [[Stat_WIS | WIS]]/[[Stat_FOW | FOW]]/[[Stat_LCK | LCK]], - [[Stat_INT | INT]]/[[Stat_CHA | CHA]]/[[Stat_DIV | DIV]]
-* **Typical Skill Feat Application**: intuit about surviving in the Wilds, foraging, tracking, etc.
+* **Typical Minor Feat Application**: intuit about surviving in the Wilds, foraging, tracking, etc.
 
 ### Tribal
 
 This character grew up in a settlement with a strong tribal structure, with hierarchies and clans. Dwarven, Fey and Goliath communities are often Tribal.
 
-* **Action Feat: Tribal Endurance**: Pay 1 Heroism Point to reduce your Exhaustion level by 1 if you can directly tie a current task to your personal sense of duty to your tribe (not doable in Combat).
+* **Major Feat: Tribal Endurance**: Pay 1 Heroism Point to reduce your Exhaustion level by 1 if you can directly tie a current task to your personal sense of duty to your tribe (not doable in Combat).
 * **Typical Upbringing Modifier**: + [[Stat_CHA | CHA]]/[[Stat_DIV | DIV]]/[[Stat_FOW | FOW]], - [[Stat_INT | INT]]/[[Stat_WIS | WIS]]/[[Stat_LCK | LCK]]
-* **Typical Skill Feat Application**: recall specific tribal knowledge and lore (depends on the tribe), intuit hierarchical structures between people, etc.
+* **Typical Minor Feat Application**: recall specific tribal knowledge and lore (depends on the tribe), intuit hierarchical structures between people, etc.
 
 ### Sylvan
 
 This character grew up in very small settlement embedded deep within the woods. Elven, Fey, and Goblin communities are often Sylvan.
 
-* **Action Feat: Light Feet**: Ignore difficult terrain due to natural vegetation, forest growth, etc.
+* **Major Feat: Light Feet**: Ignore difficult terrain due to natural vegetation, forest growth, etc.
 * **Typical Upbringing Modifier**: + [[Stat_WIS | WIS]]/[[Stat_DIV | DIV]]/[[Stat_FOW | FOW]], - [[Stat_INT | INT]]/[[Stat_CHA | CHA]]/[[Stat_LCK | LCK]]
-* **Typical Skill Feat Application**: recall fauna and flora lore, intuit animal handling, etc.
+* **Typical Minor Feat Application**: recall fauna and flora lore, intuit animal handling, etc.
 
 ### Telluric
 
 This character grew up in a cave-dwelling settlement, deep within cave systems. Dwarven, Orc and Goliath communities are often Telluric.
 
-* **Action Feat: Dark Vision**: See black-and-white in the dark.
+* **Major Feat: Dark Vision**: See black-and-white in the dark.
 * **Typical Upbringing Modifier**: + [[Stat_INT | INT]]/[[Stat_CHA | CHA]]/[[Stat_LCK | LCK]], - [[Stat_WIS | WIS]]/[[Stat_DIV | DIV]]/[[Stat_FOW | FOW]]
-* **Typical Skill Feat Application**: intuit your way through caves and dungeons, recall minerals, mining, and ore lore, etc.
+* **Typical Minor Feat Application**: intuit your way through caves and dungeons, recall minerals, mining, and ore lore, etc.
