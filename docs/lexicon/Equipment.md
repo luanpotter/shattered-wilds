@@ -1,22 +1,22 @@
-Equipments can be used to add [[Circumstance Modifier | CM (Circumstance Modifiers)]] to different checks, notably Attack Checks (for Weapons) and Body Defense Checks (for Armor).
+Equipments can be used to add [[Circumstance Modifier | CM (Circumstance Modifiers)]] to different checks, notably Attack Checks (for Weapons) and [[Stat_Body | Body]] Defense Checks (for Armor).
 
 # Weapons
 
-Unlike other games, weapons don't have separate damage dice, as damage is determined by Shifts. Every weapon can be simply described by its **Primary Weapon Type** (which defines the Base Attribute use for its [[Check]]), its **Weapon Bonus**, and any special traits it has. The Weapon Bonus is the final value to be added to your attack roll [[Check]], which will be a [[STR]] or [[DEX]] roll + [weapon bonus] (+ [[Circumstance Modifier | CM]]).
+Unlike other games, weapons don't have separate damage dice, as damage is determined by Shifts. Every weapon can be simply described by its **Primary Weapon Type** (which defines the Base Attribute use for its [[Check]]), its **Weapon Bonus**, and any special traits it has. The Weapon Bonus is the final value to be added to your attack roll [[Check]], which will be a [[Stat_STR | STR]] or [[Stat_DEX | DEX]] roll + [weapon bonus] (+ [[Circumstance Modifier | CM]]).
 
 Different **Primary Weapon Types** have different "power levels". This means that two similarly rare weapons of different types will _typically_ have different bonuses. For example, a common _Dagger (Light Melee)_ will be have a +3 bonus, while a common _Longsword (Heavy Melee)_ will have a +8 bonus, because a _Longsword_ is inherently more powerful. However, rarer and more powerful weapons of any kind can have higher bonuses, and the weapon bonus is the only modifier that matters for your Basic Attack Check. So a _Dagger +10_ has the same bonus as a _Longsword +10_, but finding or forging such a powerful dagger would be much more difficult.
 
 | Primary Weapon Type | Base Attribute | Power Level |
 |---------------------|----------------|-------------|
-| Unarmed             | STR or DEX     | 0           |
-| Thrown              | STR            | 1           |
-| Light Melee         | DEX            | 2           |
-| Ranged              | DEX            | 2           |
-| Heavy Melee         | STR            | 3           |
+| Unarmed             | [[Stat_STR \| STR]] or [[Stat_DEX \| DEX]]     | 0           |
+| Thrown              | [[Stat_STR \| STR]]            | 1           |
+| Light Melee         | [[Stat_DEX \| DEX]]            | 2           |
+| Ranged              | [[Stat_DEX \| DEX]]            | 2           |
+| Heavy Melee         | [[Stat_STR \| STR]]            | 3           |
 
 The list below contains an assortment of common weapons that could be find in blacksmiths and shops on a typical village. As players explore, they might encounter more powerful versions or more exotic weapon types. Note that this list contains slightly broad category of weapons but the exact flavor can be changed (e.g. a Spear can be a Glaive or a Halberd, a Longsword can be a Bastard Sword or a Claymore, etc.).
 
-* **Shield Bash**: Unarmed (STR) +1
+* **Shield Bash**: Unarmed ([[Stat_STR | STR]]) +1
 * **Javelin**: Thrown +2 (Range 7m)
 * **Hatchet**: Light Melee +2, Thrown +3 (Range 5m) (Hand Axe)
 * **Dagger**: Light Melee +3, Thrown +2 (Range 5m) [Concealable] (Knife)
@@ -29,11 +29,11 @@ The list below contains an assortment of common weapons that could be find in bl
 
 # Armor
 
-Similarly to Weapons, a piece of Armor is described by its Armor Bonus, and any special traits (typically a DEX penalty).
+Similarly to Weapons, a piece of Armor is described by its Armor Bonus, and any special traits (typically a [[Stat_DEX | DEX]] penalty).
 
 * **Light Armor** +1 (Leather Armor)
-* **Medium Armor** +3, -1 DEX (Chainmail)
-* **Heavy Armor** +5, -3 DEX (Full Plate)
+* **Medium Armor** +3, -1 [[Stat_DEX | DEX]] (Chainmail)
+* **Heavy Armor** +5, -3 [[Stat_DEX | DEX]] (Full Plate)
 
 # Shields
 

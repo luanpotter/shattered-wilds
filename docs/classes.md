@@ -101,5 +101,5 @@ Generic Feats can be picked by any class, as long as the requirements are met.
 * **Mounted Combat Expertise** (Level 2): TODO
 
 Nature Feats:
-plus x to Knowledge or Intuition checks about or regarding the natural world
+plus x to [[Stat_Knowledge | Knowledge]] or [[Stat_Intuition | Intuition]] checks about or regarding the natural world
 speak with animals ?, dominating beasts

@@ -4,9 +4,9 @@ The most **ephemeral** resource point is the [[Resource_Action_Point | Action Po
 
 Then we have the three **crucial** Resource Points, each representing one of the character's [[Realm | Realms]], that can be recovered with a [[Short Rest]]:
 
-* [[Resource_Vitality_Point | Vitality Points]] ([[Body]])
-* [[Resource_Focus_Point | Focus Points]] ([[Mind]])
-* [[Resource_Spirit_Point | Spirit Points]] ([[Soul]])
+* [[Resource_Vitality_Point | Vitality Points]] ([[Stat_Body | Body]])
+* [[Resource_Focus_Point | Focus Points]] ([[Stat_Mind | Mind]])
+* [[Resource_Spirit_Point | Spirit Points]] ([[Stat_Soul | Soul]])
 
 Reaching zero of any of these points will cause the character to be [[Condition_Incapacitated | Incapacitated]].
 

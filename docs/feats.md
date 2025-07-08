@@ -21,7 +21,7 @@ There are three sources of Feats as you level up:
 
 * **Lip Reading**: You can read lips to understand what people are saying when you can see them clearly.
 
-* **Animal Mimicry**: You have an uncanny knack for mimicking animal sounds. If you are familiar with it, and a humanoid could conceivably reproduce it, you can make a good-enough impression that an untrained ear could not distinguish it. An expert (such as someone with the Sylvan Upbringing) could run an [[Intuition]] Check (or [[Knowledge]] if they have reason to suspect) to try to assess the veracity of the sound.
+* **Animal Mimicry**: You have an uncanny knack for mimicking animal sounds. If you are familiar with it, and a humanoid could conceivably reproduce it, you can make a good-enough impression that an untrained ear could not distinguish it. An expert (such as someone with the Sylvan Upbringing) could run an [[Stat_Intuition | Intuition]] Check (or [[Stat_Knowledge | Knowledge]] if they have reason to suspect) to try to assess the veracity of the sound.
 
 ## General Action Feats
 

@@ -2,7 +2,7 @@ Robbing the definitions of _Encounter_ and _Exploration Modes_ directly from [Pa
 
 > When every individual action counts, you enter the encounter mode of play. In this mode, time is divided into rounds, each of which is 6 seconds of time in the game world. Every round, each participant takes a turn in an established order.
 
-In order to start an **Encounter**, all participants must first roll an [[Initiative]] (`= Agility + Awareness`) (a special type [[Contested Check]] that is fully passive). As a courtesy to the _Players_, ties are decided in their favor.
+In order to start an **Encounter**, all participants must first roll an [[Initiative]] (`= [[Stat_Agility | Agility]] + [[Stat_Awareness | Awareness]]`) (a special type [[Contested Check]] that is fully passive). As a courtesy to the _Players_, ties are decided in their favor.
 
 Participants who are not surprised start their first round with 4 [[Resource_Action_Point | Action Points]] (**AP**). **AP** can be used to perform [[Action | Actions]] during the participant's turn or to use Reactions at any point. They are refreshed at the end of the participant's turn. That means users do not need to decide whether to "save" **AP** for reactions.
 
