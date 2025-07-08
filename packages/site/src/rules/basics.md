@@ -13,7 +13,7 @@ next:
 
 ## Stats
 
-{% include "docs/stats.md" %}
+{% include "docs/lexicon/Stat.md" %}
 
 ## Feats
 
