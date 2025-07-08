@@ -11,9 +11,9 @@ next:
 
 {% include "docs/d12.md" %}
 
-## Attributes
+## Stats
 
-{% include "docs/attributes.md" %}
+{% include "docs/stats.md" %}
 
 ## Feats
 
