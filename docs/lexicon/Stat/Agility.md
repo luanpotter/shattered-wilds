@@ -1,9 +1,11 @@
-Speed, how fast you can move and do things
+Speed, quickness; how fast one can move and do things.
 
 ## Parent Stat
 
 * {% item "Stat/DEX" %}
 
-## Children Stats
+## Example Usages
 
-None (Skill level)
+* Used to computed [[Derived_Stat_Initiative | Initiative]]
+* Used to computed [[Derived_Stat_Movement | Movement]]
+* A Check can be used to determine if you are able to react quickly enough to an event, for example, catching a poorly or unexpectedly thrown object.

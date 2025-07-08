@@ -1,9 +1,9 @@
-Resistance to sickness, poison, disease
+Resistance to sickness, poison and disease.
 
 ## Parent Stat
 
 * {% item "Stat/CON" %}
 
-## Children Stats
+## Example Usages
 
-None (Skill level)
+* A Contested Check can be used to resist the effects of Noxious Gas or other poisons.

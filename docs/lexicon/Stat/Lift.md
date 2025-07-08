@@ -4,6 +4,7 @@ How much weight you can lift and carry for short periods of times, including you
 
 * {% item "Stat/STR" %}
 
-## Children Stats
+## Example Usages
 
-None (Skill level)
+* A Check can be used to lift a heavy object.
+* A Check can be used to perform challenging upwards movements, such as climbing, ascending a rope, etc.

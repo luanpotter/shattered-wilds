@@ -1,9 +1,11 @@
-Evasion, Acrobatics, precise movement of the body
+Evasion, acrobatics, escapism; precise body movement.
 
 ## Parent Stat
 
 * {% item "Stat/DEX" %}
 
-## Children Stats
+## Example Usages
 
-None (Skill level)
+* A Check can be used to perform a tricky acrobatic maneuver.
+* A Contested Check can be used to resist Special Attacks actions such as Grapple.
+* A Contested Check can be used to resist Arcane Special Attacks such as Hurl Spikes.
