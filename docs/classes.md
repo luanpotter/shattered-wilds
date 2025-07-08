@@ -44,7 +44,7 @@ Ranged Warriors focus on Dexterity, and thus are favored to use Light Melee or R
 
 Tank Warriors focus on Constitution, and thus are focused on defense and therefore do not have a specific weapon focus.
 
-* **Shield Bash** (Level 3): TODO
+* **Shield Bash++** (Level 3): TODO
 * **Improved Taunt** (Level 3): TODO
 * better armor - less penalty.
 * advantage on resist stumble through
@@ -63,9 +63,10 @@ Allows you to pick Feats with the `Nature` background.
 
 ### Scoundrel Warriors Feats
 
+* **Thieves's Fingers (Skill Feat)** (Level 2): lock picking, trap disarming, etc.
+* auto disengage (swashbuckler)
 * **Leverage** (Level 2): TODO(sneak attack equivalent)
 * **Skilled** (Level 2): TODO
-* something traps plus lockpicking related. skulk? TODO
 
 ## Casters
 
