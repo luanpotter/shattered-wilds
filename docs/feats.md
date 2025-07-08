@@ -4,7 +4,7 @@ Alongside Stats (and modifiers), a character also has a collection of Feats, whi
 
 **Major Feats** typically allow you to perform a unique action, be it an actual [[Action]] during an Encounter, or just the ability of doing something (such as _Dark Vision_). These are more qualitative in nature - though the lines can be blurry.
 
-The reason they are separated is to allow Players to choose a Minor Feat every level. For example, in D&D 5e, if you pick the Chef feat you are probably "underpowered". Since Players must always pick one of each type of Feat, this enables Players to pick Minor Feats without being tempted into over-optimizing for combat damage.
+The reason they are separated is to allow Players to choose a **Minor Feat** every level. For example, in D&D 5e, if you pick the Chef feat you are probably "underpowered". Since Players must always pick one of each type of Feat, this enables Players to pick **Minor Feats** without being tempted into over-optimizing for combat damage, and still get their one **Major Feat** every level as well.
 
 There are three sources of Feats as you level up:
 
