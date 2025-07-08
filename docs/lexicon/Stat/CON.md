@@ -1,4 +1,4 @@
-Constitution is a measure of the resilience of the [[Stat_Body | Body]]. Think how much it can take, both from external sources or self-exhaustion.
+**Constitution** is a measure of the resilience of the [[Stat_Body | Body]]. Think how much it can take, both from external sources or self-exhaustion.
 
 ## Parent Stat
 

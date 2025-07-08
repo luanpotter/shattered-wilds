@@ -1,4 +1,4 @@
-Strength is a measure of the power of the [[Stat_Body | Body]]. Think punch hard, big muscles, heavy lifting.
+**Strength** is a measure of the power of the [[Stat_Body | Body]]. Think punch hard, big muscles, heavy lifting.
 
 ## Parent Stat
 

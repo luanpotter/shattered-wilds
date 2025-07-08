@@ -1,4 +1,4 @@
-Luck is a measure of the [[Stat_Soul | Soul]]'s connection with forces being the Aether, measuring a person's unexplainable connection with Luck itself.
+**Luck** is a measure of the [[Stat_Soul | Soul]]'s connection with forces being the Aether, measuring a person's unexplainable connection with Luck itself.
 
 ## Parent Stat
 

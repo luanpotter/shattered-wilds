@@ -1,4 +1,4 @@
-Force of Will is a measure of the [[Stat_Soul | Soul]]'s ability to resist temptations, vices, and instant gratification. Think willpower, determination, and resilience.
+**Force of Will** is a measure of the [[Stat_Soul | Soul]]'s ability to resist temptations, vices, and instant gratification. Think willpower, determination, and resilience.
 
 ## Parent Stat
 

@@ -1,4 +1,4 @@
-Divinity is a measure of the [[Stat_Soul | Soul]]'s ability to connect with the Aether. It determines the conviction of your faith and how well you can attune to Imbued items.
+**Divinity** is a measure of the [[Stat_Soul | Soul]]'s ability to connect with the Aether. It determines the conviction of your faith and how well you can attune to Imbued items.
 
 ## Parent Stat
 

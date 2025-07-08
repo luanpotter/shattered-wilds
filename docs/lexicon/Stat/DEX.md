@@ -1,4 +1,4 @@
-Dexterity is a measure of speed of the [[Stat_Body | Body]]. Think reflexes, quickness, agility, precision.
+**Dexterity** is a measure of speed of the [[Stat_Body | Body]]. Think reflexes, quickness, agility, precision.
 
 ## Parent Stat
 

@@ -1,4 +1,4 @@
-Charisma is a measure of the [[Stat_Mind | Mind]]'s ability to influence, persuade, and connect with others. Think empathy, charm, and also physical attractiveness.
+**Charisma** is a measure of the [[Stat_Mind | Mind]]'s ability to influence, persuade, and connect with others. Think empathy, charm, and also physical attractiveness.
 
 ## Parent Stat
 
