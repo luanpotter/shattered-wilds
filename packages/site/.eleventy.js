@@ -262,6 +262,7 @@ const parseLexicon = () => {
     return {
       slug: file.slug,
       title: file.title,
+      shortTitle: file.shortTitle,
       content: file.content,
       metadata: file.metadata,
       url: `/wiki/${file.slug}/`,
