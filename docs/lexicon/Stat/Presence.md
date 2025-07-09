@@ -1,4 +1,4 @@
-Personal magnetism, body language, charisma, physical attractiveness, and non-verbal communication through physical presence.
+Personal magnetism, body language, physical attractiveness, and non-verbal communication through physical presence.
 
 ## Parent Stat
 
