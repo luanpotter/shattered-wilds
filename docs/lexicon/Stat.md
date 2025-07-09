@@ -1,8 +1,8 @@
 A Statistic (or Stat) is a number associated with a character that measures their ability in a certain area of application.
 
-Primary Stats cannot be derived from anything else, being the source of all other Statistics. That is in contrast to Derived Stats, which are calculated via formulae from Primary Stats.
+**Primary Stats** cannot be derived from anything else, being the source of all other Statistics. That is in contrast to **Derived Stats**, which are calculated via formulae from Primary Stats.
 
-The Primary Stats in the D12 System form a ternary tree featuring a trickle down mechanism, and starting with your [[Stat_Level | Level]] as the root statistic. Your [[Stat_Level | Level]] then divides into 3 Realms: [[Stat_Body | Body]], [[Stat_Mind | Mind]] and [[Stat_Soul | Soul]]; and they combined branch to the 9 Attributes ([[Stat_STR | STR]], [[Stat_DEX | DEX]], [[Stat_CON | CON]], [[Stat_INT | INT]], [[Stat_WIS | WIS]], [[Stat_CHA | CHA]], [[Stat_DIV | DIV]], [[Stat_FOW | FOW]], [[Stat_LCK | LCK]]). Finally, the 9 Attributes branch into 27 Skills.
+The Primary Stats in the D12 System form a ternary tree featuring a trickle down mechanism, and starting with your [[Stat_Level | Level]] as the root statistic. Your [[Stat_Level | Level]] then divides into 3 **Realms**: [[Stat_Body | Body]], [[Stat_Mind | Mind]] and [[Stat_Soul | Soul]]; and they combined branch to the 9 **Attributes** ([[Stat_STR | STR]], [[Stat_DEX | DEX]], [[Stat_CON | CON]], [[Stat_INT | INT]], [[Stat_WIS | WIS]], [[Stat_CHA | CHA]], [[Stat_DIV | DIV]], [[Stat_FOW | FOW]], [[Stat_LCK | LCK]]). Finally, the 9 Attributes branch into 27 **Skills**.
 
 {% include "stat-tree.html" %}
 

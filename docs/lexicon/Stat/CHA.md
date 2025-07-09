@@ -4,24 +4,24 @@ Unlike on other systems, where Charisma is further broken down into Skills based
 
 In fact the exact nature of _how_ the Charisma is being applied will determine which are the best Skills to use for certain situations. Depending on the flavor and roleplaying, all 3 Skills can be used for most intents. The table below gives some guidance on which Skills are better suited for which intents. This also includes a column for potential Extras to be used in such rolls.
 
-| Function   | Speechcraft | Presence | Empathy | Extra              |
-|------------|-------------|----------|---------|--------------------|
-| Intimidate |  0          | +1       | -1      | [[Stat_STR | STR]] |
-| Deceive    | +1          | -1       |  0      | [[Stat_WIS | WIS]] |
-| Persuade   | +1          | -1       |  0      | [[Stat_INT | INT]] |
-| Inspire    |  0          | -1       | +1      | [[Stat_DIV | DIV]] |
-| Beguile    | -1          | +1       |  0      | [[Stat_FOW | FOW]] |
-| Seduce     | -1          | +1       |  0      | [[Stat_DEX | DEX]] |
+| Function   | Speechcraft | Presence | Empathy | Extra                            |
+|------------|-------------|----------|---------|----------------------------------|
+| Intimidate |  0          | +1       | -1      | <a href="/wiki/Stat_STR">STR</a> |
+| Deceive    | +1          | -1       |  0      | <a href="/wiki/Stat_WIS">WIS</a> |
+| Persuade   | +1          | -1       |  0      | <a href="/wiki/Stat_INT">INT</a> |
+| Inspire    |  0          | -1       | +1      | <a href="/wiki/Stat_DIV">DIV</a> |
+| Beguile    | -1          | +1       |  0      | <a href="/wiki/Stat_FOW">FOW</a> |
+| Seduce     | -1          | +1       |  0      | <a href="/wiki/Stat_DEX">DEX</a> |
 
 Similarly, the different Skills can be used for different types of performances:
 
-| Performances       | Speechcraft | Presence | Empathy | Extra              |
-|--------------------|-------------|----------|---------|--------------------|
-| Singing            | +1          | -1       |  0      | [[Stat_CON | CON]] |
-| Playing Instrument | +1          | -1       |  0      | [[Stat_INT | INT]] |
-| Dancing            | -1          | +1       |  0      | [[Stat_DEX | DEX]] |
-| Acting             | +1          | +1       | -1      | [[Stat_FOW | FOW]] |
-| Storytelling       | +1          | -1       |  0      | [[Stat_WIS | WIS]] |
+| Performances       | Speechcraft | Presence | Empathy | Extra                            |
+|--------------------|-------------|----------|---------|----------------------------------|
+| Singing            | +1          | -1       |  0      | <a href="/wiki/Stat_CON">CON</a> |
+| Playing Instrument | +1          | -1       |  0      | <a href="/wiki/Stat_INT">INT</a> |
+| Dancing            | -1          | +1       |  0      | <a href="/wiki/Stat_DEX">DEX</a> |
+| Acting             | +1          | +1       | -1      | <a href="/wiki/Stat_FOW">FOW</a> |
+| Storytelling       | +1          | -1       |  0      | <a href="/wiki/Stat_WIS">WIS</a> |
 
 If you want to be particularly good at a specific type of performance, you can get the appropriate Minor Feat.
 
