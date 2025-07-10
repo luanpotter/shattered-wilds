@@ -26,7 +26,7 @@ export enum Race {
 	Orc = 'Orc',
 	Fey = 'Fey',
 	Goliath = 'Goliath',
-	Tellur = 'Tellur',
+	Goblin = 'Goblin',
 }
 
 export enum Size {
@@ -406,23 +406,23 @@ export class AttributeType {
 		'Speechcraft',
 		'Rhetoric, speech, ability to persuade, inspire or deceit with language'
 	);
-	static readonly Charm = new AttributeType(
+	static readonly Presence = new AttributeType(
 		AttributeHierarchy.Skill,
 		AttributeType.CHA,
-		'Charm',
-		'Natural panache, beguilingness, body language'
+		'Presence',
+		'Personal magnetism, body language, physical attractiveness, and non-verbal communication through physical presence'
 	);
-	static readonly Appearance = new AttributeType(
+	static readonly Empathy = new AttributeType(
 		AttributeHierarchy.Skill,
 		AttributeType.CHA,
-		'Appearance',
-		'Physical attractiveness, ability to dress and present well, body odor'
+		'Empathy',
+		'Reading people, understanding emotions and motivations, connecting with others on an emotional level'
 	);
-	static readonly Faith = new AttributeType(
+	static readonly Revelation = new AttributeType(
 		AttributeHierarchy.Skill,
 		AttributeType.DIV,
-		'Faith',
-		'Strength of your belief your deity [must have one], knowledge about your faith, effectiveness of your Prayers'
+		'Revelation',
+		'Your ability to channel messages, visions or revelations from your deity'
 	);
 	static readonly Attunement = new AttributeType(
 		AttributeHierarchy.Skill,
@@ -454,11 +454,11 @@ export class AttributeType {
 		'Resolve',
 		'Resistance to mind control, social manipulation, deceit, charm; fortitude of the mind; insight'
 	);
-	static readonly Gambling = new AttributeType(
+	static readonly Karma = new AttributeType(
 		AttributeHierarchy.Skill,
 		AttributeType.LCK,
-		'Gambling',
-		'Specifically for when you are gambling'
+		'Karma',
+		'Resistance to harm and causing misfortune to those who would harm you'
 	);
 	static readonly Fortune = new AttributeType(
 		AttributeHierarchy.Skill,
@@ -718,15 +718,15 @@ export const makeAttributeTree = (values: Record<string, string> = {}): Attribut
 			]),
 			attr(AttributeType.CHA, [
 				attr(AttributeType.Speechcraft),
-				attr(AttributeType.Charm),
-				attr(AttributeType.Appearance),
+				attr(AttributeType.Presence),
+				attr(AttributeType.Empathy),
 			]),
 		]),
 		attr(AttributeType.Soul, [
 			attr(AttributeType.DIV, [
-				attr(AttributeType.Faith),
-				attr(AttributeType.Attunement),
 				attr(AttributeType.Devotion),
+				attr(AttributeType.Revelation),
+				attr(AttributeType.Attunement),
 			]),
 			attr(AttributeType.FOW, [
 				attr(AttributeType.Discipline),
@@ -734,7 +734,7 @@ export const makeAttributeTree = (values: Record<string, string> = {}): Attribut
 				attr(AttributeType.Resolve),
 			]),
 			attr(AttributeType.LCK, [
-				attr(AttributeType.Gambling),
+				attr(AttributeType.Karma),
 				attr(AttributeType.Fortune),
 				attr(AttributeType.Serendipity),
 			]),
@@ -1138,8 +1138,8 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 		],
 		size: Size.L,
 	},
-	[Race.Tellur]: {
-		name: Race.Tellur,
+	[Race.Goblin]: {
+		name: Race.Goblin,
 		modifiers: [
 			{ attributeType: AttributeType.CON, value: 1 },
 			{ attributeType: AttributeType.STR, value: -1 },

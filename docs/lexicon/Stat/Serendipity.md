@@ -1,4 +1,4 @@
-Expectations for the external world, ability to impact the luck of others and create fortunate coincidences.
+The Luck for the world around you, an uncanny ability to be favored by external chance and coincidences; synchronism. Can be used for the [[Action_Write_History | Write History]] action.
 
 ## Parent Stat
 
@@ -6,7 +6,5 @@ Expectations for the external world, ability to impact the luck of others and cr
 
 ## Example Usages
 
-* A Check can be used to influence random events to be more favorable to your party.
-* A Check can be used to create "lucky coincidences" that help solve problems or overcome obstacles.
-* A Check can be used to sense when major events or changes are about to occur.
-* A Check can be used to subtly influence the outcome of random or chance-based situations.
+* Can be used for the [[Action_Write_History | Write History]] action.
+* A Check can be used to determine the outcome of external random events (not caused by you or others), such as the weather.

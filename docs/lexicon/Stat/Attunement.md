@@ -1,4 +1,4 @@
-Your general attunement to the Aether, how well you can let divine forces flow through you and connect with magical energies.
+Your general attunement to the Aether, how well you can let divine forces flow through you and connect with external powers.
 
 ## Parent Stat
 
@@ -6,7 +6,5 @@ Your general attunement to the Aether, how well you can let divine forces flow t
 
 ## Example Usages
 
-* A Check can be used to attune to magical items and understand their properties.
-* A Check can be used to sense the presence and strength of magical auras.
-* A Check can be used to identify the school or type of magic affecting an area or object.
-* A Check can be used to maintain connection with divine power sources during challenging circumstances.
+* A Check can be required to use or get the best of [[Imbued Item | Imbued Items]].
+* A Check can be used to sense the presence and strength of external powers.

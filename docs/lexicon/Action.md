@@ -85,6 +85,19 @@ These are actions that do not fit into the other categories.
   </ul>
 </details>
 
+## Type: Luck
+
+There a few ways to exert your supernatural connection to Luck in Shattered Wilds.
+
+<details>
+  <summary>Luck Actions</summary>
+  <ul>
+    <li>{% item "Action/Luck_Die", "type" %}</li>
+    <li>{% item "Action/Karmic_Resistance", "type" %}</li>
+    <li>{% item "Action/Write_History", "type" %}</li>
+  </ul>
+</details>
+
 ## Type: Meta
 
 Turns in Shattered Wilds are very reactive due to the higher possibility of Reactions to act as interruptions. However, there are still a few meta-options to change or interact in more direct ways with the turn ordering.

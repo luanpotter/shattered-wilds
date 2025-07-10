@@ -1,4 +1,4 @@
-Your personal luck for your own actions, ability to be at the right place at the right time, serendipity.
+Your personal luck for your own actions; your own actions just seem to always work out in your favor. Used for the [[Action_Luck_Die | Luck Die]] mechanic.
 
 ## Parent Stat
 
@@ -6,7 +6,5 @@ Your personal luck for your own actions, ability to be at the right place at the
 
 ## Example Usages
 
-* A Check can be used to find useful items or resources in unexpected places.
-* A Check can be used to encounter helpful NPCs or allies at opportune moments.
-* A Check can be used to avoid the worst consequences of dangerous situations through lucky breaks.
-* A Check can be used to have minor environmental factors work in your favor during challenges.
+* Can be used for the [[Action_Luck_Die | Luck Die]] mechanic.
+* A Check can be used when you are actively trying to achieve a lucky outcome, such as gambling, games of chance, rolling dice, etc.

@@ -1,4 +1,4 @@
-**Luck** is a measure of the [[Stat_Soul | Soul]]'s connection with forces beyond the Aether, measuring a person's unexplainable connection with Luck itself.
+**Luck** is a measure of the [[Stat_Soul | Soul]]'s connection with forces even beyond the Aether, measuring a person's unexplainable connection with Luck as a concept that appears to escape the realm of reality itself.
 
 ## Parent Stat
 
@@ -6,6 +6,6 @@
 
 ## Children Stats
 
-* {% item "Stat/Gambling" %}
 * {% item "Stat/Fortune" %}
+* {% item "Stat/Karma" %}
 * {% item "Stat/Serendipity" %}

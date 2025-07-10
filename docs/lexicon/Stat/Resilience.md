@@ -1,4 +1,4 @@
-Resistance to sickness, poison and disease.
+Resistance to sickness, heat, coat, poison and disease.
 
 ## Parent Stat
 
@@ -7,3 +7,4 @@ Resistance to sickness, poison and disease.
 ## Example Usages
 
 * A Contested Check can be used to resist the effects of Noxious Gas or other poisons.
+* A Check can be used to resist the effects of heat or cold.
