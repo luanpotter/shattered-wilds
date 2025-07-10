@@ -171,6 +171,22 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		}
 	};
 
+	const calculateShifts = (excess: number): number => {
+		if (excess < 6) return 0;
+
+		let shifts = 0;
+		let threshold = 6;
+		let gap = 6;
+
+		while (excess >= threshold) {
+			shifts++;
+			threshold += gap;
+			gap += 6;
+		}
+
+		return shifts;
+	};
+
 	const calculateOutcome = () => {
 		if (!defenseResult || !attackResult) return null;
 
@@ -179,7 +195,8 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			(attackResult.total === defenseResult.total && attackResult.shifts > 0);
 
 		// Calculate shifts based on how much attack exceeded defense
-		const shifts = hit ? Math.floor((attackResult.total - defenseResult.total) / 6) : 0;
+		const excess = hit ? attackResult.total - defenseResult.total : 0;
+		const shifts = hit ? calculateShifts(excess) : 0;
 		const damage = hit ? 1 + shifts : 0;
 
 		return { hit, damage, shifts };

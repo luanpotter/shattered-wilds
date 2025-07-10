@@ -68,6 +68,22 @@ interface RollResults {
 	selectedDice: number[];
 }
 
+const calculateShifts = (excess: number): number => {
+	if (excess < 6) return 0;
+
+	let shifts = 0;
+	let threshold = 6;
+	let gap = 6;
+
+	while (excess >= threshold) {
+		shifts++;
+		threshold += gap;
+		gap += 6;
+	}
+
+	return shifts;
+};
+
 export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 	modifier,
 	onClose,
@@ -109,12 +125,12 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 					rollResults.total > currentDc ||
 					(rollResults.total === currentDc && rollResults.critModifiers > 0);
 				if (success) {
-					critShifts = Math.floor((rollResults.total - currentDc) / 6);
+					critShifts = calculateShifts(rollResults.total - currentDc);
 				}
 			} else {
 				success = rollResults.total >= currentDc;
 				if (success && currentType === 'Static') {
-					critShifts = Math.floor((rollResults.total - currentDc) / 6);
+					critShifts = calculateShifts(rollResults.total - currentDc);
 				}
 			}
 		}
@@ -223,12 +239,12 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 			if (rollType === 'Contested (Active)') {
 				success = total > dc || (total === dc && critModifiers > 0);
 				if (success) {
-					critShifts = Math.floor((total - dc) / 6);
+					critShifts = calculateShifts(total - dc);
 				}
 			} else {
 				success = total >= dc;
 				if (success && rollType === 'Static') {
-					critShifts = Math.floor((total - dc) / 6);
+					critShifts = calculateShifts(total - dc);
 				}
 			}
 		}

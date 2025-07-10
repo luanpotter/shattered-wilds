@@ -12,8 +12,8 @@ Each Role also has 3 Flavor options, depending on how much they dedicate to chan
 
 | Role / Flavor | Pure     | Mixed     | Martial   |
 |---------------|----------|-----------|-----------|
-| Disciple (DIV)| Cleric   | Warlock   | Paladin   |
-| Adept (FOW)   | Sage     | Monk      | Ranger    |
+| Adept (DIV)   | Cleric   | Warlock   | Paladin   |
+| Disciple (FOW)| Sage     | Monk      | Ranger    |
 | Inspired (LCK)| Wanderer | Wayfarer  | Warden    |
 
 ## Divine Spells

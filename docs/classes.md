@@ -86,8 +86,8 @@ There are a total of 9 Mystic classes, which are divided in a 3x3 matrix dependi
 
 | Role / Flavor | Pure     | Mixed     | Martial   |
 |---------------|----------|-----------|-----------|
-| Disciple (DIV)| Cleric   | Warlock   | Paladin   |
-| Adept (FOW)   | Sage     | Monk      | Ranger    |
+| Adept (DIV)   | Cleric   | Warlock   | Paladin   |
+| Disciple (FOW)| Sage     | Monk      | Ranger    |
 | Inspired (LCK)| Wanderer | Wayfarer  | Warden    |
 
 ## Generic Feats
