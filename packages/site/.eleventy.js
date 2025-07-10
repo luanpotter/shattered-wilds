@@ -22,7 +22,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addGlobalData("lexiconFiles", lexiconFiles);
 
   // Shared function to render lexicon items
-  const renderLexiconItem = (path, excludeTags = []) => {
+  const renderLexiconEntry = (type, path, excludeTags = []) => {
     const slug = path.replace(/[\/\\]/g, "_");
     const entry = lexiconFiles.find((e) => e.slug === slug);
     if (!entry) {
@@ -31,7 +31,9 @@ module.exports = function (eleventyConfig) {
     // Build metadata HTML
     let metaHtml = "";
     if (entry.metadata && Object.keys(entry.metadata).length > 0) {
-      const excludeTagsArray = Array.isArray(excludeTags) ? excludeTags : excludeTags.split(',').map(tag => tag.trim());
+      const excludeTagsArray = Array.isArray(excludeTags)
+        ? excludeTags
+        : excludeTags.split(",").map((tag) => tag.trim());
       metaHtml =
         '<span class="item-metadata">' +
         Object.values(entry.metadata)
@@ -43,20 +45,30 @@ module.exports = function (eleventyConfig) {
               tag.value ? `: ${tag.value}` : ""
             }</span>`;
           })
-          .filter(html => html !== "")
+          .filter((html) => html !== "")
           .join(" ") +
         "</span>";
     }
-    const desc = entry.content.split(/\n\n/)[0].trim();
-    return `<strong><a href="${entry.url}">${entry.title.replace(
-      /^[^:]+: /,
-      ""
-    )}</a></strong> ${metaHtml} : ${md.renderInline(desc)}`;
+    if (type === "text") {
+      const desc = entry.content;
+      return md.render(desc);
+    } else if (type === "item") {
+      const desc = entry.content.split(/\n\n/)[0].trim();
+      return `<strong><a href="${entry.url}">${entry.title.replace(
+        /^[^:]+: /,
+        ""
+      )}</a></strong> ${metaHtml} : ${md.renderInline(desc)}`;
+    } else {
+      return `<span style='color:red'>[Unknown type: ${type}]</span>`;
+    }
   };
 
   // Add a generic Liquid shortcode to render any lexicon entry as a bullet item
   eleventyConfig.addShortcode("item", (path, excludeTags = []) => {
-    return renderLexiconItem(path, excludeTags);
+    return renderLexiconEntry("item", path, excludeTags);
+  });
+  eleventyConfig.addShortcode("text", (path) => {
+    return renderLexiconEntry("text", path);
   });
 
   eleventyConfig.addPassthroughCopy({
@@ -125,13 +137,16 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addDataExtension("yaml", (contents) => yaml.load(contents));
   eleventyConfig.addLiquidFilter("markdown", (value) => md.render(value));
   eleventyConfig.addLiquidFilter("md", filterMarkdown);
-  
+
   // Add a filter to process shortcodes in content
   eleventyConfig.addLiquidFilter("processShortcodes", (value) => {
     // Process item shortcodes before markdown rendering
-    return value.replace(/\{%\s*item\s+"([^"]+)"(?:\s*,\s*"([^"]+)")?\s*%\}/g, (_, path, excludeTags) => {
-      return renderLexiconItem(path, excludeTags);
-    });
+    return value.replace(
+      /\{%\s*item\s+"([^"]+)"(?:\s*,\s*"([^"]+)")?\s*%\}/g,
+      (_, path, excludeTags) => {
+        return renderLexiconEntry("item", path, excludeTags);
+      }
+    );
   });
 
   return {
@@ -202,8 +217,8 @@ const parseLexicon = () => {
             return {
               key: key,
               title: (specialTitles[key] || key)
-              .replace(/_/g, " ")
-              .replace(/\b\w/g, (char) => char.toUpperCase()),
+                .replace(/_/g, " ")
+                .replace(/\b\w/g, (char) => char.toUpperCase()),
               value: value === true ? undefined : value,
               cssClass:
                 value === true

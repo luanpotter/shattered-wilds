@@ -3,10 +3,10 @@ ap: 0
 type: "Luck"
 ---
 
-The Luck Die is a special mechanic that allows you to enhance your Active Checks by calling upon your [[Stat_Fortune | Fortune]] skill.
+The **Luck Die** is a special mechanic that allows you to enhance your Active Checks by calling upon your [[Stat_Fortune | Fortune]] skill.
 
-When you make an Active Check, you may spend 1 [[Resource_Heroism Point | Heroism Point]] to roll an additional d12 alongside your normal check. See the [Rules > Basics](/rules/basics) section for more information.
+When you make an **Active Check**, you may spend 1 [[Resource_Heroism Point | Heroism Point]] to roll an additional d12 alongside your normal check. See the [Rules > Basics](/rules/basics) section for details.
 
-TODO -- fill this out
+In order for this extra die to be valid, it must be less or equal than the character's [[Stat_Fortune | Fortune]] score. If it is, that is a valid **Luck Die** that can be picked as one of the two for the final total. Note that, regardless if you pick the **Luck Die** or even if it is valid or not, it still counts for **Crit Modifiers** and **Auto Fail** when applicable.
 
-The Luck Die can only be used on Active Checks that you initiate - it cannot be used on Contested Checks where you are the defender, Passive Checks, or reactions to other characters' actions.
+The **Luck Die** must be invoked before the roll is made.

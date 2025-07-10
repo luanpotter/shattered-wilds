@@ -107,5 +107,6 @@ Turns in Shattered Wilds are very reactive due to the higher possibility of Reac
   <ul>
     <li>{% item "Action/Decrease_Initiative", "type" %}</li>
     <li>{% item "Action/Prepare_Action", "type" %}</li>
+    <li>{% item "Action/Extra_Die", "type" %}</li>
   </ul>
 </details>
