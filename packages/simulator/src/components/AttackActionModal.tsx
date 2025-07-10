@@ -100,7 +100,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 				modifier: basicDefense.value,
 				attributeName: basicDefense.description,
 				characterSheet: defenderSheet,
-				initialRollType: 'Contested (Passive)',
+				initialRollType: 'Contested (Resisted)',
 				onDiceRollComplete: (result: { total: number; shifts: number }) => {
 					setDefenseResult(result);
 					setUsedDodge(false);
@@ -120,7 +120,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			modifier: dodgeDefense.value,
 			attributeName: dodgeDefense.description,
 			characterSheet: defenderSheet,
-			initialRollType: 'Contested (Passive)',
+			initialRollType: 'Contested (Resisted)',
 			onDiceRollComplete: (result: { total: number; shifts: number }) => {
 				setDefenseResult(result);
 				setUsedDodge(true);
@@ -139,7 +139,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			modifier: shieldDefense.value,
 			attributeName: shieldDefense.description,
 			characterSheet: defenderSheet,
-			initialRollType: 'Contested (Passive)',
+			initialRollType: 'Contested (Resisted)',
 			onDiceRollComplete: (result: { total: number; shifts: number }) => {
 				setDefenseResult(result);
 				setUsedShieldBlock(true);

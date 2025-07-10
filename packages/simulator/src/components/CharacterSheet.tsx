@@ -151,7 +151,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 				modifier: basicDefense.value,
 				attributeName: 'Basic Defense',
 				characterSheet: sheet,
-				initialRollType: 'Contested (Passive)',
+				initialRollType: 'Contested (Resisted)',
 			});
 		}
 	};

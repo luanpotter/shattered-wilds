@@ -76,7 +76,7 @@ Hooks.once('init', () => {
         if (critBonus>0 && contested) content += `<p>Crit Bonus: +${critBonus}</p>`;
 
         if (contested) {
-            // Passive roll
+            // Resisted roll
             const pRoll = await (new Roll(`2d12`)).evaluate({async:true});
             const pRaw = pRoll.dice[0].results.map(r=>r.result).sort((a,b)=>b-a);
             const pTotal = pRaw[0]+pRaw[1];
@@ -85,7 +85,7 @@ Hooks.once('init', () => {
             const activeContest = baseTotal + (critBonus>0?critBonus:0);
             const success = activeContest > pTotal;
             const diff = Math.abs(activeContest - pTotal);
-            content += `<p>Passive rolled [${pRaw.join(", ")}] = ${pTotal}</p>`;
+            content += `<p>Resisted rolled [${pRaw.join(", ")}] = ${pTotal}</p>`;
             content += success
                 ? `<p><strong>Success!</strong> (${activeContest} vs ${pTotal})</p>`
                 : `<p><strong>Failure.</strong> (${activeContest} vs ${pTotal})</p>`;
@@ -214,7 +214,7 @@ Hooks.on('chatMessage', async (chatLog, messageText, chatData) => {
   if (critBonus>0 && contested) content += `<p>Crit Bonus: +${critBonus}</p>`;
 
   if (contested) {
-    // Passive roll
+    // Resisted roll
     const pRoll = await (new Roll(`2d12`)).evaluate({async:true});
     const pRaw = pRoll.dice[0].results.map(r=>r.result).sort((a,b)=>b-a);
     const pTotal = pRaw[0]+pRaw[1];
@@ -223,7 +223,7 @@ Hooks.on('chatMessage', async (chatLog, messageText, chatData) => {
     const activeContest = baseTotal + (critBonus>0?critBonus:0);
     const success = activeContest > pTotal;
     const diff = Math.abs(activeContest - pTotal);
-    content += `<p>Passive rolled [${pRaw.join(", ")}] = ${pTotal}</p>`;
+    content += `<p>Resisted rolled [${pRaw.join(", ")}] = ${pTotal}</p>`;
     content += success
       ? `<p><strong>Success!</strong> (${activeContest} vs ${pTotal})</p>`
       : `<p><strong>Failure.</strong> (${activeContest} vs ${pTotal})</p>`;

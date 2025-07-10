@@ -6,7 +6,7 @@ import { CharacterSheet, AttributeType } from '../types';
 
 import DropdownSelect from './DropdownSelect';
 
-export type RollType = 'Static' | 'Contested (Active)' | 'Contested (Passive)';
+export type RollType = 'Static' | 'Contested (Active)' | 'Contested (Resisted)';
 
 // Define the skills directly from AttributeType
 const SKILL_OPTIONS = {
@@ -97,7 +97,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 			...(rollResults.luckResult && rollResults.luckValid ? [rollResults.luckResult] : []),
 		];
 		const hasPairOfOnes = allDice.filter(n => n === 1).length >= 2;
-		const autoFail = hasPairOfOnes && currentType !== 'Contested (Passive)';
+		const autoFail = hasPairOfOnes && currentType !== 'Contested (Resisted)';
 
 		let success = false;
 		let critShifts = 0;
@@ -180,12 +180,12 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 			luckValid = luckResult <= fortuneValue;
 		}
 
-		// Check for auto fail (any pair of 1s) - but contested passive rolls cannot auto fail
+		// Check for auto fail (any pair of 1s) - but contested resisted rolls cannot auto fail
 		const allDice = [...dice];
 		if (extraResult && extraValid) allDice.push(extraResult);
 		if (luckResult && luckValid) allDice.push(luckResult);
 		const hasPairOfOnes = allDice.filter(n => n === 1).length >= 2;
-		const autoFail = hasPairOfOnes && rollType !== 'Contested (Passive)';
+		const autoFail = hasPairOfOnes && rollType !== 'Contested (Resisted)';
 
 		// Calculate crit modifiers
 		let critModifiers = 0;
@@ -384,7 +384,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 						>
 							<option value='Static'>Static Check</option>
 							<option value='Contested (Active)'>Contested (Active)</option>
-							<option value='Contested (Passive)'>Contested (Passive)</option>
+							<option value='Contested (Resisted)'>Contested (Resisted)</option>
 						</select>
 					</div>
 
@@ -460,14 +460,14 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 					>
 						Auto Fail
 						<div style={{ fontSize: '14px', color: 'var(--text)' }}>
-							Rolled pair of 1s (Contested Passive rolls cannot auto-fail)
+							Rolled pair of 1s (Contested Resisted rolls cannot auto-fail)
 						</div>
 					</div>
 				)}
 
-				{/* Pair of 1s on Contested Passive (no auto-fail) */}
+				{/* Pair of 1s on Contested Resisted (no auto-fail) */}
 				{!rollResults.autoFail &&
-					rollType === 'Contested (Passive)' &&
+					rollType === 'Contested (Resisted)' &&
 					(() => {
 						const allDice = [
 							...rollResults.dice,
@@ -490,7 +490,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 						>
 							Pair of 1s Rolled
 							<div style={{ fontSize: '14px', color: 'var(--text)' }}>
-								No auto-fail on Contested Passive rolls
+								No auto-fail on Contested Resisted rolls
 							</div>
 						</div>
 					)}
@@ -609,7 +609,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 					>
 						<option value='Static'>Static Check</option>
 						<option value='Contested (Active)'>Contested (Active)</option>
-						<option value='Contested (Passive)'>Contested (Passive)</option>
+						<option value='Contested (Resisted)'>Contested (Resisted)</option>
 					</select>
 				</div>
 
