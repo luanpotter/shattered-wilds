@@ -1,4 +1,4 @@
-Alongside Stats, a character also has a set of **Feats**, which can represent a wide variety of abilities, modifiers and actions. Typically, a Player character will gain 2 Feats per level, a **Minor Feat** and an **Major Feat**.
+Alongside Stats, a character also has a set of **Feats**, which can represent a wide variety of abilities, modifiers and actions. Typically, a Player character will gain one Feat per level, either a **Major Feat** (on even levels start on Level 2) or a **Minor Feat** (on odd levels start on Level 3).
 
 **Minor Feats** will typically give [[Circumstance Modifier | CM]] to a certain Checks under certain circumstances; though they can also grant more qualitative minor benefits.
 

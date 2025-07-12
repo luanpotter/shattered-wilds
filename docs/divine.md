@@ -1,76 +1,41 @@
-Unlike the **Arcane**, the **Divine** is a much softer magical system, by which characters outsource the power of external entities (be it Proteans, powerful Beings, or greater unknown forces). Essentially they use their Soul to connect to the Aether and extract power from it.
+Unlike the **Arcane**, the **Divine** is a much softer magical system, by which characters outsource the power through the **Aether** (be it from Proteans, their own Soul, or an unexplainable connection to Luck itself). **Divine** is definitely _not_ a science, and it is _not_ predictable. Instead of describing exact desired effects as the **Arcanists** do, **Mystics** have vague desires and roll a Check, letting the DM decide the effect.
 
-**Divine** is definitely _not_ a science, and it is _not_ predictable. Instead of describing exact desired effects as the **Arcanists** do, **Mystics** have vague desires and roll a Check, letting the DM decide the effect.
+**Mystics** with the **Divine Channeling** **Feat** can spend 1 [[Resource_Action_Point | AP]] and any number (at least 1, at most your [[Stat_Level | Level]]) of [[Resource_Spirit_Point | SP]] to perform a specific **Divine Channeling** action (with the [Channeling] trait) to basically cast a "divine spell". Roll a [[Stat_DIV | DIV]] Check (regardless of your **Class**) and the DM will determine the effect based on the result.
 
-**Mystics** are also more diverse in their classes, depending on their primary attribute:
+All divine spells are pleas to the forces of the beyond to grant a desired effect. The vaguer the request, the more likely it is for it to succeed in some form or another. While very specific spell effects (akin to the **Arcane** casting) are not possible, it is possible to at least specify the general nature of the desired effect.
 
-* **Adept**: Employ their [[Stat_DIV | DIV]] to submit to a specific Protean and channel their power.
-* **Disciple**: Leverage their [[Stat_FOW | FOW]] and self-control to connect to the Aether and channel their own power.
-* **Inspired**: Receive their [[Stat_LCK | LCK]] through an unexplainable connection to the Aether & Beyond.
+In a similar vein, effect types that are covered by the **Arcane** are not achievable through **Channeling**. Effects such as **Conjuration**, **Telekinesis**, and any of the **Arcane Schools** are beyond the realm of the **Divine**.
 
-Each **Role** also has 3 Flavor options, depending on how much they dedicate to _channeling_ versus martial skills:
+The possible realm of effects of **Divine Channeling** specifically includes:
 
-| Role / Flavor | Purist   | Mixed     | Martial   |
-|---------------|----------|-----------|-----------|
-| Adept (DIV)   | Cleric   | Warlock   | Paladin   |
-| Disciple (FOW)| Sage     | Monk      | Ranger    |
-| Inspired (LCK)| Wanderer | Wayfarer  | Warden    |
-
-The realm of the **Divine** can produce effects much different than that of the **Arcane**, such as:
-
-* Direct Healing and Harming
-* Buffs and Debuffs
-* Divination (through [[Stat_Revelation | Revelation]])
+* Direct Healing & Harming
+* Buffs & Debuffs
 * Illusions
-* Luck Bending
 
-However, unlike the **Arcanists**, each different **Role** has access to different tools and abilities. As it is with **Warriors**, your Level 1 **Major Feat** and the **Class Specialization Minor Feat** are defined by your **Role**. Starting at Level 2, you can pick any combination of one **Major** and one **Minor** Feats from either your **Role**, **Flavor**, or the **General** lists.
+Note that the nature of the specific **Protean** can also influence which types of effects are likely to be granted.
 
-## The Adept
+However, there is no pre-defined spell list; the **Mystic** can choose to cast a **Pure Divine Channeling**, which is basically a unspecific plea for help, or add **Specifiers**, starting by invoking a command word, and then potentially adding even more detail. Some (definitely not exhaustive) suggestions are:
 
-The **Adept** is a **Mystic** who either has (1) submitted, (2) a contract, or (3) a bond with a specific higher power in the **Aether** - i.e., a **Protean**.
-The nature of their connection can be varied, from an abstract concept and blind devotion to a more personal touch towards an Avatar (see the **Archetypes** section below for more details).
+### Heal
 
-Regardless of the nature of their connection, the **Adept** can:
+A plea to heal you or your allies of some [[Resource_Vitality_Point | VP]], [[Resource_Focus_Point | FP]], or [[Resource_Spirit_Point | SP]]. Specifiers can include what type of resource to heal, the target and how much.
 
-* Actively [[Action_Pray | Pray]] as a means of indirect expressing their desires and needs to their **Protean**, using a [[Stat_Devotion | Devotion]] Check;
-* Actively **Channel** powers from the **Aether** into the material world (i.e. divine spellcasting); that uses a [[Stat_DIV | DIV]] Check;
-* Passively receive messages, guidance, or visions from their **Protean**; that requires a [[Stat_Revelation | Revelation]] Check.
+### Harm
 
-In exchange, they are responsible for respecting and furthering their **Protean**'s cause. Unlike other settings, there is no defined pantheon of impossibly powerful (or even omnipotent) gods. Instead, players should work with their DMs to create **Proteans** as part of their character creation. However, some pre-defined templates will be provided below.
+A plea to harm your foes. Specifiers can include what type of harm to inflict, the target, and how much.
 
-Typically, Adepts will **Pray** once at the start of every day (after a [[Long Rest]]), and they can at this moment express their vague desires, needs, and concerns to their **Protean**. They can attempt to ask for more specific requests, but depending on the type of request, how aligned it is with their **Protean**'s cause, the complexity, specificity and difficulty of the requests, it will be less likely to succeed. Regardless of the ask, the character will do a [[Stat_Devotion | Devotion]] Check, and the DM will rule over the outcome. At this moment, the DM might also request a [[Stat_Revelation | Revelation]] Check, that will determine wether the **Protean** has any messages, visions, omens, guidance or requests.
+### Bless
 
-A character can attempt to **Pray** on any longer moments of peace and quiet (like a [[Short Rest]]), but typically praying more than once a day is infective. Similarly, a DM might request a [[Stat_Revelation | Revelation]] Check at any moment, depending on circumstances, the nature of the **Protean** and the connection, or circumstances and events.
+A plea to bless you or your allies, clearing negative [[Condition | Conditions]] or granting a temporary positive [[Circumstance Modifier | CM]] to their **Attack Checks**.
 
-* **Spell Channeling** (Major Feat, Level 1) [[Channeling]]: Unlocks spellcasting for the **Adept**
+### Desecrate
 
-## The Disciple
+A plea to desecrate your foes, afflicting them with negative [[Condition | Conditions]] such as [[Condition_Silenced | Silenced]], [[Condition_Blinded | Blinded]], [[Condition_Off_Guard | Off Guard]], [[Condition_Distracted | Distracted]] or [[Condition_Distraught | Distraught]] or giving them a temporary negative [[Circumstance Modifier | CM]] to their **Attack Checks**.
 
-The **Disciple** is a **Mystic** who is able to channel the power within their **Soul** into the Material World. They are still finely connected and attuned to the **Aether**, but they are not bound to a specific **Protean**, but rather strengthen the connection with their own **Soul**.
+### Protect
 
-* **Flurry of Blows** (Major Feat, Level 1) [[Channeling]]: You can spend 1 [[Resource_Spirit_Point | SP]] to make an unarmed [[Action_Strike | Strike]] cost only 1 [[Resource_Action_Point | AP]].
+A plea to protect you or your allies from harm; this will add a temporary [[Circumstance Modifier | CM]] to some of their **Defense Checks**.
 
-## The Inspired
+### Deceive
 
-The **Inspired** is a **Mystic** who is able to receive their [[Stat_LCK | LCK]] through an unexplainable connection to the **Aether** (and possibly beyond). If the typical channeling power is vague and abstract, the origin of the good fortune of the **Inspired** is completely beyond comprehension.
-
-* **Bountiful Luck** (Major Feat, Level 1) [[Channeling]]: You can spend [[Resource_Spirit_Points | SP]] instead of [[Resource_Heroism_Points | Heroism Points]] to use the [[Action_Karmic_Resistance | Karmic Resistance]], [[Action_Write_History | Write History]] and [[Action_Luck_Die | Luck Die]] actions.
-
-## Flavor: Purist
-
-The **Purists** will be completely focused on their channeling, instead of diverging into more martial-focused faculties.
-
-* **Focused Channeling** (Major Feat, Level 2): You can spend 2 [[Resource_Focus_Points | FP]] (and add the [[Concentrate]] trait, if it didn't have it already) when doing an action with the [[Channeling]] trait to get a +3 [[Circumstance Modifier | CM]].
-
-## Flavor: Mixed
-
-The **Mixed** will be in between the Purist and the Martial.
-
-> <mark>WIP</mark> The **Mixed** is still being developed and is not available as an option yet.
-
-## Flavor: Martial
-
-Of the three **Flavors**, the **Martial** will have the most focus on martial expertise, but still being primarily focused on their channeling.
-
-* **Divine Smite** (Major Feat, Level 2): You can spend 2 [[Resource_Spirit_Point | SP]] when striking with a weapon to get a +3 [[Circumstance Modifier | CM]].
+A plea to create an **Illusion**. Specifiers can include what type of illusion to create, the target, and how long the illusion lasts.

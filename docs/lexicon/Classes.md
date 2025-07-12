@@ -153,7 +153,6 @@ Typically, Adepts will **Pray** once at the start of every day (after a [[Long R
 A character can attempt to **Pray** on any longer moments of peace and quiet (like a [[Short Rest]]), but typically praying more than once a day is infective. Similarly, a DM might request a [[Stat_Revelation | Revelation]] Check at any moment, depending on circumstances, the nature of the **Protean** and the connection, or circumstances and events.
 
 * **Divine Channeling** (Core Major Feat, Level 1) [[Channeling]]: Unlocks Divine Channeling. See [Divine Channeling](/rules/divine) for details on how the **Divine** magic system works.
-*
 
 ## The Disciple
 
@@ -167,6 +166,7 @@ The **Disciple** is a **Mystic** who is able to channel the power within their *
 The **Inspired** is a **Mystic** who is able to receive their [[Stat_LCK | LCK]] through an unexplainable connection to the **Aether** (and possibly beyond). If the typical channeling power is vague and abstract, the origin of the good fortune of the **Inspired** is completely beyond comprehension.
 
 * **Bountiful Luck** (Core Major Feat, Level 1) [[Channeling]]: You can spend [[Resource_Spirit_Points | SP]] instead of [[Resource_Heroism_Points | Heroism Points]] to use the [[Action_Karmic_Resistance | Karmic Resistance]], [[Action_Write_History | Write History]] and [[Action_Luck_Die | Luck Die]] actions.
+* **Lucky Relentlessness** (Minor Feat, Level 2) [[Channeling]]: Your DC for the [[Action_Heroic_Relentlessness | Heroic Relentlessness]] action is `15`.
 
 ## Flavor: Purist
 
@@ -189,3 +189,7 @@ Of the three **Flavors**, the **Martial** will have the most focus on martial ex
 * **Divine Smite** (Core Minor Feat, Level 1) [[Channeling]]: You can spend 2 [[Resource_Spirit_Point | SP]] when striking with a weapon to get a +3 [[Circumstance Modifier | CM]] as you channel raw power into it, making it acquire a distinct glow as you lift it to strike.
 * **Spiritual Armor** (Minor Feat, Level 2) [[Channeling]]: You can roll the [[Action_Shrug_Off | Shrug Off]] action using your **Primary Attribute** instead of [[Stat_Toughness | Toughness]].
 * **Divine Channeling** (Major Feat, Level 3) [[Channeling]]: Unlocks Divine Channeling. See [Divine Channeling](/rules/divine) for details on how the **Divine** magic system works.
+
+## Archetypes
+
+> <mark>WIP</mark> The **Mystic Archetypes** are still being developed and are not available as an option yet.
