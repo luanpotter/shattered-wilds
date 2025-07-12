@@ -1,4 +1,4 @@
-The character is unable to speak or make verbal sounds.
+The character is unable to speak, utter sounds, or execute **Verbal Spell Components**.
 
 While Silenced, a character:
 
