@@ -192,7 +192,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		name: 'Specialized Training',
 		type: FeatType.Core,
 		category: FeatCategory.Upbringing,
-		description: 'Choose any two Minor Feats from the General Feats list',
+		description: 'You gain two additional Minor Feat slots at Level 1',
 		level: 0,
 	},
 	'specialized-knowledge-urban': {
@@ -900,7 +900,10 @@ export function generateLevelBasedSlots(maxLevel: number): FeatSlot[] {
 }
 
 // Get all feat slots for a character level
-export function getAllFeatSlots(characterLevel: number): FeatSlot[] {
+export function getAllFeatSlots(
+	characterLevel: number,
+	hasSpecializedTraining: boolean = false
+): FeatSlot[] {
 	const slots: FeatSlot[] = [];
 
 	// Add core race/upbringing slots (Level 0)
@@ -913,6 +916,26 @@ export function getAllFeatSlots(characterLevel: number): FeatSlot[] {
 
 	// Add level-based slots
 	slots.push(...generateLevelBasedSlots(characterLevel));
+
+	// Add specialized training slots if the character has that feat
+	if (hasSpecializedTraining && characterLevel >= 1) {
+		slots.push(
+			{
+				id: 'feat-lv1-specialized-1',
+				name: 'Specialized Training Slot 1',
+				level: 1,
+				type: FeatType.Minor,
+				description: 'Additional minor feat slot from Specialized Training',
+			},
+			{
+				id: 'feat-lv1-specialized-2',
+				name: 'Specialized Training Slot 2',
+				level: 1,
+				type: FeatType.Minor,
+				description: 'Additional minor feat slot from Specialized Training',
+			}
+		);
+	}
 
 	return slots;
 }
@@ -1075,9 +1098,46 @@ export function createParameterizedFeat(
 	}
 
 	// Generate full name with parameters
-	const parameterValues = Object.values(parameters);
-	const fullName =
-		parameterValues.length > 0 ? `${baseFeat.name} (${parameterValues.join(', ')})` : baseFeat.name;
+	let fullName = baseFeat.name;
+
+	if (baseFeatId === 'specialized-training') {
+		// Special handling for Urban Specialized Training feat
+		const feat1 = parameters['feat1'];
+		const feat2 = parameters['feat2'];
+		const selectedFeats: string[] = [];
+
+		if (feat1) {
+			// Handle parameterized feat names
+			if (isParameterizedFeat(feat1)) {
+				const parameterizedDef = getParameterizedFeatDefinition(feat1);
+				selectedFeats.push(parameterizedDef.name);
+			} else {
+				const featDef = FEATS[feat1];
+				selectedFeats.push(featDef ? featDef.name : feat1);
+			}
+		}
+
+		if (feat2) {
+			// Handle parameterized feat names
+			if (isParameterizedFeat(feat2)) {
+				const parameterizedDef = getParameterizedFeatDefinition(feat2);
+				selectedFeats.push(parameterizedDef.name);
+			} else {
+				const featDef = FEATS[feat2];
+				selectedFeats.push(featDef ? featDef.name : feat2);
+			}
+		}
+
+		if (selectedFeats.length > 0) {
+			fullName = `${baseFeat.name} (${selectedFeats.join(', ')})`;
+		}
+	} else {
+		// Default parameter handling for other feats
+		const parameterValues = Object.values(parameters);
+		if (parameterValues.length > 0) {
+			fullName = `${baseFeat.name} (${parameterValues.join(', ')})`;
+		}
+	}
 
 	// Generate unique ID for this parameterized instance
 	const parameterString = Object.entries(parameters)

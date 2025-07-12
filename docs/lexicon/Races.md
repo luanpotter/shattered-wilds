@@ -44,7 +44,7 @@ Players are welcome to craft their own **Upbringings** with their DMs, but there
 
 This character lived their childhood in a medium-sized village or town (much larger cities are extremely rare and hard to find). **Human** and **Elven** communities are often **Urban**.
 
-* **Specialized Training** (Core Feat, Level 0): Choose any two **Minor Feats** from the **General Feats** list.
+* **Specialized Training** (Core Feat, Level 0): Choose any two Level 1 **Minor Feats** from the **General Feats** list.
 * Typical choices for **Upbringing Modifiers**: + [[Stat_INT | INT]]/[[Stat_CHA | CHA]]/[[Stat_LCK | LCK]], - [[Stat_WIS | WIS]]/[[Stat_DIV | DIV]]/[[Stat_FOW | FOW]]
 * Typical applications of **Specialized Training (Urban)**: recall urban lore, politics, commerce, something specific about the city, etc.
 

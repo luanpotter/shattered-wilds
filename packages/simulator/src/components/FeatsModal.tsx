@@ -37,14 +37,27 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 	const [parameters, setParameters] = useState<Record<string, string>>({});
 	const [parameterErrors, setParameterErrors] = useState<Set<string>>(new Set());
 
+	// State for nested parameterization
+	const [nestedParameterFeat, setNestedParameterFeat] = useState<{
+		parameterId: string;
+		featId: string;
+		feat: FeatDefinition;
+	} | null>(null);
+	const [nestedParameters, setNestedParameters] = useState<Record<string, string>>({});
+	const [nestedParameterErrors, setNestedParameterErrors] = useState<Set<string>>(new Set());
+
 	const sheet = CharacterSheet.from(character.props);
 	const characterLevel = sheet.attributes.getNode(AttributeType.Level)?.baseValue || 1;
 
+	// Check if character has specialized training
+	const currentFeatSlots = sheet.getFeatSlots();
+	const hasSpecializedTraining = Object.values(currentFeatSlots).includes('specialized-training');
+
 	// Get all feat slots for this character level
-	const allFeatSlots = getAllFeatSlots(characterLevel);
+	const allFeatSlots = getAllFeatSlots(characterLevel, hasSpecializedTraining);
 
 	// Get current assigned feats for each slot
-	const currentFeatSlots = sheet.getFeatSlots();
+	// (Note: currentFeatSlots is already defined above)
 
 	// Generate display slots with current feat assignments
 	const generateDisplaySlots = (): DisplaySlot[] => {
@@ -80,13 +93,13 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 
 		switch (slot.id) {
 			case 'feat-core-race-1':
-				return raceCoreFeats[0] || null;
+				return raceCoreFeats[0] || null; // Racial modifiers
 			case 'feat-core-upbringing-1':
-				return `upbringing-${sheet.race.upbringing.toLowerCase()}`;
+				return `upbringing-${sheet.race.upbringing.toLowerCase()}`; // Upbringing modifiers
 			case 'feat-core-upbringing-2':
-				return raceCoreFeats[1] || null; // Specialized knowledge
+				return raceCoreFeats[2] || null; // Specialized knowledge (skip upbringing modifier at index 1)
 			case 'feat-core-upbringing-3':
-				return raceCoreFeats[2] || null; // Upbringing specific feat
+				return raceCoreFeats[3] || null; // Upbringing specific feat
 			case 'feat-core-class-1':
 				return classCoreFeats[0] || null; // Class modifier
 			case 'feat-core-class-2':
@@ -185,10 +198,8 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 		return availableFeats;
 	};
 
-	// Handle feat selection - now supports parameterized feats
+	// Handle feat selection
 	const handleFeatSelect = (displaySlot: DisplaySlot, featId: string | null) => {
-		if (displaySlot.isCore) return; // Can't change core feats
-
 		if (!featId) {
 			// Clear slot
 			updateCharacterProp(character, displaySlot.slot.id, '');
@@ -201,6 +212,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 			// This feat requires parameters - show parameter selection
 			setSelectedBaseFeat(feat);
 			setParameters({});
+			setParameterErrors(new Set());
 			// Don't close the modal yet - wait for parameter selection
 		} else {
 			// Regular feat - assign directly
@@ -256,6 +268,70 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 				return newErrors;
 			});
 		}
+
+		// Check if this parameter is a feat that needs further configuration
+		const feat = FEATS[value];
+		if (feat && feat.parameters && feat.parameters.length > 0) {
+			// This is a parameterized feat - show nested configuration
+			setNestedParameterFeat({
+				parameterId,
+				featId: value,
+				feat,
+			});
+			setNestedParameters({});
+			setNestedParameterErrors(new Set());
+		}
+	};
+
+	// Handle nested parameter change
+	const handleNestedParameterChange = (parameterId: string, value: string) => {
+		setNestedParameters(prev => ({
+			...prev,
+			[parameterId]: value,
+		}));
+
+		// Clear error for this parameter when user starts typing/selecting
+		if (nestedParameterErrors.has(parameterId)) {
+			setNestedParameterErrors(prev => {
+				const newErrors = new Set(prev);
+				newErrors.delete(parameterId);
+				return newErrors;
+			});
+		}
+	};
+
+	// Handle nested parameter confirmation
+	const handleNestedParameterConfirm = () => {
+		if (!nestedParameterFeat) return;
+
+		// Validate nested parameters
+		const missingNestedParameters = nestedParameterFeat.feat.parameters?.filter(
+			param => param.required && !nestedParameters[param.id]
+		);
+
+		if (missingNestedParameters && missingNestedParameters.length > 0) {
+			// Set error state for missing nested parameters
+			const newErrors = new Set(missingNestedParameters.map(param => param.id));
+			setNestedParameterErrors(newErrors);
+			return;
+		}
+
+		// Clear any previous errors
+		setNestedParameterErrors(new Set());
+
+		// Create the parameterized feat instance
+		const parameterizedFeat = createParameterizedFeat(nestedParameterFeat.featId, nestedParameters);
+
+		// Update the main parameter with the parameterized feat ID
+		setParameters(prev => ({
+			...prev,
+			[nestedParameterFeat.parameterId]: parameterizedFeat.fullId,
+		}));
+
+		// Close nested parameter modal
+		setNestedParameterFeat(null);
+		setNestedParameters({});
+		setNestedParameterErrors(new Set());
 	};
 
 	// Get feat definition with proper handling of dynamic upbringing modifiers and parameterized feats
@@ -378,6 +454,11 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 												const hasSlot = displaySlot.featId !== null;
 												const isEmpty = !hasSlot && !displaySlot.isCore;
 
+												// Allow clicking on core slots if they contain parameterized feats
+												const isClickable =
+													!displaySlot.isCore ||
+													(feat && feat.parameters && feat.parameters.length > 0);
+
 												return (
 													<div
 														key={index}
@@ -388,21 +469,77 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 															backgroundColor: displaySlot.isCore
 																? 'var(--background-alt)'
 																: 'var(--background)',
-															cursor: displaySlot.isCore ? 'default' : 'pointer',
+															cursor: isClickable ? 'pointer' : 'default',
 															minHeight: '80px',
 															display: 'flex',
 															flexDirection: 'column',
 															boxSizing: 'border-box',
 														}}
-														onClick={() => !displaySlot.isCore && setSelectedSlot(displaySlot)}
-														onKeyDown={e => {
-															if ((e.key === 'Enter' || e.key === ' ') && !displaySlot.isCore) {
-																setSelectedSlot(displaySlot);
+														onClick={() => {
+															if (isClickable) {
+																// For parameterized core feats, directly open parameter modal
+																if (
+																	displaySlot.isCore &&
+																	feat &&
+																	feat.parameters &&
+																	feat.parameters.length > 0
+																) {
+																	setSelectedBaseFeat(feat);
+
+																	// If it's already parameterized, extract existing parameters
+																	if (
+																		displaySlot.featId &&
+																		isParameterizedFeat(displaySlot.featId)
+																	) {
+																		const { parameters: existingParams } = parseParameterizedFeatId(
+																			displaySlot.featId
+																		);
+																		setParameters(existingParams);
+																	} else {
+																		setParameters({});
+																	}
+																	setParameterErrors(new Set());
+																	setSelectedSlot(displaySlot); // Set slot for parameter assignment
+																} else {
+																	// For non-core feats, open feat selection modal
+																	setSelectedSlot(displaySlot);
+																}
 															}
 														}}
-														tabIndex={displaySlot.isCore ? -1 : 0}
-														role={displaySlot.isCore ? undefined : 'button'}
-														aria-label={displaySlot.isCore ? undefined : 'Select feat slot'}
+														onKeyDown={e => {
+															if ((e.key === 'Enter' || e.key === ' ') && isClickable) {
+																// For parameterized core feats, directly open parameter modal
+																if (
+																	displaySlot.isCore &&
+																	feat &&
+																	feat.parameters &&
+																	feat.parameters.length > 0
+																) {
+																	setSelectedBaseFeat(feat);
+
+																	// If it's already parameterized, extract existing parameters
+																	if (
+																		displaySlot.featId &&
+																		isParameterizedFeat(displaySlot.featId)
+																	) {
+																		const { parameters: existingParams } = parseParameterizedFeatId(
+																			displaySlot.featId
+																		);
+																		setParameters(existingParams);
+																	} else {
+																		setParameters({});
+																	}
+																	setParameterErrors(new Set());
+																	setSelectedSlot(displaySlot); // Set slot for parameter assignment
+																} else {
+																	// For non-core feats, open feat selection modal
+																	setSelectedSlot(displaySlot);
+																}
+															}
+														}}
+														tabIndex={isClickable ? 0 : -1}
+														role={isClickable ? 'button' : undefined}
+														aria-label={isClickable ? 'Select feat slot' : undefined}
 													>
 														<div
 															style={{
@@ -681,6 +818,139 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 							</button>
 							<button
 								onClick={handleParameterizedFeatConfirm}
+								style={{
+									padding: '8px 16px',
+									backgroundColor: '#4CAF50',
+									border: '1px solid #2E7D32',
+									borderRadius: '4px',
+									color: 'white',
+									cursor: 'pointer',
+								}}
+							>
+								Confirm
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Nested Parameter Selection Modal */}
+			{nestedParameterFeat && (
+				<div
+					style={{
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						backgroundColor: 'rgba(0, 0, 0, 0.7)',
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+						zIndex: 1002,
+					}}
+				>
+					<div
+						style={{
+							backgroundColor: 'var(--background)',
+							border: '1px solid var(--text)',
+							borderRadius: '8px',
+							padding: '20px',
+							width: 'fit-content',
+							maxWidth: 'min(500px, calc(100vw - 40px))',
+							maxHeight: '70vh',
+							overflow: 'auto',
+							boxSizing: 'border-box',
+						}}
+					>
+						<h4 style={{ margin: '0 0 16px 0' }}>Configure {nestedParameterFeat.feat.name}</h4>
+
+						<div style={{ marginBottom: '16px' }}>
+							<div
+								style={{ fontSize: '0.9em', color: 'var(--text-secondary)', marginBottom: '12px' }}
+							>
+								{nestedParameterFeat.feat.description}
+							</div>
+
+							{nestedParameterFeat.feat.parameters?.map(param => {
+								const hasError = nestedParameterErrors.has(param.id); // Use nestedParameterErrors
+								return (
+									<div key={param.id} style={{ marginBottom: '12px' }}>
+										<label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
+											{param.name} {param.required && <span style={{ color: 'red' }}>*</span>}
+										</label>
+										{param.type === 'choice' ? (
+											<select
+												value={nestedParameters[param.id] || ''}
+												onChange={e => handleNestedParameterChange(param.id, e.target.value)}
+												style={{
+													width: '100%',
+													padding: '6px',
+													border: `1px solid ${hasError ? 'red' : 'var(--text)'}`,
+													borderRadius: '4px',
+													backgroundColor: 'var(--background)',
+													color: 'var(--text)',
+												}}
+											>
+												<option value=''>Select {param.name}...</option>
+												{param.options?.map(option => (
+													<option key={option} value={option}>
+														{option}
+													</option>
+												))}
+											</select>
+										) : (
+											<input
+												type='text'
+												value={nestedParameters[param.id] || ''}
+												onChange={e => handleNestedParameterChange(param.id, e.target.value)}
+												placeholder={param.placeholder}
+												style={{
+													width: '100%',
+													padding: '6px',
+													border: `1px solid ${hasError ? 'red' : 'var(--text)'}`,
+													borderRadius: '4px',
+													backgroundColor: 'var(--background)',
+													color: 'var(--text)',
+													boxSizing: 'border-box',
+												}}
+											/>
+										)}
+										{hasError && (
+											<div
+												style={{
+													fontSize: '0.8em',
+													color: 'red',
+													marginTop: '4px',
+												}}
+											>
+												This field is required
+											</div>
+										)}
+									</div>
+								);
+							})}
+						</div>
+
+						<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+							<button
+								onClick={() => {
+									setNestedParameterFeat(null);
+									setNestedParameters({});
+									setNestedParameterErrors(new Set());
+								}}
+								style={{
+									padding: '8px 16px',
+									backgroundColor: 'var(--background-alt)',
+									border: '1px solid var(--text)',
+									borderRadius: '4px',
+									cursor: 'pointer',
+								}}
+							>
+								Cancel
+							</button>
+							<button
+								onClick={handleNestedParameterConfirm}
 								style={{
 									padding: '8px 16px',
 									backgroundColor: '#4CAF50',

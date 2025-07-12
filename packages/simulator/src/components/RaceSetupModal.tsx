@@ -123,15 +123,15 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 
 		// Assign feats to their proper slots
 		if (newCoreFeats[0]) {
-			updateCharacterProp(character, 'feat-core-race-1', newCoreFeats[0]);
-		}
-		if (newCoreFeats[1]) {
-			updateCharacterProp(character, 'feat-core-upbringing-2', newCoreFeats[1]);
+			updateCharacterProp(character, 'feat-core-race-1', newCoreFeats[0]); // racial-fey
 		}
 		if (newCoreFeats[2]) {
-			updateCharacterProp(character, 'feat-core-upbringing-3', newCoreFeats[2]);
+			updateCharacterProp(character, 'feat-core-upbringing-2', newCoreFeats[2]); // specialized-knowledge-sylvan
 		}
-		// Always update the upbringing modifier feat
+		if (newCoreFeats[3]) {
+			updateCharacterProp(character, 'feat-core-upbringing-3', newCoreFeats[3]); // light-feet
+		}
+		// Always update the upbringing modifier feat (skip newCoreFeats[1] since we handle it manually)
 		updateCharacterProp(
 			character,
 			'feat-core-upbringing-1',
