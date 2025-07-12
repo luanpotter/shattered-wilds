@@ -315,7 +315,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 				<div style={{ display: 'flex', gap: '8px', marginBottom: '4px' }}>
 					{/* Race/Class/Feats Row */}
 					<div style={{ ...formRowStyle, marginBottom: 0 }}>
-						<div style={halfRowStyle}>
+						<div style={{ ...halfRowStyle, flex: 2 }}>
 							<label htmlFor='character-race' style={labelStyle}>
 								Race:
 							</label>
@@ -335,7 +335,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 							</div>
 						</div>
 
-						<div style={halfRowStyle}>
+						<div style={{ ...halfRowStyle, flex: 2 }}>
 							<label htmlFor='character-class' style={labelStyle}>
 								Class:
 							</label>
@@ -353,10 +353,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 							/>
 						</div>
 
-						<div style={halfRowStyle}>
-							<label htmlFor='character-feats' style={labelStyle}>
-								Feats:
-							</label>
+						<div style={{ ...halfRowStyle, flex: '0 0 auto', minWidth: '120px' }}>
 							<button
 								id='character-feats'
 								onClick={editMode ? handleOpenFeatsSetup : undefined}
@@ -370,6 +367,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 									alignItems: 'center',
 									justifyContent: 'space-between',
 									padding: '2px 4px',
+									width: '100%',
 								}}
 								title={editMode ? 'Click to manage feats' : 'Feats (Edit mode required)'}
 							>

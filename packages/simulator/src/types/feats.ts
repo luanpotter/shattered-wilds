@@ -1,4 +1,4 @@
-import { AttributeType, Modifier } from './types/core';
+import { AttributeType, Modifier } from './core';
 
 // Feat Types
 export enum FeatType {

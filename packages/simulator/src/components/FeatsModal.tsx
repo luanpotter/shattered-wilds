@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { FaExclamationTriangle, FaChevronDown, FaChevronRight } from 'react-icons/fa';
 
+import { useStore } from '../store';
+import { Character, CharacterSheet, AttributeType } from '../types';
 import {
 	FEATS,
 	FeatDefinition,
@@ -8,9 +10,7 @@ import {
 	FeatCategory,
 	getFeatsByType,
 	getUpbringingModifierFeat,
-} from '../feats';
-import { useStore } from '../store';
-import { Character, CharacterSheet, AttributeType } from '../types';
+} from '../types/feats';
 
 interface FeatsModalProps {
 	character: Character;

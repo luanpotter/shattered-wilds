@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 
-import { Upbringing, FEATS, getUpbringingModifierFeat } from '../feats';
 import { useStore } from '../store';
 import { CharacterSheet, Race, RaceInfo, Size, AttributeType } from '../types';
+import { Upbringing, FEATS, getUpbringingModifierFeat } from '../types/feats';
 
 import DropdownSelect from './DropdownSelect';
 

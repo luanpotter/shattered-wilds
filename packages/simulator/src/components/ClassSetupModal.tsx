@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 
-import { FEATS } from '../feats';
 import { useStore } from '../store';
 import { Character, CharacterClass, ClassInfo, CLASS_DEFINITIONS } from '../types';
+import { FEATS } from '../types/feats';
 
 interface ClassSetupModalProps {
 	character: Character;

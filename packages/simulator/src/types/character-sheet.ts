@@ -1,13 +1,3 @@
-import {
-	FEATS,
-	Upbringing,
-	getRacialFeatId,
-	getUpbringingFeats,
-	getClassModifierFeatId,
-	CLASS_CORE_FEATS,
-	getUpbringingModifierFeat,
-} from '../feats';
-
 import { AttributeTree, Attribute, makeAttributeTree } from './attributes';
 import {
 	Race,
@@ -26,6 +16,15 @@ import {
 	BasicAttack,
 	DefenseType,
 } from './core';
+import {
+	FEATS,
+	Upbringing,
+	getRacialFeatId,
+	getUpbringingFeats,
+	getClassModifierFeatId,
+	CLASS_CORE_FEATS,
+	getUpbringingModifierFeat,
+} from './feats';
 
 export class RaceInfo {
 	primaryRace: Race;
