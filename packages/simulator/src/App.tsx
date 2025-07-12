@@ -3,17 +3,21 @@ import { FaUsers, FaCrosshairs, FaTimes, FaEdit, FaPlay, FaHome } from 'react-ic
 
 import { CharacterSheetsPage } from './components/CharacterSheetsPage';
 import { BattleGrid } from './components/HexGrid';
+import { OnboardingPage } from './components/OnboardingPage';
 import { WindowComponent } from './components/Window';
 import { useStore } from './store';
 import { Point, Character } from './types';
 import { findNextWindowPosition } from './utils';
 
-type ViewType = 'simulator' | 'character-sheets';
+type ViewType = 'simulator' | 'character-sheets' | 'onboarding';
 
 const getInitialView = (): ViewType => {
 	const hash = window.location.hash.slice(1); // Remove the # prefix
 	if (hash === '/characters' || hash.startsWith('/characters/')) {
 		return 'character-sheets';
+	}
+	if (hash === '/onboarding') {
+		return 'onboarding';
 	}
 	return 'simulator';
 };
@@ -70,6 +74,12 @@ const App = (): React.ReactElement => {
 		window.location.hash = `#/characters/${characterId}`;
 		setCurrentView('character-sheets');
 		setInitialCharacterId(characterId);
+	};
+
+	const navigateToOnboarding = () => {
+		window.location.hash = '#/onboarding';
+		setCurrentView('onboarding');
+		setInitialCharacterId(null);
 	};
 
 	useEffect(() => {
@@ -219,45 +229,47 @@ const App = (): React.ReactElement => {
 			onMouseDown={handleMouseDown}
 			onMouseLeave={() => setDragState({ type: 'none' })}
 		>
-			<header
-				style={{
-					padding: '1rem',
-					borderBottom: '1px solid var(--text)',
-					flexShrink: 0,
-					width: '1200px',
-					margin: '0 auto',
-				}}
-			>
-				<div style={{ margin: '0 auto' }}>
-					<div
-						style={{
-							display: 'flex',
-							justifyContent: 'space-between',
-							alignItems: 'center',
-						}}
-					>
-						<h1 style={{ margin: 0 }}>D12 Simulator</h1>
-						<div style={{ display: 'flex', gap: '1rem' }}>
-							<button onClick={() => (window.location.href = '/')}>
-								<FaHome /> Back to Site
-							</button>
-							<button onClick={handleOpenCharacterList}>
-								<FaUsers /> Characters
-							</button>
-							<button onClick={toggleEditMode}>
-								{editMode ? <FaPlay /> : <FaEdit />}{' '}
-								{editMode ? 'Switch to Play' : 'Switch to Edit'}
-							</button>
-							<button onClick={handleRecenter}>
-								<FaCrosshairs /> Re-center
-							</button>
-							<button onClick={handleCloseAllWindows}>
-								<FaTimes /> Close All
-							</button>
+			{currentView !== 'onboarding' && (
+				<header
+					style={{
+						padding: '1rem',
+						borderBottom: '1px solid var(--text)',
+						flexShrink: 0,
+						width: '1200px',
+						margin: '0 auto',
+					}}
+				>
+					<div style={{ margin: '0 auto' }}>
+						<div
+							style={{
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
+							}}
+						>
+							<h1 style={{ margin: 0 }}>D12 Simulator</h1>
+							<div style={{ display: 'flex', gap: '1rem' }}>
+								<button onClick={() => (window.location.href = '/')}>
+									<FaHome /> Back to Site
+								</button>
+								<button onClick={handleOpenCharacterList}>
+									<FaUsers /> Characters
+								</button>
+								<button onClick={toggleEditMode}>
+									{editMode ? <FaPlay /> : <FaEdit />}{' '}
+									{editMode ? 'Switch to Play' : 'Switch to Edit'}
+								</button>
+								<button onClick={handleRecenter}>
+									<FaCrosshairs /> Re-center
+								</button>
+								<button onClick={handleCloseAllWindows}>
+									<FaTimes /> Close All
+								</button>
+							</div>
 						</div>
 					</div>
-				</div>
-			</header>
+				</header>
+			)}
 			<main
 				style={{
 					flex: 1,
@@ -267,12 +279,12 @@ const App = (): React.ReactElement => {
 			>
 				<div
 					style={{
-						width: '100vw',
+						width: currentView === 'onboarding' ? '100%' : '100vw',
 						height: '100%',
-						position: 'absolute',
-						left: '50%',
-						transform: 'translateX(-50%)',
-						padding: '0 16px',
+						position: currentView === 'onboarding' ? 'relative' : 'absolute',
+						left: currentView === 'onboarding' ? 'auto' : '50%',
+						transform: currentView === 'onboarding' ? 'none' : 'translateX(-50%)',
+						padding: currentView === 'onboarding' ? '0' : '0 16px',
 						boxSizing: 'border-box',
 					}}
 				>
@@ -286,26 +298,34 @@ const App = (): React.ReactElement => {
 					{currentView === 'character-sheets' && (
 						<CharacterSheetsPage
 							onNavigateToCharacterSheet={navigateToCharacterSheet}
+							onNavigateToOnboarding={navigateToOnboarding}
 							initialCharacterId={initialCharacterId}
 						/>
 					)}
+					{currentView === 'onboarding' && (
+						<OnboardingPage onNavigateToCharacterSheets={navigateToCharacterSheets} />
+					)}
 				</div>
 			</main>
-			<footer
-				style={{
-					padding: '1rem',
-					borderTop: '1px solid var(--text)',
-					flexShrink: 0,
-					marginTop: '-8px',
-					width: '1200px',
-					margin: '0 auto',
-					fontSize: '12px',
-				}}
-			>
-				<div style={{ margin: '0 auto', textAlign: 'right' }}>
-					<p style={{ margin: 0, paddingBottom: '8px' }}>&copy; 2025 Shattered Wilds - Luan Nico</p>
-				</div>
-			</footer>
+			{currentView !== 'onboarding' && (
+				<footer
+					style={{
+						padding: '1rem',
+						borderTop: '1px solid var(--text)',
+						flexShrink: 0,
+						marginTop: '-8px',
+						width: '1200px',
+						margin: '0 auto',
+						fontSize: '12px',
+					}}
+				>
+					<div style={{ margin: '0 auto', textAlign: 'right' }}>
+						<p style={{ margin: 0, paddingBottom: '8px' }}>
+							&copy; 2025 Shattered Wilds - Luan Nico
+						</p>
+					</div>
+				</footer>
+			)}
 			{windows.map(window => (
 				<WindowComponent
 					key={window.id}

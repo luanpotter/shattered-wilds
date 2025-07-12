@@ -1,26 +1,52 @@
-import React, { useState } from 'react';
-import { FaPlus, FaEye, FaTrash, FaArrowLeft, FaClipboard } from 'react-icons/fa';
+import React, { useState, useEffect, useRef } from 'react';
+import { FaPlus, FaEye, FaTrash, FaArrowLeft, FaClipboard, FaChevronDown } from 'react-icons/fa';
 
 import { useStore } from '../store';
 import { Character } from '../types';
+import { findNextWindowPosition, findNextEmptyHexPosition } from '../utils';
 
 import { FullPageCharacterSheet } from './FullPageCharacterSheet';
 
 interface CharacterSheetsPageProps {
 	onNavigateToCharacterSheet: (characterId: string) => void;
+	onNavigateToOnboarding: () => void;
 	initialCharacterId: string | null;
 }
 
 export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 	onNavigateToCharacterSheet,
+	onNavigateToOnboarding,
 	initialCharacterId,
 }) => {
 	const characters = useStore(state => state.characters);
+	const windows = useStore(state => state.windows);
 	const removeCharacter = useStore(state => state.removeCharacter);
 	const addCharacter = useStore(state => state.addCharacter);
+	const addWindow = useStore(state => state.addWindow);
 	const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(initialCharacterId);
 	const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 	const [importError, setImportError] = useState<string | null>(null);
+	const [showCreateDropdown, setShowCreateDropdown] = useState<boolean>(false);
+	const dropdownRef = useRef<HTMLDivElement>(null);
+
+	// Close dropdown when clicking outside
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+				setShowCreateDropdown(false);
+			}
+		};
+
+		if (showCreateDropdown) {
+			document.addEventListener('mousedown', handleClickOutside);
+		} else {
+			document.removeEventListener('mousedown', handleClickOutside);
+		}
+
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [showCreateDropdown]);
 
 	const handleViewCharacter = (character: Character) => {
 		onNavigateToCharacterSheet(character.id);
@@ -33,9 +59,21 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 		setSelectedCharacterId(null);
 	};
 
-	const handleCreateNewCharacter = () => {
-		// TODO: Implement character creation
-		// Placeholder for future implementation
+	const handleEmptyCharacterCreation = () => {
+		const hexPosition = findNextEmptyHexPosition(characters);
+		addWindow({
+			id: window.crypto.randomUUID(),
+			title: `Create Character (${hexPosition.q}, ${hexPosition.r})`,
+			type: 'character-creation',
+			position: findNextWindowPosition(windows),
+			hexPosition: hexPosition,
+		});
+		setShowCreateDropdown(false);
+	};
+
+	const handleOnboardingCharacterCreation = () => {
+		onNavigateToOnboarding();
+		setShowCreateDropdown(false);
 	};
 
 	const handleImportFromClipboard = async () => {
@@ -200,9 +238,55 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 						<button onClick={() => void handleImportFromClipboard()}>
 							<FaClipboard /> Import Character
 						</button>
-						<button onClick={handleCreateNewCharacter}>
-							<FaPlus /> Create New Character
-						</button>
+						<div ref={dropdownRef} style={{ position: 'relative' }}>
+							<button
+								onClick={() => setShowCreateDropdown(!showCreateDropdown)}
+								style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+							>
+								<FaPlus /> Create New Character <FaChevronDown />
+							</button>
+							{showCreateDropdown && (
+								<div
+									style={{
+										position: 'absolute',
+										top: '100%',
+										right: 0,
+										backgroundColor: 'var(--background)',
+										border: '1px solid var(--text)',
+										borderRadius: '4px',
+										minWidth: '200px',
+										zIndex: 1000,
+										marginTop: '2px',
+									}}
+								>
+									<button
+										onClick={handleEmptyCharacterCreation}
+										style={{
+											width: '100%',
+											textAlign: 'left',
+											padding: '0.75rem 1rem',
+											border: 'none',
+											backgroundColor: 'transparent',
+											borderBottom: '1px solid var(--text)',
+										}}
+									>
+										<FaPlus /> Empty
+									</button>
+									<button
+										onClick={handleOnboardingCharacterCreation}
+										style={{
+											width: '100%',
+											textAlign: 'left',
+											padding: '0.75rem 1rem',
+											border: 'none',
+											backgroundColor: 'transparent',
+										}}
+									>
+										<FaPlus /> Onboarding
+									</button>
+								</div>
+							)}
+						</div>
 					</div>
 				</div>
 
@@ -217,12 +301,62 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 							>
 								<FaClipboard /> Import Character
 							</button>
-							<button
-								onClick={handleCreateNewCharacter}
-								style={{ padding: '1rem 2rem', fontSize: '1.1em' }}
-							>
-								<FaPlus /> Create New Character
-							</button>
+							<div style={{ position: 'relative' }}>
+								<button
+									onClick={() => setShowCreateDropdown(!showCreateDropdown)}
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+										padding: '1rem 2rem',
+										fontSize: '1.1em',
+									}}
+								>
+									<FaPlus /> Create New Character <FaChevronDown />
+								</button>
+								{showCreateDropdown && (
+									<div
+										style={{
+											position: 'absolute',
+											top: '100%',
+											left: '50%',
+											transform: 'translateX(-50%)',
+											backgroundColor: 'var(--background)',
+											border: '1px solid var(--text)',
+											borderRadius: '4px',
+											minWidth: '200px',
+											zIndex: 1000,
+											marginTop: '2px',
+										}}
+									>
+										<button
+											onClick={handleEmptyCharacterCreation}
+											style={{
+												width: '100%',
+												textAlign: 'left',
+												padding: '0.75rem 1rem',
+												border: 'none',
+												backgroundColor: 'transparent',
+												borderBottom: '1px solid var(--text)',
+											}}
+										>
+											<FaPlus /> Empty
+										</button>
+										<button
+											onClick={handleOnboardingCharacterCreation}
+											style={{
+												width: '100%',
+												textAlign: 'left',
+												padding: '0.75rem 1rem',
+												border: 'none',
+												backgroundColor: 'transparent',
+											}}
+										>
+											<FaPlus /> Onboarding
+										</button>
+									</div>
+								)}
+							</div>
 						</div>
 					</div>
 				) : (
