@@ -74,6 +74,8 @@ export const useStore = create<AppState>()(
 			removeCharacter: id =>
 				set(state => ({
 					characters: state.characters.filter(c => c.id !== id),
+					// Also close any windows associated with this character
+					windows: state.windows.filter(w => w.characterId !== id),
 				})),
 			addWindow: window =>
 				set(state => ({

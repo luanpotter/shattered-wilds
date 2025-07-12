@@ -1,3 +1,4 @@
+import { Race } from './character';
 import { AttributeType, Modifier } from './core';
 
 // Feat Types
@@ -44,17 +45,6 @@ export interface ParameterizedFeatInstance {
 	parameters: Record<string, string>;
 	fullName: string;
 	fullId: string;
-}
-
-// Races
-export enum Race {
-	Human = 'Human',
-	Elf = 'Elf',
-	Dwarf = 'Dwarf',
-	Orc = 'Orc',
-	Fey = 'Fey',
-	Goliath = 'Goliath',
-	Goblin = 'Goblin',
 }
 
 // Upbringings

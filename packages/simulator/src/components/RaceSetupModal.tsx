@@ -1,35 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { useStore } from '../store';
-import { CharacterSheet, Race, RaceInfo, Size, AttributeType } from '../types';
+import { CharacterSheet, Race, Size, AttributeType, RaceInfo } from '../types';
 import { Upbringing, FEATS, getUpbringingModifierFeat } from '../types/feats';
 
 import DropdownSelect from './DropdownSelect';
 
 interface RaceSetupModalProps {
 	characterId: string;
-	currentRace: RaceInfo;
 	onClose: () => void;
 }
 
-const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRace, onClose }) => {
+const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose }) => {
 	const characters = useStore(state => state.characters);
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
-
-	// Set initial states from RaceInfo
-	const [primaryRace, setPrimaryRace] = useState<Race>(currentRace.primaryRace);
-	const [halfRace, setHalfRace] = useState<Race | null>(currentRace.halfRace);
-	const [showHalfRace, setShowHalfRace] = useState<boolean>(currentRace.halfRace !== null);
-	const [combineStats, setCombineStats] = useState<boolean>(currentRace.combineHalfRaceStats);
-	const [upbringing, setUpbringing] = useState<Upbringing>(currentRace.upbringing);
-
-	// Upbringing modifier state
-	const [upbringingPlusModifier, setUpbringingPlusModifier] = useState<AttributeType>(
-		currentRace.upbringingPlusModifier
-	);
-	const [upbringingMinusModifier, setUpbringingMinusModifier] = useState<AttributeType>(
-		currentRace.upbringingMinusModifier
-	);
 
 	// Find the character by ID
 	const character = characters.find(c => c.id === characterId);
@@ -37,28 +21,21 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 		return null;
 	}
 
-	// Get modifiers for the preview
-	const sheet = CharacterSheet.from({
-		...character.props,
-		race: primaryRace,
-		'race.half': showHalfRace && halfRace ? halfRace : '',
-		'race.half.combined-stats': combineStats ? 'true' : 'false',
-		upbringing: upbringing,
-		'upbringing.plus': upbringingPlusModifier.name,
-		'upbringing.minus': upbringingMinusModifier.name,
-	});
-	// Remove unused raceModifiers variable since we removed the racial modifiers display
+	const sheet = CharacterSheet.from(character.props);
 
-	// Get core feats for preview
-	const coreFeats = sheet.race.getCoreFeats();
+	// Get current values directly from character props
+	const currentRace = sheet.race;
+
+	// Get modifiers for the preview using current values
+	const coreFeats = currentRace.getCoreFeats();
 	const coreFeatDefinitions = coreFeats
 		.map(featId => {
 			// Handle dynamic upbringing modifiers for preview
 			if (featId.startsWith('upbringing-')) {
 				return getUpbringingModifierFeat(
-					upbringing,
-					upbringingPlusModifier,
-					upbringingMinusModifier
+					currentRace.upbringing,
+					currentRace.upbringingPlusModifier,
+					currentRace.upbringingMinusModifier
 				);
 			}
 			return FEATS[featId];
@@ -79,48 +56,135 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 		}
 	};
 
-	// Handle saving changes
-	const handleSave = () => {
-		if (!character) return;
+	// Handle immediate updates
+	const handlePrimaryRaceChange = (value: Race) => {
+		updateCharacterProp(character, 'race', value);
 
-		// Update primary race
-		updateCharacterProp(character, 'race', primaryRace);
-
-		// Update upbringing
-		updateCharacterProp(character, 'upbringing', upbringing);
-
-		// Update upbringing modifiers
-		updateCharacterProp(character, 'upbringing.plus', upbringingPlusModifier.name);
-		updateCharacterProp(character, 'upbringing.minus', upbringingMinusModifier.name);
-
-		// Update half race or clear it
-		if (showHalfRace && halfRace) {
-			updateCharacterProp(character, 'race.half', halfRace);
-		} else if (character.props['race.half']) {
-			// Clear the half race if it was previously set but is now disabled
-			updateCharacterProp(character, 'race.half', '');
+		// If half breed is the same as the new primary race, change it to something else
+		if (currentRace.halfRace === value) {
+			const alternativeRace = Object.values(Race).find(r => r !== value);
+			if (alternativeRace) {
+				updateCharacterProp(character, 'race.half', alternativeRace);
+			}
 		}
 
-		// Update combine stats setting
-		updateCharacterProp(character, 'race.half.combined-stats', combineStats ? 'true' : 'false');
+		// Update core feats immediately
+		updateCoreFeats(
+			value,
+			currentRace.upbringing,
+			currentRace.halfRace,
+			currentRace.combineHalfRaceStats,
+			currentRace.upbringingPlusModifier,
+			currentRace.upbringingMinusModifier
+		);
+	};
 
+	const handleHalfRaceToggle = (showHalfRace: boolean) => {
+		if (showHalfRace) {
+			// Enable half race with first available option
+			const alternativeRace = Object.values(Race).find(r => r !== currentRace.primaryRace);
+			if (alternativeRace) {
+				updateCharacterProp(character, 'race.half', alternativeRace);
+			}
+		} else {
+			// Clear half race
+			updateCharacterProp(character, 'race.half', '');
+		}
+	};
+
+	const handleHalfRaceChange = (value: Race) => {
+		updateCharacterProp(character, 'race.half', value);
+		updateCoreFeats(
+			currentRace.primaryRace,
+			currentRace.upbringing,
+			value,
+			currentRace.combineHalfRaceStats,
+			currentRace.upbringingPlusModifier,
+			currentRace.upbringingMinusModifier
+		);
+	};
+
+	const handleCombineStatsChange = (combineStats: boolean) => {
+		updateCharacterProp(character, 'race.half.combined-stats', combineStats ? 'true' : 'false');
+		updateCoreFeats(
+			currentRace.primaryRace,
+			currentRace.upbringing,
+			currentRace.halfRace,
+			combineStats,
+			currentRace.upbringingPlusModifier,
+			currentRace.upbringingMinusModifier
+		);
+	};
+
+	const handleUpbringingChange = (value: Upbringing) => {
+		updateCharacterProp(character, 'upbringing', value);
+
+		// Clear specialized training slots if changing away from Urban upbringing
+		if (value !== Upbringing.Urban) {
+			updateCharacterProp(character, 'feat-lv1-specialized-1', '');
+			updateCharacterProp(character, 'feat-lv1-specialized-2', '');
+		}
+
+		updateCoreFeats(
+			currentRace.primaryRace,
+			value,
+			currentRace.halfRace,
+			currentRace.combineHalfRaceStats,
+			currentRace.upbringingPlusModifier,
+			currentRace.upbringingMinusModifier
+		);
+	};
+
+	const handleUpbringingPlusChange = (value: string) => {
+		const attributeType = Object.values(AttributeType).find(type => type.name === value);
+		if (attributeType) {
+			updateCharacterProp(character, 'upbringing.plus', attributeType.name);
+			updateCoreFeats(
+				currentRace.primaryRace,
+				currentRace.upbringing,
+				currentRace.halfRace,
+				currentRace.combineHalfRaceStats,
+				attributeType,
+				currentRace.upbringingMinusModifier
+			);
+		}
+	};
+
+	const handleUpbringingMinusChange = (value: string) => {
+		const attributeType = Object.values(AttributeType).find(type => type.name === value);
+		if (attributeType) {
+			updateCharacterProp(character, 'upbringing.minus', attributeType.name);
+			updateCoreFeats(
+				currentRace.primaryRace,
+				currentRace.upbringing,
+				currentRace.halfRace,
+				currentRace.combineHalfRaceStats,
+				currentRace.upbringingPlusModifier,
+				attributeType
+			);
+		}
+	};
+
+	// Helper function to update core feats
+	const updateCoreFeats = (
+		primaryRace: Race,
+		upbringing: Upbringing,
+		halfRace: Race | null,
+		combineStats: boolean,
+		upbringingPlusModifier: AttributeType,
+		upbringingMinusModifier: AttributeType
+	) => {
 		// Clear existing core race feat slots
 		updateCharacterProp(character, 'feat-core-race-1', '');
 		updateCharacterProp(character, 'feat-core-upbringing-1', '');
 		updateCharacterProp(character, 'feat-core-upbringing-2', '');
 		updateCharacterProp(character, 'feat-core-upbringing-3', '');
 
-		// Clear specialized training slots if changing away from Urban upbringing
-		if (upbringing !== Upbringing.Urban) {
-			updateCharacterProp(character, 'feat-lv1-specialized-1', '');
-			updateCharacterProp(character, 'feat-lv1-specialized-2', '');
-		}
-
-		// Update core race feat slots with new feats
+		// Create new RaceInfo to get updated core feats
 		const newRaceInfo = new RaceInfo(
 			primaryRace,
 			upbringing,
-			showHalfRace ? halfRace : null,
+			halfRace,
 			combineStats,
 			upbringingPlusModifier,
 			upbringingMinusModifier
@@ -129,22 +193,20 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 
 		// Assign feats to their proper slots
 		if (newCoreFeats[0]) {
-			updateCharacterProp(character, 'feat-core-race-1', newCoreFeats[0]); // racial-fey
+			updateCharacterProp(character, 'feat-core-race-1', newCoreFeats[0]);
 		}
 		if (newCoreFeats[2]) {
-			updateCharacterProp(character, 'feat-core-upbringing-2', newCoreFeats[2]); // specialized-knowledge-sylvan
+			updateCharacterProp(character, 'feat-core-upbringing-2', newCoreFeats[2]);
 		}
 		if (newCoreFeats[3]) {
-			updateCharacterProp(character, 'feat-core-upbringing-3', newCoreFeats[3]); // light-feet
+			updateCharacterProp(character, 'feat-core-upbringing-3', newCoreFeats[3]);
 		}
-		// Always update the upbringing modifier feat (skip newCoreFeats[1] since we handle it manually)
+		// Always update the upbringing modifier feat
 		updateCharacterProp(
 			character,
 			'feat-core-upbringing-1',
 			`upbringing-${upbringing.toLowerCase()}`
 		);
-
-		onClose();
 	};
 
 	return (
@@ -158,17 +220,8 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 					<DropdownSelect
 						id='primary-race'
 						options={Race}
-						value={primaryRace}
-						onChange={value => {
-							setPrimaryRace(value);
-							// If half breed is the same as the new primary race, change it to something else
-							if (halfRace === value) {
-								const alternativeRace = Object.values(Race).find(r => r !== value);
-								if (alternativeRace) {
-									setHalfRace(alternativeRace);
-								}
-							}
-						}}
+						value={currentRace.primaryRace}
+						onChange={handlePrimaryRaceChange}
 						label='Primary Race'
 					/>
 				</div>
@@ -179,39 +232,35 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 						<input
 							type='checkbox'
 							id='half-race-toggle'
-							checked={showHalfRace}
-							onChange={() => setShowHalfRace(!showHalfRace)}
+							checked={currentRace.halfRace !== null}
+							onChange={() => handleHalfRaceToggle(currentRace.halfRace === null)}
 							style={{ marginRight: '5px' }}
 						/>
 						<label htmlFor='half-race-toggle'>Half Breed</label>
 					</div>
 
-					{showHalfRace && (
+					{currentRace.halfRace !== null && (
 						<DropdownSelect
 							id='half-race'
 							options={Object.entries(Race).reduce(
 								(filtered, [key, value]) => {
 									// Filter out the primary race from options
-									if (value !== primaryRace) {
+									if (value !== currentRace.primaryRace) {
 										filtered[key] = value;
 									}
 									return filtered;
 								},
 								{} as Record<string, Race>
 							)}
-							value={
-								halfRace === primaryRace
-									? Object.values(Race).find(r => r !== primaryRace) || Object.values(Race)[0]
-									: halfRace || Object.values(Race)[0]
-							}
-							onChange={value => setHalfRace(value)}
+							value={currentRace.halfRace}
+							onChange={handleHalfRaceChange}
 						/>
 					)}
 				</div>
 			</div>
 
 			{/* Combine racial stats toggle */}
-			{showHalfRace && halfRace && (
+			{currentRace.halfRace !== null && (
 				<div style={{ marginBottom: '15px' }}>
 					<label
 						style={{
@@ -223,8 +272,8 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 					>
 						<input
 							type='checkbox'
-							checked={combineStats}
-							onChange={() => setCombineStats(!combineStats)}
+							checked={currentRace.combineHalfRaceStats}
+							onChange={() => handleCombineStatsChange(!currentRace.combineHalfRaceStats)}
 							style={{ marginRight: '6px' }}
 						/>
 						Combine racial attribute bonuses from both races
@@ -237,8 +286,8 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 				<DropdownSelect
 					id='upbringing'
 					options={Upbringing}
-					value={upbringing}
-					onChange={value => setUpbringing(value)}
+					value={currentRace.upbringing}
+					onChange={handleUpbringingChange}
 					label='Upbringing'
 				/>
 			</div>
@@ -256,11 +305,8 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 							FOW: 'FOW',
 							LCK: 'LCK',
 						}}
-						value={upbringingPlusModifier.name}
-						onChange={value => {
-							const attributeType = Object.values(AttributeType).find(type => type.name === value);
-							if (attributeType) setUpbringingPlusModifier(attributeType);
-						}}
+						value={currentRace.upbringingPlusModifier.name}
+						onChange={handleUpbringingPlusChange}
 						label='Upbringing +1 Modifier'
 					/>
 				</div>
@@ -275,11 +321,8 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 							FOW: 'FOW',
 							LCK: 'LCK',
 						}}
-						value={upbringingMinusModifier.name}
-						onChange={value => {
-							const attributeType = Object.values(AttributeType).find(type => type.name === value);
-							if (attributeType) setUpbringingMinusModifier(attributeType);
-						}}
+						value={currentRace.upbringingMinusModifier.name}
+						onChange={handleUpbringingMinusChange}
 						label='Upbringing -1 Modifier'
 					/>
 				</div>
@@ -361,20 +404,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 						cursor: 'pointer',
 					}}
 				>
-					Cancel
-				</button>
-				<button
-					onClick={handleSave}
-					style={{
-						padding: '6px 12px',
-						border: '1px solid var(--text)',
-						backgroundColor: 'var(--background-alt)',
-						color: 'var(--text)',
-						borderRadius: '4px',
-						cursor: 'pointer',
-					}}
-				>
-					Save
+					Close
 				</button>
 			</div>
 		</div>

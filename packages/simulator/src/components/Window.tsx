@@ -41,13 +41,8 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({ window, onStar
 			case 'race-setup': {
 				const character = characters.find(c => c.id === window.characterId);
 				if (!character) return <div>Character not found</div>;
-				const characterSheet = CharacterSheet.from(character.props);
 				return (
-					<RaceSetupModal
-						characterId={character.id}
-						currentRace={characterSheet.race}
-						onClose={() => removeWindow(window.id)}
-					/>
+					<RaceSetupModal characterId={character.id} onClose={() => removeWindow(window.id)} />
 				);
 			}
 			case 'class-setup': {
