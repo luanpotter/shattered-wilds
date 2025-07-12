@@ -11,6 +11,7 @@ import {
 	AttributeType,
 	Modifier,
 	Size,
+	SizeModifiers,
 	DerivedStat,
 	HexPosition,
 	BasicAttack,
@@ -220,21 +221,26 @@ export class DerivedStats {
 	}
 
 	private computeMovement(attributeTree: AttributeTree): DerivedStat<number> {
-		// Movement = 6 + DEX modifier (max +2)
-		const dexValue = attributeTree.valueOf(AttributeType.DEX);
-		const dexModifier = Math.min(2, Math.max(-2, dexValue - 10));
-		const movement = 6 + dexModifier;
+		// Movement = [3 (humanoid base) + Size Modifier + (Agility / 4) (rounded down)] hexes
+		const agilityValue = attributeTree.valueOf(AttributeType.Agility);
+		const agilityModifier = Math.floor(agilityValue / 4);
+		const sizeModifier = SizeModifiers[this.size.value];
+		const movement = 3 + sizeModifier + agilityModifier;
 		return new DerivedStat(
 			movement,
-			`Base movement: 6 + DEX modifier (${dexModifier >= 0 ? '+' : ''}${dexModifier}, max ±2)`
+			`Movement: 3 (humanoid base) + Size Modifier (${sizeModifier >= 0 ? '+' : ''}${sizeModifier}) + Agility/4 (${agilityModifier}) = ${movement} hexes`
 		);
 	}
 
 	private computeInitiative(attributeTree: AttributeTree): DerivedStat<number> {
-		// Initiative = 10 + DEX
-		const dexValue = attributeTree.valueOf(AttributeType.DEX);
-		const initiative = 10 + dexValue;
-		return new DerivedStat(initiative, `Initiative: 10 + DEX (${dexValue})`);
+		// Initiative = Awareness + Agility
+		const awarenessValue = attributeTree.valueOf(AttributeType.Awareness);
+		const agilityValue = attributeTree.valueOf(AttributeType.Agility);
+		const initiative = awarenessValue + agilityValue;
+		return new DerivedStat(
+			initiative,
+			`Initiative: Awareness (${awarenessValue}) + Agility (${agilityValue}) = ${initiative}`
+		);
 	}
 
 	private computeMaxHeroism(attributeTree: AttributeTree): DerivedStat<number> {

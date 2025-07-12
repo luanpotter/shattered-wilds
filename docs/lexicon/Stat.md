@@ -26,5 +26,5 @@ You have 5 [[Resource Point | Resource Points]] that are derived from your stats
 
 Other derived stats include:
 
-* Initiative = [[Stat_Awareness | Awareness]] + [[Stat_Agility | Agility]], used to determine order in combat via an Initiative Check
-* Movement = [3 (humanoid base) + Size Modifier + ([[Stat_Agility | Agility]] / 4) (rounded down)] hexes / turn
+* {% item "Derived_Stat/Initiative" %}
+* {% item "Derived_Stat/Movement" %}
