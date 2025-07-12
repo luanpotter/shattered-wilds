@@ -10,6 +10,7 @@ import {
 	FeatCategory,
 	getFeatsByType,
 	getUpbringingModifierFeat,
+	getClassSpecificFeats,
 } from '../types/feats';
 
 interface FeatsModalProps {
@@ -141,16 +142,22 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 
 		const availableFeats: FeatDefinition[] = [];
 
+		// Get class-specific feat IDs available for this character
+		const classSpecificFeatIds = getClassSpecificFeats(sheet.characterClass.characterClass);
+
 		// Add feats of allowed types
 		allowedTypes.forEach(type => {
-			const featsOfType = getFeatsByType(type).filter(
-				feat =>
-					(feat.category === FeatCategory.General ||
-						feat.category === FeatCategory.ClassRole ||
-						feat.category === FeatCategory.ClassFlavor) &&
+			const featsOfType = getFeatsByType(type).filter(feat => {
+				// Include if it's a general feat OR a class-specific feat for this character
+				const isGeneralFeat = feat.category === FeatCategory.General;
+				const isClassSpecificFeat = classSpecificFeatIds.includes(feat.id);
+
+				return (
+					(isGeneralFeat || isClassSpecificFeat) &&
 					!currentFeats.includes(feat.id) &&
 					(!feat.level || feat.level <= characterLevel)
-			);
+				);
+			});
 			availableFeats.push(...featsOfType);
 		});
 

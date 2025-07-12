@@ -535,6 +535,115 @@ export const FEATS: Record<string, FeatDefinition> = {
 		level: 1,
 	},
 
+	// ==== CLASS-SPECIFIC MINOR FEATS ====
+	'opportunity-window': {
+		id: 'opportunity-window',
+		name: 'Opportunity Window',
+		type: FeatType.Minor,
+		category: FeatCategory.ClassRole,
+		description:
+			'You can spend 1 SP to reduce by 1 (min 1) the amount of AP you would spend to perform the Opportunity Attack reaction',
+		level: 2,
+	},
+	'spin-attack': {
+		id: 'spin-attack',
+		name: 'Spin Attack',
+		type: FeatType.Minor,
+		category: FeatCategory.ClassRole,
+		description: 'Upgrade your Sweep Attack to target any number of creatures adjacent to you',
+		level: 3,
+		prerequisites: ['sweep-attack'],
+	},
+	'specialized-knowledge-sylvian-class': {
+		id: 'specialized-knowledge-sylvian-class',
+		name: 'Specialized Knowledge (Sylvian)',
+		type: FeatType.Minor,
+		category: FeatCategory.ClassFlavor,
+		description: 'Exactly the same as the one obtained via the Sylvian Upbringing',
+		level: 2,
+	},
+	'thieves-fingers': {
+		id: 'thieves-fingers',
+		name: "Thieves's Fingers",
+		type: FeatType.Minor,
+		category: FeatCategory.ClassFlavor,
+		description: 'Lock picking, trap disarming, etc.',
+		level: 2,
+	},
+	'channeling-fists': {
+		id: 'channeling-fists',
+		name: 'Channeling Fists',
+		type: FeatType.Minor,
+		category: FeatCategory.ClassRole,
+		description: 'You can spend 1 SP to get a +1 CM to an unarmed Attack Check',
+		level: 2,
+		traits: ['Channeling'],
+	},
+	'lucky-relentlessness': {
+		id: 'lucky-relentlessness',
+		name: 'Lucky Relentlessness',
+		type: FeatType.Minor,
+		category: FeatCategory.ClassRole,
+		description: 'Your DC for the Heroic Relentlessness action is 15',
+		level: 2,
+		traits: ['Channeling'],
+	},
+	'focused-channeling': {
+		id: 'focused-channeling',
+		name: 'Focused Channeling',
+		type: FeatType.Minor,
+		category: FeatCategory.ClassFlavor,
+		description:
+			"You can spend 2 FP (and add the Concentrate trait, if it didn't have it already) when doing an action with the Channeling trait to get a +3 CM",
+		level: 3,
+	},
+	'spiritual-armor': {
+		id: 'spiritual-armor',
+		name: 'Spiritual Armor',
+		type: FeatType.Minor,
+		category: FeatCategory.ClassFlavor,
+		description:
+			'You can roll the Shrug Off action using your Primary Attribute instead of Toughness',
+		level: 2,
+		traits: ['Channeling'],
+	},
+
+	// ==== CLASS-SPECIFIC MAJOR FEATS ====
+	leverage: {
+		id: 'leverage',
+		name: 'Leverage',
+		type: FeatType.Major,
+		category: FeatCategory.ClassFlavor,
+		description: 'Sneak attack equivalent (TODO: full implementation)',
+		level: 2,
+	},
+	skilled: {
+		id: 'skilled',
+		name: 'Skilled',
+		type: FeatType.Major,
+		category: FeatCategory.ClassFlavor,
+		description: 'Base bonus on things you are not good at (TODO: full implementation)',
+		level: 2,
+	},
+	'distributed-shifts': {
+		id: 'distributed-shifts',
+		name: 'Distributed Shifts',
+		type: FeatType.Major,
+		category: FeatCategory.ClassFlavor,
+		description: 'TODO: full implementation',
+		level: 2,
+	},
+	'divine-channeling-major': {
+		id: 'divine-channeling-major',
+		name: 'Divine Channeling',
+		type: FeatType.Major,
+		category: FeatCategory.ClassFlavor,
+		description:
+			'Unlocks Divine Channeling (for Purist Mystics at Level 2, Martial Mystics at Level 3)',
+		level: 2,
+		traits: ['Channeling'],
+	},
+
 	// ==== GENERAL MAJOR FEATS ====
 	'quick-draw': {
 		id: 'quick-draw',
@@ -602,6 +711,19 @@ export function getClassModifierFeatId(attributeType: AttributeType): string {
 	return `class-modifier-${attributeType.name.toLowerCase()}`;
 }
 
+// Get class-specific feats available for a character class
+export function getClassSpecificFeats(characterClass: string): string[] {
+	const roleFlavorInfo = CLASS_TO_ROLE_FLAVOR[characterClass];
+	if (!roleFlavorInfo) {
+		return [];
+	}
+
+	const roleFeats = CLASS_ROLE_FEATS[roleFlavorInfo.role] || [];
+	const flavorFeats = CLASS_FLAVOR_FEATS[roleFlavorInfo.flavor] || [];
+
+	return [...roleFeats, ...flavorFeats];
+}
+
 // Get upbringing modifier feat with custom modifiers
 export function getUpbringingModifierFeat(
 	upbringing: Upbringing,
@@ -630,6 +752,81 @@ export function getUpbringingModifierFeat(
 		],
 	};
 }
+
+// Map class roles and flavors to their available non-core feats
+export const CLASS_ROLE_FEATS: Record<string, string[]> = {
+	// Warrior roles
+	Melee: ['opportunity-window', 'spin-attack'],
+	Ranged: [], // TODO: rapid-fire, pinning-shot, double-shot when implemented
+	Tank: [], // TODO: shield-bash, armor, stumble-through-resistance when implemented
+
+	// Caster roles (no additional feats beyond general for now)
+	Erudite: [],
+	Intuitive: [],
+	Innate: [],
+
+	// Mystic roles
+	Adept: [], // Divine channeling already provided as core
+	Disciple: ['channeling-fists'],
+	Inspired: ['lucky-relentlessness'],
+};
+
+export const CLASS_FLAVOR_FEATS: Record<string, string[]> = {
+	// Warrior flavors
+	'Warrior-Martial': ['distributed-shifts'],
+	'Warrior-Survivalist': ['specialized-knowledge-sylvian-class'],
+	'Warrior-Scoundrel': ['thieves-fingers', 'leverage', 'skilled'],
+
+	// Caster flavors
+	'Caster-Arcanist': [],
+	'Caster-Mechanist': [],
+	'Caster-Naturalist': ['specialized-knowledge-sylvian-class'], // Level 3
+	'Caster-Musicist': [],
+
+	// Mystic flavors
+	'Mystic-Pure': ['focused-channeling', 'divine-channeling-major'],
+	'Mystic-Mixed': [], // WIP
+	'Mystic-Martial': ['spiritual-armor', 'divine-channeling-major'],
+};
+
+// Map character classes to their role and flavor for feat lookup
+export const CLASS_TO_ROLE_FLAVOR: Record<string, { role: string; flavor: string }> = {
+	// Warriors
+	Fighter: { role: 'Melee', flavor: 'Warrior-Martial' },
+	Berserker: { role: 'Melee', flavor: 'Warrior-Survivalist' },
+	Swashbuckler: { role: 'Melee', flavor: 'Warrior-Scoundrel' },
+	Marksman: { role: 'Ranged', flavor: 'Warrior-Martial' },
+	Hunter: { role: 'Ranged', flavor: 'Warrior-Survivalist' },
+	Rogue: { role: 'Ranged', flavor: 'Warrior-Scoundrel' },
+	Guardian: { role: 'Tank', flavor: 'Warrior-Martial' },
+	Barbarian: { role: 'Tank', flavor: 'Warrior-Survivalist' },
+	Scout: { role: 'Tank', flavor: 'Warrior-Scoundrel' },
+
+	// Casters
+	Wizard: { role: 'Erudite', flavor: 'Caster-Arcanist' },
+	Engineer: { role: 'Erudite', flavor: 'Caster-Mechanist' },
+	Alchemist: { role: 'Erudite', flavor: 'Caster-Naturalist' },
+	Storyteller: { role: 'Erudite', flavor: 'Caster-Musicist' },
+	Mage: { role: 'Intuitive', flavor: 'Caster-Arcanist' },
+	Artificer: { role: 'Intuitive', flavor: 'Caster-Mechanist' },
+	Druid: { role: 'Intuitive', flavor: 'Caster-Naturalist' },
+	Minstrel: { role: 'Intuitive', flavor: 'Caster-Musicist' },
+	Sorcerer: { role: 'Innate', flavor: 'Caster-Arcanist' },
+	Machinist: { role: 'Innate', flavor: 'Caster-Mechanist' },
+	Shaman: { role: 'Innate', flavor: 'Caster-Naturalist' },
+	Bard: { role: 'Innate', flavor: 'Caster-Musicist' },
+
+	// Mystics
+	Cleric: { role: 'Adept', flavor: 'Mystic-Pure' },
+	Warlock: { role: 'Adept', flavor: 'Mystic-Mixed' },
+	Paladin: { role: 'Adept', flavor: 'Mystic-Martial' },
+	Sage: { role: 'Disciple', flavor: 'Mystic-Pure' },
+	Monk: { role: 'Disciple', flavor: 'Mystic-Mixed' },
+	Ranger: { role: 'Disciple', flavor: 'Mystic-Martial' },
+	Wanderer: { role: 'Inspired', flavor: 'Mystic-Pure' },
+	Wayfarer: { role: 'Inspired', flavor: 'Mystic-Mixed' },
+	Warden: { role: 'Inspired', flavor: 'Mystic-Martial' },
+};
 
 // Map classes to their core feats
 export const CLASS_CORE_FEATS: Record<string, { role: string; flavor: string }> = {
