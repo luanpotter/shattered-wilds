@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaClipboard } from 'react-icons/fa';
 
 import { useStore } from '../store';
 import { Character } from '../types';
@@ -10,7 +10,9 @@ export const CharacterList: React.FC = () => {
 	const windows = useStore(state => state.windows);
 	const addWindow = useStore(state => state.addWindow);
 	const removeCharacter = useStore(state => state.removeCharacter);
+	const addCharacter = useStore(state => state.addCharacter);
 	const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+	const [importError, setImportError] = useState<string | null>(null);
 
 	const handleOpenNewCharacterModal = () => {
 		const hexPosition = findNextEmptyHexPosition(characters);
@@ -22,6 +24,45 @@ export const CharacterList: React.FC = () => {
 			position: findNextWindowPosition(windows),
 			hexPosition: hexPosition,
 		});
+	};
+
+	const handleImportFromClipboard = async () => {
+		try {
+			const clipboardText = await window.navigator.clipboard.readText();
+			if (!clipboardText.trim()) {
+				setImportError('Clipboard is empty');
+				return;
+			}
+
+			const props: Record<string, string> = {};
+			const lines = clipboardText.split('\n');
+
+			for (const line of lines) {
+				const trimmedLine = line.trim();
+				if (!trimmedLine) continue;
+
+				const colonIndex = trimmedLine.indexOf(':');
+				if (colonIndex === -1) continue;
+
+				const key = trimmedLine.substring(0, colonIndex).trim();
+				const value = trimmedLine.substring(colonIndex + 1).trim();
+
+				props[key] = value;
+			}
+
+			const position = findNextEmptyHexPosition(characters);
+			const newCharacter: Character = {
+				id: window.crypto.randomUUID(),
+				props: props as { name: string } & Record<string, string>,
+				position: position,
+				automaticMode: false,
+			};
+
+			addCharacter(newCharacter);
+			setImportError(null);
+		} catch {
+			setImportError('Failed to import from clipboard. Make sure you have clipboard permissions.');
+		}
 	};
 
 	const handleOpenCharacterSheet = (character: Character) => {
@@ -51,6 +92,30 @@ export const CharacterList: React.FC = () => {
 
 	return (
 		<div>
+			{importError && (
+				<div
+					style={{
+						padding: '6px',
+						marginBottom: '8px',
+						backgroundColor: 'var(--background-alt)',
+						border: '1px solid var(--error)',
+						borderRadius: '4px',
+						fontSize: '0.9em',
+						color: 'var(--error)',
+					}}
+				>
+					<p style={{ margin: '0 0 6px 0' }}>{importError}</p>
+					<div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+						<button
+							onClick={() => setImportError(null)}
+							style={{ padding: '2px 6px', fontSize: '0.9em' }}
+						>
+							Dismiss
+						</button>
+					</div>
+				</div>
+			)}
+
 			{confirmDelete && (
 				<div
 					style={{
@@ -83,7 +148,13 @@ export const CharacterList: React.FC = () => {
 					</div>
 				</div>
 			)}
-			<div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'flex-end' }}>
+			<div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'flex-end', gap: '4px' }}>
+				<button
+					onClick={() => void handleImportFromClipboard()}
+					style={{ padding: '4px 8px', fontSize: '0.9em' }}
+				>
+					<FaClipboard /> Import Character
+				</button>
 				<button
 					onClick={handleOpenNewCharacterModal}
 					style={{ padding: '4px 8px', fontSize: '0.9em' }}

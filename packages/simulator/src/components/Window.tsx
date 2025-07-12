@@ -1,4 +1,5 @@
 import React from 'react';
+import { FaCopy } from 'react-icons/fa';
 
 import { useStore } from '../store';
 import { Window, CharacterSheet } from '../types';
@@ -15,6 +16,8 @@ import { FeatsModal } from './FeatsModal';
 import { MeasureModal } from './MeasureModal';
 import RaceSetupModal from './RaceSetupModal';
 
+const navigator = window.navigator;
+
 interface WindowComponentProps {
 	window: Window;
 	onStartDrag: (e: React.MouseEvent) => void;
@@ -23,6 +26,37 @@ interface WindowComponentProps {
 export const WindowComponent: React.FC<WindowComponentProps> = ({ window, onStartDrag }) => {
 	const characters = useStore(state => state.characters);
 	const removeWindow = useStore(state => state.removeWindow);
+
+	const handleCopyCharacterSheet = (characterId: string) => {
+		const character = characters.find(c => c.id === characterId);
+		if (!character) return;
+		const keyValuePairs = Object.entries(character.props)
+			.map(([key, value]) => `${key}: ${value}`)
+			.join('\n');
+		void navigator.clipboard.writeText(keyValuePairs);
+	};
+
+	const generateTitleBarButtons = () => {
+		switch (window.type) {
+			case 'character-sheet':
+				if (window.characterId) {
+					return (
+						<button
+							onClick={() => handleCopyCharacterSheet(window.characterId!)}
+							className='icon-button'
+							style={{ padding: '1px', fontSize: '0.9em' }}
+							title='Copy character sheet'
+						>
+							<FaCopy />
+						</button>
+					);
+				}
+				break;
+			default:
+				return null;
+		}
+		return null;
+	};
 
 	const renderContent = () => {
 		switch (window.type) {
@@ -120,7 +154,11 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({ window, onStar
 	};
 
 	return (
-		<DraggableWindow window={window} onStartDrag={onStartDrag}>
+		<DraggableWindow
+			window={window}
+			onStartDrag={onStartDrag}
+			titleBarButtons={generateTitleBarButtons()}
+		>
 			{renderContent()}
 		</DraggableWindow>
 	);

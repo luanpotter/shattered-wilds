@@ -8,12 +8,14 @@ interface DraggableWindowProps {
 	window: Window;
 	children: React.ReactNode;
 	onStartDrag: (e: React.MouseEvent) => void;
+	titleBarButtons?: React.ReactNode;
 }
 
 export const DraggableWindow: React.FC<DraggableWindowProps> = ({
 	window,
 	children,
 	onStartDrag,
+	titleBarButtons,
 }) => {
 	const updateWindow = useStore(state => state.updateWindow);
 	const removeWindow = useStore(state => state.removeWindow);
@@ -144,6 +146,7 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
 				>
 					<span>{window.title}</span>
 					<div style={{ display: 'flex', gap: '4px' }}>
+						{titleBarButtons}
 						<button
 							onClick={handleClose}
 							className='icon-button'
