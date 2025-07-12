@@ -7,6 +7,7 @@ import {
 	FaMinus,
 	FaBatteryFull,
 	FaCopy,
+	FaExclamationTriangle,
 } from 'react-icons/fa';
 
 import { useStore } from '../store';
@@ -56,9 +57,58 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 		[sheet]
 	);
 
-	// Return null if character not found
+	// Show error message if character not found
 	if (!character || !sheet) {
-		return null;
+		return (
+			<div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+				<main
+					style={{
+						flex: 1,
+						padding: '2rem',
+						overflow: 'auto',
+						maxWidth: '1400px',
+						margin: '0 auto',
+						width: '100%',
+						boxSizing: 'border-box',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+					}}
+				>
+					<div
+						style={{
+							textAlign: 'center',
+							padding: '2rem',
+							border: '1px solid var(--text)',
+							borderRadius: '8px',
+							backgroundColor: 'var(--background-alt)',
+							maxWidth: '500px',
+						}}
+					>
+						<FaExclamationTriangle size={48} style={{ color: 'orange', marginBottom: '1rem' }} />
+						<h2 style={{ marginBottom: '1rem', color: 'var(--text)' }}>Character Not Found</h2>
+						<p style={{ marginBottom: '2rem', color: 'var(--text)' }}>
+							The character you&apos;re looking for could not be found. It may have been deleted or
+							the link is incorrect.
+						</p>
+						<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+							<button
+								onClick={onBack}
+								style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+							>
+								<FaArrowLeft /> Back to Character List
+							</button>
+							<button
+								onClick={onBackToSimulator}
+								style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+							>
+								<FaArrowLeft /> Back to Simulator
+							</button>
+						</div>
+					</div>
+				</main>
+			</div>
+		);
 	}
 
 	const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {

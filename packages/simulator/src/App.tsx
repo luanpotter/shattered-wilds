@@ -328,6 +328,7 @@ const App = (): React.ReactElement => {
 						});
 					}}
 					onNavigateToCharacterSheets={navigateToCharacterSheets}
+					onNavigateToCharacterSheet={navigateToCharacterSheet}
 				/>
 			))}
 		</div>

@@ -22,12 +22,14 @@ interface WindowComponentProps {
 	window: Window;
 	onStartDrag: (e: React.MouseEvent) => void;
 	onNavigateToCharacterSheets?: () => void;
+	onNavigateToCharacterSheet?: (characterId: string) => void;
 }
 
 export const WindowComponent: React.FC<WindowComponentProps> = ({
 	window,
 	onStartDrag,
 	onNavigateToCharacterSheets,
+	onNavigateToCharacterSheet,
 }) => {
 	const characters = useStore(state => state.characters);
 	const removeWindow = useStore(state => state.removeWindow);
@@ -50,6 +52,15 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({
 		}
 	};
 
+	const handleExpandCharacterSheet = (characterId: string) => {
+		// Close the character sheet modal
+		removeWindow(window.id);
+		// Navigate to the specific character sheet page
+		if (onNavigateToCharacterSheet) {
+			onNavigateToCharacterSheet(characterId);
+		}
+	};
+
 	const generateTitleBarButtons = () => {
 		switch (window.type) {
 			case 'character-list':
@@ -66,14 +77,24 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({
 			case 'character-sheet':
 				if (window.characterId) {
 					return (
-						<button
-							onClick={() => handleCopyCharacterSheet(window.characterId!)}
-							className='icon-button'
-							style={{ padding: '1px', fontSize: '0.9em' }}
-							title='Copy character sheet'
-						>
-							<FaCopy />
-						</button>
+						<>
+							<button
+								onClick={() => handleCopyCharacterSheet(window.characterId!)}
+								className='icon-button'
+								style={{ padding: '1px', fontSize: '0.9em' }}
+								title='Copy character sheet'
+							>
+								<FaCopy />
+							</button>
+							<button
+								onClick={() => handleExpandCharacterSheet(window.characterId!)}
+								className='icon-button'
+								style={{ padding: '1px', fontSize: '0.9em' }}
+								title='Open character sheet full page'
+							>
+								<FaExpand />
+							</button>
+						</>
 					);
 				}
 				break;
