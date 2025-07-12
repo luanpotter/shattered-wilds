@@ -602,6 +602,35 @@ export function getClassModifierFeatId(attributeType: AttributeType): string {
 	return `class-modifier-${attributeType.name.toLowerCase()}`;
 }
 
+// Get upbringing modifier feat with custom modifiers
+export function getUpbringingModifierFeat(
+	upbringing: Upbringing,
+	plusModifier: AttributeType,
+	minusModifier: AttributeType
+): FeatDefinition {
+	const baseFeat = FEATS[`upbringing-${upbringing.toLowerCase()}`];
+	if (!baseFeat) {
+		throw new Error(`Unknown upbringing: ${upbringing}`);
+	}
+
+	return {
+		...baseFeat,
+		description: `${baseFeat.description.split('Typical:')[0].trim()} +${plusModifier.name}, -${minusModifier.name}`,
+		modifiers: [
+			{
+				source: `${upbringing} Upbringing`,
+				value: 1,
+				attributeType: plusModifier,
+			},
+			{
+				source: `${upbringing} Upbringing`,
+				value: -1,
+				attributeType: minusModifier,
+			},
+		],
+	};
+}
+
 // Map classes to their core feats
 export const CLASS_CORE_FEATS: Record<string, { role: string; flavor: string }> = {
 	// Warriors - Melee (STR)

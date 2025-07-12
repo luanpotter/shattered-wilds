@@ -5,6 +5,7 @@ import {
 	getUpbringingFeats,
 	getClassModifierFeatId,
 	CLASS_CORE_FEATS,
+	getUpbringingModifierFeat,
 } from '../feats';
 
 import { AttributeTree, Attribute, makeAttributeTree } from './attributes';
@@ -31,17 +32,23 @@ export class RaceInfo {
 	halfRace: Race | null;
 	combineHalfRaceStats: boolean;
 	upbringing: Upbringing;
+	upbringingPlusModifier: AttributeType;
+	upbringingMinusModifier: AttributeType;
 
 	constructor(
 		primaryRace: Race,
 		upbringing: Upbringing,
 		halfRace: Race | null = null,
-		combineHalfRaceStats: boolean = false
+		combineHalfRaceStats: boolean = false,
+		upbringingPlusModifier: AttributeType = AttributeType.INT,
+		upbringingMinusModifier: AttributeType = AttributeType.WIS
 	) {
 		this.primaryRace = primaryRace;
 		this.halfRace = halfRace;
 		this.combineHalfRaceStats = combineHalfRaceStats;
 		this.upbringing = upbringing;
+		this.upbringingPlusModifier = upbringingPlusModifier;
+		this.upbringingMinusModifier = upbringingMinusModifier;
 	}
 
 	static from(props: Record<string, string>): RaceInfo {
@@ -49,8 +56,21 @@ export class RaceInfo {
 		const halfRace = props['race.half'] ? (props['race.half'] as Race) : null;
 		const combineHalfRaceStats = props['race.half.combined-stats'] === 'true';
 		const upbringing = (props['upbringing'] as Upbringing) ?? Upbringing.Urban;
+		const upbringingPlusModifier =
+			Object.values(AttributeType).find(type => type.name === props['upbringing.plus']) ??
+			AttributeType.INT;
+		const upbringingMinusModifier =
+			Object.values(AttributeType).find(type => type.name === props['upbringing.minus']) ??
+			AttributeType.WIS;
 
-		return new RaceInfo(primaryRace, upbringing, halfRace, combineHalfRaceStats);
+		return new RaceInfo(
+			primaryRace,
+			upbringing,
+			halfRace,
+			combineHalfRaceStats,
+			upbringingPlusModifier,
+			upbringingMinusModifier
+		);
 	}
 
 	// Get the core feats that should be assigned to this race/upbringing combination
@@ -345,9 +365,21 @@ export class CharacterSheet {
 		const feats = this.getFeats();
 
 		for (const featId of feats) {
-			const feat = FEATS[featId];
-			if (feat && feat.modifiers) {
-				modifiers.push(...feat.modifiers);
+			// Handle dynamic upbringing modifiers
+			if (featId.startsWith('upbringing-')) {
+				const upbringingFeat = getUpbringingModifierFeat(
+					this.race.upbringing,
+					this.race.upbringingPlusModifier,
+					this.race.upbringingMinusModifier
+				);
+				if (upbringingFeat.modifiers) {
+					modifiers.push(...upbringingFeat.modifiers);
+				}
+			} else {
+				const feat = FEATS[featId];
+				if (feat && feat.modifiers) {
+					modifiers.push(...feat.modifiers);
+				}
 			}
 		}
 

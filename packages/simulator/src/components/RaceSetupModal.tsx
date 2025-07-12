@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 
-import { Upbringing, FEATS } from '../feats';
+import { Upbringing, FEATS, getUpbringingModifierFeat } from '../feats';
 import { useStore } from '../store';
-import { CharacterSheet, Race, RaceInfo, Size } from '../types';
+import { CharacterSheet, Race, RaceInfo, Size, AttributeType } from '../types';
 
 import DropdownSelect from './DropdownSelect';
 
@@ -23,6 +23,14 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 	const [combineStats, setCombineStats] = useState<boolean>(currentRace.combineHalfRaceStats);
 	const [upbringing, setUpbringing] = useState<Upbringing>(currentRace.upbringing);
 
+	// Upbringing modifier state
+	const [upbringingPlusModifier, setUpbringingPlusModifier] = useState<AttributeType>(
+		currentRace.upbringingPlusModifier
+	);
+	const [upbringingMinusModifier, setUpbringingMinusModifier] = useState<AttributeType>(
+		currentRace.upbringingMinusModifier
+	);
+
 	// Find the character by ID
 	const character = characters.find(c => c.id === characterId);
 	if (!character) {
@@ -36,12 +44,26 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 		'race.half': showHalfRace && halfRace ? halfRace : '',
 		'race.half.combined-stats': combineStats ? 'true' : 'false',
 		upbringing: upbringing,
+		'upbringing.plus': upbringingPlusModifier.name,
+		'upbringing.minus': upbringingMinusModifier.name,
 	});
-	const raceModifiers = sheet.race.getModifiers();
+	// Remove unused raceModifiers variable since we removed the racial modifiers display
 
 	// Get core feats for preview
 	const coreFeats = sheet.race.getCoreFeats();
-	const coreFeatDefinitions = coreFeats.map(featId => FEATS[featId]).filter(Boolean);
+	const coreFeatDefinitions = coreFeats
+		.map(featId => {
+			// Handle dynamic upbringing modifiers for preview
+			if (featId.startsWith('upbringing-')) {
+				return getUpbringingModifierFeat(
+					upbringing,
+					upbringingPlusModifier,
+					upbringingMinusModifier
+				);
+			}
+			return FEATS[featId];
+		})
+		.filter(Boolean);
 
 	// Map size enum to display value
 	const getSizeDisplay = (size: Size): string => {
@@ -78,6 +100,10 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 		// Update upbringing
 		updateCharacterProp(character, 'upbringing', upbringing);
 
+		// Update upbringing modifiers
+		updateCharacterProp(character, 'upbringing.plus', upbringingPlusModifier.name);
+		updateCharacterProp(character, 'upbringing.minus', upbringingMinusModifier.name);
+
 		// Update half race or clear it
 		if (showHalfRace && halfRace) {
 			updateCharacterProp(character, 'race.half', halfRace);
@@ -94,7 +120,9 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 			primaryRace,
 			upbringing,
 			showHalfRace ? halfRace : null,
-			combineStats
+			combineStats,
+			upbringingPlusModifier,
+			upbringingMinusModifier
 		).getCoreFeats();
 		newCoreFeats.forEach(featId => {
 			updateCharacterProp(character, `feat:${featId}`, 'true');
@@ -107,8 +135,9 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 		<div style={{ padding: '10px' }}>
 			<h3 style={{ margin: '0 0 15px 0' }}>Race Setup</h3>
 
+			{/* Race Selection - First Row */}
 			<div style={{ marginBottom: '15px', display: 'flex', gap: '8px' }}>
-				{/* Primary Race - 33% width */}
+				{/* Primary Race - 50% width */}
 				<div style={{ flex: 1 }}>
 					<DropdownSelect
 						id='primary-race'
@@ -128,18 +157,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 					/>
 				</div>
 
-				{/* Upbringing - 33% width */}
-				<div style={{ flex: 1 }}>
-					<DropdownSelect
-						id='upbringing'
-						options={Upbringing}
-						value={upbringing}
-						onChange={value => setUpbringing(value)}
-						label='Upbringing'
-					/>
-				</div>
-
-				{/* Half Breed section - 33% width */}
+				{/* Half Breed section - 50% width */}
 				<div style={{ flex: 1 }}>
 					<div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
 						<input
@@ -198,6 +216,59 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 				</div>
 			)}
 
+			{/* Upbringing Selection - Second Row */}
+			<div style={{ marginBottom: '15px' }}>
+				<DropdownSelect
+					id='upbringing'
+					options={Upbringing}
+					value={upbringing}
+					onChange={value => setUpbringing(value)}
+					label='Upbringing'
+				/>
+			</div>
+
+			{/* Upbringing Modifiers - Third Row */}
+			<div style={{ marginBottom: '15px', display: 'flex', gap: '8px' }}>
+				<div style={{ flex: 1 }}>
+					<DropdownSelect
+						id='upbringing-plus'
+						options={{
+							INT: 'INT',
+							WIS: 'WIS',
+							CHA: 'CHA',
+							DIV: 'DIV',
+							FOW: 'FOW',
+							LCK: 'LCK',
+						}}
+						value={upbringingPlusModifier.name}
+						onChange={value => {
+							const attributeType = Object.values(AttributeType).find(type => type.name === value);
+							if (attributeType) setUpbringingPlusModifier(attributeType);
+						}}
+						label='Upbringing +1 Modifier'
+					/>
+				</div>
+				<div style={{ flex: 1 }}>
+					<DropdownSelect
+						id='upbringing-minus'
+						options={{
+							INT: 'INT',
+							WIS: 'WIS',
+							CHA: 'CHA',
+							DIV: 'DIV',
+							FOW: 'FOW',
+							LCK: 'LCK',
+						}}
+						value={upbringingMinusModifier.name}
+						onChange={value => {
+							const attributeType = Object.values(AttributeType).find(type => type.name === value);
+							if (attributeType) setUpbringingMinusModifier(attributeType);
+						}}
+						label='Upbringing -1 Modifier'
+					/>
+				</div>
+			</div>
+
 			{/* Character Size Display */}
 			<div
 				style={{
@@ -223,38 +294,6 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 				</div>
 			</div>
 
-			{/* Race Modifiers Display */}
-			{raceModifiers.length > 0 && (
-				<div
-					style={{
-						marginBottom: '15px',
-						padding: '8px',
-						backgroundColor: 'var(--background-alt)',
-						borderRadius: '4px',
-					}}
-				>
-					<h3 style={{ margin: '0 0 8px 0', fontSize: '1em' }}>Racial Modifiers</h3>
-					<div>
-						{raceModifiers.map((mod, index) => (
-							<div
-								key={index}
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-									fontSize: '0.9em',
-									padding: '2px 0',
-								}}
-							>
-								<span>{mod.source}</span>
-								<span>
-									{mod.attributeType?.name}: {mod.value > 0 ? `+${mod.value}` : mod.value}
-								</span>
-							</div>
-						))}
-					</div>
-				</div>
-			)}
-
 			{/* Core Feats Display */}
 			<div
 				style={{
@@ -264,7 +303,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 					borderRadius: '4px',
 				}}
 			>
-				<h3 style={{ margin: '0 0 8px 0', fontSize: '1em' }}>Core Feats (Level 0-1)</h3>
+				<h3 style={{ margin: '0 0 8px 0', fontSize: '1em' }}>Core Feats (Level 0)</h3>
 				<div style={{ maxHeight: '200px', overflowY: 'auto' }}>
 					{coreFeatDefinitions.length > 0 ? (
 						coreFeatDefinitions.map((feat, index) => (

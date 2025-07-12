@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { FaPlus, FaMinus, FaBatteryFull } from 'react-icons/fa';
+import { FaPlus, FaMinus, FaBatteryFull, FaExclamationTriangle } from 'react-icons/fa';
 
 import { useStore } from '../store';
 import {
@@ -10,6 +10,7 @@ import {
 	SizeModifiers,
 	Equipment,
 	DefenseType,
+	AttributeType,
 } from '../types';
 import { findNextWindowPosition } from '../utils';
 
@@ -245,6 +246,32 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 		return `${size} (${modifierStr})`;
 	};
 
+	// Calculate missing feat slots
+	const getMissingFeatSlots = (): boolean => {
+		const characterLevel = sheet.attributes.getNode(AttributeType.Level)?.baseValue || 1;
+		const currentFeats = sheet.getFeats();
+		const coreFeats = sheet.race.getCoreFeats().concat(sheet.characterClass.getCoreClassFeats());
+		const nonCoreFeats = currentFeats.filter(feat => !coreFeats.includes(feat));
+
+		// Calculate expected feat slots
+		let expectedMinorSlots = 0;
+		let expectedMajorSlots = 0;
+
+		for (let i = 1; i <= characterLevel; i++) {
+			if (i % 2 === 1) {
+				expectedMinorSlots++; // Odd levels get minor feats
+			} else {
+				expectedMajorSlots++; // Even levels get major feats
+			}
+		}
+
+		// Count actual non-core feats (this is a simplified check)
+		const totalExpectedSlots = expectedMinorSlots + expectedMajorSlots;
+		const actualNonCoreFeats = nonCoreFeats.length;
+
+		return actualNonCoreFeats < totalExpectedSlots;
+	};
+
 	const basicAttacks = sheet.getBasicAttacks();
 	const basicDefense = sheet.getBasicDefense(DefenseType.Basic);
 
@@ -286,7 +313,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 				</div>
 
 				<div style={{ display: 'flex', gap: '8px', marginBottom: '4px' }}>
-					{/* Race/Class Row */}
+					{/* Race/Class/Feats Row */}
 					<div style={{ ...formRowStyle, marginBottom: 0 }}>
 						<div style={halfRowStyle}>
 							<label htmlFor='character-race' style={labelStyle}>
@@ -325,32 +352,39 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 								}}
 							/>
 						</div>
-					</div>
-				</div>
 
-				{/* Feats Section - only show in edit mode */}
-				{editMode && (
-					<div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-						<div style={{ ...halfRowStyle, flex: 1 }}>
+						<div style={halfRowStyle}>
 							<label htmlFor='character-feats' style={labelStyle}>
 								Feats:
 							</label>
-							<input
+							<button
 								id='character-feats'
-								type='text'
-								value={`${sheet.getFeats().length} feats`}
-								onClick={handleOpenFeatsSetup}
-								readOnly
+								onClick={editMode ? handleOpenFeatsSetup : undefined}
+								disabled={!editMode}
 								style={{
 									...inputStyle,
-									cursor: 'pointer',
+									cursor: editMode ? 'pointer' : 'default',
 									backgroundColor: 'var(--background)',
+									border: editMode ? '1px solid var(--text)' : 'none',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
+									padding: '2px 4px',
 								}}
-								title='Click to manage feats'
-							/>
+								title={editMode ? 'Click to manage feats' : 'Feats (Edit mode required)'}
+							>
+								<span>Feats</span>
+								{editMode && getMissingFeatSlots() && (
+									<FaExclamationTriangle
+										size={12}
+										style={{ color: 'orange', marginLeft: '4px' }}
+										title='Missing feat slots'
+									/>
+								)}
+							</button>
 						</div>
 					</div>
-				)}
+				</div>
 
 				{/* Derived Stats Section */}
 				<div style={{ marginTop: '8px' }}>
