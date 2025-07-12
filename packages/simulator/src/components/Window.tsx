@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaCopy } from 'react-icons/fa';
+import { FaCopy, FaExpand } from 'react-icons/fa';
 
 import { useStore } from '../store';
 import { Window, CharacterSheet } from '../types';
@@ -21,9 +21,14 @@ const navigator = window.navigator;
 interface WindowComponentProps {
 	window: Window;
 	onStartDrag: (e: React.MouseEvent) => void;
+	onNavigateToCharacterSheets?: () => void;
 }
 
-export const WindowComponent: React.FC<WindowComponentProps> = ({ window, onStartDrag }) => {
+export const WindowComponent: React.FC<WindowComponentProps> = ({
+	window,
+	onStartDrag,
+	onNavigateToCharacterSheets,
+}) => {
 	const characters = useStore(state => state.characters);
 	const removeWindow = useStore(state => state.removeWindow);
 
@@ -36,8 +41,28 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({ window, onStar
 		void navigator.clipboard.writeText(keyValuePairs);
 	};
 
+	const handleExpandCharacterList = () => {
+		// Close the character list modal
+		removeWindow(window.id);
+		// Navigate to the full character sheets page
+		if (onNavigateToCharacterSheets) {
+			onNavigateToCharacterSheets();
+		}
+	};
+
 	const generateTitleBarButtons = () => {
 		switch (window.type) {
+			case 'character-list':
+				return (
+					<button
+						onClick={handleExpandCharacterList}
+						className='icon-button'
+						style={{ padding: '1px', fontSize: '0.9em' }}
+						title='Open full character sheets page'
+					>
+						<FaExpand />
+					</button>
+				);
 			case 'character-sheet':
 				if (window.characterId) {
 					return (

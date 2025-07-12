@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { FaPlus, FaMinus, FaBatteryFull, FaExclamationTriangle } from 'react-icons/fa';
 
 import { useStore } from '../store';
@@ -238,7 +238,8 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 		gap: '4px', // Maintain consistent gap
 	};
 
-	const sheet = CharacterSheet.from(character.props);
+	// Create a reactive sheet that updates when character props change
+	const sheet = useMemo(() => CharacterSheet.from(character.props), [character.props]);
 
 	// Map size enum to display value
 	const getSizeDisplay = (size: Size): string => {
@@ -265,8 +266,9 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 		});
 	};
 
-	const basicAttacks = sheet.getBasicAttacks();
-	const basicDefense = sheet.getBasicDefense(DefenseType.Basic);
+	// Create reactive basic attacks and defense that update when sheet changes
+	const basicAttacks = useMemo(() => sheet.getBasicAttacks(), [sheet]);
+	const basicDefense = useMemo(() => sheet.getBasicDefense(DefenseType.Basic), [sheet]);
 
 	return (
 		<div style={{ margin: 0, padding: 0, width: '100%', height: '100%', overflowY: 'scroll' }}>

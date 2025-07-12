@@ -1,13 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { FaUsers, FaCrosshairs, FaTimes, FaEdit, FaPlay, FaHome } from 'react-icons/fa';
 
+import { CharacterSheetsPage } from './components/CharacterSheetsPage';
 import { BattleGrid } from './components/HexGrid';
 import { WindowComponent } from './components/Window';
 import { useStore } from './store';
 import { Point, Character } from './types';
 import { findNextWindowPosition } from './utils';
 
+type ViewType = 'simulator' | 'character-sheets';
+
+const getInitialView = (): ViewType => {
+	const path = window.location.pathname;
+	if (path === '/characters' || path.startsWith('/characters/')) {
+		return 'character-sheets';
+	}
+	return 'simulator';
+};
+
+const getInitialCharacterId = (): string | null => {
+	const path = window.location.pathname;
+	const match = path.match(/^\/characters\/(.+)$/);
+	return match ? match[1] : null;
+};
+
 const App = (): React.ReactElement => {
+	const [currentView, setCurrentView] = useState<ViewType>(getInitialView());
+	const [initialCharacterId, setInitialCharacterId] = useState<string | null>(
+		getInitialCharacterId()
+	);
 	const [dragState, setDragState] = useState<{
 		type: 'none' | 'window' | 'grid' | 'character';
 		objectId?: string;
@@ -25,6 +46,36 @@ const App = (): React.ReactElement => {
 	const gridState = useStore(state => state.gridState);
 	const editMode = useStore(state => state.editMode);
 	const toggleEditMode = useStore(state => state.toggleEditMode);
+
+	// Handle browser navigation (back/forward buttons)
+	useEffect(() => {
+		const handlePopState = () => {
+			setCurrentView(getInitialView());
+			setInitialCharacterId(getInitialCharacterId());
+		};
+
+		window.addEventListener('popstate', handlePopState);
+		return () => window.removeEventListener('popstate', handlePopState);
+	}, []);
+
+	// Navigation functions with URL updates
+	const navigateToSimulator = () => {
+		window.history.pushState(null, '', '/');
+		setCurrentView('simulator');
+		setInitialCharacterId(null);
+	};
+
+	const navigateToCharacterSheets = () => {
+		window.history.pushState(null, '', '/characters');
+		setCurrentView('character-sheets');
+		setInitialCharacterId(null);
+	};
+
+	const navigateToCharacterSheet = (characterId: string) => {
+		window.history.pushState(null, '', `/characters/${characterId}`);
+		setCurrentView('character-sheets');
+		setInitialCharacterId(characterId);
+	};
 
 	useEffect(() => {
 		const handleMouseMove = (e: MouseEvent) => {
@@ -192,7 +243,7 @@ const App = (): React.ReactElement => {
 					>
 						<h1 style={{ margin: 0 }}>D12 Simulator</h1>
 						<div style={{ display: 'flex', gap: '1rem' }}>
-							<button onClick={() => (window.location.href = '/')}>
+							<button onClick={navigateToSimulator}>
 								<FaHome /> Back to Site
 							</button>
 							<button onClick={handleOpenCharacterList}>
@@ -230,11 +281,20 @@ const App = (): React.ReactElement => {
 						boxSizing: 'border-box',
 					}}
 				>
-					<BattleGrid
-						disabled={dragState.type !== 'none'}
-						onStartCharacterDrag={handleStartCharacterDrag}
-						dragState={dragState}
-					/>
+					{currentView === 'simulator' && (
+						<BattleGrid
+							disabled={dragState.type !== 'none'}
+							onStartCharacterDrag={handleStartCharacterDrag}
+							dragState={dragState}
+						/>
+					)}
+					{currentView === 'character-sheets' && (
+						<CharacterSheetsPage
+							onBackToSimulator={navigateToSimulator}
+							onNavigateToCharacterSheet={navigateToCharacterSheet}
+							initialCharacterId={initialCharacterId}
+						/>
+					)}
 				</div>
 			</main>
 			<footer
@@ -267,6 +327,7 @@ const App = (): React.ReactElement => {
 							},
 						});
 					}}
+					onNavigateToCharacterSheets={navigateToCharacterSheets}
 				/>
 			))}
 		</div>

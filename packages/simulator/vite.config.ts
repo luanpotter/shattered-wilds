@@ -5,4 +5,9 @@ import { defineConfig } from 'vite'
 export default defineConfig(({ mode }) => ({
   plugins: [react()],
   base: mode === 'production' ? '/simulator/' : '/',
+  server: {
+    historyApiFallback: {
+      index: '/index.html'
+    },
+  },
 }))
