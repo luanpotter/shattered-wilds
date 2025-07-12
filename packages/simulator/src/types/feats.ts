@@ -26,6 +26,24 @@ export interface FeatDefinition {
 	prerequisites?: string[];
 	modifiers?: Modifier[];
 	traits?: string[];
+	parameters?: FeatParameter[];
+	canPickMultipleTimes?: boolean;
+}
+
+export interface FeatParameter {
+	id: string;
+	name: string;
+	type: 'choice' | 'text';
+	options?: string[]; // For choice type
+	placeholder?: string; // For text type
+	required: boolean;
+}
+
+export interface ParameterizedFeatInstance {
+	baseFeatId: string;
+	parameters: Record<string, string>;
+	fullName: string;
+	fullId: string;
 }
 
 // Races
@@ -424,8 +442,17 @@ export const FEATS: Record<string, FeatDefinition> = {
 		type: FeatType.Core,
 		category: FeatCategory.ClassFlavor,
 		description:
-			'Choose a specific spell. You have the exact execution step decision tree for this specific spell committed to muscle memory; get a +3 CM when casting this specific spell',
+			'You have the exact execution step decision tree for this specific spell committed to muscle memory; get a +3 CM when casting this specific spell',
 		level: 1,
+		parameters: [
+			{
+				id: 'spell',
+				name: 'Spell',
+				type: 'text',
+				placeholder: 'Enter spell name and description',
+				required: true,
+			},
+		],
 	},
 	'tool-assisted-casting': {
 		id: 'tool-assisted-casting',
@@ -513,8 +540,57 @@ export const FEATS: Record<string, FeatDefinition> = {
 		type: FeatType.Minor,
 		category: FeatCategory.General,
 		description:
-			'You are acquainted with a specific trade, allowing you to perform basic tasks associated with it. You can pick this Feat multiple times for different trades',
+			'You are acquainted with a specific trade, allowing you to perform basic tasks associated with it',
 		level: 1,
+		canPickMultipleTimes: true,
+		parameters: [
+			{
+				id: 'trade',
+				name: 'Trade',
+				type: 'choice',
+				options: [
+					'Blacksmith',
+					'Bookbinder',
+					'Carpenter',
+					'Cartographer',
+					'Chandler',
+					'Clothier',
+					'Cook',
+					'Farmer',
+					'Fisher',
+					'Fletcher',
+					'Herbalist',
+					'Jeweler',
+					'Locksmith',
+					'Mason',
+					'Miner',
+					'Potter',
+					'Tanner',
+					'Weaver',
+					'Woodcutter',
+				],
+				required: true,
+			},
+		],
+	},
+	'specialized-knowledge': {
+		id: 'specialized-knowledge',
+		name: 'Specialized Knowledge',
+		type: FeatType.Minor,
+		category: FeatCategory.General,
+		description:
+			'You have +3 to Knowledge or Intuition Checks about aspects related to a specific area of expertise',
+		level: 1,
+		canPickMultipleTimes: true,
+		parameters: [
+			{
+				id: 'expertise',
+				name: 'Area of Expertise',
+				type: 'choice',
+				options: ['Urban', 'Nomadic', 'Tribal', 'Sylvan', 'Telluric'],
+				required: true,
+			},
+		],
 	},
 	'lip-reading': {
 		id: 'lip-reading',
@@ -987,3 +1063,80 @@ export const CLASS_CORE_FEATS: Record<string, { role: string; flavor: string }> 
 	Wayfarer: { role: 'bountiful-luck', flavor: 'effortless-imbued-item-channeling' }, // Mixed - WIP
 	Warden: { role: 'bountiful-luck', flavor: 'divine-smite' },
 };
+
+// Helper functions for parameterized feats
+export function createParameterizedFeat(
+	baseFeatId: string,
+	parameters: Record<string, string>
+): ParameterizedFeatInstance {
+	const baseFeat = FEATS[baseFeatId];
+	if (!baseFeat) {
+		throw new Error(`Base feat not found: ${baseFeatId}`);
+	}
+
+	// Generate full name with parameters
+	const parameterValues = Object.values(parameters);
+	const fullName =
+		parameterValues.length > 0 ? `${baseFeat.name} (${parameterValues.join(', ')})` : baseFeat.name;
+
+	// Generate unique ID for this parameterized instance
+	const parameterString = Object.entries(parameters)
+		.map(([key, value]) => `${key}:${value}`)
+		.join('|');
+	const fullId = parameterString ? `${baseFeatId}#${parameterString}` : baseFeatId;
+
+	return {
+		baseFeatId,
+		parameters,
+		fullName,
+		fullId,
+	};
+}
+
+export function parseParameterizedFeatId(fullId: string): {
+	baseFeatId: string;
+	parameters: Record<string, string>;
+} {
+	const [baseFeatId, parameterString] = fullId.split('#');
+	const parameters: Record<string, string> = {};
+
+	if (parameterString) {
+		parameterString.split('|').forEach(param => {
+			const [key, value] = param.split(':');
+			if (key && value) {
+				parameters[key] = value;
+			}
+		});
+	}
+
+	return { baseFeatId, parameters };
+}
+
+export function getParameterizedFeatDefinition(fullId: string): FeatDefinition {
+	const { baseFeatId, parameters } = parseParameterizedFeatId(fullId);
+	const baseFeat = FEATS[baseFeatId];
+
+	if (!baseFeat) {
+		throw new Error(`Base feat not found: ${baseFeatId}`);
+	}
+
+	const parameterizedInstance = createParameterizedFeat(baseFeatId, parameters);
+
+	return {
+		...baseFeat,
+		id: fullId,
+		name: parameterizedInstance.fullName,
+	};
+}
+
+export function isParameterizedFeat(featId: string): boolean {
+	return featId.includes('#');
+}
+
+export function getAvailableParameterizedFeats(baseFeatId: string): FeatDefinition | null {
+	const baseFeat = FEATS[baseFeatId];
+	if (!baseFeat || !baseFeat.parameters) {
+		return null;
+	}
+	return baseFeat;
+}

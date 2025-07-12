@@ -13,6 +13,10 @@ import {
 	getClassSpecificFeats,
 	getAllFeatSlots,
 	FeatSlot,
+	isParameterizedFeat,
+	getParameterizedFeatDefinition,
+	createParameterizedFeat,
+	parseParameterizedFeatId,
 } from '../types/feats';
 
 interface FeatsModalProps {
@@ -29,6 +33,9 @@ interface DisplaySlot {
 export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) => {
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
 	const [selectedSlot, setSelectedSlot] = useState<DisplaySlot | null>(null);
+	const [selectedBaseFeat, setSelectedBaseFeat] = useState<FeatDefinition | null>(null);
+	const [parameters, setParameters] = useState<Record<string, string>>({});
+	const [parameterErrors, setParameterErrors] = useState<Set<string>>(new Set());
 
 	const sheet = CharacterSheet.from(character.props);
 	const characterLevel = sheet.attributes.getNode(AttributeType.Level)?.baseValue || 1;
@@ -146,11 +153,31 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 				const isGeneralFeat = feat.category === FeatCategory.General;
 				const isClassSpecificFeat = classSpecificFeatIds.includes(feat.id);
 
-				return (
-					(isGeneralFeat || isClassSpecificFeat) &&
-					!currentlyAssignedFeats.includes(feat.id) &&
-					(!feat.level || feat.level <= characterLevel)
-				);
+				if (!(isGeneralFeat || isClassSpecificFeat)) {
+					return false;
+				}
+
+				// Check level requirement
+				if (feat.level && feat.level > characterLevel) {
+					return false;
+				}
+
+				// For parameterized feats that can be picked multiple times, always include them
+				if (feat.parameters && feat.canPickMultipleTimes) {
+					return true;
+				}
+
+				// For non-parameterized feats or parameterized feats that can only be picked once,
+				// check if the base feat is already assigned
+				const isBaseAlreadyAssigned = currentlyAssignedFeats.some(assignedFeat => {
+					if (isParameterizedFeat(assignedFeat)) {
+						const { baseFeatId } = parseParameterizedFeatId(assignedFeat);
+						return baseFeatId === feat.id;
+					}
+					return assignedFeat === feat.id;
+				});
+
+				return !isBaseAlreadyAssigned;
 			});
 			availableFeats.push(...featsOfType);
 		});
@@ -158,21 +185,80 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 		return availableFeats;
 	};
 
-	// Handle feat selection
+	// Handle feat selection - now supports parameterized feats
 	const handleFeatSelect = (displaySlot: DisplaySlot, featId: string | null) => {
 		if (displaySlot.isCore) return; // Can't change core feats
 
-		// Update the slot with the new feat (or remove if null)
-		if (featId) {
-			updateCharacterProp(character, displaySlot.slot.id, featId);
-		} else {
+		if (!featId) {
+			// Clear slot
 			updateCharacterProp(character, displaySlot.slot.id, '');
+			setSelectedSlot(null);
+			return;
 		}
 
-		setSelectedSlot(null);
+		const feat = FEATS[featId];
+		if (feat?.parameters && feat.parameters.length > 0) {
+			// This feat requires parameters - show parameter selection
+			setSelectedBaseFeat(feat);
+			setParameters({});
+			// Don't close the modal yet - wait for parameter selection
+		} else {
+			// Regular feat - assign directly
+			updateCharacterProp(character, displaySlot.slot.id, featId);
+			setSelectedSlot(null);
+		}
 	};
 
-	// Get feat definition with proper handling of dynamic upbringing modifiers
+	// Handle parameterized feat confirmation
+	const handleParameterizedFeatConfirm = () => {
+		if (!selectedBaseFeat || !selectedSlot) return;
+
+		// Validate all required parameters are filled
+		const missingParameters = selectedBaseFeat.parameters?.filter(
+			param => param.required && !parameters[param.id]
+		);
+
+		if (missingParameters && missingParameters.length > 0) {
+			// Set error state for missing parameters
+			const newErrors = new Set(missingParameters.map(param => param.id));
+			setParameterErrors(newErrors);
+			return;
+		}
+
+		// Clear any previous errors
+		setParameterErrors(new Set());
+
+		// Create the parameterized feat instance
+		const parameterizedFeat = createParameterizedFeat(selectedBaseFeat.id, parameters);
+
+		// Update the slot with the parameterized feat ID
+		updateCharacterProp(character, selectedSlot.slot.id, parameterizedFeat.fullId);
+
+		// Close modals
+		setSelectedSlot(null);
+		setSelectedBaseFeat(null);
+		setParameters({});
+		setParameterErrors(new Set());
+	};
+
+	// Handle parameter value change
+	const handleParameterChange = (parameterId: string, value: string) => {
+		setParameters(prev => ({
+			...prev,
+			[parameterId]: value,
+		}));
+
+		// Clear error for this parameter when user starts typing/selecting
+		if (parameterErrors.has(parameterId)) {
+			setParameterErrors(prev => {
+				const newErrors = new Set(prev);
+				newErrors.delete(parameterId);
+				return newErrors;
+			});
+		}
+	};
+
+	// Get feat definition with proper handling of dynamic upbringing modifiers and parameterized feats
 	const getFeatDefinition = (featId: string): FeatDefinition | null => {
 		if (featId.startsWith('upbringing-')) {
 			return getUpbringingModifierFeat(
@@ -181,6 +267,12 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 				sheet.race.upbringingMinusModifier
 			);
 		}
+
+		// Handle parameterized feats
+		if (isParameterizedFeat(featId)) {
+			return getParameterizedFeatDefinition(featId);
+		}
+
 		return FEATS[featId] || null;
 	};
 
@@ -466,6 +558,139 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 								}}
 							>
 								Cancel
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Parameter Selection Modal */}
+			{selectedBaseFeat && (
+				<div
+					style={{
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						backgroundColor: 'rgba(0, 0, 0, 0.7)',
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+						zIndex: 1001,
+					}}
+				>
+					<div
+						style={{
+							backgroundColor: 'var(--background)',
+							border: '1px solid var(--text)',
+							borderRadius: '8px',
+							padding: '20px',
+							width: 'fit-content',
+							maxWidth: 'min(500px, calc(100vw - 40px))',
+							maxHeight: '70vh',
+							overflow: 'auto',
+							boxSizing: 'border-box',
+						}}
+					>
+						<h4 style={{ margin: '0 0 16px 0' }}>Configure {selectedBaseFeat.name}</h4>
+
+						<div style={{ marginBottom: '16px' }}>
+							<div
+								style={{ fontSize: '0.9em', color: 'var(--text-secondary)', marginBottom: '12px' }}
+							>
+								{selectedBaseFeat.description}
+							</div>
+
+							{selectedBaseFeat.parameters?.map(param => {
+								const hasError = parameterErrors.has(param.id);
+								return (
+									<div key={param.id} style={{ marginBottom: '12px' }}>
+										<label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
+											{param.name} {param.required && <span style={{ color: 'red' }}>*</span>}
+										</label>
+										{param.type === 'choice' ? (
+											<select
+												value={parameters[param.id] || ''}
+												onChange={e => handleParameterChange(param.id, e.target.value)}
+												style={{
+													width: '100%',
+													padding: '6px',
+													border: `1px solid ${hasError ? 'red' : 'var(--text)'}`,
+													borderRadius: '4px',
+													backgroundColor: 'var(--background)',
+													color: 'var(--text)',
+												}}
+											>
+												<option value=''>Select {param.name}...</option>
+												{param.options?.map(option => (
+													<option key={option} value={option}>
+														{option}
+													</option>
+												))}
+											</select>
+										) : (
+											<input
+												type='text'
+												value={parameters[param.id] || ''}
+												onChange={e => handleParameterChange(param.id, e.target.value)}
+												placeholder={param.placeholder}
+												style={{
+													width: '100%',
+													padding: '6px',
+													border: `1px solid ${hasError ? 'red' : 'var(--text)'}`,
+													borderRadius: '4px',
+													backgroundColor: 'var(--background)',
+													color: 'var(--text)',
+													boxSizing: 'border-box',
+												}}
+											/>
+										)}
+										{hasError && (
+											<div
+												style={{
+													fontSize: '0.8em',
+													color: 'red',
+													marginTop: '4px',
+												}}
+											>
+												This field is required
+											</div>
+										)}
+									</div>
+								);
+							})}
+						</div>
+
+						<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+							<button
+								onClick={() => {
+									setSelectedBaseFeat(null);
+									setParameters({});
+									setParameterErrors(new Set());
+								}}
+								style={{
+									padding: '8px 16px',
+									backgroundColor: 'var(--background-alt)',
+									border: '1px solid var(--text)',
+									borderRadius: '4px',
+									cursor: 'pointer',
+								}}
+							>
+								Cancel
+							</button>
+							<button
+								onClick={handleParameterizedFeatConfirm}
+								style={{
+									padding: '8px 16px',
+									backgroundColor: '#4CAF50',
+									border: '1px solid #2E7D32',
+									borderRadius: '4px',
+									color: 'white',
+									cursor: 'pointer',
+								}}
+							>
+								Confirm
 							</button>
 						</div>
 					</div>
