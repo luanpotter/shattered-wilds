@@ -94,6 +94,25 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 		}
 	};
 
+	const handleOpenFeatsSetup = () => {
+		// Check if a feats setup window is already open for this character
+		const featsSetupWindow = windows.find(
+			w => w.type === 'feats-setup' && w.characterId === character.id
+		);
+
+		// If not, open a new feats setup window
+		if (!featsSetupWindow) {
+			addWindow({
+				id: window.crypto.randomUUID(),
+				title: `${character.props.name}'s Feats`,
+				type: 'feats-setup',
+				characterId: character.id,
+				position: findNextWindowPosition(windows),
+				width: '700px',
+			});
+		}
+	};
+
 	const handleOpenBasicAttacks = () => {
 		// Check if a basic attacks window is already open for this character
 		const basicAttacksWindow = windows.find(
@@ -308,6 +327,30 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 						</div>
 					</div>
 				</div>
+
+				{/* Feats Section - only show in edit mode */}
+				{editMode && (
+					<div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+						<div style={{ ...halfRowStyle, flex: 1 }}>
+							<label htmlFor='character-feats' style={labelStyle}>
+								Feats:
+							</label>
+							<input
+								id='character-feats'
+								type='text'
+								value={`${sheet.getFeats().length} feats`}
+								onClick={handleOpenFeatsSetup}
+								readOnly
+								style={{
+									...inputStyle,
+									cursor: 'pointer',
+									backgroundColor: 'var(--background)',
+								}}
+								title='Click to manage feats'
+							/>
+						</div>
+					</div>
+				)}
 
 				{/* Derived Stats Section */}
 				<div style={{ marginTop: '8px' }}>

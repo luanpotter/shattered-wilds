@@ -11,6 +11,7 @@ import { CharacterSheetModal } from './CharacterSheet';
 import { ClassSetupModal } from './ClassSetupModal';
 import { DiceRollModal } from './DiceRollModal';
 import { DraggableWindow } from './DraggableWindow';
+import { FeatsModal } from './FeatsModal';
 import { MeasureModal } from './MeasureModal';
 import RaceSetupModal from './RaceSetupModal';
 
@@ -55,6 +56,13 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({ window, onStar
 					return <div>Character not found</div>;
 				}
 				return <ClassSetupModal character={character} onClose={() => removeWindow(window.id)} />;
+			}
+			case 'feats-setup': {
+				const character = characters.find(c => c.id === window.characterId);
+				if (!character) {
+					return <div>Character not found</div>;
+				}
+				return <FeatsModal character={character} onClose={() => removeWindow(window.id)} />;
 			}
 			case 'basic-attacks': {
 				const character = characters.find(c => c.id === window.characterId);

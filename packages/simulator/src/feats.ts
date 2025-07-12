@@ -1,0 +1,646 @@
+import { AttributeType, Modifier } from './types/core';
+
+// Feat Types
+export enum FeatType {
+	Core = 'Core',
+	Major = 'Major',
+	Minor = 'Minor',
+}
+
+export enum FeatCategory {
+	Racial = 'Racial',
+	Upbringing = 'Upbringing',
+	ClassModifier = 'Class Modifier',
+	ClassRole = 'Class Role',
+	ClassFlavor = 'Class Flavor',
+	General = 'General',
+}
+
+export interface FeatDefinition {
+	id: string;
+	name: string;
+	type: FeatType;
+	category: FeatCategory;
+	description: string;
+	level?: number;
+	prerequisites?: string[];
+	modifiers?: Modifier[];
+	traits?: string[];
+}
+
+// Races
+export enum Race {
+	Human = 'Human',
+	Elf = 'Elf',
+	Dwarf = 'Dwarf',
+	Orc = 'Orc',
+	Fey = 'Fey',
+	Goliath = 'Goliath',
+	Goblin = 'Goblin',
+}
+
+// Upbringings
+export enum Upbringing {
+	Urban = 'Urban',
+	Nomadic = 'Nomadic',
+	Tribal = 'Tribal',
+	Sylvan = 'Sylvan',
+	Telluric = 'Telluric',
+}
+
+// All Feats definitions
+export const FEATS: Record<string, FeatDefinition> = {
+	// ==== RACIAL MODIFIERS ====
+	'racial-human': {
+		id: 'racial-human',
+		name: 'Human Racial Modifiers',
+		type: FeatType.Core,
+		category: FeatCategory.Racial,
+		description: 'Neutral - no modifiers',
+		modifiers: [],
+	},
+	'racial-elf': {
+		id: 'racial-elf',
+		name: 'Elf Racial Modifiers',
+		type: FeatType.Core,
+		category: FeatCategory.Racial,
+		description: '+DEX, -CON',
+		modifiers: [
+			{ source: 'Elf Race', value: 1, attributeType: AttributeType.DEX },
+			{ source: 'Elf Race', value: -1, attributeType: AttributeType.CON },
+		],
+	},
+	'racial-dwarf': {
+		id: 'racial-dwarf',
+		name: 'Dwarf Racial Modifiers',
+		type: FeatType.Core,
+		category: FeatCategory.Racial,
+		description: '+CON, -DEX',
+		modifiers: [
+			{ source: 'Dwarf Race', value: 1, attributeType: AttributeType.CON },
+			{ source: 'Dwarf Race', value: -1, attributeType: AttributeType.DEX },
+		],
+	},
+	'racial-orc': {
+		id: 'racial-orc',
+		name: 'Orc Racial Modifiers',
+		type: FeatType.Core,
+		category: FeatCategory.Racial,
+		description: '+STR, -DEX',
+		modifiers: [
+			{ source: 'Orc Race', value: 1, attributeType: AttributeType.STR },
+			{ source: 'Orc Race', value: -1, attributeType: AttributeType.DEX },
+		],
+	},
+	'racial-fey': {
+		id: 'racial-fey',
+		name: 'Fey Racial Modifiers',
+		type: FeatType.Core,
+		category: FeatCategory.Racial,
+		description: '+DEX, -STR',
+		modifiers: [
+			{ source: 'Fey Race', value: 1, attributeType: AttributeType.DEX },
+			{ source: 'Fey Race', value: -1, attributeType: AttributeType.STR },
+		],
+	},
+	'racial-goliath': {
+		id: 'racial-goliath',
+		name: 'Goliath Racial Modifiers',
+		type: FeatType.Core,
+		category: FeatCategory.Racial,
+		description: '+STR, -CON',
+		modifiers: [
+			{ source: 'Goliath Race', value: 1, attributeType: AttributeType.STR },
+			{ source: 'Goliath Race', value: -1, attributeType: AttributeType.CON },
+		],
+	},
+	'racial-goblin': {
+		id: 'racial-goblin',
+		name: 'Goblin Racial Modifiers',
+		type: FeatType.Core,
+		category: FeatCategory.Racial,
+		description: '+CON, -STR',
+		modifiers: [
+			{ source: 'Goblin Race', value: 1, attributeType: AttributeType.CON },
+			{ source: 'Goblin Race', value: -1, attributeType: AttributeType.STR },
+		],
+	},
+
+	// ==== UPBRINGING MODIFIERS ====
+	'upbringing-urban': {
+		id: 'upbringing-urban',
+		name: 'Urban Upbringing Modifiers',
+		type: FeatType.Core,
+		category: FeatCategory.Upbringing,
+		description: 'Typical: +INT/CHA/LCK, -WIS/DIV/FOW',
+		modifiers: [], // Will be applied dynamically based on player choice
+	},
+	'upbringing-nomadic': {
+		id: 'upbringing-nomadic',
+		name: 'Nomadic Upbringing Modifiers',
+		type: FeatType.Core,
+		category: FeatCategory.Upbringing,
+		description: 'Typical: +WIS/FOW/LCK, -INT/CHA/DIV',
+		modifiers: [], // Will be applied dynamically based on player choice
+	},
+	'upbringing-tribal': {
+		id: 'upbringing-tribal',
+		name: 'Tribal Upbringing Modifiers',
+		type: FeatType.Core,
+		category: FeatCategory.Upbringing,
+		description: 'Typical: +CHA/DIV/FOW, -INT/WIS/LCK',
+		modifiers: [], // Will be applied dynamically based on player choice
+	},
+	'upbringing-sylvan': {
+		id: 'upbringing-sylvan',
+		name: 'Sylvan Upbringing Modifiers',
+		type: FeatType.Core,
+		category: FeatCategory.Upbringing,
+		description: 'Typical: +WIS/DIV/FOW, -INT/CHA/LCK',
+		modifiers: [], // Will be applied dynamically based on player choice
+	},
+	'upbringing-telluric': {
+		id: 'upbringing-telluric',
+		name: 'Telluric Upbringing Modifiers',
+		type: FeatType.Core,
+		category: FeatCategory.Upbringing,
+		description: 'Typical: +INT/CHA/LCK, -WIS/DIV/FOW',
+		modifiers: [], // Will be applied dynamically based on player choice
+	},
+
+	// ==== UPBRINGING SPECIFIC FEATS ====
+	'specialized-training': {
+		id: 'specialized-training',
+		name: 'Specialized Training',
+		type: FeatType.Core,
+		category: FeatCategory.Upbringing,
+		description: 'Choose any two Minor Feats from the General Feats list',
+		level: 0,
+	},
+	'specialized-knowledge-urban': {
+		id: 'specialized-knowledge-urban',
+		name: 'Specialized Knowledge (Urban)',
+		type: FeatType.Core,
+		category: FeatCategory.Upbringing,
+		description:
+			'You have +3 to Knowledge or Intuition Checks about urban lore, politics, commerce',
+		level: 0,
+	},
+	'nomadic-alertness': {
+		id: 'nomadic-alertness',
+		name: 'Nomadic Alertness',
+		type: FeatType.Core,
+		category: FeatCategory.Upbringing,
+		description:
+			'Can make Awareness Checks to spot danger while sleeping in the Wilds with no CM penalty',
+		level: 0,
+	},
+	'specialized-knowledge-nomadic': {
+		id: 'specialized-knowledge-nomadic',
+		name: 'Specialized Knowledge (Nomadic)',
+		type: FeatType.Core,
+		category: FeatCategory.Upbringing,
+		description:
+			'You have +3 to Knowledge or Intuition Checks about surviving in the Wilds, foraging, tracking',
+		level: 0,
+	},
+	'tribal-endurance': {
+		id: 'tribal-endurance',
+		name: 'Tribal Endurance',
+		type: FeatType.Core,
+		category: FeatCategory.Upbringing,
+		description:
+			'Pay 1 Heroism Point to reduce your Exhaustion Level by 1 if you can directly tie a current task to your personal sense of duty to your tribe',
+		level: 0,
+	},
+	'specialized-knowledge-tribal': {
+		id: 'specialized-knowledge-tribal',
+		name: 'Specialized Knowledge (Tribal)',
+		type: FeatType.Core,
+		category: FeatCategory.Upbringing,
+		description:
+			'You have +3 to Knowledge or Intuition Checks about specific tribal knowledge and lore, intuiting hierarchical structures',
+		level: 0,
+	},
+	'light-feet': {
+		id: 'light-feet',
+		name: 'Light Feet',
+		type: FeatType.Core,
+		category: FeatCategory.Upbringing,
+		description: 'Ignore difficult terrain due to natural vegetation, forest growth, etc.',
+		level: 0,
+	},
+	'specialized-knowledge-sylvan': {
+		id: 'specialized-knowledge-sylvan',
+		name: 'Specialized Knowledge (Sylvan)',
+		type: FeatType.Core,
+		category: FeatCategory.Upbringing,
+		description: 'You have +3 to Knowledge or Intuition Checks about fauna and flora lore',
+		level: 0,
+	},
+	'dark-vision': {
+		id: 'dark-vision',
+		name: 'Dark Vision',
+		type: FeatType.Core,
+		category: FeatCategory.Upbringing,
+		description: 'See black-and-white in the dark',
+		level: 0,
+	},
+	'specialized-knowledge-telluric': {
+		id: 'specialized-knowledge-telluric',
+		name: 'Specialized Knowledge (Telluric)',
+		type: FeatType.Core,
+		category: FeatCategory.Upbringing,
+		description:
+			'You have +3 to Knowledge or Intuition Checks about caves, dungeons, minerals, mining, and ore lore',
+		level: 0,
+	},
+
+	// ==== CLASS MODIFIERS ====
+	'class-modifier-str': {
+		id: 'class-modifier-str',
+		name: 'Class Modifier (STR)',
+		type: FeatType.Core,
+		category: FeatCategory.ClassModifier,
+		description: '+1 STR from class specialization',
+		modifiers: [{ source: 'Class', value: 1, attributeType: AttributeType.STR }],
+	},
+	'class-modifier-dex': {
+		id: 'class-modifier-dex',
+		name: 'Class Modifier (DEX)',
+		type: FeatType.Core,
+		category: FeatCategory.ClassModifier,
+		description: '+1 DEX from class specialization',
+		modifiers: [{ source: 'Class', value: 1, attributeType: AttributeType.DEX }],
+	},
+	'class-modifier-con': {
+		id: 'class-modifier-con',
+		name: 'Class Modifier (CON)',
+		type: FeatType.Core,
+		category: FeatCategory.ClassModifier,
+		description: '+1 CON from class specialization',
+		modifiers: [{ source: 'Class', value: 1, attributeType: AttributeType.CON }],
+	},
+	'class-modifier-int': {
+		id: 'class-modifier-int',
+		name: 'Class Modifier (INT)',
+		type: FeatType.Core,
+		category: FeatCategory.ClassModifier,
+		description: '+1 INT from class specialization',
+		modifiers: [{ source: 'Class', value: 1, attributeType: AttributeType.INT }],
+	},
+	'class-modifier-wis': {
+		id: 'class-modifier-wis',
+		name: 'Class Modifier (WIS)',
+		type: FeatType.Core,
+		category: FeatCategory.ClassModifier,
+		description: '+1 WIS from class specialization',
+		modifiers: [{ source: 'Class', value: 1, attributeType: AttributeType.WIS }],
+	},
+	'class-modifier-cha': {
+		id: 'class-modifier-cha',
+		name: 'Class Modifier (CHA)',
+		type: FeatType.Core,
+		category: FeatCategory.ClassModifier,
+		description: '+1 CHA from class specialization',
+		modifiers: [{ source: 'Class', value: 1, attributeType: AttributeType.CHA }],
+	},
+	'class-modifier-div': {
+		id: 'class-modifier-div',
+		name: 'Class Modifier (DIV)',
+		type: FeatType.Core,
+		category: FeatCategory.ClassModifier,
+		description: '+1 DIV from class specialization',
+		modifiers: [{ source: 'Class', value: 1, attributeType: AttributeType.DIV }],
+	},
+	'class-modifier-fow': {
+		id: 'class-modifier-fow',
+		name: 'Class Modifier (FOW)',
+		type: FeatType.Core,
+		category: FeatCategory.ClassModifier,
+		description: '+1 FOW from class specialization',
+		modifiers: [{ source: 'Class', value: 1, attributeType: AttributeType.FOW }],
+	},
+	'class-modifier-lck': {
+		id: 'class-modifier-lck',
+		name: 'Class Modifier (LCK)',
+		type: FeatType.Core,
+		category: FeatCategory.ClassModifier,
+		description: '+1 LCK from class specialization',
+		modifiers: [{ source: 'Class', value: 1, attributeType: AttributeType.LCK }],
+	},
+
+	// ==== WARRIOR ROLE FEATS ====
+	'sweep-attack': {
+		id: 'sweep-attack',
+		name: 'Sweep Attack',
+		type: FeatType.Core,
+		category: FeatCategory.ClassRole,
+		description:
+			'You can spend 3 AP and 1 FP to perform an advanced Melee Strike against up to three adjacent enemies within your reach',
+		level: 1,
+	},
+	'take-aim': {
+		id: 'take-aim',
+		name: 'Take Aim',
+		type: FeatType.Core,
+		category: FeatCategory.ClassRole,
+		description:
+			'Spend 1 FP and 1 AP to target a specific enemy within range; if your next action is a Ranged Attack against that target, you get a +3 CM to the DEX Check',
+		level: 1,
+	},
+	'improved-taunt': {
+		id: 'improved-taunt',
+		name: 'Improved Taunt',
+		type: FeatType.Core,
+		category: FeatCategory.ClassRole,
+		description:
+			'You can spend an additional 1 SP as you perform a Taunt action to get a +6 CM to your Intimidation Check',
+		level: 1,
+	},
+
+	// ==== WARRIOR FLAVOR FEATS ====
+	'exert-authority': {
+		id: 'exert-authority',
+		name: 'Exert Authority',
+		type: FeatType.Core,
+		category: FeatCategory.ClassFlavor,
+		description:
+			'Spend 1 AP and 1 SP to authoritatively command an ally that can see and hear you clearly to perform a specific 1 AP action',
+		level: 1,
+	},
+	rage: {
+		id: 'rage',
+		name: 'Rage',
+		type: FeatType.Core,
+		category: FeatCategory.ClassFlavor,
+		description:
+			'You can spend 1 AP and 2 SP to become Enraged: reduce your Focus Points to 1, cannot Concentrate while Enraged, and gain CM to Basic Attacks starting with +6 and reducing by 1 each use',
+		level: 1,
+	},
+	'fancy-footwork': {
+		id: 'fancy-footwork',
+		name: 'Fancy Footwork',
+		type: FeatType.Core,
+		category: FeatCategory.ClassFlavor,
+		description:
+			'If you make a Melee Basic Attack against a target, you do not provoke Opportunity Attacks from that target until the end of the turn',
+		level: 1,
+	},
+
+	// ==== CASTER CORE FEATS ====
+	'arcane-casting-int': {
+		id: 'arcane-casting-int',
+		name: 'Arcane Casting (INT)',
+		type: FeatType.Core,
+		category: FeatCategory.ClassRole,
+		description: 'Unlocks Arcane Casting using INT as primary attribute',
+		level: 1,
+		traits: ['Concentration'],
+	},
+	'arcane-casting-wis': {
+		id: 'arcane-casting-wis',
+		name: 'Arcane Casting (WIS)',
+		type: FeatType.Core,
+		category: FeatCategory.ClassRole,
+		description: 'Unlocks Arcane Casting using WIS as primary attribute',
+		level: 1,
+		traits: ['Concentration'],
+	},
+	'arcane-casting-cha': {
+		id: 'arcane-casting-cha',
+		name: 'Arcane Casting (CHA)',
+		type: FeatType.Core,
+		category: FeatCategory.ClassRole,
+		description: 'Unlocks Arcane Casting using CHA as primary attribute',
+		level: 1,
+		traits: ['Concentration'],
+	},
+
+	// ==== CASTER FLAVOR FEATS ====
+	'signature-spell': {
+		id: 'signature-spell',
+		name: 'Signature Spell',
+		type: FeatType.Core,
+		category: FeatCategory.ClassFlavor,
+		description:
+			'Choose a specific spell. You have the exact execution step decision tree for this specific spell committed to muscle memory; get a +3 CM when casting this specific spell',
+		level: 1,
+	},
+	'tool-assisted-casting': {
+		id: 'tool-assisted-casting',
+		name: 'Tool-Assisted Casting',
+		type: FeatType.Core,
+		category: FeatCategory.ClassFlavor,
+		description:
+			'You can create and use One-Handed (+2) and Two-Handed (+3) tools to assist with Somatic Spell Components, but cannot use Verbal or Focal components',
+		level: 1,
+	},
+	'focal-connection': {
+		id: 'focal-connection',
+		name: 'Focal Connection',
+		type: FeatType.Core,
+		category: FeatCategory.ClassFlavor,
+		description:
+			'You can create and use a personal Custom Focus (+3) bound to you for Focal Components, but cannot use Verbal or Somatic components',
+		level: 1,
+	},
+	'lyrical-resonance': {
+		id: 'lyrical-resonance',
+		name: 'Lyrical Resonance',
+		type: FeatType.Core,
+		category: FeatCategory.ClassFlavor,
+		description:
+			'You can use One-Handed (+2) and Two-Handed (+3) instruments to assist with Verbal Spell Components, but cannot use Somatic or Focal components',
+		level: 1,
+	},
+
+	// ==== MYSTIC CORE FEATS ====
+	'divine-channeling': {
+		id: 'divine-channeling',
+		name: 'Divine Channeling',
+		type: FeatType.Core,
+		category: FeatCategory.ClassRole,
+		description: 'Unlocks Divine Channeling',
+		level: 1,
+		traits: ['Channeling'],
+	},
+	'flurry-of-blows': {
+		id: 'flurry-of-blows',
+		name: 'Flurry of Blows',
+		type: FeatType.Core,
+		category: FeatCategory.ClassRole,
+		description: 'You can spend 1 SP to make an unarmed Strike cost only 1 AP',
+		level: 1,
+		traits: ['Channeling'],
+	},
+	'bountiful-luck': {
+		id: 'bountiful-luck',
+		name: 'Bountiful Luck',
+		type: FeatType.Core,
+		category: FeatCategory.ClassRole,
+		description:
+			'You can spend Spirit Points instead of Heroism Points to use the Karmic Resistance, Write History and Luck Die actions',
+		level: 1,
+		traits: ['Channeling'],
+	},
+
+	// ==== MYSTIC FLAVOR FEATS ====
+	'effortless-imbued-item-channeling': {
+		id: 'effortless-imbued-item-channeling',
+		name: 'Effortless Imbued Item Channeling',
+		type: FeatType.Core,
+		category: FeatCategory.ClassFlavor,
+		description:
+			'Whenever you would spend Spirit Points to use an Imbued Item that would otherwise not require a Channeling Check, you can make a Channeling Check DC 15 to spend one less SP',
+		level: 1,
+	},
+	'divine-smite': {
+		id: 'divine-smite',
+		name: 'Divine Smite',
+		type: FeatType.Core,
+		category: FeatCategory.ClassFlavor,
+		description:
+			'You can spend 2 SP when striking with a weapon to get a +3 CM as you channel raw power into it, making it acquire a distinct glow',
+		level: 1,
+		traits: ['Channeling'],
+	},
+
+	// ==== GENERAL MINOR FEATS ====
+	'trade-specialization': {
+		id: 'trade-specialization',
+		name: 'Trade Specialization',
+		type: FeatType.Minor,
+		category: FeatCategory.General,
+		description:
+			'You are acquainted with a specific trade, allowing you to perform basic tasks associated with it. You can pick this Feat multiple times for different trades',
+		level: 1,
+	},
+	'lip-reading': {
+		id: 'lip-reading',
+		name: 'Lip Reading',
+		type: FeatType.Minor,
+		category: FeatCategory.General,
+		description:
+			'You can read lips to understand what people are saying when you can see them clearly',
+		level: 1,
+	},
+	'animal-mimicry': {
+		id: 'animal-mimicry',
+		name: 'Animal Mimicry',
+		type: FeatType.Minor,
+		category: FeatCategory.General,
+		description:
+			'You have an uncanny knack for mimicking animal sounds. If you are familiar with it, and a humanoid could conceivably reproduce it, you can make a good-enough impression that an untrained ear could not distinguish it',
+		level: 1,
+	},
+
+	// ==== GENERAL MAJOR FEATS ====
+	'quick-draw': {
+		id: 'quick-draw',
+		name: 'Quick Draw',
+		type: FeatType.Major,
+		category: FeatCategory.General,
+		description:
+			'If you have at least one hand free, you can spend 1 FP to draw a Light Melee Weapon without spending an action',
+		level: 2,
+	},
+	'blind-sense': {
+		id: 'blind-sense',
+		name: 'Blind Sense',
+		type: FeatType.Major,
+		category: FeatCategory.General,
+		description:
+			'You can spend 1 AP and 2 SP to know the positions of any creature you are aware of within 6m as well as if you could see them clearly. If they are explicitly trying to sneak, you get a +6 in your Perception Check',
+		level: 2,
+		traits: ['Concentrate'],
+	},
+	'mounted-combat-specialization': {
+		id: 'mounted-combat-specialization',
+		name: 'Mounted Combat Specialization',
+		type: FeatType.Major,
+		category: FeatCategory.General,
+		description:
+			'WIP - Mounted Combat Rules are still being developed and are not available as an option yet',
+		level: 2,
+	},
+};
+
+// Helper functions
+export function getFeatsByCategory(category: FeatCategory): FeatDefinition[] {
+	return Object.values(FEATS).filter(feat => feat.category === category);
+}
+
+export function getFeatsByType(type: FeatType): FeatDefinition[] {
+	return Object.values(FEATS).filter(feat => feat.type === type);
+}
+
+export function getFeatsByLevel(level: number): FeatDefinition[] {
+	return Object.values(FEATS).filter(feat => feat.level === level || feat.level === undefined);
+}
+
+export function getRacialFeatId(race: Race): string {
+	return `racial-${race.toLowerCase()}`;
+}
+
+export function getUpbringingFeats(upbringing: Upbringing): string[] {
+	const baseId = `upbringing-${upbringing.toLowerCase()}`;
+	const knowledgeId = `specialized-knowledge-${upbringing.toLowerCase()}`;
+
+	const specificFeats: Record<Upbringing, string> = {
+		[Upbringing.Urban]: 'specialized-training',
+		[Upbringing.Nomadic]: 'nomadic-alertness',
+		[Upbringing.Tribal]: 'tribal-endurance',
+		[Upbringing.Sylvan]: 'light-feet',
+		[Upbringing.Telluric]: 'dark-vision',
+	};
+
+	return [baseId, knowledgeId, specificFeats[upbringing]];
+}
+
+export function getClassModifierFeatId(attributeType: AttributeType): string {
+	return `class-modifier-${attributeType.name.toLowerCase()}`;
+}
+
+// Map classes to their core feats
+export const CLASS_CORE_FEATS: Record<string, { role: string; flavor: string }> = {
+	// Warriors - Melee (STR)
+	Fighter: { role: 'sweep-attack', flavor: 'exert-authority' },
+	Berserker: { role: 'sweep-attack', flavor: 'rage' },
+	Swashbuckler: { role: 'sweep-attack', flavor: 'fancy-footwork' },
+	// Warriors - Ranged (DEX)
+	Marksman: { role: 'take-aim', flavor: 'exert-authority' },
+	Hunter: { role: 'take-aim', flavor: 'rage' },
+	Rogue: { role: 'take-aim', flavor: 'fancy-footwork' },
+	// Warriors - Tank (CON)
+	Guardian: { role: 'improved-taunt', flavor: 'exert-authority' },
+	Barbarian: { role: 'improved-taunt', flavor: 'rage' },
+	Scout: { role: 'improved-taunt', flavor: 'fancy-footwork' },
+	// Casters - Erudite (INT)
+	Wizard: { role: 'arcane-casting-int', flavor: 'signature-spell' },
+	Engineer: { role: 'arcane-casting-int', flavor: 'tool-assisted-casting' },
+	Alchemist: { role: 'arcane-casting-int', flavor: 'focal-connection' },
+	Storyteller: { role: 'arcane-casting-int', flavor: 'lyrical-resonance' },
+	// Casters - Intuitive (WIS)
+	Mage: { role: 'arcane-casting-wis', flavor: 'signature-spell' },
+	Artificer: { role: 'arcane-casting-wis', flavor: 'tool-assisted-casting' },
+	Druid: { role: 'arcane-casting-wis', flavor: 'focal-connection' },
+	Minstrel: { role: 'arcane-casting-wis', flavor: 'lyrical-resonance' },
+	// Casters - Innate (CHA)
+	Sorcerer: { role: 'arcane-casting-cha', flavor: 'signature-spell' },
+	Machinist: { role: 'arcane-casting-cha', flavor: 'tool-assisted-casting' },
+	Shaman: { role: 'arcane-casting-cha', flavor: 'focal-connection' },
+	Bard: { role: 'arcane-casting-cha', flavor: 'lyrical-resonance' },
+	// Mystics - Disciple (DIV)
+	Cleric: { role: 'divine-channeling', flavor: 'effortless-imbued-item-channeling' },
+	Warlock: { role: 'divine-channeling', flavor: 'effortless-imbued-item-channeling' }, // Mixed - WIP
+	Paladin: { role: 'divine-channeling', flavor: 'divine-smite' },
+	// Mystics - Adept (FOW)
+	Sage: { role: 'flurry-of-blows', flavor: 'effortless-imbued-item-channeling' },
+	Monk: { role: 'flurry-of-blows', flavor: 'effortless-imbued-item-channeling' }, // Mixed - WIP
+	Ranger: { role: 'flurry-of-blows', flavor: 'divine-smite' },
+	// Mystics - Inspired (LCK)
+	Wanderer: { role: 'bountiful-luck', flavor: 'effortless-imbued-item-channeling' },
+	Wayfarer: { role: 'bountiful-luck', flavor: 'effortless-imbued-item-channeling' }, // Mixed - WIP
+	Warden: { role: 'bountiful-luck', flavor: 'divine-smite' },
+};

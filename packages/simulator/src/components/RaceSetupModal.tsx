@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+import { Upbringing, FEATS } from '../feats';
 import { useStore } from '../store';
 import { CharacterSheet, Race, RaceInfo, Size } from '../types';
 
@@ -20,6 +21,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 	const [halfRace, setHalfRace] = useState<Race | null>(currentRace.halfRace);
 	const [showHalfRace, setShowHalfRace] = useState<boolean>(currentRace.halfRace !== null);
 	const [combineStats, setCombineStats] = useState<boolean>(currentRace.combineHalfRaceStats);
+	const [upbringing, setUpbringing] = useState<Upbringing>(currentRace.upbringing);
 
 	// Find the character by ID
 	const character = characters.find(c => c.id === characterId);
@@ -33,8 +35,13 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 		race: primaryRace,
 		'race.half': showHalfRace && halfRace ? halfRace : '',
 		'race.half.combined-stats': combineStats ? 'true' : 'false',
+		upbringing: upbringing,
 	});
 	const raceModifiers = sheet.race.getModifiers();
+
+	// Get core feats for preview
+	const coreFeats = sheet.race.getCoreFeats();
+	const coreFeatDefinitions = coreFeats.map(featId => FEATS[featId]).filter(Boolean);
 
 	// Map size enum to display value
 	const getSizeDisplay = (size: Size): string => {
@@ -54,8 +61,22 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 	const handleSave = () => {
 		if (!character) return;
 
+		// Clear existing core race/upbringing feats
+		const existingCoreFeats = new RaceInfo(
+			currentRace.primaryRace,
+			currentRace.upbringing,
+			currentRace.halfRace,
+			currentRace.combineHalfRaceStats
+		).getCoreFeats();
+		existingCoreFeats.forEach(featId => {
+			updateCharacterProp(character, `feat:${featId}`, '');
+		});
+
 		// Update primary race
 		updateCharacterProp(character, 'race', primaryRace);
+
+		// Update upbringing
+		updateCharacterProp(character, 'upbringing', upbringing);
 
 		// Update half race or clear it
 		if (showHalfRace && halfRace) {
@@ -68,6 +89,17 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 		// Update combine stats setting
 		updateCharacterProp(character, 'race.half.combined-stats', combineStats ? 'true' : 'false');
 
+		// Add new core feats
+		const newCoreFeats = new RaceInfo(
+			primaryRace,
+			upbringing,
+			showHalfRace ? halfRace : null,
+			combineStats
+		).getCoreFeats();
+		newCoreFeats.forEach(featId => {
+			updateCharacterProp(character, `feat:${featId}`, 'true');
+		});
+
 		onClose();
 	};
 
@@ -76,7 +108,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 			<h3 style={{ margin: '0 0 15px 0' }}>Race Setup</h3>
 
 			<div style={{ marginBottom: '15px', display: 'flex', gap: '8px' }}>
-				{/* Primary Race - 50% width */}
+				{/* Primary Race - 33% width */}
 				<div style={{ flex: 1 }}>
 					<DropdownSelect
 						id='primary-race'
@@ -96,7 +128,18 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 					/>
 				</div>
 
-				{/* Half Breed section - 50% width */}
+				{/* Upbringing - 33% width */}
+				<div style={{ flex: 1 }}>
+					<DropdownSelect
+						id='upbringing'
+						options={Upbringing}
+						value={upbringing}
+						onChange={value => setUpbringing(value)}
+						label='Upbringing'
+					/>
+				</div>
+
+				{/* Half Breed section - 33% width */}
 				<div style={{ flex: 1 }}>
 					<div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
 						<input
@@ -211,6 +254,45 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 					</div>
 				</div>
 			)}
+
+			{/* Core Feats Display */}
+			<div
+				style={{
+					marginBottom: '15px',
+					padding: '8px',
+					backgroundColor: 'var(--background-alt)',
+					borderRadius: '4px',
+				}}
+			>
+				<h3 style={{ margin: '0 0 8px 0', fontSize: '1em' }}>Core Feats (Level 0-1)</h3>
+				<div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+					{coreFeatDefinitions.length > 0 ? (
+						coreFeatDefinitions.map((feat, index) => (
+							<div
+								key={index}
+								style={{
+									marginBottom: '8px',
+									padding: '6px',
+									backgroundColor: 'var(--background)',
+									borderRadius: '4px',
+									border: '1px solid var(--text)',
+								}}
+							>
+								<div style={{ fontWeight: 'bold', marginBottom: '2px', fontSize: '0.9em' }}>
+									{feat.name}
+								</div>
+								<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>
+									{feat.description}
+								</div>
+							</div>
+						))
+					) : (
+						<div style={{ color: 'var(--text-secondary)', fontStyle: 'italic', fontSize: '0.9em' }}>
+							No core feats
+						</div>
+					)}
+				</div>
+			</div>
 
 			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
 				<button

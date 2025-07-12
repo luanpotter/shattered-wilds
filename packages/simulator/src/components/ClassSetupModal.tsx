@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+import { FEATS } from '../feats';
 import { useStore } from '../store';
 import { Character, CharacterClass, ClassInfo, CLASS_DEFINITIONS } from '../types';
 
@@ -17,12 +18,24 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 	const currentClassInfo = ClassInfo.from(character.props);
 
 	const handleClassSelect = (characterClass: CharacterClass) => {
+		// Clear existing core class feats
+		const existingCoreFeats = currentClassInfo.getCoreClassFeats();
+		existingCoreFeats.forEach(featId => {
+			updateCharacterProp(character, `feat:${featId}`, '');
+		});
+
 		// Create new ClassInfo with the selected class
 		const newClassInfo = new ClassInfo(characterClass);
 
 		// Update character props
 		updateCharacterProp(character, 'class', characterClass);
 		updateCharacterProp(character, 'class.feats', newClassInfo.toProp());
+
+		// Add new core class feats
+		const newCoreFeats = newClassInfo.getCoreClassFeats();
+		newCoreFeats.forEach(featId => {
+			updateCharacterProp(character, `feat:${featId}`, 'true');
+		});
 	};
 
 	const isSelected = (characterClass: CharacterClass) => {
@@ -248,7 +261,8 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 		const definition = currentClassInfo.characterClass
 			? CLASS_DEFINITIONS[currentClassInfo.characterClass]
 			: null;
-		const firstFeat = currentClassInfo.selectedFeats[0];
+		const coreFeats = currentClassInfo.getCoreClassFeats();
+		const coreFeatDefinitions = coreFeats.map(featId => FEATS[featId]).filter(Boolean);
 
 		return (
 			<div
@@ -268,17 +282,27 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 							<strong> Primary Attribute:</strong> {definition.primaryAttribute.name}
 						</p>
 						<div style={{ marginTop: '8px' }}>
-							<strong>Starting Feat:</strong>
-							<div
-								style={{
-									marginTop: '4px',
-									padding: '6px',
-									backgroundColor: 'var(--background)',
-									borderRadius: '4px',
-									fontSize: '0.9em',
-								}}
-							>
-								{firstFeat}
+							<strong>Core Class Feats (Level 1):</strong>
+							<div style={{ maxHeight: '200px', overflowY: 'auto', marginTop: '4px' }}>
+								{coreFeatDefinitions.map((feat, index) => (
+									<div
+										key={index}
+										style={{
+											marginBottom: '6px',
+											padding: '6px',
+											backgroundColor: 'var(--background)',
+											borderRadius: '4px',
+											border: '1px solid var(--text)',
+										}}
+									>
+										<div style={{ fontWeight: 'bold', marginBottom: '2px', fontSize: '0.9em' }}>
+											{feat.name}
+										</div>
+										<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>
+											{feat.description}
+										</div>
+									</div>
+								))}
 							</div>
 						</div>
 					</>
