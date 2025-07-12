@@ -450,7 +450,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 							</label>
 							<div
 								id='character-attacks'
-								title={basicAttacks.map(attack => attack.name).join(' / ')}
+								title={basicAttacks.map(attack => attack.description).join(' / ')}
 								onClick={handleBasicAttackClick}
 								onKeyDown={e => {
 									if (e.key === 'Enter' || e.key === ' ') {
@@ -471,7 +471,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 									textOverflow: 'ellipsis',
 								}}
 							>
-								{basicAttacks.map(attack => attack.name).join(' / ')}
+								{basicAttacks.map(attack => attack.description).join(' / ')}
 							</div>
 						</div>
 

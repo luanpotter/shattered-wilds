@@ -339,6 +339,7 @@ export interface GridState {
 
 export interface BasicAttack {
 	name: string;
+	description: string;
 	check: Check;
 }
 

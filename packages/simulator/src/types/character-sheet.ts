@@ -6,6 +6,8 @@ import {
 	Armor,
 	RaceDefinition,
 	ClassDefinition,
+	Shield,
+	Weapon,
 } from './character';
 import {
 	AttributeType,
@@ -439,14 +441,88 @@ export class CharacterSheet {
 	}
 
 	getBasicAttacks(): BasicAttack[] {
-		// Implementation details for basic attacks...
-		return [];
+		const tree = this.getAttributeTree();
+		const attacks: BasicAttack[] = [];
+
+		// Add weapon attacks
+		this.equipment.items
+			.filter(item => item instanceof Weapon)
+			.forEach(item => {
+				const weapon = item as Weapon;
+				const name = weapon.name;
+				attacks.push({
+					name: name,
+					description: `${name} (+${weapon.bonus})`,
+					check: {
+						attribute: weapon.attribute,
+						bonus: weapon.bonus,
+						modifier: tree.valueOf(weapon.attribute) + weapon.bonus,
+					},
+				});
+			});
+
+		// Add Shield Bash if a shield is equipped
+		const hasShield = this.equipment.items.some(item => item instanceof Shield);
+		if (hasShield) {
+			attacks.push({
+				name: 'Shield Bash',
+				description: 'Shield Bash',
+				check: {
+					attribute: AttributeType.STR,
+					bonus: 1,
+					modifier: tree.valueOf(AttributeType.STR) + 1,
+				},
+			});
+		}
+
+		// Add Unarmed attack (always available)
+		attacks.push({
+			name: 'Unarmed',
+			description: 'Unarmed',
+			check: {
+				attribute: AttributeType.STR,
+				bonus: 0,
+				modifier: tree.valueOf(AttributeType.STR),
+			},
+		});
+
+		return attacks;
 	}
 
 	getBasicDefense(type: DefenseType): DerivedStat<number> {
-		// TODO: Implementation details for basic defense based on type...
-		// For now, return a placeholder
-		return new DerivedStat(10, `Basic defense calculation for ${type}`);
+		const sizeModifier = SizeModifiers[this.derivedStats.size.value];
+		const armorBonus = this.equipment.items
+			.filter(item => item instanceof Armor)
+			.reduce((acc, item) => acc + (item as Armor).bonus, 0);
+		switch (type) {
+			case DefenseType.Basic: {
+				const body = this.getAttributeTree().valueOf(AttributeType.Body);
+				const defense = body - sizeModifier + armorBonus;
+				return {
+					value: defense,
+					description: `Basic Defense = ${body} (Body) - ${sizeModifier} (size modifier) + ${armorBonus} (armor bonus)`,
+				};
+			}
+			case DefenseType.Dodge: {
+				const evasiveness = this.getAttributeTree().valueOf(AttributeType.Evasiveness);
+				const defense = evasiveness - sizeModifier + armorBonus + 3;
+				return {
+					value: defense,
+					description: `Dodge Defense = ${evasiveness} (Evasiveness) - ${sizeModifier} (size modifier) + ${armorBonus} (armor bonus) + 3 (base)`,
+				};
+			}
+			case DefenseType.Shield: {
+				const body = this.getAttributeTree().valueOf(AttributeType.Body);
+				const shieldBonus = this.equipment.items
+					.filter(item => item instanceof Shield)
+					.reduce((acc, item) => acc + (item as Shield).bonus, 0);
+				const defense = body - sizeModifier + armorBonus + shieldBonus;
+				return {
+					value: defense,
+					description: `Shield Defense = ${body} (Body) - ${sizeModifier} (size modifier) + ${armorBonus} (armor bonus) + ${shieldBonus} (shield bonus)`,
+				};
+			}
+		}
 	}
 
 	static from(props: Record<string, string>): CharacterSheet {
