@@ -83,17 +83,6 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 	const handleSave = () => {
 		if (!character) return;
 
-		// Clear existing core race/upbringing feats
-		const existingCoreFeats = new RaceInfo(
-			currentRace.primaryRace,
-			currentRace.upbringing,
-			currentRace.halfRace,
-			currentRace.combineHalfRaceStats
-		).getCoreFeats();
-		existingCoreFeats.forEach(featId => {
-			updateCharacterProp(character, `feat:${featId}`, '');
-		});
-
 		// Update primary race
 		updateCharacterProp(character, 'race', primaryRace);
 
@@ -115,18 +104,39 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 		// Update combine stats setting
 		updateCharacterProp(character, 'race.half.combined-stats', combineStats ? 'true' : 'false');
 
-		// Add new core feats
-		const newCoreFeats = new RaceInfo(
+		// Clear existing core race feat slots
+		updateCharacterProp(character, 'feat-core-race-1', '');
+		updateCharacterProp(character, 'feat-core-upbringing-1', '');
+		updateCharacterProp(character, 'feat-core-upbringing-2', '');
+		updateCharacterProp(character, 'feat-core-upbringing-3', '');
+
+		// Update core race feat slots with new feats
+		const newRaceInfo = new RaceInfo(
 			primaryRace,
 			upbringing,
 			showHalfRace ? halfRace : null,
 			combineStats,
 			upbringingPlusModifier,
 			upbringingMinusModifier
-		).getCoreFeats();
-		newCoreFeats.forEach(featId => {
-			updateCharacterProp(character, `feat:${featId}`, 'true');
-		});
+		);
+		const newCoreFeats = newRaceInfo.getCoreFeats();
+
+		// Assign feats to their proper slots
+		if (newCoreFeats[0]) {
+			updateCharacterProp(character, 'feat-core-race-1', newCoreFeats[0]);
+		}
+		if (newCoreFeats[1]) {
+			updateCharacterProp(character, 'feat-core-upbringing-2', newCoreFeats[1]);
+		}
+		if (newCoreFeats[2]) {
+			updateCharacterProp(character, 'feat-core-upbringing-3', newCoreFeats[2]);
+		}
+		// Always update the upbringing modifier feat
+		updateCharacterProp(
+			character,
+			'feat-core-upbringing-1',
+			`upbringing-${upbringing.toLowerCase()}`
+		);
 
 		onClose();
 	};

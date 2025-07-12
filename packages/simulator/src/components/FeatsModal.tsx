@@ -11,6 +11,8 @@ import {
 	getFeatsByType,
 	getUpbringingModifierFeat,
 	getClassSpecificFeats,
+	getAllFeatSlots,
+	FeatSlot,
 } from '../types/feats';
 
 interface FeatsModalProps {
@@ -18,106 +20,95 @@ interface FeatsModalProps {
 	onClose: () => void;
 }
 
-interface FeatSlot {
-	level: number;
-	type: FeatType;
+interface DisplaySlot {
+	slot: FeatSlot;
 	featId: string | null;
 	isCore: boolean;
 }
 
 export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) => {
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
-	const [selectedSlot, setSelectedSlot] = useState<FeatSlot | null>(null);
+	const [selectedSlot, setSelectedSlot] = useState<DisplaySlot | null>(null);
 
 	const sheet = CharacterSheet.from(character.props);
 	const characterLevel = sheet.attributes.getNode(AttributeType.Level)?.baseValue || 1;
 
-	// Get all current feats
-	const currentFeats = sheet.getFeats();
-	const coreFeats = sheet.race.getCoreFeats().concat(sheet.characterClass.getCoreClassFeats());
+	// Get all feat slots for this character level
+	const allFeatSlots = getAllFeatSlots(characterLevel);
 
-	// Generate feat slots for all levels
-	const generateFeatSlots = (): FeatSlot[] => {
-		const slots: FeatSlot[] = [];
+	// Get current assigned feats for each slot
+	const currentFeatSlots = sheet.getFeatSlots();
 
-		// Level 0 - Core feats from race/upbringing
-		const raceCoreFeats = sheet.race.getCoreFeats();
-		raceCoreFeats.forEach(featId => {
-			slots.push({
-				level: 0,
-				type: FeatType.Core,
-				featId,
-				isCore: true,
+	// Generate display slots with current feat assignments
+	const generateDisplaySlots = (): DisplaySlot[] => {
+		const displaySlots: DisplaySlot[] = [];
+
+		allFeatSlots.forEach(slot => {
+			const featId = currentFeatSlots[slot.id] || null;
+			const isCore = slot.type === FeatType.Core;
+
+			// For core slots, auto-assign if not already assigned
+			if (isCore && !featId) {
+				const autoAssignedFeat = getAutoAssignedCoreFeat(slot, sheet);
+				if (autoAssignedFeat) {
+					// Auto-assign core feat
+					updateCharacterProp(character, slot.id, autoAssignedFeat);
+				}
+			}
+
+			displaySlots.push({
+				slot,
+				featId: featId || (isCore ? getAutoAssignedCoreFeat(slot, sheet) : null),
+				isCore,
 			});
 		});
 
-		// Level 1+ - Class core feats and general feats
-		for (let level = 1; level <= characterLevel; level++) {
-			if (level === 1) {
-				// Add class core feats
-				const classCoreFeats = sheet.characterClass.getCoreClassFeats();
-				classCoreFeats.forEach(featId => {
-					slots.push({
-						level: 1,
-						type: FeatType.Core,
-						featId,
-						isCore: true,
-					});
-				});
-			}
-
-			// Add general feat slots
-			if (level % 2 === 1) {
-				// Odd levels: Minor Feats
-				const nonCoreFeats = currentFeats.filter(feat => !coreFeats.includes(feat));
-				const minorFeatForLevel = nonCoreFeats.find(feat => {
-					const featDef = FEATS[feat];
-					return featDef && featDef.type === FeatType.Minor;
-				});
-
-				slots.push({
-					level,
-					type: FeatType.Minor,
-					featId: minorFeatForLevel || null,
-					isCore: false,
-				});
-			} else {
-				// Even levels: Major Feats
-				const nonCoreFeats = currentFeats.filter(feat => !coreFeats.includes(feat));
-				const majorFeatForLevel = nonCoreFeats.find(feat => {
-					const featDef = FEATS[feat];
-					return featDef && featDef.type === FeatType.Major;
-				});
-
-				slots.push({
-					level,
-					type: FeatType.Major,
-					featId: majorFeatForLevel || null,
-					isCore: false,
-				});
-			}
-		}
-
-		return slots;
+		return displaySlots;
 	};
 
-	const featSlots = generateFeatSlots();
+	// Auto-assign core feats based on slot type
+	const getAutoAssignedCoreFeat = (slot: FeatSlot, sheet: CharacterSheet): string | null => {
+		const raceCoreFeats = sheet.race.getCoreFeats();
+		const classCoreFeats = sheet.characterClass.getCoreClassFeats();
+
+		switch (slot.id) {
+			case 'feat-core-race-1':
+				return raceCoreFeats[0] || null;
+			case 'feat-core-upbringing-1':
+				return `upbringing-${sheet.race.upbringing.toLowerCase()}`;
+			case 'feat-core-upbringing-2':
+				return raceCoreFeats[1] || null; // Specialized knowledge
+			case 'feat-core-upbringing-3':
+				return raceCoreFeats[2] || null; // Upbringing specific feat
+			case 'feat-core-class-1':
+				return classCoreFeats[0] || null; // Class modifier
+			case 'feat-core-class-2':
+				return classCoreFeats[1] || null; // Role feat
+			case 'feat-core-class-3':
+				return classCoreFeats[2] || null; // Flavor feat
+			default:
+				return null;
+		}
+	};
+
+	const displaySlots = generateDisplaySlots();
 
 	// Check if a level has missing slots (for collapsed view)
-	const levelHasMissingSlots = (levelSlots: FeatSlot[]): boolean => {
+	const levelHasMissingSlots = (levelSlots: DisplaySlot[]): boolean => {
 		return levelSlots.some(slot => !slot.isCore && slot.featId === null);
 	};
 
 	// Group slots by level
-	const slotsByLevel = featSlots.reduce(
-		(acc, slot) => {
-			if (!acc[slot.level]) {
-				acc[slot.level] = [];
+	const slotsByLevel = displaySlots.reduce(
+		(acc, displaySlot) => {
+			const level = displaySlot.slot.level;
+			if (!acc[level]) {
+				acc[level] = [];
 			}
-			acc[slot.level].push(slot);
+			acc[level].push(displaySlot);
 			return acc;
 		},
-		{} as Record<number, FeatSlot[]>
+		{} as Record<number, DisplaySlot[]>
 	);
 
 	// Initialize collapsed levels - start complete levels collapsed, keep incomplete levels open
@@ -142,6 +133,9 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 
 		const availableFeats: FeatDefinition[] = [];
 
+		// Get currently assigned feats to avoid duplicates
+		const currentlyAssignedFeats = Object.values(currentFeatSlots);
+
 		// Get class-specific feat IDs available for this character
 		const classSpecificFeatIds = getClassSpecificFeats(sheet.characterClass.characterClass);
 
@@ -154,7 +148,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 
 				return (
 					(isGeneralFeat || isClassSpecificFeat) &&
-					!currentFeats.includes(feat.id) &&
+					!currentlyAssignedFeats.includes(feat.id) &&
 					(!feat.level || feat.level <= characterLevel)
 				);
 			});
@@ -165,17 +159,14 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 	};
 
 	// Handle feat selection
-	const handleFeatSelect = (slot: FeatSlot, featId: string | null) => {
-		if (slot.isCore) return; // Can't change core feats
+	const handleFeatSelect = (displaySlot: DisplaySlot, featId: string | null) => {
+		if (displaySlot.isCore) return; // Can't change core feats
 
-		// Remove old feat if it exists
-		if (slot.featId) {
-			updateCharacterProp(character, `feat:${slot.featId}`, '');
-		}
-
-		// Add new feat if selected
+		// Update the slot with the new feat (or remove if null)
 		if (featId) {
-			updateCharacterProp(character, `feat:${featId}`, 'true');
+			updateCharacterProp(character, displaySlot.slot.id, featId);
+		} else {
+			updateCharacterProp(character, displaySlot.slot.id, '');
 		}
 
 		setSelectedSlot(null);
@@ -288,10 +279,12 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 												boxSizing: 'border-box',
 											}}
 										>
-											{slots.map((slot, index) => {
-												const feat = slot.featId ? getFeatDefinition(slot.featId) : null;
-												const hasSlot = slot.featId !== null;
-												const isEmpty = !hasSlot && !slot.isCore;
+											{slots.map((displaySlot, index) => {
+												const feat = displaySlot.featId
+													? getFeatDefinition(displaySlot.featId)
+													: null;
+												const hasSlot = displaySlot.featId !== null;
+												const isEmpty = !hasSlot && !displaySlot.isCore;
 
 												return (
 													<div
@@ -300,24 +293,24 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 															padding: '8px',
 															border: `1px solid ${isEmpty ? 'orange' : 'var(--text)'}`,
 															borderRadius: '4px',
-															backgroundColor: slot.isCore
+															backgroundColor: displaySlot.isCore
 																? 'var(--background-alt)'
 																: 'var(--background)',
-															cursor: slot.isCore ? 'default' : 'pointer',
+															cursor: displaySlot.isCore ? 'default' : 'pointer',
 															minHeight: '80px',
 															display: 'flex',
 															flexDirection: 'column',
 															boxSizing: 'border-box',
 														}}
-														onClick={() => !slot.isCore && setSelectedSlot(slot)}
+														onClick={() => !displaySlot.isCore && setSelectedSlot(displaySlot)}
 														onKeyDown={e => {
-															if ((e.key === 'Enter' || e.key === ' ') && !slot.isCore) {
-																setSelectedSlot(slot);
+															if ((e.key === 'Enter' || e.key === ' ') && !displaySlot.isCore) {
+																setSelectedSlot(displaySlot);
 															}
 														}}
-														tabIndex={slot.isCore ? -1 : 0}
-														role={slot.isCore ? undefined : 'button'}
-														aria-label={slot.isCore ? undefined : 'Select feat slot'}
+														tabIndex={displaySlot.isCore ? -1 : 0}
+														role={displaySlot.isCore ? undefined : 'button'}
+														aria-label={displaySlot.isCore ? undefined : 'Select feat slot'}
 													>
 														<div
 															style={{
@@ -328,7 +321,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 															}}
 														>
 															<div style={{ fontSize: '0.75em', color: 'var(--text-secondary)' }}>
-																{slot.type} Feat
+																{displaySlot.slot.type} Feat
 															</div>
 															{isEmpty && (
 																<FaExclamationTriangle
@@ -369,7 +362,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 																	fontSize: '0.8em',
 																}}
 															>
-																{slot.isCore ? 'No feat assigned' : 'Click to assign feat'}
+																{displaySlot.isCore ? 'No feat assigned' : 'Click to assign feat'}
 															</div>
 														)}
 													</div>
@@ -413,7 +406,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 						}}
 					>
 						<h4 style={{ margin: '0 0 16px 0' }}>
-							Select {selectedSlot.type} Feat for Level {selectedSlot.level}
+							Select {selectedSlot.slot.type} Feat for Level {selectedSlot.slot.level}
 						</h4>
 
 						<div style={{ marginBottom: '16px' }}>
@@ -433,7 +426,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 						</div>
 
 						<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-							{getAvailableFeats(selectedSlot.type).map(feat => (
+							{getAvailableFeats(selectedSlot.slot.type).map(feat => (
 								<div
 									key={feat.id}
 									style={{

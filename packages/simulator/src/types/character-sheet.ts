@@ -342,20 +342,42 @@ export class CharacterSheet {
 		return new AttributeTree(this.attributes, this.getAllModifiers());
 	}
 
-	// Get all feats from character props
-	getFeats(): string[] {
-		const feats: string[] = [];
+	// Get all feat slots as slot-to-feat mapping
+	getFeatSlots(): Record<string, string> {
+		const featSlots: Record<string, string> = {};
 		for (const [key, value] of Object.entries(this._props)) {
-			if (key.startsWith('feat:') && value === 'true') {
-				feats.push(key.substring(5)); // Remove 'feat:' prefix
+			if (key.startsWith('feat-') && value) {
+				featSlots[key] = value;
 			}
 		}
-		return feats;
+		return featSlots;
+	}
+
+	// Get all feats from character props (backward compatibility)
+	getFeats(): string[] {
+		const featSlots = this.getFeatSlots();
+		return Object.values(featSlots);
 	}
 
 	// Check if character has a specific feat
 	hasFeat(featId: string): boolean {
-		return this._props[`feat:${featId}`] === 'true';
+		const featSlots = this.getFeatSlots();
+		return Object.values(featSlots).includes(featId);
+	}
+
+	// Get feat for a specific slot
+	getFeatForSlot(slotId: string): string | null {
+		return this._props[slotId] || null;
+	}
+
+	// Set feat for a specific slot
+	setFeatForSlot(slotId: string, featId: string): void {
+		this._props[slotId] = featId;
+	}
+
+	// Remove feat from a specific slot
+	removeFeatFromSlot(slotId: string): void {
+		delete this._props[slotId];
 	}
 
 	// Get modifiers from feats

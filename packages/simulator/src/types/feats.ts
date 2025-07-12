@@ -724,6 +724,123 @@ export function getClassSpecificFeats(characterClass: string): string[] {
 	return [...roleFeats, ...flavorFeats];
 }
 
+// Feat slot definitions
+export interface FeatSlot {
+	id: string;
+	name: string;
+	level: number;
+	type: FeatType;
+	description: string;
+}
+
+// Generate core feat slots for race/upbringing
+export function generateCoreRaceSlots(): FeatSlot[] {
+	return [
+		{
+			id: 'feat-core-race-1',
+			name: 'Racial Modifiers',
+			level: 0,
+			type: FeatType.Core,
+			description: 'Racial attribute modifiers',
+		},
+		{
+			id: 'feat-core-upbringing-1',
+			name: 'Upbringing Modifiers',
+			level: 0,
+			type: FeatType.Core,
+			description: 'Upbringing attribute modifiers',
+		},
+		{
+			id: 'feat-core-upbringing-2',
+			name: 'Specialized Knowledge',
+			level: 0,
+			type: FeatType.Core,
+			description: 'Specialized knowledge from upbringing',
+		},
+		{
+			id: 'feat-core-upbringing-3',
+			name: 'Upbringing Feat',
+			level: 0,
+			type: FeatType.Core,
+			description: 'Core feat from upbringing',
+		},
+	];
+}
+
+// Generate core feat slots for class
+export function generateCoreClassSlots(): FeatSlot[] {
+	return [
+		{
+			id: 'feat-core-class-1',
+			name: 'Class Modifier',
+			level: 1,
+			type: FeatType.Core,
+			description: '+1 to primary attribute',
+		},
+		{
+			id: 'feat-core-class-2',
+			name: 'Role Feat',
+			level: 1,
+			type: FeatType.Core,
+			description: 'Core feat from class role',
+		},
+		{
+			id: 'feat-core-class-3',
+			name: 'Flavor Feat',
+			level: 1,
+			type: FeatType.Core,
+			description: 'Core feat from class flavor',
+		},
+	];
+}
+
+// Generate level-based feat slots
+export function generateLevelBasedSlots(maxLevel: number): FeatSlot[] {
+	const slots: FeatSlot[] = [];
+
+	for (let level = 1; level <= maxLevel; level++) {
+		if (level % 2 === 1) {
+			// Odd levels: Minor feats
+			slots.push({
+				id: `feat-lv${level}`,
+				name: `Level ${level} Minor Feat`,
+				level: level,
+				type: FeatType.Minor,
+				description: 'Minor feat slot',
+			});
+		} else {
+			// Even levels: Major feats
+			slots.push({
+				id: `feat-lv${level}`,
+				name: `Level ${level} Major Feat`,
+				level: level,
+				type: FeatType.Major,
+				description: 'Major feat slot',
+			});
+		}
+	}
+
+	return slots;
+}
+
+// Get all feat slots for a character level
+export function getAllFeatSlots(characterLevel: number): FeatSlot[] {
+	const slots: FeatSlot[] = [];
+
+	// Add core race/upbringing slots (Level 0)
+	slots.push(...generateCoreRaceSlots());
+
+	// Add core class slots (Level 1)
+	if (characterLevel >= 1) {
+		slots.push(...generateCoreClassSlots());
+	}
+
+	// Add level-based slots
+	slots.push(...generateLevelBasedSlots(characterLevel));
+
+	return slots;
+}
+
 // Get upbringing modifier feat with custom modifiers
 export function getUpbringingModifierFeat(
 	upbringing: Upbringing,

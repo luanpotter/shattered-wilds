@@ -18,12 +18,6 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 	const currentClassInfo = ClassInfo.from(character.props);
 
 	const handleClassSelect = (characterClass: CharacterClass) => {
-		// Clear existing core class feats
-		const existingCoreFeats = currentClassInfo.getCoreClassFeats();
-		existingCoreFeats.forEach(featId => {
-			updateCharacterProp(character, `feat:${featId}`, '');
-		});
-
 		// Create new ClassInfo with the selected class
 		const newClassInfo = new ClassInfo(characterClass);
 
@@ -31,11 +25,24 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 		updateCharacterProp(character, 'class', characterClass);
 		updateCharacterProp(character, 'class.feats', newClassInfo.toProp());
 
-		// Add new core class feats
+		// Clear existing core class feat slots
+		updateCharacterProp(character, 'feat-core-class-1', '');
+		updateCharacterProp(character, 'feat-core-class-2', '');
+		updateCharacterProp(character, 'feat-core-class-3', '');
+
+		// Update core class feat slots with new feats
 		const newCoreFeats = newClassInfo.getCoreClassFeats();
-		newCoreFeats.forEach(featId => {
-			updateCharacterProp(character, `feat:${featId}`, 'true');
-		});
+
+		// Assign feats to their proper class slots
+		if (newCoreFeats[0]) {
+			updateCharacterProp(character, 'feat-core-class-1', newCoreFeats[0]);
+		}
+		if (newCoreFeats[1]) {
+			updateCharacterProp(character, 'feat-core-class-2', newCoreFeats[1]);
+		}
+		if (newCoreFeats[2]) {
+			updateCharacterProp(character, 'feat-core-class-3', newCoreFeats[2]);
+		}
 	};
 
 	const isSelected = (characterClass: CharacterClass) => {
