@@ -3,4 +3,4 @@ type: "Movement"
 ap: 2
 ---
 
-{% TODO "Mounted Combat Rules" %}
+TODO: Mounted Combat Rules
