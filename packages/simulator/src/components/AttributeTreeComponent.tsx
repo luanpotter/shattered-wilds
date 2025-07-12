@@ -275,17 +275,19 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 	};
 
 	const PointsAllocation: React.FC<{ node: Attribute }> = ({ node }) => {
+		const totalAvailable = node.baseValue > 0 ? node.baseValue - 1 : 0; // Total points available to allocate (reserve 1 for self)
+		const unallocated = node.unallocatedPoints;
+
 		return (
 			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 				<span style={{ fontWeight: 'bold', fontSize: '1.1em' }}>
-					{node.childrenAllocatedPoints}/{node.totalPointsToPropagate} points
-					{node.childrenAllocatedPoints < node.totalPointsToPropagate &&
-						node.totalPointsToPropagate > 0 && (
-							<FaExclamationTriangle
-								style={{ marginLeft: '6px', color: 'orange' }}
-								title='You have unallocated points'
-							/>
-						)}
+					{unallocated}/{totalAvailable} points
+					{unallocated > 0 && (
+						<FaExclamationTriangle
+							style={{ marginLeft: '6px', color: 'orange' }}
+							title='You have unallocated points'
+						/>
+					)}
 				</span>
 			</div>
 		);

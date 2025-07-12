@@ -86,7 +86,9 @@ export class Attribute {
 	}
 
 	get totalPointsToPropagate(): number {
-		return Math.max(0, this.baseValue - this.childrenAllocatedPoints);
+		// Every node reserves 1 point for itself, propagates the rest
+		// e.g., value 2 can propagate 1 point, value 3 can propagate 2 points
+		return Math.max(0, this.baseValue - 1 - this.childrenAllocatedPoints);
 	}
 
 	get childrenAllocatedPoints(): number {
@@ -99,21 +101,22 @@ export class Attribute {
 
 	get canChildrenAllocatePoint(): boolean {
 		// Children can allocate if there are unallocated points to propagate
-		// AND if any child can still receive points (hasn't hit level cap)
-		return (
-			this.unallocatedPoints > 0 &&
-			this.children.some(child => child.canDeallocatePoint || child.canChildrenAllocatePoint)
-		);
+		// AND there are children to allocate to
+		return this.unallocatedPoints > 0 && this.children.length > 0;
 	}
 
 	get canDeallocatePoint(): boolean {
 		// Can deallocate if:
 		// 1. This node has at least 1 point allocated, AND
-		// 2. Either this node has no children, OR all children can deallocate their points
-		return (
-			this.baseValue > 0 &&
-			(this.children.length === 0 || this.children.every(child => child.canDeallocatePoint))
-		);
+		// 2. After deallocation, children won't exceed the new propagation limit
+		if (this.baseValue <= 0) {
+			return false;
+		}
+
+		// After deallocating 1 point: newBaseValue = baseValue - 1
+		// New max for children = max(0, newBaseValue - 1) = max(0, baseValue - 2)
+		const newMaxForChildren = Math.max(0, this.baseValue - 2);
+		return this.childrenAllocatedPoints <= newMaxForChildren;
 	}
 
 	get nodeValue(): number {
@@ -127,7 +130,15 @@ export class Attribute {
 	reset(): { key: string; value: string }[] {
 		// Reset this node and all children to 0, return the prop updates needed
 		const updates: { key: string; value: string }[] = [];
-		// ... implementation details
+
+		// Reset this node to 0
+		updates.push({ key: this.type.name, value: '0' });
+
+		// Recursively reset all children
+		for (const child of this.children) {
+			updates.push(...child.reset());
+		}
+
 		return updates;
 	}
 

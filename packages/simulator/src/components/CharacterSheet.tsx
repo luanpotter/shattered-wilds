@@ -754,9 +754,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 			{/* Attribute Tree */}
 			<AttributeTreeComponent
 				tree={sheet.getAttributeTree()}
-				onUpdateCharacterProp={(key, value) =>
-					editMode && updateCharacterProp(character, key, value)
-				}
+				onUpdateCharacterProp={(key, value) => updateCharacterProp(character, key, value)}
 				disabled={!editMode}
 				characterSheet={sheet}
 			/>
