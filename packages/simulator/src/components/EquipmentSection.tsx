@@ -15,6 +15,8 @@ import {
 	Item,
 } from '../types';
 
+import Block from './shared/Block';
+
 // Predefined equipment (mapping from name to a factory function that returns an Item)
 const predefinedEquipment: Record<string, () => Item> = {
 	Javelin: () => new Weapon('Javelin', PrimaryWeaponType.Thrown, 2, [], AttributeType.STR, 7),
@@ -124,14 +126,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({
 	};
 
 	return (
-		<div
-			style={{
-				marginBottom: '12px',
-				padding: '8px',
-				backgroundColor: 'var(--background-alt)',
-				borderRadius: '4px',
-			}}
-		>
+		<Block>
 			<h3 style={{ margin: '0 0 8px 0', fontSize: '1.1em' }}>Equipment</h3>
 
 			<div>
@@ -188,6 +183,6 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({
 					</div>
 				))}
 			</div>
-		</div>
+		</Block>
 	);
 };

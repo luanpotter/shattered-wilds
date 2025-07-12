@@ -22,6 +22,8 @@ import {
 
 import { AttributeTreeGridComponent } from './AttributeTreeGridComponent';
 import { EquipmentSection } from './EquipmentSection';
+import Block from './shared/Block';
+import LabeledInput from './shared/LabeledInput';
 
 interface FullPageCharacterSheetProps {
 	characterId: string;
@@ -111,10 +113,6 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 			</div>
 		);
 	}
-
-	const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		updateCharacterName(character, e.target.value);
-	};
 
 	const handlePointChange = (pointType: string, delta: number) => {
 		const maxValue = (
@@ -253,14 +251,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 
 		const wrap = (children: React.ReactNode) => {
 			return (
-				<div
-					style={{
-						marginBottom: '12px',
-						padding: '8px',
-						backgroundColor: 'var(--background-alt)',
-						borderRadius: '4px',
-					}}
-				>
+				<Block>
 					<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 						<h3 style={{ margin: '0 0 8px 0', fontSize: '1.1em' }}>Feats</h3>
 						{editMode && (
@@ -285,7 +276,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 						)}
 					</div>
 					{children}
-				</div>
+				</Block>
 			);
 		};
 
@@ -401,7 +392,6 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 
 	return (
 		<div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-			{/* Main Content */}
 			<main
 				style={{
 					flex: 1,
@@ -449,54 +439,28 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 						gap: '1rem',
 					}}
 				>
-					{/* Basic Information - Wide, Compact, One Line */}
-					<div
-						style={{
-							display: 'grid',
-							gridTemplateColumns: '2fr 1fr 1fr 1fr',
-							gap: '1rem',
-							alignItems: 'end',
-							marginBottom: '1rem',
-						}}
-					>
-						<div>
-							<label
-								htmlFor='character-name'
-								style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}
-							>
-								Name:
-							</label>
-							<input
+					<Block>
+						<div
+							style={{
+								display: 'grid',
+								gridTemplateColumns: '2fr 1fr 1fr',
+								gap: '1rem',
+								alignItems: 'end',
+								marginBottom: '1rem',
+							}}
+						>
+							<LabeledInput
 								id='character-name'
-								type='text'
+								label='Name'
 								value={character.props.name}
-								onChange={handleNameChange}
-								disabled={!editMode}
-								style={{
-									width: '100%',
-									padding: '0.5rem',
-									border: '1px solid var(--text)',
-									borderRadius: '4px',
-									backgroundColor: editMode ? 'var(--background)' : 'var(--background-alt)',
-									boxSizing: 'border-box',
-								}}
+								onChange={value => updateCharacterName(character, value)}
+								editMode={editMode}
 							/>
-						</div>
-						<div>
-							<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-								Race:
-							</span>
-							<div
-								style={{
-									padding: '0.5rem',
-									border: '1px solid var(--text)',
-									borderRadius: '4px',
-									backgroundColor: 'var(--background-alt)',
-									cursor: editMode ? 'pointer' : 'default',
-									minHeight: '2rem',
-									display: 'flex',
-									alignItems: 'center',
-								}}
+							<LabeledInput
+								id='character-race'
+								label='Race'
+								value={sheet.race.toString()}
+								editMode={editMode}
 								onClick={editMode ? handleOpenRaceSetup : undefined}
 								onKeyDown={
 									editMode
@@ -510,25 +474,12 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 								}
 								tabIndex={editMode ? 0 : -1}
 								role={editMode ? 'button' : undefined}
-							>
-								{sheet.race.toString()}
-							</div>
-						</div>
-						<div>
-							<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-								Class:
-							</span>
-							<div
-								style={{
-									padding: '0.5rem',
-									border: '1px solid var(--text)',
-									borderRadius: '4px',
-									backgroundColor: 'var(--background-alt)',
-									cursor: editMode ? 'pointer' : 'default',
-									minHeight: '2rem',
-									display: 'flex',
-									alignItems: 'center',
-								}}
+							/>
+							<LabeledInput
+								id='character-class'
+								label='Class'
+								value={sheet.characterClass.characterClass}
+								editMode={editMode}
 								onClick={editMode ? handleOpenClassSetup : undefined}
 								onKeyDown={
 									editMode
@@ -542,194 +493,128 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 								}
 								tabIndex={editMode ? 0 : -1}
 								role={editMode ? 'button' : undefined}
-							>
-								{sheet.characterClass.characterClass}
-							</div>
+							/>
 						</div>
-						<div>
-							<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-								Level:
-							</span>
-							<div
-								style={{
-									padding: '0.5rem',
-									border: '1px solid var(--text)',
-									borderRadius: '4px',
-									backgroundColor: 'var(--background-alt)',
-									textAlign: 'center',
-									fontSize: '1.1rem',
-									fontWeight: 'bold',
-									minHeight: '2rem',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-								}}
-							>
-								{sheet.attributes.getNode(AttributeType.Level)?.baseValue || 1}
-							</div>
-						</div>
-					</div>
-
-					{/* Derived Stats and Resource Points Combined */}
-					<div
-						style={{
-							display: 'grid',
-							gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-							gap: '1rem',
-							marginBottom: '1rem',
-						}}
-					>
-						{/* Derived Stats */}
-						<div>
-							<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-								Size:
-							</span>
-							<div
-								style={{
-									padding: '0.5rem',
-									border: '1px solid var(--text)',
-									borderRadius: '4px',
-									backgroundColor: 'var(--background)',
-									textAlign: 'center',
-								}}
+						<div
+							style={{
+								display: 'grid',
+								gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+								gap: '1rem',
+								marginBottom: '1rem',
+							}}
+						>
+							{/* Derived Stats */}
+							<LabeledInput
+								id='character-size'
+								label='Size'
+								value={getSizeDisplay(sheet.derivedStats.size.value)}
+								editMode={false}
 								title={sheet.derivedStats.size.description}
-							>
-								{getSizeDisplay(sheet.derivedStats.size.value)}
-							</div>
-						</div>
-						<div>
-							<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-								Movement:
-							</span>
-							<div
-								style={{
-									padding: '0.5rem',
-									border: '1px solid var(--text)',
-									borderRadius: '4px',
-									backgroundColor: 'var(--background)',
-									textAlign: 'center',
-								}}
+							/>
+							<LabeledInput
+								id='character-movement'
+								label='Movement'
+								value={sheet.derivedStats.movement.value.toString()}
+								editMode={false}
 								title={sheet.derivedStats.movement.description}
-							>
-								{sheet.derivedStats.movement.value}
-							</div>
-						</div>
-						<div>
-							<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-								Initiative:
-							</span>
-							<div
-								style={{
-									padding: '0.5rem',
-									border: '1px solid var(--text)',
-									borderRadius: '4px',
-									backgroundColor: 'var(--background)',
-									textAlign: 'center',
-								}}
+							/>
+							<LabeledInput
+								id='character-initiative'
+								label='Initiative'
+								value={sheet.derivedStats.initiative.value.toString()}
+								editMode={false}
 								title={sheet.derivedStats.initiative.description}
-							>
-								{sheet.derivedStats.initiative.value}
+							/>
+
+							{/* Resource Points */}
+							{['Heroism', 'Vitality', 'Focus', 'Spirit'].map(pointType => {
+								const maxValue = (
+									sheet.derivedStats[`max${pointType}` as keyof typeof sheet.derivedStats] as any
+								).value;
+								const currentValue =
+									sheet.currentValues[`current${pointType}` as keyof typeof sheet.currentValues];
+
+								return (
+									<div key={pointType}>
+										<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+											{pointType}
+										</span>
+										<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+											<button
+												onClick={() => handlePointChange(pointType, -1)}
+												style={{
+													padding: '0.25rem 0.5rem',
+													backgroundColor: 'var(--background)',
+													border: '1px solid var(--text)',
+													borderRadius: '4px',
+													cursor: 'pointer',
+												}}
+											>
+												<FaMinus size={12} />
+											</button>
+											<div
+												style={{
+													flex: 1,
+													padding: '0.5rem',
+													border: '1px solid var(--text)',
+													borderRadius: '4px',
+													backgroundColor: 'var(--background)',
+													textAlign: 'center',
+													fontSize: '1.1rem',
+													fontWeight: 'bold',
+												}}
+											>
+												{currentValue}/{maxValue}
+											</div>
+											<button
+												onClick={() => handlePointChange(pointType, 1)}
+												style={{
+													padding: '0.25rem 0.5rem',
+													backgroundColor: 'var(--background)',
+													border: '1px solid var(--text)',
+													borderRadius: '4px',
+													cursor: 'pointer',
+												}}
+											>
+												<FaPlus size={12} />
+											</button>
+										</div>
+									</div>
+								);
+							})}
+
+							<div style={{ display: 'flex', alignItems: 'end' }}>
+								<button
+									onClick={handleRefillPoints}
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+										padding: '0.5rem 1rem',
+										backgroundColor: 'var(--success)',
+										color: 'white',
+										border: 'none',
+										borderRadius: '4px',
+										cursor: 'pointer',
+										height: 'fit-content',
+									}}
+									title='Refill all points to maximum'
+								>
+									<FaBatteryFull />
+									Refill All
+								</button>
 							</div>
 						</div>
+					</Block>
 
-						{/* Resource Points */}
-						{['Heroism', 'Vitality', 'Focus', 'Spirit'].map(pointType => {
-							const maxValue = (
-								sheet.derivedStats[`max${pointType}` as keyof typeof sheet.derivedStats] as any
-							).value;
-							const currentValue =
-								sheet.currentValues[`current${pointType}` as keyof typeof sheet.currentValues];
-
-							return (
-								<div key={pointType}>
-									<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-										{pointType}:
-									</span>
-									<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-										<button
-											onClick={() => handlePointChange(pointType, -1)}
-											style={{
-												padding: '0.25rem 0.5rem',
-												backgroundColor: 'var(--background)',
-												border: '1px solid var(--text)',
-												borderRadius: '4px',
-												cursor: 'pointer',
-											}}
-										>
-											<FaMinus size={12} />
-										</button>
-										<div
-											style={{
-												flex: 1,
-												padding: '0.5rem',
-												border: '1px solid var(--text)',
-												borderRadius: '4px',
-												backgroundColor: 'var(--background)',
-												textAlign: 'center',
-												fontSize: '1.1rem',
-												fontWeight: 'bold',
-											}}
-										>
-											{currentValue}/{maxValue}
-										</div>
-										<button
-											onClick={() => handlePointChange(pointType, 1)}
-											style={{
-												padding: '0.25rem 0.5rem',
-												backgroundColor: 'var(--background)',
-												border: '1px solid var(--text)',
-												borderRadius: '4px',
-												cursor: 'pointer',
-											}}
-										>
-											<FaPlus size={12} />
-										</button>
-									</div>
-								</div>
-							);
-						})}
-
-						{/* Refill All Button */}
-						<div style={{ display: 'flex', alignItems: 'end' }}>
-							<button
-								onClick={handleRefillPoints}
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: '0.5rem',
-									padding: '0.5rem 1rem',
-									backgroundColor: 'var(--success)',
-									color: 'white',
-									border: 'none',
-									borderRadius: '4px',
-									cursor: 'pointer',
-									height: 'fit-content',
-								}}
-								title='Refill all points to maximum'
-							>
-								<FaBatteryFull />
-								Refill All
-							</button>
-						</div>
-					</div>
-
-					{/* Stat Tree */}
-
-					<div
-						style={{
-							marginBottom: '12px',
-							padding: '8px',
-							backgroundColor: 'var(--background-alt)',
-							borderRadius: '4px',
-						}}
-					>
+					<Block>
 						<AttributeTreeGridComponent
 							tree={sheet.getAttributeTree()}
 							onUpdateCharacterProp={(key, value) => updateCharacterProp(character, key, value)}
 							disabled={!editMode}
 							characterId={character.id}
 						/>
-					</div>
+					</Block>
 
 					{renderFeatsSection()}
 					<EquipmentSection
