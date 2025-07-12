@@ -280,6 +280,8 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 		const totalAvailable = node.baseValue > 0 ? node.baseValue - 1 : 0; // Total points available to allocate (reserve 1 for self)
 		const unallocated = node.unallocatedPoints;
 
+		if (!editMode) return null;
+
 		return (
 			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 				<span style={{ fontWeight: 'bold', fontSize: '1.1em' }}>
@@ -417,9 +419,9 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 					<span style={{ fontWeight: 'bold' }}>Level:</span>
 					<AttributeValueNode node={tree.root} />
 				</div>
-				<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-					<PointsAllocation node={tree.root} />
-					{editMode && (
+				{editMode && (
+					<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+						<PointsAllocation node={tree.root} />
 						<button
 							onClick={() => {
 								const updates = tree.root.children.flatMap(child => child.reset());
@@ -443,8 +445,8 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 							<FaUndo />
 							<span>Reset All Points</span>
 						</button>
-					)}
-				</div>
+					</div>
+				)}
 			</div>
 
 			{/* Realms Section with Tab Panel */}

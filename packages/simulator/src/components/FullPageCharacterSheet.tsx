@@ -1,8 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
 	FaArrowLeft,
-	FaEdit,
-	FaSave,
 	FaPlus,
 	FaMinus,
 	FaBatteryFull,
@@ -12,7 +10,7 @@ import {
 } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { CharacterSheet, AttributeType, Size, SizeModifiers, DefenseType } from '../types';
+import { CharacterSheet, AttributeType, Size, SizeModifiers } from '../types';
 import {
 	getAllFeatSlots,
 	FeatType,
@@ -22,7 +20,7 @@ import {
 	getParameterizedFeatDefinition,
 } from '../types/feats';
 
-import { AttributeTreeComponent } from './AttributeTreeComponent';
+import { AttributeTreeGridComponent } from './AttributeTreeGridComponent';
 import { EquipmentSection } from './EquipmentSection';
 
 interface FullPageCharacterSheetProps {
@@ -39,10 +37,10 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	onNavigateToCharacterSheet: _onNavigateToCharacterSheet,
 }) => {
-	const [isEditing, setIsEditing] = useState(false);
 	const characters = useStore(state => state.characters);
 	const updateCharacterName = useStore(state => state.updateCharacterName);
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
+	const editMode = useStore(state => state.editMode);
 
 	const addWindow = useStore(state => state.addWindow);
 	const windows = useStore(state => state.windows);
@@ -57,13 +55,6 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 	const sheet = useMemo(
 		() => (character ? CharacterSheet.from(character.props) : null),
 		[character]
-	);
-
-	// Create reactive basic attacks and defense that update when sheet changes
-	const basicAttacks = useMemo(() => (sheet ? sheet.getBasicAttacks() : []), [sheet]);
-	const basicDefense = useMemo(
-		() => (sheet ? sheet.getBasicDefense(DefenseType.Basic) : { value: 0, description: '' }),
-		[sheet]
 	);
 
 	// Show error message if character not found
@@ -260,21 +251,59 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 			slot => slot.type !== FeatType.Core && !currentFeatSlots[slot.id]
 		);
 
-		if (Object.keys(featsByLevel).length === 0) {
+		const wrap = (children: React.ReactNode) => {
 			return (
-				<div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
+				<div
+					style={{
+						marginBottom: '12px',
+						padding: '8px',
+						backgroundColor: 'var(--background-alt)',
+						borderRadius: '4px',
+					}}
+				>
+					<div style={{ display: 'flex', justifyContent: 'space-between' }}>
+						<h3 style={{ margin: '0 0 8px 0', fontSize: '1.1em' }}>Feats</h3>
+						{editMode && (
+							<button
+								onClick={handleOpenFeatsSetup}
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									padding: '0.5rem 1rem',
+									backgroundColor: 'var(--background)',
+									color: 'var(--text)',
+									border: '1px solid var(--text)',
+									borderRadius: '4px',
+									cursor: 'pointer',
+								}}
+								title='Open feats management'
+							>
+								<FaCog />
+								Manage Feats
+							</button>
+						)}
+					</div>
+					{children}
+				</div>
+			);
+		};
+
+		if (Object.keys(featsByLevel).length === 0) {
+			return wrap(
+				<>
 					<p>No feats assigned yet.</p>
-					{isEditing && (
+					{editMode && (
 						<p style={{ fontSize: '0.9em' }}>
 							Click &quot;Manage Feats&quot; above to assign feats.
 						</p>
 					)}
-				</div>
+				</>
 			);
 		}
 
-		return (
-			<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+		return wrap(
+			<>
 				{missingFeats.length > 0 && (
 					<div
 						style={{
@@ -366,7 +395,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 							</div>
 						</div>
 					))}
-			</div>
+			</>
 		);
 	};
 
@@ -411,462 +440,305 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 						<button onClick={handleCopyCharacterSheet} title='Copy character data to clipboard'>
 							<FaCopy /> Export
 						</button>
-						<button
-							onClick={() => setIsEditing(!isEditing)}
-							style={{
-								backgroundColor: isEditing ? 'var(--success)' : 'var(--background)',
-								color: isEditing ? 'white' : 'var(--text)',
-							}}
-						>
-							{isEditing ? <FaSave /> : <FaEdit />}{' '}
-							{isEditing ? 'Finish Editing' : 'Edit Character'}
-						</button>
 					</div>
 				</div>
 				<div
 					style={{
 						display: 'flex',
 						flexDirection: 'column',
-						gap: '2rem',
+						gap: '1rem',
 					}}
 				>
 					{/* Basic Information - Wide, Compact, One Line */}
-					<section
-						style={{
-							padding: '1.5rem',
-							border: '1px solid var(--text)',
-							borderRadius: '8px',
-							backgroundColor: 'var(--background-alt)',
-						}}
-					>
-						<div
-							style={{
-								display: 'grid',
-								gridTemplateColumns: '2fr 1fr 1fr 1fr',
-								gap: '1rem',
-								alignItems: 'end',
-							}}
-						>
-							<div>
-								<label
-									htmlFor='character-name'
-									style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}
-								>
-									Name:
-								</label>
-								<input
-									id='character-name'
-									type='text'
-									value={character.props.name}
-									onChange={handleNameChange}
-									disabled={!isEditing}
-									style={{
-										width: '100%',
-										padding: '0.5rem',
-										border: '1px solid var(--text)',
-										borderRadius: '4px',
-										backgroundColor: isEditing ? 'var(--background)' : 'var(--background-alt)',
-										boxSizing: 'border-box',
-									}}
-								/>
-							</div>
-							<div>
-								<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-									Race:
-								</span>
-								<div
-									style={{
-										padding: '0.5rem',
-										border: '1px solid var(--text)',
-										borderRadius: '4px',
-										backgroundColor: 'var(--background-alt)',
-										cursor: isEditing ? 'pointer' : 'default',
-										minHeight: '2rem',
-										display: 'flex',
-										alignItems: 'center',
-									}}
-									onClick={isEditing ? handleOpenRaceSetup : undefined}
-									onKeyDown={
-										isEditing
-											? e => {
-													if (e.key === 'Enter' || e.key === ' ') {
-														e.preventDefault();
-														handleOpenRaceSetup();
-													}
-												}
-											: undefined
-									}
-									tabIndex={isEditing ? 0 : -1}
-									role={isEditing ? 'button' : undefined}
-								>
-									{sheet.race.toString()}
-								</div>
-							</div>
-							<div>
-								<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-									Class:
-								</span>
-								<div
-									style={{
-										padding: '0.5rem',
-										border: '1px solid var(--text)',
-										borderRadius: '4px',
-										backgroundColor: 'var(--background-alt)',
-										cursor: isEditing ? 'pointer' : 'default',
-										minHeight: '2rem',
-										display: 'flex',
-										alignItems: 'center',
-									}}
-									onClick={isEditing ? handleOpenClassSetup : undefined}
-									onKeyDown={
-										isEditing
-											? e => {
-													if (e.key === 'Enter' || e.key === ' ') {
-														e.preventDefault();
-														handleOpenClassSetup();
-													}
-												}
-											: undefined
-									}
-									tabIndex={isEditing ? 0 : -1}
-									role={isEditing ? 'button' : undefined}
-								>
-									{sheet.characterClass.characterClass}
-								</div>
-							</div>
-							<div>
-								<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-									Level:
-								</span>
-								<div
-									style={{
-										padding: '0.5rem',
-										border: '1px solid var(--text)',
-										borderRadius: '4px',
-										backgroundColor: 'var(--background-alt)',
-										textAlign: 'center',
-										fontSize: '1.1rem',
-										fontWeight: 'bold',
-										minHeight: '2rem',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-									}}
-								>
-									{sheet.attributes.getNode(AttributeType.Level)?.baseValue || 1}
-								</div>
-							</div>
-						</div>
-					</section>
-
-					{/* Derived Stats and Resource Points Row */}
 					<div
 						style={{
 							display: 'grid',
-							gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
-							gap: '2rem',
+							gridTemplateColumns: '2fr 1fr 1fr 1fr',
+							gap: '1rem',
+							alignItems: 'end',
+							marginBottom: '1rem',
+						}}
+					>
+						<div>
+							<label
+								htmlFor='character-name'
+								style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}
+							>
+								Name:
+							</label>
+							<input
+								id='character-name'
+								type='text'
+								value={character.props.name}
+								onChange={handleNameChange}
+								disabled={!editMode}
+								style={{
+									width: '100%',
+									padding: '0.5rem',
+									border: '1px solid var(--text)',
+									borderRadius: '4px',
+									backgroundColor: editMode ? 'var(--background)' : 'var(--background-alt)',
+									boxSizing: 'border-box',
+								}}
+							/>
+						</div>
+						<div>
+							<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+								Race:
+							</span>
+							<div
+								style={{
+									padding: '0.5rem',
+									border: '1px solid var(--text)',
+									borderRadius: '4px',
+									backgroundColor: 'var(--background-alt)',
+									cursor: editMode ? 'pointer' : 'default',
+									minHeight: '2rem',
+									display: 'flex',
+									alignItems: 'center',
+								}}
+								onClick={editMode ? handleOpenRaceSetup : undefined}
+								onKeyDown={
+									editMode
+										? e => {
+												if (e.key === 'Enter' || e.key === ' ') {
+													e.preventDefault();
+													handleOpenRaceSetup();
+												}
+											}
+										: undefined
+								}
+								tabIndex={editMode ? 0 : -1}
+								role={editMode ? 'button' : undefined}
+							>
+								{sheet.race.toString()}
+							</div>
+						</div>
+						<div>
+							<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+								Class:
+							</span>
+							<div
+								style={{
+									padding: '0.5rem',
+									border: '1px solid var(--text)',
+									borderRadius: '4px',
+									backgroundColor: 'var(--background-alt)',
+									cursor: editMode ? 'pointer' : 'default',
+									minHeight: '2rem',
+									display: 'flex',
+									alignItems: 'center',
+								}}
+								onClick={editMode ? handleOpenClassSetup : undefined}
+								onKeyDown={
+									editMode
+										? e => {
+												if (e.key === 'Enter' || e.key === ' ') {
+													e.preventDefault();
+													handleOpenClassSetup();
+												}
+											}
+										: undefined
+								}
+								tabIndex={editMode ? 0 : -1}
+								role={editMode ? 'button' : undefined}
+							>
+								{sheet.characterClass.characterClass}
+							</div>
+						</div>
+						<div>
+							<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+								Level:
+							</span>
+							<div
+								style={{
+									padding: '0.5rem',
+									border: '1px solid var(--text)',
+									borderRadius: '4px',
+									backgroundColor: 'var(--background-alt)',
+									textAlign: 'center',
+									fontSize: '1.1rem',
+									fontWeight: 'bold',
+									minHeight: '2rem',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+								}}
+							>
+								{sheet.attributes.getNode(AttributeType.Level)?.baseValue || 1}
+							</div>
+						</div>
+					</div>
+
+					{/* Derived Stats and Resource Points Combined */}
+					<div
+						style={{
+							display: 'grid',
+							gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+							gap: '1rem',
+							marginBottom: '1rem',
 						}}
 					>
 						{/* Derived Stats */}
-						<section
-							style={{
-								padding: '1.5rem',
-								border: '1px solid var(--text)',
-								borderRadius: '8px',
-								backgroundColor: 'var(--background-alt)',
-							}}
-						>
-							<h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.3rem' }}>Derived Stats</h2>
-
+						<div>
+							<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+								Size:
+							</span>
 							<div
 								style={{
-									display: 'grid',
-									gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-									gap: '1rem',
-									marginBottom: '1rem',
+									padding: '0.5rem',
+									border: '1px solid var(--text)',
+									borderRadius: '4px',
+									backgroundColor: 'var(--background)',
+									textAlign: 'center',
 								}}
+								title={sheet.derivedStats.size.description}
 							>
-								<div>
-									<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-										Size:
-									</span>
-									<div
-										style={{
-											padding: '0.5rem',
-											border: '1px solid var(--text)',
-											borderRadius: '4px',
-											backgroundColor: 'var(--background)',
-											textAlign: 'center',
-										}}
-										title={sheet.derivedStats.size.description}
-									>
-										{getSizeDisplay(sheet.derivedStats.size.value)}
-									</div>
-								</div>
-								<div>
-									<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-										Movement:
-									</span>
-									<div
-										style={{
-											padding: '0.5rem',
-											border: '1px solid var(--text)',
-											borderRadius: '4px',
-											backgroundColor: 'var(--background)',
-											textAlign: 'center',
-										}}
-										title={sheet.derivedStats.movement.description}
-									>
-										{sheet.derivedStats.movement.value}
-									</div>
-								</div>
-								<div>
-									<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-										Initiative:
-									</span>
-									<div
-										style={{
-											padding: '0.5rem',
-											border: '1px solid var(--text)',
-											borderRadius: '4px',
-											backgroundColor: 'var(--background)',
-											textAlign: 'center',
-										}}
-										title={sheet.derivedStats.initiative.description}
-									>
-										{sheet.derivedStats.initiative.value}
-									</div>
-								</div>
+								{getSizeDisplay(sheet.derivedStats.size.value)}
 							</div>
-
-							<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-								<div>
-									<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-										Basic Attacks:
-									</span>
-									<div
-										style={{
-											padding: '0.5rem',
-											border: '1px solid var(--text)',
-											borderRadius: '4px',
-											backgroundColor: 'var(--background)',
-											minHeight: '2rem',
-											overflow: 'hidden',
-											textOverflow: 'ellipsis',
-										}}
-										title={basicAttacks.map(attack => attack.description).join(' / ')}
-									>
-										{basicAttacks.map(attack => attack.description).join(' / ') || 'None'}
-									</div>
-								</div>
-								<div>
-									<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-										Basic Defense:
-									</span>
-									<div
-										style={{
-											padding: '0.5rem',
-											border: '1px solid var(--text)',
-											borderRadius: '4px',
-											backgroundColor: 'var(--background)',
-											textAlign: 'center',
-										}}
-										title={basicDefense.description}
-									>
-										{basicDefense.value}
-									</div>
-								</div>
+						</div>
+						<div>
+							<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+								Movement:
+							</span>
+							<div
+								style={{
+									padding: '0.5rem',
+									border: '1px solid var(--text)',
+									borderRadius: '4px',
+									backgroundColor: 'var(--background)',
+									textAlign: 'center',
+								}}
+								title={sheet.derivedStats.movement.description}
+							>
+								{sheet.derivedStats.movement.value}
 							</div>
-						</section>
+						</div>
+						<div>
+							<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+								Initiative:
+							</span>
+							<div
+								style={{
+									padding: '0.5rem',
+									border: '1px solid var(--text)',
+									borderRadius: '4px',
+									backgroundColor: 'var(--background)',
+									textAlign: 'center',
+								}}
+								title={sheet.derivedStats.initiative.description}
+							>
+								{sheet.derivedStats.initiative.value}
+							</div>
+						</div>
 
 						{/* Resource Points */}
-						<section
-							style={{
-								padding: '1.5rem',
-								border: '1px solid var(--text)',
-								borderRadius: '8px',
-								backgroundColor: 'var(--background-alt)',
-							}}
-						>
-							<div
+						{['Heroism', 'Vitality', 'Focus', 'Spirit'].map(pointType => {
+							const maxValue = (
+								sheet.derivedStats[`max${pointType}` as keyof typeof sheet.derivedStats] as any
+							).value;
+							const currentValue =
+								sheet.currentValues[`current${pointType}` as keyof typeof sheet.currentValues];
+
+							return (
+								<div key={pointType}>
+									<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+										{pointType}:
+									</span>
+									<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+										<button
+											onClick={() => handlePointChange(pointType, -1)}
+											style={{
+												padding: '0.25rem 0.5rem',
+												backgroundColor: 'var(--background)',
+												border: '1px solid var(--text)',
+												borderRadius: '4px',
+												cursor: 'pointer',
+											}}
+										>
+											<FaMinus size={12} />
+										</button>
+										<div
+											style={{
+												flex: 1,
+												padding: '0.5rem',
+												border: '1px solid var(--text)',
+												borderRadius: '4px',
+												backgroundColor: 'var(--background)',
+												textAlign: 'center',
+												fontSize: '1.1rem',
+												fontWeight: 'bold',
+											}}
+										>
+											{currentValue}/{maxValue}
+										</div>
+										<button
+											onClick={() => handlePointChange(pointType, 1)}
+											style={{
+												padding: '0.25rem 0.5rem',
+												backgroundColor: 'var(--background)',
+												border: '1px solid var(--text)',
+												borderRadius: '4px',
+												cursor: 'pointer',
+											}}
+										>
+											<FaPlus size={12} />
+										</button>
+									</div>
+								</div>
+							);
+						})}
+
+						{/* Refill All Button */}
+						<div style={{ display: 'flex', alignItems: 'end' }}>
+							<button
+								onClick={handleRefillPoints}
 								style={{
 									display: 'flex',
-									justifyContent: 'space-between',
 									alignItems: 'center',
-									marginBottom: '1.5rem',
-									flexWrap: 'wrap',
-									gap: '1rem',
+									gap: '0.5rem',
+									padding: '0.5rem 1rem',
+									backgroundColor: 'var(--success)',
+									color: 'white',
+									border: 'none',
+									borderRadius: '4px',
+									cursor: 'pointer',
+									height: 'fit-content',
 								}}
+								title='Refill all points to maximum'
 							>
-								<h2 style={{ margin: 0, fontSize: '1.3rem' }}>Resource Points</h2>
-								<button
-									onClick={handleRefillPoints}
-									style={{
-										display: 'flex',
-										alignItems: 'center',
-										gap: '0.5rem',
-										padding: '0.5rem 1rem',
-										backgroundColor: 'var(--success)',
-										color: 'white',
-										border: 'none',
-										borderRadius: '4px',
-										cursor: 'pointer',
-									}}
-									title='Refill all points to maximum'
-								>
-									<FaBatteryFull />
-									Refill All
-								</button>
-							</div>
-
-							<div
-								style={{
-									display: 'grid',
-									gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-									gap: '1rem',
-								}}
-							>
-								{['Heroism', 'Vitality', 'Focus', 'Spirit'].map(pointType => {
-									const maxValue = (
-										sheet.derivedStats[`max${pointType}` as keyof typeof sheet.derivedStats] as any
-									).value;
-									const currentValue =
-										sheet.currentValues[`current${pointType}` as keyof typeof sheet.currentValues];
-
-									return (
-										<div key={pointType}>
-											<span
-												style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}
-											>
-												{pointType}:
-											</span>
-											<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-												<button
-													onClick={() => handlePointChange(pointType, -1)}
-													style={{
-														padding: '0.25rem 0.5rem',
-														backgroundColor: 'var(--background)',
-														border: '1px solid var(--text)',
-														borderRadius: '4px',
-														cursor: 'pointer',
-													}}
-												>
-													<FaMinus size={12} />
-												</button>
-												<div
-													style={{
-														flex: 1,
-														padding: '0.5rem',
-														border: '1px solid var(--text)',
-														borderRadius: '4px',
-														backgroundColor: 'var(--background)',
-														textAlign: 'center',
-														fontSize: '1.1rem',
-														fontWeight: 'bold',
-													}}
-												>
-													{currentValue}/{maxValue}
-												</div>
-												<button
-													onClick={() => handlePointChange(pointType, 1)}
-													style={{
-														padding: '0.25rem 0.5rem',
-														backgroundColor: 'var(--background)',
-														border: '1px solid var(--text)',
-														borderRadius: '4px',
-														cursor: 'pointer',
-													}}
-												>
-													<FaPlus size={12} />
-												</button>
-											</div>
-										</div>
-									);
-								})}
-							</div>
-						</section>
+								<FaBatteryFull />
+								Refill All
+							</button>
+						</div>
 					</div>
 
-					{/* Stat Tree - Wide */}
-					<section
+					{/* Stat Tree */}
+
+					<div
 						style={{
-							padding: '1.5rem',
-							border: '1px solid var(--text)',
-							borderRadius: '8px',
+							marginBottom: '12px',
+							padding: '8px',
 							backgroundColor: 'var(--background-alt)',
+							borderRadius: '4px',
 						}}
 					>
-						<h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.3rem' }}>Stat Tree</h2>
-						<AttributeTreeComponent
+						<AttributeTreeGridComponent
 							tree={sheet.getAttributeTree()}
 							onUpdateCharacterProp={(key, value) => updateCharacterProp(character, key, value)}
-							disabled={!isEditing}
+							disabled={!editMode}
 							characterId={character.id}
 						/>
-					</section>
+					</div>
 
-					{/* Feats - Wide */}
-					<section
-						style={{
-							padding: '1.5rem',
-							border: '1px solid var(--text)',
-							borderRadius: '8px',
-							backgroundColor: 'var(--background-alt)',
-						}}
-					>
-						<div
-							style={{
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'center',
-								marginBottom: '1.5rem',
-								flexWrap: 'wrap',
-								gap: '1rem',
-							}}
-						>
-							<h2 style={{ margin: 0, fontSize: '1.3rem' }}>Feats</h2>
-							{isEditing && (
-								<button
-									onClick={handleOpenFeatsSetup}
-									style={{
-										display: 'flex',
-										alignItems: 'center',
-										gap: '0.5rem',
-										padding: '0.5rem 1rem',
-										backgroundColor: 'var(--background)',
-										color: 'var(--text)',
-										border: '1px solid var(--text)',
-										borderRadius: '4px',
-										cursor: 'pointer',
-									}}
-									title='Open feats management'
-								>
-									<FaCog />
-									Manage Feats
-								</button>
-							)}
-						</div>
-						{renderFeatsSection()}
-					</section>
-
-					{/* Equipment - Wide */}
-					<section
-						style={{
-							padding: '1.5rem',
-							border: '1px solid var(--text)',
-							borderRadius: '8px',
-							backgroundColor: 'var(--background-alt)',
-						}}
-					>
-						<h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.3rem' }}>Equipment</h2>
-						<EquipmentSection
-							character={character}
-							onUpdateEquipment={equipment =>
-								updateCharacterProp(character, 'equipment', equipment.toProp())
-							}
-							editMode={isEditing}
-						/>
-					</section>
+					{renderFeatsSection()}
+					<EquipmentSection
+						character={character}
+						onUpdateEquipment={equipment =>
+							updateCharacterProp(character, 'equipment', equipment.toProp())
+						}
+						editMode={editMode}
+					/>
 				</div>
 			</main>
 		</div>
