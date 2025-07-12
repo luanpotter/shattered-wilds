@@ -70,6 +70,8 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addShortcode("text", (path) => {
     return renderLexiconEntry("text", path);
   });
+  const addMark = (value) => `<mark class="todo">${value}</mark>`;
+  eleventyConfig.addShortcode("TODO", (value) => addMark(value ? `TODO: ${value}` : "TODO"));
 
   eleventyConfig.addPassthroughCopy({
     "node_modules/simpledotcss/simple.min.css": "simple.min.css",

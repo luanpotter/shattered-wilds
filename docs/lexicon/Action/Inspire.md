@@ -4,4 +4,5 @@ ap: 3
 concentrate: true
 ---
 
-Medium Speechcraft Check (DC 20): +1 MP to one ally within hearing range. -3 [[Circumstance Modifier | CM]] if they cannot see you.
+Make a [[Stat_Speechcraft | Speechcraft]] Check DC 20 (Medium): {% TODO "what is the effect" %}
+You have -3 [[Circumstance Modifier | CM]] if they cannot see you.

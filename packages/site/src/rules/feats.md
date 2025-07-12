@@ -3,8 +3,8 @@ previous:
     url: "/rules/stats"
     text: "Stats"
 next:
-    url: "/rules/combat"
-    text: "Combat"
+    url: "/rules/races"
+    text: "Races"
 ---
 
 # Rules - Feats

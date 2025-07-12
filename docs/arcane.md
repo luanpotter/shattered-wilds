@@ -16,6 +16,8 @@ In the view of the Arcane, the bodies of Beings are not just material, as they a
 
 Casting a spell typically will require a certain amount of AP ([[Resource_Action_Point | Action Points]]) and FP ([[Resource_Focus_Point | Focus Points]]) to be spent (see Basic Arcane Spell below), requires executing some non-zero amount of Spell Components, and will require a Check on the Spellcaster's Base Attribute:
 
+{% TODO "revisit formula, put Augmentations as CM to the roll instead" %}
+
 > Roll Base Spellcasting Attribute + Component Modifiers [+ Other Circumstance Modifiers]
 
 That value should be matched against the Spell DC which will be:
@@ -59,9 +61,9 @@ For example, imagine a caster chooses to expand the Area of a Poison Cloud by 1 
 
 ## Components
 
-The components are the mechanisms used to produce the necessary conditions for the spell to work; they can be in the form of Verbal (sounds), Somatic (movements, typically hand gestures, but can also tool-assisted) or Focal (the simple presence of a specific magical object as a focus). Every spell needs at least one component to be cast, regardless of any other conditions.
+**Spell Components** are the mechanisms used to produce the necessary conditions (vibrations) for the spell to work; they can be in the form of Verbal (sounds), Somatic (movements, typically hand gestures, but can also tool-assisted) or Focal (using an [[Imbued Item]] that uses power from the **Aether** to enact subtle vibrations on the **Material Plane**). Every spell needs at least one **Component** to be cast, regardless of any other conditions.
 
-Different Flavors of Casters have different access to different types of components; the Arcanists being the more versatile, being able to use all three, but to a lesser potential than the specialists.
+Different **Flavors** of **Casters** have different access to different types of components; the **Arcanists** being the more versatile, being able to use all three, but to a lesser potential than the specialists in each type.
 
 | Components | Arcanist | Mechanistic | Naturalist | Musicist |
 |------------|----------|-------------|------------|----------|
@@ -69,49 +71,49 @@ Different Flavors of Casters have different access to different types of compone
 | Somatic    | Y        | YY          |            |          |
 | Focal      | Y        |             | YY         |          |
 
-It is important to note that the difficulty in executing spell components is due to figuring out what exact movements and sounds are needed to produce the desired effect, rather than the technical difficulty of performing the acts themselves. Therefore you do not need high DEX to execute Somatic components, or high CHA for Verbal components; however if your hands are restricted, or you are unable to speak, you might face limitations.
+It is important to note that the difficulty in executing **Spell Components** is due to figuring out what exact movements and sounds are needed to produce the desired effect, rather than the technical difficulty of performing the acts themselves. Therefore, you do not need high [[Stat_DEX | DEX]] to execute **Somatic** components, or high [[Stat_CHA | CHA]] for **Verbal** components; however if your hands are restricted, or you are unable to speak, you would not be able to perform the associated components.
 
 ### Verbal
 
-The verbal component can include shouting, chanting, singing, or music produced by the caster via their body or instruments. Typically, this will be done in the form of incomprehensible shouting and chanting of specific sounds, not matching any specific language. Musicists are able to use instruments (accompanied by singing) to replace their Verbal component.
+The **Verbal Component** can include shouting, chanting, singing, or music produced by the caster via their body or instruments. Typically, this will be done in the form of incomprehensible shouting and chanting of specific sounds, not matching any specific language. **Musicists** are able to use instruments (often accompanied by singing) to replace their **Verbal Component**.
 
 **Basic Chanting**: +1
-**One-Handed Instrument**: +2
-**Two-Handed Instrument**: +3
+**One-Handed Instrument**: +2 (**Musicists** only)
+**Two-Handed Instrument**: +3 (**Musicists** only)
 
-The execution of Verbal components requires a baseline freedom of speech; so they cannot be performed while under the [[Condition_Silenced | Silenced]] condition.
-
--- TODO: can verbal components be disrupted by making other noises? [Verbal Distraction]
+The execution of **Verbal Components** requires a baseline freedom of speech; so they cannot be performed while under the [[Condition_Silenced | Silenced]] condition.
 
 ### Somatic
 
-The somatic component can include hand gestures, body movements, or tool-assisted movements. Typically, this will be done in the form of fast and precise hand gestures. Mechanistics are able to concoct and use tools to replace their Somatic component.
+The **Somatic Component** can include hand gestures, body movements, or tool-assisted movements (for the **Mechanistics**). Typically, this will be done in the form of fast and precise hand gestures. **Mechanistics** are able to concoct and use tools to replace their **Somatic Component**.
 
-* **Basic Hand Gestures**: +1
-* **One-Handed Tool Use**: +2
-* **Two-Handed Tool Use**: +3
+* **Basic Gesturing**: +1
+* **One-Handed Tool Use**: +2 (**Mechanistics** only)
+* **Two-Handed Tool Use**: +3 (**Mechanistics** only)
 
 The execution of Somatic components require a baseline freedom of movement; so they cannot be performed while under the [[Condition_Immobilized | Immobilized]] condition.
 
 ### Focal
 
-The focal component can include the simple presence of a specific magical object as a focus. Naturalists are able to create and bind themselves to custom foci by crafting them from materials.
+The **Focal Component** is a [[Imbued Item]] that uses power from the **Aether** to manipulate the vibrations on the **Material Plane** to assist in creating **Arcane Spell Components**. Essentially it is using Divine power to assist on the executing of casting Arcane Spells. **Wands**, **Staves** and other types of **Imbued Items** can be considered **Foci**, with different bonuses (similar to weapon bonuses).
+
+However, as any [[Imbued Item]], using a **Focal Component** requires spending a certain number of [[Resource_Spirit_Point | Spirit Points]] to activate (typically 1 [[Resource_Spirit_Point | SP]]). Essentially, the **Caster** is connecting (a very weak form of **Channeling**) to the **Focal Component** to activate it in the correct way. That still requires mental concentration, as the **Foci** need to be instructed on the exact nature of the required vibrations, and therefore cannot be used by non-Casters.
+
+Therefore, the usages of a **Focal Component** require touching, concentrating, and very minor manipulation of the **Imbued Item**; so the [[Action_Disarm | Disarm]] action can be used to try to remove the **Focal Component** from a **Caster**'s hand.
 
 * **One-Handed Wand**: +1
 * **Two-Handed Staff**: +2
-* **Custom Focus**: +3
+* **Custom Focus**: +3 (**Naturalists** only)
 
-The execution of Focal components require touching and minor manipulation of the focus; the Disarm action can be used to try to remove the focus from a caster's hand.
-
--- TODO: potentially rethink Focal components.
+As **Imbued Items**, **Wands** and **Staves**, even the simpler +1/+2 versions are not as trivial to find as **Mundane Items**, but a seasoned **Arcanist** such as a **Hero** can be considered to have found one if desired. **Custom Foci** can only be created by **Naturalists** (using their **Core Minor Feat**, **Focal Connection**), but are personally bound to their creators.
 
 ### Scrolls
 
-While not exactly a Component per se, Scrolls can be crafted by really powerful Arcanists that are able capture the essence of the immutable parts of instructions for a very specific effect. They can be used by any Arcane Spellcaster, but using them still requires figuring out the rest of the movements given the current state of the world (so they cannot be used by non-Casters). Heroes might often find specific scrolls written in the past during their adventures. Casting a Spell using a Scroll will provide a bonus to the Check, but the Scrolls are tied to very specific outcomes, and not customizable.
+While not exactly a Component per se, **Scrolls** can be crafted by really powerful Arcanists that are able capture the essence of the immutable parts of instructions for a very specific effect. Distinguishing the correct instructions that are truly generic to include in the **Scroll** and how to express them in an intuitive manner is part of the difficulty in creating such a powerful item. They can be used by any **Caster**, but using them still requires figuring out the rest of the **Components** given the current state of the world (so they cannot be used by non-Casters). Heroes might often find specific **Scrolls** written in the past during their adventures. Casting a Spell using a **Scroll** will provide a bonus to the Check, but the **Scrolls** are tied to very specific outcomes, and not customizable.
 
 ## Augmentations
 
-Every spell is essentially a specialization of the Basic Arcane Spell, with a specific choice of School (Verb + Noun) and a set of augmentations depending on the desired effect. Each Augmentation will add either a positive or a negative modifier to the Check, to the discretion of the DM. Below some traditional augmentations are listed, but circumstances might require additional ones.
+Every spell is essentially a specialization of the **Basic Arcane Spell**, with a specific choice of **School** (**Verb** + **Noun**) and a set of **Augmentations** depending on the desired effect. Each **Augmentation** will add either a positive or a negative modifier to the Check, to the discretion of the DM. Below some traditional augmentations are listed, but circumstances might require additional ones.
 
 ### Casting Time
 
