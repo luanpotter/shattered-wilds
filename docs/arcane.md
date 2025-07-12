@@ -30,7 +30,7 @@ The Base DC for an uncontested Basic Arcane Spell with no Augmentation (i.e. the
 
 Depending on the chosen School and desired effect, spells can be instantaneous, meaning they are done after the Casting Time over which the Components are executed; or they can be held in Concentration. While Concentrating, the Caster cannot take any actions with the Concentrate trait (such as other Spells). A Caster can always just drop Concentration at will. See more details about which types of effects can be instantaneous or not under Augmentations > Duration below.
 
-As with any other Concentrate Action, if the Caster is disrupted during concentration (or during the Spell Casting), they must roll a Tenacity check to sustain Concentration or finalize the cast. See more details on the [Actions](/docs/actions.md) page.
+As with any other Concentrate Action, if the Caster is disrupted during concentration (or during the Spell Casting), they must roll a Tenacity check to sustain Concentration or finalize the cast. See more details on the [[Action | Actions]] page.
 
 ## Contested Checks
 
