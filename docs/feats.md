@@ -28,4 +28,5 @@ The three sources of **Feats** as you level up:
 
 * **Blind Sense** (General Major Feat, Level 2) [Concentrate]: Your strong connection to your Soul Realm allows you to expand your sense of hearing and smell. You can spend 1 [[Resource_Action_Point | AP]] and 2 [[Resource_Spirit_Point | SP]] to know the positions of any creature you are aware of within `6m` as well as if you could see them clearly. If they are explicitly trying to sneak, you get a +6 in your [[Stat_Perception | Perception]] Check.
 
-* **Mounted Combat Specialization** (General Major Feat, Level 2) - TODO
+* **Mounted Combat Specialization** (General Major Feat, Level 2):
+    > <mark>WIP</mark> Mounted Combat Rules are still being developed and are not available as an option yet.
