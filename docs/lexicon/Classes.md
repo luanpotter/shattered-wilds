@@ -51,8 +51,7 @@ Tank Warriors focus on Constitution, and thus are focused on defense and therefo
 
 ### Martial Warriors Feats
 
-* TODO -- add a Core Minor Feat
-* **Exert Authority** (Major Feat, Level 2+): {% TODO %}
+* **Exert Authority** (Core Minor Feat, Level 1): Spend 1 [[Resource_Action_Point | AP]] and 1 [[Resource_Spirit_Point | SP]] to authoritatively command an ally that can see and hear you clearly to perform a specific 1 [[Resource_Action_Point | AP]] action of your choice. The ally can choose to perform the action immediately without spending any AP if they wish.
 * **Distributed Shifts** (Major Feat, Level 2+): {% TODO %}
 
 ### Survivalist Warriors Feats

@@ -1,8 +1,9 @@
 ---
 type: "Miscellaneous"
-ap: 3
+ap: 2
 concentrate: true
 ---
 
-Make a [[Stat_Speechcraft | Speechcraft]] Check DC 20 (Medium): {% TODO "what is the effect" %}
-You have -3 [[Circumstance Modifier | CM]] if they cannot see you.
+Make an [[Stat_Empathy | Empathy]] Check DC `20` (Medium; target can resist with [[Stat_Resolve | Resolve]] if they so desire): target gets a `+1` [[Circumstance Modifier | CM]] to a Attack or Defense action of their choice until the end of their next turn. **Crit Shifts** grant additional modifiers.
+Apply a `-3` [[Circumstance Modifier | CM]] if they cannot see you.
+Apply a `-6` [[Circumstance Modifier | CM]] for each additional target you are trying to inspire at once.
