@@ -10,4 +10,5 @@
     <li><a href="/rules/combat">Combat</a></li>
     <li><a href="/rules/arcane">Arcane</a></li>
     <li><a href="/rules/divine">Divine</a></li>
+    <li><a href="/rules/equipment">Equipment</a></li>
 </ol>
