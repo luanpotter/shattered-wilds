@@ -46,7 +46,7 @@ export class AttributeTree {
 	private getBaseModifier(node: Attribute): number {
 		const hierarchy = node.type.hierarchy;
 		const properties = AttributeHierarchyProperties[hierarchy];
-		return Math.floor(node.nodeValue * properties.baseMultiplier);
+		return Math.ceil(node.nodeValue * properties.baseMultiplier);
 	}
 
 	private getParentModifier(node: Attribute): number {

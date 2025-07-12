@@ -93,34 +93,6 @@ export class RaceInfo {
 		return coreFeats;
 	}
 
-	getModifiers(): Modifier[] {
-		const modifiers: Modifier[] = [];
-
-		// Always apply primary race modifiers
-		const primaryRaceDefinition = RACE_DEFINITIONS[this.primaryRace];
-		primaryRaceDefinition.modifiers.forEach(mod => {
-			modifiers.push({
-				source: `${this.primaryRace} Race`,
-				value: mod.value,
-				attributeType: mod.attributeType,
-			});
-		});
-
-		// Apply half race modifiers if enabled and we have a half race
-		if (this.halfRace && this.combineHalfRaceStats) {
-			const halfRaceDefinition = RACE_DEFINITIONS[this.halfRace];
-			halfRaceDefinition.modifiers.forEach(mod => {
-				modifiers.push({
-					source: `${this.halfRace} Race`,
-					value: mod.value,
-					attributeType: mod.attributeType,
-				});
-			});
-		}
-
-		return modifiers;
-	}
-
 	toString(): string {
 		if (this.halfRace) {
 			return `Half ${this.primaryRace} / Half ${this.halfRace}`;
@@ -215,58 +187,49 @@ export class DerivedStats {
 	}
 
 	private computeSize(race: RaceInfo): DerivedStat<Size> {
-		const raceDefinition = RACE_DEFINITIONS[race.primaryRace];
-		return new DerivedStat(
-			raceDefinition.size,
-			`Size determined by primary race: ${race.primaryRace}`
-		);
+		const size = RACE_DEFINITIONS[race.primaryRace].size;
+		return new DerivedStat(size, `Size is determined by your primary race (${size})`);
 	}
 
 	private computeMovement(attributeTree: AttributeTree): DerivedStat<number> {
-		// Movement = [3 (humanoid base) + Size Modifier + (Agility / 4) (rounded down)] hexes
-		const agilityValue = attributeTree.valueOf(AttributeType.Agility);
-		const agilityModifier = Math.floor(agilityValue / 4);
+		const HUMANOID_BASE = 3;
 		const sizeModifier = SizeModifiers[this.size.value];
-		const movement = 3 + sizeModifier + agilityModifier;
+		const agility = attributeTree.valueOf(AttributeType.Agility);
+		const value = HUMANOID_BASE + sizeModifier + Math.floor(agility / 4);
 		return new DerivedStat(
-			movement,
-			`Movement: 3 (humanoid base) + Size Modifier (${sizeModifier >= 0 ? '+' : ''}${sizeModifier}) + Agility/4 (${agilityModifier}) = ${movement} hexes`
+			Math.max(value, 1),
+			`Movement = ${HUMANOID_BASE} (base) + ${sizeModifier} (size) + ${agility} (Agility) / 4`
 		);
 	}
 
 	private computeInitiative(attributeTree: AttributeTree): DerivedStat<number> {
-		// Initiative = Awareness + Agility
-		const awarenessValue = attributeTree.valueOf(AttributeType.Awareness);
-		const agilityValue = attributeTree.valueOf(AttributeType.Agility);
-		const initiative = awarenessValue + agilityValue;
-		return new DerivedStat(
-			initiative,
-			`Initiative: Awareness (${awarenessValue}) + Agility (${agilityValue}) = ${initiative}`
-		);
+		const agility = attributeTree.valueOf(AttributeType.Agility);
+		const awareness = attributeTree.valueOf(AttributeType.Awareness);
+		const value = agility + awareness;
+		return new DerivedStat(value, `Initiative = ${agility} (Agility) + ${awareness} (Awareness)`);
 	}
 
 	private computeMaxHeroism(attributeTree: AttributeTree): DerivedStat<number> {
-		const level = attributeTree.level;
-		const heroism = Math.max(1, level);
-		return new DerivedStat(heroism, `Max Heroism: Level (${level}), minimum 1`);
+		const level = attributeTree.root.baseValue;
+		return new DerivedStat(level, `Max Heroism Points = ${level} (Level)`);
 	}
 
 	private computeMaxVitality(attributeTree: AttributeTree): DerivedStat<number> {
-		const bodyValue = attributeTree.valueOf(AttributeType.Body);
-		const vitality = bodyValue + 10;
-		return new DerivedStat(vitality, `Max Vitality: Body (${bodyValue}) + 10`);
+		const body = attributeTree.valueOf(AttributeType.Body);
+		const value = Math.max(1, 4 + body);
+		return new DerivedStat(value, `Max Vitality Points = max(1, 4 + ${body} (Body))`);
 	}
 
 	private computeMaxFocus(attributeTree: AttributeTree): DerivedStat<number> {
-		const mindValue = attributeTree.valueOf(AttributeType.Mind);
-		const focus = mindValue + 10;
-		return new DerivedStat(focus, `Max Focus: Mind (${mindValue}) + 10`);
+		const mind = attributeTree.valueOf(AttributeType.Mind);
+		const value = Math.max(1, 4 + mind);
+		return new DerivedStat(value, `Max Focus Points = max(1, 4 + ${mind} (Mind))`);
 	}
 
 	private computeMaxSpirit(attributeTree: AttributeTree): DerivedStat<number> {
-		const soulValue = attributeTree.valueOf(AttributeType.Soul);
-		const spirit = soulValue + 10;
-		return new DerivedStat(spirit, `Max Spirit: Soul (${soulValue}) + 10`);
+		const soul = attributeTree.valueOf(AttributeType.Soul);
+		const value = Math.max(1, 4 + soul);
+		return new DerivedStat(value, `Max Spirit Points = max(1, 4 + ${soul} (Soul))`);
 	}
 }
 
