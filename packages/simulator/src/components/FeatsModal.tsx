@@ -134,12 +134,25 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 	const getAvailableFeats = (slotType: FeatType): FeatDefinition[] => {
 		if (slotType === FeatType.Core) return [];
 
-		const availableFeats = getFeatsByType(slotType).filter(
-			feat =>
-				feat.category === FeatCategory.General &&
-				!currentFeats.includes(feat.id) &&
-				(!feat.level || feat.level <= characterLevel)
-		);
+		// For Major feat slots, include both Major and Minor feats
+		// For Minor feat slots, only include Minor feats
+		const allowedTypes =
+			slotType === FeatType.Major ? [FeatType.Major, FeatType.Minor] : [FeatType.Minor];
+
+		const availableFeats: FeatDefinition[] = [];
+
+		// Add feats of allowed types
+		allowedTypes.forEach(type => {
+			const featsOfType = getFeatsByType(type).filter(
+				feat =>
+					(feat.category === FeatCategory.General ||
+						feat.category === FeatCategory.ClassRole ||
+						feat.category === FeatCategory.ClassFlavor) &&
+					!currentFeats.includes(feat.id) &&
+					(!feat.level || feat.level <= characterLevel)
+			);
+			availableFeats.push(...featsOfType);
+		});
 
 		return availableFeats;
 	};
@@ -203,6 +216,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 					border: '1px solid var(--text)',
 					borderRadius: '4px',
 					boxSizing: 'border-box',
+					width: '650px',
 				}}
 			>
 				{Object.entries(slotsByLevel)
