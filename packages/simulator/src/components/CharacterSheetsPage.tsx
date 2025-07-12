@@ -106,12 +106,13 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 	}
 
 	return (
-		<div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+		<div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 			{/* Main Content - No header since we're in a full page context */}
 			<main
 				style={{
 					flex: 1,
 					padding: '2rem',
+					paddingBottom: '3rem',
 					overflow: 'auto',
 					maxWidth: '1400px',
 					margin: '0 auto',

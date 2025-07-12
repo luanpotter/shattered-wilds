@@ -69,11 +69,12 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 	// Show error message if character not found
 	if (!character || !sheet) {
 		return (
-			<div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+			<div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 				<main
 					style={{
 						flex: 1,
 						padding: '2rem',
+						paddingBottom: '3rem',
 						overflow: 'auto',
 						maxWidth: '1400px',
 						margin: '0 auto',
@@ -370,12 +371,13 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 	};
 
 	return (
-		<div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+		<div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 			{/* Main Content */}
 			<main
 				style={{
 					flex: 1,
 					padding: '2rem',
+					paddingBottom: '3rem',
 					overflow: 'auto',
 					maxWidth: '1400px',
 					margin: '0 auto',
