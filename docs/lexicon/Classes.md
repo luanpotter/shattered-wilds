@@ -56,12 +56,12 @@ Tank Warriors focus on Constitution, and thus are focused on defense and therefo
 
 ### Survivalist Warriors Feats
 
-* **Rage** (Core Minor Feat, Level 1): {% TODO %}
+* **Rage** (Core Minor Feat, Level 1): You can spend 1 [[Resource_Action_Point | AP]] and 2 [[Resource_Spirit_Point | SP]] to become **Enraged**: reduce your [[Resource_Focus_Point | Focus Points]] to `1`, and it cannot be further reduced while you are **Enraged**; you cannot [[Concentrate]] while **Enraged**; and you gain a [[Circumstance Modifier | CM]] to your next **Basic Attacks** while **Enraged** that starts with `+6` and is reduced by `1` each time it is used. When the bonus reaches `0`, or you fail to perform at least on **Basic Attack** in your turn, you are no longer **Enraged**.
 * **Specialized Knowledge (Sylvian)** (Minor Feat, Level 2): Exactly the same as the one obtained via the **Sylvian Upbringing**.
 
 ### Scoundrel Warriors Feats
 
-* **Fancy Footwork** (Core Minor Feat, Level 1): Same as D&D Swashbuckler.
+* **Fancy Footwork** (Core Minor Feat, Level 1): If you make a **Melee Basic Attack** against a target, you do not provoke [[Opportunity_Attack | Opportunity Attacks]] from that target until the end of the turn.
 * **Thieves's Fingers** (Minor Feat, Level 2): lock picking, trap disarming, etc.
 * **Leverage** (Major Feat, Level 2+): {% TODO "sneak attack equivalent" %}
 * **Skilled** (Major Feat, Level 2+): {% TODO "base bonus on things you are not good at" %}
