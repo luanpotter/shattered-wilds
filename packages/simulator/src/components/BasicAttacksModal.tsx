@@ -18,20 +18,29 @@ export const BasicAttacksModal: React.FC<BasicAttacksModalProps> = ({
 }) => {
 	const editMode = useStore(state => state.editMode);
 	const addWindow = useStore(state => state.addWindow);
+	const characters = useStore(state => state.characters);
 
 	const handleAttackClick = (attack: BasicAttack, e: React.MouseEvent) => {
 		if (!editMode && characterSheet) {
-			// In play mode, open dice roll modal for this specific attack
-			addWindow({
-				id: window.crypto.randomUUID(),
-				title: `Roll ${attack.name} Attack`,
-				type: 'dice-roll',
-				position: { x: e.clientX, y: e.clientY },
-				modifier: attack.check.modifier,
-				attributeName: `${attack.name} (${attack.check.attribute.name})`,
-				characterSheet,
-				initialRollType: 'Contested (Active)',
+			// Find the character that owns this character sheet
+			const character = characters.find(c => {
+				const sheet = CharacterSheet.from(c.props);
+				return sheet.name === characterSheet.name;
 			});
+
+			if (character) {
+				// In play mode, open dice roll modal for this specific attack
+				addWindow({
+					id: window.crypto.randomUUID(),
+					title: `Roll ${attack.name} Attack`,
+					type: 'dice-roll',
+					position: { x: e.clientX, y: e.clientY },
+					modifier: attack.check.modifier,
+					attributeName: `${attack.name} (${attack.check.attribute.name})`,
+					characterId: character.id,
+					initialRollType: 'Contested (Active)',
+				});
+			}
 		}
 	};
 

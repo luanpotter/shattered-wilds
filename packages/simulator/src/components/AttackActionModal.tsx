@@ -99,7 +99,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 				position: findNextWindowPosition(useStore.getState().windows),
 				modifier: basicDefense.value,
 				attributeName: basicDefense.description,
-				characterSheet: defenderSheet,
+				characterId: defender.id,
 				initialRollType: 'Contested (Resisted)',
 				onDiceRollComplete: (result: { total: number; shifts: number }) => {
 					setDefenseResult(result);
@@ -119,7 +119,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			position: findNextWindowPosition(useStore.getState().windows),
 			modifier: dodgeDefense.value,
 			attributeName: dodgeDefense.description,
-			characterSheet: defenderSheet,
+			characterId: defender.id,
 			initialRollType: 'Contested (Resisted)',
 			onDiceRollComplete: (result: { total: number; shifts: number }) => {
 				setDefenseResult(result);
@@ -138,7 +138,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			position: findNextWindowPosition(useStore.getState().windows),
 			modifier: shieldDefense.value,
 			attributeName: shieldDefense.description,
-			characterSheet: defenderSheet,
+			characterId: defender.id,
 			initialRollType: 'Contested (Resisted)',
 			onDiceRollComplete: (result: { total: number; shifts: number }) => {
 				setDefenseResult(result);
@@ -162,7 +162,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 				position: findNextWindowPosition(useStore.getState().windows),
 				modifier: attack.check.modifier,
 				attributeName: `${attack.name} (${attack.check.attribute.name})`,
-				characterSheet: attackerSheet,
+				characterId: attacker.id,
 				initialRollType: 'Contested (Active)',
 				onDiceRollComplete: (result: { total: number; shifts: number }) => {
 					setAttackResult(result);

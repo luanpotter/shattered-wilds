@@ -149,7 +149,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 					position: { x: e.clientX, y: e.clientY },
 					modifier: attack.check.modifier,
 					attributeName: `${attack.name} (${attack.check.attribute.name})`,
-					characterSheet: sheet,
+					characterId: character.id,
 					initialRollType: 'Contested (Active)',
 				});
 			} else if (basicAttacks.length > 1) {
@@ -171,7 +171,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 				position: { x: e.clientX, y: e.clientY },
 				modifier: basicDefense.value,
 				attributeName: 'Basic Defense',
-				characterSheet: sheet,
+				characterId: character.id,
 				initialRollType: 'Contested (Resisted)',
 			});
 		}
@@ -749,7 +749,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 				tree={sheet.getAttributeTree()}
 				onUpdateCharacterProp={(key, value) => updateCharacterProp(character, key, value)}
 				disabled={!editMode}
-				characterSheet={sheet}
+				characterId={character.id}
 			/>
 
 			{/* Equipment Section */}

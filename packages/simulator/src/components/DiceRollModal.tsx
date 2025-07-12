@@ -2,6 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 
+import { useStore } from '../store';
 import { CharacterSheet, AttributeType } from '../types';
 
 import DropdownSelect from './DropdownSelect';
@@ -50,6 +51,7 @@ export interface DiceRollModalProps {
 	onClose: () => void;
 	attributeName: string;
 	characterSheet?: CharacterSheet | undefined;
+	characterId?: string;
 	initialRollType?: RollType;
 	onDiceRollComplete?: (result: { total: number; shifts: number }) => void;
 }
@@ -89,9 +91,21 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 	onClose,
 	attributeName,
 	characterSheet,
+	characterId,
 	initialRollType = 'Static',
 	onDiceRollComplete,
 }) => {
+	const characters = useStore(state => state.characters);
+
+	// If characterId is provided, reconstruct the character sheet
+	const activeCharacterSheet = characterId
+		? (() => {
+				const character = characters.find(c => c.id === characterId);
+				return character ? CharacterSheet.from(character.props) : undefined;
+			})()
+		: characterSheet;
+	const tree = activeCharacterSheet?.getAttributeTree();
+
 	const [circumstantialModifier, setCircumstantialModifier] = useState(0);
 	const [rollType, setRollType] = useState<RollType>(initialRollType);
 	const [dc, setDc] = useState<number | null>(null);
@@ -183,8 +197,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 		if (useExtra) {
 			extraResult = rollD12();
 			// Get actual skill value from character sheet
-			const extraSkillValue =
-				characterSheet?.getAttributeTree().valueOf(getAttributeType(extraSkill)) ?? 0;
+			const extraSkillValue = tree?.valueOf(getAttributeType(extraSkill)) ?? 0;
 			extraValid = extraResult <= extraSkillValue;
 		}
 
@@ -192,7 +205,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 		if (useLuck) {
 			luckResult = rollD12();
 			// Get actual Fortune value from character sheet
-			const fortuneValue = characterSheet?.getAttributeTree().valueOf(AttributeType.Fortune) ?? 0;
+			const fortuneValue = tree?.valueOf(AttributeType.Fortune) ?? 0;
 			luckValid = luckResult <= fortuneValue;
 		}
 
@@ -444,8 +457,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 								rollResults.extraValid && rollResults.selectedDice.includes(rollResults.extraResult)
 							)}
 							<div style={{ textAlign: 'center', fontSize: '12px', marginTop: '4px' }}>
-								Extra (
-								{characterSheet?.getAttributeTree().valueOf(getAttributeType(extraSkill)) ?? 0})
+								Extra ({tree?.valueOf(getAttributeType(extraSkill)) ?? 0})
 							</div>
 						</div>
 					)}
@@ -457,7 +469,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 								rollResults.luckValid && rollResults.selectedDice.includes(rollResults.luckResult)
 							)}
 							<div style={{ textAlign: 'center', fontSize: '12px', marginTop: '4px' }}>
-								Luck ({characterSheet?.getAttributeTree().valueOf(AttributeType.Fortune) ?? 0})
+								Luck ({tree?.valueOf(AttributeType.Fortune) ?? 0})
 							</div>
 						</div>
 					)}

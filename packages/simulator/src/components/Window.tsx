@@ -110,7 +110,7 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({ window, onStar
 					modifier: window.modifier ?? 0,
 					onClose: () => removeWindow(window.id),
 					attributeName: window.attributeName ?? '',
-					characterSheet: window.characterSheet,
+					characterId: window.characterId,
 					initialRollType: window.initialRollType ?? 'Static',
 				};
 

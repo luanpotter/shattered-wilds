@@ -8,13 +8,13 @@ import {
 } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { Attribute, AttributeTree, AttributeType, AttributeValue, CharacterSheet } from '../types';
+import { Attribute, AttributeTree, AttributeType, AttributeValue } from '../types';
 
 interface AttributeTreeComponentProps {
 	tree: AttributeTree;
 	onUpdateCharacterProp: (key: string, value: string) => void;
 	disabled?: boolean;
-	characterSheet?: CharacterSheet;
+	characterId?: string;
 }
 
 // Value display with a colored background based on the value
@@ -25,7 +25,7 @@ const AttributeValueComponent: React.FC<{
 	canAllocate?: boolean;
 	canDeallocate?: boolean;
 	attributeName: string;
-	characterSheet: CharacterSheet | undefined;
+	characterId?: string;
 }> = ({
 	modifier,
 	onClick,
@@ -33,7 +33,7 @@ const AttributeValueComponent: React.FC<{
 	canAllocate = false,
 	canDeallocate = false,
 	attributeName,
-	characterSheet,
+	characterId,
 }) => {
 	const editMode = useStore(state => state.editMode);
 	const addWindow = useStore(state => state.addWindow);
@@ -56,7 +56,7 @@ const AttributeValueComponent: React.FC<{
 			}
 		} else {
 			// In play mode, open dice roll modal
-			if (characterSheet) {
+			if (characterId) {
 				addWindow({
 					id: window.crypto.randomUUID(),
 					title: `Roll ${attributeName} Check`,
@@ -64,7 +64,7 @@ const AttributeValueComponent: React.FC<{
 					position: { x: e.clientX, y: e.clientY },
 					modifier: value,
 					attributeName,
-					characterSheet,
+					characterId: characterId,
 				});
 			}
 		}
@@ -251,7 +251,7 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 	tree,
 	onUpdateCharacterProp,
 	disabled = false,
-	characterSheet,
+	characterId,
 }) => {
 	// Initialize state at the top level to fix conditional Hook calls
 	const [selectedRealm, setSelectedRealm] = useState<string | null>(null);
@@ -305,7 +305,7 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 				onClick={() => handleAllocatePoint(node)}
 				onRightClick={() => handleDeallocatePoint(node)}
 				attributeName={node.type.name}
-				characterSheet={characterSheet}
+				{...(characterId && { characterId })}
 			/>
 		);
 	};
