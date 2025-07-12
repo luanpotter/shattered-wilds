@@ -110,6 +110,12 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, currentRac
 		updateCharacterProp(character, 'feat-core-upbringing-2', '');
 		updateCharacterProp(character, 'feat-core-upbringing-3', '');
 
+		// Clear specialized training slots if changing away from Urban upbringing
+		if (upbringing !== Upbringing.Urban) {
+			updateCharacterProp(character, 'feat-lv1-specialized-1', '');
+			updateCharacterProp(character, 'feat-lv1-specialized-2', '');
+		}
+
 		// Update core race feat slots with new feats
 		const newRaceInfo = new RaceInfo(
 			primaryRace,

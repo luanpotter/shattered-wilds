@@ -922,14 +922,14 @@ export function getAllFeatSlots(
 		slots.push(
 			{
 				id: 'feat-lv1-specialized-1',
-				name: 'Specialized Training Slot 1',
+				name: 'Additional Minor Feat (Specialized Training)',
 				level: 1,
 				type: FeatType.Minor,
 				description: 'Additional minor feat slot from Specialized Training',
 			},
 			{
 				id: 'feat-lv1-specialized-2',
-				name: 'Specialized Training Slot 2',
+				name: 'Additional Minor Feat (Specialized Training)',
 				level: 1,
 				type: FeatType.Minor,
 				description: 'Additional minor feat slot from Specialized Training',

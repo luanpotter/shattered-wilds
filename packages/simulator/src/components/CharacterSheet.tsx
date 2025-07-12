@@ -12,6 +12,7 @@ import {
 	DefenseType,
 	AttributeType,
 } from '../types';
+import { getAllFeatSlots, FeatType } from '../types/feats';
 import { findNextWindowPosition } from '../utils';
 
 import { AttributeTreeComponent } from './AttributeTreeComponent';
@@ -249,27 +250,19 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 	// Calculate missing feat slots
 	const getMissingFeatSlots = (): boolean => {
 		const characterLevel = sheet.attributes.getNode(AttributeType.Level)?.baseValue || 1;
-		const currentFeats = sheet.getFeats();
-		const coreFeats = sheet.race.getCoreFeats().concat(sheet.characterClass.getCoreClassFeats());
-		const nonCoreFeats = currentFeats.filter(feat => !coreFeats.includes(feat));
+		const currentFeatSlots = sheet.getFeatSlots();
 
-		// Calculate expected feat slots
-		let expectedMinorSlots = 0;
-		let expectedMajorSlots = 0;
+		// Check if character has specialized training
+		const hasSpecializedTraining = Object.values(currentFeatSlots).includes('specialized-training');
 
-		for (let i = 1; i <= characterLevel; i++) {
-			if (i % 2 === 1) {
-				expectedMinorSlots++; // Odd levels get minor feats
-			} else {
-				expectedMajorSlots++; // Even levels get major feats
-			}
-		}
+		// Get all expected feat slots (including specialized training slots if applicable)
+		const allExpectedSlots = getAllFeatSlots(characterLevel, hasSpecializedTraining);
 
-		// Count actual non-core feats (this is a simplified check)
-		const totalExpectedSlots = expectedMinorSlots + expectedMajorSlots;
-		const actualNonCoreFeats = nonCoreFeats.length;
-
-		return actualNonCoreFeats < totalExpectedSlots;
+		// Check if any non-core slots are missing
+		return allExpectedSlots.some(slot => {
+			if (slot.type === FeatType.Core) return false; // Skip core slots
+			return !currentFeatSlots[slot.id]; // Check if slot is empty
+		});
 	};
 
 	const basicAttacks = sheet.getBasicAttacks();

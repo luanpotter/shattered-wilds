@@ -550,7 +550,9 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 															}}
 														>
 															<div style={{ fontSize: '0.75em', color: 'var(--text-secondary)' }}>
-																{displaySlot.slot.type} Feat
+																{displaySlot.slot.id.includes('specialized')
+																	? displaySlot.slot.name
+																	: `${displaySlot.slot.type} Feat`}
 															</div>
 															{isEmpty && (
 																<FaExclamationTriangle
