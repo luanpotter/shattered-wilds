@@ -206,6 +206,8 @@ const AttributeBox: React.FC<AttributeBoxProps> = ({
 		borderRadius: isExpanded ? '4px 4px 0 0' : '4px',
 		cursor: expandable ? 'pointer' : 'default',
 		backgroundColor: level === 'skill' ? 'rgba(255, 255, 255, 0.1)' : undefined,
+		maxWidth: '300px',
+		boxSizing: 'border-box',
 	};
 
 	return (
