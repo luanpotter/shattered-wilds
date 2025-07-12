@@ -28,14 +28,12 @@ import LabeledInput from './shared/LabeledInput';
 interface FullPageCharacterSheetProps {
 	characterId: string;
 	onBack: () => void;
-	onBackToSimulator: () => void;
 	onNavigateToCharacterSheet: (characterId: string) => void;
 }
 
 export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 	characterId,
 	onBack,
-	onBackToSimulator,
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	onNavigateToCharacterSheet: _onNavigateToCharacterSheet,
 }) => {
@@ -102,7 +100,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 								<FaArrowLeft /> Back to Character List
 							</button>
 							<button
-								onClick={onBackToSimulator}
+								onClick={() => (window.location.hash = '#/')}
 								style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
 							>
 								<FaArrowLeft /> Back to Simulator
@@ -416,7 +414,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-						<button onClick={onBackToSimulator}>
+						<button onClick={() => (window.location.hash = '#/')}>
 							<FaArrowLeft /> Back to Simulator
 						</button>
 						<button onClick={onBack}>

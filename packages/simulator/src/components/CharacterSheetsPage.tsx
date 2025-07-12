@@ -7,13 +7,11 @@ import { Character } from '../types';
 import { FullPageCharacterSheet } from './FullPageCharacterSheet';
 
 interface CharacterSheetsPageProps {
-	onBackToSimulator: () => void;
 	onNavigateToCharacterSheet: (characterId: string) => void;
 	initialCharacterId: string | null;
 }
 
 export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
-	onBackToSimulator,
 	onNavigateToCharacterSheet,
 	initialCharacterId,
 }) => {
@@ -30,8 +28,8 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 	};
 
 	const handleBackToList = () => {
-		// Navigate back to character list by pushing /characters
-		window.history.pushState(null, '', '/characters');
+		// Navigate back to character list using hash routing
+		window.location.hash = '#/characters';
 		setSelectedCharacterId(null);
 	};
 
@@ -99,7 +97,6 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 			<FullPageCharacterSheet
 				characterId={selectedCharacterId}
 				onBack={handleBackToList}
-				onBackToSimulator={onBackToSimulator}
 				onNavigateToCharacterSheet={onNavigateToCharacterSheet}
 			/>
 		);
@@ -194,7 +191,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-						<button onClick={onBackToSimulator}>
+						<button onClick={() => (window.location.hash = '#/')}>
 							<FaArrowLeft /> Back to Simulator
 						</button>
 						<h2 style={{ margin: 0 }}>Character Sheets</h2>

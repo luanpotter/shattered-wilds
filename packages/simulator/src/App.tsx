@@ -11,16 +11,16 @@ import { findNextWindowPosition } from './utils';
 type ViewType = 'simulator' | 'character-sheets';
 
 const getInitialView = (): ViewType => {
-	const path = window.location.pathname;
-	if (path === '/characters' || path.startsWith('/characters/')) {
+	const hash = window.location.hash.slice(1); // Remove the # prefix
+	if (hash === '/characters' || hash.startsWith('/characters/')) {
 		return 'character-sheets';
 	}
 	return 'simulator';
 };
 
 const getInitialCharacterId = (): string | null => {
-	const path = window.location.pathname;
-	const match = path.match(/^\/characters\/(.+)$/);
+	const hash = window.location.hash.slice(1); // Remove the # prefix
+	const match = hash.match(/^\/characters\/(.+)$/);
 	return match ? match[1] : null;
 };
 
@@ -49,30 +49,25 @@ const App = (): React.ReactElement => {
 
 	// Handle browser navigation (back/forward buttons)
 	useEffect(() => {
-		const handlePopState = () => {
+		const handleHashChange = () => {
 			setCurrentView(getInitialView());
 			setInitialCharacterId(getInitialCharacterId());
 		};
 
-		window.addEventListener('popstate', handlePopState);
-		return () => window.removeEventListener('popstate', handlePopState);
+		window.addEventListener('hashchange', handleHashChange);
+		return () => window.removeEventListener('hashchange', handleHashChange);
 	}, []);
 
 	// Navigation functions with URL updates
-	const navigateToSimulator = () => {
-		window.history.pushState(null, '', '/');
-		setCurrentView('simulator');
-		setInitialCharacterId(null);
-	};
 
 	const navigateToCharacterSheets = () => {
-		window.history.pushState(null, '', '/characters');
+		window.location.hash = '#/characters';
 		setCurrentView('character-sheets');
 		setInitialCharacterId(null);
 	};
 
 	const navigateToCharacterSheet = (characterId: string) => {
-		window.history.pushState(null, '', `/characters/${characterId}`);
+		window.location.hash = `#/characters/${characterId}`;
 		setCurrentView('character-sheets');
 		setInitialCharacterId(characterId);
 	};
@@ -243,7 +238,7 @@ const App = (): React.ReactElement => {
 					>
 						<h1 style={{ margin: 0 }}>D12 Simulator</h1>
 						<div style={{ display: 'flex', gap: '1rem' }}>
-							<button onClick={navigateToSimulator}>
+							<button onClick={() => (window.location.href = '/')}>
 								<FaHome /> Back to Site
 							</button>
 							<button onClick={handleOpenCharacterList}>
@@ -290,7 +285,6 @@ const App = (): React.ReactElement => {
 					)}
 					{currentView === 'character-sheets' && (
 						<CharacterSheetsPage
-							onBackToSimulator={navigateToSimulator}
 							onNavigateToCharacterSheet={navigateToCharacterSheet}
 							initialCharacterId={initialCharacterId}
 						/>
