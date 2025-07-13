@@ -1,4 +1,4 @@
-Resistance to sickness, heat, coat, poison and disease.
+Resistance to sickness, heat, cold, poison and disease.
 
 ## Parent Stat
 

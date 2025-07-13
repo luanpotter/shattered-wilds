@@ -39,28 +39,35 @@ const predefinedEquipment: Record<string, () => Item> = {
 			5
 		),
 	Rapier: () => new Weapon('Rapier', PrimaryWeaponType.LightMelee, 4, [], AttributeType.DEX),
+	'Bow & Arrows': () =>
+		new Weapon(
+			'Bow & Arrows',
+			PrimaryWeaponType.Ranged,
+			4,
+			['Concentrate', 'Two-Handed'],
+			AttributeType.DEX,
+			20
+		),
+	'Crossbow & Darts': () =>
+		new Weapon(
+			'Crossbow & Darts',
+			PrimaryWeaponType.Ranged,
+			5,
+			['Concentrate', 'Two-Handed', 'Reload'],
+			AttributeType.DEX,
+			20
+		),
 	Spear: () =>
 		new Weapon(
 			'Spear',
 			PrimaryWeaponType.HeavyMelee,
-			5,
+			4,
 			['Polearm', 'Two-Handed'],
 			AttributeType.STR
 		),
 	Mace: () => new Weapon('Mace', PrimaryWeaponType.HeavyMelee, 5, [], AttributeType.STR),
 	Longsword: () =>
 		new Weapon('Longsword', PrimaryWeaponType.HeavyMelee, 6, ['Two-Handed'], AttributeType.STR),
-	'Bow & Arrows': () =>
-		new Weapon('Bow & Arrows', PrimaryWeaponType.Ranged, 4, ['Two-Handed'], AttributeType.DEX, 20),
-	'Crossbow & Darts': () =>
-		new Weapon(
-			'Crossbow & Darts',
-			PrimaryWeaponType.Ranged,
-			6,
-			['Two-Handed (for Reloading)', 'Reload'],
-			AttributeType.DEX,
-			20
-		),
 	'Light Armor': () => new Armor('Light Armor', ArmorType.Light, 1, 0),
 	'Medium Armor': () => new Armor('Medium Armor', ArmorType.Medium, 3, -1),
 	'Heavy Armor': () => new Armor('Heavy Armor', ArmorType.Heavy, 5, -3),

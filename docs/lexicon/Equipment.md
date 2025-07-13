@@ -21,11 +21,18 @@ The list below contains an assortment of common weapons that could be find in bl
 * **Hatchet**: Light Melee +2, Thrown +3 (Range 5m) (Hand Axe)
 * **Dagger**: Light Melee +3, Thrown +2 (Range 5m) [Concealable] (Knife)
 * **Rapier**: Light Melee +4 (Short Sword)
-* **Spear**: Heavy Melee +5 [Polearm] [Two-Handed] (Glaive, Halberd, Pike)
+* **Bow & Arrows**: Ranged +4 [Concentrate] [Two-Handed](Range 20m) (Shortbow, Longbow, Composite Bow)
+* **Crossbow & Darts**: Ranged +5 (Range 20m) [Concentrate] [Two-Handed] [Reload] (Light Crossbow, Heavy Crossbow, Hand Crossbow)
+* **Spear**: Heavy Melee +4 [Polearm] [Two-Handed] (Glaive, Halberd, Pike)
 * **Mace**: Heavy Melee +5 (Club, Mace, Morningstar)
 * **Longsword**: Heavy Melee +6 [Two-Handed] (Bastard Sword, Claymore)
-* **Bow & Arrows**: Ranged +4 [Concentrate] [Two-Handed](Range 20m) (Shortbow, Longbow, Composite Bow)
-* **Crossbow & Darts**: Ranged +6 (Range 20m) [Concentrate] [Two-Handed] [Reload] (Light Crossbow, Heavy Crossbow, Hand Crossbow)
+
+## Weapon Traits
+
+* **Concealable**: You can conceal this weapon in your body without arousing suspicion.
+* **Reload**: You must use a [[Action_Reload | Reload]] action to reload this weapon after each firing.
+* **Two-Handed**: You must use two hands to use this weapon.
+* **Polearm**: Increases your **Reach** by `1m`.
 
 # Armor
 

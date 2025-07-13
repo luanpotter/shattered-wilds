@@ -27,43 +27,44 @@ The **Role** will also define your **Primary Attribute** (STR, DEX or CON) for t
 Melee Warriors focus on Strength, and thus are favored to use **Heavy Melee** or **Thrown** weapons (see a Weapons breakdown under [Equipment](rules/equipment)).
 
 * **Sweep Attack** (Core Feat, Level 1): You can spend 3 [[Resource_Action_Point | AP]] and 1 [[Resource_Focus_Point | FP]] to perform an advanced **Melee Strike** against up to three adjacent enemies within your reach. You roll once for all targets, but they Resist separately.
-* **Opportunity Window** (Minor Feat, Level 2): You can spend 1 [[Resource_Soul_Point | SP]] to reduce by 1 (min 1) the amount of [[Resource_Action_Point | AP]] you would spend to perform the [[Action_Opportunity_Attack | Opportunity Attack]] reaction.
-* **Spin Attack** (Minor Feat, Level 3, Requires **Sweep Attack**): Upgrade your **Sweep Attack** to target any number of creatures adjacent to you.
+* **Opportunity Window** (Major Feat, Level 2): You can spend 1 [[Resource_Soul_Point | SP]] to reduce by 1 (min 1) the amount of [[Resource_Action_Point | AP]] you would spend to perform the [[Action_Opportunity_Attack | Opportunity Attack]] reaction.
+* **Spin Attack** (Major Feat, Level 3, Requires **Sweep Attack**): Upgrade your **Sweep Attack** to target any number of creatures adjacent to you.
 
 ### Ranged Warriors Feats
 
 Ranged Warriors focus on Dexterity, and thus are favored to use **Light Melee** or **Ranged** weapons (or both).
 
-* **Take Aim** (Core Feat, Level 1): Spend 1 [[Resource_Focus_Point | FP]] and 1 [[Resource_Action_Point | AP]] to target a specific enemy within range of your Ranged Weapon and that you can see clearly; if your next action is a **Ranged Attack** against that target, you get a +3 [[Circumstance Modifier | CM]] to the [[Stat_DEX | DEX]] Check.
-* **Rapid Fire** (Major Feat, Level 2+): {% TODO %}
-* **Pinning Shot** (Major Feat, Level 2+): {% TODO %}
-* **Double Shot** (Major Feat, Level 2+): {% TODO %}
+* **Take Aim** (Core Feat, Level 1): Spend 1 [[Resource_Focus_Point | FP]] and 1 [[Resource_Action_Point | AP]] to target a specific enemy within range of your Ranged Weapon and that you can see clearly; if your next action is a **Basic Ranged Attack** against that target, you can roll with [[Stat_Finesse | Finesse]] instead and +3 [[Circumstance Modifier | CM]] to the Attack Check.
+* **Rapid Fire** (Major Feat, Level 2): Spend 2 [[Resource_Spirit_Point | SP]] (and the [[Resource_Action_Point | AP]] that it would cost) to use a [[Action_Strike | Strike]] action for **Basic Ranged Attack** as a reaction; it loses the [[Concentrate]] trait.
+* **Pinning Shot** (Major Feat, Level 2): You can perform the [[Action_Stun | Stun]] action with **Ranged Attacks**.
+* **Double Shot** (Major Feat, Level 4): You can spend 3 [[Resource_Spirit_Point | SP]] to shoot two projectiles with a single [[Action_Strike | Strike]] action. Roll for each separately, one after the other.
 
 ### Tank Warriors Feats
 
 Tank Warriors focus on Constitution, and thus are focused on defense and therefore do not have a specific weapon focus.
 
 * **Improved Taunt** (Core Feat, Level 1): You can spend an additional 1 [[Resource_Spirit_Point | SP]] as you perform a [[Action_Taunt | Taunt]] action to get a +6 [[Circumstance Modifier | CM]] to your [[Stat_Intimidation | Intimidation]] Check.
-* **Shield Bash++** (Major Feat, Level 2+): {% TODO %}
-* **Armor++** (Minor Feat, Level 2+): {% TODO %}
-* **Stumble Through Resistance++** (Minor Feat, Level 2+): {% TODO %}
+* **Quick Bash** (Major Feat, Level 2): You only need to spend 1 [[Resource_Action_Point | AP]] to perform a **Shield Bash** .
+* **Armor Familiarity** (Minor Feat, Level 3): You reduce your [[Stat_DEX | DEX]] penalty from wearing Armor by `1` (min `0`).
+* **Bulky Frame** (Minor Feat, Level 2+): You have a `+6` [[Circumstance Modifier | CM]] to your [[Stat_Stance | Stance]] Checks to resist opponents of your size or larger attempting to [[Action_Stumble_Through | Stumble Through]] you.
 
 ### Martial Warriors Feats
 
 * **Exert Authority** (Core Feat, Level 1): Spend 1 [[Resource_Action_Point | AP]] and 1 [[Resource_Spirit_Point | SP]] to authoritatively command an ally that can see and hear you clearly to perform a specific 1 [[Resource_Action_Point | AP]] action of your choice. The ally can choose to perform the action immediately without spending any AP if they wish.
-* **Distributed Shifts** (Major Feat, Level 2+): {% TODO %}
+* **Distributed Shifts** (Major Feat, Level 2): When you would inflict additional damage through a **Basic Melee Strike** to an enemy via **Crit Shifts**, you can instead attempt to distribute that additional Shift damage to any other adjacent creatures that would have been valid targets for this attack; they can resist with a [[Stat_Evasiveness | Evasiveness]], [[Stat_Toughness | Toughness]] or [[Stat_Karma | Karma]] Check.
 
 ### Survivalist Warriors Feats
 
 * **Rage** (Core Feat, Level 1): You can spend 1 [[Resource_Action_Point | AP]] and 2 [[Resource_Spirit_Point | SP]] to become **Enraged**: reduce your [[Resource_Focus_Point | Focus Points]] to `1`, and it cannot be further reduced while you are **Enraged**; you cannot [[Concentrate]] while **Enraged**; and you gain a [[Circumstance Modifier | CM]] to your next **Basic Attacks** while **Enraged** that starts with `+6` and is reduced by `1` each time it is used. When the bonus reaches `0`, or you fail to perform at least on **Basic Attack** in your turn, you are no longer **Enraged**.
 * **Specialized Knowledge (Sylvian)** (Minor Feat, Level 2): Exactly the same as the one obtained via the **Sylvian Upbringing**.
+* **Instinctive Tracking** (Minor Feat, Level 2): You get a `+3` [[Circumstance Modifier | CM]] to Checks you make related to tracking creatures (following footprints, etc).
 
 ### Scoundrel Warriors Feats
 
 * **Fancy Footwork** (Core Feat, Level 1): If you make a **Melee Basic Attack** against a target, you do not provoke [[Opportunity_Attack | Opportunity Attacks]] from that target until the end of the turn.
-* **Thieves's Fingers** (Minor Feat, Level 2): lock picking, trap disarming, etc.
-* **Leverage** (Major Feat, Level 2+): {% TODO "sneak attack equivalent" %}
-* **Skilled** (Major Feat, Level 2+): {% TODO "base bonus on things you are not good at" %}
+* **Thieves's Fingers** (Minor Feat, Level 2): You get a `+3` [[Circumstance Modifier | CM]] to any Checks you perform associated with lock picking or trap disarming. You can spend 1 [[Resource_Focus_Point | FP]] to get an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).
+* **Leverage** (Major Feat, Level 3): If you would inflict additional damage through a **Basic Strike** to an enemy via **Crit Shifts**, you can instead spend any number of [[Resource_Spirit_Point | SP]] (up to your level) to inflict that many additional [[Resource_Vitality_Point | VP]] of damage.
+* **Skilled** (Minor Feat, Level 3): You can use a [[Resource_Focus_Point | FP]] to pay for a [[Action_Luck_Die | Luck Die]] for a Check of a Skill you do not have any points invested in.
 
 ## Casters
 
@@ -85,7 +86,7 @@ See [Arcane Spellcasting](/rules/arcane) for a detailed breakdown of what each *
 
 The Arcanist is the generalist **Caster**; they are able to use all types of **Spell Components**, but are not particularly proficient in any of them.
 
-* **Signature Spell ([Spell])** (Core Feat, Level 1): Choose a specific spell (that means specific **Noun**, **Verb**, description, and set of **Augmentations**; see the examples in the [Arcane Spellcasting](/rules/arcane) page; players can work with their DM to define what is specific enough). You have the exact execution step decision tree for this specific spell committed to muscle memory; get a `+3` [[Circumstance Modifier | CM]] when casting this specific spell.
+* **Signature Spell ([Spell])** (Core & Major Feat, Level 1): Choose a specific spell (that means specific **Noun**, **Verb**, description, and set of **Augmentations**; see the examples in the [Arcane Spellcasting](/rules/arcane) page; players can work with their DM to define what is specific enough). You have the exact execution step decision tree for this specific spell committed to muscle memory; get a `+3` [[Circumstance Modifier | CM]] when casting this specific spell.
 
 ### The Mechanist
 
@@ -105,6 +106,7 @@ The Naturalist is able to use the natural world around them to assist with the e
 The Musicist is able to use music and instruments to assist with the execution of **Verbal Spell Components**. In contrast, they are unable to use **Somatic** or **Focal** components.
 
 * **Lyrical Resonance** (Core Feat, Level 1): You can use **One-Handed** (`+2`) and **Two-Handed** (`+3`) instruments to assist you with the execution of **Verbal Spell Components**. You can use these instruments to execute a **Verbal Component** of any spell, but you cannot use any other type of **Spell Component**.
+* **There's More to This Song** (Minor Feat, Level 2): You can attempt to hide a message in a song you are singing, only to be perceived by certain listeners. Roll a [[Stat_Speechcraft | Speechcraft]] Check with `+6` [[Circumstance Modifier | CM]]; all listeners then contest with an [[Stat_IQ | IQ]] Check. The targets you wanted to understand get a `+3` [[Circumstance Modifier | CM]] to their Check, or a `+6` if they are aware that you are trying to hide a message.
 
 ## Mystics
 

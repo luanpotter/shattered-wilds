@@ -46,6 +46,8 @@ Starting on **Level 3** and on every other odd Level, the character will pick a 
 
 * **Animal Mimicry** (Minor Feat, Level 1): You have an uncanny knack for mimicking animal sounds. If you are familiar with it, and a humanoid could conceivably reproduce it, you can make a good-enough impression that an untrained ear could not distinguish it. An expert (such as someone with the Sylvan Upbringing) could run an [[Stat_Intuition | Intuition]] Check (or [[Stat_Knowledge | Knowledge]] if they have reason to suspect) to try to assess the veracity of the sound.
 
+* **Girth Compensation** (Minor Feat, Level 1): You can use [[Stat_STR | STR]] as the **Primary Attribute** for **Light Melee** weapons.
+
 ## General Major Feats
 
 * **Quick Draw** (Major Feat, Level 2): If you have at least one hand free, you can spend 1 [[Resource_Focus_Point | FP]] to draw a Light Melee Weapon without spending an action.
