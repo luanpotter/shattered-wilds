@@ -795,7 +795,8 @@ export const FEATS: Record<string, FeatDefinition> = {
 		name: 'Distributed Shifts',
 		type: FeatType.Major,
 		category: FeatCategory.ClassFlavor,
-		description: 'TODO: full implementation',
+		description:
+			'When you would inflict additional damage through a **Basic Melee Strike** to an enemy via **Crit Shifts**, you can instead attempt to distribute that additional Shift damage to any other adjacent creatures that would have been valid targets for this attack; they can resist with a [[Stat_Evasiveness | Evasiveness]], [[Stat_Toughness | Toughness]] or [[Stat_Karma | Karma]] Check.',
 		level: 2,
 	},
 	'divine-channeling-major': {
