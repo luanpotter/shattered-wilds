@@ -345,7 +345,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		type: FeatType.Core,
 		category: FeatCategory.ClassRole,
 		description:
-			'You can spend 3 AP and 1 FP to perform an advanced Melee Strike against up to three adjacent enemies within your reach',
+			'You can spend 3 AP and 1 FP to perform an advanced Melee Strike against up to three adjacent enemies within your reach. You roll once for all targets, but they Resist separately.',
 		level: 1,
 	},
 	'take-aim': {
@@ -354,7 +354,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		type: FeatType.Core,
 		category: FeatCategory.ClassRole,
 		description:
-			'Spend 1 FP and 1 AP to target a specific enemy within range; if your next action is a Ranged Attack against that target, you get a +3 CM to the DEX Check',
+			'Spend 1 FP and 1 AP to target a specific enemy within range of your Ranged Weapon and that you can see clearly; if your next action is a Basic Ranged Attack against that target, you can roll with Finesse instead and +3 CM to the Attack Check.',
 		level: 1,
 	},
 	'improved-taunt': {
@@ -363,7 +363,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		type: FeatType.Core,
 		category: FeatCategory.ClassRole,
 		description:
-			'You can spend an additional 1 SP as you perform a Taunt action to get a +6 CM to your Intimidation Check',
+			'You can spend an additional 1 SP as you perform a Taunt action to get a +6 CM to your Intimidation Check.',
 		level: 1,
 	},
 
@@ -374,7 +374,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		type: FeatType.Core,
 		category: FeatCategory.ClassFlavor,
 		description:
-			'Spend 1 AP and 1 SP to authoritatively command an ally that can see and hear you clearly to perform a specific 1 AP action',
+			'Spend 1 AP and 1 SP to authoritatively command an ally that can see and hear you clearly to perform a specific 1 AP action of your choice. The ally can choose to perform the action immediately without spending any AP if they wish.',
 		level: 1,
 	},
 	rage: {
@@ -383,7 +383,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		type: FeatType.Core,
 		category: FeatCategory.ClassFlavor,
 		description:
-			'You can spend 1 AP and 2 SP to become Enraged: reduce your Focus Points to 1, cannot Concentrate while Enraged, and gain CM to Basic Attacks starting with +6 and reducing by 1 each use',
+			'You can spend 1 AP and 2 SP to become Enraged: reduce your Focus Points to 1, and it cannot be further reduced while you are Enraged; you cannot Concentrate while Enraged; and you gain a CM to your next Basic Attacks while Enraged that starts with +6 and is reduced by 1 each time it is used. When the bonus reaches 0, or you fail to perform at least one Basic Attack in your turn, you are no longer Enraged.',
 		level: 1,
 	},
 	'fancy-footwork': {
@@ -392,7 +392,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		type: FeatType.Core,
 		category: FeatCategory.ClassFlavor,
 		description:
-			'If you make a Melee Basic Attack against a target, you do not provoke Opportunity Attacks from that target until the end of the turn',
+			'If you make a Melee Basic Attack against a target, you do not provoke Opportunity Attacks from that target until the end of the turn.',
 		level: 1,
 	},
 
@@ -605,20 +605,71 @@ export const FEATS: Record<string, FeatDefinition> = {
 	'opportunity-window': {
 		id: 'opportunity-window',
 		name: 'Opportunity Window',
-		type: FeatType.Minor,
+		type: FeatType.Major,
 		category: FeatCategory.ClassRole,
 		description:
-			'You can spend 1 SP to reduce by 1 (min 1) the amount of AP you would spend to perform the Opportunity Attack reaction',
+			'You can spend 1 SP to reduce by 1 (min 1) the amount of AP you would spend to perform the Opportunity Attack reaction.',
 		level: 2,
 	},
 	'spin-attack': {
 		id: 'spin-attack',
 		name: 'Spin Attack',
-		type: FeatType.Minor,
+		type: FeatType.Major,
 		category: FeatCategory.ClassRole,
-		description: 'Upgrade your Sweep Attack to target any number of creatures adjacent to you',
+		description: 'Upgrade your Sweep Attack to target any number of creatures adjacent to you.',
 		level: 3,
 		prerequisites: ['sweep-attack'],
+	},
+	'rapid-fire': {
+		id: 'rapid-fire',
+		name: 'Rapid Fire',
+		type: FeatType.Major,
+		category: FeatCategory.ClassRole,
+		description:
+			'Spend 2 SP (and the AP that it would cost) to use a Strike action for Basic Ranged Attack as a reaction; it loses the Concentrate trait.',
+		level: 2,
+	},
+	'pinning-shot': {
+		id: 'pinning-shot',
+		name: 'Pinning Shot',
+		type: FeatType.Major,
+		category: FeatCategory.ClassRole,
+		description: 'You can perform the Stun action with Ranged Attacks.',
+		level: 2,
+	},
+	'double-shot': {
+		id: 'double-shot',
+		name: 'Double Shot',
+		type: FeatType.Major,
+		category: FeatCategory.ClassRole,
+		description:
+			'You can spend 3 SP to shoot two projectiles with a single Strike action. Roll for each separately, one after the other.',
+		level: 4,
+	},
+	'quick-bash': {
+		id: 'quick-bash',
+		name: 'Quick Bash',
+		type: FeatType.Major,
+		category: FeatCategory.ClassRole,
+		description: 'You only need to spend 1 AP to perform a Shield Bash.',
+		level: 2,
+	},
+	'armor-familiarity': {
+		id: 'armor-familiarity',
+		name: 'Armor Familiarity',
+		type: FeatType.Minor,
+		category: FeatCategory.ClassRole,
+		description: 'You reduce your DEX penalty from wearing Armor by 1 (min 0).',
+		level: 3,
+	},
+	'bulky-frame': {
+		id: 'bulky-frame',
+		name: 'Bulky Frame',
+		type: FeatType.Minor,
+		category: FeatCategory.ClassRole,
+		description:
+			'You have a +6 CM to your Stance Checks to resist opponents of your size or larger attempting to Stumble Through you.',
+		level: 2,
 	},
 	'specialized-knowledge-sylvian-class': {
 		id: 'specialized-knowledge-sylvian-class',
@@ -633,7 +684,17 @@ export const FEATS: Record<string, FeatDefinition> = {
 		name: "Thieves's Fingers",
 		type: FeatType.Minor,
 		category: FeatCategory.ClassFlavor,
-		description: 'Lock picking, trap disarming, etc.',
+		description:
+			'You get a +3 CM to any Checks you perform associated with lock picking or trap disarming. You can spend 1 FP to get an additional +3 CM (must be decided before rolling).',
+		level: 2,
+	},
+	'instinctive-tracking': {
+		id: 'instinctive-tracking',
+		name: 'Instinctive Tracking',
+		type: FeatType.Minor,
+		category: FeatCategory.ClassFlavor,
+		description:
+			'You get a +3 CM to Checks you make related to tracking creatures (following footprints, etc).',
 		level: 2,
 	},
 	'channeling-fists': {
@@ -963,8 +1024,8 @@ export function getUpbringingModifierFeat(
 export const CLASS_ROLE_FEATS: Record<string, string[]> = {
 	// Warrior roles
 	Melee: ['opportunity-window', 'spin-attack'],
-	Ranged: [], // TODO: rapid-fire, pinning-shot, double-shot when implemented
-	Tank: [], // TODO: shield-bash, armor, stumble-through-resistance when implemented
+	Ranged: ['rapid-fire', 'pinning-shot', 'double-shot'],
+	Tank: ['quick-bash', 'armor-familiarity', 'bulky-frame'],
 
 	// Caster roles (no additional feats beyond general for now)
 	Erudite: [],
@@ -980,7 +1041,7 @@ export const CLASS_ROLE_FEATS: Record<string, string[]> = {
 export const CLASS_FLAVOR_FEATS: Record<string, string[]> = {
 	// Warrior flavors
 	'Warrior-Martial': ['distributed-shifts'],
-	'Warrior-Survivalist': ['specialized-knowledge-sylvian-class'],
+	'Warrior-Survivalist': ['specialized-knowledge-sylvian-class', 'instinctive-tracking'],
 	'Warrior-Scoundrel': ['thieves-fingers', 'leverage', 'skilled'],
 
 	// Caster flavors
