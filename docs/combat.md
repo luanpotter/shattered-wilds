@@ -6,16 +6,6 @@
 
 {% include "docs/lexicon/Action.md" %}
 
--- TODO: find a place to cover Cover
-
-#### Basic Cover
-
-When there is not a clear line of sight for a ranged attack, there are enemies or allies in the way, or the target is adjacent to a wall, you automatically benefit from Basic Cover against ranged attacks.
-
-Basic Cover can be:
-
-* TODO
-
 ## Conditions
 
 {% include "docs/lexicon/Condition.md" %}

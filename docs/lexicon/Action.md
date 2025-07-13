@@ -6,7 +6,9 @@ Each character has a limited number of [[Resource_Action_Point | Action Points]]
 
 These are actions associated with movement, and can take several forms. All movement forms can move at least 1 Hex, regardless of the character's Speed. Unused movement cannot be saved for later.
 
--- TODO: difficult terrain
+### Difficult Terrain
+
+If a hex has Difficult Terrain, it counts as 2 hexes for the purposes of **Movement** (except for the [[Action_Step | Step]] action).
 
 <details>
   <summary>Movement Actions</summary>
@@ -34,6 +36,16 @@ These are actions in which the intent is to inflict damage (either to [[Resource
 Attack Actions can be either **Basic** or **Special**. Basic Attack actions are always an Attribute Check ([[Stat_STR | STR]] or [[Stat_DEX | DEX]] for Physical attacks or the Spellcasting Attribute for Spell Attacks) contested by the target's Realm as Defense (for example, a [[Stat_STR | STR]] check against a target's [[Stat_Body | Body]]). Basic Attacks typically cause one damage when they succeed, and Shifts cause extra damage points.
 
 **Special Attacks** are contested against specific [[Skills]], depending on the nature of the attack. Special Attacks might cause other effects, such as [[Condition | Conditions]], and also cause damage.
+
+#### Basic Cover
+
+When there is not a clear line of sight for a ranged attack, there are enemies or allies in the way, or the target is adjacent to a wall, you automatically benefit from Basic Cover against ranged attacks.
+
+Basic Cover will grant you a [[Circumstance Modifier | CM]] to your **Basic Body Defense** against **Ranged Attacks**:
+
+* **Lesser**: +1 (creatures on the way, 1m-tall obstacle, etc)
+* **Standard**: +2 (line of sight is blocked by the corners of obstacles)
+* **Greater**: +4 (line of sight is almost completely obstructed)
 
 <details>
   <summary>Attack Actions</summary>

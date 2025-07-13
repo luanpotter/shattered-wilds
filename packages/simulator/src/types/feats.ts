@@ -478,7 +478,8 @@ export const FEATS: Record<string, FeatDefinition> = {
 		name: 'Divine Channeling',
 		type: FeatType.Core,
 		category: FeatCategory.ClassRole,
-		description: 'Unlocks Divine Channeling',
+		description:
+			'Unlocks Divine Channeling. See Divine Channeling for details on how the Divine magic system works.',
 		level: 1,
 		traits: ['Channeling'],
 	},
@@ -697,6 +698,15 @@ export const FEATS: Record<string, FeatDefinition> = {
 			'You get a +3 CM to Checks you make related to tracking creatures (following footprints, etc).',
 		level: 2,
 	},
+	'disregard-cover': {
+		id: 'disregard-cover',
+		name: 'Disregard Cover',
+		type: FeatType.Major,
+		category: FeatCategory.ClassFlavor,
+		description:
+			'You can consider Basic Cover for your Ranged Attacks to be of one degree less than it would otherwise be.',
+		level: 4,
+	},
 	'channeling-fists': {
 		id: 'channeling-fists',
 		name: 'Channeling Fists',
@@ -734,6 +744,32 @@ export const FEATS: Record<string, FeatDefinition> = {
 		level: 2,
 		traits: ['Channeling'],
 	},
+	'sacred-calm': {
+		id: 'sacred-calm',
+		name: 'Sacred Calm',
+		type: FeatType.Major,
+		category: FeatCategory.ClassRole,
+		description:
+			'You can perform the Calm action on an ally that you can touch. You can spend an additional 1 FP to get a +3 CM when performing the Calm action.',
+		level: 2,
+	},
+	'callous-fists': {
+		id: 'callous-fists',
+		name: 'Callous Fists',
+		type: FeatType.Major,
+		category: FeatCategory.ClassRole,
+		description: 'You can use CON instead of STR to perform unarmed attacks.',
+		level: 2,
+	},
+	'favorable-movement': {
+		id: 'favorable-movement',
+		name: 'Favorable Movement',
+		type: FeatType.Major,
+		category: FeatCategory.ClassRole,
+		description:
+			'You can spend 1 FP to ignore the Difficult Terrain trait of a hex while moving through it.',
+		level: 3,
+	},
 
 	// ==== CLASS-SPECIFIC MAJOR FEATS ====
 	leverage: {
@@ -741,16 +777,18 @@ export const FEATS: Record<string, FeatDefinition> = {
 		name: 'Leverage',
 		type: FeatType.Major,
 		category: FeatCategory.ClassFlavor,
-		description: 'Sneak attack equivalent (TODO: full implementation)',
-		level: 2,
+		description:
+			'If you would inflict additional damage through a Basic Strike to an enemy via Crit Shifts, you can instead spend any number of SP (up to your level) to inflict that many additional VP of damage.',
+		level: 3,
 	},
 	skilled: {
 		id: 'skilled',
 		name: 'Skilled',
-		type: FeatType.Major,
+		type: FeatType.Minor,
 		category: FeatCategory.ClassFlavor,
-		description: 'Base bonus on things you are not good at (TODO: full implementation)',
-		level: 2,
+		description:
+			'You can use a FP to pay for a Luck Die for a Check of a Skill you do not have any points invested in.',
+		level: 3,
 	},
 	'distributed-shifts': {
 		id: 'distributed-shifts',
@@ -1033,15 +1071,19 @@ export const CLASS_ROLE_FEATS: Record<string, string[]> = {
 	Innate: [],
 
 	// Mystic roles
-	Adept: [], // Divine channeling already provided as core
-	Disciple: ['channeling-fists'],
-	Inspired: ['lucky-relentlessness'],
+	Adept: ['sacred-calm'], // Divine channeling already provided as core
+	Disciple: ['channeling-fists', 'callous-fists'],
+	Inspired: ['lucky-relentlessness', 'favorable-movement'],
 };
 
 export const CLASS_FLAVOR_FEATS: Record<string, string[]> = {
 	// Warrior flavors
 	'Warrior-Martial': ['distributed-shifts'],
-	'Warrior-Survivalist': ['specialized-knowledge-sylvian-class', 'instinctive-tracking'],
+	'Warrior-Survivalist': [
+		'specialized-knowledge-sylvian-class',
+		'instinctive-tracking',
+		'disregard-cover',
+	],
 	'Warrior-Scoundrel': ['thieves-fingers', 'leverage', 'skilled'],
 
 	// Caster flavors

@@ -58,6 +58,7 @@ Tank Warriors focus on Constitution, and thus are focused on defense and therefo
 * **Rage** (Core Feat, Level 1): You can spend 1 [[Resource_Action_Point | AP]] and 2 [[Resource_Spirit_Point | SP]] to become **Enraged**: reduce your [[Resource_Focus_Point | Focus Points]] to `1`, and it cannot be further reduced while you are **Enraged**; you cannot [[Concentrate]] while **Enraged**; and you gain a [[Circumstance Modifier | CM]] to your next **Basic Attacks** while **Enraged** that starts with `+6` and is reduced by `1` each time it is used. When the bonus reaches `0`, or you fail to perform at least on **Basic Attack** in your turn, you are no longer **Enraged**.
 * **Specialized Knowledge (Sylvian)** (Minor Feat, Level 2): Exactly the same as the one obtained via the **Sylvian Upbringing**.
 * **Instinctive Tracking** (Minor Feat, Level 2): You get a `+3` [[Circumstance Modifier | CM]] to Checks you make related to tracking creatures (following footprints, etc).
+* **Disregard Cover** (Major Feat, Level 4): You can consider **Basic Cover** for your **Ranged Attacks** to be of one degree less than it would otherwise be.
 
 ### Scoundrel Warriors Feats
 
@@ -154,13 +155,15 @@ Typically, Adepts will **Pray** once at the start of every day (after a [[Long R
 A character can attempt to **Pray** on any longer moments of peace and quiet (like a [[Short Rest]]), but typically praying more than once a day is infective. Similarly, a DM might request a [[Stat_Revelation | Revelation]] Check at any moment, depending on circumstances, the nature of the **Protean** and the connection, or circumstances and events.
 
 * **Divine Channeling** (Core Feat, Level 1) [[Channeling]]: Unlocks Divine Channeling. See [Divine Channeling](/rules/divine) for details on how the **Divine** magic system works.
+* **Sacred Calm** (Major Feat, Level 2): You can perform the [[Action_Calm | Calm]] action on an ally that you can touch. You can spend an additional 1 [[Resource_Focus_Point | FP]] to get a +3 [[Circumstance Modifier | CM]] when performing the [[Action_Calm | Calm]] action.
 
 ## The Disciple
 
-The **Disciple** is a **Mystic** who is able to channel the power within their **Soul** into the Material World. They are still finely connected and attuned to the **Aether**, but they are not bound to a specific **Protean**, but rather strengthen the connection with their own **Soul**.
+The **Disciple** is a **Mystic** who is able to channel the power within their **Soul** into the Material World. They are still finely connected and attuned to the **Aether**, but they are not bound to a specific **Protean**, but rather strengthen the connection with their own **Soul**. Therefore, they are uniquely equipped to fight with their own power-unlocked Body.
 
 * **Flurry of Blows** (Core Feat, Level 1) [[Channeling]]: You can spend 1 [[Resource_Spirit_Point | SP]] to make an unarmed [[Action_Strike | Strike]] cost only 1 [[Resource_Action_Point | AP]].
 * **Channeling Fists** (Minor Feat, Level 2) [[Channeling]]: You can spend 1 [[Resource_Spirit_Point | SP]] to get a +1 [[Circumstance Modifier | CM]] to an unarmed Attack Check.
+* **Callous Fists** (Major Feat, Level 2): You can use [[Stat_CON | CON]] instead of [[Stat_STR | STR]] to perform unarmed attacks.
 
 ## The Inspired
 
@@ -168,6 +171,7 @@ The **Inspired** is a **Mystic** who is able to receive their [[Stat_LCK | LCK]]
 
 * **Bountiful Luck** (Core Feat, Level 1) [[Channeling]]: You can spend [[Resource_Spirit_Points | SP]] instead of [[Resource_Heroism_Points | Heroism Points]] to use the [[Action_Karmic_Resistance | Karmic Resistance]], [[Action_Write_History | Write History]] and [[Action_Luck_Die | Luck Die]] actions.
 * **Lucky Relentlessness** (Minor Feat, Level 2) [[Channeling]]: Your DC for the [[Action_Heroic_Relentlessness | Heroic Relentlessness]] action is `15`.
+* **Favorable Movement** (Major Feat, Level 3): You can spend 1 [[Resource_Focus_Point | FP]] to ignore the **Difficult Terrain** trait of a hex while moving through it.
 
 ## Flavor: Purist
 
