@@ -9,7 +9,7 @@ import {
 	ArmorType,
 	ShieldType,
 	CharacterSheet,
-	AttributeType,
+	StatType,
 	PrimaryWeaponType,
 	Equipment,
 	Item,
@@ -19,33 +19,26 @@ import Block from './shared/Block';
 
 // Predefined equipment (mapping from name to a factory function that returns an Item)
 const predefinedEquipment: Record<string, () => Item> = {
-	Javelin: () => new Weapon('Javelin', PrimaryWeaponType.Thrown, 2, [], AttributeType.STR, 7),
+	Javelin: () => new Weapon('Javelin', PrimaryWeaponType.Thrown, 2, [], StatType.STR, 7),
 	Hatchet: () =>
-		new Weapon(
-			'Hatchet',
-			PrimaryWeaponType.LightMelee,
-			2,
-			['Thrown (Range 5m)'],
-			AttributeType.DEX,
-			5
-		),
+		new Weapon('Hatchet', PrimaryWeaponType.LightMelee, 2, ['Thrown (Range 5m)'], StatType.DEX, 5),
 	Dagger: () =>
 		new Weapon(
 			'Dagger',
 			PrimaryWeaponType.LightMelee,
 			3,
 			['Concealable', 'Thrown (Range 5m)'],
-			AttributeType.DEX,
+			StatType.DEX,
 			5
 		),
-	Rapier: () => new Weapon('Rapier', PrimaryWeaponType.LightMelee, 4, [], AttributeType.DEX),
+	Rapier: () => new Weapon('Rapier', PrimaryWeaponType.LightMelee, 4, [], StatType.DEX),
 	'Bow & Arrows': () =>
 		new Weapon(
 			'Bow & Arrows',
 			PrimaryWeaponType.Ranged,
 			4,
 			['Concentrate', 'Two-Handed'],
-			AttributeType.DEX,
+			StatType.DEX,
 			20
 		),
 	'Crossbow & Darts': () =>
@@ -54,20 +47,14 @@ const predefinedEquipment: Record<string, () => Item> = {
 			PrimaryWeaponType.Ranged,
 			5,
 			['Concentrate', 'Two-Handed', 'Reload'],
-			AttributeType.DEX,
+			StatType.DEX,
 			20
 		),
 	Spear: () =>
-		new Weapon(
-			'Spear',
-			PrimaryWeaponType.HeavyMelee,
-			4,
-			['Polearm', 'Two-Handed'],
-			AttributeType.STR
-		),
-	Mace: () => new Weapon('Mace', PrimaryWeaponType.HeavyMelee, 5, [], AttributeType.STR),
+		new Weapon('Spear', PrimaryWeaponType.HeavyMelee, 4, ['Polearm', 'Two-Handed'], StatType.STR),
+	Mace: () => new Weapon('Mace', PrimaryWeaponType.HeavyMelee, 5, [], StatType.STR),
 	Longsword: () =>
-		new Weapon('Longsword', PrimaryWeaponType.HeavyMelee, 6, ['Two-Handed'], AttributeType.STR),
+		new Weapon('Longsword', PrimaryWeaponType.HeavyMelee, 6, ['Two-Handed'], StatType.STR),
 	'Light Armor': () => new Armor('Light Armor', ArmorType.Light, 1, 0),
 	'Medium Armor': () => new Armor('Medium Armor', ArmorType.Medium, 3, -1),
 	'Heavy Armor': () => new Armor('Heavy Armor', ArmorType.Heavy, 5, -3),

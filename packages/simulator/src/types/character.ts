@@ -1,4 +1,4 @@
-import { AttributeType, Size } from './core';
+import { StatType, Size } from './core';
 
 export enum Race {
 	Human = 'Human',
@@ -54,7 +54,7 @@ export enum CharacterClass {
 
 // Define a structure for race attribute modifiers
 export interface AttributeModifier {
-	attributeType: AttributeType;
+	attributeType: StatType;
 	value: number;
 }
 
@@ -66,7 +66,7 @@ export interface RaceDefinition {
 
 export interface ClassDefinition {
 	name: CharacterClass;
-	primaryAttribute: AttributeType;
+	primaryAttribute: StatType;
 	archetype: 'Warrior' | 'Caster' | 'Mystic';
 	role: string;
 	flavor: string;
@@ -102,14 +102,14 @@ export class Weapon implements Item {
 	bonus: number;
 	traits: string[];
 	range: number | undefined; // in meters, for thrown/ranged weapons
-	attribute: AttributeType;
+	attribute: StatType;
 
 	constructor(
 		name: string,
 		type: PrimaryWeaponType,
 		bonus: number,
 		traits: string[],
-		attribute: AttributeType,
+		attribute: StatType,
 		range?: number
 	) {
 		this.name = name;
@@ -176,8 +176,7 @@ export class Equipment {
 			const items: Item[] = itemData.map(data => {
 				if (Object.values(PrimaryWeaponType).includes(data.type as PrimaryWeaponType)) {
 					const attributeType =
-						Object.values(AttributeType).find(attr => attr.name === data.attribute) ||
-						AttributeType.STR;
+						Object.values(StatType).find(attr => attr.name === data.attribute) || StatType.STR;
 					return new Weapon(
 						data.name,
 						data.type as PrimaryWeaponType,

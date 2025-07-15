@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useStore } from '../store';
-import { CharacterSheet, Race, Size, AttributeType, RaceInfo } from '../types';
+import { CharacterSheet, Race, Size, StatType, RaceInfo } from '../types';
 import { Upbringing, FEATS, getUpbringingModifierFeat } from '../types/feats';
 
 import DropdownSelect from './DropdownSelect';
@@ -136,7 +136,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 	};
 
 	const handleUpbringingPlusChange = (value: string) => {
-		const attributeType = Object.values(AttributeType).find(type => type.name === value);
+		const attributeType = Object.values(StatType).find(type => type.name === value);
 		if (attributeType) {
 			updateCharacterProp(character, 'upbringing.plus', attributeType.name);
 			updateCoreFeats(
@@ -151,7 +151,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 	};
 
 	const handleUpbringingMinusChange = (value: string) => {
-		const attributeType = Object.values(AttributeType).find(type => type.name === value);
+		const attributeType = Object.values(StatType).find(type => type.name === value);
 		if (attributeType) {
 			updateCharacterProp(character, 'upbringing.minus', attributeType.name);
 			updateCoreFeats(
@@ -171,8 +171,8 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 		upbringing: Upbringing,
 		halfRace: Race | null,
 		combineStats: boolean,
-		upbringingPlusModifier: AttributeType,
-		upbringingMinusModifier: AttributeType
+		upbringingPlusModifier: StatType,
+		upbringingMinusModifier: StatType
 	) => {
 		// Clear existing core race feat slots
 		updateCharacterProp(character, 'feat-core-race-1', '');

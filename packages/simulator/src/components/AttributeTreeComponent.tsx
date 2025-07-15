@@ -8,7 +8,7 @@ import {
 } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { Attribute, AttributeTree, AttributeType, AttributeValue } from '../types';
+import { Attribute, AttributeTree, StatType, AttributeValue } from '../types';
 
 interface AttributeTreeComponentProps {
 	tree: AttributeTree;
@@ -313,10 +313,10 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 	};
 
 	// Get the background color for a realm
-	const getRealmBackgroundColor = (realmType: AttributeType) => {
-		return realmType === AttributeType.Body
+	const getRealmBackgroundColor = (realmType: StatType) => {
+		return realmType === StatType.Body
 			? 'rgba(255, 100, 100, 0.1)'
-			: realmType === AttributeType.Mind
+			: realmType === StatType.Mind
 				? 'rgba(100, 100, 255, 0.1)'
 				: 'rgba(100, 255, 100, 0.1)';
 	};
@@ -457,8 +457,7 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 				'realm',
 				selectedRealm
 					? getRealmBackgroundColor(
-							tree.root.children.find(r => r.type.name === selectedRealm)?.type ||
-								AttributeType.Body
+							tree.root.children.find(r => r.type.name === selectedRealm)?.type || StatType.Body
 						)
 					: undefined,
 				selectedRealm &&

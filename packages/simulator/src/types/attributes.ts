@@ -1,4 +1,4 @@
-import { AttributeType, AttributeHierarchy, AttributeHierarchyProperties, Modifier } from './core';
+import { StatType, StatHierarchy, StatHierarchyProperties, Modifier } from './core';
 
 export class AttributeTree {
 	root: Attribute;
@@ -35,7 +35,7 @@ export class AttributeTree {
 		return this.getApplicableModifiers(node).reduce((sum, mod) => sum + mod.value, 0);
 	}
 
-	valueOf(type: AttributeType): number {
+	valueOf(type: StatType): number {
 		const node = this.root.getNode(type);
 		if (!node) {
 			throw new Error(`Attribute type ${type.name} not found in tree`);
@@ -45,7 +45,7 @@ export class AttributeTree {
 
 	private getBaseModifier(node: Attribute): number {
 		const hierarchy = node.type.hierarchy;
-		const properties = AttributeHierarchyProperties[hierarchy];
+		const properties = StatHierarchyProperties[hierarchy];
 		return Math.ceil(node.nodeValue * properties.baseMultiplier);
 	}
 
@@ -55,7 +55,7 @@ export class AttributeTree {
 		}
 		// For non-level nodes, we get the parent's final value
 		// For the level node (root), there is no parent
-		if (node.type === AttributeType.Level) {
+		if (node.type === StatType.Level) {
 			return 0;
 		}
 		return this.getFinalModifier(node.parent).value;
@@ -72,12 +72,12 @@ export class AttributeTree {
 }
 
 export class Attribute {
-	type: AttributeType;
+	type: StatType;
 	baseValue: number;
 	children: Attribute[];
 	parent: Attribute | null = null;
 
-	constructor(type: AttributeType, baseValue: number = 0, children: Attribute[] = []) {
+	constructor(type: StatType, baseValue: number = 0, children: Attribute[] = []) {
 		this.type = type;
 		this.baseValue = baseValue;
 		this.children = children;
@@ -142,7 +142,7 @@ export class Attribute {
 		return updates;
 	}
 
-	getNode(type: AttributeType | null): Attribute | null {
+	getNode(type: StatType | null): Attribute | null {
 		if (type === null) return null;
 		if (this.type === type) {
 			return this;
@@ -156,7 +156,7 @@ export class Attribute {
 		return null;
 	}
 
-	grouped(hierarchy: AttributeHierarchy): Attribute[] {
+	grouped(hierarchy: StatHierarchy): Attribute[] {
 		return this.children.filter(child => child.type.hierarchy === hierarchy);
 	}
 }
@@ -215,61 +215,53 @@ export class AttributeValue {
 }
 
 export const makeAttributeTree = (values: Record<string, string> = {}): Attribute => {
-	const attr = (type: AttributeType, children: Attribute[] = []): Attribute => {
+	const attr = (type: StatType, children: Attribute[] = []): Attribute => {
 		const value = parseInt(values[type.name] ?? '0');
 		return new Attribute(type, value, children);
 	};
 
-	return attr(AttributeType.Level, [
-		attr(AttributeType.Body, [
-			attr(AttributeType.STR, [
-				attr(AttributeType.Muscles),
-				attr(AttributeType.Stance),
-				attr(AttributeType.Lift),
+	return attr(StatType.Level, [
+		attr(StatType.Body, [
+			attr(StatType.STR, [attr(StatType.Muscles), attr(StatType.Stance), attr(StatType.Lift)]),
+			attr(StatType.DEX, [
+				attr(StatType.Finesse),
+				attr(StatType.Evasiveness),
+				attr(StatType.Agility),
 			]),
-			attr(AttributeType.DEX, [
-				attr(AttributeType.Finesse),
-				attr(AttributeType.Evasiveness),
-				attr(AttributeType.Agility),
-			]),
-			attr(AttributeType.CON, [
-				attr(AttributeType.Toughness),
-				attr(AttributeType.Stamina),
-				attr(AttributeType.Resilience),
+			attr(StatType.CON, [
+				attr(StatType.Toughness),
+				attr(StatType.Stamina),
+				attr(StatType.Resilience),
 			]),
 		]),
-		attr(AttributeType.Mind, [
-			attr(AttributeType.INT, [
-				attr(AttributeType.IQ),
-				attr(AttributeType.Knowledge),
-				attr(AttributeType.Memory),
+		attr(StatType.Mind, [
+			attr(StatType.INT, [attr(StatType.IQ), attr(StatType.Knowledge), attr(StatType.Memory)]),
+			attr(StatType.WIS, [
+				attr(StatType.Perception),
+				attr(StatType.Awareness),
+				attr(StatType.Intuition),
 			]),
-			attr(AttributeType.WIS, [
-				attr(AttributeType.Perception),
-				attr(AttributeType.Awareness),
-				attr(AttributeType.Intuition),
-			]),
-			attr(AttributeType.CHA, [
-				attr(AttributeType.Speechcraft),
-				attr(AttributeType.Presence),
-				attr(AttributeType.Empathy),
+			attr(StatType.CHA, [
+				attr(StatType.Speechcraft),
+				attr(StatType.Presence),
+				attr(StatType.Empathy),
 			]),
 		]),
-		attr(AttributeType.Soul, [
-			attr(AttributeType.DIV, [
-				attr(AttributeType.Revelation),
-				attr(AttributeType.Attunement),
-				attr(AttributeType.Devotion),
+		attr(StatType.Soul, [
+			attr(StatType.DIV, [
+				attr(StatType.Revelation),
+				attr(StatType.Attunement),
+				attr(StatType.Devotion),
 			]),
-			attr(AttributeType.FOW, [
-				attr(AttributeType.Discipline),
-				attr(AttributeType.Tenacity),
-				attr(AttributeType.Resolve),
+			attr(StatType.FOW, [
+				attr(StatType.Discipline),
+				attr(StatType.Tenacity),
+				attr(StatType.Resolve),
 			]),
-			attr(AttributeType.LCK, [
-				attr(AttributeType.Karma),
-				attr(AttributeType.Fortune),
-				attr(AttributeType.Serendipity),
+			attr(StatType.LCK, [
+				attr(StatType.Karma),
+				attr(StatType.Fortune),
+				attr(StatType.Serendipity),
 			]),
 		]),
 	]);

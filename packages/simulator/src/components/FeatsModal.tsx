@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FaExclamationTriangle, FaChevronDown, FaChevronRight } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { Character, CharacterSheet, AttributeType } from '../types';
+import { Character, CharacterSheet, StatType } from '../types';
 import {
 	FEATS,
 	FeatDefinition,
@@ -47,7 +47,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 	const [nestedParameterErrors, setNestedParameterErrors] = useState<Set<string>>(new Set());
 
 	const sheet = CharacterSheet.from(character.props);
-	const characterLevel = sheet.attributes.getNode(AttributeType.Level)?.baseValue || 1;
+	const characterLevel = sheet.attributes.getNode(StatType.Level)?.baseValue || 1;
 
 	// Check if character has specialized training
 	const currentFeatSlots = sheet.getFeatSlots();

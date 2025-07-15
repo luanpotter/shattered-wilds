@@ -10,7 +10,7 @@ import {
 } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { CharacterSheet, AttributeType, Size, SizeModifiers } from '../types';
+import { CharacterSheet, StatType, Size, SizeModifiers } from '../types';
 import {
 	getAllFeatSlots,
 	FeatType,
@@ -220,7 +220,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 	};
 
 	const renderFeatsSection = () => {
-		const characterLevel = sheet.attributes.getNode(AttributeType.Level)?.baseValue || 1;
+		const characterLevel = sheet.attributes.getNode(StatType.Level)?.baseValue || 1;
 		const currentFeatSlots = sheet.getFeatSlots();
 		const hasSpecializedTraining = Object.values(currentFeatSlots).includes('specialized-training');
 		const allFeatSlots = getAllFeatSlots(characterLevel, hasSpecializedTraining);

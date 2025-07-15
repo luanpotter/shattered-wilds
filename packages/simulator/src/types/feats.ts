@@ -1,5 +1,5 @@
 import { Race } from './character';
-import { AttributeType, Modifier } from './core';
+import { StatType, Modifier } from './core';
 
 // Feat Types
 export enum FeatType {
@@ -74,8 +74,8 @@ export const FEATS: Record<string, FeatDefinition> = {
 		category: FeatCategory.Racial,
 		description: '+DEX, -CON',
 		modifiers: [
-			{ source: 'Elf Race', value: 1, attributeType: AttributeType.DEX },
-			{ source: 'Elf Race', value: -1, attributeType: AttributeType.CON },
+			{ source: 'Elf Race', value: 1, attributeType: StatType.DEX },
+			{ source: 'Elf Race', value: -1, attributeType: StatType.CON },
 		],
 	},
 	'racial-dwarf': {
@@ -85,8 +85,8 @@ export const FEATS: Record<string, FeatDefinition> = {
 		category: FeatCategory.Racial,
 		description: '+CON, -DEX',
 		modifiers: [
-			{ source: 'Dwarf Race', value: 1, attributeType: AttributeType.CON },
-			{ source: 'Dwarf Race', value: -1, attributeType: AttributeType.DEX },
+			{ source: 'Dwarf Race', value: 1, attributeType: StatType.CON },
+			{ source: 'Dwarf Race', value: -1, attributeType: StatType.DEX },
 		],
 	},
 	'racial-orc': {
@@ -96,8 +96,8 @@ export const FEATS: Record<string, FeatDefinition> = {
 		category: FeatCategory.Racial,
 		description: '+STR, -DEX',
 		modifiers: [
-			{ source: 'Orc Race', value: 1, attributeType: AttributeType.STR },
-			{ source: 'Orc Race', value: -1, attributeType: AttributeType.DEX },
+			{ source: 'Orc Race', value: 1, attributeType: StatType.STR },
+			{ source: 'Orc Race', value: -1, attributeType: StatType.DEX },
 		],
 	},
 	'racial-fey': {
@@ -107,8 +107,8 @@ export const FEATS: Record<string, FeatDefinition> = {
 		category: FeatCategory.Racial,
 		description: '+DEX, -STR',
 		modifiers: [
-			{ source: 'Fey Race', value: 1, attributeType: AttributeType.DEX },
-			{ source: 'Fey Race', value: -1, attributeType: AttributeType.STR },
+			{ source: 'Fey Race', value: 1, attributeType: StatType.DEX },
+			{ source: 'Fey Race', value: -1, attributeType: StatType.STR },
 		],
 	},
 	'racial-goliath': {
@@ -118,8 +118,8 @@ export const FEATS: Record<string, FeatDefinition> = {
 		category: FeatCategory.Racial,
 		description: '+STR, -CON',
 		modifiers: [
-			{ source: 'Goliath Race', value: 1, attributeType: AttributeType.STR },
-			{ source: 'Goliath Race', value: -1, attributeType: AttributeType.CON },
+			{ source: 'Goliath Race', value: 1, attributeType: StatType.STR },
+			{ source: 'Goliath Race', value: -1, attributeType: StatType.CON },
 		],
 	},
 	'racial-goblin': {
@@ -129,8 +129,8 @@ export const FEATS: Record<string, FeatDefinition> = {
 		category: FeatCategory.Racial,
 		description: '+CON, -STR',
 		modifiers: [
-			{ source: 'Goblin Race', value: 1, attributeType: AttributeType.CON },
-			{ source: 'Goblin Race', value: -1, attributeType: AttributeType.STR },
+			{ source: 'Goblin Race', value: 1, attributeType: StatType.CON },
+			{ source: 'Goblin Race', value: -1, attributeType: StatType.STR },
 		],
 	},
 
@@ -271,7 +271,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		type: FeatType.Core,
 		category: FeatCategory.ClassModifier,
 		description: '+1 STR from class specialization',
-		modifiers: [{ source: 'Class', value: 1, attributeType: AttributeType.STR }],
+		modifiers: [{ source: 'Class', value: 1, attributeType: StatType.STR }],
 	},
 	'class-modifier-dex': {
 		id: 'class-modifier-dex',
@@ -279,7 +279,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		type: FeatType.Core,
 		category: FeatCategory.ClassModifier,
 		description: '+1 DEX from class specialization',
-		modifiers: [{ source: 'Class', value: 1, attributeType: AttributeType.DEX }],
+		modifiers: [{ source: 'Class', value: 1, attributeType: StatType.DEX }],
 	},
 	'class-modifier-con': {
 		id: 'class-modifier-con',
@@ -287,7 +287,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		type: FeatType.Core,
 		category: FeatCategory.ClassModifier,
 		description: '+1 CON from class specialization',
-		modifiers: [{ source: 'Class', value: 1, attributeType: AttributeType.CON }],
+		modifiers: [{ source: 'Class', value: 1, attributeType: StatType.CON }],
 	},
 	'class-modifier-int': {
 		id: 'class-modifier-int',
@@ -295,7 +295,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		type: FeatType.Core,
 		category: FeatCategory.ClassModifier,
 		description: '+1 INT from class specialization',
-		modifiers: [{ source: 'Class', value: 1, attributeType: AttributeType.INT }],
+		modifiers: [{ source: 'Class', value: 1, attributeType: StatType.INT }],
 	},
 	'class-modifier-wis': {
 		id: 'class-modifier-wis',
@@ -303,7 +303,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		type: FeatType.Core,
 		category: FeatCategory.ClassModifier,
 		description: '+1 WIS from class specialization',
-		modifiers: [{ source: 'Class', value: 1, attributeType: AttributeType.WIS }],
+		modifiers: [{ source: 'Class', value: 1, attributeType: StatType.WIS }],
 	},
 	'class-modifier-cha': {
 		id: 'class-modifier-cha',
@@ -311,7 +311,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		type: FeatType.Core,
 		category: FeatCategory.ClassModifier,
 		description: '+1 CHA from class specialization',
-		modifiers: [{ source: 'Class', value: 1, attributeType: AttributeType.CHA }],
+		modifiers: [{ source: 'Class', value: 1, attributeType: StatType.CHA }],
 	},
 	'class-modifier-div': {
 		id: 'class-modifier-div',
@@ -319,7 +319,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		type: FeatType.Core,
 		category: FeatCategory.ClassModifier,
 		description: '+1 DIV from class specialization',
-		modifiers: [{ source: 'Class', value: 1, attributeType: AttributeType.DIV }],
+		modifiers: [{ source: 'Class', value: 1, attributeType: StatType.DIV }],
 	},
 	'class-modifier-fow': {
 		id: 'class-modifier-fow',
@@ -327,7 +327,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		type: FeatType.Core,
 		category: FeatCategory.ClassModifier,
 		description: '+1 FOW from class specialization',
-		modifiers: [{ source: 'Class', value: 1, attributeType: AttributeType.FOW }],
+		modifiers: [{ source: 'Class', value: 1, attributeType: StatType.FOW }],
 	},
 	'class-modifier-lck': {
 		id: 'class-modifier-lck',
@@ -335,7 +335,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		type: FeatType.Core,
 		category: FeatCategory.ClassModifier,
 		description: '+1 LCK from class specialization',
-		modifiers: [{ source: 'Class', value: 1, attributeType: AttributeType.LCK }],
+		modifiers: [{ source: 'Class', value: 1, attributeType: StatType.LCK }],
 	},
 
 	// ==== WARRIOR ROLE FEATS ====
@@ -873,7 +873,7 @@ export function getUpbringingFeats(upbringing: Upbringing): string[] {
 	return [baseId, knowledgeId, specificFeats[upbringing]];
 }
 
-export function getClassModifierFeatId(attributeType: AttributeType): string {
+export function getClassModifierFeatId(attributeType: StatType): string {
 	return `class-modifier-${attributeType.name.toLowerCase()}`;
 }
 
@@ -1033,8 +1033,8 @@ export function getAllFeatSlots(
 // Get upbringing modifier feat with custom modifiers
 export function getUpbringingModifierFeat(
 	upbringing: Upbringing,
-	plusModifier: AttributeType,
-	minusModifier: AttributeType
+	plusModifier: StatType,
+	minusModifier: StatType
 ): FeatDefinition {
 	const baseFeat = FEATS[`upbringing-${upbringing.toLowerCase()}`];
 	if (!baseFeat) {

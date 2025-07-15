@@ -3,47 +3,45 @@ import { useState } from 'react';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { CharacterSheet, AttributeType } from '../types';
+import { CharacterSheet, StatType, RollType } from '../types';
 
 import DropdownSelect from './DropdownSelect';
 
-export type RollType = 'Static' | 'Contested (Active)' | 'Contested (Resisted)';
-
 // Define the skills directly from AttributeType
 const SKILL_OPTIONS = {
-	Muscles: AttributeType.Muscles.name,
-	Stance: AttributeType.Stance.name,
-	Lift: AttributeType.Lift.name,
-	Finesse: AttributeType.Finesse.name,
-	Evasiveness: AttributeType.Evasiveness.name,
-	Agility: AttributeType.Agility.name,
-	Toughness: AttributeType.Toughness.name,
-	Stamina: AttributeType.Stamina.name,
-	Resilience: AttributeType.Resilience.name,
-	IQ: AttributeType.IQ.name,
-	Knowledge: AttributeType.Knowledge.name,
-	Memory: AttributeType.Memory.name,
-	Perception: AttributeType.Perception.name,
-	Awareness: AttributeType.Awareness.name,
-	Intuition: AttributeType.Intuition.name,
-	Speechcraft: AttributeType.Speechcraft.name,
-	Presence: AttributeType.Presence.name,
-	Empathy: AttributeType.Empathy.name,
-	Revelation: AttributeType.Revelation.name,
-	Attunement: AttributeType.Attunement.name,
-	Devotion: AttributeType.Devotion.name,
-	Discipline: AttributeType.Discipline.name,
-	Tenacity: AttributeType.Tenacity.name,
-	Resolve: AttributeType.Resolve.name,
-	Karma: AttributeType.Karma.name,
-	Fortune: AttributeType.Fortune.name,
-	Serendipity: AttributeType.Serendipity.name,
+	Muscles: StatType.Muscles.name,
+	Stance: StatType.Stance.name,
+	Lift: StatType.Lift.name,
+	Finesse: StatType.Finesse.name,
+	Evasiveness: StatType.Evasiveness.name,
+	Agility: StatType.Agility.name,
+	Toughness: StatType.Toughness.name,
+	Stamina: StatType.Stamina.name,
+	Resilience: StatType.Resilience.name,
+	IQ: StatType.IQ.name,
+	Knowledge: StatType.Knowledge.name,
+	Memory: StatType.Memory.name,
+	Perception: StatType.Perception.name,
+	Awareness: StatType.Awareness.name,
+	Intuition: StatType.Intuition.name,
+	Speechcraft: StatType.Speechcraft.name,
+	Presence: StatType.Presence.name,
+	Empathy: StatType.Empathy.name,
+	Revelation: StatType.Revelation.name,
+	Attunement: StatType.Attunement.name,
+	Devotion: StatType.Devotion.name,
+	Discipline: StatType.Discipline.name,
+	Tenacity: StatType.Tenacity.name,
+	Resolve: StatType.Resolve.name,
+	Karma: StatType.Karma.name,
+	Fortune: StatType.Fortune.name,
+	Serendipity: StatType.Serendipity.name,
 } as const;
 
 type SkillType = keyof typeof SKILL_OPTIONS;
 
-const getAttributeType = (skill: SkillType): AttributeType => {
-	return AttributeType[skill];
+const getAttributeType = (skill: SkillType): StatType => {
+	return StatType[skill];
 };
 
 export interface DiceRollModalProps {
@@ -205,7 +203,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 		if (useLuck) {
 			luckResult = rollD12();
 			// Get actual Fortune value from character sheet
-			const fortuneValue = tree?.valueOf(AttributeType.Fortune) ?? 0;
+			const fortuneValue = tree?.valueOf(StatType.Fortune) ?? 0;
 			luckValid = luckResult <= fortuneValue;
 		}
 
@@ -469,7 +467,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 								rollResults.luckValid && rollResults.selectedDice.includes(rollResults.luckResult)
 							)}
 							<div style={{ textAlign: 'center', fontSize: '12px', marginTop: '4px' }}>
-								Luck ({tree?.valueOf(AttributeType.Fortune) ?? 0})
+								Luck ({tree?.valueOf(StatType.Fortune) ?? 0})
 							</div>
 						</div>
 					)}

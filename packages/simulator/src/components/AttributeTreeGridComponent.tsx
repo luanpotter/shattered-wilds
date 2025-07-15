@@ -2,7 +2,7 @@ import React from 'react';
 import { FaUndo, FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { Attribute, AttributeTree, AttributeType, AttributeValue } from '../types';
+import { Attribute, AttributeTree, StatType, AttributeValue } from '../types';
 
 interface AttributeTreeGridComponentProps {
 	tree: AttributeTree;
@@ -214,14 +214,14 @@ export const AttributeTreeGridComponent: React.FC<AttributeTreeGridComponentProp
 	};
 
 	// Get realms in order
-	const bodyRealm = tree.root.children.find(r => r.type === AttributeType.Body);
-	const mindRealm = tree.root.children.find(r => r.type === AttributeType.Mind);
-	const soulRealm = tree.root.children.find(r => r.type === AttributeType.Soul);
+	const bodyRealm = tree.root.children.find(r => r.type === StatType.Body);
+	const mindRealm = tree.root.children.find(r => r.type === StatType.Mind);
+	const soulRealm = tree.root.children.find(r => r.type === StatType.Soul);
 
 	// Helper function to find attribute by type
 	const findAttributeByType = (
 		realm: Attribute | undefined,
-		type: AttributeType
+		type: StatType
 	): Attribute | undefined => {
 		return realm?.children.find(attr => attr.type === type);
 	};
@@ -303,10 +303,10 @@ export const AttributeTreeGridComponent: React.FC<AttributeTreeGridComponentProp
 	const RealmLabel: React.FC<{ realm: Attribute }> = ({ realm }) => {
 		const hasUnallocated = realm.hasUnallocatedPoints?.();
 
-		const getRealmBackgroundColor = (realmType: AttributeType) => {
-			return realmType === AttributeType.Body
+		const getRealmBackgroundColor = (realmType: StatType) => {
+			return realmType === StatType.Body
 				? 'rgba(255, 100, 100, 0.1)'
-				: realmType === AttributeType.Mind
+				: realmType === StatType.Mind
 					? 'rgba(100, 100, 255, 0.1)'
 					: 'rgba(100, 255, 100, 0.1)';
 		};
@@ -427,36 +427,36 @@ export const AttributeTreeGridComponent: React.FC<AttributeTreeGridComponentProp
 					}}
 				>
 					{/* Body Row */}
-					{findAttributeByType(bodyRealm, AttributeType.STR) && (
-						<AttributePanel attribute={findAttributeByType(bodyRealm, AttributeType.STR)!} />
+					{findAttributeByType(bodyRealm, StatType.STR) && (
+						<AttributePanel attribute={findAttributeByType(bodyRealm, StatType.STR)!} />
 					)}
-					{findAttributeByType(bodyRealm, AttributeType.DEX) && (
-						<AttributePanel attribute={findAttributeByType(bodyRealm, AttributeType.DEX)!} />
+					{findAttributeByType(bodyRealm, StatType.DEX) && (
+						<AttributePanel attribute={findAttributeByType(bodyRealm, StatType.DEX)!} />
 					)}
-					{findAttributeByType(bodyRealm, AttributeType.CON) && (
-						<AttributePanel attribute={findAttributeByType(bodyRealm, AttributeType.CON)!} />
+					{findAttributeByType(bodyRealm, StatType.CON) && (
+						<AttributePanel attribute={findAttributeByType(bodyRealm, StatType.CON)!} />
 					)}
 
 					{/* Mind Row */}
-					{findAttributeByType(mindRealm, AttributeType.INT) && (
-						<AttributePanel attribute={findAttributeByType(mindRealm, AttributeType.INT)!} />
+					{findAttributeByType(mindRealm, StatType.INT) && (
+						<AttributePanel attribute={findAttributeByType(mindRealm, StatType.INT)!} />
 					)}
-					{findAttributeByType(mindRealm, AttributeType.WIS) && (
-						<AttributePanel attribute={findAttributeByType(mindRealm, AttributeType.WIS)!} />
+					{findAttributeByType(mindRealm, StatType.WIS) && (
+						<AttributePanel attribute={findAttributeByType(mindRealm, StatType.WIS)!} />
 					)}
-					{findAttributeByType(mindRealm, AttributeType.CHA) && (
-						<AttributePanel attribute={findAttributeByType(mindRealm, AttributeType.CHA)!} />
+					{findAttributeByType(mindRealm, StatType.CHA) && (
+						<AttributePanel attribute={findAttributeByType(mindRealm, StatType.CHA)!} />
 					)}
 
 					{/* Soul Row */}
-					{findAttributeByType(soulRealm, AttributeType.DIV) && (
-						<AttributePanel attribute={findAttributeByType(soulRealm, AttributeType.DIV)!} />
+					{findAttributeByType(soulRealm, StatType.DIV) && (
+						<AttributePanel attribute={findAttributeByType(soulRealm, StatType.DIV)!} />
 					)}
-					{findAttributeByType(soulRealm, AttributeType.FOW) && (
-						<AttributePanel attribute={findAttributeByType(soulRealm, AttributeType.FOW)!} />
+					{findAttributeByType(soulRealm, StatType.FOW) && (
+						<AttributePanel attribute={findAttributeByType(soulRealm, StatType.FOW)!} />
 					)}
-					{findAttributeByType(soulRealm, AttributeType.LCK) && (
-						<AttributePanel attribute={findAttributeByType(soulRealm, AttributeType.LCK)!} />
+					{findAttributeByType(soulRealm, StatType.LCK) && (
+						<AttributePanel attribute={findAttributeByType(soulRealm, StatType.LCK)!} />
 					)}
 				</div>
 			</div>

@@ -1,286 +1,227 @@
-import type { RollType } from '../components/DiceRollModal';
+// TODO(luan): rename to CheckType, there are 4 combinations
+export type RollType = 'Static' | 'Contested (Active)' | 'Contested (Resisted)';
 
-export interface Point {
-	x: number;
-	y: number;
-}
-
-export interface HexPosition {
-	q: number;
-	r: number;
-}
-
-export type DragType = 'none' | 'window' | 'grid' | 'character';
-
-export interface DragState {
-	type: DragType;
-	objectId?: string;
-	startPosition?: Point;
-	offset?: Point;
-}
-
-// Attribute system enums and types
-export enum AttributeHierarchy {
+export enum StatHierarchy {
 	Level = 'Level',
 	Realm = 'Realm',
-	BasicAttribute = 'BasicAttribute',
+	Attribute = 'Attribute',
 	Skill = 'Skill',
 }
 
-export const AttributeHierarchyProperties: {
-	[key in AttributeHierarchy]: { baseMultiplier: number };
+export const StatHierarchyProperties: {
+	[key in StatHierarchy]: { baseMultiplier: number };
 } = {
-	[AttributeHierarchy.Level]: { baseMultiplier: 1 / 4 },
-	[AttributeHierarchy.Realm]: { baseMultiplier: 1 / 2 },
-	[AttributeHierarchy.BasicAttribute]: { baseMultiplier: 1 },
-	[AttributeHierarchy.Skill]: { baseMultiplier: 1 },
+	[StatHierarchy.Level]: { baseMultiplier: 1 / 4 },
+	[StatHierarchy.Realm]: { baseMultiplier: 1 / 2 },
+	[StatHierarchy.Attribute]: { baseMultiplier: 1 },
+	[StatHierarchy.Skill]: { baseMultiplier: 1 },
 };
 
-export class AttributeType {
-	static readonly Level = new AttributeType(
-		AttributeHierarchy.Level,
+export class StatType {
+	static readonly Level = new StatType(
+		StatHierarchy.Level,
 		null,
 		'Level',
 		'Overall indicator of how competent you are, your proficiency.'
 	);
-	static readonly Body = new AttributeType(
-		AttributeHierarchy.Realm,
-		AttributeType.Level,
+	static readonly Body = new StatType(
+		StatHierarchy.Realm,
+		StatType.Level,
 		'Body',
 		'Physique; determines your Vitality Points'
 	);
-	static readonly Mind = new AttributeType(
-		AttributeHierarchy.Realm,
-		AttributeType.Level,
+	static readonly Mind = new StatType(
+		StatHierarchy.Realm,
+		StatType.Level,
 		'Mind',
 		'Intellect; determines your Focus Points'
 	);
-	static readonly Soul = new AttributeType(
-		AttributeHierarchy.Realm,
-		AttributeType.Level,
+	static readonly Soul = new StatType(
+		StatHierarchy.Realm,
+		StatType.Level,
 		'Soul',
 		'Life force; determines your Spirit Points'
 	);
-	static readonly STR = new AttributeType(
-		AttributeHierarchy.BasicAttribute,
-		AttributeType.Body,
-		'STR',
-		'Strength'
-	);
-	static readonly DEX = new AttributeType(
-		AttributeHierarchy.BasicAttribute,
-		AttributeType.Body,
-		'DEX',
-		'Dexterity'
-	);
-	static readonly CON = new AttributeType(
-		AttributeHierarchy.BasicAttribute,
-		AttributeType.Body,
-		'CON',
-		'Constitution'
-	);
-	static readonly INT = new AttributeType(
-		AttributeHierarchy.BasicAttribute,
-		AttributeType.Mind,
-		'INT',
-		'Intelligence'
-	);
-	static readonly WIS = new AttributeType(
-		AttributeHierarchy.BasicAttribute,
-		AttributeType.Mind,
-		'WIS',
-		'Wisdom'
-	);
-	static readonly CHA = new AttributeType(
-		AttributeHierarchy.BasicAttribute,
-		AttributeType.Mind,
-		'CHA',
-		'Charisma'
-	);
-	static readonly DIV = new AttributeType(
-		AttributeHierarchy.BasicAttribute,
-		AttributeType.Soul,
-		'DIV',
-		'Divinity'
-	);
-	static readonly FOW = new AttributeType(
-		AttributeHierarchy.BasicAttribute,
-		AttributeType.Soul,
+	static readonly STR = new StatType(StatHierarchy.Attribute, StatType.Body, 'STR', 'Strength');
+	static readonly DEX = new StatType(StatHierarchy.Attribute, StatType.Body, 'DEX', 'Dexterity');
+	static readonly CON = new StatType(StatHierarchy.Attribute, StatType.Body, 'CON', 'Constitution');
+	static readonly INT = new StatType(StatHierarchy.Attribute, StatType.Mind, 'INT', 'Intelligence');
+	static readonly WIS = new StatType(StatHierarchy.Attribute, StatType.Mind, 'WIS', 'Wisdom');
+	static readonly CHA = new StatType(StatHierarchy.Attribute, StatType.Mind, 'CHA', 'Charisma');
+	static readonly DIV = new StatType(StatHierarchy.Attribute, StatType.Soul, 'DIV', 'Divinity');
+	static readonly FOW = new StatType(
+		StatHierarchy.Attribute,
+		StatType.Soul,
 		'FOW',
 		'Force of Will'
 	);
-	static readonly LCK = new AttributeType(
-		AttributeHierarchy.BasicAttribute,
-		AttributeType.Soul,
-		'LCK',
-		'Luck'
-	);
-	static readonly Muscles = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.STR,
+	static readonly LCK = new StatType(StatHierarchy.Attribute, StatType.Soul, 'LCK', 'Luck');
+	static readonly Muscles = new StatType(
+		StatHierarchy.Skill,
+		StatType.STR,
 		'Muscles',
 		'Raw power you can impact in a short burst, e.g. pulling a stuck lever, breaking down an inanimate object, smashing a mug on your hands'
 	);
-	static readonly Stance = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.STR,
+	static readonly Stance = new StatType(
+		StatHierarchy.Skill,
+		StatType.STR,
 		'Stance',
 		'How hard it is to move or push you around, how well you can keep your stance, resist being pushed back'
 	);
-	static readonly Lift = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.STR,
+	static readonly Lift = new StatType(
+		StatHierarchy.Skill,
+		StatType.STR,
 		'Lift',
 		'How much weight you can lift and carry for short periods of times, including yourself (climbing, using ropes, etc)'
 	);
-	static readonly Finesse = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.DEX,
+	static readonly Finesse = new StatType(
+		StatHierarchy.Skill,
+		StatType.DEX,
 		'Finesse',
 		'Aim, Quick Fingers, Sleight of Hand, precise hand movement'
 	);
-	static readonly Evasiveness = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.DEX,
+	static readonly Evasiveness = new StatType(
+		StatHierarchy.Skill,
+		StatType.DEX,
 		'Evasiveness',
 		'Evasion, Acrobatics, precise movement of the body'
 	);
-	static readonly Agility = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.DEX,
+	static readonly Agility = new StatType(
+		StatHierarchy.Skill,
+		StatType.DEX,
 		'Agility',
 		'Speed, how fast you can move and do things'
 	);
-	static readonly Toughness = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.CON,
+	static readonly Toughness = new StatType(
+		StatHierarchy.Skill,
+		StatType.CON,
 		'Toughness',
 		'Damage reduction, tough skin, fall damage'
 	);
-	static readonly Stamina = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.CON,
+	static readonly Stamina = new StatType(
+		StatHierarchy.Skill,
+		StatType.CON,
 		'Stamina',
 		'Breath, how much exert yourself in a short period of time, your ability to sustain athleticism'
 	);
-	static readonly Resilience = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.CON,
+	static readonly Resilience = new StatType(
+		StatHierarchy.Skill,
+		StatType.CON,
 		'Resilience',
 		'Resistance to sickness, poison, disease'
 	);
-	static readonly IQ = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.INT,
+	static readonly IQ = new StatType(
+		StatHierarchy.Skill,
+		StatType.INT,
 		'IQ',
 		'Ability to learn new information, apply logic'
 	);
-	static readonly Knowledge = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.INT,
+	static readonly Knowledge = new StatType(
+		StatHierarchy.Skill,
+		StatType.INT,
 		'Knowledge',
 		'Consolidated knowledge and lore about the world'
 	);
-	static readonly Memory = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.INT,
+	static readonly Memory = new StatType(
+		StatHierarchy.Skill,
+		StatType.INT,
 		'Memory',
 		'Short-term memory, ability to recall details'
 	);
-	static readonly Perception = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.WIS,
+	static readonly Perception = new StatType(
+		StatHierarchy.Skill,
+		StatType.WIS,
 		'Perception',
 		'Active perception, seeing, hearing, sensing, feeling'
 	);
-	static readonly Awareness = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.WIS,
+	static readonly Awareness = new StatType(
+		StatHierarchy.Skill,
+		StatType.WIS,
 		'Awareness',
 		'Alertness, passive perception, attention to details when not paying attention'
 	);
-	static readonly Intuition = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.WIS,
+	static readonly Intuition = new StatType(
+		StatHierarchy.Skill,
+		StatType.WIS,
 		'Intuition',
 		'Common Sense, "Street Smarts", cunning, eg Survival or Animal Handling would be base Intuition (plus any aspect specific bonuses)'
 	);
-	static readonly Speechcraft = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.CHA,
+	static readonly Speechcraft = new StatType(
+		StatHierarchy.Skill,
+		StatType.CHA,
 		'Speechcraft',
 		'Rhetoric, speech, ability to persuade, inspire or deceit with language'
 	);
-	static readonly Presence = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.CHA,
+	static readonly Presence = new StatType(
+		StatHierarchy.Skill,
+		StatType.CHA,
 		'Presence',
 		'Personal magnetism, body language, physical attractiveness, and non-verbal communication through physical presence'
 	);
-	static readonly Empathy = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.CHA,
+	static readonly Empathy = new StatType(
+		StatHierarchy.Skill,
+		StatType.CHA,
 		'Empathy',
 		'Reading people, understanding emotions and motivations, connecting with others on an emotional level'
 	);
-	static readonly Revelation = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.DIV,
+	static readonly Revelation = new StatType(
+		StatHierarchy.Skill,
+		StatType.DIV,
 		'Revelation',
 		'Your ability to channel messages, visions or revelations from your deity'
 	);
-	static readonly Attunement = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.DIV,
+	static readonly Attunement = new StatType(
+		StatHierarchy.Skill,
+		StatType.DIV,
 		'Attunement',
 		'Your general attunement to the Aether, how well you can let divine forces flow through you'
 	);
-	static readonly Devotion = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.DIV,
+	static readonly Devotion = new StatType(
+		StatHierarchy.Skill,
+		StatType.DIV,
 		'Devotion',
 		'Your personal connection to your specific Deity [must have one]'
 	);
-	static readonly Discipline = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.FOW,
+	static readonly Discipline = new StatType(
+		StatHierarchy.Skill,
+		StatType.FOW,
 		'Discipline',
 		'Ability to resist urges and temptations, vices and instant gratification'
 	);
-	static readonly Tenacity = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.FOW,
+	static readonly Tenacity = new StatType(
+		StatHierarchy.Skill,
+		StatType.FOW,
 		'Tenacity',
 		'Concentration, ability to ignore pain or hardship or being disturbed and keep going'
 	);
-	static readonly Resolve = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.FOW,
+	static readonly Resolve = new StatType(
+		StatHierarchy.Skill,
+		StatType.FOW,
 		'Resolve',
 		'Resistance to mind control, social manipulation, deceit, charm; fortitude of the mind; insight'
 	);
-	static readonly Karma = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.LCK,
+	static readonly Karma = new StatType(
+		StatHierarchy.Skill,
+		StatType.LCK,
 		'Karma',
 		'Resistance to harm and causing misfortune to those who would harm you'
 	);
-	static readonly Fortune = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.LCK,
+	static readonly Fortune = new StatType(
+		StatHierarchy.Skill,
+		StatType.LCK,
 		'Fortune',
 		'Your personal luck for your own actions, mainly used for the Luck Die mechanic'
 	);
-	static readonly Serendipity = new AttributeType(
-		AttributeHierarchy.Skill,
-		AttributeType.LCK,
+	static readonly Serendipity = new StatType(
+		StatHierarchy.Skill,
+		StatType.LCK,
 		'Serendipity',
 		'Expectations for the external world, also used for the Write History mechanic'
 	);
 
 	private constructor(
-		public readonly hierarchy: AttributeHierarchy,
-		public readonly parent: AttributeType | null,
+		public readonly hierarchy: StatHierarchy,
+		public readonly parent: StatType | null,
 		public readonly name: string,
 		public readonly description: string
 	) {}
@@ -294,7 +235,7 @@ export class AttributeType {
 export interface Modifier {
 	source: string;
 	value: number;
-	attributeType: AttributeType;
+	attributeType: StatType;
 	description?: string;
 }
 
@@ -332,11 +273,6 @@ export class DerivedStat<T> {
 	}
 }
 
-export interface GridState {
-	scale: number;
-	offset: Point;
-}
-
 export interface BasicAttack {
 	name: string;
 	description: string;
@@ -344,7 +280,7 @@ export interface BasicAttack {
 }
 
 export interface Check {
-	attribute: AttributeType;
+	attribute: StatType;
 	bonus: number;
 	modifier: number;
 }
@@ -353,51 +289,4 @@ export enum DefenseType {
 	Basic = 'Basic',
 	Dodge = 'Dodge',
 	Shield = 'Shield',
-}
-
-export interface Window {
-	id: string;
-	title: string;
-	type:
-		| 'character-sheet'
-		| 'character-list'
-		| 'character-creation'
-		| 'race-setup'
-		| 'class-setup'
-		| 'feats-setup'
-		| 'basic-attacks'
-		| 'dice-roll'
-		| 'attack-action'
-		| 'measure';
-	characterId?: string;
-	position: Point;
-	hexPosition?: HexPosition;
-	modifier?: number;
-	attributeName?: string;
-	characterSheet?: any; // Will be properly typed in character-sheet.ts
-	initialRollType?: RollType;
-	attackerId?: string;
-	defenderId?: string;
-	attackIndex?: number;
-	fromCharacterId?: string;
-	toPosition?: HexPosition;
-	distance?: number;
-	onDiceRollComplete?: (result: { total: number; shifts: number }) => void;
-	width?: string;
-	height?: string;
-}
-
-export function getCharacterInitials(character: { props: { name: string } }): string {
-	const words = character.props.name.split(' ');
-	if (words.length === 1) {
-		// Single word, return up to first 2 characters, uppercased
-		return words[0].slice(0, 2).toUpperCase();
-	} else {
-		// Multiple words, return first letter of each word, uppercased
-		return words
-			.slice(0, 2) // Take first 2 words max
-			.map(word => word.charAt(0))
-			.join('')
-			.toUpperCase();
-	}
 }

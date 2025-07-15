@@ -10,12 +10,11 @@ import {
 	Weapon,
 } from './character';
 import {
-	AttributeType,
+	StatType,
 	Modifier,
 	Size,
 	SizeModifiers,
 	DerivedStat,
-	HexPosition,
 	BasicAttack,
 	DefenseType,
 } from './core';
@@ -28,22 +27,23 @@ import {
 	CLASS_CORE_FEATS,
 	getUpbringingModifierFeat,
 } from './feats';
+import { HexPosition } from './ui';
 
 export class RaceInfo {
 	primaryRace: Race;
 	halfRace: Race | null;
 	combineHalfRaceStats: boolean;
 	upbringing: Upbringing;
-	upbringingPlusModifier: AttributeType;
-	upbringingMinusModifier: AttributeType;
+	upbringingPlusModifier: StatType;
+	upbringingMinusModifier: StatType;
 
 	constructor(
 		primaryRace: Race,
 		upbringing: Upbringing,
 		halfRace: Race | null = null,
 		combineHalfRaceStats: boolean = false,
-		upbringingPlusModifier: AttributeType = AttributeType.INT,
-		upbringingMinusModifier: AttributeType = AttributeType.WIS
+		upbringingPlusModifier: StatType = StatType.INT,
+		upbringingMinusModifier: StatType = StatType.WIS
 	) {
 		this.primaryRace = primaryRace;
 		this.halfRace = halfRace;
@@ -59,11 +59,9 @@ export class RaceInfo {
 		const combineHalfRaceStats = props['race.half.combined-stats'] === 'true';
 		const upbringing = (props['upbringing'] as Upbringing) ?? Upbringing.Urban;
 		const upbringingPlusModifier =
-			Object.values(AttributeType).find(type => type.name === props['upbringing.plus']) ??
-			AttributeType.INT;
+			Object.values(StatType).find(type => type.name === props['upbringing.plus']) ?? StatType.INT;
 		const upbringingMinusModifier =
-			Object.values(AttributeType).find(type => type.name === props['upbringing.minus']) ??
-			AttributeType.WIS;
+			Object.values(StatType).find(type => type.name === props['upbringing.minus']) ?? StatType.WIS;
 
 		return new RaceInfo(
 			primaryRace,
@@ -194,7 +192,7 @@ export class DerivedStats {
 	private computeMovement(attributeTree: AttributeTree): DerivedStat<number> {
 		const HUMANOID_BASE = 3;
 		const sizeModifier = SizeModifiers[this.size.value];
-		const agility = attributeTree.valueOf(AttributeType.Agility);
+		const agility = attributeTree.valueOf(StatType.Agility);
 		const value = HUMANOID_BASE + sizeModifier + Math.floor(agility / 4);
 		return new DerivedStat(
 			Math.max(value, 1),
@@ -203,8 +201,8 @@ export class DerivedStats {
 	}
 
 	private computeInitiative(attributeTree: AttributeTree): DerivedStat<number> {
-		const agility = attributeTree.valueOf(AttributeType.Agility);
-		const awareness = attributeTree.valueOf(AttributeType.Awareness);
+		const agility = attributeTree.valueOf(StatType.Agility);
+		const awareness = attributeTree.valueOf(StatType.Awareness);
 		const value = agility + awareness;
 		return new DerivedStat(value, `Initiative = ${agility} (Agility) + ${awareness} (Awareness)`);
 	}
@@ -215,19 +213,19 @@ export class DerivedStats {
 	}
 
 	private computeMaxVitality(attributeTree: AttributeTree): DerivedStat<number> {
-		const body = attributeTree.valueOf(AttributeType.Body);
+		const body = attributeTree.valueOf(StatType.Body);
 		const value = Math.max(1, 4 + body);
 		return new DerivedStat(value, `Max Vitality Points = max(1, 4 + ${body} (Body))`);
 	}
 
 	private computeMaxFocus(attributeTree: AttributeTree): DerivedStat<number> {
-		const mind = attributeTree.valueOf(AttributeType.Mind);
+		const mind = attributeTree.valueOf(StatType.Mind);
 		const value = Math.max(1, 4 + mind);
 		return new DerivedStat(value, `Max Focus Points = max(1, 4 + ${mind} (Mind))`);
 	}
 
 	private computeMaxSpirit(attributeTree: AttributeTree): DerivedStat<number> {
-		const soul = attributeTree.valueOf(AttributeType.Soul);
+		const soul = attributeTree.valueOf(StatType.Soul);
 		const value = Math.max(1, 4 + soul);
 		return new DerivedStat(value, `Max Spirit Points = max(1, 4 + ${soul} (Soul))`);
 	}
@@ -394,7 +392,7 @@ export class CharacterSheet {
 					modifiers.push({
 						source: `${armor.name} (${armor.type})`,
 						value: armor.dexPenalty, // dexPenalty is already stored as negative
-						attributeType: AttributeType.DEX,
+						attributeType: StatType.DEX,
 						description: `Dexterity penalty from wearing ${armor.name}`,
 					});
 				}
@@ -431,9 +429,9 @@ export class CharacterSheet {
 				name: 'Shield Bash',
 				description: 'Shield Bash',
 				check: {
-					attribute: AttributeType.STR,
+					attribute: StatType.STR,
 					bonus: 1,
-					modifier: tree.valueOf(AttributeType.STR) + 1,
+					modifier: tree.valueOf(StatType.STR) + 1,
 				},
 			});
 		}
@@ -443,9 +441,9 @@ export class CharacterSheet {
 			name: 'Unarmed',
 			description: 'Unarmed',
 			check: {
-				attribute: AttributeType.STR,
+				attribute: StatType.STR,
 				bonus: 0,
-				modifier: tree.valueOf(AttributeType.STR),
+				modifier: tree.valueOf(StatType.STR),
 			},
 		});
 
@@ -459,7 +457,7 @@ export class CharacterSheet {
 			.reduce((acc, item) => acc + (item as Armor).bonus, 0);
 		switch (type) {
 			case DefenseType.Basic: {
-				const body = this.getAttributeTree().valueOf(AttributeType.Body);
+				const body = this.getAttributeTree().valueOf(StatType.Body);
 				const defense = body - sizeModifier + armorBonus;
 				return {
 					value: defense,
@@ -467,7 +465,7 @@ export class CharacterSheet {
 				};
 			}
 			case DefenseType.Dodge: {
-				const evasiveness = this.getAttributeTree().valueOf(AttributeType.Evasiveness);
+				const evasiveness = this.getAttributeTree().valueOf(StatType.Evasiveness);
 				const defense = evasiveness - sizeModifier + armorBonus + 3;
 				return {
 					value: defense,
@@ -475,7 +473,7 @@ export class CharacterSheet {
 				};
 			}
 			case DefenseType.Shield: {
-				const body = this.getAttributeTree().valueOf(AttributeType.Body);
+				const body = this.getAttributeTree().valueOf(StatType.Body);
 				const shieldBonus = this.equipment.items
 					.filter(item => item instanceof Shield)
 					.reduce((acc, item) => acc + (item as Shield).bonus, 0);
@@ -521,48 +519,48 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 	[Race.Elf]: {
 		name: Race.Elf,
 		modifiers: [
-			{ attributeType: AttributeType.DEX, value: 1 },
-			{ attributeType: AttributeType.CON, value: -1 },
+			{ attributeType: StatType.DEX, value: 1 },
+			{ attributeType: StatType.CON, value: -1 },
 		],
 		size: Size.M,
 	},
 	[Race.Dwarf]: {
 		name: Race.Dwarf,
 		modifiers: [
-			{ attributeType: AttributeType.CON, value: 1 },
-			{ attributeType: AttributeType.DEX, value: -1 },
+			{ attributeType: StatType.CON, value: 1 },
+			{ attributeType: StatType.DEX, value: -1 },
 		],
 		size: Size.S,
 	},
 	[Race.Orc]: {
 		name: Race.Orc,
 		modifiers: [
-			{ attributeType: AttributeType.STR, value: 1 },
-			{ attributeType: AttributeType.DEX, value: -1 },
+			{ attributeType: StatType.STR, value: 1 },
+			{ attributeType: StatType.DEX, value: -1 },
 		],
 		size: Size.L,
 	},
 	[Race.Fey]: {
 		name: Race.Fey,
 		modifiers: [
-			{ attributeType: AttributeType.DEX, value: 1 },
-			{ attributeType: AttributeType.STR, value: -1 },
+			{ attributeType: StatType.DEX, value: 1 },
+			{ attributeType: StatType.STR, value: -1 },
 		],
 		size: Size.S,
 	},
 	[Race.Goliath]: {
 		name: Race.Goliath,
 		modifiers: [
-			{ attributeType: AttributeType.STR, value: 1 },
-			{ attributeType: AttributeType.CON, value: -1 },
+			{ attributeType: StatType.STR, value: 1 },
+			{ attributeType: StatType.CON, value: -1 },
 		],
 		size: Size.L,
 	},
 	[Race.Goblin]: {
 		name: Race.Goblin,
 		modifiers: [
-			{ attributeType: AttributeType.CON, value: 1 },
-			{ attributeType: AttributeType.STR, value: -1 },
+			{ attributeType: StatType.CON, value: 1 },
+			{ attributeType: StatType.STR, value: -1 },
 		],
 		size: Size.S,
 	},
@@ -573,21 +571,21 @@ export const CLASS_DEFINITIONS: Record<CharacterClass, ClassDefinition> = {
 	// Warriors - Melee (STR)
 	[CharacterClass.Fighter]: {
 		name: CharacterClass.Fighter,
-		primaryAttribute: AttributeType.STR,
+		primaryAttribute: StatType.STR,
 		archetype: 'Warrior',
 		role: 'Melee',
 		flavor: 'Martial',
 	},
 	[CharacterClass.Berserker]: {
 		name: CharacterClass.Berserker,
-		primaryAttribute: AttributeType.STR,
+		primaryAttribute: StatType.STR,
 		archetype: 'Warrior',
 		role: 'Melee',
 		flavor: 'Survivalist',
 	},
 	[CharacterClass.Swashbuckler]: {
 		name: CharacterClass.Swashbuckler,
-		primaryAttribute: AttributeType.STR,
+		primaryAttribute: StatType.STR,
 		archetype: 'Warrior',
 		role: 'Melee',
 		flavor: 'Scoundrel',
@@ -595,21 +593,21 @@ export const CLASS_DEFINITIONS: Record<CharacterClass, ClassDefinition> = {
 	// Warriors - Ranged (DEX)
 	[CharacterClass.Marksman]: {
 		name: CharacterClass.Marksman,
-		primaryAttribute: AttributeType.DEX,
+		primaryAttribute: StatType.DEX,
 		archetype: 'Warrior',
 		role: 'Ranged',
 		flavor: 'Martial',
 	},
 	[CharacterClass.Hunter]: {
 		name: CharacterClass.Hunter,
-		primaryAttribute: AttributeType.DEX,
+		primaryAttribute: StatType.DEX,
 		archetype: 'Warrior',
 		role: 'Ranged',
 		flavor: 'Survivalist',
 	},
 	[CharacterClass.Rogue]: {
 		name: CharacterClass.Rogue,
-		primaryAttribute: AttributeType.DEX,
+		primaryAttribute: StatType.DEX,
 		archetype: 'Warrior',
 		role: 'Ranged',
 		flavor: 'Scoundrel',
@@ -617,21 +615,21 @@ export const CLASS_DEFINITIONS: Record<CharacterClass, ClassDefinition> = {
 	// Warriors - Tank (CON)
 	[CharacterClass.Guardian]: {
 		name: CharacterClass.Guardian,
-		primaryAttribute: AttributeType.CON,
+		primaryAttribute: StatType.CON,
 		archetype: 'Warrior',
 		role: 'Tank',
 		flavor: 'Martial',
 	},
 	[CharacterClass.Barbarian]: {
 		name: CharacterClass.Barbarian,
-		primaryAttribute: AttributeType.CON,
+		primaryAttribute: StatType.CON,
 		archetype: 'Warrior',
 		role: 'Tank',
 		flavor: 'Survivalist',
 	},
 	[CharacterClass.Scout]: {
 		name: CharacterClass.Scout,
-		primaryAttribute: AttributeType.CON,
+		primaryAttribute: StatType.CON,
 		archetype: 'Warrior',
 		role: 'Tank',
 		flavor: 'Scoundrel',
@@ -639,28 +637,28 @@ export const CLASS_DEFINITIONS: Record<CharacterClass, ClassDefinition> = {
 	// Casters - Erudite (INT)
 	[CharacterClass.Wizard]: {
 		name: CharacterClass.Wizard,
-		primaryAttribute: AttributeType.INT,
+		primaryAttribute: StatType.INT,
 		archetype: 'Caster',
 		role: 'Erudite',
 		flavor: 'Arcanist',
 	},
 	[CharacterClass.Engineer]: {
 		name: CharacterClass.Engineer,
-		primaryAttribute: AttributeType.INT,
+		primaryAttribute: StatType.INT,
 		archetype: 'Caster',
 		role: 'Erudite',
 		flavor: 'Mechanist',
 	},
 	[CharacterClass.Alchemist]: {
 		name: CharacterClass.Alchemist,
-		primaryAttribute: AttributeType.INT,
+		primaryAttribute: StatType.INT,
 		archetype: 'Caster',
 		role: 'Erudite',
 		flavor: 'Naturalist',
 	},
 	[CharacterClass.Storyteller]: {
 		name: CharacterClass.Storyteller,
-		primaryAttribute: AttributeType.INT,
+		primaryAttribute: StatType.INT,
 		archetype: 'Caster',
 		role: 'Erudite',
 		flavor: 'Musicist',
@@ -668,28 +666,28 @@ export const CLASS_DEFINITIONS: Record<CharacterClass, ClassDefinition> = {
 	// Casters - Intuitive (WIS)
 	[CharacterClass.Mage]: {
 		name: CharacterClass.Mage,
-		primaryAttribute: AttributeType.WIS,
+		primaryAttribute: StatType.WIS,
 		archetype: 'Caster',
 		role: 'Intuitive',
 		flavor: 'Arcanist',
 	},
 	[CharacterClass.Artificer]: {
 		name: CharacterClass.Artificer,
-		primaryAttribute: AttributeType.WIS,
+		primaryAttribute: StatType.WIS,
 		archetype: 'Caster',
 		role: 'Intuitive',
 		flavor: 'Mechanist',
 	},
 	[CharacterClass.Druid]: {
 		name: CharacterClass.Druid,
-		primaryAttribute: AttributeType.WIS,
+		primaryAttribute: StatType.WIS,
 		archetype: 'Caster',
 		role: 'Intuitive',
 		flavor: 'Naturalist',
 	},
 	[CharacterClass.Minstrel]: {
 		name: CharacterClass.Minstrel,
-		primaryAttribute: AttributeType.WIS,
+		primaryAttribute: StatType.WIS,
 		archetype: 'Caster',
 		role: 'Intuitive',
 		flavor: 'Musicist',
@@ -697,28 +695,28 @@ export const CLASS_DEFINITIONS: Record<CharacterClass, ClassDefinition> = {
 	// Casters - Innate (CHA)
 	[CharacterClass.Sorcerer]: {
 		name: CharacterClass.Sorcerer,
-		primaryAttribute: AttributeType.CHA,
+		primaryAttribute: StatType.CHA,
 		archetype: 'Caster',
 		role: 'Innate',
 		flavor: 'Arcanist',
 	},
 	[CharacterClass.Machinist]: {
 		name: CharacterClass.Machinist,
-		primaryAttribute: AttributeType.CHA,
+		primaryAttribute: StatType.CHA,
 		archetype: 'Caster',
 		role: 'Innate',
 		flavor: 'Mechanist',
 	},
 	[CharacterClass.Shaman]: {
 		name: CharacterClass.Shaman,
-		primaryAttribute: AttributeType.CHA,
+		primaryAttribute: StatType.CHA,
 		archetype: 'Caster',
 		role: 'Innate',
 		flavor: 'Naturalist',
 	},
 	[CharacterClass.Bard]: {
 		name: CharacterClass.Bard,
-		primaryAttribute: AttributeType.CHA,
+		primaryAttribute: StatType.CHA,
 		archetype: 'Caster',
 		role: 'Innate',
 		flavor: 'Musicist',
@@ -726,21 +724,21 @@ export const CLASS_DEFINITIONS: Record<CharacterClass, ClassDefinition> = {
 	// Mystics - Disciple (DIV)
 	[CharacterClass.Cleric]: {
 		name: CharacterClass.Cleric,
-		primaryAttribute: AttributeType.DIV,
+		primaryAttribute: StatType.DIV,
 		archetype: 'Mystic',
 		role: 'Disciple',
 		flavor: 'Pure',
 	},
 	[CharacterClass.Warlock]: {
 		name: CharacterClass.Warlock,
-		primaryAttribute: AttributeType.DIV,
+		primaryAttribute: StatType.DIV,
 		archetype: 'Mystic',
 		role: 'Disciple',
 		flavor: 'Mixed',
 	},
 	[CharacterClass.Paladin]: {
 		name: CharacterClass.Paladin,
-		primaryAttribute: AttributeType.DIV,
+		primaryAttribute: StatType.DIV,
 		archetype: 'Mystic',
 		role: 'Disciple',
 		flavor: 'Martial',
@@ -748,21 +746,21 @@ export const CLASS_DEFINITIONS: Record<CharacterClass, ClassDefinition> = {
 	// Mystics - Adept (FOW)
 	[CharacterClass.Sage]: {
 		name: CharacterClass.Sage,
-		primaryAttribute: AttributeType.FOW,
+		primaryAttribute: StatType.FOW,
 		archetype: 'Mystic',
 		role: 'Adept',
 		flavor: 'Pure',
 	},
 	[CharacterClass.Monk]: {
 		name: CharacterClass.Monk,
-		primaryAttribute: AttributeType.FOW,
+		primaryAttribute: StatType.FOW,
 		archetype: 'Mystic',
 		role: 'Adept',
 		flavor: 'Mixed',
 	},
 	[CharacterClass.Ranger]: {
 		name: CharacterClass.Ranger,
-		primaryAttribute: AttributeType.FOW,
+		primaryAttribute: StatType.FOW,
 		archetype: 'Mystic',
 		role: 'Adept',
 		flavor: 'Martial',
@@ -770,21 +768,21 @@ export const CLASS_DEFINITIONS: Record<CharacterClass, ClassDefinition> = {
 	// Mystics - Inspired (LCK)
 	[CharacterClass.Wanderer]: {
 		name: CharacterClass.Wanderer,
-		primaryAttribute: AttributeType.LCK,
+		primaryAttribute: StatType.LCK,
 		archetype: 'Mystic',
 		role: 'Inspired',
 		flavor: 'Pure',
 	},
 	[CharacterClass.Wayfarer]: {
 		name: CharacterClass.Wayfarer,
-		primaryAttribute: AttributeType.LCK,
+		primaryAttribute: StatType.LCK,
 		archetype: 'Mystic',
 		role: 'Inspired',
 		flavor: 'Mixed',
 	},
 	[CharacterClass.Warden]: {
 		name: CharacterClass.Warden,
-		primaryAttribute: AttributeType.LCK,
+		primaryAttribute: StatType.LCK,
 		archetype: 'Mystic',
 		role: 'Inspired',
 		flavor: 'Martial',

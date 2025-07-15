@@ -1,4 +1,4 @@
-// Re-export all types from organized files
+export * from './ui';
 export * from './core';
 export * from './character';
 export * from './attributes';

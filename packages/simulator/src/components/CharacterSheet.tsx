@@ -10,7 +10,7 @@ import {
 	SizeModifiers,
 	Equipment,
 	DefenseType,
-	AttributeType,
+	StatType,
 } from '../types';
 import { getAllFeatSlots, FeatType } from '../types/feats';
 import { findNextWindowPosition } from '../utils';
@@ -250,7 +250,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 
 	// Calculate missing feat slots
 	const getMissingFeatSlots = (): boolean => {
-		const characterLevel = sheet.attributes.getNode(AttributeType.Level)?.baseValue || 1;
+		const characterLevel = sheet.attributes.getNode(StatType.Level)?.baseValue || 1;
 		const currentFeatSlots = sheet.getFeatSlots();
 
 		// Check if character has specialized training
