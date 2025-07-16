@@ -128,7 +128,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 			acc[level].push(displaySlot);
 			return acc;
 		},
-		{} as Record<number, DisplaySlot[]>
+		{} as Record<number, DisplaySlot[]>,
 	);
 
 	// Initialize collapsed levels - start complete levels collapsed, keep incomplete levels open
@@ -148,8 +148,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 
 		// For Major feat slots, include both Major and Minor feats
 		// For Minor feat slots, only include Minor feats
-		const allowedTypes =
-			slotType === FeatType.Major ? [FeatType.Major, FeatType.Minor] : [FeatType.Minor];
+		const allowedTypes = slotType === FeatType.Major ? [FeatType.Major, FeatType.Minor] : [FeatType.Minor];
 
 		const availableFeats: FeatDefinition[] = [];
 
@@ -226,9 +225,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 		if (!selectedBaseFeat || !selectedSlot) return;
 
 		// Validate all required parameters are filled
-		const missingParameters = selectedBaseFeat.parameters?.filter(
-			param => param.required && !parameters[param.id]
-		);
+		const missingParameters = selectedBaseFeat.parameters?.filter(param => param.required && !parameters[param.id]);
 
 		if (missingParameters && missingParameters.length > 0) {
 			// Set error state for missing parameters
@@ -306,7 +303,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 
 		// Validate nested parameters
 		const missingNestedParameters = nestedParameterFeat.feat.parameters?.filter(
-			param => param.required && !nestedParameters[param.id]
+			param => param.required && !nestedParameters[param.id],
 		);
 
 		if (missingNestedParameters && missingNestedParameters.length > 0) {
@@ -340,7 +337,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 			return getUpbringingModifierFeat(
 				sheet.race.upbringing,
 				sheet.race.upbringingPlusModifier,
-				sheet.race.upbringingMinusModifier
+				sheet.race.upbringingMinusModifier,
 			);
 		}
 
@@ -448,16 +445,13 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 											}}
 										>
 											{slots.map((displaySlot, index) => {
-												const feat = displaySlot.featId
-													? getFeatDefinition(displaySlot.featId)
-													: null;
+												const feat = displaySlot.featId ? getFeatDefinition(displaySlot.featId) : null;
 												const hasSlot = displaySlot.featId !== null;
 												const isEmpty = !hasSlot && !displaySlot.isCore;
 
 												// Allow clicking on core slots if they contain parameterized feats
 												const isClickable =
-													!displaySlot.isCore ||
-													(feat && feat.parameters && feat.parameters.length > 0);
+													!displaySlot.isCore || (feat && feat.parameters && feat.parameters.length > 0);
 
 												return (
 													<div
@@ -466,9 +460,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 															padding: '8px',
 															border: `1px solid ${isEmpty ? 'orange' : 'var(--text)'}`,
 															borderRadius: '4px',
-															backgroundColor: displaySlot.isCore
-																? 'var(--background-alt)'
-																: 'var(--background)',
+															backgroundColor: displaySlot.isCore ? 'var(--background-alt)' : 'var(--background)',
 															cursor: isClickable ? 'pointer' : 'default',
 															minHeight: '80px',
 															display: 'flex',
@@ -478,22 +470,12 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 														onClick={() => {
 															if (isClickable) {
 																// For parameterized core feats, directly open parameter modal
-																if (
-																	displaySlot.isCore &&
-																	feat &&
-																	feat.parameters &&
-																	feat.parameters.length > 0
-																) {
+																if (displaySlot.isCore && feat && feat.parameters && feat.parameters.length > 0) {
 																	setSelectedBaseFeat(feat);
 
 																	// If it's already parameterized, extract existing parameters
-																	if (
-																		displaySlot.featId &&
-																		isParameterizedFeat(displaySlot.featId)
-																	) {
-																		const { parameters: existingParams } = parseParameterizedFeatId(
-																			displaySlot.featId
-																		);
+																	if (displaySlot.featId && isParameterizedFeat(displaySlot.featId)) {
+																		const { parameters: existingParams } = parseParameterizedFeatId(displaySlot.featId);
 																		setParameters(existingParams);
 																	} else {
 																		setParameters({});
@@ -509,22 +491,12 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 														onKeyDown={e => {
 															if ((e.key === 'Enter' || e.key === ' ') && isClickable) {
 																// For parameterized core feats, directly open parameter modal
-																if (
-																	displaySlot.isCore &&
-																	feat &&
-																	feat.parameters &&
-																	feat.parameters.length > 0
-																) {
+																if (displaySlot.isCore && feat && feat.parameters && feat.parameters.length > 0) {
 																	setSelectedBaseFeat(feat);
 
 																	// If it's already parameterized, extract existing parameters
-																	if (
-																		displaySlot.featId &&
-																		isParameterizedFeat(displaySlot.featId)
-																	) {
-																		const { parameters: existingParams } = parseParameterizedFeatId(
-																			displaySlot.featId
-																		);
+																	if (displaySlot.featId && isParameterizedFeat(displaySlot.featId)) {
+																		const { parameters: existingParams } = parseParameterizedFeatId(displaySlot.featId);
 																		setParameters(existingParams);
 																	} else {
 																		setParameters({});
@@ -555,11 +527,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 																	: `${displaySlot.slot.type} Feat`}
 															</div>
 															{isEmpty && (
-																<FaExclamationTriangle
-																	size={10}
-																	style={{ color: 'orange' }}
-																	title='Empty feat slot'
-																/>
+																<FaExclamationTriangle size={10} style={{ color: 'orange' }} title='Empty feat slot' />
 															)}
 														</div>
 
@@ -678,9 +646,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 									aria-label={`Select ${feat.name} feat`}
 								>
 									<div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{feat.name}</div>
-									<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)' }}>
-										{feat.description}
-									</div>
+									<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)' }}>{feat.description}</div>
 								</div>
 							))}
 						</div>
@@ -735,9 +701,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 						<h4 style={{ margin: '0 0 16px 0' }}>Configure {selectedBaseFeat.name}</h4>
 
 						<div style={{ marginBottom: '16px' }}>
-							<div
-								style={{ fontSize: '0.9em', color: 'var(--text-secondary)', marginBottom: '12px' }}
-							>
+							<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)', marginBottom: '12px' }}>
 								{selectedBaseFeat.description}
 							</div>
 
@@ -868,9 +832,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 						<h4 style={{ margin: '0 0 16px 0' }}>Configure {nestedParameterFeat.feat.name}</h4>
 
 						<div style={{ marginBottom: '16px' }}>
-							<div
-								style={{ fontSize: '0.9em', color: 'var(--text-secondary)', marginBottom: '12px' }}
-							>
+							<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)', marginBottom: '12px' }}>
 								{nestedParameterFeat.feat.description}
 							</div>
 

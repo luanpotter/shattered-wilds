@@ -30,9 +30,7 @@ const getInitialCharacterId = (): string | null => {
 
 const App = (): React.ReactElement => {
 	const [currentView, setCurrentView] = useState<ViewType>(getInitialView());
-	const [initialCharacterId, setInitialCharacterId] = useState<string | null>(
-		getInitialCharacterId()
-	);
+	const [initialCharacterId, setInitialCharacterId] = useState<string | null>(getInitialCharacterId());
 	const [dragState, setDragState] = useState<{
 		type: 'none' | 'window' | 'grid' | 'character';
 		objectId?: string;
@@ -141,9 +139,7 @@ const App = (): React.ReactElement => {
 					const hexData = current.getAttribute('data-hex');
 					if (hexData) {
 						const [q, r] = hexData.split(',').map(Number);
-						const existingCharacter = characters.find(
-							c => c.position?.q === q && c.position?.r === r
-						);
+						const existingCharacter = characters.find(c => c.position?.q === q && c.position?.r === r);
 
 						if (!existingCharacter) {
 							updateCharacterPos(character, { q, r });
@@ -165,15 +161,7 @@ const App = (): React.ReactElement => {
 		}
 
 		return () => {};
-	}, [
-		dragState,
-		gridState,
-		updateGridState,
-		updateWindow,
-		windows,
-		characters,
-		updateCharacterPos,
-	]);
+	}, [dragState, gridState, updateGridState, updateWindow, windows, characters, updateCharacterPos]);
 
 	const handleMouseDown = (e: React.MouseEvent) => {
 		if (e.button === 1) {
@@ -256,8 +244,7 @@ const App = (): React.ReactElement => {
 									<FaUsers /> Characters
 								</button>
 								<button onClick={toggleEditMode}>
-									{editMode ? <FaPlay /> : <FaEdit />}{' '}
-									{editMode ? 'Switch to Play' : 'Switch to Edit'}
+									{editMode ? <FaPlay /> : <FaEdit />} {editMode ? 'Switch to Play' : 'Switch to Edit'}
 								</button>
 								<button onClick={handleRecenter}>
 									<FaCrosshairs /> Re-center
@@ -302,9 +289,7 @@ const App = (): React.ReactElement => {
 							initialCharacterId={initialCharacterId}
 						/>
 					)}
-					{currentView === 'onboarding' && (
-						<OnboardingPage onNavigateToCharacterSheets={navigateToCharacterSheets} />
-					)}
+					{currentView === 'onboarding' && <OnboardingPage onNavigateToCharacterSheets={navigateToCharacterSheets} />}
 				</div>
 			</main>
 			{currentView !== 'onboarding' && (
@@ -320,9 +305,7 @@ const App = (): React.ReactElement => {
 					}}
 				>
 					<div style={{ margin: '0 auto', textAlign: 'right' }}>
-						<p style={{ margin: 0, paddingBottom: '8px' }}>
-							&copy; 2025 Shattered Wilds - Luan Nico
-						</p>
+						<p style={{ margin: 0, paddingBottom: '8px' }}>&copy; 2025 Shattered Wilds - Luan Nico</p>
 					</div>
 				</footer>
 			)}

@@ -1,23 +1,6 @@
 import { AttributeTree, Attribute, makeAttributeTree } from './attributes';
-import {
-	Race,
-	CharacterClass,
-	Equipment,
-	Armor,
-	RaceDefinition,
-	ClassDefinition,
-	Shield,
-	Weapon,
-} from './character';
-import {
-	StatType,
-	Modifier,
-	Size,
-	SizeModifiers,
-	DerivedStat,
-	BasicAttack,
-	DefenseType,
-} from './core';
+import { Race, CharacterClass, Equipment, Armor, RaceDefinition, ClassDefinition, Shield, Weapon } from './character';
+import { StatType, Modifier, Size, SizeModifiers, DerivedStat, BasicAttack, DefenseType } from './core';
 import {
 	FEATS,
 	Upbringing,
@@ -43,7 +26,7 @@ export class RaceInfo {
 		halfRace: Race | null = null,
 		combineHalfRaceStats: boolean = false,
 		upbringingPlusModifier: StatType = StatType.INT,
-		upbringingMinusModifier: StatType = StatType.WIS
+		upbringingMinusModifier: StatType = StatType.WIS,
 	) {
 		this.primaryRace = primaryRace;
 		this.halfRace = halfRace;
@@ -69,7 +52,7 @@ export class RaceInfo {
 			halfRace,
 			combineHalfRaceStats,
 			upbringingPlusModifier,
-			upbringingMinusModifier
+			upbringingMinusModifier,
 		);
 	}
 
@@ -116,9 +99,7 @@ export class ClassInfo {
 
 	static from(props: Record<string, string>): ClassInfo {
 		const characterClass = (props['class'] as CharacterClass) ?? CharacterClass.Fighter;
-		const selectedFeats = props['class.feats']
-			? (JSON.parse(props['class.feats']) as string[])
-			: [];
+		const selectedFeats = props['class.feats'] ? (JSON.parse(props['class.feats']) as string[]) : [];
 
 		return new ClassInfo(characterClass, selectedFeats);
 	}
@@ -200,7 +181,7 @@ export class DerivedStats {
 		const value = HUMANOID_BASE + sizeModifier + Math.floor(agility / 4);
 		return new DerivedStat(
 			Math.max(value, 1),
-			`Movement = ${HUMANOID_BASE} (base) + ${sizeModifier} (size) + ${agility} (Agility) / 4`
+			`Movement = ${HUMANOID_BASE} (base) + ${sizeModifier} (size) + ${agility} (Agility) / 4`,
 		);
 	}
 
@@ -241,12 +222,7 @@ export class CurrentValues {
 	currentFocus: number;
 	currentSpirit: number;
 
-	constructor(
-		currentHeroism: number,
-		currentVitality: number,
-		currentFocus: number,
-		currentSpirit: number
-	) {
+	constructor(currentHeroism: number, currentVitality: number, currentFocus: number, currentSpirit: number) {
 		this.currentHeroism = currentHeroism;
 		this.currentVitality = currentVitality;
 		this.currentFocus = currentFocus;
@@ -276,10 +252,7 @@ export class CurrentValues {
 			return value === CurrentValues.MAX_VALUE ? fallback() : value;
 		};
 		this.currentHeroism = fallback(this.currentHeroism, () => sheet.derivedStats.maxHeroism.value);
-		this.currentVitality = fallback(
-			this.currentVitality,
-			() => sheet.derivedStats.maxVitality.value
-		);
+		this.currentVitality = fallback(this.currentVitality, () => sheet.derivedStats.maxVitality.value);
 		this.currentFocus = fallback(this.currentFocus, () => sheet.derivedStats.maxFocus.value);
 		this.currentSpirit = fallback(this.currentSpirit, () => sheet.derivedStats.maxSpirit.value);
 	}
@@ -302,7 +275,7 @@ export class CharacterSheet {
 		attributes: Attribute,
 		equipment: Equipment,
 		currentValues: CurrentValues,
-		props: Record<string, string>
+		props: Record<string, string>,
 	) {
 		this.name = name;
 		this.race = race;
@@ -368,7 +341,7 @@ export class CharacterSheet {
 				const upbringingFeat = getUpbringingModifierFeat(
 					this.race.upbringing,
 					this.race.upbringingPlusModifier,
-					this.race.upbringingMinusModifier
+					this.race.upbringingMinusModifier,
 				);
 				if (upbringingFeat.modifiers) {
 					modifiers.push(...upbringingFeat.modifiers);
@@ -502,7 +475,7 @@ export class CharacterSheet {
 			makeAttributeTree(props),
 			Equipment.from(props['equipment']),
 			CurrentValues.from(props),
-			props
+			props,
 		);
 		// backfill maximal current values from attribute tree if needed
 		sheet.currentValues.backfill(sheet);

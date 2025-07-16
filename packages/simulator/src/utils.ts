@@ -127,11 +127,7 @@ export function findNextCharacterNumber(characters: Character[]): number {
  * @param characters Array of existing characters to check positions against
  * @returns The next available hex coordinates {q, r}
  */
-export function findNextEmptyHexPosition(
-	characters: Character[],
-	startQ: number = 0,
-	startR: number = 0
-): HexPosition {
+export function findNextEmptyHexPosition(characters: Character[], startQ: number = 0, startR: number = 0): HexPosition {
 	// Check if the starting position is empty
 	if (!findCharacterAtPosition(characters, startQ, startR)) {
 		return { q: startQ, r: startR };
@@ -173,11 +169,7 @@ export function findNextEmptyHexPosition(
 /**
  * Finds a character at the given hex position
  */
-export function findCharacterAtPosition(
-	characters: Character[],
-	q: number,
-	r: number
-): Character | undefined {
+export function findCharacterAtPosition(characters: Character[], q: number, r: number): Character | undefined {
 	return characters.find(c => c.position?.q === q && c.position?.r === r);
 }
 

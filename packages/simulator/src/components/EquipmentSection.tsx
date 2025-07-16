@@ -20,27 +20,12 @@ import Block from './shared/Block';
 // Predefined equipment (mapping from name to a factory function that returns an Item)
 const predefinedEquipment: Record<string, () => Item> = {
 	Javelin: () => new Weapon('Javelin', PrimaryWeaponType.Thrown, 2, [], StatType.STR, 7),
-	Hatchet: () =>
-		new Weapon('Hatchet', PrimaryWeaponType.LightMelee, 2, ['Thrown (Range 5m)'], StatType.DEX, 5),
+	Hatchet: () => new Weapon('Hatchet', PrimaryWeaponType.LightMelee, 2, ['Thrown (Range 5m)'], StatType.DEX, 5),
 	Dagger: () =>
-		new Weapon(
-			'Dagger',
-			PrimaryWeaponType.LightMelee,
-			3,
-			['Concealable', 'Thrown (Range 5m)'],
-			StatType.DEX,
-			5
-		),
+		new Weapon('Dagger', PrimaryWeaponType.LightMelee, 3, ['Concealable', 'Thrown (Range 5m)'], StatType.DEX, 5),
 	Rapier: () => new Weapon('Rapier', PrimaryWeaponType.LightMelee, 4, [], StatType.DEX),
 	'Bow & Arrows': () =>
-		new Weapon(
-			'Bow & Arrows',
-			PrimaryWeaponType.Ranged,
-			4,
-			['Concentrate', 'Two-Handed'],
-			StatType.DEX,
-			20
-		),
+		new Weapon('Bow & Arrows', PrimaryWeaponType.Ranged, 4, ['Concentrate', 'Two-Handed'], StatType.DEX, 20),
 	'Crossbow & Darts': () =>
 		new Weapon(
 			'Crossbow & Darts',
@@ -48,13 +33,11 @@ const predefinedEquipment: Record<string, () => Item> = {
 			5,
 			['Concentrate', 'Two-Handed', 'Reload'],
 			StatType.DEX,
-			20
+			20,
 		),
-	Spear: () =>
-		new Weapon('Spear', PrimaryWeaponType.HeavyMelee, 4, ['Polearm', 'Two-Handed'], StatType.STR),
+	Spear: () => new Weapon('Spear', PrimaryWeaponType.HeavyMelee, 4, ['Polearm', 'Two-Handed'], StatType.STR),
 	Mace: () => new Weapon('Mace', PrimaryWeaponType.HeavyMelee, 5, [], StatType.STR),
-	Longsword: () =>
-		new Weapon('Longsword', PrimaryWeaponType.HeavyMelee, 6, ['Two-Handed'], StatType.STR),
+	Longsword: () => new Weapon('Longsword', PrimaryWeaponType.HeavyMelee, 6, ['Two-Handed'], StatType.STR),
 	'Light Armor': () => new Armor('Light Armor', ArmorType.Light, 1, 0),
 	'Medium Armor': () => new Armor('Medium Armor', ArmorType.Medium, 3, -1),
 	'Heavy Armor': () => new Armor('Heavy Armor', ArmorType.Heavy, 5, -3),
@@ -68,11 +51,7 @@ interface EquipmentSectionProps {
 	editMode: boolean;
 }
 
-export const EquipmentSection: React.FC<EquipmentSectionProps> = ({
-	character,
-	onUpdateEquipment,
-	editMode,
-}) => {
+export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ character, onUpdateEquipment, editMode }) => {
 	const equipment = CharacterSheet.from(character.props);
 
 	// State for the dropdown (selected predefined item)
@@ -164,10 +143,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({
 									style={commonInputStyle}
 									placeholder='Item name'
 								/>
-								<button
-									onClick={() => handleRemoveItem(idx)}
-									style={{ padding: '2px 6px', fontSize: '0.9em' }}
-								>
+								<button onClick={() => handleRemoveItem(idx)} style={{ padding: '2px 6px', fontSize: '0.9em' }}>
 									<FaTrash />
 								</button>
 							</>

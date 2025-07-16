@@ -11,13 +11,7 @@ interface MeasureModalProps {
 	onMove: () => void;
 }
 
-export const MeasureModal: React.FC<MeasureModalProps> = ({
-	fromCharacter,
-	toPosition,
-	distance,
-	onClose,
-	onMove,
-}) => {
+export const MeasureModal: React.FC<MeasureModalProps> = ({ fromCharacter, toPosition, distance, onClose, onMove }) => {
 	const modalStyle: React.CSSProperties = {
 		padding: '20px',
 		maxWidth: '400px',

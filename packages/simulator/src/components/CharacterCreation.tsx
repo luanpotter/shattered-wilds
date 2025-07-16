@@ -41,9 +41,7 @@ export const CharacterCreationModal: React.FC<CharacterCreationModalProps> = ({ 
 			const currentWindow = windows.find(
 				w =>
 					w.type === 'character-creation' &&
-					(hexPosition
-						? w.hexPosition?.q === hexPosition.q && w.hexPosition?.r === hexPosition.r
-						: !w.hexPosition)
+					(hexPosition ? w.hexPosition?.q === hexPosition.q && w.hexPosition?.r === hexPosition.r : !w.hexPosition),
 			);
 
 			if (currentWindow) {
@@ -57,9 +55,7 @@ export const CharacterCreationModal: React.FC<CharacterCreationModalProps> = ({ 
 		const currentWindow = windows.find(
 			w =>
 				w.type === 'character-creation' &&
-				(hexPosition
-					? w.hexPosition?.q === hexPosition.q && w.hexPosition?.r === hexPosition.r
-					: !w.hexPosition)
+				(hexPosition ? w.hexPosition?.q === hexPosition.q && w.hexPosition?.r === hexPosition.r : !w.hexPosition),
 		);
 
 		if (currentWindow) {
@@ -70,10 +66,7 @@ export const CharacterCreationModal: React.FC<CharacterCreationModalProps> = ({ 
 	return (
 		<div>
 			<div style={{ marginBottom: '8px' }}>
-				<label
-					htmlFor='character-name'
-					style={{ fontSize: '0.9em', display: 'block', marginBottom: '2px' }}
-				>
+				<label htmlFor='character-name' style={{ fontSize: '0.9em', display: 'block', marginBottom: '2px' }}>
 					Name:
 				</label>
 				<input

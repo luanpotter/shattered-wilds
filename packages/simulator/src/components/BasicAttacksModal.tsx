@@ -11,11 +11,7 @@ interface BasicAttacksModalProps {
 	onClose: () => void;
 }
 
-export const BasicAttacksModal: React.FC<BasicAttacksModalProps> = ({
-	attacks,
-	characterSheet,
-	onClose,
-}) => {
+export const BasicAttacksModal: React.FC<BasicAttacksModalProps> = ({ attacks, characterSheet, onClose }) => {
 	const editMode = useStore(state => state.editMode);
 	const addWindow = useStore(state => state.addWindow);
 	const characters = useStore(state => state.characters);

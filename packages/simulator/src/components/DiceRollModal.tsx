@@ -133,9 +133,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 		if (!autoFail && currentDc !== null) {
 			// For Active rolls, ties are losses unless there's a crit modifier
 			if (currentType === 'Contested (Active)') {
-				success =
-					rollResults.total > currentDc ||
-					(rollResults.total === currentDc && rollResults.critModifiers > 0);
+				success = rollResults.total > currentDc || (rollResults.total === currentDc && rollResults.critModifiers > 0);
 				if (success) {
 					critShifts = calculateShifts(rollResults.total - currentDc);
 				}
@@ -218,9 +216,8 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 		let critModifiers = 0;
 		if (allDice.includes(12)) critModifiers += 6;
 		const pairs = allDice.reduce(
-			(acc, n, i, arr) =>
-				acc + (arr.indexOf(n) !== i && arr.filter(x => x === n).length >= 2 ? 1 : 0),
-			0
+			(acc, n, i, arr) => acc + (arr.indexOf(n) !== i && arr.filter(x => x === n).length >= 2 ? 1 : 0),
+			0,
 		);
 		if (pairs > 0) critModifiers += 6;
 
@@ -363,11 +360,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 							fontSize: '12px',
 						}}
 					>
-						{isValid ? (
-							<FaCheck style={{ color: 'green' }} />
-						) : (
-							<FaTimes style={{ color: 'red' }} />
-						)}
+						{isValid ? <FaCheck style={{ color: 'green' }} /> : <FaTimes style={{ color: 'red' }} />}
 					</div>
 				)}
 			</div>
@@ -439,20 +432,16 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 				</div>
 
 				{/* Dice Results */}
-				<div
-					style={{ display: 'flex', gap: '8px', marginBottom: '16px', justifyContent: 'center' }}
-				>
+				<div style={{ display: 'flex', gap: '8px', marginBottom: '16px', justifyContent: 'center' }}>
 					{rollResults.dice.map((value, index) => (
-						<div key={index}>
-							{renderDiceResult(value, undefined, rollResults.selectedDice.includes(value))}
-						</div>
+						<div key={index}>{renderDiceResult(value, undefined, rollResults.selectedDice.includes(value))}</div>
 					))}
 					{rollResults.extraResult !== undefined && (
 						<div>
 							{renderDiceResult(
 								rollResults.extraResult,
 								rollResults.extraValid,
-								rollResults.extraValid && rollResults.selectedDice.includes(rollResults.extraResult)
+								rollResults.extraValid && rollResults.selectedDice.includes(rollResults.extraResult),
 							)}
 							<div style={{ textAlign: 'center', fontSize: '12px', marginTop: '4px' }}>
 								Extra ({tree?.valueOf(getAttributeType(extraSkill)) ?? 0})
@@ -464,7 +453,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 							{renderDiceResult(
 								rollResults.luckResult,
 								rollResults.luckValid,
-								rollResults.luckValid && rollResults.selectedDice.includes(rollResults.luckResult)
+								rollResults.luckValid && rollResults.selectedDice.includes(rollResults.luckResult),
 							)}
 							<div style={{ textAlign: 'center', fontSize: '12px', marginTop: '4px' }}>
 								Luck ({tree?.valueOf(StatType.Fortune) ?? 0})
@@ -497,9 +486,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 					(() => {
 						const allDice = [
 							...rollResults.dice,
-							...(rollResults.extraResult && rollResults.extraValid
-								? [rollResults.extraResult]
-								: []),
+							...(rollResults.extraResult && rollResults.extraValid ? [rollResults.extraResult] : []),
 							...(rollResults.luckResult && rollResults.luckValid ? [rollResults.luckResult] : []),
 						];
 						const hasPairOfOnes = allDice.filter(n => n === 1).length >= 2;
@@ -515,9 +502,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 							}}
 						>
 							Pair of 1s Rolled
-							<div style={{ fontSize: '14px', color: 'var(--text)' }}>
-								No auto-fail on Contested Resisted rolls
-							</div>
+							<div style={{ fontSize: '14px', color: 'var(--text)' }}>No auto-fail on Contested Resisted rolls</div>
 						</div>
 					)}
 
@@ -527,10 +512,8 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 						<div style={{ marginBottom: '8px' }}>
 							<span>
 								[{rollResults.selectedDice.join(' + ')}
-								{rollResults.critModifiers > 0 && ` + ${rollResults.critModifiers} (Crit)`}] + [
-								{modifier} (Modifier)
-								{circumstantialModifier !== 0 && ` + ${circumstantialModifier} (Circumstance)`}] ={' '}
-								{rollResults.total}
+								{rollResults.critModifiers > 0 && ` + ${rollResults.critModifiers} (Crit)`}] + [{modifier} (Modifier)
+								{circumstantialModifier !== 0 && ` + ${circumstantialModifier} (Circumstance)`}] = {rollResults.total}
 							</span>
 						</div>
 
@@ -554,9 +537,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 						)}
 
 						{rollResults.critShifts > 0 && (
-							<div style={{ color: 'var(--success)', fontWeight: 'bold' }}>
-								Shifts: {rollResults.critShifts}
-							</div>
+							<div style={{ color: 'var(--success)', fontWeight: 'bold' }}>Shifts: {rollResults.critShifts}</div>
 						)}
 					</div>
 				)}
@@ -693,11 +674,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 			<div style={{ marginBottom: '16px' }}>
 				<div style={{ marginBottom: '8px' }}>
 					<label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-						<input
-							type='checkbox'
-							checked={useExtra}
-							onChange={e => setUseExtra(e.target.checked)}
-						/>
+						<input type='checkbox' checked={useExtra} onChange={e => setUseExtra(e.target.checked)} />
 						Use Extra
 					</label>
 					{useExtra && (

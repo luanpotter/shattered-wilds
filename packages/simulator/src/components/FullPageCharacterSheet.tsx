@@ -1,13 +1,5 @@
 import React, { useMemo } from 'react';
-import {
-	FaArrowLeft,
-	FaPlus,
-	FaMinus,
-	FaBatteryFull,
-	FaCopy,
-	FaExclamationTriangle,
-	FaCog,
-} from 'react-icons/fa';
+import { FaArrowLeft, FaPlus, FaMinus, FaBatteryFull, FaCopy, FaExclamationTriangle, FaCog } from 'react-icons/fa';
 
 import { useStore } from '../store';
 import { CharacterSheet, StatType, Size, SizeModifiers } from '../types';
@@ -31,10 +23,7 @@ interface FullPageCharacterSheetProps {
 	onBack: () => void;
 }
 
-export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
-	characterId,
-	onBack,
-}) => {
+export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ characterId, onBack }) => {
 	const characters = useStore(state => state.characters);
 	const updateCharacterName = useStore(state => state.updateCharacterName);
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
@@ -44,16 +33,10 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 	const windows = useStore(state => state.windows);
 
 	// Get the current character from the store (reactive to store changes)
-	const character = useMemo(
-		() => characters.find(c => c.id === characterId),
-		[characters, characterId]
-	);
+	const character = useMemo(() => characters.find(c => c.id === characterId), [characters, characterId]);
 
 	// Create a reactive sheet that updates when character props change
-	const sheet = useMemo(
-		() => (character ? CharacterSheet.from(character.props) : null),
-		[character]
-	);
+	const sheet = useMemo(() => (character ? CharacterSheet.from(character.props) : null), [character]);
 
 	// Show error message if character not found
 	if (!character || !sheet) {
@@ -87,14 +70,11 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 						<FaExclamationTriangle size={48} style={{ color: 'orange', marginBottom: '1rem' }} />
 						<h2 style={{ marginBottom: '1rem', color: 'var(--text)' }}>Character Not Found</h2>
 						<p style={{ marginBottom: '2rem', color: 'var(--text)' }}>
-							The character you&apos;re looking for could not be found. It may have been deleted or
-							the link is incorrect.
+							The character you&apos;re looking for could not be found. It may have been deleted or the link is
+							incorrect.
 						</p>
 						<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-							<button
-								onClick={onBack}
-								style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-							>
+							<button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 								<FaArrowLeft /> Back to Character List
 							</button>
 							<button
@@ -140,9 +120,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 
 	const handleOpenRaceSetup = () => {
 		// Check if a race setup window is already open for this character
-		const raceSetupWindow = windows.find(
-			w => w.type === 'race-setup' && w.characterId === character.id
-		);
+		const raceSetupWindow = windows.find(w => w.type === 'race-setup' && w.characterId === character.id);
 
 		// If not, open a new race setup window
 		if (!raceSetupWindow) {
@@ -159,9 +137,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 
 	const handleOpenClassSetup = () => {
 		// Check if a class setup window is already open for this character
-		const classSetupWindow = windows.find(
-			w => w.type === 'class-setup' && w.characterId === character.id
-		);
+		const classSetupWindow = windows.find(w => w.type === 'class-setup' && w.characterId === character.id);
 
 		// If not, open a new class setup window
 		if (!classSetupWindow) {
@@ -178,9 +154,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 
 	const handleOpenFeatsSetup = () => {
 		// Check if a feats setup window is already open for this character
-		const featsSetupWindow = windows.find(
-			w => w.type === 'feats-setup' && w.characterId === character.id
-		);
+		const featsSetupWindow = windows.find(w => w.type === 'feats-setup' && w.characterId === character.id);
 
 		// If not, open a new feats setup window
 		if (!featsSetupWindow) {
@@ -201,7 +175,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 			return getUpbringingModifierFeat(
 				sheet.race.upbringing,
 				sheet.race.upbringingPlusModifier,
-				sheet.race.upbringingMinusModifier
+				sheet.race.upbringingMinusModifier,
 			);
 		}
 
@@ -220,10 +194,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 		const allFeatSlots = getAllFeatSlots(characterLevel, hasSpecializedTraining);
 
 		// Group feats by level
-		const featsByLevel: Record<
-			number,
-			Array<{ slot: FeatSlot; featId: string; isCore: boolean }>
-		> = {};
+		const featsByLevel: Record<number, Array<{ slot: FeatSlot; featId: string; isCore: boolean }>> = {};
 
 		allFeatSlots.forEach(slot => {
 			const featId = currentFeatSlots[slot.id];
@@ -240,9 +211,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 		});
 
 		// Count missing non-core feats
-		const missingFeats = allFeatSlots.filter(
-			slot => slot.type !== FeatType.Core && !currentFeatSlots[slot.id]
-		);
+		const missingFeats = allFeatSlots.filter(slot => slot.type !== FeatType.Core && !currentFeatSlots[slot.id]);
 
 		const wrap = (children: React.ReactNode) => {
 			return (
@@ -279,12 +248,8 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 			return wrap(
 				<>
 					<p>No feats assigned yet.</p>
-					{editMode && (
-						<p style={{ fontSize: '0.9em' }}>
-							Click &quot;Manage Feats&quot; above to assign feats.
-						</p>
-					)}
-				</>
+					{editMode && <p style={{ fontSize: '0.9em' }}>Click &quot;Manage Feats&quot; above to assign feats.</p>}
+				</>,
 			);
 		}
 
@@ -313,9 +278,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 					.sort(([a], [b]) => parseInt(a) - parseInt(b))
 					.map(([level, feats]) => (
 						<div key={level}>
-							<h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: 'var(--text)' }}>
-								Level {level}
-							</h3>
+							<h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: 'var(--text)' }}>Level {level}</h3>
 							<div
 								style={{
 									display: 'grid',
@@ -332,9 +295,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 												padding: '0.75rem',
 												border: '1px solid var(--text)',
 												borderRadius: '4px',
-												backgroundColor: feat.isCore
-													? 'var(--background)'
-													: 'var(--background-alt)',
+												backgroundColor: feat.isCore ? 'var(--background)' : 'var(--background-alt)',
 											}}
 										>
 											<div
@@ -381,7 +342,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 							</div>
 						</div>
 					))}
-			</>
+			</>,
 		);
 	};
 
@@ -417,9 +378,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 						<button onClick={onBack}>
 							<FaArrowLeft /> Back to List
 						</button>
-						<h2 style={{ margin: 0, fontSize: '1.5rem' }}>
-							{character.props.name}&apos;s Character Sheet
-						</h2>
+						<h2 style={{ margin: 0, fontSize: '1.5rem' }}>{character.props.name}&apos;s Character Sheet</h2>
 					</div>
 					<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
 						<button onClick={handleCopyCharacterSheet} title='Copy character data to clipboard'>
@@ -528,9 +487,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 
 								return (
 									<div key={pointType}>
-										<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-											{pointType}
-										</span>
+										<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>{pointType}</span>
 										<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 											<button
 												onClick={() => handlePointChange(pointType, -1)}
@@ -611,9 +568,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 					{renderFeatsSection()}
 					<EquipmentSection
 						character={character}
-						onUpdateEquipment={equipment =>
-							updateCharacterProp(character, 'equipment', equipment.toProp())
-						}
+						onUpdateEquipment={equipment => updateCharacterProp(character, 'equipment', equipment.toProp())}
 						editMode={editMode}
 					/>
 				</div>

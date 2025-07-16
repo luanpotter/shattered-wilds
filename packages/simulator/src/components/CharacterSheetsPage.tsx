@@ -195,8 +195,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 						>
 							<h3 style={{ margin: '0 0 1rem 0' }}>Confirm Deletion</h3>
 							<p style={{ margin: '0 0 1.5rem 0' }}>
-								Are you sure you want to delete{' '}
-								{characters.find(c => c.id === confirmDelete)?.props.name}?
+								Are you sure you want to delete {characters.find(c => c.id === confirmDelete)?.props.name}?
 							</p>
 							<div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
 								<button onClick={handleCancelDelete}>Cancel</button>
@@ -371,15 +370,11 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 									}}
 								>
 									<span style={{ fontSize: '1.1rem' }}>
-										<strong>{character.props.name}</strong> / Level{' '}
-										{character.props['level'] || '1'} {character.props['race'] || 'Unknown'}{' '}
-										{character.props['class'] || 'Unknown'}
+										<strong>{character.props.name}</strong> / Level {character.props['level'] || '1'}{' '}
+										{character.props['race'] || 'Unknown'} {character.props['class'] || 'Unknown'}
 									</span>
 									<div style={{ display: 'flex', gap: '0.5rem' }}>
-										<button
-											onClick={() => handleViewCharacter(character)}
-											style={{ padding: '0.5rem 1rem' }}
-										>
+										<button onClick={() => handleViewCharacter(character)} style={{ padding: '0.5rem 1rem' }}>
 											<FaEye /> View
 										</button>
 										<button

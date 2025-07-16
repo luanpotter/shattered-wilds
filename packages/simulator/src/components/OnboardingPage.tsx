@@ -20,13 +20,11 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 			body: [
 				{
 					key: 'STR',
-					description:
-						'Strength is a measure of the power of the Body. Think punch hard, big muscles, heavy lifting.',
+					description: 'Strength is a measure of the power of the Body. Think punch hard, big muscles, heavy lifting.',
 				},
 				{
 					key: 'DEX',
-					description:
-						'Dexterity is a measure of speed of the Body. Think reflexes, quickness, agility, precision.',
+					description: 'Dexterity is a measure of speed of the Body. Think reflexes, quickness, agility, precision.',
 				},
 				{
 					key: 'CON',
@@ -87,20 +85,17 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 				},
 				{
 					key: 'Swashbuckler',
-					description:
-						'A scoundrel warrior with finesse and flair. Gains Fancy Footwork to avoid opportunity attacks.',
+					description: 'A scoundrel warrior with finesse and flair. Gains Fancy Footwork to avoid opportunity attacks.',
 				},
 			],
 			DEX: [
 				{
 					key: 'Marksman',
-					description:
-						'A martial warrior specialized in ranged combat. Gains Take Aim ability for precise shots.',
+					description: 'A martial warrior specialized in ranged combat. Gains Take Aim ability for precise shots.',
 				},
 				{
 					key: 'Hunter',
-					description:
-						'A survivalist warrior who thrives in the wilderness. Gains Rage ability and sylvan knowledge.',
+					description: 'A survivalist warrior who thrives in the wilderness. Gains Rage ability and sylvan knowledge.',
 				},
 				{
 					key: 'Rogue',
@@ -121,8 +116,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 				},
 				{
 					key: 'Scout',
-					description:
-						'A scoundrel warrior skilled in reconnaissance. Gains Fancy Footwork and scouting abilities.',
+					description: 'A scoundrel warrior skilled in reconnaissance. Gains Fancy Footwork and scouting abilities.',
 				},
 			],
 			INT: [
@@ -138,42 +132,35 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 				},
 				{
 					key: 'Alchemist',
-					description:
-						'A naturalist caster who bonds with nature. Gains Arcane Casting and Focal Connection.',
+					description: 'A naturalist caster who bonds with nature. Gains Arcane Casting and Focal Connection.',
 				},
 				{
 					key: 'Storyteller',
-					description:
-						'A musicist caster who weaves magic through words. Gains Arcane Casting and Lyrical Resonance.',
+					description: 'A musicist caster who weaves magic through words. Gains Arcane Casting and Lyrical Resonance.',
 				},
 			],
 			WIS: [
 				{
 					key: 'Mage',
-					description:
-						'An arcanist caster guided by intuition. Gains Arcane Casting and a Signature Spell.',
+					description: 'An arcanist caster guided by intuition. Gains Arcane Casting and a Signature Spell.',
 				},
 				{
 					key: 'Artificer',
-					description:
-						'A mechanist caster who crafts magical items. Gains Arcane Casting and Tool-Assisted Casting.',
+					description: 'A mechanist caster who crafts magical items. Gains Arcane Casting and Tool-Assisted Casting.',
 				},
 				{
 					key: 'Druid',
-					description:
-						'A naturalist caster connected to the natural world. Gains Arcane Casting and Focal Connection.',
+					description: 'A naturalist caster connected to the natural world. Gains Arcane Casting and Focal Connection.',
 				},
 				{
 					key: 'Minstrel',
-					description:
-						'A musicist caster who channels magic through song. Gains Arcane Casting and Lyrical Resonance.',
+					description: 'A musicist caster who channels magic through song. Gains Arcane Casting and Lyrical Resonance.',
 				},
 			],
 			CHA: [
 				{
 					key: 'Sorcerer',
-					description:
-						'An arcanist caster with innate magical power. Gains Arcane Casting and a Signature Spell.',
+					description: 'An arcanist caster with innate magical power. Gains Arcane Casting and a Signature Spell.',
 				},
 				{
 					key: 'Machinist',
@@ -182,8 +169,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 				},
 				{
 					key: 'Shaman',
-					description:
-						'A naturalist caster who communes with spirits. Gains Arcane Casting and Focal Connection.',
+					description: 'A naturalist caster who communes with spirits. Gains Arcane Casting and Focal Connection.',
 				},
 				{
 					key: 'Bard',
@@ -203,32 +189,27 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 				},
 				{
 					key: 'Paladin',
-					description:
-						'A martial mystic who fights with divine power. Gains Divine Smite for empowered attacks.',
+					description: 'A martial mystic who fights with divine power. Gains Divine Smite for empowered attacks.',
 				},
 			],
 			FOW: [
 				{
 					key: 'Sage',
-					description:
-						'A pure mystic who channels inner strength. Gains Divine Channeling through willpower.',
+					description: 'A pure mystic who channels inner strength. Gains Divine Channeling through willpower.',
 				},
 				{
 					key: 'Monk',
-					description:
-						'A mixed mystic balancing combat and spirituality. (Currently in development)',
+					description: 'A mixed mystic balancing combat and spirituality. (Currently in development)',
 				},
 				{
 					key: 'Ranger',
-					description:
-						'A martial mystic who protects the wilderness. Gains Divine Smite and natural abilities.',
+					description: 'A martial mystic who protects the wilderness. Gains Divine Smite and natural abilities.',
 				},
 			],
 			LCK: [
 				{
 					key: 'Wanderer',
-					description:
-						'A pure mystic guided by fortune. Gains Divine Channeling through luck itself.',
+					description: 'A pure mystic guided by fortune. Gains Divine Channeling through luck itself.',
 				},
 				{
 					key: 'Wayfarer',
@@ -236,8 +217,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 				},
 				{
 					key: 'Warden',
-					description:
-						'A martial mystic who guards through fortune. Gains Divine Smite and protective abilities.',
+					description: 'A martial mystic who guards through fortune. Gains Divine Smite and protective abilities.',
 				},
 			],
 		};
@@ -310,30 +290,27 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 	const steps = [
 		<>
 			<p>
-				Welcome, <strong>Hero</strong>, to <strong>Shattered Wilds</strong>, a work-in-progress base
-				setting for a new <strong>TTRPG</strong> system based on <strong>D12</strong> dice rolls.
-				Heavily inspired by <strong>D&D 5e</strong>, accidentally similar to{' '}
-				<strong>Pathfinder 2e</strong>, with some elements of <strong>Fate</strong>,{' '}
-				<strong>D&D 3.5</strong>, and some original ideas.
+				Welcome, <strong>Hero</strong>, to <strong>Shattered Wilds</strong>, a work-in-progress base setting for a new{' '}
+				<strong>TTRPG</strong> system based on <strong>D12</strong> dice rolls. Heavily inspired by{' '}
+				<strong>D&D 5e</strong>, accidentally similar to <strong>Pathfinder 2e</strong>, with some elements of{' '}
+				<strong>Fate</strong>, <strong>D&D 3.5</strong>, and some original ideas.
 			</p>
 			<p>
-				In <strong>Shattered Wilds</strong>, the world is ever-shifting. Not fast enough that you
-				could see - but within a few weeks or months, routes between settlements could be lost;
-				rivers could change course, mountains could start to emerge or dwindle back into the ground;
-				forests could wander, and trails could lead to new places and ruins that had not been seen
-				for ages. The only constants are the settlements, villages, towns, cities or any sufficient
-				congregation of people - those are stable and do not move. But the routes between them are
-				always changing, compasses are useless (always spinning seemingly at random), and maps
-				become outdated quickly after they are drawn.
+				In <strong>Shattered Wilds</strong>, the world is ever-shifting. Not fast enough that you could see - but within
+				a few weeks or months, routes between settlements could be lost; rivers could change course, mountains could
+				start to emerge or dwindle back into the ground; forests could wander, and trails could lead to new places and
+				ruins that had not been seen for ages. The only constants are the settlements, villages, towns, cities or any
+				sufficient congregation of people - those are stable and do not move. But the routes between them are always
+				changing, compasses are useless (always spinning seemingly at random), and maps become outdated quickly after
+				they are drawn.
 			</p>
 			<p>
-				Travel, therefore, is a risky proposition. The Wilds, when uncharted, are perilous,
-				presenting harsh conditions for the unprepared, and filled with dangerous creatures - both
-				beasts and people - and of course, the <strong>Hollow</strong>. Adventurers double as
-				cartographers, and venture forth into the wild to establish new temporary routes, to allow
-				for bursts of commerce and passage for the common folk, at least for a brief period of time.
-				Some strong enough to withstand the Wilds choose to live by themselves; others form parties
-				to explore and learn more about the world.
+				Travel, therefore, is a risky proposition. The Wilds, when uncharted, are perilous, presenting harsh conditions
+				for the unprepared, and filled with dangerous creatures - both beasts and people - and of course, the{' '}
+				<strong>Hollow</strong>. Adventurers double as cartographers, and venture forth into the wild to establish new
+				temporary routes, to allow for bursts of commerce and passage for the common folk, at least for a brief period
+				of time. Some strong enough to withstand the Wilds choose to live by themselves; others form parties to explore
+				and learn more about the world.
 			</p>
 			<p>
 				<StepButton onClick={nextStep()}>Continue</StepButton>
@@ -341,8 +318,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 		</>,
 		<>
 			<p>
-				In the <strong>D12</strong> system, Checks are determined by a <code>2d12 + Modifiers</code>{' '}
-				roll.
+				In the <strong>D12</strong> system, Checks are determined by a <code>2d12 + Modifiers</code> roll.
 			</p>
 			<p>
 				Modifiers can come from your <strong>Stats</strong>, <strong>Equipment</strong> or{' '}
@@ -377,12 +353,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 					<p style={{ margin: '0' }}>
 						If you roll a pair, you get a <code>+6</code>.
 					</p>
-					<img
-						src='/src/assets/crits.svg'
-						alt='Crit Modifier'
-						width={200}
-						style={{ margin: '0' }}
-					/>
+					<img src='/src/assets/crits.svg' alt='Crit Modifier' width={200} style={{ margin: '0' }} />
 				</div>
 				<div
 					style={{
@@ -402,12 +373,9 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 						Then, if you rolled 6 or more above target, you get a <strong>Shift</strong>!
 					</p>
 					<p style={{ margin: '0' }}>
-						Then, if you rolled 12 above the previous Shift, you get another <strong>Shift</strong>!
-						(and so on)
+						Then, if you rolled 12 above the previous Shift, you get another <strong>Shift</strong>! (and so on)
 					</p>
-					<p style={{ margin: '0' }}>
-						Shifts mean extra damage, or extra effects, depending on the situation.
-					</p>
+					<p style={{ margin: '0' }}>Shifts mean extra damage, or extra effects, depending on the situation.</p>
 				</div>
 				<div
 					style={{
@@ -422,9 +390,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 					}}
 				>
 					<strong style={{ margin: '0' }}>Extra & Luck</strong>
-					<p style={{ margin: '0' }}>
-						Sometimes, you might get to roll one or even two additional dice!
-					</p>
+					<p style={{ margin: '0' }}>Sometimes, you might get to roll one or even two additional dice!</p>
 					<p style={{ margin: '0' }}>
 						However, you will always pick two to add up. The other dice still count for{' '}
 						<strong>Crit Modifiers & Auto Fails</strong>.
@@ -442,8 +408,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 		</>,
 		<>
 			<p>
-				<strong>Stats</strong> are the core of your character. They are divided into three{' '}
-				<strong>Realms</strong>:
+				<strong>Stats</strong> are the core of your character. They are divided into three <strong>Realms</strong>:
 			</p>
 
 			<div
@@ -469,8 +434,8 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 					}}
 				>
 					<p>
-						<strong>Body</strong>: The realm of physical capabilities, representing your
-						character&apos;s bodily strength, agility, and endurance.
+						<strong>Body</strong>: The realm of physical capabilities, representing your character&apos;s bodily
+						strength, agility, and endurance.
 					</p>
 					<StepButton onClick={nextStep({ realm: 'body' })}>Choose Body</StepButton>
 				</div>
@@ -488,8 +453,8 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 					}}
 				>
 					<p>
-						<strong>Mind</strong>: The realm of mental capabilities, representing your
-						character&apos;s wisdom, perception, and creativity.
+						<strong>Mind</strong>: The realm of mental capabilities, representing your character&apos;s wisdom,
+						perception, and creativity.
 					</p>
 					<StepButton onClick={nextStep({ realm: 'mind' })}>Choose Mind</StepButton>
 				</div>
@@ -506,8 +471,8 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 					}}
 				>
 					<p>
-						<strong>Spirit</strong>: The realm of spiritual capabilities, representing your
-						character&apos;s connection to the divine, your own Soul, and Luck itself.
+						<strong>Spirit</strong>: The realm of spiritual capabilities, representing your character&apos;s connection
+						to the divine, your own Soul, and Luck itself.
 					</p>
 					<StepButton onClick={nextStep({ realm: 'spirit' })}>Choose Spirit</StepButton>
 				</div>
@@ -515,8 +480,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 		</>,
 		<>
 			<p>
-				You chose <strong>{options['realm']}</strong> as your Realm. Now choose your{' '}
-				<strong>Primary Attribute</strong>:
+				You chose <strong>{options['realm']}</strong> as your Realm. Now choose your <strong>Primary Attribute</strong>:
 			</p>
 			<div
 				style={{
@@ -548,9 +512,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 								<strong style={{ fontSize: '1.5rem' }}>{attribute.key}</strong>
 								<p style={{ margin: '1rem 0' }}>{attribute.description}</p>
 							</div>
-							<StepButton onClick={nextStep({ attribute: attribute.key })}>
-								Choose {attribute.key}
-							</StepButton>
+							<StepButton onClick={nextStep({ attribute: attribute.key })}>Choose {attribute.key}</StepButton>
 						</div>
 					);
 				})}
@@ -568,9 +530,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 					justifyContent: 'center',
 					gap: '2rem',
 					gridTemplateColumns:
-						getClassesByAttribute(options['attribute']).length === 4
-							? '1fr 1fr 1fr 1fr'
-							: '1fr 1fr 1fr',
+						getClassesByAttribute(options['attribute']).length === 4 ? '1fr 1fr 1fr 1fr' : '1fr 1fr 1fr',
 				}}
 			>
 				{getClassesByAttribute(options['attribute']).map((characterClass, index) => {
@@ -593,9 +553,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 								<strong style={{ fontSize: '1.5rem' }}>{characterClass.key}</strong>
 								<p style={{ margin: '1rem 0' }}>{characterClass.description}</p>
 							</div>
-							<StepButton onClick={nextStep({ class: characterClass.key })}>
-								Choose {characterClass.key}
-							</StepButton>
+							<StepButton onClick={nextStep({ class: characterClass.key })}>Choose {characterClass.key}</StepButton>
 						</div>
 					);
 				})}
@@ -603,8 +561,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 		</>,
 		<>
 			<p>
-				You chose <strong>{options['class']}</strong> as your class. Now choose your{' '}
-				<strong>Race</strong>:
+				You chose <strong>{options['class']}</strong> as your class. Now choose your <strong>Race</strong>:
 			</p>
 			<div
 				style={{
@@ -643,8 +600,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 		</>,
 		<>
 			<p>
-				You chose <strong>{options['race']}</strong> as your race. Now choose your{' '}
-				<strong>Upbringing</strong>:
+				You chose <strong>{options['race']}</strong> as your race. Now choose your <strong>Upbringing</strong>:
 			</p>
 			<div
 				style={{
@@ -675,9 +631,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 								<strong style={{ fontSize: '1.5rem' }}>{upbringing.key}</strong>
 								<p style={{ margin: '1rem 0' }}>{upbringing.description}</p>
 							</div>
-							<StepButton onClick={nextStep({ upbringing: upbringing.key })}>
-								Choose {upbringing.key}
-							</StepButton>
+							<StepButton onClick={nextStep({ upbringing: upbringing.key })}>Choose {upbringing.key}</StepButton>
 						</div>
 					);
 				})}

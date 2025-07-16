@@ -112,18 +112,12 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({
 				return <CharacterCreationModal hexPosition={window.hexPosition} />;
 			case 'character-sheet': {
 				const character = characters.find(c => c.id === window.characterId);
-				return character ? (
-					<CharacterSheetModal character={character} />
-				) : (
-					<div>Character not found</div>
-				);
+				return character ? <CharacterSheetModal character={character} /> : <div>Character not found</div>;
 			}
 			case 'race-setup': {
 				const character = characters.find(c => c.id === window.characterId);
 				if (!character) return <div>Character not found</div>;
-				return (
-					<RaceSetupModal characterId={character.id} onClose={() => removeWindow(window.id)} />
-				);
+				return <RaceSetupModal characterId={character.id} onClose={() => removeWindow(window.id)} />;
 			}
 			case 'class-setup': {
 				const character = characters.find(c => c.id === window.characterId);
@@ -197,11 +191,7 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({
 	};
 
 	return (
-		<DraggableWindow
-			window={window}
-			onStartDrag={onStartDrag}
-			titleBarButtons={generateTitleBarButtons()}
-		>
+		<DraggableWindow window={window} onStartDrag={onStartDrag} titleBarButtons={generateTitleBarButtons()}>
 			{renderContent()}
 		</DraggableWindow>
 	);

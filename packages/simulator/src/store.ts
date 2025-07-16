@@ -50,26 +50,22 @@ export const useStore = create<AppState>()(
 			updateCharacterName: (character, newName) =>
 				set(state => ({
 					characters: state.characters.map(c =>
-						c.id === character.id ? { ...c, props: { ...c.props, name: newName } } : c
+						c.id === character.id ? { ...c, props: { ...c.props, name: newName } } : c,
 					),
 				})),
 			updateCharacterProp: (character, prop, value) =>
 				set(state => ({
 					characters: state.characters.map(c =>
-						c.id === character.id ? { ...c, props: { ...c.props, [prop]: value } } : c
+						c.id === character.id ? { ...c, props: { ...c.props, [prop]: value } } : c,
 					),
 				})),
 			updateCharacterPos: (character, pos) =>
 				set(state => ({
-					characters: state.characters.map(c =>
-						c.id === character.id ? { ...c, position: pos } : c
-					),
+					characters: state.characters.map(c => (c.id === character.id ? { ...c, position: pos } : c)),
 				})),
 			updateCharacterAutomaticMode: (character, automaticMode) =>
 				set(state => ({
-					characters: state.characters.map(c =>
-						c.id === character.id ? { ...c, automaticMode } : c
-					),
+					characters: state.characters.map(c => (c.id === character.id ? { ...c, automaticMode } : c)),
 				})),
 			removeCharacter: id =>
 				set(state => ({
@@ -101,6 +97,6 @@ export const useStore = create<AppState>()(
 		{
 			name: 'd12-simulator-storage',
 			version: 1,
-		}
-	)
+		},
+	),
 );

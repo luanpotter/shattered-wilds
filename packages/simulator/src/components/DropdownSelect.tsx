@@ -44,8 +44,7 @@ function DropdownSelect<T extends string>({
 
 		// Check if the input is empty or matches at least one option
 		const matchesAnyOption =
-			newValue === '' ||
-			optionsArray.some(option => option.toLowerCase().includes(newValue.toLowerCase()));
+			newValue === '' || optionsArray.some(option => option.toLowerCase().includes(newValue.toLowerCase()));
 
 		if (matchesAnyOption) {
 			setInputValue(newValue);

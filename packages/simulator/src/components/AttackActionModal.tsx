@@ -208,7 +208,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 
 		if (outcome.hit && outcome.damage > 0) {
 			const currentVitality = parseInt(
-				defender.props['currentVitality'] ?? defenderSheet.derivedStats.maxVitality.value.toString()
+				defender.props['currentVitality'] ?? defenderSheet.derivedStats.maxVitality.value.toString(),
 			);
 			const newVitality = Math.max(0, currentVitality - outcome.damage);
 
@@ -304,12 +304,8 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 									: defenseResult.total}
 							</strong>
 							{defenseResult.shifts > 0 && <div>Shifts: {defenseResult.shifts}</div>}
-							{usedDodge && (
-								<div style={{ fontSize: '0.8em', opacity: 0.8 }}>Used Dodge reaction</div>
-							)}
-							{usedShieldBlock && (
-								<div style={{ fontSize: '0.8em', opacity: 0.8 }}>Used Shield Block reaction</div>
-							)}
+							{usedDodge && <div style={{ fontSize: '0.8em', opacity: 0.8 }}>Used Dodge reaction</div>}
+							{usedShieldBlock && <div style={{ fontSize: '0.8em', opacity: 0.8 }}>Used Shield Block reaction</div>}
 						</div>
 					)}
 				</div>
@@ -351,8 +347,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 							}}
 						>
 							<strong>
-								Attack Result:{' '}
-								{attacker.automaticMode ? `Auto: ${attackResult.total}` : attackResult.total}
+								Attack Result: {attacker.automaticMode ? `Auto: ${attackResult.total}` : attackResult.total}
 							</strong>
 							{attackResult.shifts > 0 && <div>Shifts: {attackResult.shifts}</div>}
 						</div>

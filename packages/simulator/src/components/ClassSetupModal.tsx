@@ -76,9 +76,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 								{flavors.map(flavor => {
 									const classForCell = Object.values(CharacterClass).find(cls => {
 										const def = CLASS_DEFINITIONS[cls];
-										return (
-											def.archetype === 'Warrior' && def.role === role && def.flavor === flavor
-										);
+										return def.archetype === 'Warrior' && def.role === role && def.flavor === flavor;
 									});
 									return (
 										<td key={flavor} style={{ border: '1px solid var(--text)', padding: '8px' }}>
@@ -88,28 +86,20 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 													style={{
 														width: '100%',
 														padding: '8px',
-														backgroundColor: isSelected(classForCell)
-															? '#4CAF50'
-															: 'var(--background-alt)',
-														border: isSelected(classForCell)
-															? '2px solid #2E7D32'
-															: '1px solid var(--text)',
+														backgroundColor: isSelected(classForCell) ? '#4CAF50' : 'var(--background-alt)',
+														border: isSelected(classForCell) ? '2px solid #2E7D32' : '1px solid var(--text)',
 														borderRadius: '4px',
 														color: isSelected(classForCell) ? 'white' : 'var(--text)',
 														cursor: 'pointer',
 														fontWeight: isSelected(classForCell) ? 'bold' : 'normal',
 														fontSize: isSelected(classForCell) ? '0.95em' : '0.9em',
-														boxShadow: isSelected(classForCell)
-															? '0 2px 4px rgba(76, 175, 80, 0.3)'
-															: 'none',
+														boxShadow: isSelected(classForCell) ? '0 2px 4px rgba(76, 175, 80, 0.3)' : 'none',
 													}}
 												>
 													{classForCell}
 												</button>
 											) : (
-												<div style={{ fontSize: '0.8em', color: 'gray', padding: '8px' }}>
-													No class
-												</div>
+												<div style={{ fontSize: '0.8em', color: 'gray', padding: '8px' }}>No class</div>
 											)}
 										</td>
 									);
@@ -159,28 +149,20 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 													style={{
 														width: '100%',
 														padding: '8px',
-														backgroundColor: isSelected(classForCell)
-															? '#4CAF50'
-															: 'var(--background-alt)',
-														border: isSelected(classForCell)
-															? '2px solid #2E7D32'
-															: '1px solid var(--text)',
+														backgroundColor: isSelected(classForCell) ? '#4CAF50' : 'var(--background-alt)',
+														border: isSelected(classForCell) ? '2px solid #2E7D32' : '1px solid var(--text)',
 														borderRadius: '4px',
 														color: isSelected(classForCell) ? 'white' : 'var(--text)',
 														cursor: 'pointer',
 														fontWeight: isSelected(classForCell) ? 'bold' : 'normal',
 														fontSize: isSelected(classForCell) ? '0.95em' : '0.9em',
-														boxShadow: isSelected(classForCell)
-															? '0 2px 4px rgba(76, 175, 80, 0.3)'
-															: 'none',
+														boxShadow: isSelected(classForCell) ? '0 2px 4px rgba(76, 175, 80, 0.3)' : 'none',
 													}}
 												>
 													{classForCell}
 												</button>
 											) : (
-												<div style={{ fontSize: '0.8em', color: 'gray', padding: '8px' }}>
-													No class
-												</div>
+												<div style={{ fontSize: '0.8em', color: 'gray', padding: '8px' }}>No class</div>
 											)}
 										</td>
 									);
@@ -230,28 +212,20 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 													style={{
 														width: '100%',
 														padding: '8px',
-														backgroundColor: isSelected(classForCell)
-															? '#4CAF50'
-															: 'var(--background-alt)',
-														border: isSelected(classForCell)
-															? '2px solid #2E7D32'
-															: '1px solid var(--text)',
+														backgroundColor: isSelected(classForCell) ? '#4CAF50' : 'var(--background-alt)',
+														border: isSelected(classForCell) ? '2px solid #2E7D32' : '1px solid var(--text)',
 														borderRadius: '4px',
 														color: isSelected(classForCell) ? 'white' : 'var(--text)',
 														cursor: 'pointer',
 														fontWeight: isSelected(classForCell) ? 'bold' : 'normal',
 														fontSize: isSelected(classForCell) ? '0.95em' : '0.9em',
-														boxShadow: isSelected(classForCell)
-															? '0 2px 4px rgba(76, 175, 80, 0.3)'
-															: 'none',
+														boxShadow: isSelected(classForCell) ? '0 2px 4px rgba(76, 175, 80, 0.3)' : 'none',
 													}}
 												>
 													{classForCell}
 												</button>
 											) : (
-												<div style={{ fontSize: '0.8em', color: 'gray', padding: '8px' }}>
-													No class
-												</div>
+												<div style={{ fontSize: '0.8em', color: 'gray', padding: '8px' }}>No class</div>
 											)}
 										</td>
 									);
@@ -265,9 +239,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 	};
 
 	const renderSelectedClassInfo = () => {
-		const definition = currentClassInfo.characterClass
-			? CLASS_DEFINITIONS[currentClassInfo.characterClass]
-			: null;
+		const definition = currentClassInfo.characterClass ? CLASS_DEFINITIONS[currentClassInfo.characterClass] : null;
 		const coreFeats = currentClassInfo.getCoreClassFeats();
 		const coreFeatDefinitions = coreFeats.map(featId => FEATS[featId]).filter(Boolean);
 
@@ -285,8 +257,8 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 					<>
 						<h4 style={{ margin: '0 0 8px 0' }}>Selected: {currentClassInfo.characterClass}</h4>
 						<p style={{ margin: '0 0 8px 0', fontSize: '0.9em' }}>
-							<strong>Archetype:</strong> {definition.archetype} |
-							<strong> Primary Attribute:</strong> {definition.primaryAttribute.name}
+							<strong>Archetype:</strong> {definition.archetype} |<strong> Primary Attribute:</strong>{' '}
+							{definition.primaryAttribute.name}
 						</p>
 						<div style={{ marginTop: '8px' }}>
 							<strong>Core Class Feats (Level 1):</strong>
@@ -302,12 +274,8 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 											border: '1px solid var(--text)',
 										}}
 									>
-										<div style={{ fontWeight: 'bold', marginBottom: '2px', fontSize: '0.9em' }}>
-											{feat.name}
-										</div>
-										<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>
-											{feat.description}
-										</div>
+										<div style={{ fontWeight: 'bold', marginBottom: '2px', fontSize: '0.9em' }}>{feat.name}</div>
+										<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>{feat.description}</div>
 									</div>
 								))}
 							</div>
@@ -377,9 +345,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 
 			{/* Action Buttons */}
 			{onClose && (
-				<div
-					style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '16px' }}
-				>
+				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '16px' }}>
 					<button
 						onClick={onClose}
 						style={{

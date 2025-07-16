@@ -110,7 +110,7 @@ export class Weapon implements Item {
 		bonus: number,
 		traits: string[],
 		attribute: StatType,
-		range?: number
+		range?: number,
 	) {
 		this.name = name;
 		this.type = type;
@@ -175,30 +175,19 @@ export class Equipment {
 
 			const items: Item[] = itemData.map(data => {
 				if (Object.values(PrimaryWeaponType).includes(data.type as PrimaryWeaponType)) {
-					const attributeType =
-						Object.values(StatType).find(attr => attr.name === data.attribute) || StatType.STR;
+					const attributeType = Object.values(StatType).find(attr => attr.name === data.attribute) || StatType.STR;
 					return new Weapon(
 						data.name,
 						data.type as PrimaryWeaponType,
 						data.bonus || 0,
 						data.traits || [],
 						attributeType,
-						data.range
+						data.range,
 					);
 				} else if (Object.values(ArmorType).includes(data.type as ArmorType)) {
-					return new Armor(
-						data.name,
-						data.type as ArmorType,
-						data.bonus || 0,
-						data.dexPenalty || 0
-					);
+					return new Armor(data.name, data.type as ArmorType, data.bonus || 0, data.dexPenalty || 0);
 				} else if (Object.values(ShieldType).includes(data.type as ShieldType)) {
-					return new Shield(
-						data.name,
-						data.type as ShieldType,
-						data.bonus || 0,
-						data.twoHanded || false
-					);
+					return new Shield(data.name, data.type as ShieldType, data.bonus || 0, data.twoHanded || false);
 				}
 				return { name: data.name };
 			});

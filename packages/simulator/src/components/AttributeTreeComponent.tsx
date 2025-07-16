@@ -1,11 +1,5 @@
 import React, { useState, ReactNode } from 'react';
-import {
-	FaUndo,
-	FaExclamationTriangle,
-	FaChevronDown,
-	FaChevronRight,
-	FaInfoCircle,
-} from 'react-icons/fa';
+import { FaUndo, FaExclamationTriangle, FaChevronDown, FaChevronRight, FaInfoCircle } from 'react-icons/fa';
 
 import { useStore } from '../store';
 import { Attribute, AttributeTree, StatType, AttributeValue } from '../types';
@@ -26,15 +20,7 @@ const AttributeValueComponent: React.FC<{
 	canDeallocate?: boolean;
 	attributeName: string;
 	characterId?: string;
-}> = ({
-	modifier,
-	onClick,
-	onRightClick,
-	canAllocate = false,
-	canDeallocate = false,
-	attributeName,
-	characterId,
-}) => {
+}> = ({ modifier, onClick, onRightClick, canAllocate = false, canDeallocate = false, attributeName, characterId }) => {
 	const editMode = useStore(state => state.editMode);
 	const addWindow = useStore(state => state.addWindow);
 	const value = modifier.value;
@@ -74,15 +60,9 @@ const AttributeValueComponent: React.FC<{
 	const getModifierTooltip = () => {
 		const tooltip = [];
 		if (modifier.wasLevelCapped) {
-			tooltip.push(
-				`Base value (${modifier.uncappedBaseValue}) exceeds level cap (${modifier.levelCap})`
-			);
+			tooltip.push(`Base value (${modifier.uncappedBaseValue}) exceeds level cap (${modifier.levelCap})`);
 		}
-		tooltip.push(
-			...modifier.modifiers.map(
-				mod => `${mod.source}: ${mod.value > 0 ? '+' + mod.value : mod.value}`
-			)
-		);
+		tooltip.push(...modifier.modifiers.map(mod => `${mod.source}: ${mod.value > 0 ? '+' + mod.value : mod.value}`));
 		return tooltip.join('\n');
 	};
 
@@ -117,9 +97,7 @@ const AttributeValueComponent: React.FC<{
 					height: '24px',
 					borderRadius: '50%',
 					backgroundColor:
-						(editMode && (canAllocate || canDeallocate)) || !editMode
-							? 'var(--background-alt)'
-							: 'transparent',
+						(editMode && (canAllocate || canDeallocate)) || !editMode ? 'var(--background-alt)' : 'transparent',
 					border: '1px solid var(--text)',
 					cursor: (editMode && (canAllocate || canDeallocate)) || !editMode ? 'pointer' : 'default',
 					fontSize: '0.9em',
@@ -230,14 +208,9 @@ const AttributeBox: React.FC<AttributeBoxProps> = ({
 			>
 				<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
 					{expandable && (isExpanded ? <FaChevronDown size={14} /> : <FaChevronRight size={14} />)}
-					<span style={{ fontWeight: level !== 'skill' ? 'bold' : 'normal' }}>
-						{attribute.type.name}
-					</span>
+					<span style={{ fontWeight: level !== 'skill' ? 'bold' : 'normal' }}>{attribute.type.name}</span>
 					{hasUnallocated && (
-						<FaExclamationTriangle
-							style={{ color: 'orange', marginLeft: '4px' }}
-							title='Contains unallocated points'
-						/>
+						<FaExclamationTriangle style={{ color: 'orange', marginLeft: '4px' }} title='Contains unallocated points' />
 					)}
 				</div>
 				{attributeValue}
@@ -287,10 +260,7 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 				<span style={{ fontWeight: 'bold', fontSize: '1.1em' }}>
 					{unallocated}/{totalAvailable} points
 					{unallocated > 0 && (
-						<FaExclamationTriangle
-							style={{ marginLeft: '6px', color: 'orange' }}
-							title='You have unallocated points'
-						/>
+						<FaExclamationTriangle style={{ marginLeft: '6px', color: 'orange' }} title='You have unallocated points' />
 					)}
 				</span>
 			</div>
@@ -328,7 +298,7 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 		onTabSelect: (tab: string | null) => void,
 		tabLevel: 'realm' | 'basic',
 		backgroundColor?: string,
-		children?: React.ReactNode
+		children?: React.ReactNode,
 	) => {
 		const selectedTabIndex = selectedTab ? tabs.findIndex(t => t.type.name === selectedTab) : -1;
 
@@ -456,9 +426,7 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 				setSelectedRealm,
 				'realm',
 				selectedRealm
-					? getRealmBackgroundColor(
-							tree.root.children.find(r => r.type.name === selectedRealm)?.type || StatType.Body
-						)
+					? getRealmBackgroundColor(tree.root.children.find(r => r.type.name === selectedRealm)?.type || StatType.Body)
 					: undefined,
 				selectedRealm &&
 					// Basic Attributes Tab Panel (nested)
@@ -492,8 +460,8 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 										/>
 									))}
 							</div>
-						)
-					)
+						),
+					),
 			)}
 		</div>
 	);

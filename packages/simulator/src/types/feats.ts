@@ -190,8 +190,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		name: 'Specialized Knowledge (Urban)',
 		type: FeatType.Core,
 		category: FeatCategory.Upbringing,
-		description:
-			'You have +3 to Knowledge or Intuition Checks about urban lore, politics, commerce',
+		description: 'You have +3 to Knowledge or Intuition Checks about urban lore, politics, commerce',
 		level: 0,
 	},
 	'nomadic-alertness': {
@@ -199,8 +198,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		name: 'Nomadic Alertness',
 		type: FeatType.Core,
 		category: FeatCategory.Upbringing,
-		description:
-			'Can make Awareness Checks to spot danger while sleeping in the Wilds with no CM penalty',
+		description: 'Can make Awareness Checks to spot danger while sleeping in the Wilds with no CM penalty',
 		level: 0,
 	},
 	'specialized-knowledge-nomadic': {
@@ -208,8 +206,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		name: 'Specialized Knowledge (Nomadic)',
 		type: FeatType.Core,
 		category: FeatCategory.Upbringing,
-		description:
-			'You have +3 to Knowledge or Intuition Checks about surviving in the Wilds, foraging, tracking',
+		description: 'You have +3 to Knowledge or Intuition Checks about surviving in the Wilds, foraging, tracking',
 		level: 0,
 	},
 	'tribal-endurance': {
@@ -259,8 +256,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		name: 'Specialized Knowledge (Telluric)',
 		type: FeatType.Core,
 		category: FeatCategory.Upbringing,
-		description:
-			'You have +3 to Knowledge or Intuition Checks about caves, dungeons, minerals, mining, and ore lore',
+		description: 'You have +3 to Knowledge or Intuition Checks about caves, dungeons, minerals, mining, and ore lore',
 		level: 0,
 	},
 
@@ -478,8 +474,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		name: 'Divine Channeling',
 		type: FeatType.Core,
 		category: FeatCategory.ClassRole,
-		description:
-			'Unlocks Divine Channeling. See Divine Channeling for details on how the Divine magic system works.',
+		description: 'Unlocks Divine Channeling. See Divine Channeling for details on how the Divine magic system works.',
 		level: 1,
 		traits: ['Channeling'],
 	},
@@ -530,8 +525,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		name: 'Trade Specialization',
 		type: FeatType.Minor,
 		category: FeatCategory.General,
-		description:
-			'You are acquainted with a specific trade, allowing you to perform basic tasks associated with it',
+		description: 'You are acquainted with a specific trade, allowing you to perform basic tasks associated with it',
 		level: 1,
 		canPickMultipleTimes: true,
 		parameters: [
@@ -569,8 +563,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		name: 'Specialized Knowledge',
 		type: FeatType.Minor,
 		category: FeatCategory.General,
-		description:
-			'You have +3 to Knowledge or Intuition Checks about aspects related to a specific area of expertise',
+		description: 'You have +3 to Knowledge or Intuition Checks about aspects related to a specific area of expertise',
 		level: 1,
 		canPickMultipleTimes: true,
 		parameters: [
@@ -588,8 +581,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		name: 'Lip Reading',
 		type: FeatType.Minor,
 		category: FeatCategory.General,
-		description:
-			'You can read lips to understand what people are saying when you can see them clearly',
+		description: 'You can read lips to understand what people are saying when you can see them clearly',
 		level: 1,
 	},
 	'animal-mimicry': {
@@ -694,8 +686,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		name: 'Instinctive Tracking',
 		type: FeatType.Minor,
 		category: FeatCategory.ClassFlavor,
-		description:
-			'You get a +3 CM to Checks you make related to tracking creatures (following footprints, etc).',
+		description: 'You get a +3 CM to Checks you make related to tracking creatures (following footprints, etc).',
 		level: 2,
 	},
 	'disregard-cover': {
@@ -739,8 +730,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		name: 'Spiritual Armor',
 		type: FeatType.Minor,
 		category: FeatCategory.ClassFlavor,
-		description:
-			'You can roll the Shrug Off action using your Primary Attribute instead of Toughness',
+		description: 'You can roll the Shrug Off action using your Primary Attribute instead of Toughness',
 		level: 2,
 		traits: ['Channeling'],
 	},
@@ -766,8 +756,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		name: 'Favorable Movement',
 		type: FeatType.Major,
 		category: FeatCategory.ClassRole,
-		description:
-			'You can spend 1 FP to ignore the Difficult Terrain trait of a hex while moving through it.',
+		description: 'You can spend 1 FP to ignore the Difficult Terrain trait of a hex while moving through it.',
 		level: 3,
 	},
 
@@ -804,8 +793,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		name: 'Divine Channeling',
 		type: FeatType.Major,
 		category: FeatCategory.ClassFlavor,
-		description:
-			'Unlocks Divine Channeling (for Purist Mystics at Level 2, Martial Mystics at Level 3)',
+		description: 'Unlocks Divine Channeling (for Purist Mystics at Level 2, Martial Mystics at Level 3)',
 		level: 2,
 		traits: ['Channeling'],
 	},
@@ -835,8 +823,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 		name: 'Mounted Combat Specialization',
 		type: FeatType.Major,
 		category: FeatCategory.General,
-		description:
-			'WIP - Mounted Combat Rules are still being developed and are not available as an option yet',
+		description: 'WIP - Mounted Combat Rules are still being developed and are not available as an option yet',
 		level: 2,
 	},
 };
@@ -990,10 +977,7 @@ export function generateLevelBasedSlots(maxLevel: number): FeatSlot[] {
 }
 
 // Get all feat slots for a character level
-export function getAllFeatSlots(
-	characterLevel: number,
-	hasSpecializedTraining: boolean = false
-): FeatSlot[] {
+export function getAllFeatSlots(characterLevel: number, hasSpecializedTraining: boolean = false): FeatSlot[] {
 	const slots: FeatSlot[] = [];
 
 	// Add core race/upbringing slots (Level 0)
@@ -1023,7 +1007,7 @@ export function getAllFeatSlots(
 				level: 1,
 				type: FeatType.Minor,
 				description: 'Additional minor feat slot from Specialized Training',
-			}
+			},
 		);
 	}
 
@@ -1034,7 +1018,7 @@ export function getAllFeatSlots(
 export function getUpbringingModifierFeat(
 	upbringing: Upbringing,
 	plusModifier: StatType,
-	minusModifier: StatType
+	minusModifier: StatType,
 ): FeatDefinition {
 	const baseFeat = FEATS[`upbringing-${upbringing.toLowerCase()}`];
 	if (!baseFeat) {
@@ -1080,11 +1064,7 @@ export const CLASS_ROLE_FEATS: Record<string, string[]> = {
 export const CLASS_FLAVOR_FEATS: Record<string, string[]> = {
 	// Warrior flavors
 	'Warrior-Martial': ['distributed-shifts'],
-	'Warrior-Survivalist': [
-		'specialized-knowledge-sylvian-class',
-		'instinctive-tracking',
-		'disregard-cover',
-	],
+	'Warrior-Survivalist': ['specialized-knowledge-sylvian-class', 'instinctive-tracking', 'disregard-cover'],
 	'Warrior-Scoundrel': ['thieves-fingers', 'leverage', 'skilled'],
 
 	// Caster flavors
@@ -1184,7 +1164,7 @@ export const CLASS_CORE_FEATS: Record<string, { role: string; flavor: string }> 
 // Helper functions for parameterized feats
 export function createParameterizedFeat(
 	baseFeatId: string,
-	parameters: Record<string, string>
+	parameters: Record<string, string>,
 ): ParameterizedFeatInstance {
 	const baseFeat = FEATS[baseFeatId];
 	if (!baseFeat) {

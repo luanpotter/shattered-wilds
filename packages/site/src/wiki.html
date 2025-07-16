@@ -1,29 +1,29 @@
 <h1>Wiki</h1>
 
 <div class="filter-section">
-  <p><strong>Filter:</strong> <input type="text" id="filter-wiki" /></p>
+	<p><strong>Filter:</strong> <input type="text" id="filter-wiki" /></p>
 </div>
 
 <ul id="wiki-list">
-  {% assign pages = collections.wiki | concat: lexiconFiles | where: "slug" | sort_natural: 'slug'
-  %} {% for page in pages %}
-  <li>
-    <a href="{{ page.url }}">{{ page.shortTitle }}</a>
-  </li>
-  {% endfor %}
+	{% assign pages = collections.wiki | concat: lexiconFiles | where: "slug" | sort_natural: 'slug' %} {% for page in
+	pages %}
+	<li>
+		<a href="{{ page.url }}">{{ page.shortTitle }}</a>
+	</li>
+	{% endfor %}
 </ul>
 
 <script>
-  const wikiList = document.querySelector('#wiki-list');
-  const wikiFilter = document.querySelector('#filter-wiki');
+	const wikiList = document.querySelector('#wiki-list');
+	const wikiFilter = document.querySelector('#filter-wiki');
 
-  wikiFilter.addEventListener('input', function () {
-    const value = this.value.toLowerCase();
-    const nodes = [...wikiList.querySelectorAll('li')];
-    nodes.forEach((node) => {
-      const name = node.innerHTML.toLowerCase();
-      const visible = name.includes(value);
-      node.style.display = visible ? 'list-item' : 'none';
-    });
-  });
+	wikiFilter.addEventListener('input', function () {
+		const value = this.value.toLowerCase();
+		const nodes = [...wikiList.querySelectorAll('li')];
+		nodes.forEach(node => {
+			const name = node.innerHTML.toLowerCase();
+			const visible = name.includes(value);
+			node.style.display = visible ? 'list-item' : 'none';
+		});
+	});
 </script>

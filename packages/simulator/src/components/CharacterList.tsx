@@ -106,10 +106,7 @@ export const CharacterList: React.FC = () => {
 				>
 					<p style={{ margin: '0 0 6px 0' }}>{importError}</p>
 					<div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-						<button
-							onClick={() => setImportError(null)}
-							style={{ padding: '2px 6px', fontSize: '0.9em' }}
-						>
+						<button onClick={() => setImportError(null)} style={{ padding: '2px 6px', fontSize: '0.9em' }}>
 							Dismiss
 						</button>
 					</div>
@@ -127,9 +124,7 @@ export const CharacterList: React.FC = () => {
 						fontSize: '0.9em',
 					}}
 				>
-					<p style={{ margin: '0 0 6px 0' }}>
-						Delete {characters.find(c => c.id === confirmDelete)?.props.name}?
-					</p>
+					<p style={{ margin: '0 0 6px 0' }}>Delete {characters.find(c => c.id === confirmDelete)?.props.name}?</p>
 					<div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
 						<button onClick={handleCancelDelete} style={{ padding: '2px 6px', fontSize: '0.9em' }}>
 							Cancel
@@ -149,16 +144,10 @@ export const CharacterList: React.FC = () => {
 				</div>
 			)}
 			<div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'flex-end', gap: '4px' }}>
-				<button
-					onClick={() => void handleImportFromClipboard()}
-					style={{ padding: '4px 8px', fontSize: '0.9em' }}
-				>
+				<button onClick={() => void handleImportFromClipboard()} style={{ padding: '4px 8px', fontSize: '0.9em' }}>
 					<FaClipboard /> Import Character
 				</button>
-				<button
-					onClick={handleOpenNewCharacterModal}
-					style={{ padding: '4px 8px', fontSize: '0.9em' }}
-				>
+				<button onClick={handleOpenNewCharacterModal} style={{ padding: '4px 8px', fontSize: '0.9em' }}>
 					<FaPlus /> New Character
 				</button>
 			</div>

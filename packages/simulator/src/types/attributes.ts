@@ -168,13 +168,7 @@ export class AttributeValue {
 	levelCap: number;
 	modifiers: Modifier[];
 
-	constructor(
-		parentValue: number,
-		nodeValue: number,
-		nodeModifier: number,
-		levelCap: number,
-		modifiers: Modifier[]
-	) {
+	constructor(parentValue: number, nodeValue: number, nodeModifier: number, levelCap: number, modifiers: Modifier[]) {
 		this.parentValue = parentValue;
 		this.nodeValue = nodeValue;
 		this.nodeModifier = nodeModifier;
@@ -223,46 +217,18 @@ export const makeAttributeTree = (values: Record<string, string> = {}): Attribut
 	return attr(StatType.Level, [
 		attr(StatType.Body, [
 			attr(StatType.STR, [attr(StatType.Muscles), attr(StatType.Stance), attr(StatType.Lift)]),
-			attr(StatType.DEX, [
-				attr(StatType.Finesse),
-				attr(StatType.Evasiveness),
-				attr(StatType.Agility),
-			]),
-			attr(StatType.CON, [
-				attr(StatType.Toughness),
-				attr(StatType.Stamina),
-				attr(StatType.Resilience),
-			]),
+			attr(StatType.DEX, [attr(StatType.Finesse), attr(StatType.Evasiveness), attr(StatType.Agility)]),
+			attr(StatType.CON, [attr(StatType.Toughness), attr(StatType.Stamina), attr(StatType.Resilience)]),
 		]),
 		attr(StatType.Mind, [
 			attr(StatType.INT, [attr(StatType.IQ), attr(StatType.Knowledge), attr(StatType.Memory)]),
-			attr(StatType.WIS, [
-				attr(StatType.Perception),
-				attr(StatType.Awareness),
-				attr(StatType.Intuition),
-			]),
-			attr(StatType.CHA, [
-				attr(StatType.Speechcraft),
-				attr(StatType.Presence),
-				attr(StatType.Empathy),
-			]),
+			attr(StatType.WIS, [attr(StatType.Perception), attr(StatType.Awareness), attr(StatType.Intuition)]),
+			attr(StatType.CHA, [attr(StatType.Speechcraft), attr(StatType.Presence), attr(StatType.Empathy)]),
 		]),
 		attr(StatType.Soul, [
-			attr(StatType.DIV, [
-				attr(StatType.Revelation),
-				attr(StatType.Attunement),
-				attr(StatType.Devotion),
-			]),
-			attr(StatType.FOW, [
-				attr(StatType.Discipline),
-				attr(StatType.Tenacity),
-				attr(StatType.Resolve),
-			]),
-			attr(StatType.LCK, [
-				attr(StatType.Karma),
-				attr(StatType.Fortune),
-				attr(StatType.Serendipity),
-			]),
+			attr(StatType.DIV, [attr(StatType.Revelation), attr(StatType.Attunement), attr(StatType.Devotion)]),
+			attr(StatType.FOW, [attr(StatType.Discipline), attr(StatType.Tenacity), attr(StatType.Resolve)]),
+			attr(StatType.LCK, [attr(StatType.Karma), attr(StatType.Fortune), attr(StatType.Serendipity)]),
 		]),
 	]);
 };

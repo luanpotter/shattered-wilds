@@ -127,9 +127,7 @@ export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
 			{basicAttacks.length > 0 && onAttackAction && (
 				<>
 					{/* Separator */}
-					<div
-						style={{ height: '1px', backgroundColor: 'var(--text)', margin: '4px 0', opacity: 0.3 }}
-					/>
+					<div style={{ height: '1px', backgroundColor: 'var(--text)', margin: '4px 0', opacity: 0.3 }} />
 
 					{basicAttacks.map((attack, index) => (
 						<div

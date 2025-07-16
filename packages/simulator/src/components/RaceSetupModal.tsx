@@ -35,7 +35,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 				return getUpbringingModifierFeat(
 					currentRace.upbringing,
 					currentRace.upbringingPlusModifier,
-					currentRace.upbringingMinusModifier
+					currentRace.upbringingMinusModifier,
 				);
 			}
 			return FEATS[featId];
@@ -75,7 +75,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 			currentRace.halfRace,
 			currentRace.combineHalfRaceStats,
 			currentRace.upbringingPlusModifier,
-			currentRace.upbringingMinusModifier
+			currentRace.upbringingMinusModifier,
 		);
 	};
 
@@ -100,7 +100,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 			value,
 			currentRace.combineHalfRaceStats,
 			currentRace.upbringingPlusModifier,
-			currentRace.upbringingMinusModifier
+			currentRace.upbringingMinusModifier,
 		);
 	};
 
@@ -112,7 +112,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 			currentRace.halfRace,
 			combineStats,
 			currentRace.upbringingPlusModifier,
-			currentRace.upbringingMinusModifier
+			currentRace.upbringingMinusModifier,
 		);
 	};
 
@@ -131,7 +131,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 			currentRace.halfRace,
 			currentRace.combineHalfRaceStats,
 			currentRace.upbringingPlusModifier,
-			currentRace.upbringingMinusModifier
+			currentRace.upbringingMinusModifier,
 		);
 	};
 
@@ -145,7 +145,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 				currentRace.halfRace,
 				currentRace.combineHalfRaceStats,
 				attributeType,
-				currentRace.upbringingMinusModifier
+				currentRace.upbringingMinusModifier,
 			);
 		}
 	};
@@ -160,7 +160,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 				currentRace.halfRace,
 				currentRace.combineHalfRaceStats,
 				currentRace.upbringingPlusModifier,
-				attributeType
+				attributeType,
 			);
 		}
 	};
@@ -172,7 +172,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 		halfRace: Race | null,
 		combineStats: boolean,
 		upbringingPlusModifier: StatType,
-		upbringingMinusModifier: StatType
+		upbringingMinusModifier: StatType,
 	) => {
 		// Clear existing core race feat slots
 		updateCharacterProp(character, 'feat-core-race-1', '');
@@ -187,7 +187,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 			halfRace,
 			combineStats,
 			upbringingPlusModifier,
-			upbringingMinusModifier
+			upbringingMinusModifier,
 		);
 		const newCoreFeats = newRaceInfo.getCoreFeats();
 
@@ -202,11 +202,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 			updateCharacterProp(character, 'feat-core-upbringing-3', newCoreFeats[3]);
 		}
 		// Always update the upbringing modifier feat
-		updateCharacterProp(
-			character,
-			'feat-core-upbringing-1',
-			`upbringing-${upbringing.toLowerCase()}`
-		);
+		updateCharacterProp(character, 'feat-core-upbringing-1', `upbringing-${upbringing.toLowerCase()}`);
 	};
 
 	return (
@@ -250,7 +246,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 									}
 									return filtered;
 								},
-								{} as Record<string, Race>
+								{} as Record<string, Race>,
 							)}
 							value={currentRace.halfRace}
 							onChange={handleHalfRaceChange}
@@ -347,9 +343,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 					}}
 				>
 					<span>Size is determined by your primary race</span>
-					<span style={{ fontWeight: 'bold' }}>
-						{getSizeDisplay(sheet.derivedStats.size.value)}
-					</span>
+					<span style={{ fontWeight: 'bold' }}>{getSizeDisplay(sheet.derivedStats.size.value)}</span>
 				</div>
 			</div>
 
@@ -376,18 +370,12 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 									border: '1px solid var(--text)',
 								}}
 							>
-								<div style={{ fontWeight: 'bold', marginBottom: '2px', fontSize: '0.9em' }}>
-									{feat.name}
-								</div>
-								<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>
-									{feat.description}
-								</div>
+								<div style={{ fontWeight: 'bold', marginBottom: '2px', fontSize: '0.9em' }}>{feat.name}</div>
+								<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>{feat.description}</div>
 							</div>
 						))
 					) : (
-						<div style={{ color: 'var(--text-secondary)', fontStyle: 'italic', fontSize: '0.9em' }}>
-							No core feats
-						</div>
+						<div style={{ color: 'var(--text-secondary)', fontStyle: 'italic', fontSize: '0.9em' }}>No core feats</div>
 					)}
 				</div>
 			</div>

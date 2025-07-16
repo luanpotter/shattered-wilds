@@ -35,9 +35,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 	// Update window title when character name changes
 	useEffect(() => {
 		// Find the window for this character
-		const characterWindow = windows.find(
-			w => w.type === 'character-sheet' && w.characterId === character.id
-		);
+		const characterWindow = windows.find(w => w.type === 'character-sheet' && w.characterId === character.id);
 
 		if (characterWindow) {
 			// Only update if the title doesn't match the current character name
@@ -61,9 +59,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 
 	const handleOpenRaceSetup = () => {
 		// Check if a race setup window is already open for this character
-		const raceSetupWindow = windows.find(
-			w => w.type === 'race-setup' && w.characterId === character.id
-		);
+		const raceSetupWindow = windows.find(w => w.type === 'race-setup' && w.characterId === character.id);
 
 		// If not, open a new race setup window
 		if (!raceSetupWindow) {
@@ -80,9 +76,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 
 	const handleOpenClassSetup = () => {
 		// Check if a class setup window is already open for this character
-		const classSetupWindow = windows.find(
-			w => w.type === 'class-setup' && w.characterId === character.id
-		);
+		const classSetupWindow = windows.find(w => w.type === 'class-setup' && w.characterId === character.id);
 
 		// If not, open a new class setup window
 		if (!classSetupWindow) {
@@ -99,9 +93,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 
 	const handleOpenFeatsSetup = () => {
 		// Check if a feats setup window is already open for this character
-		const featsSetupWindow = windows.find(
-			w => w.type === 'feats-setup' && w.characterId === character.id
-		);
+		const featsSetupWindow = windows.find(w => w.type === 'feats-setup' && w.characterId === character.id);
 
 		// If not, open a new feats setup window
 		if (!featsSetupWindow) {
@@ -118,9 +110,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 
 	const handleOpenBasicAttacks = () => {
 		// Check if a basic attacks window is already open for this character
-		const basicAttacksWindow = windows.find(
-			w => w.type === 'basic-attacks' && w.characterId === character.id
-		);
+		const basicAttacksWindow = windows.find(w => w.type === 'basic-attacks' && w.characterId === character.id);
 
 		// If not, open a new basic attacks window
 		if (!basicAttacksWindow) {
@@ -179,11 +169,8 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 	};
 
 	const handlePointChange = (pointType: string, delta: number) => {
-		const maxValue = (
-			sheet.derivedStats[
-				`max${pointType}` as keyof typeof sheet.derivedStats
-			] as DerivedStat<number>
-		).value;
+		const maxValue = (sheet.derivedStats[`max${pointType}` as keyof typeof sheet.derivedStats] as DerivedStat<number>)
+			.value;
 		const currentValue = parseInt(character.props[`current${pointType}`] ?? maxValue.toString());
 		const newValue = Math.max(0, Math.min(maxValue, currentValue + delta));
 		updateCharacterProp(character, `current${pointType}`, newValue.toString());
@@ -196,11 +183,8 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 	const handleRefillPoints = () => {
 		const pointTypes = ['Heroism', 'Vitality', 'Focus', 'Spirit'];
 		pointTypes.forEach(pointType => {
-			const maxValue = (
-				sheet.derivedStats[
-					`max${pointType}` as keyof typeof sheet.derivedStats
-				] as DerivedStat<number>
-			).value;
+			const maxValue = (sheet.derivedStats[`max${pointType}` as keyof typeof sheet.derivedStats] as DerivedStat<number>)
+				.value;
 			updateCharacterProp(character, `current${pointType}`, maxValue.toString());
 		});
 	};
@@ -763,11 +747,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 			/>
 
 			{/* Equipment Section */}
-			<EquipmentSection
-				character={character}
-				onUpdateEquipment={handleUpdateEquipment}
-				editMode={editMode}
-			/>
+			<EquipmentSection character={character} onUpdateEquipment={handleUpdateEquipment} editMode={editMode} />
 		</div>
 	);
 };

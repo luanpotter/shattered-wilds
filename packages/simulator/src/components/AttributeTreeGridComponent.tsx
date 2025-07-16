@@ -20,15 +20,7 @@ const AttributeValueComponent: React.FC<{
 	canDeallocate?: boolean;
 	attributeName: string;
 	characterId?: string;
-}> = ({
-	modifier,
-	onClick,
-	onRightClick,
-	canAllocate = false,
-	canDeallocate = false,
-	attributeName,
-	characterId,
-}) => {
+}> = ({ modifier, onClick, onRightClick, canAllocate = false, canDeallocate = false, attributeName, characterId }) => {
 	const editMode = useStore(state => state.editMode);
 	const addWindow = useStore(state => state.addWindow);
 	const value = modifier.value;
@@ -64,15 +56,9 @@ const AttributeValueComponent: React.FC<{
 	const getModifierTooltip = () => {
 		const tooltip = [];
 		if (modifier.wasLevelCapped) {
-			tooltip.push(
-				`Base value (${modifier.uncappedBaseValue}) exceeds level cap (${modifier.levelCap})`
-			);
+			tooltip.push(`Base value (${modifier.uncappedBaseValue}) exceeds level cap (${modifier.levelCap})`);
 		}
-		tooltip.push(
-			...modifier.modifiers.map(
-				mod => `${mod.source}: ${mod.value > 0 ? '+' + mod.value : mod.value}`
-			)
-		);
+		tooltip.push(...modifier.modifiers.map(mod => `${mod.source}: ${mod.value > 0 ? '+' + mod.value : mod.value}`));
 		return tooltip.join('\n');
 	};
 
@@ -107,9 +93,7 @@ const AttributeValueComponent: React.FC<{
 					height: '24px',
 					borderRadius: '50%',
 					backgroundColor:
-						(editMode && (canAllocate || canDeallocate)) || !editMode
-							? 'var(--background-alt)'
-							: 'transparent',
+						(editMode && (canAllocate || canDeallocate)) || !editMode ? 'var(--background-alt)' : 'transparent',
 					border: '1px solid var(--text)',
 					cursor: (editMode && (canAllocate || canDeallocate)) || !editMode ? 'pointer' : 'default',
 					fontSize: '0.9em',
@@ -203,10 +187,7 @@ export const AttributeTreeGridComponent: React.FC<AttributeTreeGridComponentProp
 				<span style={{ fontWeight: 'bold', fontSize: '0.9em' }}>
 					{unallocated}/{totalAvailable} points
 					{unallocated > 0 && (
-						<FaExclamationTriangle
-							style={{ marginLeft: '6px', color: 'orange' }}
-							title='You have unallocated points'
-						/>
+						<FaExclamationTriangle style={{ marginLeft: '6px', color: 'orange' }} title='You have unallocated points' />
 					)}
 				</span>
 			</div>
@@ -219,10 +200,7 @@ export const AttributeTreeGridComponent: React.FC<AttributeTreeGridComponentProp
 	const soulRealm = tree.root.children.find(r => r.type === StatType.Soul);
 
 	// Helper function to find attribute by type
-	const findAttributeByType = (
-		realm: Attribute | undefined,
-		type: StatType
-	): Attribute | undefined => {
+	const findAttributeByType = (realm: Attribute | undefined, type: StatType): Attribute | undefined => {
 		return realm?.children.find(attr => attr.type === type);
 	};
 
@@ -256,10 +234,7 @@ export const AttributeTreeGridComponent: React.FC<AttributeTreeGridComponentProp
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 						<span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{attribute.type.name}</span>
 						{hasUnallocated && (
-							<FaExclamationTriangle
-								style={{ color: 'orange' }}
-								title='Contains unallocated points'
-							/>
+							<FaExclamationTriangle style={{ color: 'orange' }} title='Contains unallocated points' />
 						)}
 					</div>
 					<AttributeValueNode node={attribute} />
@@ -342,16 +317,9 @@ export const AttributeTreeGridComponent: React.FC<AttributeTreeGridComponentProp
 					}}
 				>
 					<span>{realm.type.name}</span>
-					{hasUnallocated && (
-						<FaExclamationTriangle
-							style={{ color: 'orange' }}
-							title='Contains unallocated points'
-						/>
-					)}
+					{hasUnallocated && <FaExclamationTriangle style={{ color: 'orange' }} title='Contains unallocated points' />}
 				</div>
-				<div
-					style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}
-				>
+				<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
 					<AttributeValueNode node={realm} />
 					{editMode && <PointsAllocation node={realm} />}
 				</div>

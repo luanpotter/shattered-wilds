@@ -7,11 +7,7 @@ import { findNextWindowPosition, findCharacterAtPosition, axialToPixel } from '.
 import { CharacterToken } from './CharacterToken';
 import { TokenContextMenu } from './TokenContextMenu';
 
-const Hex: React.FC<{ q: number; r: number; children?: React.ReactNode }> = ({
-	q,
-	r,
-	children,
-}) => {
+const Hex: React.FC<{ q: number; r: number; children?: React.ReactNode }> = ({ q, r, children }) => {
 	const { x, y } = axialToPixel(q, r);
 	return <g transform={`translate(${x},${y})`}>{children}</g>;
 };
@@ -49,11 +45,7 @@ interface BattleGridProps {
 	onStartCharacterDrag: (character: Character, startPosition: Point) => void;
 }
 
-export const BattleGrid: React.FC<BattleGridProps> = ({
-	disabled,
-	dragState,
-	onStartCharacterDrag,
-}) => {
+export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onStartCharacterDrag }) => {
 	const gridRef = useRef<HTMLDivElement>(null);
 	const svgRef = useRef<SVGSVGElement>(null);
 	const characters = useStore(state => state.characters);
@@ -105,10 +97,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 	useEffect(() => {
 		if (dragState.type === 'character' && dragState.startPosition && svgRef.current) {
-			const svgCoords = screenToSvgCoordinates(
-				dragState.startPosition.x,
-				dragState.startPosition.y
-			);
+			const svgCoords = screenToSvgCoordinates(dragState.startPosition.x, dragState.startPosition.y);
 
 			if (svgCoords) {
 				setGhostPosition(svgCoords);
@@ -324,12 +313,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 	// Function to calculate hex distance between two positions
 	const getHexDistance = (pos1: HexPosition, pos2: HexPosition): number => {
-		return (
-			(Math.abs(pos1.q - pos2.q) +
-				Math.abs(pos1.q + pos1.r - pos2.q - pos2.r) +
-				Math.abs(pos1.r - pos2.r)) /
-			2
-		);
+		return (Math.abs(pos1.q - pos2.q) + Math.abs(pos1.q + pos1.r - pos2.q - pos2.r) + Math.abs(pos1.r - pos2.r)) / 2;
 	};
 
 	// Function to calculate shortest path between two hex positions
@@ -543,32 +527,30 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				</g>
 
 				{/* Movement Range Highlight Layer */}
-				{hoveredCharacter?.position &&
-					!attackState?.isSelectingTarget &&
-					!measureState?.isSelectingTarget && (
-						<g style={{ pointerEvents: 'none' }}>
-							{getHexesInRange(
-								hoveredCharacter.position,
-								CharacterSheet.from(hoveredCharacter.props).derivedStats.movement.value
-							).map(({ q, r }, i) => (
-								<Hex key={`range-${i}`} q={q} r={r}>
-									<path
-										d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
-										fill='rgba(0, 255, 0, 0.2)'
-										stroke='rgba(0, 255, 0, 0.5)'
-										strokeWidth='0.5'
-									/>
-								</Hex>
-							))}
-						</g>
-					)}
+				{hoveredCharacter?.position && !attackState?.isSelectingTarget && !measureState?.isSelectingTarget && (
+					<g style={{ pointerEvents: 'none' }}>
+						{getHexesInRange(
+							hoveredCharacter.position,
+							CharacterSheet.from(hoveredCharacter.props).derivedStats.movement.value,
+						).map(({ q, r }, i) => (
+							<Hex key={`range-${i}`} q={q} r={r}>
+								<path
+									d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
+									fill='rgba(0, 255, 0, 0.2)'
+									stroke='rgba(0, 255, 0, 0.5)'
+									strokeWidth='0.5'
+								/>
+							</Hex>
+						))}
+					</g>
+				)}
 
 				{/* Attack Range Highlight Layer */}
 				{attackState?.isSelectingTarget && attackState.attacker.position && (
 					<g style={{ pointerEvents: 'none' }}>
 						{getHexesInRange(
 							attackState.attacker.position,
-							getAttackRange(attackState.attacker, attackState.attackIndex)
+							getAttackRange(attackState.attacker, attackState.attackIndex),
 						).map(({ q, r }, i) => (
 							<Hex key={`attack-range-${i}`} q={q} r={r}>
 								<path
@@ -585,10 +567,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				{/* Measure Path Highlight Layer */}
 				{measureState?.fromCharacter.position && measureState.hoveredPosition && (
 					<g style={{ pointerEvents: 'none' }}>
-						{findShortestPath(
-							measureState.fromCharacter.position,
-							measureState.hoveredPosition
-						).map(({ q, r }, i) => (
+						{findShortestPath(measureState.fromCharacter.position, measureState.hoveredPosition).map(({ q, r }, i) => (
 							<Hex key={`measure-path-${i}`} q={q} r={r}>
 								<path
 									d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
@@ -625,10 +604,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				{dragState.type === 'character' && dragState.objectId && ghostPosition && (
 					<g transform={`translate(${ghostPosition.x},${ghostPosition.y})`}>
 						{characters.find(c => c.id === dragState.objectId) && (
-							<CharacterToken
-								character={characters.find(c => c.id === dragState.objectId)!}
-								isGhost={true}
-							/>
+							<CharacterToken character={characters.find(c => c.id === dragState.objectId)!} isGhost={true} />
 						)}
 					</g>
 				)}
