@@ -8,9 +8,12 @@ cd "$(dirname "$0")/.."
 rm -rf build
 mkdir -p build/
 
+# Install all dependencies at the root level first to ensure workspace dependencies are resolved
+echo "Installing dependencies..."
+bun install
+
 function build_project() {
     cd packages/$1
-    bun install
     bun run build
     cd ../..
 }
