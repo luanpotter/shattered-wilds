@@ -13,7 +13,7 @@
     "prettier:fix": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,html}\" --ignore-path .gitignore",
     "check": "bun run lint && bun run type-check && bun run prettier:check",
     "check:fix": "bun run lint:fix && bun run type-check && bun run prettier:fix",
-    "preview": "vite preview"
+    "clean": "rm -rf build/ dist/ node_modules/"
   },
   "dependencies": {
     "@shattered-wilds/commons": "workspace:*",

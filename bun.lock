@@ -52,7 +52,6 @@
       "version": "0.1.0",
       "dependencies": {
         "@shattered-wilds/commons": "workspace:*",
-        "markdown-it-wikilinks": "^1.4.0",
         "simpledotcss": "^2.2.1",
       },
       "devDependencies": {
@@ -66,10 +65,14 @@
         "markdown-it": "^13.0.1",
         "markdown-it-anchor": "^8.6.7",
         "markdown-it-attrs": "^4.1.6",
+        "markdown-it-wikilinks": "^1.4.0",
         "typescript": "^5.7.2",
       },
     },
   },
+  "trustedDependencies": [
+    "reurl",
+  ],
   "packages": {
     "@11ty/dependency-tree": ["@11ty/dependency-tree@2.0.1", "", {}, "sha512-5R+DsT9LJ9tXiSQ4y+KLFppCkQyXhzAm1AIuBWE/sbU0hSXY5pkhoqQYEcPJQFg/nglL+wD55iv2j+7O96UAvg=="],
 

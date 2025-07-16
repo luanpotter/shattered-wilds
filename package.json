@@ -11,7 +11,8 @@
     "dev:site": "bun run --filter='site' dev",
     "dev:simulator": "bun run --filter='simulator' dev",
     "check": "bun run --filter='*' check",
-    "check:fix": "bun run --filter='*' check:fix"
+    "check:fix": "bun run --filter='*' check:fix",
+    "clean": "rm -rf build/ node_modules/ && bun run --filter='*' clean"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -23,6 +24,9 @@
     "jiti": "^2.4.2",
     "globals": "^15.15.0"
   },
+  "trustedDependencies": [
+    "reurl"
+  ],
   "engines": {
     "bun": ">=1.0.0"
   },

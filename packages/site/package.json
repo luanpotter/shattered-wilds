@@ -13,7 +13,7 @@
     "prettier:fix": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,html}\" --ignore-path .gitignore",
     "check": "bun run lint && bun run type-check && bun run prettier:check",
     "check:fix": "bun run lint:fix && bun run type-check && bun run prettier:fix",
-    "clean": "rm -rf _site"
+    "clean": "rm -rf _site/ node_modules/"
   },
   "keywords": [],
   "author": "Luan Nico",
@@ -29,11 +29,11 @@
     "markdown-it": "^13.0.1",
     "markdown-it-anchor": "^8.6.7",
     "markdown-it-attrs": "^4.1.6",
+    "markdown-it-wikilinks": "^1.4.0",
     "typescript": "^5.7.2"
   },
   "dependencies": {
     "@shattered-wilds/commons": "workspace:*",
-    "markdown-it-wikilinks": "^1.4.0",
     "simpledotcss": "^2.2.1"
   }
 }

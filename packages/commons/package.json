@@ -24,7 +24,7 @@
     "prettier:fix": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,html}\" --ignore-path .gitignore",
     "check": "bun run lint && bun run type-check && bun run prettier:check",
     "check:fix": "bun run lint:fix && bun run type-check && bun run prettier:fix",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf build/ dist/ node_modules/"
   },
   "devDependencies": {
     "typescript": "^5.7.2"
