@@ -73,7 +73,18 @@ run_project_checks() {
     print_status "34" "📦 Linting $project_name project..."
     
     cd "$project_path"
-    
+
+    # Run build
+    print_status "36" "🔧 Running build..." 1
+    BUILD_OUTPUT=$(bun run build 2>&1)
+    if [ $? -eq 0 ]; then
+        print_status "32" "✅ $project_name build passed" 1
+    else
+        print_status "31" "❌ $project_name build failed" 1
+        echo "$BUILD_OUTPUT"
+        eval "$status_var_name=true"
+    fi
+
     # Run check or check:fix based on mode
     if [ "$FIX_MODE" = true ]; then
         print_status "36" "🔧 Running check:fix..." 1
@@ -95,17 +106,6 @@ run_project_checks() {
             echo "$CHECK_OUTPUT"
             eval "$status_var_name=true"
         fi
-    fi
-    
-    # Run build
-    print_status "36" "🔧 Running build..." 1
-    BUILD_OUTPUT=$(bun run build 2>&1)
-    if [ $? -eq 0 ]; then
-        print_status "32" "✅ $project_name build passed" 1
-    else
-        print_status "31" "❌ $project_name build failed" 1
-        echo "$BUILD_OUTPUT"
-        eval "$status_var_name=true"
     fi
     
     cd ../..
