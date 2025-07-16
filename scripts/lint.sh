@@ -74,19 +74,6 @@ run_project_checks() {
     
     cd "$project_path"
     
-    # Install dependencies if needed
-    if [ ! -d "node_modules" ]; then
-        print_status "33" "📥 Installing $project_name dependencies..." 1
-        INSTALL_OUTPUT=$(bun install 2>&1)
-        if [ $? -eq 0 ]; then
-            print_status "32" "✅ $project_name dependencies installed" 1
-        else
-            print_status "31" "❌ $project_name dependencies installation failed" 1
-            echo "$INSTALL_OUTPUT"
-            exit 1
-        fi
-    fi
-    
     # Run check or check:fix based on mode
     if [ "$FIX_MODE" = true ]; then
         print_status "36" "🔧 Running check:fix..." 1
@@ -136,6 +123,17 @@ if ! command_exists markdownlint; then
     MARKDOWNLINT_AVAILABLE=false
 else
     MARKDOWNLINT_AVAILABLE=true
+fi
+
+# Install all dependencies at the root level first to ensure workspace dependencies are resolved
+print_status "33" "📥 Installing all dependencies at root level..."
+INSTALL_OUTPUT=$(bun install 2>&1)
+if [ $? -eq 0 ]; then
+    print_status "32" "✅ All dependencies installed" 1
+else
+    print_status "31" "❌ Dependencies installation failed" 1
+    echo "$INSTALL_OUTPUT"
+    exit 1
 fi
 
 # Initialize status variables
