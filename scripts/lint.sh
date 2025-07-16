@@ -126,21 +126,10 @@ else
 fi
 
 # Install all dependencies at the root level first to ensure workspace dependencies are resolved
-print_status "33" "📥 Installing all dependencies at root level..."
+print_status "34" "📥 Installing all dependencies at root level..."
 INSTALL_OUTPUT=$(bun install 2>&1)
 if [ $? -eq 0 ]; then
     print_status "32" "✅ All dependencies installed" 1
-
-    echo " + Checking versions..."
-    echo " + Bun version:"
-    bun --version
-    echo " + tsc version:"
-    bun run tsc --version
-    echo " + prettier version:"
-    bun run prettier --version
-    echo " + eslint version:"
-    bun run eslint --version
-    echo " + All versions checked"
 else
     print_status "31" "❌ Dependencies installation failed" 1
     echo "$INSTALL_OUTPUT"
@@ -153,10 +142,10 @@ SITE_FAILED=false
 COMMONS_FAILED=false
 
 # Run checks for each project
-if should_run_project "simulator"; then
-    run_project_checks "simulator" "packages/simulator" "SIMULATOR_FAILED"
+if should_run_project "commons"; then
+    run_project_checks "commons" "packages/commons" "COMMONS_FAILED"
 else
-    print_status "33" "⏭️  Skipping simulator project"
+    print_status "33" "⏭️  Skipping commons project"
 fi
 
 if should_run_project "site"; then
@@ -165,10 +154,10 @@ else
     print_status "33" "⏭️  Skipping site project"
 fi
 
-if should_run_project "commons"; then
-    run_project_checks "commons" "packages/commons" "COMMONS_FAILED"
+if should_run_project "simulator"; then
+    run_project_checks "simulator" "packages/simulator" "SIMULATOR_FAILED"
 else
-    print_status "33" "⏭️  Skipping commons project"
+    print_status "33" "⏭️  Skipping simulator project"
 fi
 
 # Run markdown linting on everything
