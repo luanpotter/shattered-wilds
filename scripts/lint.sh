@@ -130,6 +130,17 @@ print_status "33" "📥 Installing all dependencies at root level..."
 INSTALL_OUTPUT=$(bun install 2>&1)
 if [ $? -eq 0 ]; then
     print_status "32" "✅ All dependencies installed" 1
+
+    echo " + Checking versions..."
+    echo " + Bun version:"
+    bun --version
+    echo " + tsc version:"
+    bun run tsc --version
+    echo " + prettier version:"
+    bun run prettier --version
+    echo " + eslint version:"
+    bun run eslint --version
+    echo " + All versions checked"
 else
     print_status "31" "❌ Dependencies installation failed" 1
     echo "$INSTALL_OUTPUT"
