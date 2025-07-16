@@ -1,0 +1,31 @@
+{
+  "name": "shattered-wilds",
+  "version": "0.1.0",
+  "description": "Shattered Wilds game system and documentation",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "bun run --filter='*' build",
+    "dev:site": "bun run --filter='site' dev",
+    "dev:simulator": "bun run --filter='simulator' dev",
+    "check": "bun run --filter='*' check",
+    "check:fix": "bun run --filter='*' check:fix"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.7.2",
+    "prettier": "^3.5.3",
+    "@eslint/js": "^9.21.0",
+    "typescript-eslint": "^8.24.1",
+    "eslint": "^9.23.0",
+    "jiti": "^2.4.2",
+    "globals": "^15.15.0"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  },
+  "author": "Luan Nico",
+  "license": "MIT"
+} 

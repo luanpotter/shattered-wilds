@@ -1,207 +1,209 @@
 <style>
-.stat-tree {
-  font-family: "Simonetta", serif;
-  margin: 2rem 0;
-  width: 100%;
-}
-
-.tree-section {
-  margin: 1.5rem 0;
-  width: 100%;
-}
-
-.tree-node {
-  position: relative;
-  margin: 0.5rem 0;
-}
-
-.tree-content {
-  display: block;
-  padding: 0.5rem 0.75rem 0.5rem 2.2em; /* left padding for toggle */
-  background: var(--accent-bg);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--text);
-  text-decoration: none;
-  transition: all 0.2s ease;
-  position: relative;
-  cursor: pointer;
-  user-select: none;
-  /* width: auto by default */
-}
-
-/* Leaf nodes (no children) - remove left padding and pointer cursor */
-.tree-node:not(:has(.tree-children)) .tree-content {
-  padding-left: 0.75rem;
-  cursor: default;
-}
-
-.tree-content:hover {
-  background: var(--bg);
-  border-color: var(--accent);
-  color: var(--accent-light);
-}
-
-.tree-content:active {
-  transform: none;
-}
-
-.tree-children {
-  margin-left: 2rem;
-  position: relative;
-  border-left: 1px solid var(--border);
-  padding-left: 1rem;
-  overflow: hidden;
-  transition: max-height 0.3s ease, opacity 0.3s ease;
-}
-
-.tree-children.collapsed {
-  max-height: 0;
-  opacity: 0;
-  margin: 0;
-  padding: 0;
-}
-
-.tree-children::before {
-  content: '';
-  position: absolute;
-  left: -1px;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: var(--border);
-}
-
-.tree-children .tree-node::before {
-  content: '';
-  position: absolute;
-  left: -1rem;
-  top: 50%;
-  width: 0.5rem;
-  height: 1px;
-  background: var(--border);
-  transform: translateY(-50%);
-}
-
-.tree-children .tree-node:has(.tree-children) .tree-content::after {
-  content: '';
-  position: absolute;
-  left: -1rem;
-  top: 50%;
-  width: 0.5rem;
-  height: 1px;
-  background: var(--border);
-  transform: translateY(-50%);
-}
-
-.tree-toggle {
-  position: absolute;
-  left: 0.5em;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 1.1em;
-  height: 1.1em;
-  background: var(--accent-bg);
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8em;
-  font-weight: bold;
-  color: var(--accent);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  z-index: 1;
-}
-
-.tree-toggle:hover {
-  background: var(--accent);
-  color: var(--accent-bg);
-}
-
-.tree-toggle::before {
-  content: '−';
-  transition: transform 0.2s ease;
-}
-
-.tree-toggle.collapsed::before {
-  content: '+';
-}
-
-.tree-section {
-  margin: 1.5rem 0;
-}
-
-.tree-section-title {
-  font-size: 1.3em;
-  font-weight: 600;
-  color: var(--accent);
-  margin-bottom: 1rem;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 0.5rem;
-}
-
-.stat-tree {
-  border-bottom: 1px solid var(--border);
-}
-
-.tree-subsection {
-  margin: 1rem 0;
-}
-
-.tree-subsection-title {
-  font-size: 1.1em;
-  font-weight: 600;
-  color: var(--text-light);
-  margin-bottom: 0.75rem;
-  padding-left: 0.5rem;
-  border-left: 2px solid var(--accent);
-}
-
-.tree-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.tree-grid .tree-children {
-  margin-left: 1rem;
-  border-left: 1px solid var(--border);
-  padding-left: 0.5rem;
-}
-
-.tree-grid .tree-children::before {
-  left: -1px;
-}
-
-.tree-grid .tree-children .tree-node::before {
-  left: -0.5rem;
-  width: 0.25rem;
-}
-
-@media (max-width: 768px) {
-  .tree-grid {
-    grid-template-columns: 1fr;
+  .stat-tree {
+    font-family: 'Simonetta', serif;
+    margin: 2rem 0;
+    width: 100%;
   }
-  
+
+  .tree-section {
+    margin: 1.5rem 0;
+    width: 100%;
+  }
+
+  .tree-node {
+    position: relative;
+    margin: 0.5rem 0;
+  }
+
+  .tree-content {
+    display: block;
+    padding: 0.5rem 0.75rem 0.5rem 2.2em; /* left padding for toggle */
+    background: var(--accent-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    /* width: auto by default */
+  }
+
+  /* Leaf nodes (no children) - remove left padding and pointer cursor */
+  .tree-node:not(:has(.tree-children)) .tree-content {
+    padding-left: 0.75rem;
+    cursor: default;
+  }
+
+  .tree-content:hover {
+    background: var(--bg);
+    border-color: var(--accent);
+    color: var(--accent-light);
+  }
+
+  .tree-content:active {
+    transform: none;
+  }
+
   .tree-children {
-    margin-left: 1rem;
+    margin-left: 2rem;
+    position: relative;
+    border-left: 1px solid var(--border);
+    padding-left: 1rem;
+    overflow: hidden;
+    transition:
+      max-height 0.3s ease,
+      opacity 0.3s ease;
   }
-  
+
+  .tree-children.collapsed {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+    padding: 0;
+  }
+
   .tree-children::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .tree-children .tree-node::before {
+    content: '';
+    position: absolute;
+    left: -1rem;
+    top: 50%;
+    width: 0.5rem;
+    height: 1px;
+    background: var(--border);
+    transform: translateY(-50%);
+  }
+
+  .tree-children .tree-node:has(.tree-children) .tree-content::after {
+    content: '';
+    position: absolute;
+    left: -1rem;
+    top: 50%;
+    width: 0.5rem;
+    height: 1px;
+    background: var(--border);
+    transform: translateY(-50%);
+  }
+
+  .tree-toggle {
+    position: absolute;
+    left: 0.5em;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.1em;
+    height: 1.1em;
+    background: var(--accent-bg);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8em;
+    font-weight: bold;
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 1;
+  }
+
+  .tree-toggle:hover {
+    background: var(--accent);
+    color: var(--accent-bg);
+  }
+
+  .tree-toggle::before {
+    content: '−';
+    transition: transform 0.2s ease;
+  }
+
+  .tree-toggle.collapsed::before {
+    content: '+';
+  }
+
+  .tree-section {
+    margin: 1.5rem 0;
+  }
+
+  .tree-section-title {
+    font-size: 1.3em;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+
+  .stat-tree {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tree-subsection {
+    margin: 1rem 0;
+  }
+
+  .tree-subsection-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: 0.75rem;
+    padding-left: 0.5rem;
+    border-left: 2px solid var(--accent);
+  }
+
+  .tree-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .tree-grid .tree-children {
+    margin-left: 1rem;
+    border-left: 1px solid var(--border);
+    padding-left: 0.5rem;
+  }
+
+  .tree-grid .tree-children::before {
     left: -1px;
   }
-  
-  .tree-children .tree-node::before {
-    left: -1rem;
-    width: 0.5rem;
+
+  .tree-grid .tree-children .tree-node::before {
+    left: -0.5rem;
+    width: 0.25rem;
   }
-  .tree-content {
-    padding: 0.5rem 0.5rem 0.5rem 2em;
+
+  @media (max-width: 768px) {
+    .tree-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .tree-children {
+      margin-left: 1rem;
+    }
+
+    .tree-children::before {
+      left: -1px;
+    }
+
+    .tree-children .tree-node::before {
+      left: -1rem;
+      width: 0.5rem;
+    }
+    .tree-content {
+      padding: 0.5rem 0.5rem 0.5rem 2em;
+    }
   }
-}
 </style>
 
 <div class="stat-tree">
@@ -226,19 +228,13 @@
               </div>
               <div class="tree-children">
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Muscles" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Muscles" %}</div>
                 </div>
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Stance" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Stance" %}</div>
                 </div>
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Lift" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Lift" %}</div>
                 </div>
               </div>
             </div>
@@ -249,19 +245,13 @@
               </div>
               <div class="tree-children">
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Finesse" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Finesse" %}</div>
                 </div>
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Evasiveness" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Evasiveness" %}</div>
                 </div>
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Agility" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Agility" %}</div>
                 </div>
               </div>
             </div>
@@ -272,19 +262,13 @@
               </div>
               <div class="tree-children">
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Toughness" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Toughness" %}</div>
                 </div>
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Stamina" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Stamina" %}</div>
                 </div>
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Resilience" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Resilience" %}</div>
                 </div>
               </div>
             </div>
@@ -303,19 +287,13 @@
               </div>
               <div class="tree-children">
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/IQ" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/IQ" %}</div>
                 </div>
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Knowledge" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Knowledge" %}</div>
                 </div>
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Memory" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Memory" %}</div>
                 </div>
               </div>
             </div>
@@ -326,19 +304,13 @@
               </div>
               <div class="tree-children">
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Perception" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Perception" %}</div>
                 </div>
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Awareness" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Awareness" %}</div>
                 </div>
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Intuition" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Intuition" %}</div>
                 </div>
               </div>
             </div>
@@ -349,19 +321,13 @@
               </div>
               <div class="tree-children">
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Speechcraft" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Speechcraft" %}</div>
                 </div>
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Presence" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Presence" %}</div>
                 </div>
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Empathy" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Empathy" %}</div>
                 </div>
               </div>
             </div>
@@ -380,19 +346,13 @@
               </div>
               <div class="tree-children">
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Devotion" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Devotion" %}</div>
                 </div>
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Revelation" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Revelation" %}</div>
                 </div>
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Attunement" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Attunement" %}</div>
                 </div>
               </div>
             </div>
@@ -403,19 +363,13 @@
               </div>
               <div class="tree-children">
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Discipline" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Discipline" %}</div>
                 </div>
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Tenacity" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Tenacity" %}</div>
                 </div>
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Resolve" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Resolve" %}</div>
                 </div>
               </div>
             </div>
@@ -426,19 +380,13 @@
               </div>
               <div class="tree-children">
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Fortune" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Fortune" %}</div>
                 </div>
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Karma" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Karma" %}</div>
                 </div>
                 <div class="tree-node">
-                  <div class="tree-content">
-                    {% item "Stat/Serendipity" %}
-                  </div>
+                  <div class="tree-content">{% item "Stat/Serendipity" %}</div>
                 </div>
               </div>
             </div>
@@ -450,79 +398,79 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Function to toggle node expansion
-  function toggleNode(treeNode) {
-    const children = treeNode.querySelector('.tree-children');
-    const toggle = treeNode.querySelector('.tree-toggle');
-    
-    if (children && toggle) {
-      const isCollapsed = children.classList.contains('collapsed');
-      
-      if (isCollapsed) {
-        // Expand
-        children.classList.remove('collapsed');
-        toggle.classList.remove('collapsed');
-      } else {
-        // Collapse
-        children.classList.add('collapsed');
-        toggle.classList.add('collapsed');
-      }
-    }
-  }
-
-  // Initialize tree toggles
-  const treeToggles = document.querySelectorAll('.tree-toggle');
-  
-  treeToggles.forEach(toggle => {
-    toggle.addEventListener('click', function(e) {
-      e.stopPropagation(); // Prevent event bubbling
-      const treeNode = this.closest('.tree-node');
-      toggleNode(treeNode);
-    });
-  });
-
-  // Initialize skill nodes (deepest level) as collapsed
-  const skillNodes = document.querySelectorAll('.tree-node');
-  skillNodes.forEach(node => {
-    const children = node.querySelector('.tree-children');
-    const toggle = node.querySelector('.tree-toggle');
-    
-    // Check if this node has children but its children don't have children (i.e., it's an attribute node with skills)
-    if (children && toggle) {
-      const hasGrandchildren = children.querySelector('.tree-children');
-      if (!hasGrandchildren) {
-        // This is an attribute node with skill children - collapse it
-        children.classList.add('collapsed');
-        toggle.classList.add('collapsed');
-      }
-    }
-  });
-
-  // Handle clicks on tree content (but preserve wiki links)
-  const treeContents = document.querySelectorAll('.tree-content');
-  treeContents.forEach(content => {
-    content.addEventListener('click', function(e) {
-      // Don't interfere with actual links
-      if (e.target.tagName === 'A' || e.target.closest('a')) {
-        return;
-      }
-      
-      // Don't interfere with toggle button
-      if (e.target.classList.contains('tree-toggle') || e.target.closest('.tree-toggle')) {
-        return;
-      }
-      
-      // Don't toggle if this is a leaf node (no children)
-      const treeNode = this.closest('.tree-node');
+  document.addEventListener('DOMContentLoaded', function () {
+    // Function to toggle node expansion
+    function toggleNode(treeNode) {
       const children = treeNode.querySelector('.tree-children');
-      if (!children) {
-        return;
+      const toggle = treeNode.querySelector('.tree-toggle');
+
+      if (children && toggle) {
+        const isCollapsed = children.classList.contains('collapsed');
+
+        if (isCollapsed) {
+          // Expand
+          children.classList.remove('collapsed');
+          toggle.classList.remove('collapsed');
+        } else {
+          // Collapse
+          children.classList.add('collapsed');
+          toggle.classList.add('collapsed');
+        }
       }
-      
-      // Toggle the node
-      toggleNode(treeNode);
+    }
+
+    // Initialize tree toggles
+    const treeToggles = document.querySelectorAll('.tree-toggle');
+
+    treeToggles.forEach((toggle) => {
+      toggle.addEventListener('click', function (e) {
+        e.stopPropagation(); // Prevent event bubbling
+        const treeNode = this.closest('.tree-node');
+        toggleNode(treeNode);
+      });
+    });
+
+    // Initialize skill nodes (deepest level) as collapsed
+    const skillNodes = document.querySelectorAll('.tree-node');
+    skillNodes.forEach((node) => {
+      const children = node.querySelector('.tree-children');
+      const toggle = node.querySelector('.tree-toggle');
+
+      // Check if this node has children but its children don't have children (i.e., it's an attribute node with skills)
+      if (children && toggle) {
+        const hasGrandchildren = children.querySelector('.tree-children');
+        if (!hasGrandchildren) {
+          // This is an attribute node with skill children - collapse it
+          children.classList.add('collapsed');
+          toggle.classList.add('collapsed');
+        }
+      }
+    });
+
+    // Handle clicks on tree content (but preserve wiki links)
+    const treeContents = document.querySelectorAll('.tree-content');
+    treeContents.forEach((content) => {
+      content.addEventListener('click', function (e) {
+        // Don't interfere with actual links
+        if (e.target.tagName === 'A' || e.target.closest('a')) {
+          return;
+        }
+
+        // Don't interfere with toggle button
+        if (e.target.classList.contains('tree-toggle') || e.target.closest('.tree-toggle')) {
+          return;
+        }
+
+        // Don't toggle if this is a leaf node (no children)
+        const treeNode = this.closest('.tree-node');
+        const children = treeNode.querySelector('.tree-children');
+        if (!children) {
+          return;
+        }
+
+        // Toggle the node
+        toggleNode(treeNode);
+      });
     });
   });
-});
-</script> 
+</script>

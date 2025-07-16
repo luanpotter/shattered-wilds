@@ -18,6 +18,7 @@ import {
 	getUpbringingModifierFeat,
 	isParameterizedFeat,
 	getParameterizedFeatDefinition,
+	FeatSlot,
 } from '../types/feats';
 
 import { AttributeTreeGridComponent } from './AttributeTreeGridComponent';
@@ -28,14 +29,11 @@ import LabeledInput from './shared/LabeledInput';
 interface FullPageCharacterSheetProps {
 	characterId: string;
 	onBack: () => void;
-	onNavigateToCharacterSheet: (characterId: string) => void;
 }
 
 export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 	characterId,
 	onBack,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	onNavigateToCharacterSheet: _onNavigateToCharacterSheet,
 }) => {
 	const characters = useStore(state => state.characters);
 	const updateCharacterName = useStore(state => state.updateCharacterName);
@@ -113,9 +111,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 	}
 
 	const handlePointChange = (pointType: string, delta: number) => {
-		const maxValue = (
-			sheet.derivedStats[`max${pointType}` as keyof typeof sheet.derivedStats] as any
-		).value;
+		const maxValue = sheet.derivedStats.get<number>(`max${pointType}`).value;
 		const currentValue = parseInt(character.props[`current${pointType}`] ?? maxValue.toString());
 		const newValue = Math.max(0, Math.min(maxValue, currentValue + delta));
 		updateCharacterProp(character, `current${pointType}`, newValue.toString());
@@ -124,9 +120,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 	const handleRefillPoints = () => {
 		const pointTypes = ['Heroism', 'Vitality', 'Focus', 'Spirit'];
 		pointTypes.forEach(pointType => {
-			const maxValue = (
-				sheet.derivedStats[`max${pointType}` as keyof typeof sheet.derivedStats] as any
-			).value;
+			const maxValue = sheet.derivedStats.get<number>(`max${pointType}`).value;
 			updateCharacterProp(character, `current${pointType}`, maxValue.toString());
 		});
 	};
@@ -226,7 +220,10 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 		const allFeatSlots = getAllFeatSlots(characterLevel, hasSpecializedTraining);
 
 		// Group feats by level
-		const featsByLevel: Record<number, Array<{ slot: any; featId: string; isCore: boolean }>> = {};
+		const featsByLevel: Record<
+			number,
+			Array<{ slot: FeatSlot; featId: string; isCore: boolean }>
+		> = {};
 
 		allFeatSlots.forEach(slot => {
 			const featId = currentFeatSlots[slot.id];
@@ -526,11 +523,8 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({
 
 							{/* Resource Points */}
 							{['Heroism', 'Vitality', 'Focus', 'Spirit'].map(pointType => {
-								const maxValue = (
-									sheet.derivedStats[`max${pointType}` as keyof typeof sheet.derivedStats] as any
-								).value;
-								const currentValue =
-									sheet.currentValues[`current${pointType}` as keyof typeof sheet.currentValues];
+								const maxValue = sheet.derivedStats.get<number>(`max${pointType}`).value;
+								const currentValue = sheet.currentValues.get(`current${pointType}`);
 
 								return (
 									<div key={pointType}>

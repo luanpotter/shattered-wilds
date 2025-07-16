@@ -131,13 +131,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 
 	// If a character is selected, show the full-page character sheet
 	if (selectedCharacterId) {
-		return (
-			<FullPageCharacterSheet
-				characterId={selectedCharacterId}
-				onBack={handleBackToList}
-				onNavigateToCharacterSheet={onNavigateToCharacterSheet}
-			/>
-		);
+		return <FullPageCharacterSheet characterId={selectedCharacterId} onBack={handleBackToList} />;
 	}
 
 	return (

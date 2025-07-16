@@ -1,24 +1,16 @@
----
-layout: wiki
----
-
 <h1>Wiki</h1>
 
 <div class="filter-section">
-  <p>
-    <strong>Filter:</strong> <input type="text" id="filter-wiki" />
-  </p>
+  <p><strong>Filter:</strong> <input type="text" id="filter-wiki" /></p>
 </div>
 
 <ul id="wiki-list">
-
-{% assign pages = collections.wiki | concat: lexiconFiles | where: "slug" | sort_natural: 'slug' %}
-
-{% for page in pages %}
+  {% assign pages = collections.wiki | concat: lexiconFiles | where: "slug" | sort_natural: 'slug'
+  %} {% for page in pages %}
   <li>
     <a href="{{ page.url }}">{{ page.shortTitle }}</a>
   </li>
-{% endfor %}
+  {% endfor %}
 </ul>
 
 <script>

@@ -152,19 +152,16 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({
 				);
 			}
 			case 'dice-roll': {
-				const props: any = {
-					modifier: window.modifier ?? 0,
-					onClose: () => removeWindow(window.id),
-					attributeName: window.attributeName ?? '',
-					characterId: window.characterId,
-					initialRollType: window.initialRollType ?? 'Static',
-				};
-
-				if (window.onDiceRollComplete) {
-					props.onDiceRollComplete = window.onDiceRollComplete;
-				}
-
-				return <DiceRollModal {...props} />;
+				return (
+					<DiceRollModal
+						modifier={window.modifier ?? 0}
+						onClose={() => removeWindow(window.id)}
+						attributeName={window.attributeName ?? ''}
+						characterId={window.characterId!}
+						initialRollType={window.initialRollType ?? 'Static'}
+						onDiceRollComplete={window.onDiceRollComplete}
+					/>
+				);
 			}
 			case 'attack-action':
 				return (

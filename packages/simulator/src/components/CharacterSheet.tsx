@@ -11,6 +11,7 @@ import {
 	Equipment,
 	DefenseType,
 	StatType,
+	Point,
 } from '../types';
 import { getAllFeatSlots, FeatType } from '../types/feats';
 import { findNextWindowPosition } from '../utils';
@@ -133,8 +134,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 		}
 	};
 
-	const handleBasicAttackClick = (e: React.MouseEvent) => {
-		e.stopPropagation();
+	const handleBasicAttackClick = (position?: Point) => {
 		if (editMode) {
 			handleOpenBasicAttacks();
 		} else {
@@ -146,7 +146,8 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 					id: window.crypto.randomUUID(),
 					title: `Roll ${attack.name} Attack`,
 					type: 'dice-roll',
-					position: { x: e.clientX, y: e.clientY },
+					// TODO(luan): make position optional for addWindow
+					position: position ?? { x: 0, y: 0 },
 					modifier: attack.check.modifier,
 					attributeName: `${attack.name} (${attack.check.attribute.name})`,
 					characterId: character.id,
@@ -160,15 +161,15 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 		}
 	};
 
-	const handleBasicDefenseClick = (e: React.MouseEvent) => {
-		e.stopPropagation();
+	const handleBasicDefenseClick = (position?: Point) => {
 		if (!editMode) {
 			// In play mode, roll a defense check
 			addWindow({
 				id: window.crypto.randomUUID(),
 				title: `Roll Defense Check`,
 				type: 'dice-roll',
-				position: { x: e.clientX, y: e.clientY },
+				// TODO(luan): make position optional for addWindow
+				position: position ?? { x: 0, y: 0 },
 				modifier: basicDefense.value,
 				attributeName: 'Basic Defense',
 				characterId: character.id,
@@ -453,10 +454,13 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 							<div
 								id='character-attacks'
 								title={basicAttacks.map(attack => attack.description).join(' / ')}
-								onClick={handleBasicAttackClick}
+								onClick={e => {
+									e.preventDefault();
+									handleBasicAttackClick({ x: e.clientX, y: e.clientY });
+								}}
 								onKeyDown={e => {
 									if (e.key === 'Enter' || e.key === ' ') {
-										handleBasicAttackClick(e as any);
+										handleBasicAttackClick();
 									}
 								}}
 								tabIndex={0}
@@ -485,10 +489,14 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 							<div
 								id='character-defense'
 								title={basicDefense.description}
-								onClick={handleBasicDefenseClick}
+								onClick={e => {
+									e.preventDefault();
+									handleBasicDefenseClick({ x: e.clientX, y: e.clientY });
+								}}
 								onKeyDown={e => {
 									if (e.key === 'Enter' || e.key === ' ') {
-										handleBasicDefenseClick(e as any);
+										e.preventDefault();
+										handleBasicDefenseClick();
 									}
 								}}
 								tabIndex={editMode ? -1 : 0}

@@ -1,22 +1,22 @@
-@import url("simple.min.css");
+@import url('simple.min.css');
 
 body {
-  font-family: "Simonetta", serif;
+  font-family: 'Simonetta', serif;
   font-weight: 400;
   font-style: normal;
   font-size: 1.4em;
 }
 
 header h1 {
-  font-family: "My Soul", cursive;
+  font-family: 'My Soul', cursive;
   font-weight: 400;
   font-style: normal;
 }
 
 /* override: force dark mode */
 :root {
-  --bg: #202B38;
-  --accent-bg: #0C151C;
+  --bg: #202b38;
+  --accent-bg: #0c151c;
   --text: #dcdcdc;
   --text-light: #ababab;
   --border: #666;
@@ -212,7 +212,7 @@ div.pagination p {
 
 .light-fume {
   padding: 4px;
-  background-color: #3C3C3C;
+  background-color: #3c3c3c;
   color: white;
 }
 
@@ -223,7 +223,7 @@ div.pagination p {
 
 .dark-fume {
   padding: 4px;
-  background-color: #3C3C3C;
+  background-color: #3c3c3c;
   color: black;
 }
 

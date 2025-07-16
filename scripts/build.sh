@@ -6,20 +6,18 @@ cd "$(dirname "$0")/.."
 
 # Clean previous build
 rm -rf build
+mkdir -p build/
 
-# Build the site (Eleventy, via npm)
-cd packages/site
-npm install
-npm run build
+function build_project() {
+    cd packages/$1
+    bun install
+    bun run build
+    cd ../..
+}
 
-# Build the simulator (Vite, via bun)
-cd ../simulator
-bun install
-bun run build
-
-# Create build folder at repo root
-cd ../..
-mkdir -p build
+build_project "commons"
+build_project "site"
+build_project "simulator"
 
 # Copy site output to build/
 cp -r packages/site/_site/* build/

@@ -184,6 +184,10 @@ export class DerivedStats {
 		this.maxSpirit = this.computeMaxSpirit(attributeTree);
 	}
 
+	get<T>(key: string): DerivedStat<T> {
+		return this[key as keyof DerivedStats] as DerivedStat<T>;
+	}
+
 	private computeSize(race: RaceInfo): DerivedStat<Size> {
 		const size = RACE_DEFINITIONS[race.primaryRace].size;
 		return new DerivedStat(size, `Size is determined by your primary race (${size})`);
@@ -261,6 +265,10 @@ export class CurrentValues {
 		const currentSpirit = parse(props['currentSpirit']);
 
 		return new CurrentValues(currentHeroism, currentVitality, currentFocus, currentSpirit);
+	}
+
+	get(key: string): number {
+		return this[key as keyof CurrentValues] as number;
 	}
 
 	backfill(sheet: CharacterSheet) {
@@ -488,7 +496,7 @@ export class CharacterSheet {
 
 	static from(props: Record<string, string>): CharacterSheet {
 		const sheet = new CharacterSheet(
-			props['name']!!,
+			props['name']!,
 			RaceInfo.from(props),
 			ClassInfo.from(props),
 			makeAttributeTree(props),

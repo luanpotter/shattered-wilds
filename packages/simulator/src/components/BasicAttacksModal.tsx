@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useStore } from '../store';
-import { BasicAttack, CharacterSheet } from '../types';
+import { BasicAttack, CharacterSheet, Point } from '../types';
 
 import { FormRow, ReadOnlyInput } from './shared/FormComponents';
 
@@ -20,7 +20,7 @@ export const BasicAttacksModal: React.FC<BasicAttacksModalProps> = ({
 	const addWindow = useStore(state => state.addWindow);
 	const characters = useStore(state => state.characters);
 
-	const handleAttackClick = (attack: BasicAttack, e: React.MouseEvent) => {
+	const handleAttackClick = (attack: BasicAttack, position?: Point) => {
 		if (!editMode && characterSheet) {
 			// Find the character that owns this character sheet
 			const character = characters.find(c => {
@@ -34,7 +34,7 @@ export const BasicAttacksModal: React.FC<BasicAttacksModalProps> = ({
 					id: window.crypto.randomUUID(),
 					title: `Roll ${attack.name} Attack`,
 					type: 'dice-roll',
-					position: { x: e.clientX, y: e.clientY },
+					position: position ?? { x: 0, y: 0 },
 					modifier: attack.check.modifier,
 					attributeName: `${attack.name} (${attack.check.attribute.name})`,
 					characterId: character.id,
@@ -76,10 +76,10 @@ export const BasicAttacksModal: React.FC<BasicAttacksModalProps> = ({
 							</FormRow>
 							{isClickable && (
 								<div
-									onClick={e => handleAttackClick(attack, e)}
+									onClick={e => handleAttackClick(attack, { x: e.clientX, y: e.clientY })}
 									onKeyDown={e => {
 										if (e.key === 'Enter' || e.key === ' ') {
-											handleAttackClick(attack, e as any);
+											handleAttackClick(attack);
 										}
 									}}
 									style={{

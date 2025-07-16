@@ -20,10 +20,13 @@ module.exports = function (eleventyConfig) {
   // Add global data for lexicon files
   const lexiconFiles = parseLexicon();
   eleventyConfig.addGlobalData("lexiconFiles", lexiconFiles);
+  
+  // Set default layout for all pages
+  eleventyConfig.addGlobalData("layout", "main");
 
   // Shared function to render lexicon items
   const renderLexiconEntry = (type, path, excludeTags = []) => {
-    const slug = path.replace(/[\/\\]/g, "_");
+    const slug = path.replace(/[/\\]/g, "_");
     const entry = lexiconFiles.find((e) => e.slug === slug);
     if (!entry) {
       return `<span style='color:red'>[Missing lexicon entry: ${slug}]</span>`;
@@ -153,11 +156,16 @@ module.exports = function (eleventyConfig) {
 
   return {
     passthroughFileCopy: true,
-    dir: { input: "src", output: "_site" },
+    dir: { 
+      input: "src", 
+      output: "_site",
+      includes: "_includes",
+      data: "_data"
+    },
   };
-};
+}
 
-const parseLexicon = () => {
+function parseLexicon() {
   const lexiconDir = path.join(__dirname, "../../docs/lexicon");
   if (!fs.existsSync(lexiconDir)) return [];
 
@@ -179,10 +187,10 @@ const parseLexicon = () => {
       } else if (item.endsWith(".md")) {
         // Create slug from relative path to lexicon root
         const relativePath = path.relative(lexiconDir, fullPath);
-        const slug = relativePath.replace(/\.md$/, "").replace(/[\/\\]/g, "_");
+        const slug = relativePath.replace(/\.md$/, "").replace(/[/\\]/g, "_");
 
         // Create title with colon format (e.g., "Action: Move")
-        const titleParts = relativePath.replace(/\.md$/, "").split(/[\/\\]/);
+        const titleParts = relativePath.replace(/\.md$/, "").split(/[/\\]/);
         let title =
           titleParts.length > 1
             ? `${titleParts[0]}: ${titleParts.slice(1).join(" ")}`
@@ -226,9 +234,9 @@ const parseLexicon = () => {
                 value === true
                   ? `metadata-trait`
                   : `metadata-${key.replace(/_/g, "-")}`,
-            };
-          });
-        };
+                };
+  });
+}
 
         files.push({
           filePath: fullPath,

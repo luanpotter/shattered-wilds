@@ -51,7 +51,7 @@ export interface DiceRollModalProps {
 	characterSheet?: CharacterSheet | undefined;
 	characterId?: string;
 	initialRollType?: RollType;
-	onDiceRollComplete?: (result: { total: number; shifts: number }) => void;
+	onDiceRollComplete?: ((result: { total: number; shifts: number }) => void) | undefined;
 }
 
 interface RollResults {

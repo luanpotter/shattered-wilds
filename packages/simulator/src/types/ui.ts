@@ -43,7 +43,6 @@ export interface Window {
 	hexPosition?: HexPosition;
 	modifier?: number;
 	attributeName?: string;
-	characterSheet?: any; // Will be properly typed in character-sheet.ts
 	initialRollType?: RollType;
 	attackerId?: string;
 	defenderId?: string;
