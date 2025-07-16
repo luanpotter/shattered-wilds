@@ -6,11 +6,8 @@
     "declarationMap": true,
     "sourceMap": true,
     "noEmit": false,
-    "target": "ES2020",
-    "module": "ESNext",
-    "lib": ["ES2020"],
     "allowImportingTsExtensions": false,
-    "verbatimModuleSyntax": false
+
   },
   "include": ["src/**/*"],
   "exclude": ["dist", "node_modules"]
