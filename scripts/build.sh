@@ -14,7 +14,10 @@ bun install
 
 function build_project() {
     cd packages/$1
+    echo " + Building $1..."
+    bun install
     bun run build
+    echo " + $1 built"
     cd ../..
 }
 

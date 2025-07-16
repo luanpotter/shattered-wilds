@@ -22,16 +22,5 @@ jobs:
         with:
           node-version: '20'
       
-      - name: Make lint script executable
-        run: chmod +x scripts/lint.sh
-      
       - name: Run linting checks
         run: ./scripts/lint.sh
-      
-      - name: Build simulator
-        working-directory: packages/simulator
-        run: bun run build
-      
-      - name: Build site
-        working-directory: packages/site
-        run: npm run build 
