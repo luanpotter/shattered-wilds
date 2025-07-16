@@ -3,4 +3,4 @@ type: "Movement"
 ap: 1
 ---
 
-Move up to {% item "Derived_Stat/Movement" %} hexes. Movement cannot be saved for later.
+Enables you to move up to [[ Derived_Stat_Movement | Movement]] hexes. Movement can be saved for later.
