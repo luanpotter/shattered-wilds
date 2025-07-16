@@ -56,11 +56,10 @@ module.exports = function (eleventyConfig) {
       const desc = entry.content;
       return md.render(desc);
     } else if (type === "item") {
-      const desc = entry.content.split(/\n\n/)[0].trim();
-      return `<strong><a href="${entry.url}">${entry.title.replace(
-        /^[^:]+: /,
-        ""
-      )}</a></strong> ${metaHtml} : ${md.renderInline(desc)}`;
+      const descFirstParagraph = entry.content.split(/\n\n/)[0].trim();
+      const markdown = md.renderInline(descFirstParagraph);
+      const shortTitle = entry.title.replace(/^[^:]+: /, "");
+      return `<strong><a href="${entry.url}">${shortTitle}</a></strong> ${metaHtml} : ${markdown}`;
     } else {
       return `<span style='color:red'>[Unknown type: ${type}]</span>`;
     }
@@ -77,7 +76,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addShortcode("TODO", (value) => addMark(value ? `TODO: ${value}` : "TODO"));
 
   eleventyConfig.addPassthroughCopy({
-    "node_modules/simpledotcss/simple.min.css": "simple.min.css",
+    "../../node_modules/simpledotcss/simple.min.css": "simple.min.css",
   });
   eleventyConfig.addPassthroughCopy("src/bundle.css");
   eleventyConfig.addPassthroughCopy("assets", { expand: true });
