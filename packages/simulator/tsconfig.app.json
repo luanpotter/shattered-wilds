@@ -8,10 +8,5 @@
     "types": ["vite/client", "react"]
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"],
-  "formatCodeSettings": {
-    "convertTabsToSpaces": false,
-    "indentSize": 1,
-    "tabSize": 1
-  }
+  "exclude": ["node_modules", "dist"]
 }
