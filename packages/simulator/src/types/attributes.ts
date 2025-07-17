@@ -142,8 +142,8 @@ export class Attribute {
 		return updates;
 	}
 
-	getNode(type: StatType | null): Attribute | null {
-		if (type === null) return null;
+	getNode(type: StatType | undefined): Attribute | undefined {
+		if (type === undefined) return undefined;
 		if (this.type === type) {
 			return this;
 		}
@@ -153,7 +153,7 @@ export class Attribute {
 				return found;
 			}
 		}
-		return null;
+		return undefined;
 	}
 
 	grouped(hierarchy: StatHierarchy): Attribute[] {
