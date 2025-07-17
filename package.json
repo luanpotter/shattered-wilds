@@ -12,8 +12,8 @@
 		"dev:simulator": "bun run --filter='simulator' dev",
 		"check": "bun run prettier && bun run --filter='*' check",
 		"check:fix": "bun run prettier:fix && bun run --filter='*' check:fix",
-		"prettier": "prettier --check \"*.{js,jsx,ts,tsx,css,html,json}\" --ignore-path .gitignore",
-		"prettier:fix": "prettier --write \"*.{js,jsx,ts,tsx,css,html,json}\" --ignore-path .gitignore",
+		"prettier": "prettier --check \"*.{js,jsx,ts,tsx,css,html,json,prettierrc}\" --ignore-path .gitignore",
+		"prettier:fix": "prettier --write \"*.{js,jsx,ts,tsx,css,html,json,prettierrc}\" --ignore-path .gitignore",
 		"clean": "rm -rf build/ node_modules/ && bun run --filter='*' clean"
 	},
 	"devDependencies": {

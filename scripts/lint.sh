@@ -138,7 +138,15 @@ fi
 
 # run root prettier
 print_status "34" "🔧 Running prettier..."
-PRETTIER_OUTPUT=$(bun run prettier 2>&1)
+if [ "$FIX_MODE" = true ]; then
+    print_status "36" "🔧 Running prettier with --fix..." 1
+    command="prettier:fix"
+else
+    print_status "36" "🔧 Running prettier..." 1
+    command="prettier"
+fi
+
+PRETTIER_OUTPUT=$(bun run $command 2>&1)
 if [ $? -eq 0 ]; then
     print_status "32" "✅ Prettier passed" 1
 else
