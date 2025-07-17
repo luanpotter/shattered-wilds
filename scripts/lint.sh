@@ -136,6 +136,17 @@ else
     exit 1
 fi
 
+# run root prettier
+print_status "34" "🔧 Running prettier..."
+PRETTIER_OUTPUT=$(bun run prettier 2>&1)
+if [ $? -eq 0 ]; then
+    print_status "32" "✅ Prettier passed" 1
+else
+    print_status "31" "❌ Prettier failed" 1
+    echo "$PRETTIER_OUTPUT"
+    exit 1
+fi
+
 # Initialize status variables
 SIMULATOR_FAILED=false
 SITE_FAILED=false

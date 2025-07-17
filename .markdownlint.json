@@ -1,7 +1,7 @@
 {
-  "default": true,
-  "MD001": false, // header levels (TODO: figure out nested docs)
-  "MD013": false, // line length
-  "MD033": false, // allow HTML in markdown
-  "MD041": false // first line in file should be a top level header
+	"default": true,
+	"MD001": false, // header levels (TODO: figure out nested docs)
+	"MD013": false, // line length
+	"MD033": false, // allow HTML in markdown
+	"MD041": false // first line in file should be a top level header
 }
