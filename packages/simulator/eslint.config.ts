@@ -26,7 +26,7 @@ export default tseslint.config(
 		languageOptions: {
 			parser: tseslint.parser,
 			parserOptions: {
-				project: './tsconfig.app.json',
+				project: './tsconfig.json',
 				ecmaFeatures: {
 					jsx: true,
 				},
@@ -70,15 +70,4 @@ export default tseslint.config(
 			'jsx-a11y/no-static-element-interactions': 'off',
 		},
 	},
-	{
-		files: ['*.ts'],
-		ignores: ['src/**/*.ts', 'src/**/*.tsx', 'eslint.config.ts'],
-		languageOptions: {
-			parser: tseslint.parser,
-			parserOptions: {
-				project: './tsconfig.node.json',
-			},
-		},
-		rules: {},
-	}
 );
