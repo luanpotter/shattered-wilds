@@ -52,8 +52,8 @@ export default function (eleventyConfig) {
 			md.renderer.rules.html_inline = refine;
 			md.renderer.rules.html_block = refine;
 		});
-  
-  processor.md = md;
+
+	processor.md = md;
 
 	eleventyConfig.setLibrary('md', md);
 	eleventyConfig.addDataExtension('yaml', contents => yaml.load(contents));
@@ -69,7 +69,6 @@ export default function (eleventyConfig) {
 	const addMark = value => `<mark class="todo">${value}</mark>`;
 	eleventyConfig.addShortcode('TODO', value => addMark(value ? `TODO: ${value}` : 'TODO'));
 
-
 	return {
 		passthroughFileCopy: true,
 		dir: {
@@ -80,5 +79,3 @@ export default function (eleventyConfig) {
 		},
 	};
 }
-
-

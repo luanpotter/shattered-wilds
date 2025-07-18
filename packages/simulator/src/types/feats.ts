@@ -1,5 +1,6 @@
+import { StatType, Modifier, ModifierSource } from '@shattered-wilds/commons';
+
 import { Race } from './character';
-import { StatType, Modifier } from './core';
 
 // Feat Types
 export enum FeatType {
@@ -56,6 +57,56 @@ export enum Upbringing {
 	Telluric = 'Telluric',
 }
 
+const classModifierFeat = (stat: StatType) => ({
+	id: `class-modifier-${stat.name.toLowerCase()}`,
+	name: `Class Modifier (${stat.name})`,
+	type: FeatType.Core,
+	category: FeatCategory.ClassModifier,
+	description: `+1 ${stat.name} from class specialization`,
+	modifiers: [
+		{
+			source: ModifierSource.Feat,
+			name: `Class Modifier (${stat.name})`,
+			description: `+1 ${stat.name} from class specialization`,
+			statType: stat,
+			value: 1,
+		},
+	],
+});
+
+const racialModifierFeat = (
+	race: Race,
+	{
+		plus,
+		minus,
+	}: {
+		plus: StatType;
+		minus: StatType;
+	},
+) => ({
+	id: `racial-${race.toLowerCase()}`,
+	name: `${race} Racial Modifiers`,
+	description: `+${plus.name} / -${minus.name} from ${race} race`,
+	type: FeatType.Core,
+	category: FeatCategory.Racial,
+	modifiers: [
+		{
+			source: ModifierSource.Feat,
+			name: `Racial Modifier (${plus.name})`,
+			description: `+1 ${plus.name} from ${race} race`,
+			statType: plus,
+			value: 1,
+		},
+		{
+			source: ModifierSource.Feat,
+			name: `Racial Modifier (${minus.name})`,
+			description: `-1 ${minus.name} from ${race} race`,
+			statType: minus,
+			value: -1,
+		},
+	],
+});
+
 // All Feats definitions
 export const FEATS: Record<string, FeatDefinition> = {
 	// ==== RACIAL MODIFIERS ====
@@ -67,72 +118,12 @@ export const FEATS: Record<string, FeatDefinition> = {
 		description: 'Neutral - no modifiers',
 		modifiers: [],
 	},
-	'racial-elf': {
-		id: 'racial-elf',
-		name: 'Elf Racial Modifiers',
-		type: FeatType.Core,
-		category: FeatCategory.Racial,
-		description: '+DEX, -CON',
-		modifiers: [
-			{ source: 'Elf Race', value: 1, attributeType: StatType.DEX },
-			{ source: 'Elf Race', value: -1, attributeType: StatType.CON },
-		],
-	},
-	'racial-dwarf': {
-		id: 'racial-dwarf',
-		name: 'Dwarf Racial Modifiers',
-		type: FeatType.Core,
-		category: FeatCategory.Racial,
-		description: '+CON, -DEX',
-		modifiers: [
-			{ source: 'Dwarf Race', value: 1, attributeType: StatType.CON },
-			{ source: 'Dwarf Race', value: -1, attributeType: StatType.DEX },
-		],
-	},
-	'racial-orc': {
-		id: 'racial-orc',
-		name: 'Orc Racial Modifiers',
-		type: FeatType.Core,
-		category: FeatCategory.Racial,
-		description: '+STR, -DEX',
-		modifiers: [
-			{ source: 'Orc Race', value: 1, attributeType: StatType.STR },
-			{ source: 'Orc Race', value: -1, attributeType: StatType.DEX },
-		],
-	},
-	'racial-fey': {
-		id: 'racial-fey',
-		name: 'Fey Racial Modifiers',
-		type: FeatType.Core,
-		category: FeatCategory.Racial,
-		description: '+DEX, -STR',
-		modifiers: [
-			{ source: 'Fey Race', value: 1, attributeType: StatType.DEX },
-			{ source: 'Fey Race', value: -1, attributeType: StatType.STR },
-		],
-	},
-	'racial-goliath': {
-		id: 'racial-goliath',
-		name: 'Goliath Racial Modifiers',
-		type: FeatType.Core,
-		category: FeatCategory.Racial,
-		description: '+STR, -CON',
-		modifiers: [
-			{ source: 'Goliath Race', value: 1, attributeType: StatType.STR },
-			{ source: 'Goliath Race', value: -1, attributeType: StatType.CON },
-		],
-	},
-	'racial-goblin': {
-		id: 'racial-goblin',
-		name: 'Goblin Racial Modifiers',
-		type: FeatType.Core,
-		category: FeatCategory.Racial,
-		description: '+CON, -STR',
-		modifiers: [
-			{ source: 'Goblin Race', value: 1, attributeType: StatType.CON },
-			{ source: 'Goblin Race', value: -1, attributeType: StatType.STR },
-		],
-	},
+	'racial-elf': racialModifierFeat(Race.Elf, { plus: StatType.DEX, minus: StatType.CON }),
+	'racial-dwarf': racialModifierFeat(Race.Dwarf, { plus: StatType.CON, minus: StatType.DEX }),
+	'racial-orc': racialModifierFeat(Race.Orc, { plus: StatType.STR, minus: StatType.DEX }),
+	'racial-fey': racialModifierFeat(Race.Fey, { plus: StatType.DEX, minus: StatType.STR }),
+	'racial-goliath': racialModifierFeat(Race.Goliath, { plus: StatType.STR, minus: StatType.CON }),
+	'racial-goblin': racialModifierFeat(Race.Goblin, { plus: StatType.CON, minus: StatType.STR }),
 
 	// ==== UPBRINGING MODIFIERS ====
 	'upbringing-urban': {
@@ -261,78 +252,15 @@ export const FEATS: Record<string, FeatDefinition> = {
 	},
 
 	// ==== CLASS MODIFIERS ====
-	'class-modifier-str': {
-		id: 'class-modifier-str',
-		name: 'Class Modifier (STR)',
-		type: FeatType.Core,
-		category: FeatCategory.ClassModifier,
-		description: '+1 STR from class specialization',
-		modifiers: [{ source: 'Class', value: 1, attributeType: StatType.STR }],
-	},
-	'class-modifier-dex': {
-		id: 'class-modifier-dex',
-		name: 'Class Modifier (DEX)',
-		type: FeatType.Core,
-		category: FeatCategory.ClassModifier,
-		description: '+1 DEX from class specialization',
-		modifiers: [{ source: 'Class', value: 1, attributeType: StatType.DEX }],
-	},
-	'class-modifier-con': {
-		id: 'class-modifier-con',
-		name: 'Class Modifier (CON)',
-		type: FeatType.Core,
-		category: FeatCategory.ClassModifier,
-		description: '+1 CON from class specialization',
-		modifiers: [{ source: 'Class', value: 1, attributeType: StatType.CON }],
-	},
-	'class-modifier-int': {
-		id: 'class-modifier-int',
-		name: 'Class Modifier (INT)',
-		type: FeatType.Core,
-		category: FeatCategory.ClassModifier,
-		description: '+1 INT from class specialization',
-		modifiers: [{ source: 'Class', value: 1, attributeType: StatType.INT }],
-	},
-	'class-modifier-wis': {
-		id: 'class-modifier-wis',
-		name: 'Class Modifier (WIS)',
-		type: FeatType.Core,
-		category: FeatCategory.ClassModifier,
-		description: '+1 WIS from class specialization',
-		modifiers: [{ source: 'Class', value: 1, attributeType: StatType.WIS }],
-	},
-	'class-modifier-cha': {
-		id: 'class-modifier-cha',
-		name: 'Class Modifier (CHA)',
-		type: FeatType.Core,
-		category: FeatCategory.ClassModifier,
-		description: '+1 CHA from class specialization',
-		modifiers: [{ source: 'Class', value: 1, attributeType: StatType.CHA }],
-	},
-	'class-modifier-div': {
-		id: 'class-modifier-div',
-		name: 'Class Modifier (DIV)',
-		type: FeatType.Core,
-		category: FeatCategory.ClassModifier,
-		description: '+1 DIV from class specialization',
-		modifiers: [{ source: 'Class', value: 1, attributeType: StatType.DIV }],
-	},
-	'class-modifier-fow': {
-		id: 'class-modifier-fow',
-		name: 'Class Modifier (FOW)',
-		type: FeatType.Core,
-		category: FeatCategory.ClassModifier,
-		description: '+1 FOW from class specialization',
-		modifiers: [{ source: 'Class', value: 1, attributeType: StatType.FOW }],
-	},
-	'class-modifier-lck': {
-		id: 'class-modifier-lck',
-		name: 'Class Modifier (LCK)',
-		type: FeatType.Core,
-		category: FeatCategory.ClassModifier,
-		description: '+1 LCK from class specialization',
-		modifiers: [{ source: 'Class', value: 1, attributeType: StatType.LCK }],
-	},
+	'class-modifier-str': classModifierFeat(StatType.STR),
+	'class-modifier-dex': classModifierFeat(StatType.DEX),
+	'class-modifier-con': classModifierFeat(StatType.CON),
+	'class-modifier-int': classModifierFeat(StatType.INT),
+	'class-modifier-wis': classModifierFeat(StatType.WIS),
+	'class-modifier-cha': classModifierFeat(StatType.CHA),
+	'class-modifier-div': classModifierFeat(StatType.DIV),
+	'class-modifier-fow': classModifierFeat(StatType.FOW),
+	'class-modifier-lck': classModifierFeat(StatType.LCK),
 
 	// ==== WARRIOR ROLE FEATS ====
 	'sweep-attack': {
@@ -1030,14 +958,18 @@ export function getUpbringingModifierFeat(
 		description: `${baseFeat.description.split('Typical:')[0].trim()} +${plusModifier.name}, -${minusModifier.name}`,
 		modifiers: [
 			{
-				source: `${upbringing} Upbringing`,
+				source: ModifierSource.Feat,
+				name: `${upbringing} Upbringing`,
+				description: `+1 ${plusModifier.name} from ${upbringing} upbringing`,
+				statType: plusModifier,
 				value: 1,
-				attributeType: plusModifier,
 			},
 			{
-				source: `${upbringing} Upbringing`,
+				source: ModifierSource.Feat,
+				name: `${upbringing} Upbringing`,
+				description: `-1 ${minusModifier.name} from ${upbringing} upbringing`,
+				statType: minusModifier,
 				value: -1,
-				attributeType: minusModifier,
 			},
 		],
 	};

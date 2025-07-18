@@ -7,6 +7,6 @@
     "useDefineForClassFields": true,
     "types": ["vite/client", "react"]
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../commons/src/stat-tree.ts"],
   "exclude": ["node_modules", "dist"]
 }

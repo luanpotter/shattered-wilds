@@ -1,4 +1,18 @@
-import { StatType, StatHierarchy, StatHierarchyProperties, Modifier } from './core';
+import { StatHierarchy, StatHierarchyProperties, StatType } from './stat-type.js';
+
+export enum ModifierSource {
+	Feat = 'Feat',
+	Equipment = 'Equipment',
+	Circumstance = 'Circumstance',
+}
+
+export interface Modifier {
+	source: ModifierSource;
+	name: string;
+	description: string;
+	statType: StatType;
+	value: number;
+}
 
 export class AttributeTree {
 	root: Attribute;
@@ -19,7 +33,7 @@ export class AttributeTree {
 		// Find the path from the node to the root to see if mod.attributeType is in the hierarchy
 		let current: Attribute | null = node;
 		while (current) {
-			if (current.type === mod.attributeType) {
+			if (current.type === mod.statType) {
 				return true;
 			}
 			current = current.parent;

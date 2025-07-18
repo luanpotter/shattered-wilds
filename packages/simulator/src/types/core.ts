@@ -3,17 +3,6 @@ import { StatType } from '@shattered-wilds/commons';
 // TODO(luan): rename to CheckType, there are 4 combinations
 export type RollType = 'Static' | 'Contested (Active)' | 'Contested (Resisted)';
 
-// Re-export StatType and related types from commons
-export { StatType, StatHierarchy, StatHierarchyProperties } from '@shattered-wilds/commons';
-
-// Modifier represents bonuses/penalties from different sources
-export interface Modifier {
-	source: string;
-	value: number;
-	attributeType: StatType;
-	description?: string;
-}
-
 export enum Size {
 	F = 'Fine',
 	D = 'Diminutive',

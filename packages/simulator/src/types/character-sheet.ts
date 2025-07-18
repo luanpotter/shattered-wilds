@@ -1,6 +1,14 @@
-import { AttributeTree, Attribute, makeAttributeTree } from './attributes';
+import {
+	Attribute,
+	AttributeTree,
+	makeAttributeTree,
+	Modifier,
+	ModifierSource,
+	StatType,
+} from '@shattered-wilds/commons';
+
 import { Race, CharacterClass, Equipment, Armor, RaceDefinition, ClassDefinition, Shield, Weapon } from './character';
-import { StatType, Modifier, Size, SizeModifiers, DerivedStat, BasicAttack, DefenseType } from './core';
+import { Size, SizeModifiers, DerivedStat, BasicAttack, DefenseType } from './core';
 import {
 	FEATS,
 	Upbringing,
@@ -128,10 +136,11 @@ export class ClassInfo {
 		// Add the attribute specialization modifier (+1 to primary attribute)
 		const primaryAttribute = CLASS_DEFINITIONS[this.characterClass].primaryAttribute;
 		modifiers.push({
-			source: `${this.characterClass} Class`,
-			value: 1,
-			attributeType: primaryAttribute,
+			source: ModifierSource.Feat,
+			name: `${this.characterClass} Class`,
 			description: `${primaryAttribute.name} Attribute Specialization from ${this.characterClass} class`,
+			statType: primaryAttribute,
+			value: 1,
 		});
 
 		return modifiers;
@@ -371,10 +380,11 @@ export class CharacterSheet {
 				const armor = item as Armor;
 				if (armor.dexPenalty !== 0) {
 					modifiers.push({
-						source: `${armor.name} (${armor.type})`,
-						value: armor.dexPenalty, // dexPenalty is already stored as negative
-						attributeType: StatType.DEX,
+						source: ModifierSource.Equipment,
+						name: `${armor.name} (${armor.type})`,
 						description: `Dexterity penalty from wearing ${armor.name}`,
+						statType: StatType.DEX,
+						value: armor.dexPenalty, // dexPenalty is already stored as negative
 					});
 				}
 			});
