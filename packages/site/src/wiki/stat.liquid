@@ -18,12 +18,11 @@
     </div>
 </div>
 
-<p>{{ stat.description | md }}</p>
+<p>{{ stat.description | mdb }}</p>
 
 {% if stat.longDescription %}
-    <p>{{ stat.longDescription }}</p>
+    <p>{{ stat.longDescription | mdb }}</p>
 {% endif %}
-
 
 {% if stat.parent %}
 <p><strong>{{ stat.name }}</strong> is a {{ stat.hierarchy }} of <a href="/wiki/Stat_{{ stat.parent }}/">{{ stat.parent }}</a>.</p>
@@ -41,7 +40,7 @@
 <h3>Example Usages</h3>
 <ul>
 {% for usage in stat.exampleUsages %}
-    <li>{{ usage | md }}</li>
+    <li>{{ usage | mdi }}</li>
 {% endfor %}
 </ul>
 {% endif %}

@@ -11,7 +11,7 @@ title: "{{ lexicon.title }}"
 
 {% if lexicon.isCategory and lexicon.categoryItems and lexicon.categoryItems.size > 0 %}
   <!-- Category page with definition and auto-generated list -->
-  {{ lexicon.content | processShortcodes | markdown }}
+  {{ lexicon.content | mdb }}
 
   <h2>{{ lexicon.title }} List</h2>
   <ul class="category-list">
@@ -30,7 +30,7 @@ title: "{{ lexicon.title }}"
           </span>
         {% endif %}
         {% if item.content %}
-          : {{ item.content | split: "\n\n" | first | strip | md }}
+          : {{ item.content | split: "\n\n" | first | strip | mdi }}
         {% endif %}
       </li>
     {% endfor %}
@@ -59,5 +59,5 @@ title: "{{ lexicon.title }}"
     </div>
   {% endif %}
 
-  {{ lexicon.content | processShortcodes | markdown }}
+  {{ lexicon.content | mdb }}
 {% endif %}
