@@ -19,6 +19,7 @@
   "author": "Luan Nico",
   "license": "MIT",
   "devDependencies": {
+    "@shattered-wilds/commons": "workspace:*",
     "@11ty/eleventy": "^3.1.2",
     "@types/js-yaml": "^4.0.9",
     "@types/lodash": "^4.17.13",
@@ -33,7 +34,6 @@
     "typescript": "^5.7.2"
   },
   "dependencies": {
-    "@shattered-wilds/commons": "workspace:*",
     "simpledotcss": "^2.2.1"
   }
 }
