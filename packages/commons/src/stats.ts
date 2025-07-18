@@ -44,7 +44,7 @@ export class StatType {
 		name: 'Body',
 		description: `The realm of physical capabilities, representing the character's physique.`,
 		exampleUsages: [
-			`Determines [[Resource_Vitality_Points | Vitality Points]].`,
+			`Determines [[Resource_Vitality_Point | Vitality Points]].`,
 			`Is used for **Basic Body Defense** resisted checks.`,
 		],
 	});
@@ -54,7 +54,7 @@ export class StatType {
 		name: 'Mind',
 		description: `The realm of mental capabilities, representing your character's intellect.`,
 		exampleUsages: [
-			`Determines [[Resource_Focus_Points | Focus Points]].`,
+			`Determines [[Resource_Focus_Point | Focus Points]].`,
 			`Is used for **Basic Mind Defense** resisted checks.`,
 		],
 	});
@@ -64,7 +64,7 @@ export class StatType {
 		name: 'Soul',
 		description: `The realm of spiritual capabilities, representing your character's life force, connection to the **Aether** and to their own Soul.`,
 		exampleUsages: [
-			`Determines [[Resource_Soul_Points | Soul Points]].`,
+			`Determines [[Resource_Soul_Point | Soul Points]].`,
 			`Is used for **Basic Soul Defense** resisted checks.`,
 		],
 	});

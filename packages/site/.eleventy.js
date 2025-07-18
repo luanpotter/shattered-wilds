@@ -8,6 +8,7 @@ import eleventyGoogleFonts from "eleventy-google-fonts";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { stats } from './src/data/stats.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,6 +25,9 @@ export default function (eleventyConfig) {
   // Add global data for lexicon files
   const lexiconFiles = parseLexicon();
   eleventyConfig.addGlobalData("lexiconFiles", lexiconFiles);
+  
+  // Add global data for stats
+  eleventyConfig.addGlobalData("stats", stats);
   
   // Set default layout for all pages
   eleventyConfig.addGlobalData("layout", "main");
