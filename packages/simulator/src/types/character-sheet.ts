@@ -58,7 +58,7 @@ export class RaceInfo {
 	}
 
 	// Get the core feats that should be assigned to this race/upbringing combination
-	getCoreFeats(): string[] {
+	getCoreRacialFeats(): string[] {
 		const coreFeats: string[] = [];
 
 		// Add racial feat

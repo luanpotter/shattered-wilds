@@ -88,7 +88,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 
 	// Auto-assign core feats based on slot type
 	const getAutoAssignedCoreFeat = (slot: FeatSlot, sheet: CharacterSheet): string | null => {
-		const raceCoreFeats = sheet.race.getCoreFeats();
+		const raceCoreFeats = sheet.race.getCoreRacialFeats();
 		const classCoreFeats = sheet.characterClass.getCoreClassFeats();
 
 		switch (slot.id) {

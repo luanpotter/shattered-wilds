@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useStore } from '../store';
-import { CharacterSheet, Race, Size, StatType, RaceInfo } from '../types';
+import { CharacterSheet, Race, StatType, RaceInfo } from '../types';
 import { Upbringing, FEATS, getUpbringingModifierFeat } from '../types/feats';
 
 import DropdownSelect from './DropdownSelect';
@@ -27,7 +27,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 	const currentRace = sheet.race;
 
 	// Get modifiers for the preview using current values
-	const coreFeats = currentRace.getCoreFeats();
+	const coreFeats = currentRace.getCoreRacialFeats();
 	const coreFeatDefinitions = coreFeats
 		.map(featId => {
 			// Handle dynamic upbringing modifiers for preview
@@ -41,20 +41,6 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 			return FEATS[featId];
 		})
 		.filter(Boolean);
-
-	// Map size enum to display value
-	const getSizeDisplay = (size: Size): string => {
-		switch (size) {
-			case Size.S:
-				return 'Small';
-			case Size.M:
-				return 'Medium';
-			case Size.L:
-				return 'Large';
-			default:
-				return 'Unknown';
-		}
-	};
 
 	// Handle immediate updates
 	const handlePrimaryRaceChange = (value: Race) => {
@@ -189,7 +175,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 			upbringingPlusModifier,
 			upbringingMinusModifier,
 		);
-		const newCoreFeats = newRaceInfo.getCoreFeats();
+		const newCoreFeats = newRaceInfo.getCoreRacialFeats();
 
 		// Assign feats to their proper slots
 		if (newCoreFeats[0]) {
@@ -343,7 +329,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 					}}
 				>
 					<span>Size is determined by your primary race</span>
-					<span style={{ fontWeight: 'bold' }}>{getSizeDisplay(sheet.derivedStats.size.value)}</span>
+					<span style={{ fontWeight: 'bold' }}>{sheet.derivedStats.size.value}</span>
 				</div>
 			</div>
 
