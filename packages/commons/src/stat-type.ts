@@ -460,4 +460,10 @@ On top of these types of actions, the different Skills can still be used for oth
 	toString(): string {
 		return this.name;
 	}
+
+	static readonly values: StatType[] = Object.values(StatType).filter(stat => stat.name);
+
+	static childrenOf(stat: StatType): StatType[] {
+		return StatType.values.filter(child => child.parent?.name === stat.name);
+	}
 }

@@ -2,28 +2,30 @@ import React, { useState, ReactNode } from 'react';
 import { FaUndo, FaExclamationTriangle, FaChevronDown, FaChevronRight, FaInfoCircle } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { Attribute, AttributeTree, StatType, AttributeValue } from '../types';
+import { StatTree, StatType, StatModifier, StatNode } from '../types';
 
-interface AttributeTreeComponentProps {
-	tree: AttributeTree;
+interface StatTreeComponentProps {
+	tree: StatTree;
 	onUpdateCharacterProp: (key: string, value: string) => void;
 	disabled?: boolean;
 	characterId?: string;
 }
 
 // Value display with a colored background based on the value
-const AttributeValueComponent: React.FC<{
-	modifier: AttributeValue;
+const StatValueComponent: React.FC<{
+	node: StatNode;
+	modifier: StatModifier;
 	onClick?: () => void;
 	onRightClick?: () => void;
 	canAllocate?: boolean;
 	canDeallocate?: boolean;
-	attributeName: string;
 	characterId?: string;
-}> = ({ modifier, onClick, onRightClick, canAllocate = false, canDeallocate = false, attributeName, characterId }) => {
+}> = ({ node, modifier, onClick, onRightClick, canAllocate = false, canDeallocate = false, characterId }) => {
 	const editMode = useStore(state => state.editMode);
 	const addWindow = useStore(state => state.addWindow);
 	const value = modifier.value;
+
+	const attributeName = node.type.name;
 
 	const handleContextMenu = (e: React.MouseEvent) => {
 		// Always prevent default context menu
@@ -59,10 +61,9 @@ const AttributeValueComponent: React.FC<{
 	// Get tooltip text from modifiers and level cap
 	const getModifierTooltip = () => {
 		const tooltip = [];
-		if (modifier.wasLevelCapped) {
-			tooltip.push(`Base value (${modifier.uncappedBaseValue}) exceeds level cap (${modifier.levelCap})`);
-		}
-		tooltip.push(...modifier.modifiers.map(mod => `${mod.source}: ${mod.value > 0 ? '+' + mod.value : mod.value}`));
+		tooltip.push(
+			...modifier.appliedModifiers.map(mod => `${mod.source}: ${mod.value > 0 ? '+' + mod.value : mod.value}`),
+		);
 		return tooltip.join('\n');
 	};
 
@@ -111,7 +112,7 @@ const AttributeValueComponent: React.FC<{
 				role={canAllocate ? 'button' : undefined}
 				aria-label={canAllocate ? `Allocate point to attribute` : undefined}
 			>
-				{modifier.nodeValue}
+				{node.points}
 			</div>
 			<div
 				style={{
@@ -151,7 +152,7 @@ const AttributeValueComponent: React.FC<{
 
 // Reusable component for attribute boxes at any level
 interface AttributeBoxProps {
-	attribute: Attribute;
+	node: StatNode;
 	isExpanded?: boolean;
 	style?: React.CSSProperties;
 	onClick?: () => void;
@@ -161,7 +162,7 @@ interface AttributeBoxProps {
 }
 
 const AttributeBox: React.FC<AttributeBoxProps> = ({
-	attribute,
+	node,
 	isExpanded = false,
 	style = {},
 	onClick,
@@ -169,7 +170,7 @@ const AttributeBox: React.FC<AttributeBoxProps> = ({
 	attributeValue,
 	level,
 }) => {
-	const hasUnallocated = attribute.hasUnallocatedPoints?.();
+	const hasUnallocated = node.hasUnallocatedPoints;
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === 'Enter' && onClick) {
@@ -196,7 +197,7 @@ const AttributeBox: React.FC<AttributeBoxProps> = ({
 			tabIndex={expandable ? 0 : undefined}
 			role={expandable ? 'button' : undefined}
 			aria-expanded={expandable ? isExpanded : undefined}
-			aria-controls={expandable && isExpanded ? `${attribute.type.name}-content` : undefined}
+			aria-controls={expandable && isExpanded ? `${node.type.name}-content` : undefined}
 		>
 			<div
 				style={{
@@ -208,58 +209,49 @@ const AttributeBox: React.FC<AttributeBoxProps> = ({
 			>
 				<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
 					{expandable && (isExpanded ? <FaChevronDown size={14} /> : <FaChevronRight size={14} />)}
-					<span style={{ fontWeight: level !== 'skill' ? 'bold' : 'normal' }}>{attribute.type.name}</span>
+					<span style={{ fontWeight: level !== 'skill' ? 'bold' : 'normal' }}>{node.type.name}</span>
 					{hasUnallocated && (
 						<FaExclamationTriangle style={{ color: 'orange', marginLeft: '4px' }} title='Contains unallocated points' />
 					)}
 				</div>
 				{attributeValue}
 			</div>
-			<div style={{ fontSize: '0.8em', opacity: 0.8 }}>{attribute.type.description}</div>
+			<div style={{ fontSize: '0.8em', opacity: 0.8 }}>{node.type.description}</div>
 		</div>
 	);
 };
 
-export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
+export const StatTreeComponent: React.FC<StatTreeComponentProps> = ({
 	tree,
 	onUpdateCharacterProp,
-	disabled = false,
+	disabled = false, // ???
 	characterId,
 }) => {
 	// Initialize state at the top level to fix conditional Hook calls
-	const [selectedRealm, setSelectedRealm] = useState<string | null>(null);
-	const [selectedBasicAttribute, setSelectedBasicAttribute] = useState<string | null>(null);
+	const [selectedRealm, setSelectedRealm] = useState<StatType | null>(null);
+	const [selectedBasicAttribute, setSelectedBasicAttribute] = useState<StatType | null>(null);
 	const editMode = useStore(state => state.editMode);
 
-	const canAllocatePoint = (node: Attribute) => {
-		if (disabled) return false;
-		const parent = tree.root.getNode(node.type.parent);
-		return parent?.canChildrenAllocatePoint ?? true;
-	};
-
-	const handleAllocatePoint = (node: Attribute) => {
-		if (canAllocatePoint(node)) {
-			onUpdateCharacterProp(node.type.name, (node.baseValue + 1).toString());
+	const handleAllocatePoint = (node: StatNode) => {
+		if (!disabled && node.canAllocatePoint) {
+			onUpdateCharacterProp(node.type.name, (node.points + 1).toString());
 		}
 	};
 
-	const handleDeallocatePoint = (node: Attribute) => {
+	const handleDeallocatePoint = (node: StatNode) => {
 		if (!disabled && node.canDeallocatePoint) {
-			onUpdateCharacterProp(node.type.name, (node.baseValue - 1).toString());
+			onUpdateCharacterProp(node.type.name, (node.points - 1).toString());
 		}
 	};
 
-	const PointsAllocation: React.FC<{ node: Attribute }> = ({ node }) => {
-		const totalAvailable = node.baseValue > 0 ? node.baseValue - 1 : 0; // Total points available to allocate (reserve 1 for self)
-		const unallocated = node.unallocatedPoints;
-
+	const PointsAllocation: React.FC<{ node: StatNode }> = ({ node }) => {
 		if (!editMode) return null;
 
 		return (
 			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 				<span style={{ fontWeight: 'bold', fontSize: '1.1em' }}>
-					{unallocated}/{totalAvailable} points
-					{unallocated > 0 && (
+					{node.unallocatedPoints}/{node.allocatablePoints} points
+					{node.hasUnallocatedPoints && (
 						<FaExclamationTriangle style={{ marginLeft: '6px', color: 'orange' }} title='You have unallocated points' />
 					)}
 				</span>
@@ -267,16 +259,16 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 		);
 	};
 
-	const AttributeValueNode = ({ node }: { node: Attribute }) => {
-		const modifier = tree.getFinalModifier(node);
+	const AttributeValueNode = ({ node }: { node: StatNode }) => {
+		const modifier = tree.getModifier(node.type);
 		return (
-			<AttributeValueComponent
+			<StatValueComponent
+				node={node}
 				modifier={modifier}
-				canAllocate={canAllocatePoint(node)}
+				canAllocate={node.canAllocatePoint}
 				canDeallocate={node.canDeallocatePoint}
 				onClick={() => handleAllocatePoint(node)}
 				onRightClick={() => handleDeallocatePoint(node)}
-				attributeName={node.type.name}
 				{...(characterId && { characterId })}
 			/>
 		);
@@ -284,27 +276,31 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 
 	// Get the background color for a realm
 	const getRealmBackgroundColor = (realmType: StatType) => {
-		return realmType === StatType.Body
-			? 'rgba(255, 100, 100, 0.1)'
-			: realmType === StatType.Mind
-				? 'rgba(100, 100, 255, 0.1)'
-				: 'rgba(100, 255, 100, 0.1)';
+		switch (realmType) {
+			case StatType.Body:
+				return 'rgba(255, 100, 100, 0.1)';
+			case StatType.Mind:
+				return 'rgba(100, 100, 255, 0.1)';
+			case StatType.Soul:
+				return 'rgba(100, 255, 100, 0.1)';
+			default:
+				throw new Error(`Unhandled realm type: ${realmType}`);
+		}
 	};
 
 	// Create the tabbed panel structure
 	const createTabPanel = (
-		tabs: Attribute[],
-		selectedTab: string | null,
-		onTabSelect: (tab: string | null) => void,
+		statNodes: StatNode[],
+		selectedTab: StatType | null,
+		onTabSelect: (tab: StatType | null) => void,
 		tabLevel: 'realm' | 'basic',
 		backgroundColor?: string,
 		children?: React.ReactNode,
 	) => {
-		const selectedTabIndex = selectedTab ? tabs.findIndex(t => t.type.name === selectedTab) : -1;
+		const selectedTabIndex = selectedTab ? statNodes.findIndex(t => t.type === selectedTab) : -1;
 
 		return (
 			<div style={{ marginBottom: tabLevel === 'realm' ? '12px' : 0 }}>
-				{/* Tab headers row */}
 				<div
 					style={{
 						display: 'grid',
@@ -314,13 +310,13 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 						zIndex: 2,
 					}}
 				>
-					{tabs.map(tab => {
-						const isSelected = tab.type.name === selectedTab;
+					{statNodes.map(statNode => {
+						const isSelected = statNode.type === selectedTab;
 						let tabStyle: React.CSSProperties = {};
 
 						if (tabLevel === 'realm') {
 							tabStyle = {
-								backgroundColor: getRealmBackgroundColor(tab.type),
+								backgroundColor: getRealmBackgroundColor(statNode.type),
 								borderBottom: isSelected ? 'none' : '1px solid var(--text)',
 								position: 'relative',
 								zIndex: isSelected ? 1 : 0,
@@ -336,13 +332,13 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 
 						return (
 							<AttributeBox
-								key={tab.type.name}
-								attribute={tab}
+								key={statNode.type.name}
+								node={statNode}
 								isExpanded={isSelected}
-								onClick={() => onTabSelect(isSelected ? null : tab.type.name)}
+								onClick={() => onTabSelect(isSelected ? null : statNode.type)}
 								expandable={true}
 								style={tabStyle}
-								attributeValue={<AttributeValueNode node={tab} />}
+								attributeValue={<AttributeValueNode node={statNode} />}
 								level={tabLevel}
 							/>
 						);
@@ -394,8 +390,7 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 						<PointsAllocation node={tree.root} />
 						<button
 							onClick={() => {
-								const updates = tree.root.children.flatMap(child => child.reset());
-								for (const update of updates) {
+								for (const update of tree.fullReset()) {
 									onUpdateCharacterProp(update.key, update.value);
 								}
 							}}
@@ -426,12 +421,12 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 				setSelectedRealm,
 				'realm',
 				selectedRealm
-					? getRealmBackgroundColor(tree.root.children.find(r => r.type.name === selectedRealm)?.type || StatType.Body)
+					? getRealmBackgroundColor(tree.root.children.find(r => r.type === selectedRealm)?.type || StatType.Body)
 					: undefined,
 				selectedRealm &&
 					// Basic Attributes Tab Panel (nested)
 					createTabPanel(
-						tree.root.children.find(realm => realm.type.name === selectedRealm)?.children || [],
+						tree.root.children.find(realm => realm.type === selectedRealm)?.children || [],
 						selectedBasicAttribute,
 						setSelectedBasicAttribute,
 						'basic',
@@ -446,12 +441,12 @@ export const AttributeTreeComponent: React.FC<AttributeTreeComponentProps> = ({
 								}}
 							>
 								{tree.root.children
-									.find(realm => realm.type.name === selectedRealm)
-									?.children.find(attr => attr.type.name === selectedBasicAttribute)
+									.find(realm => realm.type === selectedRealm)
+									?.children.find(attr => attr.type === selectedBasicAttribute)
 									?.children.map(skill => (
 										<AttributeBox
 											key={skill.type.name}
-											attribute={skill}
+											node={skill}
 											style={{
 												borderRadius: '4px',
 											}}

@@ -2,25 +2,35 @@ import React from 'react';
 import { FaUndo, FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { Attribute, AttributeTree, StatType, AttributeValue } from '../types';
+import { StatModifier, StatNode, StatTree, StatType } from '../types';
 
-interface AttributeTreeGridComponentProps {
-	tree: AttributeTree;
+interface StatTreeGridComponentProps {
+	tree: StatTree;
 	onUpdateCharacterProp: (key: string, value: string) => void;
 	disabled?: boolean;
 	characterId?: string;
 }
 
 // Value display component (reusing from original)
-const AttributeValueComponent: React.FC<{
-	modifier: AttributeValue;
+const StatValueComponent: React.FC<{
+	node: StatNode;
+	modifier: StatModifier;
 	onClick?: () => void;
 	onRightClick?: () => void;
 	canAllocate?: boolean;
 	canDeallocate?: boolean;
 	attributeName: string;
 	characterId?: string;
-}> = ({ modifier, onClick, onRightClick, canAllocate = false, canDeallocate = false, attributeName, characterId }) => {
+}> = ({
+	node,
+	modifier,
+	onClick,
+	onRightClick,
+	canAllocate = false,
+	canDeallocate = false,
+	attributeName,
+	characterId,
+}) => {
 	const editMode = useStore(state => state.editMode);
 	const addWindow = useStore(state => state.addWindow);
 	const value = modifier.value;
@@ -55,10 +65,9 @@ const AttributeValueComponent: React.FC<{
 
 	const getModifierTooltip = () => {
 		const tooltip = [];
-		if (modifier.wasLevelCapped) {
-			tooltip.push(`Base value (${modifier.uncappedBaseValue}) exceeds level cap (${modifier.levelCap})`);
-		}
-		tooltip.push(...modifier.modifiers.map(mod => `${mod.source}: ${mod.value > 0 ? '+' + mod.value : mod.value}`));
+		tooltip.push(
+			...modifier.appliedModifiers.map(mod => `${mod.source}: ${mod.value > 0 ? '+' + mod.value : mod.value}`),
+		);
 		return tooltip.join('\n');
 	};
 
@@ -107,7 +116,7 @@ const AttributeValueComponent: React.FC<{
 				role={canAllocate ? 'button' : undefined}
 				aria-label={canAllocate ? `Allocate point to attribute` : undefined}
 			>
-				{modifier.nodeValue}
+				{node.points}
 			</div>
 			<span
 				style={{
@@ -135,7 +144,7 @@ const AttributeValueComponent: React.FC<{
 	);
 };
 
-export const AttributeTreeGridComponent: React.FC<AttributeTreeGridComponentProps> = ({
+export const AttributeTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 	tree,
 	onUpdateCharacterProp,
 	disabled = false,
@@ -143,30 +152,25 @@ export const AttributeTreeGridComponent: React.FC<AttributeTreeGridComponentProp
 }) => {
 	const editMode = useStore(state => state.editMode);
 
-	const canAllocatePoint = (node: Attribute) => {
-		if (disabled) return false;
-		const parent = tree.root.getNode(node.type.parent);
-		return parent?.canChildrenAllocatePoint ?? true;
-	};
-
-	const handleAllocatePoint = (node: Attribute) => {
-		if (canAllocatePoint(node)) {
-			onUpdateCharacterProp(node.type.name, (node.baseValue + 1).toString());
+	const handleAllocatePoint = (node: StatNode) => {
+		if (!disabled && node.canAllocatePoint) {
+			onUpdateCharacterProp(node.type.name, (node.points + 1).toString());
 		}
 	};
 
-	const handleDeallocatePoint = (node: Attribute) => {
+	const handleDeallocatePoint = (node: StatNode) => {
 		if (!disabled && node.canDeallocatePoint) {
-			onUpdateCharacterProp(node.type.name, (node.baseValue - 1).toString());
+			onUpdateCharacterProp(node.type.name, (node.points - 1).toString());
 		}
 	};
 
-	const AttributeValueNode = ({ node }: { node: Attribute }) => {
-		const modifier = tree.getFinalModifier(node);
+	const StatValueNode = ({ node }: { node: StatNode }) => {
+		const modifier = tree.getModifier(node.type);
 		return (
-			<AttributeValueComponent
+			<StatValueComponent
+				node={node}
 				modifier={modifier}
-				canAllocate={canAllocatePoint(node)}
+				canAllocate={node.canAllocatePoint}
 				canDeallocate={node.canDeallocatePoint}
 				onClick={() => handleAllocatePoint(node)}
 				onRightClick={() => handleDeallocatePoint(node)}
@@ -176,17 +180,14 @@ export const AttributeTreeGridComponent: React.FC<AttributeTreeGridComponentProp
 		);
 	};
 
-	const PointsAllocation: React.FC<{ node: Attribute }> = ({ node }) => {
-		const totalAvailable = node.baseValue > 0 ? node.baseValue - 1 : 0;
-		const unallocated = node.unallocatedPoints;
-
+	const PointsAllocation: React.FC<{ node: StatNode }> = ({ node }) => {
 		if (!editMode) return null;
 
 		return (
 			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 				<span style={{ fontWeight: 'bold', fontSize: '0.9em' }}>
-					{unallocated}/{totalAvailable} points
-					{unallocated > 0 && (
+					{node.unallocatedPoints}/{node.allocatablePoints} points
+					{node.unallocatedPoints > 0 && (
 						<FaExclamationTriangle style={{ marginLeft: '6px', color: 'orange' }} title='You have unallocated points' />
 					)}
 				</span>
@@ -200,13 +201,13 @@ export const AttributeTreeGridComponent: React.FC<AttributeTreeGridComponentProp
 	const soulRealm = tree.root.children.find(r => r.type === StatType.Soul);
 
 	// Helper function to find attribute by type
-	const findAttributeByType = (realm: Attribute | undefined, type: StatType): Attribute | undefined => {
+	const findAttributeByType = (realm: StatNode | undefined, type: StatType): StatNode | undefined => {
 		return realm?.children.find(attr => attr.type === type);
 	};
 
 	// Component for individual attribute panels
-	const AttributePanel: React.FC<{ attribute: Attribute }> = ({ attribute }) => {
-		const hasUnallocated = attribute.hasUnallocatedPoints?.();
+	const AttributePanel: React.FC<{ attribute: StatNode }> = ({ attribute }) => {
+		const hasUnallocated = attribute.hasUnallocatedPoints;
 
 		return (
 			<div
@@ -237,13 +238,13 @@ export const AttributeTreeGridComponent: React.FC<AttributeTreeGridComponentProp
 							<FaExclamationTriangle style={{ color: 'orange' }} title='Contains unallocated points' />
 						)}
 					</div>
-					<AttributeValueNode node={attribute} />
+					<StatValueNode node={attribute} />
 				</div>
 
 				{/* Skills */}
 				<div style={{ padding: '0.75rem', flex: 1 }}>
 					{attribute.children.map(skill => {
-						const skillModifier = tree.getFinalModifier(skill);
+						const skillModifier = tree.getModifier(skill.type);
 						return (
 							<div
 								key={skill.type.name}
@@ -257,9 +258,10 @@ export const AttributeTreeGridComponent: React.FC<AttributeTreeGridComponentProp
 								}}
 							>
 								<span style={{ flex: 1 }}>{skill.type.name}</span>
-								<AttributeValueComponent
+								<StatValueComponent
+									node={skill}
 									modifier={skillModifier}
-									canAllocate={canAllocatePoint(skill)}
+									canAllocate={skill.canAllocatePoint}
 									canDeallocate={skill.canDeallocatePoint}
 									onClick={() => handleAllocatePoint(skill)}
 									onRightClick={() => handleDeallocatePoint(skill)}
@@ -275,8 +277,8 @@ export const AttributeTreeGridComponent: React.FC<AttributeTreeGridComponentProp
 	};
 
 	// Component for vertical realm labels
-	const RealmLabel: React.FC<{ realm: Attribute }> = ({ realm }) => {
-		const hasUnallocated = realm.hasUnallocatedPoints?.();
+	const RealmLabel: React.FC<{ realm: StatNode }> = ({ realm }) => {
+		const hasUnallocated = realm.hasUnallocatedPoints;
 
 		const getRealmBackgroundColor = (realmType: StatType) => {
 			return realmType === StatType.Body
@@ -320,7 +322,7 @@ export const AttributeTreeGridComponent: React.FC<AttributeTreeGridComponentProp
 					{hasUnallocated && <FaExclamationTriangle style={{ color: 'orange' }} title='Contains unallocated points' />}
 				</div>
 				<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-					<AttributeValueNode node={realm} />
+					<StatValueNode node={realm} />
 					{editMode && <PointsAllocation node={realm} />}
 				</div>
 			</div>
@@ -343,15 +345,14 @@ export const AttributeTreeGridComponent: React.FC<AttributeTreeGridComponentProp
 			>
 				<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
 					<span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>Level</span>
-					<AttributeValueNode node={tree.root} />
+					<StatValueNode node={tree.root} />
 				</div>
 				{editMode && (
 					<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
 						<PointsAllocation node={tree.root} />
 						<button
 							onClick={() => {
-								const updates = tree.root.children.flatMap(child => child.reset());
-								for (const update of updates) {
+								for (const update of tree.fullReset()) {
 									onUpdateCharacterProp(update.key, update.value);
 								}
 							}}

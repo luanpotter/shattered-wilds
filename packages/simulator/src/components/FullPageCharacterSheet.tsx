@@ -1,22 +1,22 @@
 import React, { useMemo } from 'react';
-import { FaArrowLeft, FaPlus, FaMinus, FaBatteryFull, FaCopy, FaExclamationTriangle, FaCog } from 'react-icons/fa';
+import { FaArrowLeft, FaBatteryFull, FaCog, FaCopy, FaExclamationTriangle, FaMinus, FaPlus } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { CharacterSheet, StatType, Size, SizeModifiers } from '../types';
+import { CharacterSheet, Size, SizeModifiers } from '../types';
 import {
-	getAllFeatSlots,
-	FeatType,
 	FEATS,
+	FeatSlot,
+	FeatType,
+	getAllFeatSlots,
+	getParameterizedFeatDefinition,
 	getUpbringingModifierFeat,
 	isParameterizedFeat,
-	getParameterizedFeatDefinition,
-	FeatSlot,
 } from '../types/feats';
 
-import { AttributeTreeGridComponent } from './AttributeTreeGridComponent';
 import { EquipmentSection } from './EquipmentSection';
 import Block from './shared/Block';
 import LabeledInput from './shared/LabeledInput';
+import { AttributeTreeGridComponent } from './StatTreeGridComponent';
 
 interface FullPageCharacterSheetProps {
 	characterId: string;
@@ -188,7 +188,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 	};
 
 	const renderFeatsSection = () => {
-		const characterLevel = sheet.attributes.getNode(StatType.Level)?.baseValue || 1;
+		const characterLevel = sheet.level;
 		const currentFeatSlots = sheet.getFeatSlots();
 		const hasSpecializedTraining = Object.values(currentFeatSlots).includes('specialized-training');
 		const allFeatSlots = getAllFeatSlots(characterLevel, hasSpecializedTraining);
@@ -558,7 +558,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 
 					<Block>
 						<AttributeTreeGridComponent
-							tree={sheet.getAttributeTree()}
+							tree={sheet.getStatTree()}
 							onUpdateCharacterProp={(key, value) => updateCharacterProp(character, key, value)}
 							disabled={!editMode}
 							characterId={character.id}

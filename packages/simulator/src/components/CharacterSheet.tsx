@@ -1,23 +1,13 @@
 import React, { useEffect, useMemo } from 'react';
-import { FaPlus, FaMinus, FaBatteryFull, FaExclamationTriangle } from 'react-icons/fa';
+import { FaBatteryFull, FaExclamationTriangle, FaMinus, FaPlus } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import {
-	Character,
-	CharacterSheet,
-	DerivedStat,
-	Size,
-	SizeModifiers,
-	Equipment,
-	DefenseType,
-	StatType,
-	Point,
-} from '../types';
-import { getAllFeatSlots, FeatType } from '../types/feats';
+import { Character, CharacterSheet, DefenseType, DerivedStat, Equipment, Point, Size, SizeModifiers } from '../types';
+import { FeatType, getAllFeatSlots } from '../types/feats';
 import { findNextWindowPosition } from '../utils';
 
-import { AttributeTreeComponent } from './AttributeTreeComponent';
 import { EquipmentSection } from './EquipmentSection';
+import { StatTreeComponent } from './StatTreeComponent';
 
 interface CharacterSheetModalProps {
 	character: Character;
@@ -235,7 +225,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 
 	// Calculate missing feat slots
 	const getMissingFeatSlots = (): boolean => {
-		const characterLevel = sheet.attributes.getNode(StatType.Level)?.baseValue || 1;
+		const characterLevel = sheet.level;
 		const currentFeatSlots = sheet.getFeatSlots();
 
 		// Check if character has specialized training
@@ -739,8 +729,8 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 			</div>
 
 			{/* Attribute Tree */}
-			<AttributeTreeComponent
-				tree={sheet.getAttributeTree()}
+			<StatTreeComponent
+				tree={sheet.getStatTree()}
 				onUpdateCharacterProp={(key, value) => updateCharacterProp(character, key, value)}
 				disabled={!editMode}
 				characterId={character.id}

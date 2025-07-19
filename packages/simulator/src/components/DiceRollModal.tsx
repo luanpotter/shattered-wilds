@@ -102,7 +102,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 				return character ? CharacterSheet.from(character.props) : undefined;
 			})()
 		: characterSheet;
-	const tree = activeCharacterSheet?.getAttributeTree();
+	const tree = activeCharacterSheet?.getStatTree();
 
 	const [circumstantialModifier, setCircumstantialModifier] = useState(0);
 	const [rollType, setRollType] = useState<RollType>(initialRollType);

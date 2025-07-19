@@ -14,103 +14,114 @@ export interface Modifier {
 	value: number;
 }
 
-export class AttributeTree {
-	root: Attribute;
+export class StatTree {
+	root: StatNode;
 	modifiers: Modifier[];
 
-	constructor(root: Attribute, modifiers: Modifier[]) {
+	constructor(root: StatNode, modifiers: Modifier[]) {
 		this.root = root;
 		this.modifiers = modifiers;
 	}
 
-	// level getter
-	get level(): number {
-		return this.root.baseValue;
+	static build(props: Record<string, string>, modifiers: Modifier[]): StatTree {
+		const root = StatTree.buildRootNode(props);
+		return new StatTree(root, modifiers);
 	}
 
-	// Check if a modifier applies to a particular node
-	private isApplicableModifier(mod: Modifier, node: Attribute): boolean {
-		// Find the path from the node to the root to see if mod.attributeType is in the hierarchy
-		let current: Attribute | null = node;
-		while (current) {
-			if (current.type === mod.statType) {
-				return true;
-			}
-			current = current.parent;
+	static buildRootNode = (props: Record<string, string> = {}): StatNode => {
+		const attr = (type: StatType, children: StatNode[] = []): StatNode => {
+			const value = parseInt(props[type.name] ?? '0');
+			return new StatNode(type, value, children);
+		};
+
+		return attr(StatType.Level, [
+			attr(StatType.Body, [
+				attr(StatType.STR, [attr(StatType.Muscles), attr(StatType.Stance), attr(StatType.Lift)]),
+				attr(StatType.DEX, [attr(StatType.Finesse), attr(StatType.Evasiveness), attr(StatType.Agility)]),
+				attr(StatType.CON, [attr(StatType.Toughness), attr(StatType.Stamina), attr(StatType.Resilience)]),
+			]),
+			attr(StatType.Mind, [
+				attr(StatType.INT, [attr(StatType.IQ), attr(StatType.Knowledge), attr(StatType.Memory)]),
+				attr(StatType.WIS, [attr(StatType.Perception), attr(StatType.Awareness), attr(StatType.Intuition)]),
+				attr(StatType.CHA, [attr(StatType.Speechcraft), attr(StatType.Presence), attr(StatType.Empathy)]),
+			]),
+			attr(StatType.Soul, [
+				attr(StatType.DIV, [attr(StatType.Revelation), attr(StatType.Attunement), attr(StatType.Devotion)]),
+				attr(StatType.FOW, [attr(StatType.Discipline), attr(StatType.Tenacity), attr(StatType.Resolve)]),
+				attr(StatType.LCK, [attr(StatType.Karma), attr(StatType.Fortune), attr(StatType.Serendipity)]),
+			]),
+		]);
+	};
+
+	private getApplicableModifiers(stat: StatType): Modifier[] {
+		return this.modifiers.filter(mod => mod.statType === stat);
+	}
+
+	private getParentModifier(node: StatNode): number {
+		const parent = node.parent;
+		if (!parent) {
+			return 0;
 		}
-		return false;
+		return this.getModifier(parent.type).value;
 	}
 
-	getApplicableModifiers(node: Attribute): Modifier[] {
-		return this.modifiers.filter(mod => this.isApplicableModifier(mod, node));
-	}
-
-	getTotalModifierValue(node: Attribute): number {
-		return this.getApplicableModifiers(node).reduce((sum, mod) => sum + mod.value, 0);
-	}
-
-	valueOf(type: StatType): number {
-		const node = this.root.getNode(type);
-		if (!node) {
-			throw new Error(`Attribute type ${type.name} not found in tree`);
-		}
-		return this.getFinalModifier(node).value;
-	}
-
-	private getBaseModifier(node: Attribute): number {
+	private getSelfModifier(node: StatNode): number {
 		const hierarchy = node.type.hierarchy;
 		const properties = StatHierarchyProperties[hierarchy];
-		return Math.ceil(node.nodeValue * properties.baseMultiplier);
+		return Math.ceil(node.points * properties.baseMultiplier);
 	}
 
-	private getParentModifier(node: Attribute): number {
-		if (!node.parent) {
-			return 0;
+	getNode(stat: StatType): StatNode {
+		const node = this.root.getNode(stat);
+		if (!node) {
+			throw new Error(`Stat type ${stat.name} not found in tree`);
 		}
-		// For non-level nodes, we get the parent's final value
-		// For the level node (root), there is no parent
-		if (node.type === StatType.Level) {
-			return 0;
-		}
-		return this.getFinalModifier(node.parent).value;
+		return node;
 	}
 
-	getFinalModifier(node: Attribute): AttributeValue {
-		const baseModifier = this.getBaseModifier(node);
-		const parentModifier = this.getParentModifier(node);
-		const levelCap = this.level + 10;
-		const modifiers = this.getApplicableModifiers(node);
+	getModifier(stat: StatType): StatModifier {
+		const node = this.getNode(stat);
+		const parentValue = this.getParentModifier(node);
+		const selfValue = this.getSelfModifier(node);
+		const baseValue = selfValue + parentValue;
+		const appliedModifiers = this.getApplicableModifiers(node.type);
+		const value = baseValue + appliedModifiers.reduce((sum, mod) => sum + mod.value, 0);
+		return { parentValue, selfValue, baseValue, appliedModifiers, value };
+	}
 
-		return new AttributeValue(parentModifier, node.nodeValue, baseModifier, levelCap, modifiers);
+	valueOf(stat: StatType): number {
+		return this.getModifier(stat).value;
+	}
+
+	fullReset(): { key: string; value: string }[] {
+		return this.root.resetNode();
 	}
 }
 
-export class Attribute {
+export class StatNode {
 	type: StatType;
-	baseValue: number;
-	children: Attribute[];
-	parent: Attribute | null = null;
+	points: number;
+	children: StatNode[];
+	parent: StatNode | null = null;
 
-	constructor(type: StatType, baseValue: number = 0, children: Attribute[] = []) {
+	constructor(type: StatType, points: number = 0, children: StatNode[] = []) {
 		this.type = type;
-		this.baseValue = baseValue;
+		this.points = points;
 		this.children = children;
 		// Set parent references
 		this.children.forEach(child => (child.parent = this));
 	}
 
-	get totalPointsToPropagate(): number {
-		// Every node reserves 1 point for itself, propagates the rest
-		// e.g., value 2 can propagate 1 point, value 3 can propagate 2 points
-		return Math.max(0, this.baseValue - 1 - this.childrenAllocatedPoints);
+	get allocatablePoints(): number {
+		return Math.max(0, this.points - 1);
 	}
 
-	get childrenAllocatedPoints(): number {
-		return this.children.reduce((sum, child) => sum + child.baseValue, 0);
+	get allocatedPoints(): number {
+		return this.children.reduce((sum, child) => sum + child.points, 0);
 	}
 
 	get unallocatedPoints(): number {
-		return this.totalPointsToPropagate;
+		return this.allocatablePoints - this.allocatedPoints;
 	}
 
 	get canChildrenAllocatePoint(): boolean {
@@ -119,29 +130,28 @@ export class Attribute {
 		return this.unallocatedPoints > 0 && this.children.length > 0;
 	}
 
+	get canAllocatePoint(): boolean {
+		return this.parent?.canChildrenAllocatePoint ?? true;
+	}
+
 	get canDeallocatePoint(): boolean {
 		// Can deallocate if:
 		// 1. This node has at least 1 point allocated, AND
 		// 2. After deallocation, children won't exceed the new propagation limit
-		if (this.baseValue <= 0) {
+		if (this.points <= 0) {
 			return false;
 		}
 
-		// After deallocating 1 point: newBaseValue = baseValue - 1
-		// New max for children = max(0, newBaseValue - 1) = max(0, baseValue - 2)
-		const newMaxForChildren = Math.max(0, this.baseValue - 2);
-		return this.childrenAllocatedPoints <= newMaxForChildren;
+		const newPoints = this.points - 1;
+		const newAllocatablePoints = Math.max(0, newPoints - 2);
+		return this.allocatedPoints <= newAllocatablePoints;
 	}
 
-	get nodeValue(): number {
-		return this.baseValue;
+	get hasUnallocatedPoints(): boolean {
+		return this.unallocatedPoints > 0 || this.children.some(child => child.hasUnallocatedPoints);
 	}
 
-	hasUnallocatedPoints(): boolean {
-		return this.unallocatedPoints > 0 || this.children.some(child => child.hasUnallocatedPoints());
-	}
-
-	reset(): { key: string; value: string }[] {
+	resetNode(): { key: string; value: string }[] {
 		// Reset this node and all children to 0, return the prop updates needed
 		const updates: { key: string; value: string }[] = [];
 
@@ -150,13 +160,13 @@ export class Attribute {
 
 		// Recursively reset all children
 		for (const child of this.children) {
-			updates.push(...child.reset());
+			updates.push(...child.resetNode());
 		}
 
 		return updates;
 	}
 
-	getNode(type: StatType | undefined): Attribute | undefined {
+	getNode(type: StatType | undefined): StatNode | undefined {
 		if (type === undefined) return undefined;
 		if (this.type === type) {
 			return this;
@@ -170,79 +180,15 @@ export class Attribute {
 		return undefined;
 	}
 
-	grouped(hierarchy: StatHierarchy): Attribute[] {
+	groupedOld(hierarchy: StatHierarchy): StatNode[] {
 		return this.children.filter(child => child.type.hierarchy === hierarchy);
 	}
 }
 
-export class AttributeValue {
-	parentValue?: number;
-	nodeValue: number;
-	nodeModifier: number;
-	levelCap: number;
-	modifiers: Modifier[];
-
-	constructor(parentValue: number, nodeValue: number, nodeModifier: number, levelCap: number, modifiers: Modifier[]) {
-		this.parentValue = parentValue;
-		this.nodeValue = nodeValue;
-		this.nodeModifier = nodeModifier;
-		this.levelCap = levelCap;
-		this.modifiers = modifiers;
-	}
-
-	get uncappedBaseValue(): number {
-		return this.nodeModifier + (this.parentValue ?? 0);
-	}
-
-	get baseValue(): number {
-		let baseValue = this.uncappedBaseValue;
-		if (this.levelCap) {
-			baseValue = Math.min(baseValue, this.levelCap);
-		}
-		return baseValue;
-	}
-
-	get modifierValue(): number {
-		return this.modifiers.reduce((acc, mod) => acc + mod.value, 0);
-	}
-
-	get value(): number {
-		return this.baseValue + this.modifierValue;
-	}
-
-	get wasLevelCapped(): boolean {
-		if (this.levelCap == null) {
-			return false;
-		}
-		return this.uncappedBaseValue > this.levelCap;
-	}
-
-	get hasModifiers(): boolean {
-		return this.modifiers.length > 0;
-	}
+export interface StatModifier {
+	parentValue: number;
+	selfValue: number;
+	baseValue: number;
+	appliedModifiers: Modifier[];
+	value: number;
 }
-
-export const makeAttributeTree = (values: Record<string, string> = {}): Attribute => {
-	const attr = (type: StatType, children: Attribute[] = []): Attribute => {
-		const value = parseInt(values[type.name] ?? '0');
-		return new Attribute(type, value, children);
-	};
-
-	return attr(StatType.Level, [
-		attr(StatType.Body, [
-			attr(StatType.STR, [attr(StatType.Muscles), attr(StatType.Stance), attr(StatType.Lift)]),
-			attr(StatType.DEX, [attr(StatType.Finesse), attr(StatType.Evasiveness), attr(StatType.Agility)]),
-			attr(StatType.CON, [attr(StatType.Toughness), attr(StatType.Stamina), attr(StatType.Resilience)]),
-		]),
-		attr(StatType.Mind, [
-			attr(StatType.INT, [attr(StatType.IQ), attr(StatType.Knowledge), attr(StatType.Memory)]),
-			attr(StatType.WIS, [attr(StatType.Perception), attr(StatType.Awareness), attr(StatType.Intuition)]),
-			attr(StatType.CHA, [attr(StatType.Speechcraft), attr(StatType.Presence), attr(StatType.Empathy)]),
-		]),
-		attr(StatType.Soul, [
-			attr(StatType.DIV, [attr(StatType.Revelation), attr(StatType.Attunement), attr(StatType.Devotion)]),
-			attr(StatType.FOW, [attr(StatType.Discipline), attr(StatType.Tenacity), attr(StatType.Resolve)]),
-			attr(StatType.LCK, [attr(StatType.Karma), attr(StatType.Fortune), attr(StatType.Serendipity)]),
-		]),
-	]);
-};

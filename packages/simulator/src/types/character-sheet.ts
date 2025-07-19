@@ -1,11 +1,4 @@
-import {
-	Attribute,
-	AttributeTree,
-	makeAttributeTree,
-	Modifier,
-	ModifierSource,
-	StatType,
-} from '@shattered-wilds/commons';
+import { StatTree, StatNode, Modifier, ModifierSource, StatType } from '@shattered-wilds/commons';
 
 import { Race, CharacterClass, Equipment, Armor, RaceDefinition, ClassDefinition, Shield, Weapon } from './character';
 import { Size, SizeModifiers, DerivedStat, BasicAttack, DefenseType } from './core';
@@ -164,14 +157,14 @@ export class DerivedStats {
 	maxFocus: DerivedStat<number>;
 	maxSpirit: DerivedStat<number>;
 
-	constructor(race: RaceInfo, attributeTree: AttributeTree) {
+	constructor(race: RaceInfo, statTree: StatTree) {
 		this.size = this.computeSize(race);
-		this.movement = this.computeMovement(attributeTree);
-		this.initiative = this.computeInitiative(attributeTree);
-		this.maxHeroism = this.computeMaxHeroism(attributeTree);
-		this.maxVitality = this.computeMaxVitality(attributeTree);
-		this.maxFocus = this.computeMaxFocus(attributeTree);
-		this.maxSpirit = this.computeMaxSpirit(attributeTree);
+		this.movement = this.computeMovement(statTree);
+		this.initiative = this.computeInitiative(statTree);
+		this.maxHeroism = this.computeMaxHeroism(statTree);
+		this.maxVitality = this.computeMaxVitality(statTree);
+		this.maxFocus = this.computeMaxFocus(statTree);
+		this.maxSpirit = this.computeMaxSpirit(statTree);
 	}
 
 	get<T>(key: string): DerivedStat<T> {
@@ -183,10 +176,10 @@ export class DerivedStats {
 		return new DerivedStat(size, `Size is determined by your primary race (${size})`);
 	}
 
-	private computeMovement(attributeTree: AttributeTree): DerivedStat<number> {
+	private computeMovement(statTree: StatTree): DerivedStat<number> {
 		const HUMANOID_BASE = 3;
 		const sizeModifier = SizeModifiers[this.size.value];
-		const agility = attributeTree.valueOf(StatType.Agility);
+		const agility = statTree.valueOf(StatType.Agility);
 		const value = HUMANOID_BASE + sizeModifier + Math.floor(agility / 4);
 		return new DerivedStat(
 			Math.max(value, 1),
@@ -194,32 +187,32 @@ export class DerivedStats {
 		);
 	}
 
-	private computeInitiative(attributeTree: AttributeTree): DerivedStat<number> {
-		const agility = attributeTree.valueOf(StatType.Agility);
-		const awareness = attributeTree.valueOf(StatType.Awareness);
+	private computeInitiative(statTree: StatTree): DerivedStat<number> {
+		const agility = statTree.valueOf(StatType.Agility);
+		const awareness = statTree.valueOf(StatType.Awareness);
 		const value = agility + awareness;
 		return new DerivedStat(value, `Initiative = ${agility} (Agility) + ${awareness} (Awareness)`);
 	}
 
-	private computeMaxHeroism(attributeTree: AttributeTree): DerivedStat<number> {
-		const level = attributeTree.root.baseValue;
+	private computeMaxHeroism(statTree: StatTree): DerivedStat<number> {
+		const level = statTree.root.points;
 		return new DerivedStat(level, `Max Heroism Points = ${level} (Level)`);
 	}
 
-	private computeMaxVitality(attributeTree: AttributeTree): DerivedStat<number> {
-		const body = attributeTree.valueOf(StatType.Body);
+	private computeMaxVitality(statTree: StatTree): DerivedStat<number> {
+		const body = statTree.valueOf(StatType.Body);
 		const value = Math.max(1, 4 + body);
 		return new DerivedStat(value, `Max Vitality Points = max(1, 4 + ${body} (Body))`);
 	}
 
-	private computeMaxFocus(attributeTree: AttributeTree): DerivedStat<number> {
-		const mind = attributeTree.valueOf(StatType.Mind);
+	private computeMaxFocus(statTree: StatTree): DerivedStat<number> {
+		const mind = statTree.valueOf(StatType.Mind);
 		const value = Math.max(1, 4 + mind);
 		return new DerivedStat(value, `Max Focus Points = max(1, 4 + ${mind} (Mind))`);
 	}
 
-	private computeMaxSpirit(attributeTree: AttributeTree): DerivedStat<number> {
-		const soul = attributeTree.valueOf(StatType.Soul);
+	private computeMaxSpirit(statTree: StatTree): DerivedStat<number> {
+		const soul = statTree.valueOf(StatType.Soul);
 		const value = Math.max(1, 4 + soul);
 		return new DerivedStat(value, `Max Spirit Points = max(1, 4 + ${soul} (Soul))`);
 	}
@@ -271,7 +264,7 @@ export class CharacterSheet {
 	name: string;
 	race: RaceInfo;
 	characterClass: ClassInfo;
-	attributes: Attribute;
+	attributeRoot: StatNode;
 	derivedStats: DerivedStats;
 	currentValues: CurrentValues;
 	equipment: Equipment;
@@ -281,7 +274,7 @@ export class CharacterSheet {
 		name: string,
 		race: RaceInfo,
 		characterClass: ClassInfo,
-		attributes: Attribute,
+		attributeRoot: StatNode,
 		equipment: Equipment,
 		currentValues: CurrentValues,
 		props: Record<string, string>,
@@ -289,16 +282,20 @@ export class CharacterSheet {
 		this.name = name;
 		this.race = race;
 		this.characterClass = characterClass;
-		this.attributes = attributes;
+		this.attributeRoot = attributeRoot;
 		this.equipment = equipment;
 		this._props = props;
 
-		this.derivedStats = new DerivedStats(this.race, this.getAttributeTree());
+		this.derivedStats = new DerivedStats(this.race, this.getStatTree());
 		this.currentValues = currentValues;
 	}
 
-	getAttributeTree(): AttributeTree {
-		return new AttributeTree(this.attributes, this.getAllModifiers());
+	get level(): number {
+		return this.getStatTree().root.points;
+	}
+
+	getStatTree(): StatTree {
+		return new StatTree(this.attributeRoot, this.getAllModifiers());
 	}
 
 	// Get all feat slots as slot-to-feat mapping
@@ -393,7 +390,7 @@ export class CharacterSheet {
 	}
 
 	getBasicAttacks(): BasicAttack[] {
-		const tree = this.getAttributeTree();
+		const tree = this.getStatTree();
 		const attacks: BasicAttack[] = [];
 
 		// Add weapon attacks
@@ -448,7 +445,7 @@ export class CharacterSheet {
 			.reduce((acc, item) => acc + (item as Armor).bonus, 0);
 		switch (type) {
 			case DefenseType.Basic: {
-				const body = this.getAttributeTree().valueOf(StatType.Body);
+				const body = this.getStatTree().valueOf(StatType.Body);
 				const defense = body - sizeModifier + armorBonus;
 				return {
 					value: defense,
@@ -456,7 +453,7 @@ export class CharacterSheet {
 				};
 			}
 			case DefenseType.Dodge: {
-				const evasiveness = this.getAttributeTree().valueOf(StatType.Evasiveness);
+				const evasiveness = this.getStatTree().valueOf(StatType.Evasiveness);
 				const defense = evasiveness - sizeModifier + armorBonus + 3;
 				return {
 					value: defense,
@@ -464,7 +461,7 @@ export class CharacterSheet {
 				};
 			}
 			case DefenseType.Shield: {
-				const body = this.getAttributeTree().valueOf(StatType.Body);
+				const body = this.getStatTree().valueOf(StatType.Body);
 				const shieldBonus = this.equipment.items
 					.filter(item => item instanceof Shield)
 					.reduce((acc, item) => acc + (item as Shield).bonus, 0);
@@ -482,7 +479,7 @@ export class CharacterSheet {
 			props['name']!,
 			RaceInfo.from(props),
 			ClassInfo.from(props),
-			makeAttributeTree(props),
+			StatTree.buildRootNode(props),
 			Equipment.from(props['equipment']),
 			CurrentValues.from(props),
 			props,

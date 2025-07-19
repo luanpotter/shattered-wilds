@@ -1,14 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { Attribute, makeAttributeTree, StatType } from './index.js';
+import { StatNode, StatTree, StatType } from './index.js';
 
-describe('AttributeTree', () => {
-	describe('makeAttributeTree', () => {
+describe('StatTree', () => {
+	describe('buildRootNode', () => {
 		it('should create a tree with all 40 stat nodes', () => {
-			const tree = makeAttributeTree();
+			const tree = StatTree.buildRootNode();
 
 			// Count all nodes by traversing the tree
-			const countNodes = (node: Attribute): number => {
-				return 1 + node.children.reduce((sum: number, child: Attribute) => sum + countNodes(child), 0);
+			const countNodes = (node: StatNode): number => {
+				return 1 + node.children.reduce((sum: number, child: StatNode) => sum + countNodes(child), 0);
 			};
 
 			const totalNodes = countNodes(tree);
@@ -18,21 +18,21 @@ describe('AttributeTree', () => {
 		});
 
 		it('should have Level as the root node', () => {
-			const tree = makeAttributeTree();
+			const tree = StatTree.buildRootNode();
 
 			expect(tree.type).toBe(StatType.Level);
 			expect(tree.parent).toBe(null);
 		});
 
 		it('should have 3 realm children under Level', () => {
-			const tree = makeAttributeTree();
+			const tree = StatTree.buildRootNode();
 
 			expect(tree.children).toHaveLength(3);
 			expect(tree.children.map(child => child.type)).toEqual([StatType.Body, StatType.Mind, StatType.Soul]);
 		});
 
 		it('should have 3 attributes under each realm', () => {
-			const tree = makeAttributeTree();
+			const tree = StatTree.buildRootNode();
 
 			// Body realm should have STR, DEX, CON
 			const bodyRealm = tree.children.find(child => child.type === StatType.Body);
@@ -51,7 +51,7 @@ describe('AttributeTree', () => {
 		});
 
 		it('should have 3 skills under each attribute', () => {
-			const tree = makeAttributeTree();
+			const tree = StatTree.buildRootNode();
 
 			// Find STR attribute and check its skills
 			const bodyRealm = tree.children.find(child => child.type === StatType.Body);
@@ -66,14 +66,14 @@ describe('AttributeTree', () => {
 		});
 
 		it('should initialize all nodes with base value 0 by default', () => {
-			const tree = makeAttributeTree();
+			const tree = StatTree.buildRootNode();
 
 			// Check that Level starts with 0
-			expect(tree.baseValue).toBe(0);
+			expect(tree.points).toBe(0);
 
 			// Check that all children also start with 0
 			const checkAllNodes = (node: any): void => {
-				expect(node.baseValue).toBe(0);
+				expect(node.points).toBe(0);
 				node.children.forEach(checkAllNodes);
 			};
 
@@ -87,20 +87,20 @@ describe('AttributeTree', () => {
 				Muscles: '2',
 			};
 
-			const tree = makeAttributeTree(values);
+			const tree = StatTree.buildRootNode(values);
 
-			expect(tree.baseValue).toBe(5);
+			expect(tree.points).toBe(5);
 
 			const bodyRealm = tree.children.find(child => child.type === StatType.Body);
 			const strAttribute = bodyRealm?.children.find(child => child.type === StatType.STR);
 			const musclesSkill = strAttribute?.children.find(child => child.type === StatType.Muscles);
 
-			expect(strAttribute?.baseValue).toBe(3);
-			expect(musclesSkill?.baseValue).toBe(2);
+			expect(strAttribute?.points).toBe(3);
+			expect(musclesSkill?.points).toBe(2);
 		});
 
 		it('should properly set parent references', () => {
-			const tree = makeAttributeTree();
+			const tree = StatTree.buildRootNode();
 
 			// Check that Level has no parent
 			expect(tree.parent).toBe(null);
@@ -119,6 +119,13 @@ describe('AttributeTree', () => {
 					});
 				});
 			});
+		});
+
+		it('values and childrenOf', () => {
+			expect(StatType.values.length).toBe(40);
+			expect(StatType.childrenOf(StatType.Level)).toEqual([StatType.Body, StatType.Mind, StatType.Soul]);
+			expect(StatType.childrenOf(StatType.Body)).toEqual([StatType.STR, StatType.DEX, StatType.CON]);
+			expect(StatType.childrenOf(StatType.STR)).toEqual([StatType.Muscles, StatType.Stance, StatType.Lift]);
 		});
 	});
 });

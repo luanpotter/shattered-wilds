@@ -1,12 +1,5 @@
-export {
-	StatType,
-	StatHierarchy,
-	StatHierarchyProperties,
-	AttributeTree,
-	Attribute,
-	AttributeValue,
-} from '@shattered-wilds/commons';
-export type { Modifier } from '@shattered-wilds/commons';
+export { StatType, StatHierarchy, StatHierarchyProperties, StatTree, StatNode } from '@shattered-wilds/commons';
+export type { StatModifier, Modifier } from '@shattered-wilds/commons';
 
 export * from './ui';
 export * from './core';

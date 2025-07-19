@@ -1,11 +1,9 @@
 import { StatType } from '@shattered-wilds/commons';
 
-const statTree = Object.values(StatType);
-
-export const stats = statTree
+export const stats = StatType.values
 	.filter(stat => stat.name)
 	.map(stat => {
-		const children = statTree.filter(child => child.parent?.name === stat.name);
+		const children = StatType.childrenOf(stat);
 		return {
 			slug: stat.name,
 			name: stat.name,
