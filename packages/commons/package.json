@@ -17,16 +17,19 @@
   ],
   "scripts": {
     "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "eslint . --ext .ts,.tsx,.js,.cjs --config eslint.config.ts",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.cjs --fix --config eslint.config.ts",
     "type-check": "tsc --noEmit --incremental false --project tsconfig.json",
     "prettier:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,css,html}\" --ignore-path .gitignore",
     "prettier:fix": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,html}\" --ignore-path .gitignore",
-    "check": "bun run lint && bun run type-check && bun run prettier:check",
+    "check": "bun run lint && bun run type-check && bun run test && bun run prettier:check",
     "check:fix": "bun run lint:fix && bun run type-check && bun run prettier:fix",
     "clean": "rm -rf build/ dist/ node_modules/"
   },
   "devDependencies": {
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.4"
   }
 }
