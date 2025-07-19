@@ -1,10 +1,10 @@
 import React from 'react';
-import { FaExclamationTriangle } from 'react-icons/fa';
 
 import { useStore } from '../../store';
 import { StatNode, StatTree, StatType } from '../../types';
 
-import { LevelSection, StatValueNode, PointsAllocation } from './shared-components';
+import { PointAllocationWarning } from './PointAllocationWarning';
+import { LevelSection, StatValueNode } from './shared-components';
 import {
 	handleAllocatePoint,
 	handleDeallocatePoint,
@@ -37,8 +37,6 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 
 	// Component for individual attribute panels
 	const AttributePanel: React.FC<{ attribute: StatNode }> = ({ attribute }) => {
-		const hasUnallocated = attribute.hasUnallocatedPoints;
-
 		return (
 			<div
 				style={{
@@ -64,9 +62,7 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 						<span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{attribute.type.name}</span>
-						{hasUnallocated && (
-							<FaExclamationTriangle style={{ color: 'orange' }} title='Contains unallocated points' />
-						)}
+						<PointAllocationWarning node={attribute} variant='compact' />
 					</div>
 					<StatValueNode
 						node={attribute}
@@ -109,8 +105,6 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 
 	// Component for vertical realm labels
 	const RealmLabel: React.FC<{ realm: StatNode }> = ({ realm }) => {
-		const hasUnallocated = realm.hasUnallocatedPoints;
-
 		return (
 			<div
 				style={{
@@ -132,8 +126,9 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 					style={{
 						writingMode: 'vertical-lr',
 						textOrientation: 'mixed',
+						textTransform: 'uppercase',
 						fontWeight: 'bold',
-						fontSize: '1.1rem',
+						fontSize: '2rem',
 						display: 'flex',
 						flexDirection: 'column',
 						alignItems: 'center',
@@ -142,7 +137,6 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 					}}
 				>
 					<span>{realm.type.name}</span>
-					{hasUnallocated && <FaExclamationTriangle style={{ color: 'orange' }} title='Contains unallocated points' />}
 				</div>
 				<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
 					<StatValueNode
@@ -152,7 +146,7 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 						onDeallocate={onDeallocate}
 						{...(characterId && { characterId })}
 					/>
-					{editMode && <PointsAllocation node={realm} variant='compact' />}
+					{editMode && <PointAllocationWarning node={realm} variant='compact' />}
 				</div>
 			</div>
 		);

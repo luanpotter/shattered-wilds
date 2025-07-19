@@ -1,34 +1,11 @@
 import React from 'react';
-import { FaUndo, FaExclamationTriangle } from 'react-icons/fa';
+import { FaUndo } from 'react-icons/fa';
 
 import { useStore } from '../../store';
 import { StatNode, StatTree } from '../../types';
 
+import { PointAllocationWarning } from './PointAllocationWarning';
 import { StatValueComponent } from './StatValueComponent';
-
-interface PointsAllocationProps {
-	node: StatNode;
-	variant?: 'default' | 'compact';
-}
-
-export const PointsAllocation: React.FC<PointsAllocationProps> = ({ node, variant = 'default' }) => {
-	const editMode = useStore(state => state.editMode);
-
-	if (!editMode) return null;
-
-	const fontSize = variant === 'compact' ? '0.9em' : '1.1em';
-
-	return (
-		<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-			<span style={{ fontWeight: 'bold', fontSize }}>
-				{node.unallocatedPoints}/{node.allocatablePoints} points
-				{node.hasUnallocatedPoints && (
-					<FaExclamationTriangle style={{ marginLeft: '6px', color: 'orange' }} title='You have unallocated points' />
-				)}
-			</span>
-		</div>
-	);
-};
 
 interface LevelSectionProps {
 	tree: StatTree;
@@ -67,7 +44,7 @@ export const LevelSection: React.FC<LevelSectionProps> = ({
 			</div>
 			{editMode && (
 				<div style={{ display: 'flex', alignItems: 'center', gap }}>
-					<PointsAllocation node={tree.root} variant={variant === 'compact' ? 'compact' : 'default'} />
+					<PointAllocationWarning node={tree.root} variant={variant} />
 					<button
 						onClick={() => {
 							for (const update of tree.fullReset()) {

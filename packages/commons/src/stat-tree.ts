@@ -113,6 +113,9 @@ export class StatNode {
 	}
 
 	get allocatablePoints(): number {
+		if (this.children.length === 0) {
+			return 0;
+		}
 		return Math.max(0, this.points - 1);
 	}
 
@@ -147,8 +150,12 @@ export class StatNode {
 		return this.allocatedPoints <= newAllocatablePoints;
 	}
 
+	get childrenHaveUnallocatedPoints(): boolean {
+		return this.hasUnallocatedPoints || this.children.some(child => child.childrenHaveUnallocatedPoints);
+	}
+
 	get hasUnallocatedPoints(): boolean {
-		return this.unallocatedPoints > 0 || this.children.some(child => child.hasUnallocatedPoints);
+		return this.unallocatedPoints > 0;
 	}
 
 	resetNode(): { key: string; value: string }[] {
