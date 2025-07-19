@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { StatTree, StatType } from './index.js';
 
 describe('StatTree', () => {
@@ -24,7 +24,6 @@ describe('StatTree', () => {
 				expect(modifier.value).toBe(0);
 			}
 		});
-
 		it('level 1', () => {
 			// for level 1, there is no propagation or options
 			const values = {
@@ -286,5 +285,22 @@ describe('StatTree', () => {
 		expect(mindModifier.baseValue).toBe(1);
 		expect(mindModifier.appliedModifiers).toEqual([]);
 		expect(mindModifier.value).toBe(1);
+	});
+
+	it('level 3 - not allocated', () => {
+		const values = {
+			Level: '3',
+			Body: '1',
+		};
+		const tree = StatTree.build(values, []);
+
+		const levelNode = tree.getNode(StatType.Level);
+		expect(levelNode.points).toBe(3);
+		expect(levelNode.allocatablePoints).toBe(2);
+		expect(levelNode.allocatedPoints).toBe(1);
+		expect(levelNode.unallocatedPoints).toBe(1);
+		expect(levelNode.canChildrenAllocatePoint).toBe(true);
+		expect(levelNode.canDeallocatePoint).toBe(true);
+		expect(levelNode.hasUnallocatedPoints).toBe(true);
 	});
 });

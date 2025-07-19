@@ -143,7 +143,7 @@ export class StatNode {
 		}
 
 		const newPoints = this.points - 1;
-		const newAllocatablePoints = Math.max(0, newPoints - 2);
+		const newAllocatablePoints = Math.max(0, newPoints - 1);
 		return this.allocatedPoints <= newAllocatablePoints;
 	}
 
