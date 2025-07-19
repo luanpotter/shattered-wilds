@@ -1,4 +1,4 @@
-import { StatHierarchy, StatHierarchyProperties, StatType } from './stat-type.js';
+import { StatHierarchyProperties, StatType } from './stat-type.js';
 
 export enum ModifierSource {
 	Feat = 'Feat',
@@ -178,10 +178,6 @@ export class StatNode {
 			}
 		}
 		return undefined;
-	}
-
-	groupedOld(hierarchy: StatHierarchy): StatNode[] {
-		return this.children.filter(child => child.type.hierarchy === hierarchy);
 	}
 }
 

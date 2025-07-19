@@ -16,7 +16,7 @@ import {
 import { EquipmentSection } from './EquipmentSection';
 import Block from './shared/Block';
 import LabeledInput from './shared/LabeledInput';
-import { AttributeTreeGridComponent } from './StatTreeGridComponent';
+import { StatTreeGridComponent } from './stat-tree';
 
 interface FullPageCharacterSheetProps {
 	characterId: string;
@@ -557,9 +557,9 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 					</Block>
 
 					<Block>
-						<AttributeTreeGridComponent
+						<StatTreeGridComponent
 							tree={sheet.getStatTree()}
-							onUpdateCharacterProp={(key, value) => updateCharacterProp(character, key, value)}
+							onUpdateCharacterProp={(key: string, value: string) => updateCharacterProp(character, key, value)}
 							disabled={!editMode}
 							characterId={character.id}
 						/>
