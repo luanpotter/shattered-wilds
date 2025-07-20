@@ -44,7 +44,7 @@ export const LevelSection: React.FC<LevelSectionProps> = ({
 			</div>
 			{editMode && (
 				<div style={{ display: 'flex', alignItems: 'center', gap }}>
-					<PointAllocationWarning node={tree.root} variant={variant} />
+					<PointAllocationWarning node={tree.root} />
 					<button
 						onClick={() => {
 							for (const update of tree.fullReset()) {

@@ -62,7 +62,7 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 						<span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{attribute.type.name}</span>
-						<PointAllocationWarning node={attribute} variant='compact' />
+						<PointAllocationWarning node={attribute} />
 					</div>
 					<StatValueNode
 						node={attribute}
@@ -146,7 +146,7 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 						onDeallocate={onDeallocate}
 						{...(characterId && { characterId })}
 					/>
-					{editMode && <PointAllocationWarning node={realm} variant='compact' />}
+					{editMode && <PointAllocationWarning node={realm} />}
 				</div>
 			</div>
 		);
