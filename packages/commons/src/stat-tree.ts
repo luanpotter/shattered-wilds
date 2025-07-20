@@ -81,6 +81,10 @@ export class StatTree {
 
 	getModifier(stat: StatType): StatModifier {
 		const node = this.getNode(stat);
+		return this.getNodeModifier(node);
+	}
+
+	getNodeModifier(node: StatNode): StatModifier {
 		const parentValue = this.getParentModifier(node);
 		const selfValue = this.getSelfModifier(node);
 		const baseValue = selfValue + parentValue;

@@ -1,10 +1,11 @@
-import React, { useState, ReactNode } from 'react';
-import { FaExclamationTriangle, FaChevronDown, FaChevronRight } from 'react-icons/fa';
+import React, { ReactNode, useState } from 'react';
+import { FaChevronDown, FaChevronRight, FaExclamationTriangle } from 'react-icons/fa';
 
-import { StatTree, StatType, StatNode } from '../../types';
+import { StatNode, StatTree, StatType } from '../../types';
 
-import { LevelSection, StatValueNode } from './shared-components';
-import { handleAllocatePoint, handleDeallocatePoint, getRealmBackgroundColor } from './shared-logic';
+import { LevelSection } from './LevelSection';
+import { getRealmBackgroundColor, useHandleAllocatePoint, useHandleDeallocatePoint } from './shared-logic';
+import { StatValueComponent } from './StatValueComponent';
 
 interface StatTreeToggleComponentProps {
 	tree: StatTree;
@@ -87,25 +88,28 @@ const StatBox: React.FC<StatBoxProps> = ({
 export const StatTreeToggleComponent: React.FC<StatTreeToggleComponentProps> = ({
 	tree,
 	onUpdateCharacterProp,
-	disabled = false,
 	characterId,
 }) => {
 	// Initialize state at the top level to fix conditional Hook calls
 	const [selectedRealm, setSelectedRealm] = useState<StatType | null>(null);
 	const [selectedBasicAttribute, setSelectedBasicAttribute] = useState<StatType | null>(null);
 
-	const onAllocate = (node: StatNode) => handleAllocatePoint(node, disabled, onUpdateCharacterProp);
-	const onDeallocate = (node: StatNode) => handleDeallocatePoint(node, disabled, onUpdateCharacterProp);
+	const onAllocate = useHandleAllocatePoint(onUpdateCharacterProp);
+	const onDeallocate = useHandleDeallocatePoint(onUpdateCharacterProp);
 
-	const AttributeValueNode = ({ node }: { node: StatNode }) => (
-		<StatValueNode
-			node={node}
-			tree={tree}
-			onAllocate={onAllocate}
-			onDeallocate={onDeallocate}
-			characterId={characterId}
-		/>
-	);
+	const StatValue = ({ node }: { node: StatNode }) => {
+		return (
+			<StatValueComponent
+				tree={tree}
+				node={node}
+				canAllocate={node.canAllocatePoint}
+				canDeallocate={node.canDeallocatePoint}
+				onClick={() => onAllocate(node)}
+				onRightClick={() => onDeallocate(node)}
+				characterId={characterId}
+			/>
+		);
+	};
 
 	// Create the tabbed panel structure
 	const createTabPanel = (
@@ -157,7 +161,7 @@ export const StatTreeToggleComponent: React.FC<StatTreeToggleComponentProps> = (
 								onClick={() => onTabSelect(isSelected ? null : statNode.type)}
 								expandable={true}
 								style={tabStyle}
-								attributeValue={<AttributeValueNode node={statNode} />}
+								attributeValue={<StatValue node={statNode} />}
 								level={tabLevel}
 							/>
 						);
@@ -192,7 +196,7 @@ export const StatTreeToggleComponent: React.FC<StatTreeToggleComponentProps> = (
 			<LevelSection
 				tree={tree}
 				onUpdateCharacterProp={onUpdateCharacterProp}
-				attributeValueNode={<AttributeValueNode node={tree.root} />}
+				attributeValueNode={<StatValue node={tree.root} />}
 				variant='default'
 			/>
 
@@ -232,7 +236,7 @@ export const StatTreeToggleComponent: React.FC<StatTreeToggleComponentProps> = (
 											style={{
 												borderRadius: '4px',
 											}}
-											attributeValue={<AttributeValueNode node={skill} />}
+											attributeValue={<StatValue node={skill} />}
 											level='skill'
 										/>
 									))}

@@ -2,11 +2,11 @@ import React from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
 
 import { useStore } from '../../store';
-import { StatModifier, StatNode } from '../../types';
+import { StatNode, StatTree } from '../../types';
 
 interface StatValueComponentProps {
+	tree: StatTree;
 	node: StatNode;
-	modifier: StatModifier;
 	onClick?: () => void;
 	onRightClick?: () => void;
 	canAllocate?: boolean;
@@ -16,8 +16,8 @@ interface StatValueComponentProps {
 }
 
 export const StatValueComponent: React.FC<StatValueComponentProps> = ({
+	tree,
 	node,
-	modifier,
 	onClick,
 	onRightClick,
 	canAllocate = false,
@@ -27,6 +27,8 @@ export const StatValueComponent: React.FC<StatValueComponentProps> = ({
 }) => {
 	const editMode = useStore(state => state.editMode);
 	const addWindow = useStore(state => state.addWindow);
+
+	const modifier = tree.getNodeModifier(node);
 	const value = modifier.value;
 
 	const attributeName = node.type.name;

@@ -7,7 +7,7 @@ import { FeatType, getAllFeatSlots } from '../types/feats';
 import { findNextWindowPosition } from '../utils';
 
 import { EquipmentSection } from './EquipmentSection';
-import { StatTreeToggleComponent } from './stat-tree';
+import { StatTreeToggleComponent } from './stat-tree/StatTreeToggleComponent';
 
 interface CharacterSheetModalProps {
 	character: Character;
@@ -732,7 +732,6 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 			<StatTreeToggleComponent
 				tree={sheet.getStatTree()}
 				onUpdateCharacterProp={(key, value) => updateCharacterProp(character, key, value)}
-				disabled={!editMode}
 				characterId={character.id}
 			/>
 

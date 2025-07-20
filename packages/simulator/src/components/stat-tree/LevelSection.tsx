@@ -2,10 +2,9 @@ import React from 'react';
 import { FaUndo } from 'react-icons/fa';
 
 import { useStore } from '../../store';
-import { StatNode, StatTree } from '../../types';
+import { StatTree } from '../../types';
 
 import { PointAllocationWarning } from './PointAllocationWarning';
-import { StatValueComponent } from './StatValueComponent';
 
 interface LevelSectionProps {
 	tree: StatTree;
@@ -70,37 +69,5 @@ export const LevelSection: React.FC<LevelSectionProps> = ({
 				</div>
 			)}
 		</div>
-	);
-};
-
-interface StatValueNodeProps {
-	node: StatNode;
-	tree: StatTree;
-	onAllocate: (node: StatNode) => void;
-	onDeallocate: (node: StatNode) => void;
-	characterId?: string;
-	variant?: 'default' | 'text-only';
-}
-
-export const StatValueNode: React.FC<StatValueNodeProps> = ({
-	node,
-	tree,
-	onAllocate,
-	onDeallocate,
-	characterId,
-	variant = 'default',
-}) => {
-	const modifier = tree.getModifier(node.type);
-	return (
-		<StatValueComponent
-			node={node}
-			modifier={modifier}
-			canAllocate={node.canAllocatePoint}
-			canDeallocate={node.canDeallocatePoint}
-			onClick={() => onAllocate(node)}
-			onRightClick={() => onDeallocate(node)}
-			variant={variant}
-			{...(characterId && { characterId })}
-		/>
 	);
 };

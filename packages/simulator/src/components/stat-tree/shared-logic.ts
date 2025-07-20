@@ -1,23 +1,26 @@
+import { useStore } from '../../store';
 import { StatNode, StatType } from '../../types';
 
-export const handleAllocatePoint = (
-	node: StatNode,
-	disabled: boolean,
+export const useHandleAllocatePoint = (
 	onUpdateCharacterProp: (key: string, value: string) => void,
-) => {
-	if (!disabled && node.canAllocatePoint) {
-		onUpdateCharacterProp(node.type.name, (node.points + 1).toString());
-	}
+): ((node: StatNode) => void) => {
+	const editMode = useStore(state => state.editMode);
+	return (node: StatNode) => {
+		if (editMode && node.canAllocatePoint) {
+			onUpdateCharacterProp(node.type.name, (node.points + 1).toString());
+		}
+	};
 };
 
-export const handleDeallocatePoint = (
-	node: StatNode,
-	disabled: boolean,
+export const useHandleDeallocatePoint = (
 	onUpdateCharacterProp: (key: string, value: string) => void,
-) => {
-	if (!disabled && node.canDeallocatePoint) {
-		onUpdateCharacterProp(node.type.name, (node.points - 1).toString());
-	}
+): ((node: StatNode) => void) => {
+	const editMode = useStore(state => state.editMode);
+	return (node: StatNode) => {
+		if (editMode && node.canDeallocatePoint) {
+			onUpdateCharacterProp(node.type.name, (node.points - 1).toString());
+		}
+	};
 };
 
 export const getRealmBackgroundColor = (realmType: StatType): string => {
@@ -31,8 +34,4 @@ export const getRealmBackgroundColor = (realmType: StatType): string => {
 		default:
 			throw new Error(`Unhandled realm type: ${realmType}`);
 	}
-};
-
-export const findAttributeByType = (realm: StatNode | undefined, type: StatType): StatNode | undefined => {
-	return realm?.children.find(attr => attr.type === type);
 };

@@ -16,7 +16,7 @@ import {
 import { EquipmentSection } from './EquipmentSection';
 import Block from './shared/Block';
 import LabeledInput from './shared/LabeledInput';
-import { StatTreeGridComponent } from './stat-tree';
+import { StatTreeGridComponent } from './stat-tree/StatTreeGridComponent';
 
 interface FullPageCharacterSheetProps {
 	characterId: string;

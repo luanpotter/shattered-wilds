@@ -1,39 +1,45 @@
 import React from 'react';
 
-import { useStore } from '../../store';
 import { StatNode, StatTree, StatType } from '../../types';
 
+import { LevelSection } from './LevelSection';
 import { PointAllocationWarning } from './PointAllocationWarning';
-import { LevelSection, StatValueNode } from './shared-components';
-import {
-	handleAllocatePoint,
-	handleDeallocatePoint,
-	getRealmBackgroundColor,
-	findAttributeByType,
-} from './shared-logic';
+import { useHandleAllocatePoint, useHandleDeallocatePoint, getRealmBackgroundColor } from './shared-logic';
+import { StatValueComponent } from './StatValueComponent';
 
 interface StatTreeGridComponentProps {
 	tree: StatTree;
 	onUpdateCharacterProp: (key: string, value: string) => void;
 	disabled?: boolean;
-	characterId?: string;
+	characterId: string;
 }
 
 export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 	tree,
 	onUpdateCharacterProp,
-	disabled = false,
 	characterId,
 }) => {
-	const editMode = useStore(state => state.editMode);
+	const onAllocate = useHandleAllocatePoint(onUpdateCharacterProp);
+	const onDeallocate = useHandleDeallocatePoint(onUpdateCharacterProp);
 
-	const onAllocate = (node: StatNode) => handleAllocatePoint(node, disabled, onUpdateCharacterProp);
-	const onDeallocate = (node: StatNode) => handleDeallocatePoint(node, disabled, onUpdateCharacterProp);
+	const StatValue = ({ node }: { node: StatNode }) => {
+		return (
+			<StatValueComponent
+				tree={tree}
+				node={node}
+				canAllocate={node.canAllocatePoint}
+				canDeallocate={node.canDeallocatePoint}
+				onClick={() => onAllocate(node)}
+				onRightClick={() => onDeallocate(node)}
+				characterId={characterId}
+			/>
+		);
+	};
 
 	// Get realms in order
-	const bodyRealm = tree.root.children.find(r => r.type === StatType.Body);
-	const mindRealm = tree.root.children.find(r => r.type === StatType.Mind);
-	const soulRealm = tree.root.children.find(r => r.type === StatType.Soul);
+	const bodyRealm = tree.getNode(StatType.Body);
+	const mindRealm = tree.getNode(StatType.Mind);
+	const soulRealm = tree.getNode(StatType.Soul);
 
 	// Component for individual attribute panels
 	const AttributePanel: React.FC<{ attribute: StatNode }> = ({ attribute }) => {
@@ -64,13 +70,7 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 						<span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{attribute.type.name}</span>
 						<PointAllocationWarning node={attribute} />
 					</div>
-					<StatValueNode
-						node={attribute}
-						tree={tree}
-						onAllocate={onAllocate}
-						onDeallocate={onDeallocate}
-						{...(characterId && { characterId })}
-					/>
+					<StatValue node={attribute} />
 				</div>
 
 				{/* Skills */}
@@ -88,14 +88,7 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 							}}
 						>
 							<span style={{ flex: 1 }}>{skill.type.name}</span>
-							<StatValueNode
-								node={skill}
-								tree={tree}
-								onAllocate={onAllocate}
-								onDeallocate={onDeallocate}
-								variant='text-only'
-								{...(characterId && { characterId })}
-							/>
+							<StatValue node={skill} />
 						</div>
 					))}
 				</div>
@@ -139,14 +132,8 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 					<span>{realm.type.name}</span>
 				</div>
 				<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-					<StatValueNode
-						node={realm}
-						tree={tree}
-						onAllocate={onAllocate}
-						onDeallocate={onDeallocate}
-						{...(characterId && { characterId })}
-					/>
-					{editMode && <PointAllocationWarning node={realm} />}
+					<StatValue node={realm} />
+					<PointAllocationWarning node={realm} />
 				</div>
 			</div>
 		);
@@ -158,15 +145,7 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 			<LevelSection
 				tree={tree}
 				onUpdateCharacterProp={onUpdateCharacterProp}
-				attributeValueNode={
-					<StatValueNode
-						node={tree.root}
-						tree={tree}
-						onAllocate={onAllocate}
-						onDeallocate={onDeallocate}
-						{...(characterId && { characterId })}
-					/>
-				}
+				attributeValueNode={<StatValue node={tree.root} />}
 				variant='compact'
 			/>
 
@@ -174,9 +153,9 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 			<div style={{ display: 'flex', gap: '1rem' }}>
 				{/* Vertical Realm Labels Column */}
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-					{bodyRealm && <RealmLabel realm={bodyRealm} />}
-					{mindRealm && <RealmLabel realm={mindRealm} />}
-					{soulRealm && <RealmLabel realm={soulRealm} />}
+					<RealmLabel realm={bodyRealm} />
+					<RealmLabel realm={mindRealm} />
+					<RealmLabel realm={soulRealm} />
 				</div>
 
 				{/* 3x3 Attribute Grid */}
@@ -190,37 +169,19 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 					}}
 				>
 					{/* Body Row */}
-					{findAttributeByType(bodyRealm, StatType.STR) && (
-						<AttributePanel attribute={findAttributeByType(bodyRealm, StatType.STR)!} />
-					)}
-					{findAttributeByType(bodyRealm, StatType.DEX) && (
-						<AttributePanel attribute={findAttributeByType(bodyRealm, StatType.DEX)!} />
-					)}
-					{findAttributeByType(bodyRealm, StatType.CON) && (
-						<AttributePanel attribute={findAttributeByType(bodyRealm, StatType.CON)!} />
-					)}
+					<AttributePanel attribute={tree.getNode(StatType.STR)} />
+					<AttributePanel attribute={tree.getNode(StatType.DEX)} />
+					<AttributePanel attribute={tree.getNode(StatType.CON)} />
 
 					{/* Mind Row */}
-					{findAttributeByType(mindRealm, StatType.INT) && (
-						<AttributePanel attribute={findAttributeByType(mindRealm, StatType.INT)!} />
-					)}
-					{findAttributeByType(mindRealm, StatType.WIS) && (
-						<AttributePanel attribute={findAttributeByType(mindRealm, StatType.WIS)!} />
-					)}
-					{findAttributeByType(mindRealm, StatType.CHA) && (
-						<AttributePanel attribute={findAttributeByType(mindRealm, StatType.CHA)!} />
-					)}
+					<AttributePanel attribute={tree.getNode(StatType.INT)} />
+					<AttributePanel attribute={tree.getNode(StatType.WIS)} />
+					<AttributePanel attribute={tree.getNode(StatType.CHA)} />
 
 					{/* Soul Row */}
-					{findAttributeByType(soulRealm, StatType.DIV) && (
-						<AttributePanel attribute={findAttributeByType(soulRealm, StatType.DIV)!} />
-					)}
-					{findAttributeByType(soulRealm, StatType.FOW) && (
-						<AttributePanel attribute={findAttributeByType(soulRealm, StatType.FOW)!} />
-					)}
-					{findAttributeByType(soulRealm, StatType.LCK) && (
-						<AttributePanel attribute={findAttributeByType(soulRealm, StatType.LCK)!} />
-					)}
+					<AttributePanel attribute={tree.getNode(StatType.DIV)} />
+					<AttributePanel attribute={tree.getNode(StatType.FOW)} />
+					<AttributePanel attribute={tree.getNode(StatType.LCK)} />
 				</div>
 			</div>
 		</div>
