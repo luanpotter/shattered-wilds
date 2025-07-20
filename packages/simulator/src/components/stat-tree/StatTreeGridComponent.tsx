@@ -36,12 +36,6 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 		);
 	};
 
-	// Get realms in order
-	const bodyRealm = tree.getNode(StatType.Body);
-	const mindRealm = tree.getNode(StatType.Mind);
-	const soulRealm = tree.getNode(StatType.Soul);
-
-	// Component for individual attribute panels
 	const AttributePanel: React.FC<{ attribute: StatNode }> = ({ attribute }) => {
 		return (
 			<div
@@ -96,7 +90,6 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 		);
 	};
 
-	// Component for vertical realm labels
 	const RealmLabel: React.FC<{ realm: StatNode }> = ({ realm }) => {
 		return (
 			<div
@@ -153,9 +146,9 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 			<div style={{ display: 'flex', gap: '1rem' }}>
 				{/* Vertical Realm Labels Column */}
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-					<RealmLabel realm={bodyRealm} />
-					<RealmLabel realm={mindRealm} />
-					<RealmLabel realm={soulRealm} />
+					<RealmLabel realm={tree.getNode(StatType.Body)} />
+					<RealmLabel realm={tree.getNode(StatType.Mind)} />
+					<RealmLabel realm={tree.getNode(StatType.Soul)} />
 				</div>
 
 				{/* 3x3 Attribute Grid */}

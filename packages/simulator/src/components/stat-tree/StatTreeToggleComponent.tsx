@@ -1,9 +1,10 @@
 import React, { ReactNode, useState } from 'react';
-import { FaChevronDown, FaChevronRight, FaExclamationTriangle } from 'react-icons/fa';
+import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
 
 import { StatNode, StatTree, StatType } from '../../types';
 
 import { LevelSection } from './LevelSection';
+import { PointAllocationWarning } from './PointAllocationWarning';
 import { getRealmBackgroundColor, useHandleAllocatePoint, useHandleDeallocatePoint } from './shared-logic';
 import { StatValueComponent } from './StatValueComponent';
 
@@ -34,8 +35,6 @@ const StatBox: React.FC<StatBoxProps> = ({
 	attributeValue,
 	level,
 }) => {
-	const hasUnallocated = node.hasUnallocatedPoints;
-
 	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === 'Enter' && onClick) {
 			onClick();
@@ -74,9 +73,7 @@ const StatBox: React.FC<StatBoxProps> = ({
 				<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
 					{expandable && (isExpanded ? <FaChevronDown size={14} /> : <FaChevronRight size={14} />)}
 					<span style={{ fontWeight: level !== 'skill' ? 'bold' : 'normal' }}>{node.type.name}</span>
-					{hasUnallocated && (
-						<FaExclamationTriangle style={{ color: 'orange', marginLeft: '4px' }} title='Contains unallocated points' />
-					)}
+					<PointAllocationWarning node={node} />
 				</div>
 				{attributeValue}
 			</div>
@@ -190,6 +187,9 @@ export const StatTreeToggleComponent: React.FC<StatTreeToggleComponentProps> = (
 		);
 	};
 
+	const rootNode = tree.root;
+	const realmNode = selectedRealm ? tree.getNode(selectedRealm) : null;
+	const basicAttributeNode = selectedBasicAttribute ? tree.getNode(selectedBasicAttribute) : null;
 	return (
 		<div style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}>
 			{/* Level Section */}
@@ -202,17 +202,18 @@ export const StatTreeToggleComponent: React.FC<StatTreeToggleComponentProps> = (
 
 			{/* Realms Section with Tab Panel */}
 			{createTabPanel(
-				tree.root.children,
+				rootNode.children,
 				selectedRealm,
-				setSelectedRealm,
+				realm => {
+					setSelectedRealm(realm);
+					setSelectedBasicAttribute(null);
+				},
 				'realm',
-				selectedRealm
-					? getRealmBackgroundColor(tree.root.children.find(r => r.type === selectedRealm)?.type || StatType.Body)
-					: undefined,
+				selectedRealm ? getRealmBackgroundColor(selectedRealm) : undefined,
 				selectedRealm &&
 					// Basic Attributes Tab Panel (nested)
 					createTabPanel(
-						tree.root.children.find(realm => realm.type === selectedRealm)?.children || [],
+						realmNode?.children || [],
 						selectedBasicAttribute,
 						setSelectedBasicAttribute,
 						'basic',
@@ -226,20 +227,17 @@ export const StatTreeToggleComponent: React.FC<StatTreeToggleComponentProps> = (
 									gap: '8px',
 								}}
 							>
-								{tree.root.children
-									.find(realm => realm.type === selectedRealm)
-									?.children.find(attr => attr.type === selectedBasicAttribute)
-									?.children.map(skill => (
-										<StatBox
-											key={skill.type.name}
-											node={skill}
-											style={{
-												borderRadius: '4px',
-											}}
-											attributeValue={<StatValue node={skill} />}
-											level='skill'
-										/>
-									))}
+								{basicAttributeNode?.children.map(skill => (
+									<StatBox
+										key={skill.type.name}
+										node={skill}
+										style={{
+											borderRadius: '4px',
+										}}
+										attributeValue={<StatValue node={skill} />}
+										level='skill'
+									/>
+								))}
 							</div>
 						),
 					),
