@@ -1,10 +1,20 @@
-import { StatTree, StatNode, Modifier, ModifierSource, StatType, Size, SizeModifiers } from '@shattered-wilds/commons';
+import {
+	StatTree,
+	StatNode,
+	Modifier,
+	ModifierSource,
+	StatType,
+	Size,
+	SizeModifiers,
+	Race,
+	Upbringing,
+	RACE_DEFINITIONS,
+} from '@shattered-wilds/commons';
 
-import { Race, CharacterClass, Equipment, Armor, RaceDefinition, ClassDefinition, Shield, Weapon } from './character';
+import { CharacterClass, Equipment, Armor, ClassDefinition, Shield, Weapon } from './character';
 import { DerivedStat, BasicAttack, DefenseType } from './core';
 import {
 	FEATS,
-	Upbringing,
 	getRacialFeatId,
 	getUpbringingFeats,
 	getClassModifierFeatId,
@@ -495,64 +505,6 @@ export interface Character {
 	props: { name: string } & Record<string, string>;
 }
 
-// Define the modifiers for each race
-export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
-	[Race.Human]: {
-		name: Race.Human,
-		modifiers: [], // Neutral - no modifiers
-		size: Size.M,
-	},
-	[Race.Elf]: {
-		name: Race.Elf,
-		modifiers: [
-			{ attributeType: StatType.DEX, value: 1 },
-			{ attributeType: StatType.CON, value: -1 },
-		],
-		size: Size.M,
-	},
-	[Race.Dwarf]: {
-		name: Race.Dwarf,
-		modifiers: [
-			{ attributeType: StatType.CON, value: 1 },
-			{ attributeType: StatType.DEX, value: -1 },
-		],
-		size: Size.S,
-	},
-	[Race.Orc]: {
-		name: Race.Orc,
-		modifiers: [
-			{ attributeType: StatType.STR, value: 1 },
-			{ attributeType: StatType.DEX, value: -1 },
-		],
-		size: Size.L,
-	},
-	[Race.Fey]: {
-		name: Race.Fey,
-		modifiers: [
-			{ attributeType: StatType.DEX, value: 1 },
-			{ attributeType: StatType.STR, value: -1 },
-		],
-		size: Size.S,
-	},
-	[Race.Goliath]: {
-		name: Race.Goliath,
-		modifiers: [
-			{ attributeType: StatType.STR, value: 1 },
-			{ attributeType: StatType.CON, value: -1 },
-		],
-		size: Size.L,
-	},
-	[Race.Goblin]: {
-		name: Race.Goblin,
-		modifiers: [
-			{ attributeType: StatType.CON, value: 1 },
-			{ attributeType: StatType.STR, value: -1 },
-		],
-		size: Size.S,
-	},
-};
-
-// Define the class definitions for all 30 classes
 export const CLASS_DEFINITIONS: Record<CharacterClass, ClassDefinition> = {
 	// Warriors - Melee (STR)
 	[CharacterClass.Fighter]: {

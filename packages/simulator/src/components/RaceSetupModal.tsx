@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { useStore } from '../store';
-import { CharacterSheet, Race, StatType, RaceInfo } from '../types';
-import { Upbringing, FEATS, getUpbringingModifierFeat } from '../types/feats';
+import { CharacterSheet, StatType, RaceInfo, Race, Upbringing } from '../types';
+import { FEATS, getUpbringingModifierFeat } from '../types/feats';
 
 import DropdownSelect from './DropdownSelect';
 

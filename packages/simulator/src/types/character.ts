@@ -1,14 +1,4 @@
-import { StatType, Size } from '@shattered-wilds/commons';
-
-export enum Race {
-	Human = 'Human',
-	Elf = 'Elf',
-	Dwarf = 'Dwarf',
-	Orc = 'Orc',
-	Fey = 'Fey',
-	Goliath = 'Goliath',
-	Goblin = 'Goblin',
-}
+import { StatType } from '@shattered-wilds/commons';
 
 export enum CharacterClass {
 	// Warriors - Melee (STR)
@@ -56,12 +46,6 @@ export enum CharacterClass {
 export interface AttributeModifier {
 	attributeType: StatType;
 	value: number;
-}
-
-export interface RaceDefinition {
-	name: Race;
-	modifiers: AttributeModifier[];
-	size: Size;
 }
 
 export interface ClassDefinition {

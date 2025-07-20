@@ -6,6 +6,9 @@ export {
 	StatNode,
 	Size,
 	SizeModifiers,
+	Race,
+	Upbringing,
+	RACE_DEFINITIONS,
 } from '@shattered-wilds/commons';
 export type { StatModifier, Modifier } from '@shattered-wilds/commons';
 

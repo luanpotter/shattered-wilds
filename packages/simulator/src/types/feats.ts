@@ -1,8 +1,5 @@
-import { StatType, Modifier, ModifierSource } from '@shattered-wilds/commons';
+import { StatType, Modifier, ModifierSource, Race, Upbringing } from '@shattered-wilds/commons';
 
-import { Race } from './character';
-
-// Feat Types
 export enum FeatType {
 	Core = 'Core',
 	Major = 'Major',
@@ -46,15 +43,6 @@ export interface ParameterizedFeatInstance {
 	parameters: Record<string, string>;
 	fullName: string;
 	fullId: string;
-}
-
-// Upbringings
-export enum Upbringing {
-	Urban = 'Urban',
-	Nomadic = 'Nomadic',
-	Tribal = 'Tribal',
-	Sylvan = 'Sylvan',
-	Telluric = 'Telluric',
 }
 
 const classModifierFeat = (stat: StatType) => ({
