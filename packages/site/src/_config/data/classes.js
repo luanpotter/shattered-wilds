@@ -9,6 +9,7 @@ export const classes = Object.values(CLASS_DEFINITIONS).map(def => ({
 	// class parameters
 	name: def.name,
 	realm: def.realm,
+	primaryAttribute: def.primaryAttribute,
 	role: def.role,
 	flavor: def.flavor,
 }));
