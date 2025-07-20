@@ -6,6 +6,7 @@ import markdownItWiki from 'markdown-it-wikilinks';
 import yaml from 'js-yaml';
 import eleventyGoogleFonts from 'eleventy-google-fonts';
 import { stats } from './src/_config/data/stats.js';
+import { classes } from './src/_config/data/classes.js';
 import { parseLexicon } from './src/_config/lexicon.js';
 import { TextProcessor } from './src/_config/TextProcessor.js';
 
@@ -24,6 +25,17 @@ export default function (eleventyConfig) {
 
 	eleventyConfig.addGlobalData('lexiconFiles', lexiconFiles);
 	eleventyConfig.addGlobalData('stats', stats);
+	eleventyConfig.addGlobalData('classes', classes);
+
+	const wikiPages = [...lexiconFiles, ...stats, ...classes]
+		.filter(e => e.slug)
+		.sort((a, b) => {
+			if (!a.title) {
+				console.error(`No title for ${a.slug}`);
+			}
+			return a.title.localeCompare(b.title);
+		});
+	eleventyConfig.addGlobalData('wikiPages', wikiPages);
 
 	// Set default layout for all pages
 	eleventyConfig.addGlobalData('layout', 'main');

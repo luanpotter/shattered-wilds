@@ -5,10 +5,9 @@
 </div>
 
 <ul id="wiki-list">
-	{% assign pages = collections.wiki | concat: lexiconFiles | concat: stats | where: 'slug' | sort_natural: 'shortTitle'
-	%} {% for page in pages %}
+	{% for page in wikiPages %}
 	<li>
-		<a href="{{ page.url }}">{{ page.shortTitle }}</a>
+		<a href="{{ page.url }}">{{ page.title }}</a>
 	</li>
 	{% endfor %}
 </ul>

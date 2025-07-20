@@ -688,7 +688,7 @@ export const FEATS: Record<string, FeatDefinition> = {
 	},
 	skilled: {
 		id: 'skilled',
-		name: 'Skilled',
+		name: "Beginner's Luck",
 		type: FeatType.Minor,
 		category: FeatCategory.ClassFlavor,
 		description:

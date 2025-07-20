@@ -32,8 +32,7 @@ export class TextProcessor {
 		} else if (type === 'item') {
 			const descFirstParagraph = entry.content.split(/\n\n/)[0].trim();
 			const markdown = this.processMarkdown(descFirstParagraph, { inline: true });
-			const shortTitle = entry.title.replace(/^[^:]+: /, '');
-			return `<strong><a href="${entry.url}">${shortTitle}</a></strong> ${metaHtml} : ${markdown}`;
+			return `<strong><a href="${entry.url}">${entry.title}</a></strong> ${metaHtml} : ${markdown}`;
 		} else {
 			return `<span style='color:red'>[Unknown type: ${type}]</span>`;
 		}
@@ -57,7 +56,6 @@ export class TextProcessor {
 
 	processShortcodes = value => {
 		return value.replace(/\{%\s*(item|link)\s+"([^"]+)"(?:\s*,\s*"([^"]+)")?\s*%\}/g, (_, type, path, excludeTags) => {
-			console.log(`Processing shortcode: type=${type}, path=${path}, excludeTags=${excludeTags}`);
 			return this.renderLexiconEntry(type, path, excludeTags);
 		});
 	};

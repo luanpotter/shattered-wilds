@@ -5,7 +5,12 @@ export const stats = StatType.values
 	.map(stat => {
 		const children = StatType.childrenOf(stat);
 		return {
+			// wiki parameters
 			slug: stat.name,
+			title: stat.name,
+			url: `/wiki/Stat_${stat.name}/`,
+
+			// stat parameters
 			name: stat.name,
 			hierarchy: stat.hierarchy,
 			parent: stat.parent?.name,
@@ -14,7 +19,5 @@ export const stats = StatType.values
 			exampleUsages: stat.exampleUsages,
 			children: children.map(child => child.name),
 			childHierarchy: children[0]?.hierarchy ?? null,
-			url: `/wiki/Stat_${stat.name}/`,
-			shortTitle: stat.name,
 		};
 	});

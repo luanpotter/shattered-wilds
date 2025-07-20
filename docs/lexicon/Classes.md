@@ -65,7 +65,7 @@ Tank Warriors focus on Constitution, and thus are focused on defense and therefo
 * **Fancy Footwork** (Core Feat, Level 1): If you make a **Melee Basic Attack** against a target, you do not provoke [[Opportunity_Attack | Opportunity Attacks]] from that target until the end of the turn.
 * **Thieves's Fingers** (Minor Feat, Level 2): You get a `+3` [[Circumstance Modifier | CM]] to any Checks you perform associated with lock picking or trap disarming. You can spend 1 [[Resource_Focus_Point | FP]] to get an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).
 * **Leverage** (Major Feat, Level 3): If you would inflict additional damage through a **Basic Strike** to an enemy via **Crit Shifts**, you can instead spend any number of [[Resource_Spirit_Point | SP]] (up to your level) to inflict that many additional [[Resource_Vitality_Point | VP]] of damage.
-* **Skilled** (Minor Feat, Level 3): You can use a [[Resource_Focus_Point | FP]] to pay for a [[Action_Luck_Die | Luck Die]] for a Check of a Skill you do not have any points invested in.
+* **Beginner's Luck** (Minor Feat, Level 3): You can use a [[Resource_Focus_Point | FP]] to pay for a [[Action_Luck_Die | Luck Die]] for a Check of a Skill you do not have any points invested in.
 
 ## Casters
 

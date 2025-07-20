@@ -114,12 +114,14 @@ export const parseLexicon = () => {
 				}));
 		}
 		return {
+			// wiki parameters
 			slug: file.slug,
-			title: file.title,
-			shortTitle: file.shortTitle,
+			title: file.shortTitle,
+			url: `/wiki/${file.slug}/`,
+
+			// data
 			content: file.content,
 			metadata: file.metadata,
-			url: `/wiki/${file.slug}/`,
 			isCategory: file.isCategory,
 			category: file.category,
 			categoryItems: categoryItems,

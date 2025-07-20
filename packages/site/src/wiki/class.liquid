@@ -1,0 +1,25 @@
+---js
+{
+    permalink: "/{{ pagination.items[0].url }}/index.html",
+    pagination: {
+        data: "classes",
+        alias: "class",
+        size: 1,
+    }
+}
+---
+
+<h1>{{ class.name }}</h1>
+
+<div class="item-header">
+    <div class="item-metadata"></div>
+    <div class="breadcrumb">
+      <a href="/wiki/Classes">← Back to Classes</a>
+    </div>
+</div>
+
+<div>
+    <p><strong>Realm</strong>: {{ class.realm }}</p>
+    <p><strong>Role</strong>: {{ class.role }}</p>
+    <p><strong>Flavor</strong>: {{ class.flavor }}</p>
+</div>

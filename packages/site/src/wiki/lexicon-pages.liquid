@@ -17,7 +17,7 @@ title: "{{ lexicon.title }}"
   <ul class="category-list">
     {% for item in lexicon.categoryItems %}
       <li class="category-list-item">
-        <a href="{{ item.url }}">{{ item.shortTitle }}</a>
+        <a href="{{ item.url }}">{{ item.title }}</a>
         {% if item.metadata %}
           <span class="item-metadata">
             {% for meta in item.metadata %}
