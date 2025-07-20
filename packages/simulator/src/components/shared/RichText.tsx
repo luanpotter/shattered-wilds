@@ -1,0 +1,32 @@
+import React from 'react';
+import ReactMarkdown from 'react-markdown';
+
+const wikiLinks = (value: string) => {
+	return value.replace(/\[\[([^\]]*)\]\]/g, (_, r) => {
+		var link, text;
+		if (r.includes(' | ')) {
+			[link, text] = r.split(' | ');
+		} else {
+			link = text = r;
+		}
+		const url = `/wiki/${link.replace(' ', '_')}`;
+		return `[${text}](${url})`;
+	});
+};
+
+interface RichTextProps {
+	nonDescript: string;
+}
+
+export const RichText: React.FC<RichTextProps> = ({ nonDescript }) => {
+	const preProcessed = wikiLinks(nonDescript);
+	return (
+		<ReactMarkdown
+			components={{
+				p: ({ children }) => <span>{children}</span>,
+			}}
+		>
+			{preProcessed}
+		</ReactMarkdown>
+	);
+};

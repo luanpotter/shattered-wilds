@@ -2,6 +2,7 @@ import React, { ReactNode, useState } from 'react';
 import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
 
 import { StatHierarchy, StatNode, StatTree, StatType } from '../../types';
+import { RichText } from '../shared/RichText';
 
 import { LevelSection } from './LevelSection';
 import { PointAllocationWarning } from './PointAllocationWarning';
@@ -74,7 +75,9 @@ const StatBox: React.FC<StatBoxProps> = ({
 				</div>
 				{children}
 			</div>
-			<div style={{ fontSize: '0.8em', opacity: 0.8 }}>{node.type.description}</div>
+			<div style={{ fontSize: '0.8em', opacity: 0.8 }}>
+				<RichText nonDescript={node.type.description} />
+			</div>
 		</div>
 	);
 };
@@ -153,7 +156,7 @@ export const StatTreeToggleComponent: React.FC<StatTreeToggleComponentProps> = (
 							borderTop: selectedTabIndex >= 0 ? 'none' : '1px solid var(--text)',
 							borderRadius: '0 0 4px 4px',
 							padding: '8px',
-							marginTop: '-1px', // Remove the gap between tab and content
+							marginTop: '-1px',
 							backgroundColor: backgroundColor || 'transparent',
 							position: 'relative',
 							zIndex: 0,
