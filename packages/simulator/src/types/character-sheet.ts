@@ -1,7 +1,7 @@
-import { StatTree, StatNode, Modifier, ModifierSource, StatType } from '@shattered-wilds/commons';
+import { StatTree, StatNode, Modifier, ModifierSource, StatType, Size, SizeModifiers } from '@shattered-wilds/commons';
 
 import { Race, CharacterClass, Equipment, Armor, RaceDefinition, ClassDefinition, Shield, Weapon } from './character';
-import { Size, SizeModifiers, DerivedStat, BasicAttack, DefenseType } from './core';
+import { DerivedStat, BasicAttack, DefenseType } from './core';
 import {
 	FEATS,
 	Upbringing,

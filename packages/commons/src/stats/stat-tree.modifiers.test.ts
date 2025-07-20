@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Modifier, StatTree, StatType } from './index.js';
+import { Modifier, StatTree, StatType } from '../index.js';
 
 describe('StatTree', () => {
 	describe('modifier calculation', () => {

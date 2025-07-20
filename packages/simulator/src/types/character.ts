@@ -1,6 +1,4 @@
-import { StatType } from '@shattered-wilds/commons';
-
-import { Size } from './core';
+import { StatType, Size } from '@shattered-wilds/commons';
 
 export enum Race {
 	Human = 'Human',
