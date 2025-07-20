@@ -4,27 +4,31 @@ import { FaInfoCircle } from 'react-icons/fa';
 import { useStore } from '../../store';
 import { StatNode, StatTree } from '../../types';
 
+import { useHandleAllocatePoint, useHandleDeallocatePoint } from './shared-logic';
+
 interface StatValueComponentProps {
 	tree: StatTree;
 	node: StatNode;
-	onClick?: () => void;
-	onRightClick?: () => void;
-	canAllocate?: boolean;
-	canDeallocate?: boolean;
 	characterId?: string;
 	variant?: 'default' | 'text-only';
+	onUpdateCharacterProp: (key: string, value: string) => void;
 }
 
 export const StatValueComponent: React.FC<StatValueComponentProps> = ({
 	tree,
 	node,
-	onClick,
-	onRightClick,
-	canAllocate = false,
-	canDeallocate = false,
 	characterId,
 	variant = 'default',
+	onUpdateCharacterProp,
 }) => {
+	const onAllocate = useHandleAllocatePoint(onUpdateCharacterProp);
+	const onDeallocate = useHandleDeallocatePoint(onUpdateCharacterProp);
+
+	const canAllocate = node.canAllocatePoint;
+	const canDeallocate = node.canDeallocatePoint;
+	const onClick = () => onAllocate(node);
+	const onRightClick = () => onDeallocate(node);
+
 	const editMode = useStore(state => state.editMode);
 	const addWindow = useStore(state => state.addWindow);
 

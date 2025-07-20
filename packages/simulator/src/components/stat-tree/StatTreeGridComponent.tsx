@@ -4,7 +4,7 @@ import { StatNode, StatTree, StatType } from '../../types';
 
 import { LevelSection } from './LevelSection';
 import { PointAllocationWarning } from './PointAllocationWarning';
-import { useHandleAllocatePoint, useHandleDeallocatePoint, getRealmBackgroundColor } from './shared-logic';
+import { getRealmBackgroundColor } from './shared-logic';
 import { StatValueComponent } from './StatValueComponent';
 
 interface StatTreeGridComponentProps {
@@ -19,18 +19,12 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 	onUpdateCharacterProp,
 	characterId,
 }) => {
-	const onAllocate = useHandleAllocatePoint(onUpdateCharacterProp);
-	const onDeallocate = useHandleDeallocatePoint(onUpdateCharacterProp);
-
 	const StatValue = ({ node }: { node: StatNode }) => {
 		return (
 			<StatValueComponent
 				tree={tree}
 				node={node}
-				canAllocate={node.canAllocatePoint}
-				canDeallocate={node.canDeallocatePoint}
-				onClick={() => onAllocate(node)}
-				onRightClick={() => onDeallocate(node)}
+				onUpdateCharacterProp={onUpdateCharacterProp}
 				characterId={characterId}
 			/>
 		);

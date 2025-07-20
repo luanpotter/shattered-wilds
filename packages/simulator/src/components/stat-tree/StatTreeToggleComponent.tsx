@@ -1,11 +1,11 @@
 import React, { ReactNode, useState } from 'react';
 import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
 
-import { StatNode, StatTree, StatType } from '../../types';
+import { StatHierarchy, StatNode, StatTree, StatType } from '../../types';
 
 import { LevelSection } from './LevelSection';
 import { PointAllocationWarning } from './PointAllocationWarning';
-import { getRealmBackgroundColor, useHandleAllocatePoint, useHandleDeallocatePoint } from './shared-logic';
+import { getRealmBackgroundColor } from './shared-logic';
 import { StatValueComponent } from './StatValueComponent';
 
 interface StatTreeToggleComponentProps {
@@ -15,15 +15,13 @@ interface StatTreeToggleComponentProps {
 	characterId: string;
 }
 
-// Reusable component for attribute boxes at any level
 interface StatBoxProps {
 	node: StatNode;
 	isExpanded?: boolean;
 	style?: React.CSSProperties;
 	onClick?: () => void;
 	expandable?: boolean;
-	attributeValue: ReactNode;
-	level: 'realm' | 'basic' | 'skill';
+	children: ReactNode;
 }
 
 const StatBox: React.FC<StatBoxProps> = ({
@@ -32,8 +30,7 @@ const StatBox: React.FC<StatBoxProps> = ({
 	style = {},
 	onClick,
 	expandable = false,
-	attributeValue,
-	level,
+	children,
 }) => {
 	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === 'Enter' && onClick) {
@@ -41,13 +38,13 @@ const StatBox: React.FC<StatBoxProps> = ({
 		}
 	};
 
-	// Only use borderBottom: none if it's expanded (to connect with tab content)
+	const isSkill = node.type.hierarchy === StatHierarchy.Skill;
 	const baseStyle: React.CSSProperties = {
 		padding: '8px',
 		border: '1px solid var(--text)',
 		borderRadius: isExpanded ? '4px 4px 0 0' : '4px',
 		cursor: expandable ? 'pointer' : 'default',
-		backgroundColor: level === 'skill' ? 'rgba(255, 255, 255, 0.1)' : undefined,
+		backgroundColor: isSkill ? 'rgba(255, 255, 255, 0.1)' : undefined,
 		maxWidth: '300px',
 		boxSizing: 'border-box',
 	};
@@ -72,10 +69,10 @@ const StatBox: React.FC<StatBoxProps> = ({
 			>
 				<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
 					{expandable && (isExpanded ? <FaChevronDown size={14} /> : <FaChevronRight size={14} />)}
-					<span style={{ fontWeight: level !== 'skill' ? 'bold' : 'normal' }}>{node.type.name}</span>
+					<span style={{ fontWeight: isSkill ? 'normal' : 'bold' }}>{node.type.name}</span>
 					<PointAllocationWarning node={node} />
 				</div>
-				{attributeValue}
+				{children}
 			</div>
 			<div style={{ fontSize: '0.8em', opacity: 0.8 }}>{node.type.description}</div>
 		</div>
@@ -87,28 +84,20 @@ export const StatTreeToggleComponent: React.FC<StatTreeToggleComponentProps> = (
 	onUpdateCharacterProp,
 	characterId,
 }) => {
-	// Initialize state at the top level to fix conditional Hook calls
 	const [selectedRealm, setSelectedRealm] = useState<StatType | null>(null);
 	const [selectedBasicAttribute, setSelectedBasicAttribute] = useState<StatType | null>(null);
-
-	const onAllocate = useHandleAllocatePoint(onUpdateCharacterProp);
-	const onDeallocate = useHandleDeallocatePoint(onUpdateCharacterProp);
 
 	const StatValue = ({ node }: { node: StatNode }) => {
 		return (
 			<StatValueComponent
 				tree={tree}
 				node={node}
-				canAllocate={node.canAllocatePoint}
-				canDeallocate={node.canDeallocatePoint}
-				onClick={() => onAllocate(node)}
-				onRightClick={() => onDeallocate(node)}
+				onUpdateCharacterProp={onUpdateCharacterProp}
 				characterId={characterId}
 			/>
 		);
 	};
 
-	// Create the tabbed panel structure
 	const createTabPanel = (
 		statNodes: StatNode[],
 		selectedTab: StatType | null,
@@ -132,23 +121,13 @@ export const StatTreeToggleComponent: React.FC<StatTreeToggleComponentProps> = (
 				>
 					{statNodes.map(statNode => {
 						const isSelected = statNode.type === selectedTab;
-						let tabStyle: React.CSSProperties = {};
-
-						if (tabLevel === 'realm') {
-							tabStyle = {
-								backgroundColor: getRealmBackgroundColor(statNode.type),
-								borderBottom: isSelected ? 'none' : '1px solid var(--text)',
-								position: 'relative',
-								zIndex: isSelected ? 1 : 0,
-							};
-						} else {
-							tabStyle = {
-								backgroundColor: 'rgba(255, 255, 255, 0.1)',
-								borderBottom: isSelected ? 'none' : '1px solid var(--text)',
-								position: 'relative',
-								zIndex: isSelected ? 1 : 0,
-							};
-						}
+						const tabStyle = {
+							backgroundColor:
+								tabLevel === 'realm' ? getRealmBackgroundColor(statNode.type) : 'rgba(255, 255, 255, 0.1)',
+							borderBottom: isSelected ? 'none' : '1px solid var(--text)',
+							position: 'relative' as const,
+							zIndex: isSelected ? 1 : 0,
+						};
 
 						return (
 							<StatBox
@@ -158,9 +137,9 @@ export const StatTreeToggleComponent: React.FC<StatTreeToggleComponentProps> = (
 								onClick={() => onTabSelect(isSelected ? null : statNode.type)}
 								expandable={true}
 								style={tabStyle}
-								attributeValue={<StatValue node={statNode} />}
-								level={tabLevel}
-							/>
+							>
+								<StatValue node={statNode} />
+							</StatBox>
 						);
 					})}
 				</div>
@@ -196,7 +175,7 @@ export const StatTreeToggleComponent: React.FC<StatTreeToggleComponentProps> = (
 			<LevelSection
 				tree={tree}
 				onUpdateCharacterProp={onUpdateCharacterProp}
-				attributeValueNode={<StatValue node={tree.root} />}
+				attributeValueNode={<StatValue node={rootNode} />}
 				variant='default'
 			/>
 
@@ -234,9 +213,9 @@ export const StatTreeToggleComponent: React.FC<StatTreeToggleComponentProps> = (
 										style={{
 											borderRadius: '4px',
 										}}
-										attributeValue={<StatValue node={skill} />}
-										level='skill'
-									/>
+									>
+										<StatValue node={skill} />
+									</StatBox>
 								))}
 							</div>
 						),
