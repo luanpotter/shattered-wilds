@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
 
 import { useStore } from '../store';
-import { Character, CharacterClass, ClassInfo, CLASS_DEFINITIONS } from '../types';
+import {
+	Character,
+	CharacterClass,
+	ClassInfo,
+	CLASS_DEFINITIONS,
+	ClassRealm,
+	ClassRole,
+	ClassFlavor,
+	CLASS_ROLE_PRIMARY_ATTRIBUTE,
+} from '../types';
 import { FEATS } from '../types/feats';
 
 interface ClassSetupModalProps {
@@ -50,9 +59,8 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 	};
 
 	const renderWarriorClasses = () => {
-		const roles = ['Melee', 'Ranged', 'Tank'];
-		const flavors = ['Martial', 'Survivalist', 'Scoundrel'];
-		const attributeMap = { Melee: 'STR', Ranged: 'DEX', Tank: 'CON' };
+		const roles = [ClassRole.Melee, ClassRole.Ranged, ClassRole.Tank];
+		const flavors = [ClassFlavor.Martial, ClassFlavor.Survivalist, ClassFlavor.Scoundrel];
 
 		return (
 			<div>
@@ -71,12 +79,12 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 						{roles.map(role => (
 							<tr key={role}>
 								<td style={{ border: '1px solid var(--text)', padding: '8px', fontWeight: 'bold' }}>
-									{role} ({attributeMap[role as keyof typeof attributeMap]})
+									{role} ({CLASS_ROLE_PRIMARY_ATTRIBUTE[role].name})
 								</td>
 								{flavors.map(flavor => {
 									const classForCell = Object.values(CharacterClass).find(cls => {
 										const def = CLASS_DEFINITIONS[cls];
-										return def.archetype === 'Warrior' && def.role === role && def.flavor === flavor;
+										return def.realm === ClassRealm.Warrior && def.role === role && def.flavor === flavor;
 									});
 									return (
 										<td key={flavor} style={{ border: '1px solid var(--text)', padding: '8px' }}>
@@ -113,9 +121,8 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 	};
 
 	const renderCasterClasses = () => {
-		const roles = ['Erudite', 'Intuitive', 'Innate'];
-		const flavors = ['Arcanist', 'Mechanist', 'Naturalist', 'Musicist'];
-		const attributeMap = { Erudite: 'INT', Intuitive: 'WIS', Innate: 'CHA' };
+		const roles = [ClassRole.Erudite, ClassRole.Intuitive, ClassRole.Innate];
+		const flavors = [ClassFlavor.Arcanist, ClassFlavor.Mechanist, ClassFlavor.Naturalist, ClassFlavor.Musicist];
 
 		return (
 			<div>
@@ -134,12 +141,12 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 						{roles.map(role => (
 							<tr key={role}>
 								<td style={{ border: '1px solid var(--text)', padding: '8px', fontWeight: 'bold' }}>
-									{role} ({attributeMap[role as keyof typeof attributeMap]})
+									{role} ({CLASS_ROLE_PRIMARY_ATTRIBUTE[role].name})
 								</td>
 								{flavors.map(flavor => {
 									const classForCell = Object.values(CharacterClass).find(cls => {
 										const def = CLASS_DEFINITIONS[cls];
-										return def.archetype === 'Caster' && def.role === role && def.flavor === flavor;
+										return def.realm === ClassRealm.Caster && def.role === role && def.flavor === flavor;
 									});
 									return (
 										<td key={flavor} style={{ border: '1px solid var(--text)', padding: '8px' }}>
@@ -176,9 +183,8 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 	};
 
 	const renderMysticClasses = () => {
-		const roles = ['Disciple', 'Adept', 'Inspired'];
-		const flavors = ['Pure', 'Mixed', 'Martial'];
-		const attributeMap = { Disciple: 'DIV', Adept: 'FOW', Inspired: 'LCK' };
+		const roles = [ClassRole.Disciple, ClassRole.Adept, ClassRole.Inspired];
+		const flavors = [ClassFlavor.Devout, ClassFlavor.Mixed, ClassFlavor.Crusader];
 
 		return (
 			<div>
@@ -197,12 +203,12 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 						{roles.map(role => (
 							<tr key={role}>
 								<td style={{ border: '1px solid var(--text)', padding: '8px', fontWeight: 'bold' }}>
-									{role} ({attributeMap[role as keyof typeof attributeMap]})
+									{role} ({CLASS_ROLE_PRIMARY_ATTRIBUTE[role].name})
 								</td>
 								{flavors.map(flavor => {
 									const classForCell = Object.values(CharacterClass).find(cls => {
 										const def = CLASS_DEFINITIONS[cls];
-										return def.archetype === 'Mystic' && def.role === role && def.flavor === flavor;
+										return def.realm === ClassRealm.Mystic && def.role === role && def.flavor === flavor;
 									});
 									return (
 										<td key={flavor} style={{ border: '1px solid var(--text)', padding: '8px' }}>
@@ -257,7 +263,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 					<>
 						<h4 style={{ margin: '0 0 8px 0' }}>Selected: {currentClassInfo.characterClass}</h4>
 						<p style={{ margin: '0 0 8px 0', fontSize: '0.9em' }}>
-							<strong>Archetype:</strong> {definition.archetype} |<strong> Primary Attribute:</strong>{' '}
+							<strong>Realm:</strong> {definition.realm} |<strong> Primary Attribute:</strong>{' '}
 							{definition.primaryAttribute.name}
 						</p>
 						<div style={{ marginTop: '8px' }}>

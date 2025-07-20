@@ -115,7 +115,7 @@ Unlike the **Arcane**, the **Divine** is a much softer magical system, by which 
 
 There are a total of 9 **Mystic** classes, which are divided in a 3x3 matrix depending on their **Role** (which determines their **Primary Attribute**) and **Flavor** (wether they purely dedicate to their channeling or have some mixed martial characteristics).
 
-| Role / Flavor | Pure     | Mixed     | Martial   |
+| Role / Flavor | Devout   | Mixed     | Crusader  |
 |---------------|----------|-----------|-----------|
 | Adept (DIV)   | Cleric   | Warlock   | Paladin   |
 | Disciple (FOW)| Sage     | Monk      | Ranger    |
@@ -173,9 +173,9 @@ The **Inspired** is a **Mystic** who is able to receive their [[Stat_LCK | LCK]]
 * **Lucky Relentlessness** (Minor Feat, Level 2) [[Channeling]]: Your DC for the [[Action_Heroic_Relentlessness | Heroic Relentlessness]] action is `15`.
 * **Favorable Movement** (Major Feat, Level 3): You can spend 1 [[Resource_Focus_Point | FP]] to ignore the **Difficult Terrain** trait of a hex while moving through it.
 
-## Flavor: Purist
+## Flavor: Devout
 
-The **Purists** will be completely focused on their channeling, instead of diverging into more martial-focused faculties.
+The **Devout** will be completely focused on their channeling, instead of diverging into more martial-focused faculties.
 
 * **Effortless Imbued Item Channeling** (Core Feat, Level 1): Whenever you would spend [[Resource_Spirit_Point | Spirit Points]] to use an **Imbued Item** that would otherwise not require a [[Stat_Channeling | Channeling]] Check, you can make a [[Stat_Channeling | Channeling]] Check DC 15 to spend one less [[Resource_Spirit_Point | SP]].
 * **Divine Channeling** (Major Feat, Level 2) [[Channeling]]: Unlocks Divine Channeling. See [Divine Channeling](/rules/divine) for details on how the **Divine** magic system works.
@@ -183,13 +183,13 @@ The **Purists** will be completely focused on their channeling, instead of diver
 
 ## Flavor: Mixed
 
-The **Mixed** will be in between the Purist and the Martial.
+The **Mixed** will be in between the Devout and the Crusader.
 
 > <mark>WIP</mark> The **Mixed** is still being developed and is not available as an option yet.
 
-## Flavor: Martial
+## Flavor: Crusader
 
-Of the three **Flavors**, the **Martial** will have the most focus on martial expertise, but still being primarily focused on their channeling.
+Of the three **Flavors**, the **Crusader** will have the most focus on martial expertise, but still being primarily focused on their channeling.
 
 * **Divine Smite** (Core Feat, Level 1) [[Channeling]]: You can spend 2 [[Resource_Spirit_Point | SP]] when striking with a weapon to get a +3 [[Circumstance Modifier | CM]] as you channel raw power into it, making it acquire a distinct glow as you lift it to strike.
 * **Spiritual Armor** (Minor Feat, Level 2) [[Channeling]]: You can roll the [[Action_Shrug_Off | Shrug Off]] action using your **Primary Attribute** instead of [[Stat_Toughness | Toughness]].

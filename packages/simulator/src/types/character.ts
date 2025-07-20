@@ -1,59 +1,9 @@
 import { StatType } from '@shattered-wilds/commons';
 
-export enum CharacterClass {
-	// Warriors - Melee (STR)
-	Fighter = 'Fighter',
-	Berserker = 'Berserker',
-	Swashbuckler = 'Swashbuckler',
-	// Warriors - Ranged (DEX)
-	Marksman = 'Marksman',
-	Hunter = 'Hunter',
-	Rogue = 'Rogue',
-	// Warriors - Tank (CON)
-	Guardian = 'Guardian',
-	Barbarian = 'Barbarian',
-	Scout = 'Scout',
-	// Casters - Erudite (INT)
-	Wizard = 'Wizard',
-	Engineer = 'Engineer',
-	Alchemist = 'Alchemist',
-	Storyteller = 'Storyteller',
-	// Casters - Intuitive (WIS)
-	Mage = 'Mage',
-	Artificer = 'Artificer',
-	Druid = 'Druid',
-	Minstrel = 'Minstrel',
-	// Casters - Innate (CHA)
-	Sorcerer = 'Sorcerer',
-	Machinist = 'Machinist',
-	Shaman = 'Shaman',
-	Bard = 'Bard',
-	// Mystics - Disciple (DIV)
-	Cleric = 'Cleric',
-	Warlock = 'Warlock',
-	Paladin = 'Paladin',
-	// Mystics - Adept (FOW)
-	Sage = 'Sage',
-	Monk = 'Monk',
-	Ranger = 'Ranger',
-	// Mystics - Inspired (LCK)
-	Wanderer = 'Wanderer',
-	Wayfarer = 'Wayfarer',
-	Warden = 'Warden',
-}
-
 // Define a structure for race attribute modifiers
 export interface AttributeModifier {
 	attributeType: StatType;
 	value: number;
-}
-
-export interface ClassDefinition {
-	name: CharacterClass;
-	primaryAttribute: StatType;
-	archetype: 'Warrior' | 'Caster' | 'Mystic';
-	role: string;
-	flavor: string;
 }
 
 // Equipment types
