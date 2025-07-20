@@ -13,8 +13,8 @@ import {
 	CLASS_DEFINITIONS,
 } from '@shattered-wilds/commons';
 
-import { Equipment, Armor, Shield, Weapon } from './character';
 import { DerivedStat, BasicAttack, DefenseType } from './core';
+import { Equipment, Armor, Shield, Weapon } from './equipment';
 import {
 	FEATS,
 	getRacialFeatId,
@@ -23,7 +23,6 @@ import {
 	CLASS_CORE_FEATS,
 	getUpbringingModifierFeat,
 } from './feats';
-import { HexPosition } from './ui';
 
 export class RaceInfo {
 	primaryRace: Race;
@@ -498,11 +497,4 @@ export class CharacterSheet {
 		sheet.currentValues.backfill(sheet);
 		return sheet;
 	}
-}
-
-export interface Character {
-	id: string;
-	position?: HexPosition;
-	automaticMode?: boolean;
-	props: { name: string } & Record<string, string>;
 }

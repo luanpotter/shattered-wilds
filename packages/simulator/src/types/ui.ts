@@ -55,6 +55,13 @@ export interface Window {
 	height?: string;
 }
 
+export interface Character {
+	id: string;
+	position?: HexPosition;
+	automaticMode?: boolean;
+	props: { name: string } & Record<string, string>;
+}
+
 export function getCharacterInitials(character: { props: { name: string } }): string {
 	const words = character.props.name.split(' ');
 	if (words.length === 1) {

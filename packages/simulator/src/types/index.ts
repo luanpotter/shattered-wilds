@@ -20,5 +20,5 @@ export type { StatModifier, Modifier } from '@shattered-wilds/commons';
 
 export * from './ui';
 export * from './core';
-export * from './character';
+export * from './equipment';
 export * from './character-sheet';

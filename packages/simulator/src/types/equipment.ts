@@ -1,12 +1,5 @@
 import { StatType } from '@shattered-wilds/commons';
 
-// Define a structure for race attribute modifiers
-export interface AttributeModifier {
-	attributeType: StatType;
-	value: number;
-}
-
-// Equipment types
 export enum PrimaryWeaponType {
 	Unarmed = 'Unarmed',
 	Thrown = 'Thrown',
