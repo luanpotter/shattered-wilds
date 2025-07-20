@@ -42,10 +42,8 @@ export class RaceInfo {
 		const halfRace = props['race.half'] ? (props['race.half'] as Race) : null;
 		const combineHalfRaceStats = props['race.half.combined-stats'] === 'true';
 		const upbringing = (props['upbringing'] as Upbringing) ?? Upbringing.Urban;
-		const upbringingPlusModifier =
-			Object.values(StatType).find(type => type.name === props['upbringing.plus']) ?? StatType.INT;
-		const upbringingMinusModifier =
-			Object.values(StatType).find(type => type.name === props['upbringing.minus']) ?? StatType.WIS;
+		const upbringingPlusModifier = StatType.fromName(props['upbringing.plus'], StatType.INT);
+		const upbringingMinusModifier = StatType.fromName(props['upbringing.minus'], StatType.WIS);
 
 		return new RaceInfo(
 			primaryRace,
