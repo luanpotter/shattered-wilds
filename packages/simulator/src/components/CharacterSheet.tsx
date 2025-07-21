@@ -3,7 +3,7 @@ import { FaBatteryFull, FaExclamationTriangle, FaMinus, FaPlus } from 'react-ico
 
 import { useStore } from '../store';
 import { Character, CharacterSheet, DefenseType, DerivedStat, Equipment, Point, Size, SizeModifiers } from '../types';
-import { FeatType, getAllFeatSlots } from '../types/feats';
+import { FeatType, getAllFeatSlots } from '../../../commons/src/feats';
 import { findNextWindowPosition } from '../utils';
 
 import { EquipmentSection } from './EquipmentSection';

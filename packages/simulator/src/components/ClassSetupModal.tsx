@@ -11,7 +11,7 @@ import {
 	ClassFlavor,
 	CLASS_ROLE_PRIMARY_ATTRIBUTE,
 } from '../types';
-import { FEATS } from '../types/feats';
+import { FEATS } from '../../../commons/src/feats';
 
 interface ClassSetupModalProps {
 	character: Character;

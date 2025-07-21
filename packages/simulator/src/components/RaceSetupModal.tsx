@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useStore } from '../store';
 import { CharacterSheet, StatType, RaceInfo, Race, Upbringing } from '../types';
-import { FEATS, getUpbringingModifierFeat } from '../types/feats';
+import { FEATS, getUpbringingModifierFeat } from '../../../commons/src/feats';
 
 import DropdownSelect from './DropdownSelect';
 

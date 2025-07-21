@@ -11,18 +11,16 @@ import {
 	RACE_DEFINITIONS,
 	CharacterClass,
 	CLASS_DEFINITIONS,
+	FeatInfo,
+	FeatSlot,
+	FEATS,
+	FeatType,
+	FeatCategory,
+	featDefinitionToInfo,
 } from '@shattered-wilds/commons';
 
 import { DerivedStat, BasicAttack, DefenseType } from './core';
 import { Equipment, Armor, Shield, Weapon } from './equipment';
-import {
-	FEATS,
-	getRacialFeatId,
-	getUpbringingFeats,
-	getClassModifierFeatId,
-	CLASS_CORE_FEATS,
-	getUpbringingModifierFeat,
-} from './feats';
 
 export class RaceInfo {
 	primaryRace: Race;
@@ -67,8 +65,13 @@ export class RaceInfo {
 	}
 
 	// Get the core feats that should be assigned to this race/upbringing combination
-	getCoreRacialFeats(): string[] {
-		const coreFeats: string[] = [];
+	getCoreRacialFeats(): Record<string, FeatInfo<any>> {
+		const racialFeatCategories = [FeatCategory.Racial, FeatCategory.Upbringing];
+		const racialFeats = Object.values(FEATS)
+			.filter(feat => feat.type === FeatType.Core && racialFeatCategories.includes(feat.category));
+		
+		racialFeats.map(feat => featDefinitionToInfo(feat, null));
+		const coreFeats: Record<string, FeatInfo<any>> = {};
 
 		// Add racial feat
 		coreFeats.push(getRacialFeatId(this.primaryRace));

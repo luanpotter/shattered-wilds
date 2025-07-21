@@ -17,7 +17,7 @@ import {
 	getParameterizedFeatDefinition,
 	createParameterizedFeat,
 	parseParameterizedFeatId,
-} from '../types/feats';
+} from '../../../commons/src/feats';
 
 interface FeatsModalProps {
 	character: Character;

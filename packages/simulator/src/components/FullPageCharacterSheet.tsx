@@ -11,7 +11,7 @@ import {
 	getParameterizedFeatDefinition,
 	getUpbringingModifierFeat,
 	isParameterizedFeat,
-} from '../types/feats';
+} from '../../../commons/src/feats';
 
 import { EquipmentSection } from './EquipmentSection';
 import Block from './shared/Block';
