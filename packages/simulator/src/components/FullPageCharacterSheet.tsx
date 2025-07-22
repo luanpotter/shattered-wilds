@@ -7,10 +7,6 @@ import {
 	FEATS,
 	FeatSlot,
 	FeatType,
-	getAllFeatSlots,
-	getParameterizedFeatDefinition,
-	getUpbringingModifierFeat,
-	isParameterizedFeat,
 } from '../../../commons/src/feats';
 
 import { EquipmentSection } from './EquipmentSection';

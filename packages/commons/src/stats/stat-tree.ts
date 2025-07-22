@@ -14,6 +14,11 @@ export interface Modifier {
 	value: number;
 }
 
+export const generateModifierBonusString = (statType: StatType, value: number): string => {
+	const sign = value >= 0 ? '+' : '-';
+	return `${sign}${Math.abs(value)} ${statType}`;
+};
+
 export class StatTree {
 	root: StatNode;
 	modifiers: Modifier[];

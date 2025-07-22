@@ -12,15 +12,18 @@ import {
 	CharacterClass,
 	CLASS_DEFINITIONS,
 	FeatInfo,
-	FeatSlot,
 	FEATS,
 	FeatType,
 	FeatCategory,
-	featDefinitionToInfo,
+	FeatStatModifier,
+	generateModifierBonusString,
+	FeatSlot,
+	Feat,
 } from '@shattered-wilds/commons';
 
 import { DerivedStat, BasicAttack, DefenseType } from './core';
 import { Equipment, Armor, Shield, Weapon } from './equipment';
+import { hydrateFeatDefinitions } from '../../../commons/src/feats';
 
 export class RaceInfo {
 	primaryRace: Race;
@@ -51,8 +54,8 @@ export class RaceInfo {
 		const halfRace = props['race.half'] ? (props['race.half'] as Race) : null;
 		const combineHalfRaceStats = props['race.half.combined-stats'] === 'true';
 		const upbringing = (props['upbringing'] as Upbringing) ?? Upbringing.Urban;
-		const upbringingPlusModifier = StatType.fromName(props['upbringing.plus'], StatType.INT);
-		const upbringingMinusModifier = StatType.fromName(props['upbringing.minus'], StatType.WIS);
+		const upbringingPlusModifier = StatType.fromString(props['upbringing.plus'], StatType.INT);
+		const upbringingMinusModifier = StatType.fromString(props['upbringing.minus'], StatType.WIS);
 
 		return new RaceInfo(
 			primaryRace,
@@ -65,26 +68,19 @@ export class RaceInfo {
 	}
 
 	// Get the core feats that should be assigned to this race/upbringing combination
-	getCoreRacialFeats(): Record<string, FeatInfo<any>> {
+	getCoreFeats(): FeatInfo<any>[] {
 		const racialFeatCategories = [FeatCategory.Racial, FeatCategory.Upbringing];
-		const racialFeats = Object.values(FEATS)
-			.filter(feat => feat.type === FeatType.Core && racialFeatCategories.includes(feat.category));
-		
-		racialFeats.map(feat => featDefinitionToInfo(feat, null));
-		const coreFeats: Record<string, FeatInfo<any>> = {};
+		const racialFeats = Object.values(FEATS).filter(
+			feat => feat.type === FeatType.Core && racialFeatCategories.includes(feat.category),
+		);
 
-		// Add racial feat
-		coreFeats.push(getRacialFeatId(this.primaryRace));
-
-		// Add half race feat if applicable
-		if (this.halfRace && this.combineHalfRaceStats) {
-			coreFeats.push(getRacialFeatId(this.halfRace));
-		}
-
-		// Add upbringing feats
-		coreFeats.push(...getUpbringingFeats(this.upbringing));
-
-		return coreFeats;
+		const parameters = {
+			race: this.primaryRace,
+			upbringing: this.upbringing,
+			'upbringing-favored-modifier': this.upbringingPlusModifier,
+			'upbringing-disfavored-modifier': this.upbringingMinusModifier,
+		};
+		return hydrateFeatDefinitions(racialFeats, parameters);
 	}
 
 	toString(): string {
@@ -97,66 +93,32 @@ export class RaceInfo {
 
 export class ClassInfo {
 	characterClass: CharacterClass;
-	selectedFeats: string[];
 
-	constructor(characterClass: CharacterClass, selectedFeats: string[] = []) {
+	constructor(characterClass: CharacterClass) {
 		this.characterClass = characterClass;
-		this.selectedFeats = selectedFeats;
-
-		// Ensure the first feat (attribute specialization) is always included
-		const firstFeat = `${CLASS_DEFINITIONS[characterClass].primaryAttribute} Attribute Specialization`;
-		if (!this.selectedFeats.includes(firstFeat)) {
-			this.selectedFeats.unshift(firstFeat);
-		}
 	}
 
 	static from(props: Record<string, string>): ClassInfo {
 		const characterClass = (props['class'] as CharacterClass) ?? CharacterClass.Fighter;
-		const selectedFeats = props['class.feats'] ? (JSON.parse(props['class.feats']) as string[]) : [];
 
-		return new ClassInfo(characterClass, selectedFeats);
+		return new ClassInfo(characterClass);
 	}
 
-	// Get the 3 core class feats for this class
-	getCoreClassFeats(): string[] {
-		const coreFeats: string[] = [];
+	getCoreFeats(): FeatInfo<any>[] {
+		const classFeatCategories = [FeatCategory.ClassFlavor, FeatCategory.ClassRole];
+		const classFeats = Object.values(FEATS).filter(
+			feat => feat.type === FeatType.Core && classFeatCategories.includes(feat.category),
+		);
 
-		// Add class modifier feat
-		const primaryAttribute = CLASS_DEFINITIONS[this.characterClass].primaryAttribute;
-		coreFeats.push(getClassModifierFeatId(primaryAttribute));
-
-		// Add role and flavor feats
-		const classFeats = CLASS_CORE_FEATS[this.characterClass];
-		if (classFeats) {
-			coreFeats.push(classFeats.role);
-			coreFeats.push(classFeats.flavor);
-		}
-
-		return coreFeats;
-	}
-
-	getModifiers(): Modifier[] {
-		const modifiers: Modifier[] = [];
-
-		// Add the attribute specialization modifier (+1 to primary attribute)
-		const primaryAttribute = CLASS_DEFINITIONS[this.characterClass].primaryAttribute;
-		modifiers.push({
-			source: ModifierSource.Feat,
-			name: `${this.characterClass} Class`,
-			description: `${primaryAttribute.name} Attribute Specialization from ${this.characterClass} class`,
-			statType: primaryAttribute,
-			value: 1,
-		});
-
-		return modifiers;
+		const classDefinition = CLASS_DEFINITIONS[this.characterClass];
+		const parameters = {
+			'class-role': classDefinition.role,
+		};
+		return hydrateFeatDefinitions(classFeats, parameters);
 	}
 
 	toString(): string {
 		return this.characterClass;
-	}
-
-	toProp(): string {
-		return JSON.stringify(this.selectedFeats);
 	}
 }
 
@@ -272,31 +234,142 @@ export class CurrentValues {
 	}
 }
 
+export class CharacterFeats {
+	featInfos: FeatInfo<any>[];
+
+	constructor(
+		coreFeats: FeatInfo<any>[],
+		feats: FeatInfo<any>[],
+	) {
+		this.featInfos = [...coreFeats, ...feats];
+	}
+
+	getCoreFeats(): FeatInfo<any>[] {
+		return this.featInfos.filter(info => info.feat.type === FeatType.Core);
+	}
+
+	getSlottedFeats(): FeatInfo<any>[] {
+		return this.featInfos.filter(info => info.slot);
+	}
+
+	getFeatModifiers(): Modifier[] {
+		const modifiers: Modifier[] = [];
+
+		for (const info of this.featInfos) {
+			const feat = info.feat;
+			const effects = feat.effects?.(info) || [];
+			const featModifiers = effects
+				.filter(e => e instanceof FeatStatModifier)
+				.map(e => {
+					const bonusString = generateModifierBonusString(e.statType, e.value);
+					return {
+						source: ModifierSource.Feat,
+						name: feat.name,
+						description: `${bonusString} from feat ${feat.name}`,
+						statType: e.statType,
+						value: e.value,
+					};
+				});
+			modifiers.push(...featModifiers);
+		}
+
+		return modifiers;
+	}
+
+	toProps(): Record<string, string> {
+		return Object.fromEntries(
+			this.getSlottedFeats()
+				.map(info => {
+					const key = CharacterFeats.encodeFeatSlot(info.slot!);
+					const value = CharacterFeats.encodeFeatValue(info);
+					return [key, value];
+				}),
+		);
+	}
+
+	static from(
+		props: Record<string, string>,
+		race: RaceInfo,
+		characterClass: ClassInfo,
+	): CharacterFeats {
+		const coreFeats = [
+			...race.getCoreFeats(),
+			...characterClass.getCoreFeats(),
+		];
+		const feats = Object.entries(props)
+			.filter(([key]) => key.startsWith('feat.'))
+			.map(([key, value]) => {
+				const slot = CharacterFeats.decodeFeatSlot(key);
+				const [feat, parameter] = CharacterFeats.decodeFeatValue(value);
+				return {
+					feat: FEATS[feat],
+					slot: slot,
+					parameter: parameter,
+				};
+			});
+		return new CharacterFeats(coreFeats, feats);
+	}
+
+	private static encodeFeatSlot(slot: FeatSlot): string {
+		return `feat.${slot.level}#${slot.type}`;
+	}
+
+	private static encodeFeatValue(info: FeatInfo<any>): string {
+		if (info.parameter) {
+			return `${info.feat.key}#${info.parameter}`;
+		} else {
+			return info.feat.key;
+		}
+	}
+
+	private static decodeFeatSlot(key: string): FeatSlot {
+		// nomenclature: feat#<level>#<Major|Minor>
+		const name = key;
+		const parts = key.split('#');
+		const level = parseInt(parts[1]);
+		if (!level) {
+			throw new Error(`Invalid feat key: ${key}. Expected format: feat.<level>.<Major|Minor>`);
+		}
+		const type = parts[2] as FeatType;
+		if (type !== FeatType.Major && type !== FeatType.Minor) {
+			throw new Error(`Invalid feat type: ${type}. Expected Major or Minor.`);
+		}
+		return { name, level, type };
+	}
+
+	private static decodeFeatValue(value: string): [Feat, string | null] {
+		if (!value.includes('#')) {
+			return [value as Feat, null];
+		}
+		return value.split('#') as [Feat, string];
+	}
+}
+
 export class CharacterSheet {
 	name: string;
 	race: RaceInfo;
 	characterClass: ClassInfo;
+	feats: CharacterFeats;
 	attributeRoot: StatNode;
 	derivedStats: DerivedStats;
 	currentValues: CurrentValues;
 	equipment: Equipment;
-	private _props: Record<string, string>;
 
 	constructor(
 		name: string,
 		race: RaceInfo,
 		characterClass: ClassInfo,
+		feats: CharacterFeats,
 		attributeRoot: StatNode,
 		equipment: Equipment,
 		currentValues: CurrentValues,
-		props: Record<string, string>,
 	) {
 		this.name = name;
 		this.race = race;
 		this.characterClass = characterClass;
+		this.feats = feats;
 		this.attributeRoot = attributeRoot;
 		this.equipment = equipment;
-		this._props = props;
 
 		this.derivedStats = new DerivedStats(this.race, this.getStatTree());
 		this.currentValues = currentValues;
@@ -310,77 +383,12 @@ export class CharacterSheet {
 		return new StatTree(this.attributeRoot, this.getAllModifiers());
 	}
 
-	// Get all feat slots as slot-to-feat mapping
-	getFeatSlots(): Record<string, string> {
-		const featSlots: Record<string, string> = {};
-		for (const [key, value] of Object.entries(this._props)) {
-			if (key.startsWith('feat-') && value) {
-				featSlots[key] = value;
-			}
-		}
-		return featSlots;
-	}
-
-	// Get all feats from character props (backward compatibility)
-	getFeats(): string[] {
-		const featSlots = this.getFeatSlots();
-		return Object.values(featSlots);
-	}
-
-	// Check if character has a specific feat
-	hasFeat(featId: string): boolean {
-		const featSlots = this.getFeatSlots();
-		return Object.values(featSlots).includes(featId);
-	}
-
-	// Get feat for a specific slot
-	getFeatForSlot(slotId: string): string | null {
-		return this._props[slotId] || null;
-	}
-
-	// Set feat for a specific slot
-	setFeatForSlot(slotId: string, featId: string): void {
-		this._props[slotId] = featId;
-	}
-
-	// Remove feat from a specific slot
-	removeFeatFromSlot(slotId: string): void {
-		delete this._props[slotId];
-	}
-
-	// Get modifiers from feats
-	getFeatModifiers(): Modifier[] {
-		const modifiers: Modifier[] = [];
-		const feats = this.getFeats();
-
-		for (const featId of feats) {
-			// Handle dynamic upbringing modifiers
-			if (featId.startsWith('upbringing-')) {
-				const upbringingFeat = getUpbringingModifierFeat(
-					this.race.upbringing,
-					this.race.upbringingPlusModifier,
-					this.race.upbringingMinusModifier,
-				);
-				if (upbringingFeat.modifiers) {
-					modifiers.push(...upbringingFeat.modifiers);
-				}
-			} else {
-				const feat = FEATS[featId];
-				if (feat && feat.modifiers) {
-					modifiers.push(...feat.modifiers);
-				}
-			}
-		}
-
-		return modifiers;
-	}
-
 	// Get all modifiers from all sources (feats, equipment, etc.)
 	getAllModifiers(): Modifier[] {
 		const modifiers: Modifier[] = [];
 
 		// Add feat modifiers (includes race, class, and upbringing modifiers)
-		modifiers.push(...this.getFeatModifiers());
+		modifiers.push(...this.feats.getFeatModifiers());
 
 		// Add equipment modifiers (armor DEX penalties)
 		this.equipment.items
@@ -487,14 +495,16 @@ export class CharacterSheet {
 	}
 
 	static from(props: Record<string, string>): CharacterSheet {
+		const race = RaceInfo.from(props);
+		const characterClass = ClassInfo.from(props);
 		const sheet = new CharacterSheet(
 			props['name']!,
-			RaceInfo.from(props),
-			ClassInfo.from(props),
+			race,
+			characterClass,
+			CharacterFeats.from(props, race, characterClass),
 			StatTree.buildRootNode(props),
 			Equipment.from(props['equipment']),
 			CurrentValues.from(props),
-			props,
 		);
 		// backfill maximal current values from attribute tree if needed
 		sheet.currentValues.backfill(sheet);

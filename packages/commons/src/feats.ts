@@ -1,6 +1,6 @@
 import { CLASS_ROLE_PRIMARY_ATTRIBUTE, ClassFlavor, ClassRealm, ClassRole } from './classes';
 import { Race, RACE_DEFINITIONS, Upbringing } from './races.js';
-import { StatType } from './stats/stat-type';
+import { StatType, StatTypeName } from './stats/stat-type';
 
 export enum FeatType {
 	Core = 'Core',
@@ -27,12 +27,12 @@ export type FeatSource = StaticFeatSource | Race | Upbringing | ClassRealm | Cla
 export interface FeatEffect {}
 export class FeatStatModifier implements FeatEffect {
 	constructor(
-		public stat: StatType,
+		public statType: StatType,
 		public value: number,
 	) {}
 }
 
-export interface FeatDefinition<T> {
+export interface FeatDefinition<T extends string | void> {
 	key: Feat;
 	name: string;
 	type: FeatType;
@@ -44,22 +44,39 @@ export interface FeatDefinition<T> {
 	effects?: (info: FeatInfo<T>) => FeatEffect[];
 }
 
-export interface FeatParameter<T> {
+export interface FeatParameter<T extends string | void> {
 	id: string;
 	name: string;
 	values: T[];
 }
 
-export interface FeatInfo<T> {
-	feat: Feat;
+export interface FeatInfo<T extends string | void> {
+	feat: FeatDefinition<T>;
+	slot?: FeatSlot;
 	parameter: T;
 }
 
-export const featDefinitionToInfo = <T>(def: FeatDefinition<T>, parameter: T): FeatInfo<T> => {
-	return { feat: def.key, parameter, };
+export const hydrateFeatDefinitions = (defs: FeatDefinition<any>[], parameters: Record<string, any>): FeatInfo<any>[] => {
+	return defs.map(def => {
+		const parameterType = def.parameter?.id;
+		if (parameterType) {
+			const parameterValue = parameters[parameterType];
+			if (parameterValue === undefined) {
+				throw new Error(`Parameter value for ${parameterType} is not defined`);
+			}
+			return { feat: def, parameter: parameterValue };
+		} else {
+			return { feat: def, parameter: null };
+		}
+	});
 };
 
-const mentalAndSoulAttributes = [StatType.INT, StatType.CHA, StatType.LCK, StatType.WIS, StatType.DIV, StatType.FOW];
+const mindAttributes = [StatTypeName.INT, StatTypeName.WIS, StatTypeName.CHA];
+type MindAttributes = typeof mindAttributes[number];
+const soulAttributes = [StatTypeName.DIV, StatTypeName.FOW, StatTypeName.LCK];
+const mindOrSoulAttributes = [...mindAttributes, ...soulAttributes];
+type MindOrSoulAttributes = typeof mindOrSoulAttributes[number];
+
 
 export enum Feat {
 	// Class
@@ -161,8 +178,8 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		level: 0,
 		description: '+1/-1 Racial Modifiers',
 		parameter: {
-			id: 'racial-modifier',
-			name: 'Racial Modifier',
+			id: 'race',
+			name: 'Race',
 			values: Object.values(Race),
 		},
 		effects: info => {
@@ -170,7 +187,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 			return raceDefinition.modifiers.map(e => new FeatStatModifier(e.stat, e.value));
 		},
 	},
-	[Feat.UpbringingFavoredModifier]: <FeatDefinition<StatType>>{
+	[Feat.UpbringingFavoredModifier]: <FeatDefinition<MindOrSoulAttributes>>{
 		key: Feat.UpbringingFavoredModifier,
 		name: 'Upbringing Favored Modifier',
 		type: FeatType.Core,
@@ -179,16 +196,16 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		level: 0,
 		description: '+1 Upbringing Modifier',
 		parameter: {
-			id: 'upbringing-modifier',
-			name: 'Upbringing Modifier',
-			values: mentalAndSoulAttributes,
+			id: 'upbringing-favored-modifier',
+			name: 'Upbringing Favored Modifier',
+			values: mindOrSoulAttributes,
 		},
 		effects: info => {
-			const stat = info.parameter;
-			return [new FeatStatModifier(stat, 1)];
+			const statName = info.parameter;
+			return [new FeatStatModifier(StatType.fromName(statName), 1)];
 		},
 	},
-	[Feat.UpbringingDisfavoredModifier]: <FeatDefinition<StatType>>{
+	[Feat.UpbringingDisfavoredModifier]: <FeatDefinition<MindOrSoulAttributes>>{
 		key: Feat.UpbringingDisfavoredModifier,
 		name: 'Upbringing Disfavored Modifier',
 		type: FeatType.Core,
@@ -197,13 +214,13 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		level: 0,
 		description: '-1 Upbringing Modifier',
 		parameter: {
-			id: 'upbringing-modifier',
-			name: 'Upbringing Modifier',
-			values: mentalAndSoulAttributes,
+			id: 'upbringing-disfavored-modifier',
+			name: 'Upbringing Disfavored Modifier',
+			values: mindOrSoulAttributes,
 		},
 		effects: info => {
 			const stat = info.parameter;
-			return [new FeatStatModifier(stat, -1)];
+			return [new FeatStatModifier(StatType.fromName(stat), -1)];
 		},
 	},
 	[Feat.SpecializedKnowledge]: <FeatDefinition<Upbringing>>{
@@ -469,7 +486,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 			'You can use a [[Resource_Focus_Point | FP]] to pay for a [[Action_Luck_Die | Luck Die]] for a Check of a Skill you do not have any points invested in.',
 	},
 	// Caster
-	[Feat.ArcaneCasting]: <FeatDefinition<StatType>>{
+	[Feat.ArcaneCasting]: <FeatDefinition<MindAttributes>>{
 		key: Feat.ArcaneCasting,
 		name: 'Arcane Casting',
 		type: FeatType.Core,
@@ -481,7 +498,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		parameter: {
 			id: 'stat',
 			name: 'Stat',
-			values: [StatType.INT, StatType.WIS, StatType.CHA],
+			values: mindAttributes,
 		},
 	},
 	// Arcanist
@@ -672,24 +689,6 @@ export interface FeatSlot {
 	type: FeatType;
 }
 
-const generateCoreRaceSlots = (): FeatSlot[] => {
-	return [
-		'Core Racial Modifiers',
-		'Core Upbringing Favored Modifier',
-		'Core Upbringing Disfavored Modifier',
-		'Core Upbringing Specialized Knowledge',
-		'Core Upbringing Unique Feat',
-	].map(name => ({ name, level: 0, type: FeatType.Core }));
-};
-
-const generateCoreClassSlots = (): FeatSlot[] => {
-	return [
-		'Core Class Specialization',
-		'Core Class Role Feat',
-		'Core Class Flavor Feat',
-	].map(name => ({ name, level: 1, type: FeatType.Core }));
-}
-
 const generateLevelBasedSlots = (maxLevel: number): FeatSlot[] => {
 	const slots: FeatSlot[] = [];
 
@@ -716,12 +715,6 @@ const generateLevelBasedSlots = (maxLevel: number): FeatSlot[] => {
 
 export function generateFeatSlots(characterLevel: number, hasSpecializedTraining: boolean = false): FeatSlot[] {
 	const slots: FeatSlot[] = [];
-
-	slots.push(...generateCoreRaceSlots());
-
-	if (characterLevel >= 1) {
-		slots.push(...generateCoreClassSlots());
-	}
 
 	slots.push(...generateLevelBasedSlots(characterLevel));
 

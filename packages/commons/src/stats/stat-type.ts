@@ -14,6 +14,49 @@ export const StatHierarchyProperties: {
 	[StatHierarchy.Skill]: { baseMultiplier: 1 },
 };
 
+export enum StatTypeName {
+	Level = 'Level',
+	Body = 'Body',
+	Mind = 'Mind',
+	Soul = 'Soul',
+	STR = 'STR',
+	DEX = 'DEX',
+	CON = 'CON',
+	INT = 'INT',
+	WIS = 'WIS',
+	CHA = 'CHA',
+	LCK = 'LCK',
+	DIV = 'DIV',
+	FOW = 'FOW',
+	Muscles = 'Muscles',
+	Stance = 'Stance',
+	Lift = 'Lift',
+	Finesse = 'Finesse',
+	Evasiveness = 'Evasiveness',
+	Agility = 'Agility',
+	Toughness = 'Toughness',
+	Stamina = 'Stamina',
+	Resilience = 'Resilience',
+	IQ = 'IQ',
+	Knowledge = 'Knowledge',
+	Memory = 'Memory',
+	Perception = 'Perception',
+	Awareness = 'Awareness',
+	Intuition = 'Intuition',
+	Speechcraft = 'Speechcraft',
+	Presence = 'Presence',
+	Empathy = 'Empathy',
+	Devotion = 'Devotion',
+	Revelation = 'Revelation',
+	Attunement = 'Attunement',
+	Discipline = 'Discipline',
+	Tenacity = 'Tenacity',
+	Resolve = 'Resolve',
+	Fortune = 'Fortune',
+	Karma = 'Karma',
+	Serendipity = 'Serendipity',
+}
+
 export class StatType {
 	private static build = ({
 		hierarchy,
@@ -25,7 +68,7 @@ export class StatType {
 	}: {
 		hierarchy: StatHierarchy;
 		parent?: StatType;
-		name: string;
+		name: StatTypeName;
 		description: string;
 		longDescription?: string;
 		exampleUsages?: string[];
@@ -35,13 +78,13 @@ export class StatType {
 
 	static readonly Level = StatType.build({
 		hierarchy: StatHierarchy.Level,
-		name: 'Level',
+		name: StatTypeName.Level,
 		description: `The root statistic that represents the character's overall power and experience.`,
 	});
 	static readonly Body = StatType.build({
 		hierarchy: StatHierarchy.Realm,
 		parent: StatType.Level,
-		name: 'Body',
+		name: StatTypeName.Body,
 		description: `The realm of physical capabilities, representing the character's physique.`,
 		exampleUsages: [
 			`Determines [[Resource_Vitality_Point | Vitality Points]].`,
@@ -51,7 +94,7 @@ export class StatType {
 	static readonly Mind = StatType.build({
 		hierarchy: StatHierarchy.Realm,
 		parent: StatType.Level,
-		name: 'Mind',
+		name: StatTypeName.Mind,
 		description: `The realm of mental capabilities, representing your character's intellect.`,
 		exampleUsages: [
 			`Determines [[Resource_Focus_Point | Focus Points]].`,
@@ -61,7 +104,7 @@ export class StatType {
 	static readonly Soul = StatType.build({
 		hierarchy: StatHierarchy.Realm,
 		parent: StatType.Level,
-		name: 'Soul',
+		name: StatTypeName.Soul,
 		description: `The realm of spiritual capabilities, representing your character's life force, connection to the **Aether** and to their own Soul.`,
 		exampleUsages: [
 			`Determines [[Resource_Soul_Point | Soul Points]].`,
@@ -71,37 +114,37 @@ export class StatType {
 	static readonly STR = StatType.build({
 		hierarchy: StatHierarchy.Attribute,
 		parent: StatType.Body,
-		name: 'STR',
+		name: StatTypeName.STR,
 		description: `**Strength** is a measure of the power of the [[Stat_Body | Body]]. Think punch hard, big muscles, heavy lifting.`,
 	});
 	static readonly DEX = StatType.build({
 		hierarchy: StatHierarchy.Attribute,
 		parent: StatType.Body,
-		name: 'DEX',
+		name: StatTypeName.DEX,
 		description: `**Dexterity** is a measure of speed of the [[Stat_Body | Body]]. Think reflexes, quickness, agility, precision.`,
 	});
 	static readonly CON = StatType.build({
 		hierarchy: StatHierarchy.Attribute,
 		parent: StatType.Body,
-		name: 'CON',
+		name: StatTypeName.CON,
 		description: `**Constitution** is a measure of the endurance of the [[Stat_Body | Body]]. Think stamina, health, resilience.`,
 	});
 	static readonly INT = StatType.build({
 		hierarchy: StatHierarchy.Attribute,
 		parent: StatType.Mind,
-		name: 'INT',
+		name: StatTypeName.INT,
 		description: `**Intelligence** is a measure of the [[Stat_Mind | Mind]]'s ability to learn, reason, and understand. Think logic, reasoning, and knowledge.`,
 	});
 	static readonly WIS = StatType.build({
 		hierarchy: StatHierarchy.Attribute,
 		parent: StatType.Mind,
-		name: 'WIS',
+		name: StatTypeName.WIS,
 		description: `**Wisdom** is a measure of the [[Stat_Mind | Mind]]'s ability to perceive and interpret the world. Think perception, awareness, and intuition.`,
 	});
 	static readonly CHA = StatType.build({
 		hierarchy: StatHierarchy.Attribute,
 		parent: StatType.Mind,
-		name: 'CHA',
+		name: StatTypeName.CHA,
 		description: `**Charisma** is a measure of the [[Stat_Mind | Mind]]'s ability to influence, persuade, inspire, and connect with others, as well as understand emotions (be it your own or others'). Think empathy, magnetism, charm, physical attractiveness.`,
 		longDescription: `Unlike on other systems, where Charisma is further broken down into Skills based on _intent of usage_, such as Persuasion, Intimidation, Seduction, etc. In Shattered Wilds, we break it down by means, and different Skills can be used for different intents.
 
@@ -134,25 +177,25 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly DIV = StatType.build({
 		hierarchy: StatHierarchy.Attribute,
 		parent: StatType.Soul,
-		name: 'DIV',
+		name: StatTypeName.DIV,
 		description: `**Divinity** is a measure of the [[Stat_Soul | Soul]]'s ability to connect with the Aether. It determines the conviction of one's faith and devotion in the unknown and how well one can attune to [[Imbued Item | Imbued Items]].`,
 	});
 	static readonly FOW = StatType.build({
 		hierarchy: StatHierarchy.Attribute,
 		parent: StatType.Soul,
-		name: 'FOW',
+		name: StatTypeName.FOW,
 		description: `**Force of Will** is a measure of the [[Stat_Soul | Soul]]'s ability to resist temptations, vices, and instant gratification. Think willpower, determination, and psychological resilience.`,
 	});
 	static readonly LCK = StatType.build({
 		hierarchy: StatHierarchy.Attribute,
 		parent: StatType.Soul,
-		name: 'LCK',
+		name: StatTypeName.LCK,
 		description: `**Luck** is a measure of the [[Stat_Soul | Soul]]'s connection with forces even beyond the Aether, measuring a character's unexplainable connection with Luck as a concept that appears to escape the realm of reality itself.`,
 	});
 	static readonly Muscles = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.STR,
-		name: 'Muscles',
+		name: StatTypeName.Muscles,
 		description: `Raw power that can be impacted in a short burst, e.g. pulling a stuck lever, breaking down an inanimate object, smashing a mug on one's hands.`,
 		exampleUsages: [
 			`Can be used instead of [[Stat_STR | STR]] to perform an attack with the [[Action_Charge | Charge]] action.`,
@@ -164,7 +207,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Stance = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.STR,
-		name: 'Stance',
+		name: StatTypeName.Stance,
 		description: `How hard it is to move or push one around, how well one can keep their stance, resist to being shoved back.`,
 		exampleUsages: [
 			`A Contested Check can be used to resist a [[Action_Shove | Shove]] Special Attack.`,
@@ -174,7 +217,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Lift = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.STR,
-		name: 'Lift',
+		name: StatTypeName.Lift,
 		description: `How much weight that can be lifted and carried for short periods of times, including oneself (climbing, using ropes, etc).`,
 		exampleUsages: [
 			`A Check can be used to lift a heavy object.`,
@@ -184,7 +227,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Finesse = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.DEX,
-		name: 'Finesse',
+		name: StatTypeName.Finesse,
 		description: `Aim, quick fingers, sleight of hand, stealth; delicate movement of the hands and the body.`,
 		exampleUsages: [
 			`A Check can be used to aim a particularly tricky short through the [[Action_Aim | Aim]] action.`,
@@ -195,7 +238,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Evasiveness = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.DEX,
-		name: 'Evasiveness',
+		name: StatTypeName.Evasiveness,
 		description: `Evasion, acrobatics; precise movement of the body; used for the [[Action_Dodge | Dodge]] action.`,
 		exampleUsages: [
 			`A Check can be used to perform a tricky acrobatic maneuver.`,
@@ -207,7 +250,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Agility = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.DEX,
-		name: 'Agility',
+		name: StatTypeName.Agility,
 		description: `Speed, quickness; how fast one can move and do things.`,
 		exampleUsages: [
 			`Used to computed [[Derived_Stat_Initiative | Initiative]]`,
@@ -218,7 +261,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Toughness = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.CON,
-		name: 'Toughness',
+		name: StatTypeName.Toughness,
 		description: `Tough skin, resistance to fall damage; damage reduction through [[Action_Shrug_Off | Shrug Off]].`,
 		exampleUsages: [
 			`A Check can be used to perform the [[Action_Shrug_Off | Shrug Off]] action.`,
@@ -229,7 +272,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Stamina = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.CON,
-		name: 'Stamina',
+		name: StatTypeName.Stamina,
 		description: `Breath, how much exertion can be sustained in a short period of time; continued athleticism.`,
 		exampleUsages: [
 			`A Check can be used to perform a [[Action_Catch_Breath | Catch Breath]] action.`,
@@ -240,7 +283,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Resilience = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.CON,
-		name: 'Resilience',
+		name: StatTypeName.Resilience,
 		description: `Resistance to heat, cold, sickness, poison and disease.`,
 		exampleUsages: [
 			`A Contested Check can be used to resist the effects of **Noxious Gas** or other poisons.`,
@@ -250,7 +293,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly IQ = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.INT,
-		name: 'IQ',
+		name: StatTypeName.IQ,
 		description: `Ability to learn new information, apply logic, raw intelligence and reasoning power.`,
 		exampleUsages: [
 			`A Check can be used to assess, analyze, and understand the activation mechanism of an unfamiliar device or trap.`,
@@ -261,7 +304,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Knowledge = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.INT,
-		name: 'Knowledge',
+		name: StatTypeName.Knowledge,
 		description: `Consolidated knowledge and lore about the world and how it works; learned information and academic understanding; "book smarts".`,
 		longDescription: `**Note**: before using a **Knowledge Check**, one should always consider if they might want to use the [[Action_Write_History | Write History]] action instead.`,
 		exampleUsages: [
@@ -273,7 +316,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Memory = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.INT,
-		name: 'Memory',
+		name: StatTypeName.Memory,
 		description: `Short-term memory, ability to recall details and retain information from recent experiences.`,
 		exampleUsages: [
 			`A Check can be used to remember specific details from recent conversations or events.`,
@@ -284,7 +327,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Perception = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.WIS,
-		name: 'Perception',
+		name: StatTypeName.Perception,
 		description: `Active perception, seeing, hearing, sensing, feeling and noticing details in the environment.`,
 		exampleUsages: [
 			`A Check can be used whenever you are actively trying to see, hear, or sense something.`,
@@ -294,7 +337,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Awareness = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.WIS,
-		name: 'Awareness',
+		name: StatTypeName.Awareness,
 		description: `Alertness, passive perception, attention to details when not paying attention; intuitive awareness of surroundings.`,
 		exampleUsages: [
 			`Used to compute [[Derived_Stat_Initiative | Initiative]] alongside [[Stat_Agility | Agility]].`,
@@ -306,7 +349,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Intuition = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.WIS,
-		name: 'Intuition',
+		name: StatTypeName.Intuition,
 		description: `Common sense, "street smarts", cunning, instinctive understanding of situations and environments.`,
 		exampleUsages: [
 			`A Check can be used for survival skills like finding food, shelter, tracks, or safe paths in the wilderness.`,
@@ -316,7 +359,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Speechcraft = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.CHA,
-		name: 'Speechcraft',
+		name: StatTypeName.Speechcraft,
 		description: `Rhetoric, speech, verbal (or written) communication; the art of expressing ideas through language.`,
 		exampleUsages: [
 			`A Check can be used for various social influence attempts (see [[Stat_CHA | CHA]] for the full table).`,
@@ -328,7 +371,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Presence = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.CHA,
-		name: 'Presence',
+		name: StatTypeName.Presence,
 		description: `Personal magnetism, body language, physical attractiveness, and non-verbal communication through physical poise.`,
 		exampleUsages: [
 			`A Check can be used for various social influence attempts (see [[Stat_CHA | CHA]] for the full table).`,
@@ -340,7 +383,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Empathy = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.CHA,
-		name: 'Empathy',
+		name: StatTypeName.Empathy,
 		description: `Reading people, understanding emotions and motivations, connecting with others on an emotional level.`,
 		exampleUsages: [
 			`A Check can be used to read emotions or figure out if someone is lying or has hidden intents.`,
@@ -352,7 +395,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Devotion = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.DIV,
-		name: 'Devotion',
+		name: StatTypeName.Devotion,
 		description: `A personal connection to a deity; faith, ability to believe and ask for providence through Prayer.`,
 		longDescription: `**Note**: While a character does not need to be an **Adept** to perform **Devotion Checks**, they do need to have a connection to at least one **Protean**. If they start investing in the skill, and attempt to use the [[Action_Pray | Pray]] action, they might be answered by some unspecified force, or it might not work at all.`,
 		exampleUsages: [
@@ -364,7 +407,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Revelation = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.DIV,
-		name: 'Revelation',
+		name: StatTypeName.Revelation,
 		description: `Ability to channel messages, visions or revelations from a deity.`,
 		longDescription: `**Note**: While a character does not need to be an **Adept** to invest and receive Revelation Checks, they do need to have a connection to at least one **Protean**. If they do not yet have a connection, they might attempt to form a new bond through roleplaying and investing in [[Stat_Devotion | Devotion]] first.`,
 		exampleUsages: [
@@ -375,7 +418,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Attunement = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.DIV,
-		name: 'Attunement',
+		name: StatTypeName.Attunement,
 		description: `General attunement to the Aether, how well external forces can flow and be channeled through one's Soul; conduit to external powers.`,
 		exampleUsages: [
 			`A Check can be required to use or get the best of [[Imbued Item | Imbued Items]].`,
@@ -385,7 +428,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Discipline = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.FOW,
-		name: 'Discipline',
+		name: StatTypeName.Discipline,
 		description: `Ability to resist urges and temptations, vices and instant gratification, self-control and restraint.`,
 		exampleUsages: [
 			`A Check can be used to resist a character's [[Vice]].`,
@@ -397,7 +440,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Tenacity = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.FOW,
-		name: 'Tenacity',
+		name: StatTypeName.Tenacity,
 		description: `Concentration, ability to ignore pain or hardship or being disturbed and keep going, mental toughness and grit.`,
 		exampleUsages: [
 			`A Check can be used to perform the [[Action_Focus | Focus]] action.`,
@@ -409,7 +452,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Resolve = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.FOW,
-		name: 'Resolve',
+		name: StatTypeName.Resolve,
 		description: `Resistance to mind control, social manipulation, deceit, charm, fear, and intimidation; fortitude of the mind and mental resilience.`,
 		exampleUsages: [
 			`A Contested Check can be used to resist Command Arcane Spells that attempt to control your mind.`,
@@ -420,7 +463,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Fortune = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.LCK,
-		name: 'Fortune',
+		name: StatTypeName.Fortune,
 		description: `Personal luck for one's own actions; used for the [[Action_Luck_Die | Luck Die]] mechanic.`,
 		exampleUsages: [
 			`Can be used for the [[Action_Luck_Die | Luck Die]] mechanic.`,
@@ -430,7 +473,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Karma = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.LCK,
-		name: 'Karma',
+		name: StatTypeName.Karma,
 		description: `Things just don't seem to go well for people who wrong ones with high Karma; used for the [[Action_Karmic_Resistance | Karmic Resistance]] reaction.`,
 		exampleUsages: [
 			`Use for the [[Action_Karmic_Resistance | Karmic Resistance]] reaction.`,
@@ -440,7 +483,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	static readonly Serendipity = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.LCK,
-		name: 'Serendipity',
+		name: StatTypeName.Serendipity,
 		description: `The Luck for the world itself; an uncanny ability to be favored by external chance and coincidences; synchronism; used for the [[Action_Write_History | Write History]] action.`,
 		exampleUsages: [
 			`Can be used for the [[Action_Write_History | Write History]] action.`,
@@ -463,7 +506,7 @@ On top of these types of actions, the different Skills can still be used for oth
 
 	static readonly values: StatType[] = Object.values(StatType).filter(stat => stat.name);
 
-	static fromName(name: string | undefined, fallback: StatType): StatType {
+	static fromString(name: string | undefined, fallback: StatType): StatType {
 		if (!name) {
 			return fallback;
 		}
@@ -472,6 +515,10 @@ On top of these types of actions, the different Skills can still be used for oth
 			throw new Error(`Stat type ${name} not found`);
 		}
 		return stat;
+	}
+
+	static fromName(name: StatTypeName): StatType {
+		return StatType.values.find(stat => stat.name === name)!;
 	}
 
 	static childrenOf(stat: StatType): StatType[] {
