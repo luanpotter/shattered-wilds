@@ -56,7 +56,10 @@ export interface FeatInfo<T extends string | void> {
 	parameter: T;
 }
 
-export const hydrateFeatDefinitions = (defs: FeatDefinition<any>[], parameters: Record<string, any>): FeatInfo<any>[] => {
+export const hydrateFeatDefinitions = (
+	defs: FeatDefinition<any>[],
+	parameters: Record<string, any>,
+): FeatInfo<any>[] => {
 	return defs.map(def => {
 		const parameterType = def.parameter?.id;
 		if (parameterType) {
@@ -72,11 +75,10 @@ export const hydrateFeatDefinitions = (defs: FeatDefinition<any>[], parameters: 
 };
 
 const mindAttributes = [StatTypeName.INT, StatTypeName.WIS, StatTypeName.CHA];
-type MindAttributes = typeof mindAttributes[number];
+type MindAttributes = (typeof mindAttributes)[number];
 const soulAttributes = [StatTypeName.DIV, StatTypeName.FOW, StatTypeName.LCK];
 const mindOrSoulAttributes = [...mindAttributes, ...soulAttributes];
-type MindOrSoulAttributes = typeof mindOrSoulAttributes[number];
-
+type MindOrSoulAttributes = (typeof mindOrSoulAttributes)[number];
 
 export enum Feat {
 	// Class
@@ -683,55 +685,74 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 	},
 };
 
-export interface FeatSlot {
-	name: string;
+export class FeatSlot {
 	level: number;
 	type: FeatType;
-}
 
-const generateLevelBasedSlots = (maxLevel: number): FeatSlot[] => {
-	const slots: FeatSlot[] = [];
+	// Normally all levels have only a order=0 feat slot, but additional feat slots can be acquired via feats
+	order: number;
 
-	for (let level = 1; level <= maxLevel; level++) {
-		if (level % 2 === 1) {
-			// Odd levels: Minor feats
-			slots.push({
-				name: `Level ${level} Minor Feat`,
-				level: level,
-				type: FeatType.Minor,
-			});
-		} else {
-			// Even levels: Major feats
-			slots.push({
-				name: `Level ${level} Major Feat`,
-				level: level,
-				type: FeatType.Major,
-			});
+	constructor(level: number, type: FeatType, order: number = 0) {
+		this.level = level;
+		this.type = type;
+		this.order = order;
+	}
+
+	get name(): string {
+		return `Level ${this.level} ${this.type} Feat Slot${this.order > 0 ? ` (Specialized Training)` : ''}`;
+	}
+
+	toProp(): string {
+		return `feat.${this.level}.${this.type}.${this.order}`;
+	}
+
+	static build({ level, type, order = 0 }: { level: number; type: FeatType; order?: number }): FeatSlot {
+		return new FeatSlot(level, type, order);
+	}
+
+	static fromProp(prop: string): FeatSlot {
+		const match = prop.match(/^feat\.(\d+)\.(\w+)(?:\.(\d+))?$/);
+		if (!match) {
+			throw new Error(`Invalid feat slot property: ${prop}`);
 		}
+		const level = parseInt(match[1]!, 10);
+		const type = match[2]! as FeatType;
+		const order = parseInt(match[3]!, 10);
+		return new FeatSlot(level, type, order);
 	}
 
-	return slots;
-}
+	static generateSlots({
+		maxLevel,
+		hasSpecializedTraining,
+	}: {
+		maxLevel: number;
+		hasSpecializedTraining: boolean;
+	}): FeatSlot[] {
+		const slots: FeatSlot[] = [];
 
-export function generateFeatSlots(characterLevel: number, hasSpecializedTraining: boolean = false): FeatSlot[] {
-	const slots: FeatSlot[] = [];
+		for (let level = 1; level <= maxLevel; level++) {
+			slots.push(
+				FeatSlot.build({
+					level: level,
+					type: level % 2 === 1 ? FeatType.Minor : FeatType.Major,
+				}),
+			);
+			if (level === 1 && hasSpecializedTraining) {
+				slots.push(
+					FeatSlot.build({
+						level: 1,
+						type: FeatType.Minor,
+						order: 1,
+					}),
+					FeatSlot.build({
+						level: 1,
+						type: FeatType.Minor,
+						order: 2,
+					}),
+				);
+			}
+		}
 
-	slots.push(...generateLevelBasedSlots(characterLevel));
-
-	if (hasSpecializedTraining && characterLevel >= 1) {
-		slots.push(
-			{
-				name: 'Additional Minor Feat (Specialized Training)',
-				level: 1,
-				type: FeatType.Minor,
-			},
-			{
-				name: 'Additional Minor Feat (Specialized Training)',
-				level: 1,
-				type: FeatType.Minor,
-			},
-		);
+		return slots;
 	}
-
-	return slots;
 }

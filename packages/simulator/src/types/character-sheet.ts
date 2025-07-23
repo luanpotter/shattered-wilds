@@ -276,11 +276,15 @@ export class CharacterFeats {
 		return modifiers;
 	}
 
+	get hasSpecializedTraining(): boolean {
+		return this.featInfos.some(info => info.feat.key === Feat.SpecializedTraining);
+	}
+
 	toProps(): Record<string, string> {
 		return Object.fromEntries(
 			this.getSlottedFeats()
 				.map(info => {
-					const key = CharacterFeats.encodeFeatSlot(info.slot!);
+					const key = info.slot!.toProp();
 					const value = CharacterFeats.encodeFeatValue(info);
 					return [key, value];
 				}),
@@ -299,7 +303,7 @@ export class CharacterFeats {
 		const feats = Object.entries(props)
 			.filter(([key]) => key.startsWith('feat.'))
 			.map(([key, value]) => {
-				const slot = CharacterFeats.decodeFeatSlot(key);
+				const slot = FeatSlot.fromProp(key);
 				const [feat, parameter] = CharacterFeats.decodeFeatValue(value);
 				return {
 					feat: FEATS[feat],
@@ -310,31 +314,12 @@ export class CharacterFeats {
 		return new CharacterFeats(coreFeats, feats);
 	}
 
-	private static encodeFeatSlot(slot: FeatSlot): string {
-		return `feat.${slot.level}#${slot.type}`;
-	}
-
 	private static encodeFeatValue(info: FeatInfo<any>): string {
 		if (info.parameter) {
 			return `${info.feat.key}#${info.parameter}`;
 		} else {
 			return info.feat.key;
 		}
-	}
-
-	private static decodeFeatSlot(key: string): FeatSlot {
-		// nomenclature: feat#<level>#<Major|Minor>
-		const name = key;
-		const parts = key.split('#');
-		const level = parseInt(parts[1]);
-		if (!level) {
-			throw new Error(`Invalid feat key: ${key}. Expected format: feat.<level>.<Major|Minor>`);
-		}
-		const type = parts[2] as FeatType;
-		if (type !== FeatType.Major && type !== FeatType.Minor) {
-			throw new Error(`Invalid feat type: ${type}. Expected Major or Minor.`);
-		}
-		return { name, level, type };
 	}
 
 	private static decodeFeatValue(value: string): [Feat, string | null] {
@@ -381,6 +366,13 @@ export class CharacterSheet {
 
 	getStatTree(): StatTree {
 		return new StatTree(this.attributeRoot, this.getAllModifiers());
+	}
+
+	getFeatSlots(): FeatSlot[] {
+		return FeatSlot.generateSlots({
+			maxLevel: this.level,
+			hasSpecializedTraining: this.feats.hasSpecializedTraining,
+		});
 	}
 
 	// Get all modifiers from all sources (feats, equipment, etc.)

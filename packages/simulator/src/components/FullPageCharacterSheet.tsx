@@ -3,16 +3,13 @@ import { FaArrowLeft, FaBatteryFull, FaCog, FaCopy, FaExclamationTriangle, FaMin
 
 import { useStore } from '../store';
 import { CharacterSheet, Size, SizeModifiers } from '../types';
-import {
-	FEATS,
-	FeatSlot,
-	FeatType,
-} from '../../../commons/src/feats';
 
 import { EquipmentSection } from './EquipmentSection';
 import Block from './shared/Block';
 import LabeledInput from './shared/LabeledInput';
 import { StatTreeGridComponent } from './stat-tree/StatTreeGridComponent';
+import { FeatType } from '@shattered-wilds/commons';
+import { FeatsSection } from '../types/feats-section';
 
 interface FullPageCharacterSheetProps {
 	characterId: string;
@@ -165,49 +162,8 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 		}
 	};
 
-	// Get feat definition with proper handling of dynamic upbringing modifiers and parameterized feats
-	const getFeatDefinition = (featId: string) => {
-		if (featId.startsWith('upbringing-')) {
-			return getUpbringingModifierFeat(
-				sheet.race.upbringing,
-				sheet.race.upbringingPlusModifier,
-				sheet.race.upbringingMinusModifier,
-			);
-		}
-
-		// Handle parameterized feats
-		if (isParameterizedFeat(featId)) {
-			return getParameterizedFeatDefinition(featId);
-		}
-
-		return FEATS[featId] || null;
-	};
-
 	const renderFeatsSection = () => {
-		const characterLevel = sheet.level;
-		const currentFeatSlots = sheet.getFeatSlots();
-		const hasSpecializedTraining = Object.values(currentFeatSlots).includes('specialized-training');
-		const allFeatSlots = getAllFeatSlots(characterLevel, hasSpecializedTraining);
-
-		// Group feats by level
-		const featsByLevel: Record<number, Array<{ slot: FeatSlot; featId: string; isCore: boolean }>> = {};
-
-		allFeatSlots.forEach(slot => {
-			const featId = currentFeatSlots[slot.id];
-			if (featId) {
-				if (!featsByLevel[slot.level]) {
-					featsByLevel[slot.level] = [];
-				}
-				featsByLevel[slot.level].push({
-					slot,
-					featId,
-					isCore: slot.type === FeatType.Core,
-				});
-			}
-		});
-
-		// Count missing non-core feats
-		const missingFeats = allFeatSlots.filter(slot => slot.type !== FeatType.Core && !currentFeatSlots[slot.id]);
+		const { featsOrSlotsByLevel, missingFeatSlots } = new FeatsSection(sheet);
 
 		const wrap = (children: React.ReactNode) => {
 			return (
@@ -240,7 +196,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 			);
 		};
 
-		if (Object.keys(featsByLevel).length === 0) {
+		if (Object.keys(featsOrSlotsByLevel).length === 0) {
 			return wrap(
 				<>
 					<p>No feats assigned yet.</p>
@@ -251,7 +207,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 
 		return wrap(
 			<>
-				{missingFeats.length > 0 && (
+				{missingFeatSlots.length > 0 && (
 					<div
 						style={{
 							padding: '1rem',
@@ -265,79 +221,83 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 					>
 						<FaExclamationTriangle style={{ color: 'orange' }} />
 						<span style={{ color: 'var(--text)' }}>
-							{missingFeats.length} unassigned feat slot{missingFeats.length !== 1 ? 's' : ''}
+							{missingFeatSlots.length} unassigned feat slot{missingFeatSlots.length !== 1 ? 's' : ''}
 						</span>
 					</div>
 				)}
 
-				{Object.entries(featsByLevel)
-					.sort(([a], [b]) => parseInt(a) - parseInt(b))
-					.map(([level, feats]) => (
-						<div key={level}>
-							<h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: 'var(--text)' }}>Level {level}</h3>
-							<div
-								style={{
-									display: 'grid',
-									gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-									gap: '0.5rem',
-								}}
-							>
-								{feats.map((feat, index) => {
-									const featDefinition = getFeatDefinition(feat.featId);
-									return (
+				{featsOrSlotsByLevel.map(([level, feats]) => (
+					<div key={level}>
+						<h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: 'var(--text)' }}>Level {level}</h3>
+						<div
+							style={{
+								display: 'grid',
+								gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+								gap: '0.5rem',
+							}}
+						>
+							{feats.map(featOrSlot => {
+								const key = featOrSlot.slot?.toProp() ?? featOrSlot.info?.feat.key;
+								const feat = featOrSlot.info?.feat;
+								const description = feat?.description;
+
+								const type = feat?.type || featOrSlot.slot?.type;
+								const isCore = type === FeatType.Core;
+
+								return (
+									<div
+										key={key}
+										style={{
+											padding: '0.75rem',
+											border: '1px solid var(--text)',
+											borderRadius: '4px',
+											backgroundColor: isCore ? 'var(--background)' : 'var(--background-alt)',
+										}}
+									>
 										<div
-											key={index}
 											style={{
-												padding: '0.75rem',
-												border: '1px solid var(--text)',
-												borderRadius: '4px',
-												backgroundColor: feat.isCore ? 'var(--background)' : 'var(--background-alt)',
+												display: 'flex',
+												justifyContent: 'space-between',
+												alignItems: 'start',
+												marginBottom: '0.25rem',
 											}}
 										>
 											<div
 												style={{
-													display: 'flex',
-													justifyContent: 'space-between',
-													alignItems: 'start',
-													marginBottom: '0.25rem',
+													fontWeight: 'bold',
+													fontSize: '0.9rem',
+													color: 'var(--text)',
 												}}
 											>
-												<div
-													style={{
-														fontWeight: 'bold',
-														fontSize: '0.9rem',
-														color: 'var(--text)',
-													}}
-												>
-													{featDefinition?.name || feat.featId}
-												</div>
-												<div
-													style={{
-														fontSize: '0.7rem',
-														color: 'var(--text-secondary)',
-														textTransform: 'capitalize',
-													}}
-												>
-													{feat.isCore ? 'Core' : feat.slot.type}
-												</div>
+												{feat?.name ?? `-Empty Feat Slot ${featOrSlot.slot?.name}`}
 											</div>
-											{featDefinition?.description && (
-												<div
-													style={{
-														fontSize: '0.8rem',
-														color: 'var(--text-secondary)',
-														lineHeight: '1.3',
-													}}
-												>
-													{featDefinition.description}
-												</div>
-											)}
+											<div
+												style={{
+													fontSize: '0.7rem',
+													color: 'var(--text-secondary)',
+													textTransform: 'capitalize',
+												}}
+											>
+												{type}
+											</div>
 										</div>
-									);
-								})}
-							</div>
+										{description && (
+											<div
+												style={{
+													fontSize: '0.8rem',
+													color: 'var(--text-secondary)',
+													lineHeight: '1.3',
+												}}
+											>
+												{description}
+											</div>
+										)}
+									</div>
+								);
+							})}
 						</div>
-					))}
+					</div>
+				))}
 			</>,
 		);
 	};

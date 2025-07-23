@@ -8,15 +8,7 @@ import {
 	FeatDefinition,
 	FeatType,
 	FeatCategory,
-	getFeatsByType,
-	getUpbringingModifierFeat,
-	getClassSpecificFeats,
-	getAllFeatSlots,
 	FeatSlot,
-	isParameterizedFeat,
-	getParameterizedFeatDefinition,
-	createParameterizedFeat,
-	parseParameterizedFeatId,
 } from '../../../commons/src/feats';
 
 interface FeatsModalProps {

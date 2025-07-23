@@ -3,11 +3,11 @@ import { FaBatteryFull, FaExclamationTriangle, FaMinus, FaPlus } from 'react-ico
 
 import { useStore } from '../store';
 import { Character, CharacterSheet, DefenseType, DerivedStat, Equipment, Point, Size, SizeModifiers } from '../types';
-import { FeatType, getAllFeatSlots } from '../../../commons/src/feats';
 import { findNextWindowPosition } from '../utils';
 
 import { EquipmentSection } from './EquipmentSection';
 import { StatTreeToggleComponent } from './stat-tree/StatTreeToggleComponent';
+import { FeatsSection } from '../types/feats-section';
 
 interface CharacterSheetModalProps {
 	character: Character;
@@ -223,23 +223,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 		return `${size} (${modifierStr})`;
 	};
 
-	// Calculate missing feat slots
-	const getMissingFeatSlots = (): boolean => {
-		const characterLevel = sheet.level;
-		const currentFeatSlots = sheet.getFeatSlots();
-
-		// Check if character has specialized training
-		const hasSpecializedTraining = Object.values(currentFeatSlots).includes('specialized-training');
-
-		// Get all expected feat slots (including specialized training slots if applicable)
-		const allExpectedSlots = getAllFeatSlots(characterLevel, hasSpecializedTraining);
-
-		// Check if any non-core slots are missing
-		return allExpectedSlots.some(slot => {
-			if (slot.type === FeatType.Core) return false; // Skip core slots
-			return !currentFeatSlots[slot.id]; // Check if slot is empty
-		});
-	};
+	const { hasMissingFeats } = new FeatsSection(sheet);
 
 	// Create reactive basic attacks and defense that update when sheet changes
 	const basicAttacks = useMemo(() => sheet.getBasicAttacks(), [sheet]);
@@ -342,7 +326,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 								title={editMode ? 'Click to manage feats' : 'Feats (Edit mode required)'}
 							>
 								<span>Feats</span>
-								{editMode && getMissingFeatSlots() && (
+								{editMode && hasMissingFeats && (
 									<FaExclamationTriangle
 										size={12}
 										style={{ color: 'orange', marginLeft: '4px' }}
