@@ -5,7 +5,7 @@ import { Character, Window, GridState, HexPosition } from './types';
 
 type AddCharacter = (character: Character) => void;
 type UpdateCharacterName = (character: Character, newName: string) => void;
-type UpdateCharacterProp = (character: Character, prop: string, value: string) => void;
+type UpdateCharacterProp = (character: Character, prop: string, value: string | undefined) => void;
 type UpdateCharacterPos = (character: Character, pos: HexPosition) => void;
 type UpdateCharacterAutomaticMode = (character: Character, automaticMode: boolean) => void;
 type RemoveCharacter = (id: string) => void;
@@ -55,9 +55,18 @@ export const useStore = create<AppState>()(
 				})),
 			updateCharacterProp: (character, prop, value) =>
 				set(state => ({
-					characters: state.characters.map(c =>
-						c.id === character.id ? { ...c, props: { ...c.props, [prop]: value } } : c,
-					),
+					characters: state.characters.map(c => {
+						if (c.id === character.id) {
+							const updatedProps = { ...c.props };
+							if (value === undefined) {
+								delete updatedProps[prop];
+							} else {
+								updatedProps[prop] = value;
+							}
+							return { ...c, props: updatedProps };
+						}
+						return c;
+					}),
 				})),
 			updateCharacterPos: (character, pos) =>
 				set(state => ({

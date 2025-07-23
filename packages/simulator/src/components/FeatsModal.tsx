@@ -3,211 +3,65 @@ import { FaExclamationTriangle, FaChevronDown, FaChevronRight } from 'react-icon
 
 import { useStore } from '../store';
 import { Character, CharacterSheet } from '../types';
-import {
-	FEATS,
-	FeatDefinition,
-	FeatType,
-	FeatCategory,
-	FeatSlot,
-} from '../../../commons/src/feats';
+import { FEATS, FeatDefinition, Feat, FeatInfo } from '../../../commons/src/feats';
+import { FeatOrSlot, FeatsSection } from '../types/feats-section';
 
 interface FeatsModalProps {
 	character: Character;
 	onClose: () => void;
 }
 
-interface DisplaySlot {
-	slot: FeatSlot;
-	featId: string | null;
-	isCore: boolean;
-}
-
 export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) => {
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
-	const [selectedSlot, setSelectedSlot] = useState<DisplaySlot | null>(null);
-	const [selectedBaseFeat, setSelectedBaseFeat] = useState<FeatDefinition | null>(null);
-	const [parameters, setParameters] = useState<Record<string, string>>({});
-	const [parameterErrors, setParameterErrors] = useState<Set<string>>(new Set());
+	const [selectedSlot, setSelectedSlot] = useState<FeatOrSlot | null>(null);
+	const [selectedBaseFeat, setSelectedBaseFeat] = useState<FeatDefinition<any> | null>(null);
+	const [parameter, setParameter] = useState<string | null>(null);
+	const [parameterError, setParameterError] = useState<string | null>(null);
 
 	// State for nested parameterization
 	const [nestedParameterFeat, setNestedParameterFeat] = useState<{
 		parameterId: string;
 		featId: string;
-		feat: FeatDefinition;
+		feat: FeatDefinition<any>;
 	} | null>(null);
 	const [nestedParameters, setNestedParameters] = useState<Record<string, string>>({});
 	const [nestedParameterErrors, setNestedParameterErrors] = useState<Set<string>>(new Set());
 
 	const sheet = CharacterSheet.from(character.props);
-	const characterLevel = sheet.level;
 
-	// Check if character has specialized training
-	const currentFeatSlots = sheet.getFeatSlots();
-	const hasSpecializedTraining = Object.values(currentFeatSlots).includes('specialized-training');
-
-	// Get all feat slots for this character level
-	const allFeatSlots = getAllFeatSlots(characterLevel, hasSpecializedTraining);
-
-	// Get current assigned feats for each slot
-	// (Note: currentFeatSlots is already defined above)
-
-	// Generate display slots with current feat assignments
-	const generateDisplaySlots = (): DisplaySlot[] => {
-		const displaySlots: DisplaySlot[] = [];
-
-		allFeatSlots.forEach(slot => {
-			const featId = currentFeatSlots[slot.id] || null;
-			const isCore = slot.type === FeatType.Core;
-
-			// For core slots, auto-assign if not already assigned
-			if (isCore && !featId) {
-				const autoAssignedFeat = getAutoAssignedCoreFeat(slot, sheet);
-				if (autoAssignedFeat) {
-					// Auto-assign core feat
-					updateCharacterProp(character, slot.id, autoAssignedFeat);
-				}
-			}
-
-			displaySlots.push({
-				slot,
-				featId: featId || (isCore ? getAutoAssignedCoreFeat(slot, sheet) : null),
-				isCore,
-			});
-		});
-
-		return displaySlots;
-	};
-
-	// Auto-assign core feats based on slot type
-	const getAutoAssignedCoreFeat = (slot: FeatSlot, sheet: CharacterSheet): string | null => {
-		const raceCoreFeats = sheet.race.getCoreRacialFeats();
-		const classCoreFeats = sheet.characterClass.getCoreClassFeats();
-
-		switch (slot.id) {
-			case 'feat-core-race-1':
-				return raceCoreFeats[0] || null; // Racial modifiers
-			case 'feat-core-upbringing-1':
-				return `upbringing-${sheet.race.upbringing.toLowerCase()}`; // Upbringing modifiers
-			case 'feat-core-upbringing-2':
-				return raceCoreFeats[2] || null; // Specialized knowledge (skip upbringing modifier at index 1)
-			case 'feat-core-upbringing-3':
-				return raceCoreFeats[3] || null; // Upbringing specific feat
-			case 'feat-core-class-1':
-				return classCoreFeats[0] || null; // Class modifier
-			case 'feat-core-class-2':
-				return classCoreFeats[1] || null; // Role feat
-			case 'feat-core-class-3':
-				return classCoreFeats[2] || null; // Flavor feat
-			default:
-				return null;
-		}
-	};
-
-	const displaySlots = generateDisplaySlots();
-
-	// Check if a level has missing slots (for collapsed view)
-	const levelHasMissingSlots = (levelSlots: DisplaySlot[]): boolean => {
-		return levelSlots.some(slot => !slot.isCore && slot.featId === null);
-	};
-
-	// Group slots by level
-	const slotsByLevel = displaySlots.reduce(
-		(acc, displaySlot) => {
-			const level = displaySlot.slot.level;
-			if (!acc[level]) {
-				acc[level] = [];
-			}
-			acc[level].push(displaySlot);
-			return acc;
-		},
-		{} as Record<number, DisplaySlot[]>,
-	);
+	const featsSection = FeatsSection.create(sheet);
 
 	// Initialize collapsed levels - start complete levels collapsed, keep incomplete levels open
 	const [collapsedLevels, setCollapsedLevels] = useState<Set<number>>(() => {
-		const initialCollapsed = new Set<number>();
-		Object.entries(slotsByLevel).forEach(([level, slots]) => {
-			if (!levelHasMissingSlots(slots)) {
-				initialCollapsed.add(parseInt(level));
-			}
-		});
-		return initialCollapsed;
+		return new Set(featsSection.featsOrSlotsByLevel.filter(e => e.hasMissingSlots).map(e => e.level));
 	});
 
-	// Get available feats for selection
-	const getAvailableFeats = (slotType: FeatType): FeatDefinition[] => {
-		if (slotType === FeatType.Core) return [];
-
-		// For Major feat slots, include both Major and Minor feats
-		// For Minor feat slots, only include Minor feats
-		const allowedTypes = slotType === FeatType.Major ? [FeatType.Major, FeatType.Minor] : [FeatType.Minor];
-
-		const availableFeats: FeatDefinition[] = [];
-
-		// Get currently assigned feats to avoid duplicates
-		const currentlyAssignedFeats = Object.values(currentFeatSlots);
-
-		// Get class-specific feat IDs available for this character
-		const classSpecificFeatIds = getClassSpecificFeats(sheet.characterClass.characterClass);
-
-		// Add feats of allowed types
-		allowedTypes.forEach(type => {
-			const featsOfType = getFeatsByType(type).filter(feat => {
-				// Include if it's a general feat OR a class-specific feat for this character
-				const isGeneralFeat = feat.category === FeatCategory.General;
-				const isClassSpecificFeat = classSpecificFeatIds.includes(feat.id);
-
-				if (!(isGeneralFeat || isClassSpecificFeat)) {
-					return false;
-				}
-
-				// Check level requirement
-				if (feat.level && feat.level > characterLevel) {
-					return false;
-				}
-
-				// For parameterized feats that can be picked multiple times, always include them
-				if (feat.parameters && feat.canPickMultipleTimes) {
-					return true;
-				}
-
-				// For non-parameterized feats or parameterized feats that can only be picked once,
-				// check if the base feat is already assigned
-				const isBaseAlreadyAssigned = currentlyAssignedFeats.some(assignedFeat => {
-					if (isParameterizedFeat(assignedFeat)) {
-						const { baseFeatId } = parseParameterizedFeatId(assignedFeat);
-						return baseFeatId === feat.id;
-					}
-					return assignedFeat === feat.id;
-				});
-
-				return !isBaseAlreadyAssigned;
-			});
-			availableFeats.push(...featsOfType);
-		});
-
-		return availableFeats;
-	};
-
 	// Handle feat selection
-	const handleFeatSelect = (displaySlot: DisplaySlot, featId: string | null) => {
-		if (!featId) {
+	const handleFeatSelect = (featOrSlot: FeatOrSlot, feat: Feat | null) => {
+		const slot = featOrSlot.slot;
+		if (!slot) {
+			return;
+		}
+		const slotKey = slot.toProp();
+
+		if (!feat) {
 			// Clear slot
-			updateCharacterProp(character, displaySlot.slot.id, '');
+			updateCharacterProp(character, slotKey, undefined);
 			setSelectedSlot(null);
 			return;
 		}
 
-		const feat = FEATS[featId];
-		if (feat?.parameters && feat.parameters.length > 0) {
+		const featDef = FEATS[feat];
+		if (featDef?.parameter) {
 			// This feat requires parameters - show parameter selection
-			setSelectedBaseFeat(feat);
-			setParameters({});
-			setParameterErrors(new Set());
+			setSelectedBaseFeat(featDef);
+			setParameter(null);
+			setParameterError(null);
 			// Don't close the modal yet - wait for parameter selection
 		} else {
-			// Regular feat - assign directly
-			updateCharacterProp(character, displaySlot.slot.id, featId);
+			const info = FeatInfo.hydrateFeatDefinition(featDef, {});
+			const [key, value] = info.toProp()!;
+			updateCharacterProp(character, key, value);
 			setSelectedSlot(null);
 		}
 	};
@@ -217,46 +71,40 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 		if (!selectedBaseFeat || !selectedSlot) return;
 
 		// Validate all required parameters are filled
-		const missingParameters = selectedBaseFeat.parameters?.filter(param => param.required && !parameters[param.id]);
+		const missingParameter = !selectedBaseFeat.parameter;
 
-		if (missingParameters && missingParameters.length > 0) {
+		if (missingParameter) {
 			// Set error state for missing parameters
-			const newErrors = new Set(missingParameters.map(param => param.id));
-			setParameterErrors(newErrors);
+			setParameterError(`Missing required parameters for ${selectedBaseFeat.name}`);
 			return;
 		}
 
 		// Clear any previous errors
-		setParameterErrors(new Set());
+		setParameterError(undefined);
 
 		// Create the parameterized feat instance
-		const parameterizedFeat = createParameterizedFeat(selectedBaseFeat.id, parameters);
+		const info = FeatInfo.hydrateFeatDefinition(
+			selectedBaseFeat,
+			{
+				[selectedBaseFeat.parameter!.id]: parameter,
+			},
+		);
 
 		// Update the slot with the parameterized feat ID
-		updateCharacterProp(character, selectedSlot.slot.id, parameterizedFeat.fullId);
+		const [key, value] = info.toProp()!;
+		updateCharacterProp(character, key, value);
 
 		// Close modals
 		setSelectedSlot(null);
 		setSelectedBaseFeat(null);
-		setParameters({});
-		setParameterErrors(new Set());
+		setParameter(null);
+		setParameterError(null);
 	};
 
 	// Handle parameter value change
-	const handleParameterChange = (parameterId: string, value: string) => {
-		setParameters(prev => ({
-			...prev,
-			[parameterId]: value,
-		}));
-
-		// Clear error for this parameter when user starts typing/selecting
-		if (parameterErrors.has(parameterId)) {
-			setParameterErrors(prev => {
-				const newErrors = new Set(prev);
-				newErrors.delete(parameterId);
-				return newErrors;
-			});
-		}
+	const handleParameterChange = (value: string) => {
+		setParameter(value);
+		setParameterError(null);
 
 		// Check if this parameter is a feat that needs further configuration
 		const feat = FEATS[value];

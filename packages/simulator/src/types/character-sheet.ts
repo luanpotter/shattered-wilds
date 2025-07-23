@@ -23,7 +23,6 @@ import {
 
 import { DerivedStat, BasicAttack, DefenseType } from './core';
 import { Equipment, Armor, Shield, Weapon } from './equipment';
-import { hydrateFeatDefinitions } from '../../../commons/src/feats';
 
 export class RaceInfo {
 	primaryRace: Race;
@@ -80,7 +79,7 @@ export class RaceInfo {
 			'upbringing-favored-modifier': this.upbringingPlusModifier,
 			'upbringing-disfavored-modifier': this.upbringingMinusModifier,
 		};
-		return hydrateFeatDefinitions(racialFeats, parameters);
+		return FeatInfo.hydrateFeatDefinitions(racialFeats, parameters);
 	}
 
 	toString(): string {
@@ -114,7 +113,7 @@ export class ClassInfo {
 		const parameters = {
 			'class-role': classDefinition.role,
 		};
-		return hydrateFeatDefinitions(classFeats, parameters);
+		return FeatInfo.hydrateFeatDefinitions(classFeats, parameters);
 	}
 
 	toString(): string {
@@ -237,10 +236,7 @@ export class CurrentValues {
 export class CharacterFeats {
 	featInfos: FeatInfo<any>[];
 
-	constructor(
-		coreFeats: FeatInfo<any>[],
-		feats: FeatInfo<any>[],
-	) {
+	constructor(coreFeats: FeatInfo<any>[], feats: FeatInfo<any>[]) {
 		this.featInfos = [...coreFeats, ...feats];
 	}
 
@@ -283,50 +279,17 @@ export class CharacterFeats {
 	toProps(): Record<string, string> {
 		return Object.fromEntries(
 			this.getSlottedFeats()
-				.map(info => {
-					const key = info.slot!.toProp();
-					const value = CharacterFeats.encodeFeatValue(info);
-					return [key, value];
-				}),
+				.map(info => info.toProp())
+				.filter(e => e !== undefined),
 		);
 	}
 
-	static from(
-		props: Record<string, string>,
-		race: RaceInfo,
-		characterClass: ClassInfo,
-	): CharacterFeats {
-		const coreFeats = [
-			...race.getCoreFeats(),
-			...characterClass.getCoreFeats(),
-		];
+	static from(props: Record<string, string>, race: RaceInfo, characterClass: ClassInfo): CharacterFeats {
+		const coreFeats = [...race.getCoreFeats(), ...characterClass.getCoreFeats()];
 		const feats = Object.entries(props)
 			.filter(([key]) => key.startsWith('feat.'))
-			.map(([key, value]) => {
-				const slot = FeatSlot.fromProp(key);
-				const [feat, parameter] = CharacterFeats.decodeFeatValue(value);
-				return {
-					feat: FEATS[feat],
-					slot: slot,
-					parameter: parameter,
-				};
-			});
+			.map((prop) => FeatInfo.fromProp(prop));
 		return new CharacterFeats(coreFeats, feats);
-	}
-
-	private static encodeFeatValue(info: FeatInfo<any>): string {
-		if (info.parameter) {
-			return `${info.feat.key}#${info.parameter}`;
-		} else {
-			return info.feat.key;
-		}
-	}
-
-	private static decodeFeatValue(value: string): [Feat, string | null] {
-		if (!value.includes('#')) {
-			return [value as Feat, null];
-		}
-		return value.split('#') as [Feat, string];
 	}
 }
 

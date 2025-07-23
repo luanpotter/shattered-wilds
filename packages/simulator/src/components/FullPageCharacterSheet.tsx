@@ -163,7 +163,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 	};
 
 	const renderFeatsSection = () => {
-		const { featsOrSlotsByLevel, missingFeatSlots } = new FeatsSection(sheet);
+		const section = FeatsSection.create(sheet);
 
 		const wrap = (children: React.ReactNode) => {
 			return (
@@ -196,7 +196,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 			);
 		};
 
-		if (Object.keys(featsOrSlotsByLevel).length === 0) {
+		if (section.isEmpty) {
 			return wrap(
 				<>
 					<p>No feats assigned yet.</p>
@@ -205,9 +205,10 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 			);
 		}
 
+		const missingSlots = section.countMissingSlots();
 		return wrap(
 			<>
-				{missingFeatSlots.length > 0 && (
+				{missingSlots > 0 && (
 					<div
 						style={{
 							padding: '1rem',
@@ -221,12 +222,12 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 					>
 						<FaExclamationTriangle style={{ color: 'orange' }} />
 						<span style={{ color: 'var(--text)' }}>
-							{missingFeatSlots.length} unassigned feat slot{missingFeatSlots.length !== 1 ? 's' : ''}
+							{missingSlots} unassigned feat slot{missingSlots !== 1 ? 's' : ''}
 						</span>
 					</div>
 				)}
 
-				{featsOrSlotsByLevel.map(([level, feats]) => (
+				{section.featsOrSlotsByLevel.map(({ level, featsOrSlots }) => (
 					<div key={level}>
 						<h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: 'var(--text)' }}>Level {level}</h3>
 						<div
@@ -236,7 +237,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 								gap: '0.5rem',
 							}}
 						>
-							{feats.map(featOrSlot => {
+							{featsOrSlots.map(featOrSlot => {
 								const key = featOrSlot.slot?.toProp() ?? featOrSlot.info?.feat.key;
 								const feat = featOrSlot.info?.feat;
 								const description = feat?.description;

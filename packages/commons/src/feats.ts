@@ -50,29 +50,81 @@ export interface FeatParameter<T extends string | void> {
 	values: T[];
 }
 
-export interface FeatInfo<T extends string | void> {
+export class FeatInfo<T extends string | void> {
 	feat: FeatDefinition<T>;
-	slot?: FeatSlot;
+	slot: FeatSlot | undefined;
 	parameter: T;
-}
 
-export const hydrateFeatDefinitions = (
-	defs: FeatDefinition<any>[],
-	parameters: Record<string, any>,
-): FeatInfo<any>[] => {
-	return defs.map(def => {
+	constructor(feat: FeatDefinition<T>, slot: FeatSlot | undefined, parameter: T) {
+		this.feat = feat;
+		this.slot = slot;
+		this.parameter = parameter;
+	}
+
+	toProp(): [string, string] | undefined {
+		const slot = this.slot;
+		if (!slot) {
+			return undefined; // core feat - no need to save it
+		}
+		return [slot.toProp(), this.encodeValue()];
+	}
+
+	private encodeValue(): string {
+		if (this.parameter) {
+			return `${this.feat.key}#${this.parameter}`;
+		} else {
+			return this.feat.key;
+		}
+	}
+
+	static fromProp([key, value]: [string, string]): FeatInfo<any> {
+		const slot = FeatSlot.fromProp(key);
+		const [feat, parameter] = this.decodeFeatValue(value);
+		const def = FEATS[feat];
+		return new FeatInfo(def, slot, parameter);
+	}
+
+	static build<T extends string | void>({
+		feat,
+		slot,
+		parameter,
+	}: {
+		feat: FeatDefinition<T>;
+		slot: FeatSlot | undefined;
+		parameter: T;
+	}): FeatInfo<T> {
+		return new FeatInfo(feat, slot, parameter);
+	}
+
+	private static decodeFeatValue(value: string): [Feat, string | null] {
+		if (!value.includes('#')) {
+			return [value as Feat, null];
+		}
+		return value.split('#') as [Feat, string];
+	}
+
+	private static parseParameter = (def: FeatDefinition<any>, parameters: Record<string, any>) => {
 		const parameterType = def.parameter?.id;
 		if (parameterType) {
 			const parameterValue = parameters[parameterType];
 			if (parameterValue === undefined) {
 				throw new Error(`Parameter value for ${parameterType} is not defined`);
 			}
-			return { feat: def, parameter: parameterValue };
+			return parameterValue;
 		} else {
-			return { feat: def, parameter: null };
+			return undefined;
 		}
-	});
-};
+	};
+
+	static hydrateFeatDefinition = (def: FeatDefinition<any>, parameters: Record<string, any>): FeatInfo<any> => {
+		const parameter = FeatInfo.parseParameter(def, parameters);
+		return FeatInfo.build({ feat: def, slot: undefined, parameter });
+	};
+
+	static hydrateFeatDefinitions = (defs: FeatDefinition<any>[], parameters: Record<string, any>): FeatInfo<any>[] => {
+		return defs.map(def => FeatInfo.hydrateFeatDefinition(def, parameters));
+	};
+}
 
 const mindAttributes = [StatTypeName.INT, StatTypeName.WIS, StatTypeName.CHA];
 type MindAttributes = (typeof mindAttributes)[number];
