@@ -3,8 +3,8 @@ import { FaExclamationTriangle, FaChevronDown, FaChevronRight } from 'react-icon
 
 import { useStore } from '../store';
 import { Character, CharacterSheet } from '../types';
-import { FEATS, FeatDefinition, Feat, FeatInfo } from '../../../commons/src/feats';
 import { FeatOrSlot, FeatsSection } from '../types/feats-section';
+import { Feat, FeatDefinition, FeatInfo, FEATS } from '@shattered-wilds/commons';
 
 interface FeatsModalProps {
 	character: Character;
@@ -17,15 +17,6 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 	const [selectedBaseFeat, setSelectedBaseFeat] = useState<FeatDefinition<any> | null>(null);
 	const [parameter, setParameter] = useState<string | null>(null);
 	const [parameterError, setParameterError] = useState<string | null>(null);
-
-	// State for nested parameterization
-	const [nestedParameterFeat, setNestedParameterFeat] = useState<{
-		parameterId: string;
-		featId: string;
-		feat: FeatDefinition<any>;
-	} | null>(null);
-	const [nestedParameters, setNestedParameters] = useState<Record<string, string>>({});
-	const [nestedParameterErrors, setNestedParameterErrors] = useState<Set<string>>(new Set());
 
 	const sheet = CharacterSheet.from(character.props);
 
@@ -80,7 +71,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 		}
 
 		// Clear any previous errors
-		setParameterError(undefined);
+		setParameterError(null);
 
 		// Create the parameterized feat instance
 		const info = FeatInfo.hydrateFeatDefinition(
@@ -105,88 +96,6 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 	const handleParameterChange = (value: string) => {
 		setParameter(value);
 		setParameterError(null);
-
-		// Check if this parameter is a feat that needs further configuration
-		const feat = FEATS[value];
-		if (feat && feat.parameters && feat.parameters.length > 0) {
-			// This is a parameterized feat - show nested configuration
-			setNestedParameterFeat({
-				parameterId,
-				featId: value,
-				feat,
-			});
-			setNestedParameters({});
-			setNestedParameterErrors(new Set());
-		}
-	};
-
-	// Handle nested parameter change
-	const handleNestedParameterChange = (parameterId: string, value: string) => {
-		setNestedParameters(prev => ({
-			...prev,
-			[parameterId]: value,
-		}));
-
-		// Clear error for this parameter when user starts typing/selecting
-		if (nestedParameterErrors.has(parameterId)) {
-			setNestedParameterErrors(prev => {
-				const newErrors = new Set(prev);
-				newErrors.delete(parameterId);
-				return newErrors;
-			});
-		}
-	};
-
-	// Handle nested parameter confirmation
-	const handleNestedParameterConfirm = () => {
-		if (!nestedParameterFeat) return;
-
-		// Validate nested parameters
-		const missingNestedParameters = nestedParameterFeat.feat.parameters?.filter(
-			param => param.required && !nestedParameters[param.id],
-		);
-
-		if (missingNestedParameters && missingNestedParameters.length > 0) {
-			// Set error state for missing nested parameters
-			const newErrors = new Set(missingNestedParameters.map(param => param.id));
-			setNestedParameterErrors(newErrors);
-			return;
-		}
-
-		// Clear any previous errors
-		setNestedParameterErrors(new Set());
-
-		// Create the parameterized feat instance
-		const parameterizedFeat = createParameterizedFeat(nestedParameterFeat.featId, nestedParameters);
-
-		// Update the main parameter with the parameterized feat ID
-		setParameters(prev => ({
-			...prev,
-			[nestedParameterFeat.parameterId]: parameterizedFeat.fullId,
-		}));
-
-		// Close nested parameter modal
-		setNestedParameterFeat(null);
-		setNestedParameters({});
-		setNestedParameterErrors(new Set());
-	};
-
-	// Get feat definition with proper handling of dynamic upbringing modifiers and parameterized feats
-	const getFeatDefinition = (featId: string): FeatDefinition | null => {
-		if (featId.startsWith('upbringing-')) {
-			return getUpbringingModifierFeat(
-				sheet.race.upbringing,
-				sheet.race.upbringingPlusModifier,
-				sheet.race.upbringingMinusModifier,
-			);
-		}
-
-		// Handle parameterized feats
-		if (isParameterizedFeat(featId)) {
-			return getParameterizedFeatDefinition(featId);
-		}
-
-		return FEATS[featId] || null;
 	};
 
 	// Toggle level collapse
@@ -222,18 +131,16 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 					width: '650px',
 				}}
 			>
-				{Object.entries(slotsByLevel)
-					.sort(([a], [b]) => parseInt(a) - parseInt(b))
-					.map(([level, slots]) => {
-						const isCollapsed = collapsedLevels.has(parseInt(level));
-						const hasMissingSlots = levelHasMissingSlots(slots);
+				{featsSection.featsOrSlotsByLevel
+					.map(({ level, featsOrSlots, hasMissingSlots }) => {
+						const isCollapsed = collapsedLevels.has(level);
 
 						return (
 							<div
 								key={level}
 								style={{
 									borderBottom: '1px solid var(--text)',
-									backgroundColor: level === '0' ? 'var(--background-alt)' : 'var(--background)',
+									backgroundColor: level === 0 ? 'var(--background-alt)' : 'var(--background)',
 								}}
 							>
 								{/* Level Header - Clickable */}
@@ -246,10 +153,10 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 										justifyContent: 'space-between',
 										borderBottom: isCollapsed ? 'none' : '1px solid var(--text-secondary)',
 									}}
-									onClick={() => toggleLevelCollapse(parseInt(level))}
+									onClick={() => toggleLevelCollapse(level)}
 									onKeyDown={e => {
 										if (e.key === 'Enter' || e.key === ' ') {
-											toggleLevelCollapse(parseInt(level));
+											toggleLevelCollapse(level);
 										}
 									}}
 									tabIndex={0}
@@ -268,7 +175,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 										)}
 									</div>
 									<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>
-										{slots.length} feat{slots.length !== 1 ? 's' : ''}
+										{featsOrSlots.length} feat{featsOrSlots.length !== 1 ? 's' : ''}
 									</div>
 								</div>
 
@@ -284,23 +191,29 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 												boxSizing: 'border-box',
 											}}
 										>
-											{slots.map((displaySlot, index) => {
-												const feat = displaySlot.featId ? getFeatDefinition(displaySlot.featId) : null;
-												const hasSlot = displaySlot.featId !== null;
-												const isEmpty = !hasSlot && !displaySlot.isCore;
+											{featsOrSlots.map((featOrSlot) => {
+												const feat = featOrSlot.info?.feat;
+												const hasParameter = feat?.parameter !== undefined;
+
+												const hasSlot = featOrSlot.slot !== undefined;
+												const isEmpty = !hasSlot && !featOrSlot.isCore;
+
+												const slotType = featOrSlot.info?.feat?.type ?? featOrSlot.slot?.type;
+												const isCore = slotType === FeatType.Core;
 
 												// Allow clicking on core slots if they contain parameterized feats
-												const isClickable =
-													!displaySlot.isCore || (feat && feat.parameters && feat.parameters.length > 0);
+												const isClickable = !isCore || (feat?.hasParameter === true);
+
+												const key = featOrSlot.slot?.toProp() || featOrSlot.info?.feat.key;
 
 												return (
 													<div
-														key={index}
+														key={key}
 														style={{
 															padding: '8px',
 															border: `1px solid ${isEmpty ? 'orange' : 'var(--text)'}`,
 															borderRadius: '4px',
-															backgroundColor: displaySlot.isCore ? 'var(--background-alt)' : 'var(--background)',
+															backgroundColor: isCore ? 'var(--background-alt)' : 'var(--background)',
 															cursor: isClickable ? 'pointer' : 'default',
 															minHeight: '80px',
 															display: 'flex',
@@ -310,7 +223,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 														onClick={() => {
 															if (isClickable) {
 																// For parameterized core feats, directly open parameter modal
-																if (displaySlot.isCore && feat && feat.parameters && feat.parameters.length > 0) {
+																if (isCore && feat && hasParameter) {
 																	setSelectedBaseFeat(feat);
 
 																	// If it's already parameterized, extract existing parameters
