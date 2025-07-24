@@ -108,7 +108,7 @@ export class FeatInfo<T extends string | void> {
 		if (parameterType) {
 			const parameterValue = parameters[parameterType];
 			if (parameterValue === undefined) {
-				throw new Error(`Parameter value for ${parameterType} is not defined`);
+				throw new Error(`Parameter value for ${parameterType} is not defined for feat ${def.key}.`);
 			}
 			return parameterValue;
 		} else {

@@ -19,6 +19,8 @@ import {
 	generateModifierBonusString,
 	FeatSlot,
 	Feat,
+	FeatSource,
+	StaticFeatSource,
 } from '@shattered-wilds/commons';
 
 import { DerivedStat, BasicAttack, DefenseType } from './core';
@@ -66,12 +68,17 @@ export class RaceInfo {
 		);
 	}
 
+	private getRacialFeatSources(): FeatSource[] {
+		return [StaticFeatSource.Race, StaticFeatSource.Upbringing, this.primaryRace, this.upbringing];
+	}
+
 	// Get the core feats that should be assigned to this race/upbringing combination
 	getCoreFeats(): FeatInfo<string | void>[] {
 		const racialFeatCategories = [FeatCategory.Racial, FeatCategory.Upbringing];
-		const racialFeats = Object.values(FEATS).filter(
-			feat => feat.type === FeatType.Core && racialFeatCategories.includes(feat.category),
-		);
+		const racialFeatSources = this.getRacialFeatSources();
+		const racialFeats = Object.values(FEATS)
+			.filter(feat => feat.type === FeatType.Core && racialFeatCategories.includes(feat.category))
+			.filter(feat => racialFeatSources.includes(feat.source));
 
 		const parameters = {
 			race: this.primaryRace,
@@ -103,15 +110,22 @@ export class ClassInfo {
 		return new ClassInfo(characterClass);
 	}
 
+	private getClassFeatSources(): FeatSource[] {
+		const classDefinition = CLASS_DEFINITIONS[this.characterClass];
+		return [StaticFeatSource.Class, classDefinition.realm, classDefinition.role, classDefinition.flavor];
+	}
+
 	getCoreFeats(): FeatInfo<string | void>[] {
 		const classFeatCategories = [FeatCategory.ClassFlavor, FeatCategory.ClassRole];
-		const classFeats = Object.values(FEATS).filter(
-			feat => feat.type === FeatType.Core && classFeatCategories.includes(feat.category),
-		);
+		const classFeatSources = this.getClassFeatSources();
+		const classFeats = Object.values(FEATS)
+			.filter(feat => feat.type === FeatType.Core && classFeatCategories.includes(feat.category))
+			.filter(feat => classFeatSources.includes(feat.source));
 
 		const classDefinition = CLASS_DEFINITIONS[this.characterClass];
 		const parameters = {
 			'class-role': classDefinition.role,
+			stat: classDefinition.primaryAttribute.name,
 		};
 		return FeatInfo.hydrateFeatDefinitions(classFeats, parameters);
 	}
