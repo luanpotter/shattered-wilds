@@ -69,9 +69,10 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 		setParameterError(null);
 
 		// Create the parameterized feat instance
-		const info = FeatInfo.hydrateFeatDefinition(selectedBaseFeat, {
-			[selectedBaseFeat.parameter!.id]: parameter,
-		});
+		const info = FeatInfo.hydrateFeatDefinition(
+			selectedBaseFeat,
+			parameter ? { [selectedBaseFeat.parameter!.id]: parameter } : {},
+		);
 
 		// Update the slot with the parameterized feat ID
 		const [key, value] = info.toProp()!;

@@ -76,8 +76,8 @@ export class RaceInfo {
 		const parameters = {
 			race: this.primaryRace,
 			upbringing: this.upbringing,
-			'upbringing-favored-modifier': this.upbringingPlusModifier,
-			'upbringing-disfavored-modifier': this.upbringingMinusModifier,
+			'upbringing-favored-modifier': this.upbringingPlusModifier.name,
+			'upbringing-disfavored-modifier': this.upbringingMinusModifier.name,
 		};
 		return FeatInfo.hydrateFeatDefinitions(racialFeats, parameters);
 	}

@@ -1,6 +1,6 @@
-import { CLASS_ROLE_PRIMARY_ATTRIBUTE, ClassFlavor, ClassRealm, ClassRole } from './classes';
+import { CLASS_ROLE_PRIMARY_ATTRIBUTE, ClassFlavor, ClassRealm, ClassRole } from './classes.js';
 import { Race, RACE_DEFINITIONS, Upbringing } from './races.js';
-import { StatType, StatTypeName } from './stats/stat-type';
+import { StatType, StatTypeName } from './stats/stat-type.js';
 
 export enum FeatType {
 	Core = 'Core',
@@ -116,12 +116,18 @@ export class FeatInfo<T extends string | void> {
 		}
 	};
 
-	static hydrateFeatDefinition = (def: FeatDefinition<string | void>, parameters: Record<string, string>): FeatInfo<string | void> => {
+	static hydrateFeatDefinition = (
+		def: FeatDefinition<string | void>,
+		parameters: Record<string, string>,
+	): FeatInfo<string | void> => {
 		const parameter = FeatInfo.parseParameter(def, parameters);
 		return FeatInfo.build({ feat: def, slot: undefined, parameter });
 	};
 
-	static hydrateFeatDefinitions = (defs: FeatDefinition<string | void>[], parameters: Record<string, string>): FeatInfo<string | void>[] => {
+	static hydrateFeatDefinitions = (
+		defs: FeatDefinition<string | void>[],
+		parameters: Record<string, string>,
+	): FeatInfo<string | void>[] => {
 		return defs.map(def => FeatInfo.hydrateFeatDefinition(def, parameters));
 	};
 }
