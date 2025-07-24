@@ -6,6 +6,8 @@ import { useStore } from '../store';
 import { Character, CharacterSheet } from '../types';
 import { FeatsSection } from '../types/feats-section';
 
+import { RichText } from './shared/RichText';
+
 interface FeatsModalProps {
 	character: Character;
 	onClose: () => void;
@@ -301,7 +303,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 																	lineHeight: '1.3',
 																}}
 															>
-																{info.description}
+																<RichText>{info.description}</RichText>
 															</div>
 														</div>
 													) : (
@@ -397,7 +399,9 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 									aria-label={`Select ${feat.name} feat`}
 								>
 									<div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{feat.name}</div>
-									<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)' }}>{feat.description}</div>
+									<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)' }}>
+										<RichText>{feat.description}</RichText>
+									</div>
 								</div>
 							))}
 						</div>

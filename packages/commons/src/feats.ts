@@ -41,6 +41,7 @@ export interface FeatDefinition<T extends string | void> {
 	level: number;
 	description: string;
 	parameter?: FeatParameter<T>;
+	fullDescription?: (info: FeatInfo<T>) => string;
 	effects?: (info: FeatInfo<T>) => FeatEffect[];
 }
 
@@ -62,11 +63,14 @@ export class FeatInfo<T extends string | void> {
 	}
 
 	get name(): string {
+		if (this.parameter) {
+			return `${this.feat.name} (${this.parameter})`;
+		}
 		return this.feat.name;
 	}
 
 	get description(): string {
-		return this.feat.description;
+		return this.feat?.fullDescription?.(this) ?? this.feat.description;
 	}
 
 	toProp(): [string, string] | undefined {
@@ -231,6 +235,10 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 			name: 'Class Role',
 			values: Object.values(ClassRole),
 		},
+		fullDescription: info => {
+			const primaryAttribute = CLASS_ROLE_PRIMARY_ATTRIBUTE[info.parameter];
+			return `Class Specialization: +1 ${primaryAttribute}.`;
+		},
 		effects: info => {
 			const primaryAttribute = CLASS_ROLE_PRIMARY_ATTRIBUTE[info.parameter];
 			return [new FeatStatModifier(primaryAttribute, 1)];
@@ -250,6 +258,14 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 			name: 'Race',
 			values: Object.values(Race),
 		},
+		fullDescription: info => {
+			const raceDefinition = RACE_DEFINITIONS[info.parameter];
+			const modifiers = raceDefinition.modifiers.map(e => `${e.stat}: ${e.value > 0 ? '+' : ''}${e.value}`).join(' / ');
+			if (!modifiers) {
+				return `Racial Modifiers for ${raceDefinition.name}: Neutral.`;
+			}
+			return `Racial Modifiers for ${raceDefinition.name}: ${modifiers}.`;
+		},
 		effects: info => {
 			const raceDefinition = RACE_DEFINITIONS[info.parameter];
 			return raceDefinition.modifiers.map(e => new FeatStatModifier(e.stat, e.value));
@@ -268,6 +284,10 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 			name: 'Upbringing Favored Modifier',
 			values: mindOrSoulAttributes,
 		},
+		fullDescription: info => {
+			const statName = info.parameter;
+			return `Upbringing Favored Modifier: +1 ${statName}.`;
+		},
 		effects: info => {
 			const statName = info.parameter;
 			return [new FeatStatModifier(StatType.fromName(statName), 1)];
@@ -285,6 +305,10 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 			id: 'upbringing-disfavored-modifier',
 			name: 'Upbringing Disfavored Modifier',
 			values: mindOrSoulAttributes,
+		},
+		fullDescription: info => {
+			const statName = info.parameter;
+			return `Upbringing Disfavored Modifier: -1 ${statName}.`;
 		},
 		effects: info => {
 			const stat = info.parameter;
