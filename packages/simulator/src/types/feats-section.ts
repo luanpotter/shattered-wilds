@@ -75,7 +75,7 @@ export class FeatsSection {
 		);
 
 		const featsOrSlotsByLevel: FeatsLevelSection[] = [];
-		for (let level = 1; level <= maxLevel; level++) {
+		for (let level = 0; level <= maxLevel; level++) {
 			const slottedFeatsForLevel = slottedFeats.filter(feat => feat.slot!.level === level);
 			const slottedSlots = slottedFeatsForLevel.map(feat => feat.slot!).map(slot => slot.toProp());
 			const missingSlots = currentFeatSlots

@@ -61,6 +61,14 @@ export class FeatInfo<T extends string | void> {
 		this.parameter = parameter;
 	}
 
+	get name(): string {
+		return this.feat.name;
+	}
+
+	get description(): string {
+		return this.feat.description;
+	}
+
 	toProp(): [string, string] | undefined {
 		const slot = this.slot;
 		if (!slot) {

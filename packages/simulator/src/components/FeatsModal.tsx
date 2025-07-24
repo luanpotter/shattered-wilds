@@ -223,18 +223,18 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 										}}
 									>
 										{featsOrSlots.map(featOrSlot => {
-											const feat = featOrSlot.info?.feat;
+											const info = featOrSlot.info;
 											const slot = featOrSlot.slot;
 
-											const hasParameter = feat?.parameter !== undefined;
-											const slotType = feat?.type ?? slot?.type;
+											const hasParameter = info?.parameter !== undefined;
+											const slotType = info?.feat?.type ?? slot?.type;
 											const isCore = slotType === FeatType.Core;
 
 											const hasSlot = slot !== undefined;
 											const isEmpty = !hasSlot && !isCore;
 											const isClickable = !isCore && hasParameter;
 
-											const key = slot?.toProp() || feat?.key;
+											const key = slot?.toProp() || info?.feat?.key;
 
 											const handleOpen = () => {
 												if (featOrSlot.slot && isClickable) {
@@ -275,14 +275,14 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 														}}
 													>
 														<div style={{ fontSize: '0.75em', color: 'var(--text-secondary)' }}>
-															{feat?.name ?? slot?.name}
+															{slot?.name ?? `Core ${info?.feat?.category} Feat`}
 														</div>
 														{isEmpty && (
 															<FaExclamationTriangle size={10} style={{ color: 'orange' }} title='Empty feat slot' />
 														)}
 													</div>
 
-													{feat ? (
+													{info ? (
 														<div style={{ flex: 1 }}>
 															<div
 																style={{
@@ -292,7 +292,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 																	lineHeight: '1.2',
 																}}
 															>
-																{feat.name}
+																{info.name}
 															</div>
 															<div
 																style={{
@@ -301,7 +301,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 																	lineHeight: '1.3',
 																}}
 															>
-																{feat.description}
+																{info.description}
 															</div>
 														</div>
 													) : (
