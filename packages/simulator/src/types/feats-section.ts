@@ -1,4 +1,5 @@
-import { FeatInfo, FeatSlot } from '@shattered-wilds/commons';
+import { FeatDefinition, FeatInfo, FEATS, FeatSlot } from '@shattered-wilds/commons';
+
 import { CharacterSheet } from './character-sheet';
 
 // each "card" we want to show in the feats section; either:
@@ -6,7 +7,7 @@ import { CharacterSheet } from './character-sheet';
 // - a slotted feat (which has a slot)
 // - a feat slot (which has no info, just a slot)
 export interface FeatOrSlot {
-	info?: FeatInfo<any>;
+	info?: FeatInfo<string | void>;
 	slot?: FeatSlot;
 }
 
@@ -45,6 +46,22 @@ export class FeatsSection {
 
 	get isEmpty(): boolean {
 		return this.featsOrSlotsByLevel.length === 0;
+	}
+
+	hasFeat(feat: FeatDefinition<string | void>): boolean {
+		return this.featsOrSlotsByLevel.some(section =>
+			section.featsOrSlots.some(featOrSlot => featOrSlot.info?.feat?.key === feat.key),
+		);
+	}
+
+	availableFeatsForSlot(slot: FeatSlot): FeatDefinition<string | void>[] {
+		return (
+			Object.values(FEATS)
+				// fits the slot
+				.filter(feat => feat.level === slot.level && feat.type === slot.type)
+				// not already slotted
+				.filter(feat => feat.parameter || !this.hasFeat(feat))
+		);
 	}
 
 	static create = (sheet: CharacterSheet): FeatsSection => {

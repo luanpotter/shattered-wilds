@@ -77,7 +77,7 @@ export class FeatInfo<T extends string | void> {
 		}
 	}
 
-	static fromProp([key, value]: [string, string]): FeatInfo<any> {
+	static fromProp([key, value]: [string, string]): FeatInfo<string | void> {
 		const slot = FeatSlot.fromProp(key);
 		const [feat, parameter] = this.decodeFeatValue(value);
 		const def = FEATS[feat];
@@ -103,7 +103,7 @@ export class FeatInfo<T extends string | void> {
 		return value.split('#') as [Feat, string];
 	}
 
-	private static parseParameter = (def: FeatDefinition<any>, parameters: Record<string, any>) => {
+	private static parseParameter = (def: FeatDefinition<string | void>, parameters: Record<string, string>) => {
 		const parameterType = def.parameter?.id;
 		if (parameterType) {
 			const parameterValue = parameters[parameterType];
@@ -116,12 +116,12 @@ export class FeatInfo<T extends string | void> {
 		}
 	};
 
-	static hydrateFeatDefinition = (def: FeatDefinition<any>, parameters: Record<string, any>): FeatInfo<any> => {
+	static hydrateFeatDefinition = (def: FeatDefinition<string | void>, parameters: Record<string, string>): FeatInfo<string | void> => {
 		const parameter = FeatInfo.parseParameter(def, parameters);
 		return FeatInfo.build({ feat: def, slot: undefined, parameter });
 	};
 
-	static hydrateFeatDefinitions = (defs: FeatDefinition<any>[], parameters: Record<string, any>): FeatInfo<any>[] => {
+	static hydrateFeatDefinitions = (defs: FeatDefinition<string | void>[], parameters: Record<string, string>): FeatInfo<string | void>[] => {
 		return defs.map(def => FeatInfo.hydrateFeatDefinition(def, parameters));
 	};
 }

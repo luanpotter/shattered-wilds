@@ -1,15 +1,15 @@
+import { FeatType } from '@shattered-wilds/commons';
 import React, { useMemo } from 'react';
 import { FaArrowLeft, FaBatteryFull, FaCog, FaCopy, FaExclamationTriangle, FaMinus, FaPlus } from 'react-icons/fa';
 
 import { useStore } from '../store';
 import { CharacterSheet, Size, SizeModifiers } from '../types';
+import { FeatsSection } from '../types/feats-section';
 
 import { EquipmentSection } from './EquipmentSection';
 import Block from './shared/Block';
 import LabeledInput from './shared/LabeledInput';
 import { StatTreeGridComponent } from './stat-tree/StatTreeGridComponent';
-import { FeatType } from '@shattered-wilds/commons';
-import { FeatsSection } from '../types/feats-section';
 
 interface FullPageCharacterSheetProps {
 	characterId: string;

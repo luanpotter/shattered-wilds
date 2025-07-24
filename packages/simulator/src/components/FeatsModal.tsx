@@ -1,10 +1,10 @@
+import { FeatDefinition, FeatInfo, FeatParameter, FeatSlot, FeatType } from '@shattered-wilds/commons';
 import React, { useState } from 'react';
-import { FaExclamationTriangle, FaChevronDown, FaChevronRight } from 'react-icons/fa';
+import { FaChevronDown, FaChevronRight, FaExclamationTriangle } from 'react-icons/fa';
 
 import { useStore } from '../store';
 import { Character, CharacterSheet } from '../types';
-import { FeatOrSlot, FeatsSection } from '../types/feats-section';
-import { Feat, FeatDefinition, FeatInfo, FEATS } from '@shattered-wilds/commons';
+import { FeatsSection } from '../types/feats-section';
 
 interface FeatsModalProps {
 	character: Character;
@@ -13,8 +13,8 @@ interface FeatsModalProps {
 
 export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) => {
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
-	const [selectedSlot, setSelectedSlot] = useState<FeatOrSlot | null>(null);
-	const [selectedBaseFeat, setSelectedBaseFeat] = useState<FeatDefinition<any> | null>(null);
+	const [selectedSlot, setSelectedSlot] = useState<FeatSlot | null>(null);
+	const [selectedBaseFeat, setSelectedBaseFeat] = useState<FeatDefinition<string | void> | null>(null);
 	const [parameter, setParameter] = useState<string | null>(null);
 	const [parameterError, setParameterError] = useState<string | null>(null);
 
@@ -28,11 +28,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 	});
 
 	// Handle feat selection
-	const handleFeatSelect = (featOrSlot: FeatOrSlot, feat: Feat | null) => {
-		const slot = featOrSlot.slot;
-		if (!slot) {
-			return;
-		}
+	const handleFeatSelect = (slot: FeatSlot, feat: FeatDefinition<string | void> | null) => {
 		const slotKey = slot.toProp();
 
 		if (!feat) {
@@ -42,15 +38,14 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 			return;
 		}
 
-		const featDef = FEATS[feat];
-		if (featDef?.parameter) {
+		if (feat?.parameter) {
 			// This feat requires parameters - show parameter selection
-			setSelectedBaseFeat(featDef);
+			setSelectedBaseFeat(feat);
 			setParameter(null);
 			setParameterError(null);
 			// Don't close the modal yet - wait for parameter selection
 		} else {
-			const info = FeatInfo.hydrateFeatDefinition(featDef, {});
+			const info = FeatInfo.hydrateFeatDefinition(feat, {});
 			const [key, value] = info.toProp()!;
 			updateCharacterProp(character, key, value);
 			setSelectedSlot(null);
@@ -74,12 +69,9 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 		setParameterError(null);
 
 		// Create the parameterized feat instance
-		const info = FeatInfo.hydrateFeatDefinition(
-			selectedBaseFeat,
-			{
-				[selectedBaseFeat.parameter!.id]: parameter,
-			},
-		);
+		const info = FeatInfo.hydrateFeatDefinition(selectedBaseFeat, {
+			[selectedBaseFeat.parameter!.id]: parameter,
+		});
 
 		// Update the slot with the parameterized feat ID
 		const [key, value] = info.toProp()!;
@@ -109,6 +101,49 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 		setCollapsedLevels(newCollapsedLevels);
 	};
 
+	const renderFeatParameterPicker = () => {
+		const param = selectedBaseFeat?.parameter as FeatParameter<string>;
+		if (!param) {
+			return <></>;
+		}
+		const hasError = parameterError!;
+		return (
+			<div key={param.id} style={{ marginBottom: '12px' }}>
+				<label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>{param.name}</label>
+				<select
+					value={parameter ?? ''}
+					onChange={e => handleParameterChange(e.target.value)}
+					style={{
+						width: '100%',
+						padding: '6px',
+						border: `1px solid ${hasError ? 'red' : 'var(--text)'}`,
+						borderRadius: '4px',
+						backgroundColor: 'var(--background)',
+						color: 'var(--text)',
+					}}
+				>
+					<option value=''>Select {param.name}...</option>
+					{param.values?.map(option => (
+						<option key={option} value={option}>
+							{option}
+						</option>
+					))}
+				</select>
+				{hasError && (
+					<div
+						style={{
+							fontSize: '0.8em',
+							color: 'red',
+							marginTop: '4px',
+						}}
+					>
+						This field is required
+					</div>
+				)}
+			</div>
+		);
+	};
+
 	return (
 		<div
 			style={{
@@ -131,201 +166,163 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 					width: '650px',
 				}}
 			>
-				{featsSection.featsOrSlotsByLevel
-					.map(({ level, featsOrSlots, hasMissingSlots }) => {
-						const isCollapsed = collapsedLevels.has(level);
+				{featsSection.featsOrSlotsByLevel.map(({ level, featsOrSlots, hasMissingSlots }) => {
+					const isCollapsed = collapsedLevels.has(level);
 
-						return (
+					return (
+						<div
+							key={level}
+							style={{
+								borderBottom: '1px solid var(--text)',
+								backgroundColor: level === 0 ? 'var(--background-alt)' : 'var(--background)',
+							}}
+						>
+							{/* Level Header - Clickable */}
 							<div
-								key={level}
 								style={{
-									borderBottom: '1px solid var(--text)',
-									backgroundColor: level === 0 ? 'var(--background-alt)' : 'var(--background)',
+									padding: '12px',
+									cursor: 'pointer',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
+									borderBottom: isCollapsed ? 'none' : '1px solid var(--text-secondary)',
 								}}
+								onClick={() => toggleLevelCollapse(level)}
+								onKeyDown={e => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										toggleLevelCollapse(level);
+									}
+								}}
+								tabIndex={0}
+								role='button'
+								aria-label={`Toggle Level ${level} ${isCollapsed ? 'expand' : 'collapse'}`}
 							>
-								{/* Level Header - Clickable */}
-								<div
-									style={{
-										padding: '12px',
-										cursor: 'pointer',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'space-between',
-										borderBottom: isCollapsed ? 'none' : '1px solid var(--text-secondary)',
-									}}
-									onClick={() => toggleLevelCollapse(level)}
-									onKeyDown={e => {
-										if (e.key === 'Enter' || e.key === ' ') {
-											toggleLevelCollapse(level);
-										}
-									}}
-									tabIndex={0}
-									role='button'
-									aria-label={`Toggle Level ${level} ${isCollapsed ? 'expand' : 'collapse'}`}
-								>
-									<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-										{isCollapsed ? <FaChevronRight size={12} /> : <FaChevronDown size={12} />}
-										<h4 style={{ margin: 0, color: 'var(--text)' }}>Level {level}</h4>
-										{isCollapsed && hasMissingSlots && (
-											<FaExclamationTriangle
-												size={12}
-												style={{ color: 'orange' }}
-												title='Level has missing feat slots'
-											/>
-										)}
-									</div>
-									<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>
-										{featsOrSlots.length} feat{featsOrSlots.length !== 1 ? 's' : ''}
-									</div>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+									{isCollapsed ? <FaChevronRight size={12} /> : <FaChevronDown size={12} />}
+									<h4 style={{ margin: 0, color: 'var(--text)' }}>Level {level}</h4>
+									{isCollapsed && hasMissingSlots && (
+										<FaExclamationTriangle size={12} style={{ color: 'orange' }} title='Level has missing feat slots' />
+									)}
 								</div>
+								<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>
+									{featsOrSlots.length} feat{featsOrSlots.length !== 1 ? 's' : ''}
+								</div>
+							</div>
 
-								{/* Level Content - Collapsible */}
-								{!isCollapsed && (
-									<div style={{ padding: '12px', boxSizing: 'border-box' }}>
-										<div
-											style={{
-												display: 'grid',
-												gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-												gap: '8px',
-												width: '100%',
-												boxSizing: 'border-box',
-											}}
-										>
-											{featsOrSlots.map((featOrSlot) => {
-												const feat = featOrSlot.info?.feat;
-												const hasParameter = feat?.parameter !== undefined;
+							{/* Level Content - Collapsible */}
+							{!isCollapsed && (
+								<div style={{ padding: '12px', boxSizing: 'border-box' }}>
+									<div
+										style={{
+											display: 'grid',
+											gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+											gap: '8px',
+											width: '100%',
+											boxSizing: 'border-box',
+										}}
+									>
+										{featsOrSlots.map(featOrSlot => {
+											const feat = featOrSlot.info?.feat;
+											const slot = featOrSlot.slot;
 
-												const hasSlot = featOrSlot.slot !== undefined;
-												const isEmpty = !hasSlot && !featOrSlot.isCore;
+											const hasParameter = feat?.parameter !== undefined;
+											const slotType = feat?.type ?? slot?.type;
+											const isCore = slotType === FeatType.Core;
 
-												const slotType = featOrSlot.info?.feat?.type ?? featOrSlot.slot?.type;
-												const isCore = slotType === FeatType.Core;
+											const hasSlot = slot !== undefined;
+											const isEmpty = !hasSlot && !isCore;
+											const isClickable = !isCore && hasParameter;
 
-												// Allow clicking on core slots if they contain parameterized feats
-												const isClickable = !isCore || (feat?.hasParameter === true);
+											const key = slot?.toProp() || feat?.key;
 
-												const key = featOrSlot.slot?.toProp() || featOrSlot.info?.feat.key;
+											const handleOpen = () => {
+												if (featOrSlot.slot && isClickable) {
+													setSelectedSlot(featOrSlot.slot);
+												}
+											};
 
-												return (
+											return (
+												<div
+													key={key}
+													style={{
+														padding: '8px',
+														border: `1px solid ${isEmpty ? 'orange' : 'var(--text)'}`,
+														borderRadius: '4px',
+														backgroundColor: isCore ? 'var(--background-alt)' : 'var(--background)',
+														cursor: isClickable ? 'pointer' : 'default',
+														minHeight: '80px',
+														display: 'flex',
+														flexDirection: 'column',
+														boxSizing: 'border-box',
+													}}
+													onClick={handleOpen}
+													onKeyDown={e => {
+														if (e.key === 'Enter' || e.key === ' ') {
+															handleOpen();
+														}
+													}}
+													tabIndex={isClickable ? 0 : -1}
+													role={isClickable ? 'button' : undefined}
+													aria-label={isClickable ? 'Select feat slot' : undefined}
+												>
 													<div
-														key={key}
 														style={{
-															padding: '8px',
-															border: `1px solid ${isEmpty ? 'orange' : 'var(--text)'}`,
-															borderRadius: '4px',
-															backgroundColor: isCore ? 'var(--background-alt)' : 'var(--background)',
-															cursor: isClickable ? 'pointer' : 'default',
-															minHeight: '80px',
 															display: 'flex',
-															flexDirection: 'column',
-															boxSizing: 'border-box',
+															alignItems: 'center',
+															justifyContent: 'space-between',
+															marginBottom: '4px',
 														}}
-														onClick={() => {
-															if (isClickable) {
-																// For parameterized core feats, directly open parameter modal
-																if (isCore && feat && hasParameter) {
-																	setSelectedBaseFeat(feat);
-
-																	// If it's already parameterized, extract existing parameters
-																	if (displaySlot.featId && isParameterizedFeat(displaySlot.featId)) {
-																		const { parameters: existingParams } = parseParameterizedFeatId(displaySlot.featId);
-																		setParameters(existingParams);
-																	} else {
-																		setParameters({});
-																	}
-																	setParameterErrors(new Set());
-																	setSelectedSlot(displaySlot); // Set slot for parameter assignment
-																} else {
-																	// For non-core feats, open feat selection modal
-																	setSelectedSlot(displaySlot);
-																}
-															}
-														}}
-														onKeyDown={e => {
-															if ((e.key === 'Enter' || e.key === ' ') && isClickable) {
-																// For parameterized core feats, directly open parameter modal
-																if (displaySlot.isCore && feat && feat.parameters && feat.parameters.length > 0) {
-																	setSelectedBaseFeat(feat);
-
-																	// If it's already parameterized, extract existing parameters
-																	if (displaySlot.featId && isParameterizedFeat(displaySlot.featId)) {
-																		const { parameters: existingParams } = parseParameterizedFeatId(displaySlot.featId);
-																		setParameters(existingParams);
-																	} else {
-																		setParameters({});
-																	}
-																	setParameterErrors(new Set());
-																	setSelectedSlot(displaySlot); // Set slot for parameter assignment
-																} else {
-																	// For non-core feats, open feat selection modal
-																	setSelectedSlot(displaySlot);
-																}
-															}
-														}}
-														tabIndex={isClickable ? 0 : -1}
-														role={isClickable ? 'button' : undefined}
-														aria-label={isClickable ? 'Select feat slot' : undefined}
 													>
-														<div
-															style={{
-																display: 'flex',
-																alignItems: 'center',
-																justifyContent: 'space-between',
-																marginBottom: '4px',
-															}}
-														>
-															<div style={{ fontSize: '0.75em', color: 'var(--text-secondary)' }}>
-																{displaySlot.slot.id.includes('specialized')
-																	? displaySlot.slot.name
-																	: `${displaySlot.slot.type} Feat`}
-															</div>
-															{isEmpty && (
-																<FaExclamationTriangle size={10} style={{ color: 'orange' }} title='Empty feat slot' />
-															)}
+														<div style={{ fontSize: '0.75em', color: 'var(--text-secondary)' }}>
+															{feat?.name ?? slot?.name}
 														</div>
-
-														{feat ? (
-															<div style={{ flex: 1 }}>
-																<div
-																	style={{
-																		fontWeight: 'bold',
-																		marginBottom: '3px',
-																		fontSize: '0.9em',
-																		lineHeight: '1.2',
-																	}}
-																>
-																	{feat.name}
-																</div>
-																<div
-																	style={{
-																		fontSize: '0.8em',
-																		color: 'var(--text-secondary)',
-																		lineHeight: '1.3',
-																	}}
-																>
-																	{feat.description}
-																</div>
-															</div>
-														) : (
-															<div
-																style={{
-																	fontStyle: 'italic',
-																	color: 'var(--text-secondary)',
-																	fontSize: '0.8em',
-																}}
-															>
-																{displaySlot.isCore ? 'No feat assigned' : 'Click to assign feat'}
-															</div>
+														{isEmpty && (
+															<FaExclamationTriangle size={10} style={{ color: 'orange' }} title='Empty feat slot' />
 														)}
 													</div>
-												);
-											})}
-										</div>
+
+													{feat ? (
+														<div style={{ flex: 1 }}>
+															<div
+																style={{
+																	fontWeight: 'bold',
+																	marginBottom: '3px',
+																	fontSize: '0.9em',
+																	lineHeight: '1.2',
+																}}
+															>
+																{feat.name}
+															</div>
+															<div
+																style={{
+																	fontSize: '0.8em',
+																	color: 'var(--text-secondary)',
+																	lineHeight: '1.3',
+																}}
+															>
+																{feat.description}
+															</div>
+														</div>
+													) : (
+														<div
+															style={{
+																fontStyle: 'italic',
+																color: 'var(--text-secondary)',
+																fontSize: '0.8em',
+															}}
+														>
+															Click to assign feat
+														</div>
+													)}
+												</div>
+											);
+										})}
 									</div>
-								)}
-							</div>
-						);
-					})}
+								</div>
+							)}
+						</div>
+					);
+				})}
 			</div>
 
 			{/* Feat Selection Modal */}
@@ -358,7 +355,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 						}}
 					>
 						<h4 style={{ margin: '0 0 16px 0' }}>
-							Select {selectedSlot.slot.type} Feat for Level {selectedSlot.slot.level}
+							Select {selectedSlot.type} Feat for Level {selectedSlot.level}
 						</h4>
 
 						<div style={{ marginBottom: '16px' }}>
@@ -378,9 +375,9 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 						</div>
 
 						<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-							{getAvailableFeats(selectedSlot.slot.type).map(feat => (
+							{featsSection.availableFeatsForSlot(selectedSlot).map(feat => (
 								<div
-									key={feat.id}
+									key={feat.key}
 									style={{
 										padding: '12px',
 										border: '1px solid var(--text)',
@@ -388,10 +385,10 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 										cursor: 'pointer',
 										backgroundColor: 'var(--background-alt)',
 									}}
-									onClick={() => handleFeatSelect(selectedSlot, feat.id)}
+									onClick={() => handleFeatSelect(selectedSlot, feat)}
 									onKeyDown={e => {
 										if (e.key === 'Enter' || e.key === ' ') {
-											handleFeatSelect(selectedSlot, feat.id);
+											handleFeatSelect(selectedSlot, feat);
 										}
 									}}
 									tabIndex={0}
@@ -457,73 +454,15 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 							<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)', marginBottom: '12px' }}>
 								{selectedBaseFeat.description}
 							</div>
-
-							{selectedBaseFeat.parameters?.map(param => {
-								const hasError = parameterErrors.has(param.id);
-								return (
-									<div key={param.id} style={{ marginBottom: '12px' }}>
-										<label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
-											{param.name} {param.required && <span style={{ color: 'red' }}>*</span>}
-										</label>
-										{param.type === 'choice' ? (
-											<select
-												value={parameters[param.id] || ''}
-												onChange={e => handleParameterChange(param.id, e.target.value)}
-												style={{
-													width: '100%',
-													padding: '6px',
-													border: `1px solid ${hasError ? 'red' : 'var(--text)'}`,
-													borderRadius: '4px',
-													backgroundColor: 'var(--background)',
-													color: 'var(--text)',
-												}}
-											>
-												<option value=''>Select {param.name}...</option>
-												{param.options?.map(option => (
-													<option key={option} value={option}>
-														{option}
-													</option>
-												))}
-											</select>
-										) : (
-											<input
-												type='text'
-												value={parameters[param.id] || ''}
-												onChange={e => handleParameterChange(param.id, e.target.value)}
-												placeholder={param.placeholder}
-												style={{
-													width: '100%',
-													padding: '6px',
-													border: `1px solid ${hasError ? 'red' : 'var(--text)'}`,
-													borderRadius: '4px',
-													backgroundColor: 'var(--background)',
-													color: 'var(--text)',
-													boxSizing: 'border-box',
-												}}
-											/>
-										)}
-										{hasError && (
-											<div
-												style={{
-													fontSize: '0.8em',
-													color: 'red',
-													marginTop: '4px',
-												}}
-											>
-												This field is required
-											</div>
-										)}
-									</div>
-								);
-							})}
+							{renderFeatParameterPicker()}
 						</div>
 
 						<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
 							<button
 								onClick={() => {
 									setSelectedBaseFeat(null);
-									setParameters({});
-									setParameterErrors(new Set());
+									setParameter(null);
+									setParameterError(null);
 								}}
 								style={{
 									padding: '8px 16px',
@@ -537,137 +476,6 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 							</button>
 							<button
 								onClick={handleParameterizedFeatConfirm}
-								style={{
-									padding: '8px 16px',
-									backgroundColor: '#4CAF50',
-									border: '1px solid #2E7D32',
-									borderRadius: '4px',
-									color: 'white',
-									cursor: 'pointer',
-								}}
-							>
-								Confirm
-							</button>
-						</div>
-					</div>
-				</div>
-			)}
-
-			{/* Nested Parameter Selection Modal */}
-			{nestedParameterFeat && (
-				<div
-					style={{
-						position: 'fixed',
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
-						backgroundColor: 'rgba(0, 0, 0, 0.7)',
-						display: 'flex',
-						justifyContent: 'center',
-						alignItems: 'center',
-						zIndex: 1002,
-					}}
-				>
-					<div
-						style={{
-							backgroundColor: 'var(--background)',
-							border: '1px solid var(--text)',
-							borderRadius: '8px',
-							padding: '20px',
-							width: 'fit-content',
-							maxWidth: 'min(500px, calc(100vw - 40px))',
-							maxHeight: '70vh',
-							overflow: 'auto',
-							boxSizing: 'border-box',
-						}}
-					>
-						<h4 style={{ margin: '0 0 16px 0' }}>Configure {nestedParameterFeat.feat.name}</h4>
-
-						<div style={{ marginBottom: '16px' }}>
-							<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)', marginBottom: '12px' }}>
-								{nestedParameterFeat.feat.description}
-							</div>
-
-							{nestedParameterFeat.feat.parameters?.map(param => {
-								const hasError = nestedParameterErrors.has(param.id); // Use nestedParameterErrors
-								return (
-									<div key={param.id} style={{ marginBottom: '12px' }}>
-										<label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
-											{param.name} {param.required && <span style={{ color: 'red' }}>*</span>}
-										</label>
-										{param.type === 'choice' ? (
-											<select
-												value={nestedParameters[param.id] || ''}
-												onChange={e => handleNestedParameterChange(param.id, e.target.value)}
-												style={{
-													width: '100%',
-													padding: '6px',
-													border: `1px solid ${hasError ? 'red' : 'var(--text)'}`,
-													borderRadius: '4px',
-													backgroundColor: 'var(--background)',
-													color: 'var(--text)',
-												}}
-											>
-												<option value=''>Select {param.name}...</option>
-												{param.options?.map(option => (
-													<option key={option} value={option}>
-														{option}
-													</option>
-												))}
-											</select>
-										) : (
-											<input
-												type='text'
-												value={nestedParameters[param.id] || ''}
-												onChange={e => handleNestedParameterChange(param.id, e.target.value)}
-												placeholder={param.placeholder}
-												style={{
-													width: '100%',
-													padding: '6px',
-													border: `1px solid ${hasError ? 'red' : 'var(--text)'}`,
-													borderRadius: '4px',
-													backgroundColor: 'var(--background)',
-													color: 'var(--text)',
-													boxSizing: 'border-box',
-												}}
-											/>
-										)}
-										{hasError && (
-											<div
-												style={{
-													fontSize: '0.8em',
-													color: 'red',
-													marginTop: '4px',
-												}}
-											>
-												This field is required
-											</div>
-										)}
-									</div>
-								);
-							})}
-						</div>
-
-						<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-							<button
-								onClick={() => {
-									setNestedParameterFeat(null);
-									setNestedParameters({});
-									setNestedParameterErrors(new Set());
-								}}
-								style={{
-									padding: '8px 16px',
-									backgroundColor: 'var(--background-alt)',
-									border: '1px solid var(--text)',
-									borderRadius: '4px',
-									cursor: 'pointer',
-								}}
-							>
-								Cancel
-							</button>
-							<button
-								onClick={handleNestedParameterConfirm}
 								style={{
 									padding: '8px 16px',
 									backgroundColor: '#4CAF50',

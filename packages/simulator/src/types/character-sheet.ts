@@ -67,7 +67,7 @@ export class RaceInfo {
 	}
 
 	// Get the core feats that should be assigned to this race/upbringing combination
-	getCoreFeats(): FeatInfo<any>[] {
+	getCoreFeats(): FeatInfo<string | void>[] {
 		const racialFeatCategories = [FeatCategory.Racial, FeatCategory.Upbringing];
 		const racialFeats = Object.values(FEATS).filter(
 			feat => feat.type === FeatType.Core && racialFeatCategories.includes(feat.category),
@@ -103,7 +103,7 @@ export class ClassInfo {
 		return new ClassInfo(characterClass);
 	}
 
-	getCoreFeats(): FeatInfo<any>[] {
+	getCoreFeats(): FeatInfo<string | void>[] {
 		const classFeatCategories = [FeatCategory.ClassFlavor, FeatCategory.ClassRole];
 		const classFeats = Object.values(FEATS).filter(
 			feat => feat.type === FeatType.Core && classFeatCategories.includes(feat.category),
@@ -234,17 +234,17 @@ export class CurrentValues {
 }
 
 export class CharacterFeats {
-	featInfos: FeatInfo<any>[];
+	featInfos: FeatInfo<string | void>[];
 
-	constructor(coreFeats: FeatInfo<any>[], feats: FeatInfo<any>[]) {
+	constructor(coreFeats: FeatInfo<string | void>[], feats: FeatInfo<string | void>[]) {
 		this.featInfos = [...coreFeats, ...feats];
 	}
 
-	getCoreFeats(): FeatInfo<any>[] {
+	getCoreFeats(): FeatInfo<string | void>[] {
 		return this.featInfos.filter(info => info.feat.type === FeatType.Core);
 	}
 
-	getSlottedFeats(): FeatInfo<any>[] {
+	getSlottedFeats(): FeatInfo<string | void>[] {
 		return this.featInfos.filter(info => info.slot);
 	}
 
@@ -288,7 +288,7 @@ export class CharacterFeats {
 		const coreFeats = [...race.getCoreFeats(), ...characterClass.getCoreFeats()];
 		const feats = Object.entries(props)
 			.filter(([key]) => key.startsWith('feat.'))
-			.map((prop) => FeatInfo.fromProp(prop));
+			.map(prop => FeatInfo.fromProp(prop));
 		return new CharacterFeats(coreFeats, feats);
 	}
 }

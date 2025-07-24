@@ -11,7 +11,6 @@ import {
 	ClassFlavor,
 	CLASS_ROLE_PRIMARY_ATTRIBUTE,
 } from '../types';
-import { FEATS } from '../../../commons/src/feats';
 
 interface ClassSetupModalProps {
 	character: Character;
@@ -27,31 +26,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 	const currentClassInfo = ClassInfo.from(character.props);
 
 	const handleClassSelect = (characterClass: CharacterClass) => {
-		// Create new ClassInfo with the selected class
-		const newClassInfo = new ClassInfo(characterClass);
-
-		// Update character props
 		updateCharacterProp(character, 'class', characterClass);
-		updateCharacterProp(character, 'class.feats', newClassInfo.toProp());
-
-		// Clear existing core class feat slots
-		updateCharacterProp(character, 'feat-core-class-1', '');
-		updateCharacterProp(character, 'feat-core-class-2', '');
-		updateCharacterProp(character, 'feat-core-class-3', '');
-
-		// Update core class feat slots with new feats
-		const newCoreFeats = newClassInfo.getCoreClassFeats();
-
-		// Assign feats to their proper class slots
-		if (newCoreFeats[0]) {
-			updateCharacterProp(character, 'feat-core-class-1', newCoreFeats[0]);
-		}
-		if (newCoreFeats[1]) {
-			updateCharacterProp(character, 'feat-core-class-2', newCoreFeats[1]);
-		}
-		if (newCoreFeats[2]) {
-			updateCharacterProp(character, 'feat-core-class-3', newCoreFeats[2]);
-		}
 	};
 
 	const isSelected = (characterClass: CharacterClass) => {
@@ -246,8 +221,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 
 	const renderSelectedClassInfo = () => {
 		const definition = currentClassInfo.characterClass ? CLASS_DEFINITIONS[currentClassInfo.characterClass] : null;
-		const coreFeats = currentClassInfo.getCoreClassFeats();
-		const coreFeatDefinitions = coreFeats.map(featId => FEATS[featId]).filter(Boolean);
+		const coreFeats = currentClassInfo.getCoreFeats();
 
 		return (
 			<div
@@ -269,21 +243,25 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 						<div style={{ marginTop: '8px' }}>
 							<strong>Core Class Feats (Level 1):</strong>
 							<div style={{ maxHeight: '200px', overflowY: 'auto', marginTop: '4px' }}>
-								{coreFeatDefinitions.map((feat, index) => (
-									<div
-										key={index}
-										style={{
-											marginBottom: '6px',
-											padding: '6px',
-											backgroundColor: 'var(--background)',
-											borderRadius: '4px',
-											border: '1px solid var(--text)',
-										}}
-									>
-										<div style={{ fontWeight: 'bold', marginBottom: '2px', fontSize: '0.9em' }}>{feat.name}</div>
-										<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>{feat.description}</div>
-									</div>
-								))}
+								{coreFeats.map(featInfo => {
+									const feat = featInfo.feat;
+									const key = feat.key;
+									return (
+										<div
+											key={key}
+											style={{
+												marginBottom: '6px',
+												padding: '6px',
+												backgroundColor: 'var(--background)',
+												borderRadius: '4px',
+												border: '1px solid var(--text)',
+											}}
+										>
+											<div style={{ fontWeight: 'bold', marginBottom: '2px', fontSize: '0.9em' }}>{feat.name}</div>
+											<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>{feat.description}</div>
+										</div>
+									);
+								})}
 							</div>
 						</div>
 					</>

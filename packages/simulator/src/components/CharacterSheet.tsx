@@ -3,11 +3,11 @@ import { FaBatteryFull, FaExclamationTriangle, FaMinus, FaPlus } from 'react-ico
 
 import { useStore } from '../store';
 import { Character, CharacterSheet, DefenseType, DerivedStat, Equipment, Point, Size, SizeModifiers } from '../types';
+import { FeatsSection } from '../types/feats-section';
 import { findNextWindowPosition } from '../utils';
 
 import { EquipmentSection } from './EquipmentSection';
 import { StatTreeToggleComponent } from './stat-tree/StatTreeToggleComponent';
-import { FeatsSection } from '../types/feats-section';
 
 interface CharacterSheetModalProps {
 	character: Character;
