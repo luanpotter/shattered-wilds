@@ -17,6 +17,7 @@ export enum FeatCategory {
 }
 
 export enum StaticFeatSource {
+	General = 'General',
 	Class = 'Class',
 	Race = 'Race',
 	Upbringing = 'Upbringing',
@@ -131,9 +132,10 @@ export class FeatInfo<T extends string | void> {
 	static hydrateFeatDefinition = (
 		def: FeatDefinition<string | void>,
 		parameters: Record<string, string>,
+		slot: FeatSlot | undefined = undefined,
 	): FeatInfo<string | void> => {
 		const parameter = FeatInfo.parseParameter(def, parameters);
-		return FeatInfo.build({ feat: def, slot: undefined, parameter });
+		return FeatInfo.build({ feat: def, slot, parameter });
 	};
 
 	static hydrateFeatDefinitions = (
@@ -151,6 +153,13 @@ const mindOrSoulAttributes = [...mindAttributes, ...soulAttributes];
 type MindOrSoulAttributes = (typeof mindOrSoulAttributes)[number];
 
 export enum Feat {
+	// General
+	TradeSpecialization = 'TradeSpecialization',
+	LipReading = 'LipReading',
+	AnimalMimicry = 'AnimalMimicry',
+	GirthCompensation = 'GirthCompensation',
+	QuickDraw = 'QuickDraw',
+	BlindSense = 'BlindSense',
 	// Class
 	ClassSpecialization = 'ClassSpecialization',
 	// Race
@@ -220,7 +229,93 @@ export enum Feat {
 	SpiritualArmor = 'SpiritualArmor',
 }
 
+export enum Trade {
+	Blacksmith = 'Blacksmith',
+	Bookbinder = 'Bookbinder',
+	Carpenter = 'Carpenter',
+	Cartographer = 'Cartographer',
+	Chandler = 'Chandler',
+	Clothier = 'Clothier',
+	Cook = 'Cook',
+	Farmer = 'Farmer',
+	Fisher = 'Fisher',
+	Fletcher = 'Fletcher',
+	Herbalist = 'Herbalist',
+	Jeweler = 'Jeweler',
+	Locksmith = 'Locksmith',
+	Mason = 'Mason',
+	Miner = 'Miner',
+	Potter = 'Potter',
+	Tanner = 'Tanner',
+	Weaver = 'Weaver',
+	Woodcutter = 'Woodcutter',
+}
+
 export const FEATS: Record<Feat, FeatDefinition<any>> = {
+	[Feat.TradeSpecialization]: <FeatDefinition<Trade>>{
+		key: Feat.TradeSpecialization,
+		name: 'Trade Specialization',
+		type: FeatType.Minor,
+		category: FeatCategory.General,
+		source: StaticFeatSource.General,
+		level: 1,
+		description:
+			'You are acquainted with a specific trade, allowing you to perform basic tasks associated with it, such as a Blacksmith, Bookbinder, Carpenter, Cartographer, Chandler, Clothier, Cook, Farmer, Fisher, Fletcher, Herbalist, Jeweler, Locksmith, Mason, Miner, Potter, Tanner, Weaver, Weaver, Woodcutter, etc. You can pick this Feat multiple times for different trades.',
+		parameter: {
+			id: 'trade',
+			name: 'Trade',
+			values: Object.values(Trade),
+		},
+		fullDescription: info => `Trade Specialization (${info.parameter})`,
+	},
+	[Feat.LipReading]: <FeatDefinition<void>>{
+		key: Feat.LipReading,
+		name: 'Lip Reading',
+		type: FeatType.Minor,
+		category: FeatCategory.General,
+		source: StaticFeatSource.General,
+		level: 1,
+		description: 'You can read lips to understand what people are saying when you can see them clearly.',
+	},
+	[Feat.AnimalMimicry]: <FeatDefinition<void>>{
+		key: Feat.AnimalMimicry,
+		name: 'Animal Mimicry',
+		type: FeatType.Minor,
+		category: FeatCategory.General,
+		source: StaticFeatSource.General,
+		level: 1,
+		description:
+			'You have an uncanny knack for mimicking animal sounds. If you are familiar with it, and a humanoid could conceivably reproduce it, you can make a good-enough impression that an untrained ear could not distinguish it. An expert (such as someone with the Sylvan Upbringing) could run an [[Stat_Intuition | Intuition]] Check (or [[Stat_Knowledge | Knowledge]] if they have reason to suspect) to try to assess the veracity of the sound.',
+	},
+	[Feat.GirthCompensation]: <FeatDefinition<void>>{
+		key: Feat.GirthCompensation,
+		name: 'Girth Compensation',
+		type: FeatType.Minor,
+		category: FeatCategory.General,
+		source: StaticFeatSource.General,
+		level: 1,
+		description: 'You can use [[Stat_STR | STR]] as the **Primary Attribute** for **Light Melee** weapons.',
+	},
+	[Feat.QuickDraw]: <FeatDefinition<void>>{
+		key: Feat.QuickDraw,
+		name: 'Quick Draw',
+		type: FeatType.Major,
+		category: FeatCategory.General,
+		source: StaticFeatSource.General,
+		level: 2,
+		description:
+			'If you have at least one hand free, you can spend 1 [[Resource_Focus_Point | FP]] to draw a Light Melee Weapon without spending an action.',
+	},
+	[Feat.BlindSense]: <FeatDefinition<void>>{
+		key: Feat.BlindSense,
+		name: 'Blind Sense',
+		type: FeatType.Major,
+		category: FeatCategory.General,
+		source: StaticFeatSource.General,
+		level: 3,
+		description:
+			'Your strong connection to your Soul Realm allows you to expand your sense of hearing and smell. You can spend 1 [[Resource_Action_Point | AP]] and 2 [[Resource_Spirit_Point | SP]] to know the positions of any creature you are aware of within `6m` as well as if you could see them clearly. If they are explicitly trying to sneak, you get a +6 in your [[Stat_Perception | Perception]] Check.',
+	},
 	// Class
 	[Feat.ClassSpecialization]: <FeatDefinition<ClassRole>>{
 		key: Feat.ClassSpecialization,

@@ -47,7 +47,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 			setParameterError(null);
 			// Don't close the modal yet - wait for parameter selection
 		} else {
-			const info = FeatInfo.hydrateFeatDefinition(feat, {});
+			const info = FeatInfo.hydrateFeatDefinition(feat, {}, slot);
 			const [key, value] = info.toProp()!;
 			updateCharacterProp(character, key, value);
 			setSelectedSlot(null);
@@ -74,6 +74,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 		const info = FeatInfo.hydrateFeatDefinition(
 			selectedBaseFeat,
 			parameter ? { [selectedBaseFeat.parameter!.id]: parameter } : {},
+			selectedSlot,
 		);
 
 		// Update the slot with the parameterized feat ID
@@ -233,8 +234,8 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 											const isCore = slotType === FeatType.Core;
 
 											const hasSlot = slot !== undefined;
-											const isEmpty = !hasSlot && !isCore;
-											const isClickable = !isCore && hasParameter;
+											const isEmpty = hasSlot && !isCore && !info;
+											const isClickable = !isCore || hasParameter;
 
 											const key = slot?.toProp() || info?.feat?.key;
 

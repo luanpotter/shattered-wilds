@@ -103,7 +103,8 @@ export class StatTree {
 	}
 
 	fullReset(): { key: string; value: string }[] {
-		return this.root.resetNode();
+		// reset all nodes but the level
+		return this.root.children.flatMap(child => child.resetNode());
 	}
 }
 

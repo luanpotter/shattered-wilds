@@ -55,6 +55,7 @@ export class FeatsSection {
 	}
 
 	availableFeatsForSlot(slot: FeatSlot): FeatDefinition<string | void>[] {
+		console.log('Computing available feats for slot:', slot);
 		return (
 			Object.values(FEATS)
 				// fits the slot
@@ -85,7 +86,7 @@ export class FeatsSection {
 			featsOrSlotsByLevel.push(
 				new FeatsLevelSection(level, [
 					...coreFeats.filter(info => info.feat.level === level).map(feat => ({ info: feat })),
-					...slottedFeatsForLevel.map(feat => ({ info: feat })),
+					...slottedFeatsForLevel.map(feat => ({ info: feat, slot: feat.slot })),
 					...missingSlots,
 				]),
 			);
