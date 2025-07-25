@@ -14,6 +14,11 @@ export interface Modifier {
 	value: number;
 }
 
+export const generateModifierBonusString = (statType: StatType, value: number): string => {
+	const sign = value >= 0 ? '+' : '-';
+	return `${sign}${Math.abs(value)} ${statType}`;
+};
+
 export class StatTree {
 	root: StatNode;
 	modifiers: Modifier[];
@@ -98,7 +103,8 @@ export class StatTree {
 	}
 
 	fullReset(): { key: string; value: string }[] {
-		return this.root.resetNode();
+		// reset all nodes but the level
+		return this.root.children.flatMap(child => child.resetNode());
 	}
 }
 

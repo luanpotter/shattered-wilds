@@ -76,7 +76,7 @@ const StatBox: React.FC<StatBoxProps> = ({
 				{children}
 			</div>
 			<div style={{ fontSize: '0.8em', opacity: 0.8 }}>
-				<RichText nonDescript={node.type.description} />
+				<RichText>{node.type.description}</RichText>
 			</div>
 		</div>
 	);

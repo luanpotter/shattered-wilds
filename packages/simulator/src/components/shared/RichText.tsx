@@ -15,11 +15,11 @@ const wikiLinks = (value: string) => {
 };
 
 interface RichTextProps {
-	nonDescript: string;
+	children: string;
 }
 
-export const RichText: React.FC<RichTextProps> = ({ nonDescript }) => {
-	const preProcessed = wikiLinks(nonDescript);
+export const RichText: React.FC<RichTextProps> = ({ children }) => {
+	const preProcessed = wikiLinks(children);
 	return (
 		<ReactMarkdown
 			components={{

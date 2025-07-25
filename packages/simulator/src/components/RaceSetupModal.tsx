@@ -1,8 +1,7 @@
 import React from 'react';
 
 import { useStore } from '../store';
-import { CharacterSheet, StatType, RaceInfo, Race, Upbringing } from '../types';
-import { FEATS, getUpbringingModifierFeat } from '../types/feats';
+import { CharacterSheet, StatType, Race, Upbringing } from '../types';
 
 import DropdownSelect from './DropdownSelect';
 
@@ -27,20 +26,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 	const currentRace = sheet.race;
 
 	// Get modifiers for the preview using current values
-	const coreFeats = currentRace.getCoreRacialFeats();
-	const coreFeatDefinitions = coreFeats
-		.map(featId => {
-			// Handle dynamic upbringing modifiers for preview
-			if (featId.startsWith('upbringing-')) {
-				return getUpbringingModifierFeat(
-					currentRace.upbringing,
-					currentRace.upbringingPlusModifier,
-					currentRace.upbringingMinusModifier,
-				);
-			}
-			return FEATS[featId];
-		})
-		.filter(Boolean);
+	const coreFeats = currentRace.getCoreFeats();
 
 	// Handle immediate updates
 	const handlePrimaryRaceChange = (value: Race) => {
@@ -53,16 +39,6 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 				updateCharacterProp(character, 'race.half', alternativeRace);
 			}
 		}
-
-		// Update core feats immediately
-		updateCoreFeats(
-			value,
-			currentRace.upbringing,
-			currentRace.halfRace,
-			currentRace.combineHalfRaceStats,
-			currentRace.upbringingPlusModifier,
-			currentRace.upbringingMinusModifier,
-		);
 	};
 
 	const handleHalfRaceToggle = (showHalfRace: boolean) => {
@@ -80,59 +56,20 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 
 	const handleHalfRaceChange = (value: Race) => {
 		updateCharacterProp(character, 'race.half', value);
-		updateCoreFeats(
-			currentRace.primaryRace,
-			currentRace.upbringing,
-			value,
-			currentRace.combineHalfRaceStats,
-			currentRace.upbringingPlusModifier,
-			currentRace.upbringingMinusModifier,
-		);
 	};
 
 	const handleCombineStatsChange = (combineStats: boolean) => {
 		updateCharacterProp(character, 'race.half.combined-stats', combineStats ? 'true' : 'false');
-		updateCoreFeats(
-			currentRace.primaryRace,
-			currentRace.upbringing,
-			currentRace.halfRace,
-			combineStats,
-			currentRace.upbringingPlusModifier,
-			currentRace.upbringingMinusModifier,
-		);
 	};
 
 	const handleUpbringingChange = (value: Upbringing) => {
 		updateCharacterProp(character, 'upbringing', value);
-
-		// Clear specialized training slots if changing away from Urban upbringing
-		if (value !== Upbringing.Urban) {
-			updateCharacterProp(character, 'feat-lv1-specialized-1', '');
-			updateCharacterProp(character, 'feat-lv1-specialized-2', '');
-		}
-
-		updateCoreFeats(
-			currentRace.primaryRace,
-			value,
-			currentRace.halfRace,
-			currentRace.combineHalfRaceStats,
-			currentRace.upbringingPlusModifier,
-			currentRace.upbringingMinusModifier,
-		);
 	};
 
 	const handleUpbringingPlusChange = (value: string) => {
 		const attributeType = Object.values(StatType).find(type => type.name === value);
 		if (attributeType) {
 			updateCharacterProp(character, 'upbringing.plus', attributeType.name);
-			updateCoreFeats(
-				currentRace.primaryRace,
-				currentRace.upbringing,
-				currentRace.halfRace,
-				currentRace.combineHalfRaceStats,
-				attributeType,
-				currentRace.upbringingMinusModifier,
-			);
 		}
 	};
 
@@ -140,55 +77,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 		const attributeType = Object.values(StatType).find(type => type.name === value);
 		if (attributeType) {
 			updateCharacterProp(character, 'upbringing.minus', attributeType.name);
-			updateCoreFeats(
-				currentRace.primaryRace,
-				currentRace.upbringing,
-				currentRace.halfRace,
-				currentRace.combineHalfRaceStats,
-				currentRace.upbringingPlusModifier,
-				attributeType,
-			);
 		}
-	};
-
-	// Helper function to update core feats
-	const updateCoreFeats = (
-		primaryRace: Race,
-		upbringing: Upbringing,
-		halfRace: Race | null,
-		combineStats: boolean,
-		upbringingPlusModifier: StatType,
-		upbringingMinusModifier: StatType,
-	) => {
-		// Clear existing core race feat slots
-		updateCharacterProp(character, 'feat-core-race-1', '');
-		updateCharacterProp(character, 'feat-core-upbringing-1', '');
-		updateCharacterProp(character, 'feat-core-upbringing-2', '');
-		updateCharacterProp(character, 'feat-core-upbringing-3', '');
-
-		// Create new RaceInfo to get updated core feats
-		const newRaceInfo = new RaceInfo(
-			primaryRace,
-			upbringing,
-			halfRace,
-			combineStats,
-			upbringingPlusModifier,
-			upbringingMinusModifier,
-		);
-		const newCoreFeats = newRaceInfo.getCoreRacialFeats();
-
-		// Assign feats to their proper slots
-		if (newCoreFeats[0]) {
-			updateCharacterProp(character, 'feat-core-race-1', newCoreFeats[0]);
-		}
-		if (newCoreFeats[2]) {
-			updateCharacterProp(character, 'feat-core-upbringing-2', newCoreFeats[2]);
-		}
-		if (newCoreFeats[3]) {
-			updateCharacterProp(character, 'feat-core-upbringing-3', newCoreFeats[3]);
-		}
-		// Always update the upbringing modifier feat
-		updateCharacterProp(character, 'feat-core-upbringing-1', `upbringing-${upbringing.toLowerCase()}`);
 	};
 
 	return (
@@ -344,25 +233,21 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 			>
 				<h3 style={{ margin: '0 0 8px 0', fontSize: '1em' }}>Core Feats (Level 0)</h3>
 				<div style={{ maxHeight: '200px', overflowY: 'auto' }}>
-					{coreFeatDefinitions.length > 0 ? (
-						coreFeatDefinitions.map((feat, index) => (
-							<div
-								key={index}
-								style={{
-									marginBottom: '8px',
-									padding: '6px',
-									backgroundColor: 'var(--background)',
-									borderRadius: '4px',
-									border: '1px solid var(--text)',
-								}}
-							>
-								<div style={{ fontWeight: 'bold', marginBottom: '2px', fontSize: '0.9em' }}>{feat.name}</div>
-								<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>{feat.description}</div>
-							</div>
-						))
-					) : (
-						<div style={{ color: 'var(--text-secondary)', fontStyle: 'italic', fontSize: '0.9em' }}>No core feats</div>
-					)}
+					{coreFeats.map((feat, index) => (
+						<div
+							key={index}
+							style={{
+								marginBottom: '8px',
+								padding: '6px',
+								backgroundColor: 'var(--background)',
+								borderRadius: '4px',
+								border: '1px solid var(--text)',
+							}}
+						>
+							<div style={{ fontWeight: 'bold', marginBottom: '2px', fontSize: '0.9em' }}>{feat.feat.name}</div>
+							<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>{feat.feat.description}</div>
+						</div>
+					))}
 				</div>
 			</div>
 
