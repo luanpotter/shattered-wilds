@@ -170,7 +170,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 					width: '650px',
 				}}
 			>
-				{featsSection.featsOrSlotsByLevel.map(({ level, featsOrSlots, hasMissingSlots }) => {
+				{featsSection.featsOrSlotsByLevel.map(({ level, featsOrSlots, hasMissingOrExtraSlots }) => {
 					const isCollapsed = collapsedLevels.has(level);
 
 					return (
@@ -178,7 +178,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 							key={level}
 							style={{
 								borderBottom: '1px solid var(--text)',
-								backgroundColor: level === 0 ? 'var(--background-alt)' : 'var(--background)',
+								backgroundColor: isCollapsed ? 'var(--background-alt)' : 'var(--background)',
 							}}
 						>
 							{/* Level Header - Clickable */}
@@ -204,7 +204,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 									{isCollapsed ? <FaChevronRight size={12} /> : <FaChevronDown size={12} />}
 									<h4 style={{ margin: 0, color: 'var(--text)' }}>Level {level}</h4>
-									{isCollapsed && hasMissingSlots && (
+									{isCollapsed && hasMissingOrExtraSlots && (
 										<FaExclamationTriangle size={12} style={{ color: 'orange' }} title='Level has missing feat slots' />
 									)}
 								</div>
@@ -226,17 +226,15 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 										}}
 									>
 										{featsOrSlots.map(featOrSlot => {
-											const info = featOrSlot.info;
 											const slot = featOrSlot.slot ?? featOrSlot.info?.slot;
+											const info = featOrSlot.info;
 
-											const hasParameter = info?.parameter !== undefined;
-											const slotType = info?.feat?.type ?? slot?.type;
+											const slotType = slot?.type ?? info?.feat?.type;
 											const isCore = slotType === FeatType.Core;
 
-											const hasSlot = slot !== undefined;
-											const isEmpty = hasSlot && !isCore && !info;
+											const isEmpty = featOrSlot.isEmpty;
 											const isExtra = featOrSlot.isExtra;
-											const isClickable = !isCore || hasParameter || isExtra;
+											const isClickable = !isCore;
 
 											const key = slot?.toProp() || info?.feat?.key;
 
@@ -261,7 +259,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 														padding: '8px',
 														border: `1px solid ${isEmpty ? 'orange' : 'var(--text)'}`,
 														borderRadius: '4px',
-														backgroundColor: isCore ? 'var(--background-alt)' : 'var(--background)',
+														backgroundColor: isClickable ? 'var(--background-alt)' : 'var(--background)',
 														cursor: isClickable ? 'pointer' : 'default',
 														minHeight: '80px',
 														display: 'flex',

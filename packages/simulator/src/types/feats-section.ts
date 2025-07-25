@@ -15,6 +15,18 @@ export class FeatOrSlot {
 		this.slot = slot;
 	}
 
+	get hasSlot(): boolean {
+		return this.slot !== undefined;
+	}
+
+	get hasFeat(): boolean {
+		return this.info !== undefined;
+	}
+
+	get isEmpty(): boolean {
+		return this.hasSlot && !this.hasFeat;
+	}
+
 	get isExtra(): boolean {
 		return !this.slot && !!this.info?.slot;
 	}
@@ -49,6 +61,14 @@ export class FeatsLevelSection {
 
 	get hasMissingSlots(): boolean {
 		return this.countMissingSlots() > 0;
+	}
+
+	get hasExtraSlots(): boolean {
+		return this.featsOrSlots.some(featOrSlot => featOrSlot.isExtra);
+	}
+
+	get hasMissingOrExtraSlots(): boolean {
+		return this.hasMissingSlots || this.hasExtraSlots;
 	}
 }
 
