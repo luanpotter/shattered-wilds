@@ -6,9 +6,32 @@ import { CharacterSheet } from './character-sheet';
 // - a core (non-slotted) feat
 // - a slotted feat (which has a slot)
 // - a feat slot (which has no info, just a slot)
-export interface FeatOrSlot {
-	info?: FeatInfo<string | void>;
-	slot?: FeatSlot;
+export class FeatOrSlot {
+	info: FeatInfo<string | void> | undefined;
+	slot: FeatSlot | undefined;
+
+	constructor(info: FeatInfo<string | void> | undefined, slot: FeatSlot | undefined) {
+		this.info = info;
+		this.slot = slot;
+	}
+
+	get isExtra(): boolean {
+		return !this.slot && !!this.info?.slot;
+	}
+
+	get level(): number {
+		return (this.slot?.level ?? this.info?.feat.level)!;
+	}
+
+	static build = ({
+		info,
+		slot,
+	}: {
+		info?: FeatInfo<string | void> | undefined;
+		slot?: FeatSlot | undefined;
+	}): FeatOrSlot => {
+		return new FeatOrSlot(info, slot);
+	};
 }
 
 export class FeatsLevelSection {
@@ -67,31 +90,36 @@ export class FeatsSection {
 
 	static create = (sheet: CharacterSheet): FeatsSection => {
 		const coreFeats = sheet.feats.getCoreFeats();
-		const slottedFeats = sheet.feats.getSlottedFeats();
 		const currentFeatSlots = sheet.getFeatSlots();
+		const slottedFeats = sheet.feats.getSlottedFeats();
+		const slottedSlots = slottedFeats
+			.map(feat => feat.slot)
+			.filter(slot => !!slot)
+			.map(slot => slot.toProp());
+		const missingSlots = currentFeatSlots.filter(slot => !slottedSlots.includes(slot.toProp()));
 
-		const maxLevel = Math.max(
-			...slottedFeats.map(feat => feat.slot!.level), //
-			...currentFeatSlots.map(slot => slot.level), //
-		);
+		const coreFeatOrSlots = coreFeats
+			// core feats have no slots
+			.map(feat => FeatOrSlot.build({ info: feat }));
+		const slottedFeatOrSlots = slottedFeats
+			// slotted feats must be re-paired with the sheet slots
+			// it is possible for example that the Specialized Training feat was removed
+			.map(feat => {
+				const featSlot = feat.slot!; // slotted feats have a slot
+				const sheetSlot = currentFeatSlots.find(slot => slot.toProp() === featSlot.toProp());
+				return FeatOrSlot.build({ info: feat, slot: sheetSlot });
+			});
+		const missingFeatOrSlots = missingSlots.map(slot => FeatOrSlot.build({ slot }));
 
-		const featsOrSlotsByLevel: FeatsLevelSection[] = [];
-		for (let level = 0; level <= maxLevel; level++) {
-			const slottedFeatsForLevel = slottedFeats.filter(feat => feat.slot!.level === level);
-			const slottedSlots = slottedFeatsForLevel.map(feat => feat.slot!).map(slot => slot.toProp());
-			const missingSlots = currentFeatSlots
-				.filter(slot => slot.level === level)
-				.filter(slot => !slottedSlots.includes(slot.toProp()))
-				.map(slot => ({ slot }));
-			featsOrSlotsByLevel.push(
-				new FeatsLevelSection(level, [
-					...coreFeats.filter(info => info.feat.level === level).map(feat => ({ info: feat })),
-					...slottedFeatsForLevel.map(feat => ({ info: feat, slot: feat.slot })),
-					...missingSlots,
-				]),
+		const featOrSlots = [...coreFeatOrSlots, ...slottedFeatOrSlots, ...missingFeatOrSlots];
+
+		const maxLevel = Math.max(...featOrSlots.map(featOrSlot => featOrSlot.level));
+		const featsOrSlotsByLevel = Array.from({ length: maxLevel + 1 }, (_, level) => {
+			return new FeatsLevelSection(
+				level,
+				featOrSlots.filter(featOrSlot => featOrSlot.level === level),
 			);
-		}
-
+		});
 		return new FeatsSection(featsOrSlotsByLevel);
 	};
 }

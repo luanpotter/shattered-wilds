@@ -227,7 +227,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 									>
 										{featsOrSlots.map(featOrSlot => {
 											const info = featOrSlot.info;
-											const slot = featOrSlot.slot;
+											const slot = featOrSlot.slot ?? featOrSlot.info?.slot;
 
 											const hasParameter = info?.parameter !== undefined;
 											const slotType = info?.feat?.type ?? slot?.type;
@@ -235,13 +235,22 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 
 											const hasSlot = slot !== undefined;
 											const isEmpty = hasSlot && !isCore && !info;
-											const isClickable = !isCore || hasParameter;
+											const isExtra = featOrSlot.isExtra;
+											const isClickable = !isCore || hasParameter || isExtra;
 
 											const key = slot?.toProp() || info?.feat?.key;
 
 											const handleOpen = () => {
-												if (featOrSlot.slot && isClickable) {
+												if (!isClickable) {
+													return;
+												}
+												if (featOrSlot.slot) {
 													setSelectedSlot(featOrSlot.slot);
+												} else {
+													const currentSlotKey = featOrSlot.info?.slot?.toProp();
+													if (currentSlotKey) {
+														updateCharacterProp(character, currentSlotKey, undefined);
+													}
 												}
 											};
 
@@ -282,6 +291,13 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 														</div>
 														{isEmpty && (
 															<FaExclamationTriangle size={10} style={{ color: 'orange' }} title='Empty feat slot' />
+														)}
+														{isExtra && (
+															<FaExclamationTriangle
+																size={10}
+																style={{ color: 'orange' }}
+																title='Extra feat slot must be cleared'
+															/>
 														)}
 													</div>
 
