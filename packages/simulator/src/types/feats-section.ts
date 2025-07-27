@@ -10,10 +10,24 @@ import { CharacterSheet } from './character-sheet';
 export class FeatOrSlot {
 	info: FeatInfo<string | void> | undefined;
 	slot: FeatSlot | undefined;
+	warning: FeatSlotWarning | undefined;
 
-	constructor(info: FeatInfo<string | void> | undefined, slot: FeatSlot | undefined) {
+	constructor({
+		info,
+		slot,
+		warning,
+	}: {
+		info?: FeatInfo<string | void> | undefined;
+		slot?: FeatSlot | undefined;
+		warning?: FeatSlotWarning | undefined;
+	}) {
 		this.info = info;
 		this.slot = slot;
+		this.warning = warning;
+	}
+
+	get isEmpty(): boolean {
+		return this.hasSlot && !this.hasFeat;
 	}
 
 	get hasSlot(): boolean {
@@ -24,27 +38,18 @@ export class FeatOrSlot {
 		return this.info !== undefined;
 	}
 
-	get isEmpty(): boolean {
-		return this.hasSlot && !this.hasFeat;
-	}
-
-	get isExtra(): boolean {
-		return !this.slot && !!this.info?.slot;
-	}
-
 	get level(): number {
-		return (this.slot?.level ?? this.info?.feat.level)!;
+		return (this.slot?.level ?? this.info?.slot?.level ?? this.info?.feat?.level)!;
 	}
+}
 
-	static build = ({
-		info,
-		slot,
-	}: {
-		info?: FeatInfo<string | void> | undefined;
-		slot?: FeatSlot | undefined;
-	}): FeatOrSlot => {
-		return new FeatOrSlot(info, slot);
-	};
+export enum FeatSlotWarning {
+	// a slot that exists but is empty
+	Empty = 'Empty',
+	// an extra slot from Specialized Training that is filled while the character does not have the Specialized Training feat
+	InvalidExtra = 'InvalidExtra',
+	// a feat that does not fit the slot or does not belong to the character's class
+	InvalidUnfit = 'InvalidUnfit',
 }
 
 export class FeatsLevelSection {
@@ -56,20 +61,12 @@ export class FeatsLevelSection {
 		this.featsOrSlots = featsOrSlots;
 	}
 
-	countMissingSlots(): number {
-		return this.featsOrSlots.filter(featOrSlot => !featOrSlot.info && !!featOrSlot.slot).length;
+	get warnings(): FeatSlotWarning[] {
+		return this.featsOrSlots.map(featOrSlot => featOrSlot.warning).filter(warning => !!warning);
 	}
 
-	get hasMissingSlots(): boolean {
-		return this.countMissingSlots() > 0;
-	}
-
-	get hasExtraSlots(): boolean {
-		return this.featsOrSlots.some(featOrSlot => featOrSlot.isExtra);
-	}
-
-	get hasMissingOrExtraSlots(): boolean {
-		return this.hasMissingSlots || this.hasExtraSlots;
+	get hasWarnings(): boolean {
+		return this.warnings.length > 0;
 	}
 }
 
@@ -80,12 +77,12 @@ export class FeatsSection {
 		this.featsOrSlotsByLevel = featsOrSlotsByLevel;
 	}
 
-	countMissingSlots(): number {
-		return this.featsOrSlotsByLevel.reduce((total, section) => total + section.countMissingSlots(), 0);
+	get warnings(): FeatSlotWarning[] {
+		return this.featsOrSlotsByLevel.flatMap(section => section.warnings).filter(warning => !!warning);
 	}
 
-	get hasMissingFeats(): boolean {
-		return this.countMissingSlots() > 0;
+	get hasWarnings(): boolean {
+		return this.warnings.length > 0;
 	}
 
 	get isEmpty(): boolean {
@@ -131,16 +128,17 @@ export class FeatsSection {
 
 		const coreFeatOrSlots = coreFeats
 			// core feats have no slots
-			.map(feat => FeatOrSlot.build({ info: feat }));
+			.map(feat => new FeatOrSlot({ info: feat }));
 		const slottedFeatOrSlots = slottedFeats
 			// slotted feats must be re-paired with the sheet slots
 			// it is possible for example that the Specialized Training feat was removed
 			.map(feat => {
 				const featSlot = feat.slot!; // slotted feats have a slot
 				const sheetSlot = currentFeatSlots.find(slot => slot.toProp() === featSlot.toProp());
-				return FeatOrSlot.build({ info: feat, slot: sheetSlot });
+				const warning = FeatsSection.computeWarningsForFeatAndSlot(feat, sheetSlot, sheet);
+				return new FeatOrSlot({ info: feat, slot: sheetSlot, warning });
 			});
-		const missingFeatOrSlots = missingSlots.map(slot => FeatOrSlot.build({ slot }));
+		const missingFeatOrSlots = missingSlots.map(slot => new FeatOrSlot({ slot, warning: FeatSlotWarning.Empty }));
 
 		const featOrSlots = [...coreFeatOrSlots, ...slottedFeatOrSlots, ...missingFeatOrSlots];
 
@@ -152,5 +150,22 @@ export class FeatsSection {
 			);
 		});
 		return new FeatsSection(featsOrSlotsByLevel);
+	};
+
+	private static computeWarningsForFeatAndSlot = (
+		feat: FeatInfo<string | void>,
+		slot: FeatSlot | undefined,
+		sheet: CharacterSheet,
+	): FeatSlotWarning | undefined => {
+		if (!slot || !feat.feat.fitsSlot(slot)) {
+			return FeatSlotWarning.InvalidUnfit;
+		}
+		if (!feat.feat.fitsClass(sheet.characterClass.definition)) {
+			return FeatSlotWarning.InvalidUnfit;
+		}
+		if (slot.isExtra && !sheet.feats.hasSpecializedTraining) {
+			return FeatSlotWarning.InvalidExtra;
+		}
+		return undefined;
 	};
 }

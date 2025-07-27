@@ -928,6 +928,10 @@ export class FeatSlot {
 		return `Level ${this.level} ${this.type} Feat Slot${this.order > 0 ? ` (Specialized Training)` : ''}`;
 	}
 
+	get isExtra(): boolean {
+		return this.order > 0;
+	}
+
 	toProp(): string {
 		return `feat.${this.level}.${this.type}.${this.order}`;
 	}

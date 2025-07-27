@@ -26,7 +26,10 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 
 	// Initialize collapsed levels - start complete levels collapsed, keep incomplete levels open
 	const [collapsedLevels, setCollapsedLevels] = useState<Set<number>>(() => {
-		return new Set(featsSection.featsOrSlotsByLevel.filter(e => e.hasMissingSlots).map(e => e.level));
+		const lastLevel = Math.max(...featsSection.featsOrSlotsByLevel.map(e => e.level));
+		return new Set(
+			featsSection.featsOrSlotsByLevel.filter(e => !e.hasWarnings && e.level !== lastLevel).map(e => e.level),
+		);
 	});
 
 	// Handle feat selection
@@ -170,7 +173,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 					width: '650px',
 				}}
 			>
-				{featsSection.featsOrSlotsByLevel.map(({ level, featsOrSlots, hasMissingOrExtraSlots }) => {
+				{featsSection.featsOrSlotsByLevel.map(({ level, featsOrSlots, warnings }) => {
 					const isCollapsed = collapsedLevels.has(level);
 
 					return (
@@ -204,8 +207,12 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 									{isCollapsed ? <FaChevronRight size={12} /> : <FaChevronDown size={12} />}
 									<h4 style={{ margin: 0, color: 'var(--text)' }}>Level {level}</h4>
-									{isCollapsed && hasMissingOrExtraSlots && (
-										<FaExclamationTriangle size={12} style={{ color: 'orange' }} title='Level has missing feat slots' />
+									{warnings.length > 0 && (
+										<FaExclamationTriangle
+											size={12}
+											style={{ color: 'orange' }}
+											title={`Level has ${warnings.length} warnings.`}
+										/>
 									)}
 								</div>
 								<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>
@@ -233,7 +240,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 											const isCore = slotType === FeatType.Core;
 
 											const isEmpty = featOrSlot.isEmpty;
-											const isExtra = featOrSlot.isExtra;
+											const warning = featOrSlot.warning;
 											const isClickable = !isCore;
 
 											const key = slot?.toProp() || info?.feat?.key;
@@ -287,16 +294,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 														<div style={{ fontSize: '0.75em', color: 'var(--text-secondary)' }}>
 															{slot?.name ?? `Core ${info?.feat?.category} Feat`}
 														</div>
-														{isEmpty && (
-															<FaExclamationTriangle size={10} style={{ color: 'orange' }} title='Empty feat slot' />
-														)}
-														{isExtra && (
-															<FaExclamationTriangle
-																size={10}
-																style={{ color: 'orange' }}
-																title='Extra feat slot must be cleared'
-															/>
-														)}
+														{warning && <FaExclamationTriangle size={10} style={{ color: 'orange' }} title={warning} />}
 													</div>
 
 													{info ? (

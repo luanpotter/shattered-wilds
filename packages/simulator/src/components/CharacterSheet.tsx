@@ -223,7 +223,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 		return `${size} (${modifierStr})`;
 	};
 
-	const { hasMissingFeats } = FeatsSection.create(sheet);
+	const { hasWarnings } = FeatsSection.create(sheet);
 
 	// Create reactive basic attacks and defense that update when sheet changes
 	const basicAttacks = useMemo(() => sheet.getBasicAttacks(), [sheet]);
@@ -326,11 +326,11 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 								title={editMode ? 'Click to manage feats' : 'Feats (Edit mode required)'}
 							>
 								<span>Feats</span>
-								{editMode && hasMissingFeats && (
+								{editMode && hasWarnings && (
 									<FaExclamationTriangle
 										size={12}
 										style={{ color: 'orange', marginLeft: '4px' }}
-										title='Missing feat slots'
+										title='Feats have warnings'
 									/>
 								)}
 							</button>

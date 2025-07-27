@@ -205,10 +205,10 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 			);
 		}
 
-		const missingSlots = section.countMissingSlots();
+		const { warnings } = section;
 		return wrap(
 			<>
-				{missingSlots > 0 && (
+				{warnings.length > 0 && (
 					<div
 						style={{
 							padding: '1rem',
@@ -221,9 +221,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 						}}
 					>
 						<FaExclamationTriangle style={{ color: 'orange' }} />
-						<span style={{ color: 'var(--text)' }}>
-							{missingSlots} unassigned feat slot{missingSlots !== 1 ? 's' : ''}
-						</span>
+						<span style={{ color: 'var(--text)' }}>{warnings.length} warnings</span>
 					</div>
 				)}
 
