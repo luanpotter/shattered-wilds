@@ -21,6 +21,7 @@ import {
 	Feat,
 	FeatSource,
 	StaticFeatSource,
+	ClassDefinition,
 } from '@shattered-wilds/commons';
 
 import { DerivedStat, BasicAttack, DefenseType } from './core';
@@ -112,7 +113,11 @@ export class ClassInfo {
 
 	private getClassFeatSources(): FeatSource[] {
 		const classDefinition = CLASS_DEFINITIONS[this.characterClass];
-		return [StaticFeatSource.Class, classDefinition.realm, classDefinition.role, classDefinition.flavor];
+		return [StaticFeatSource.ClassRole, classDefinition.realm, classDefinition.role, classDefinition.flavor];
+	}
+
+	get definition(): ClassDefinition {
+		return CLASS_DEFINITIONS[this.characterClass];
 	}
 
 	getCoreFeats(): FeatInfo<string | void>[] {

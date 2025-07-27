@@ -393,7 +393,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 						</div>
 
 						<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-							{featsSection.availableFeatsForSlot(selectedSlot).map(feat => (
+							{featsSection.availableFeatsForSlot(selectedSlot, sheet).map(feat => (
 								<div
 									key={feat.key}
 									style={{
@@ -413,7 +413,12 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 									role='button'
 									aria-label={`Select ${feat.name} feat`}
 								>
-									<div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{feat.name}</div>
+									<div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+										<span style={{ fontWeight: 'bold' }}>{feat.name}</span>
+										<span style={{ fontStyle: 'italic' }}>
+											{feat.type} Level {feat.level} {feat.source} Feat
+										</span>
+									</div>
 									<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)' }}>
 										<RichText>{feat.description}</RichText>
 									</div>

@@ -32,6 +32,7 @@
         "react-draggable": "^4.4.6",
         "react-icons": "^5.5.0",
         "react-markdown": "^10.1.0",
+        "type-comparator": "^0.2.10",
         "water.css": "^2.1.1",
         "zustand": "^5.0.3",
       },
@@ -1189,6 +1190,8 @@
     "tsconfig-paths": ["tsconfig-paths@3.15.0", "", { "dependencies": { "@types/json5": "^0.0.29", "json5": "^1.0.2", "minimist": "^1.2.6", "strip-bom": "^3.0.0" } }, "sha512-2Ac2RgzDe/cn48GvOe3M+o82pEFewD3UPbyoUHHdKasHwJKjds4fLXWf/Ux5kATBKN20oaFGu+jbElp1pos0mg=="],
 
     "type-check": ["type-check@0.4.0", "", { "dependencies": { "prelude-ls": "^1.2.1" } }, "sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew=="],
+
+    "type-comparator": ["type-comparator@0.2.10", "", {}, "sha512-XpvFRAn5soNMb/HLG1suuk4lsN8CLVHK3o/xcuZBDQR8p9ObfvJp7IyST7WtTIpYL5JDJO2IYwhsOf/+OgQKlw=="],
 
     "typed-array-buffer": ["typed-array-buffer@1.0.3", "", { "dependencies": { "call-bound": "^1.0.3", "es-errors": "^1.3.0", "is-typed-array": "^1.1.14" } }, "sha512-nAYYwfY3qnzX30IkA6AQZjVbtK6duGontcQm1WSG1MD94YLqK0515GNApXkoxKOWMusVssAHWLh9SeaoefYFGw=="],
 

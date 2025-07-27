@@ -1,4 +1,5 @@
-import { FeatDefinition, FeatInfo, FEATS, FeatSlot } from '@shattered-wilds/commons';
+import { FeatCategory, FeatDefinition, FeatInfo, FEATS, FeatSlot, FeatType } from '@shattered-wilds/commons';
+import * as TypeComparator from 'type-comparator';
 
 import { CharacterSheet } from './character-sheet';
 
@@ -97,14 +98,24 @@ export class FeatsSection {
 		);
 	}
 
-	availableFeatsForSlot(slot: FeatSlot): FeatDefinition<string | void>[] {
-		console.log('Computing available feats for slot:', slot);
+	availableFeatsForSlot(slot: FeatSlot, sheet: CharacterSheet): FeatDefinition<string | void>[] {
+		const comparator = TypeComparator.queue([
+			TypeComparator.map((x: FeatDefinition<string | void>) => x.level, TypeComparator.desc),
+			TypeComparator.map((x: FeatDefinition<string | void>) => x.type === FeatType.Major, TypeComparator.desc),
+			TypeComparator.map(
+				(x: FeatDefinition<string | void>) => (x.category === FeatCategory.General ? 1 : 0),
+				TypeComparator.asc,
+			),
+		]);
 		return (
 			Object.values(FEATS)
 				// fits the slot
-				.filter(feat => feat.level === slot.level && feat.type === slot.type)
+				.filter(feat => feat.fitsSlot(slot))
+				// fits the character sheet
+				.filter(feat => feat.fitsClass(sheet.characterClass.definition))
 				// not already slotted
 				.filter(feat => feat.parameter || !this.hasFeat(feat))
+				.sort(comparator)
 		);
 	}
 
