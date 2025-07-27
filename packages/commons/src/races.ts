@@ -20,7 +20,7 @@ export enum Upbringing {
 }
 
 export interface RacialStatModifier {
-	stat: StatType;
+	statType: StatType;
 	value: number;
 }
 
@@ -39,48 +39,48 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 	[Race.Elf]: {
 		name: Race.Elf,
 		modifiers: [
-			{ stat: StatType.DEX, value: 1 },
-			{ stat: StatType.CON, value: -1 },
+			{ statType: StatType.DEX, value: 1 },
+			{ statType: StatType.CON, value: -1 },
 		],
 		size: Size.M,
 	},
 	[Race.Dwarf]: {
 		name: Race.Dwarf,
 		modifiers: [
-			{ stat: StatType.CON, value: 1 },
-			{ stat: StatType.DEX, value: -1 },
+			{ statType: StatType.CON, value: 1 },
+			{ statType: StatType.DEX, value: -1 },
 		],
 		size: Size.S,
 	},
 	[Race.Orc]: {
 		name: Race.Orc,
 		modifiers: [
-			{ stat: StatType.STR, value: 1 },
-			{ stat: StatType.DEX, value: -1 },
+			{ statType: StatType.STR, value: 1 },
+			{ statType: StatType.DEX, value: -1 },
 		],
 		size: Size.L,
 	},
 	[Race.Fey]: {
 		name: Race.Fey,
 		modifiers: [
-			{ stat: StatType.DEX, value: 1 },
-			{ stat: StatType.STR, value: -1 },
+			{ statType: StatType.DEX, value: 1 },
+			{ statType: StatType.STR, value: -1 },
 		],
 		size: Size.S,
 	},
 	[Race.Goliath]: {
 		name: Race.Goliath,
 		modifiers: [
-			{ stat: StatType.STR, value: 1 },
-			{ stat: StatType.CON, value: -1 },
+			{ statType: StatType.STR, value: 1 },
+			{ statType: StatType.CON, value: -1 },
 		],
 		size: Size.L,
 	},
 	[Race.Goblin]: {
 		name: Race.Goblin,
 		modifiers: [
-			{ stat: StatType.CON, value: 1 },
-			{ stat: StatType.STR, value: -1 },
+			{ statType: StatType.CON, value: 1 },
+			{ statType: StatType.STR, value: -1 },
 		],
 		size: Size.S,
 	},

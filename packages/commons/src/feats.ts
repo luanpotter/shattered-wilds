@@ -1,5 +1,6 @@
 import { CLASS_ROLE_PRIMARY_ATTRIBUTE, ClassDefinition, ClassFlavor, ClassRealm, ClassRole } from './classes.js';
-import { Race, RACE_DEFINITIONS, Upbringing } from './races.js';
+import { Race, RACE_DEFINITIONS, RacialStatModifier, Upbringing } from './races.js';
+import { generateModifierBonusString, Modifier, ModifierSource } from './stats/stat-tree.js';
 import { StatType, StatTypeName } from './stats/stat-type.js';
 
 export enum FeatType {
@@ -31,6 +32,21 @@ export class FeatStatModifier implements FeatEffect {
 		public statType: StatType,
 		public value: number,
 	) {}
+
+	toModifier(feat: FeatDefinition<string | void>): Modifier {
+		const bonusString = generateModifierBonusString(this.statType, this.value);
+		return {
+			source: ModifierSource.Feat,
+			name: feat.name,
+			description: `${bonusString} from feat ${feat.name}`,
+			statType: this.statType,
+			value: this.value,
+		};
+	}
+
+	static from(raceModifier: RacialStatModifier): FeatStatModifier {
+		return new FeatStatModifier(raceModifier.statType, raceModifier.value);
+	}
 }
 
 export class FeatDefinition<T extends string | void> {
@@ -74,6 +90,15 @@ export class FeatDefinition<T extends string | void> {
 		this.parameter = parameter ?? undefined;
 		this.fullDescription = fullDescription;
 		this.effects = effects;
+	}
+
+	computeEffects(parameter: T): FeatEffect[] {
+		const info = new FeatInfo<T>({
+			feat: this,
+			slot: undefined,
+			parameter,
+		});
+		return this.effects?.(info) ?? [];
 	}
 
 	get category(): FeatCategory {
@@ -152,7 +177,7 @@ export class FeatInfo<T extends string | void> {
 	slot: FeatSlot | undefined;
 	parameter: T;
 
-	constructor(feat: FeatDefinition<T>, slot: FeatSlot | undefined, parameter: T) {
+	constructor({ feat, slot, parameter }: { feat: FeatDefinition<T>; slot: FeatSlot | undefined; parameter: T }) {
 		this.feat = feat;
 		this.slot = slot;
 		this.parameter = parameter;
@@ -189,19 +214,7 @@ export class FeatInfo<T extends string | void> {
 		const slot = FeatSlot.fromProp(key);
 		const [feat, parameter] = this.decodeFeatValue(value);
 		const def = FEATS[feat];
-		return new FeatInfo(def, slot, parameter);
-	}
-
-	static build<T extends string | void>({
-		feat,
-		slot,
-		parameter,
-	}: {
-		feat: FeatDefinition<T>;
-		slot: FeatSlot | undefined;
-		parameter: T;
-	}): FeatInfo<T> {
-		return new FeatInfo(feat, slot, parameter);
+		return new FeatInfo({ feat: def, slot, parameter });
 	}
 
 	private static decodeFeatValue(value: string): [Feat, string | null] {
@@ -230,7 +243,7 @@ export class FeatInfo<T extends string | void> {
 		slot: FeatSlot | undefined = undefined,
 	): FeatInfo<string | void> => {
 		const parameter = FeatInfo.parseParameter(def, parameters);
-		return FeatInfo.build({ feat: def, slot, parameter });
+		return new FeatInfo({ feat: def, slot, parameter });
 	};
 
 	static hydrateFeatDefinitions = (
@@ -442,7 +455,9 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		},
 		fullDescription: info => {
 			const raceDefinition = RACE_DEFINITIONS[info.parameter];
-			const modifiers = raceDefinition.modifiers.map(e => `${e.stat}: ${e.value > 0 ? '+' : ''}${e.value}`).join(' / ');
+			const modifiers = raceDefinition.modifiers
+				.map(e => `${e.statType}: ${e.value > 0 ? '+' : ''}${e.value}`)
+				.join(' / ');
 			if (!modifiers) {
 				return `Racial Modifiers for ${raceDefinition.name}: Neutral.`;
 			}
@@ -450,7 +465,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		},
 		effects: info => {
 			const raceDefinition = RACE_DEFINITIONS[info.parameter];
-			return raceDefinition.modifiers.map(e => new FeatStatModifier(e.stat, e.value));
+			return raceDefinition.modifiers.map(FeatStatModifier.from);
 		},
 	}),
 	[Feat.UpbringingFavoredModifier]: new FeatDefinition<MindOrSoulAttributes>({

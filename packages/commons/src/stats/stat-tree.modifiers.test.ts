@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Modifier, StatTree, StatType } from '../index.js';
+import { ClassRole, FEATS, FeatStatModifier, Modifier, Race, RACE_DEFINITIONS, StatTree, StatType } from '../index.js';
 
 describe('StatTree', () => {
 	describe('modifier calculation', () => {
@@ -35,16 +35,58 @@ describe('StatTree', () => {
 			return map;
 		};
 
+		const racialModifier = (race: Race): Modifier[] => {
+			return RACE_DEFINITIONS[race].modifiers.map(m => FeatStatModifier.from(m).toModifier(FEATS.RacialModifier));
+		};
+
+		const classModifier = (role: ClassRole): Modifier[] => {
+			return FEATS.ClassSpecialization.computeEffects(role)
+				.filter(m => m instanceof FeatStatModifier)
+				.map(m => m.toModifier(FEATS.ClassSpecialization));
+		};
+
 		it('level 0', () => {
 			const values = new Map<StatType, number>();
 			const map = compute(values);
 			expectMap(map, ...andBelow(StatType.Level, 0));
 		});
 
+		it('level 0 - with race', () => {
+			const values = new Map<StatType, number>();
+			const modifiers = [...racialModifier(Race.Elf)];
+			const map = compute(values, modifiers);
+			expectMap(
+				map,
+				[StatType.Level, 0],
+				[StatType.Body, 0],
+				...andBelow(StatType.STR, 0),
+				...andBelow(StatType.DEX, 1),
+				...andBelow(StatType.CON, -1),
+				...andBelow(StatType.Mind, 0),
+				...andBelow(StatType.Soul, 0),
+			);
+		});
+
 		it('level 1', () => {
 			const values = new Map<StatType, number>([[StatType.Level, 1]]);
 			const map = compute(values);
 			expectMap(map, ...andBelow(StatType.Level, 1));
+		});
+
+		it('level 1 - with race and class', () => {
+			const values = new Map<StatType, number>([[StatType.Level, 1]]);
+			const modifiers = [...racialModifier(Race.Elf), ...classModifier(ClassRole.Ranged)];
+			const map = compute(values, modifiers);
+			expectMap(
+				map,
+				[StatType.Level, 1],
+				[StatType.Body, 1],
+				...andBelow(StatType.STR, 1),
+				...andBelow(StatType.DEX, 3),
+				...andBelow(StatType.CON, 0),
+				...andBelow(StatType.Mind, 1),
+				...andBelow(StatType.Soul, 1),
+			);
 		});
 
 		it('level 2 - body', () => {
