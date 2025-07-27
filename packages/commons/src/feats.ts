@@ -929,11 +929,9 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 export class FeatSlot {
 	level: number;
 	type: FeatType;
-
-	// Normally all levels have only a order=0 feat slot, but additional feat slots can be acquired via feats
 	order: number;
 
-	constructor(level: number, type: FeatType, order: number = 0) {
+	constructor({ level, type, order = 0 }: { level: number; type: FeatType; order?: number }) {
 		this.level = level;
 		this.type = type;
 		this.order = order;
@@ -951,10 +949,6 @@ export class FeatSlot {
 		return `feat.${this.level}.${this.type}.${this.order}`;
 	}
 
-	static build({ level, type, order = 0 }: { level: number; type: FeatType; order?: number }): FeatSlot {
-		return new FeatSlot(level, type, order);
-	}
-
 	static fromProp(prop: string): FeatSlot {
 		const match = prop.match(/^feat\.(\d+)\.(\w+)(?:\.(\d+))?$/);
 		if (!match) {
@@ -963,7 +957,7 @@ export class FeatSlot {
 		const level = parseInt(match[1]!, 10);
 		const type = match[2]! as FeatType;
 		const order = parseInt(match[3]!, 10);
-		return new FeatSlot(level, type, order);
+		return new FeatSlot({ level, type, order });
 	}
 
 	static generateSlots({
@@ -977,19 +971,19 @@ export class FeatSlot {
 
 		for (let level = 1; level <= maxLevel; level++) {
 			slots.push(
-				FeatSlot.build({
+				new FeatSlot({
 					level: level,
 					type: level % 2 === 1 ? FeatType.Minor : FeatType.Major,
 				}),
 			);
 			if (level === 1 && hasSpecializedTraining) {
 				slots.push(
-					FeatSlot.build({
+					new FeatSlot({
 						level: 1,
 						type: FeatType.Minor,
 						order: 1,
 					}),
-					FeatSlot.build({
+					new FeatSlot({
 						level: 1,
 						type: FeatType.Minor,
 						order: 2,

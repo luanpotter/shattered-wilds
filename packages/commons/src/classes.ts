@@ -92,212 +92,218 @@ export enum ClassFlavor {
 }
 
 export class ClassDefinition {
-	constructor(
-		public name: CharacterClass,
-		public realm: ClassRealm,
-		public role: ClassRole,
-		public flavor: ClassFlavor,
-	) {}
+	name: CharacterClass;
+	realm: ClassRealm;
+	role: ClassRole;
+	flavor: ClassFlavor;
 
-	get primaryAttribute(): StatType {
-		return CLASS_ROLE_PRIMARY_ATTRIBUTE[this.role];
-	}
-
-	static build(props: {
+	constructor({
+		name,
+		realm,
+		role,
+		flavor,
+	}: {
 		name: CharacterClass;
 		realm: ClassRealm;
 		role: ClassRole;
 		flavor: ClassFlavor;
-	}): ClassDefinition {
-		return new ClassDefinition(props.name, props.realm, props.role, props.flavor);
+	}) {
+		this.name = name;
+		this.realm = realm;
+		this.role = role;
+		this.flavor = flavor;
+	}
+
+	get primaryAttribute(): StatType {
+		return CLASS_ROLE_PRIMARY_ATTRIBUTE[this.role];
 	}
 }
 
 export const CLASS_DEFINITIONS: Record<CharacterClass, ClassDefinition> = {
 	// Warriors - Melee (STR)
-	[CharacterClass.Fighter]: ClassDefinition.build({
+	[CharacterClass.Fighter]: new ClassDefinition({
 		name: CharacterClass.Fighter,
 		realm: ClassRealm.Warrior,
 		role: ClassRole.Melee,
 		flavor: ClassFlavor.Martial,
 	}),
-	[CharacterClass.Berserker]: ClassDefinition.build({
+	[CharacterClass.Berserker]: new ClassDefinition({
 		name: CharacterClass.Berserker,
 		realm: ClassRealm.Warrior,
 		role: ClassRole.Melee,
 		flavor: ClassFlavor.Survivalist,
 	}),
-	[CharacterClass.Swashbuckler]: ClassDefinition.build({
+	[CharacterClass.Swashbuckler]: new ClassDefinition({
 		name: CharacterClass.Swashbuckler,
 		realm: ClassRealm.Warrior,
 		role: ClassRole.Melee,
 		flavor: ClassFlavor.Scoundrel,
 	}),
 	// Warriors - Ranged (DEX)
-	[CharacterClass.Marksman]: ClassDefinition.build({
+	[CharacterClass.Marksman]: new ClassDefinition({
 		name: CharacterClass.Marksman,
 		realm: ClassRealm.Warrior,
 		role: ClassRole.Ranged,
 		flavor: ClassFlavor.Martial,
 	}),
-	[CharacterClass.Hunter]: ClassDefinition.build({
+	[CharacterClass.Hunter]: new ClassDefinition({
 		name: CharacterClass.Hunter,
 		realm: ClassRealm.Warrior,
 		role: ClassRole.Ranged,
 		flavor: ClassFlavor.Survivalist,
 	}),
-	[CharacterClass.Rogue]: ClassDefinition.build({
+	[CharacterClass.Rogue]: new ClassDefinition({
 		name: CharacterClass.Rogue,
 		realm: ClassRealm.Warrior,
 		role: ClassRole.Ranged,
 		flavor: ClassFlavor.Scoundrel,
 	}),
 	// Warriors - Tank (CON)
-	[CharacterClass.Guardian]: ClassDefinition.build({
+	[CharacterClass.Guardian]: new ClassDefinition({
 		name: CharacterClass.Guardian,
 		realm: ClassRealm.Warrior,
 		role: ClassRole.Tank,
 		flavor: ClassFlavor.Martial,
 	}),
-	[CharacterClass.Barbarian]: ClassDefinition.build({
+	[CharacterClass.Barbarian]: new ClassDefinition({
 		name: CharacterClass.Barbarian,
 		realm: ClassRealm.Warrior,
 		role: ClassRole.Tank,
 		flavor: ClassFlavor.Survivalist,
 	}),
-	[CharacterClass.Scout]: ClassDefinition.build({
+	[CharacterClass.Scout]: new ClassDefinition({
 		name: CharacterClass.Scout,
 		realm: ClassRealm.Warrior,
 		role: ClassRole.Tank,
 		flavor: ClassFlavor.Scoundrel,
 	}),
 	// Casters - Erudite (INT)
-	[CharacterClass.Wizard]: ClassDefinition.build({
+	[CharacterClass.Wizard]: new ClassDefinition({
 		name: CharacterClass.Wizard,
 		realm: ClassRealm.Caster,
 		role: ClassRole.Erudite,
 		flavor: ClassFlavor.Arcanist,
 	}),
-	[CharacterClass.Engineer]: ClassDefinition.build({
+	[CharacterClass.Engineer]: new ClassDefinition({
 		name: CharacterClass.Engineer,
 		realm: ClassRealm.Caster,
 		role: ClassRole.Erudite,
 		flavor: ClassFlavor.Mechanist,
 	}),
-	[CharacterClass.Alchemist]: ClassDefinition.build({
+	[CharacterClass.Alchemist]: new ClassDefinition({
 		name: CharacterClass.Alchemist,
 		realm: ClassRealm.Caster,
 		role: ClassRole.Erudite,
 		flavor: ClassFlavor.Naturalist,
 	}),
-	[CharacterClass.Storyteller]: ClassDefinition.build({
+	[CharacterClass.Storyteller]: new ClassDefinition({
 		name: CharacterClass.Storyteller,
 		realm: ClassRealm.Caster,
 		role: ClassRole.Erudite,
 		flavor: ClassFlavor.Musicist,
 	}),
 	// Casters - Intuitive (WIS)
-	[CharacterClass.Mage]: ClassDefinition.build({
+	[CharacterClass.Mage]: new ClassDefinition({
 		name: CharacterClass.Mage,
 		realm: ClassRealm.Caster,
 		role: ClassRole.Intuitive,
 		flavor: ClassFlavor.Arcanist,
 	}),
-	[CharacterClass.Artificer]: ClassDefinition.build({
+	[CharacterClass.Artificer]: new ClassDefinition({
 		name: CharacterClass.Artificer,
 		realm: ClassRealm.Caster,
 		role: ClassRole.Intuitive,
 		flavor: ClassFlavor.Mechanist,
 	}),
-	[CharacterClass.Druid]: ClassDefinition.build({
+	[CharacterClass.Druid]: new ClassDefinition({
 		name: CharacterClass.Druid,
 		realm: ClassRealm.Caster,
 		role: ClassRole.Intuitive,
 		flavor: ClassFlavor.Naturalist,
 	}),
-	[CharacterClass.Minstrel]: ClassDefinition.build({
+	[CharacterClass.Minstrel]: new ClassDefinition({
 		name: CharacterClass.Minstrel,
 		realm: ClassRealm.Caster,
 		role: ClassRole.Intuitive,
 		flavor: ClassFlavor.Musicist,
 	}),
 	// Casters - Innate (CHA)
-	[CharacterClass.Sorcerer]: ClassDefinition.build({
+	[CharacterClass.Sorcerer]: new ClassDefinition({
 		name: CharacterClass.Sorcerer,
 		realm: ClassRealm.Caster,
 		role: ClassRole.Innate,
 		flavor: ClassFlavor.Arcanist,
 	}),
-	[CharacterClass.Machinist]: ClassDefinition.build({
+	[CharacterClass.Machinist]: new ClassDefinition({
 		name: CharacterClass.Machinist,
 		realm: ClassRealm.Caster,
 		role: ClassRole.Innate,
 		flavor: ClassFlavor.Mechanist,
 	}),
-	[CharacterClass.Shaman]: ClassDefinition.build({
+	[CharacterClass.Shaman]: new ClassDefinition({
 		name: CharacterClass.Shaman,
 		realm: ClassRealm.Caster,
 		role: ClassRole.Innate,
 		flavor: ClassFlavor.Naturalist,
 	}),
-	[CharacterClass.Bard]: ClassDefinition.build({
+	[CharacterClass.Bard]: new ClassDefinition({
 		name: CharacterClass.Bard,
 		realm: ClassRealm.Caster,
 		role: ClassRole.Innate,
 		flavor: ClassFlavor.Musicist,
 	}),
 	// Mystics - Disciple (DIV)
-	[CharacterClass.Cleric]: ClassDefinition.build({
+	[CharacterClass.Cleric]: new ClassDefinition({
 		name: CharacterClass.Cleric,
 		realm: ClassRealm.Mystic,
 		role: ClassRole.Disciple,
 		flavor: ClassFlavor.Devout,
 	}),
-	[CharacterClass.Warlock]: ClassDefinition.build({
+	[CharacterClass.Warlock]: new ClassDefinition({
 		name: CharacterClass.Warlock,
 		realm: ClassRealm.Mystic,
 		role: ClassRole.Disciple,
 		flavor: ClassFlavor.Mixed,
 	}),
-	[CharacterClass.Paladin]: ClassDefinition.build({
+	[CharacterClass.Paladin]: new ClassDefinition({
 		name: CharacterClass.Paladin,
 		realm: ClassRealm.Mystic,
 		role: ClassRole.Disciple,
 		flavor: ClassFlavor.Crusader,
 	}),
 	// Mystics - Adept (FOW)
-	[CharacterClass.Sage]: ClassDefinition.build({
+	[CharacterClass.Sage]: new ClassDefinition({
 		name: CharacterClass.Sage,
 		realm: ClassRealm.Mystic,
 		role: ClassRole.Adept,
 		flavor: ClassFlavor.Devout,
 	}),
-	[CharacterClass.Monk]: ClassDefinition.build({
+	[CharacterClass.Monk]: new ClassDefinition({
 		name: CharacterClass.Monk,
 		realm: ClassRealm.Mystic,
 		role: ClassRole.Adept,
 		flavor: ClassFlavor.Mixed,
 	}),
-	[CharacterClass.Ranger]: ClassDefinition.build({
+	[CharacterClass.Ranger]: new ClassDefinition({
 		name: CharacterClass.Ranger,
 		realm: ClassRealm.Mystic,
 		role: ClassRole.Adept,
 		flavor: ClassFlavor.Crusader,
 	}),
 	// Mystics - Inspired (LCK)
-	[CharacterClass.Wanderer]: ClassDefinition.build({
+	[CharacterClass.Wanderer]: new ClassDefinition({
 		name: CharacterClass.Wanderer,
 		realm: ClassRealm.Mystic,
 		role: ClassRole.Inspired,
 		flavor: ClassFlavor.Devout,
 	}),
-	[CharacterClass.Wayfarer]: ClassDefinition.build({
+	[CharacterClass.Wayfarer]: new ClassDefinition({
 		name: CharacterClass.Wayfarer,
 		realm: ClassRealm.Mystic,
 		role: ClassRole.Inspired,
 		flavor: ClassFlavor.Mixed,
 	}),
-	[CharacterClass.Warden]: ClassDefinition.build({
+	[CharacterClass.Warden]: new ClassDefinition({
 		name: CharacterClass.Warden,
 		realm: ClassRealm.Mystic,
 		role: ClassRole.Inspired,
