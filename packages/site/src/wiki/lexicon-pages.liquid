@@ -9,30 +9,14 @@ title: "{{ lexicon.title }}"
 
 <h1>{{ lexicon.title }}</h1>
 
-{% if lexicon.isCategory and lexicon.categoryItems and lexicon.categoryItems.size > 0 %}
+{% if lexicon.categoryItems and lexicon.categoryItems.size > 0 %}
   <!-- Category page with definition and auto-generated list -->
   {{ lexicon.content | mdb }}
 
   <h2>{{ lexicon.title }} List</h2>
   <ul class="category-list">
     {% for item in lexicon.categoryItems %}
-      <li class="category-list-item">
-        <a href="{{ item.url }}">{{ item.title }}</a>
-        {% if item.metadata %}
-          <span class="item-metadata">
-            {% for meta in item.metadata %}
-              {% if meta.value %}
-                <span class="{{ meta.cssClass }}">{{ meta.title }}: {{ meta.value }}</span>
-              {% else %}
-                <span class="{{ meta.cssClass }}">{{ meta.title }}</span>
-              {% endif %}
-            {% endfor %}
-          </span>
-        {% endif %}
-        {% if item.content %}
-          : {{ item.content | split: "\n\n" | first | strip | mdi }}
-        {% endif %}
-      </li>
+      <li class="category-list-item">{% item item.slug %}</li>
     {% endfor %}
   </ul>
 {% else %}

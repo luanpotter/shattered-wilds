@@ -26,13 +26,11 @@ export const parseLexicon = () => {
 				files.push(...subFiles);
 			} else if (item.endsWith('.md')) {
 				// Create slug from relative path to lexicon root
-				const relativePath = path.relative(lexiconDir, fullPath);
-				const slug = relativePath.replace(/\.md$/, '').replace(/[/\\]/g, '_');
+				const relativePath = path.relative(lexiconDir, fullPath).replace(/\.md$/, '');
 
-				// Create title with colon format (e.g., "Action: Move")
-				const titleParts = relativePath.replace(/\.md$/, '').split(/[/\\]/);
-				let title = titleParts.length > 1 ? `${titleParts[0]}: ${titleParts.slice(1).join(' ')}` : titleParts[0];
-				title = title.replace(/_/g, ' ');
+				const bits = relativePath.split('/').slice(-2);
+				const [category, slug] = bits.length === 1 ? [undefined, ...bits] : bits;
+				const title = slug.replace(/_/g, ' ');
 
 				// Parse frontmatter if present
 				const content = fs.readFileSync(fullPath, 'utf8');
@@ -71,12 +69,10 @@ export const parseLexicon = () => {
 					filePath: fullPath,
 					slug: slug,
 					title: title,
-					shortTitle: title.replace(/^[^:]+: /, ''),
 					basePath: basePath,
 					content: markdownContent,
 					metadata: parseFrontMatter(frontMatter),
-					isCategory: titleParts.length === 1, // Root level files are categories
-					category: titleParts.length > 1 ? titleParts[0] : null,
+					category,
 				});
 			}
 		}
@@ -105,7 +101,7 @@ export const parseLexicon = () => {
 
 	return markdownFiles.map(file => {
 		let categoryItems = null;
-		if (file.isCategory && categoryGroups[file.title]) {
+		if (categoryGroups[file.title]) {
 			categoryItems = categoryGroups[file.title]
 				.filter(item => item.slug !== file.slug)
 				.map(item => ({
@@ -116,13 +112,12 @@ export const parseLexicon = () => {
 		return {
 			// wiki parameters
 			slug: file.slug,
-			title: file.shortTitle,
+			title: file.title,
 			url: `/wiki/${file.slug}/`,
 
 			// data
 			content: file.content,
 			metadata: file.metadata,
-			isCategory: file.isCategory,
 			category: file.category,
 			categoryItems: categoryItems,
 		};

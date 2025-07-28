@@ -390,7 +390,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: StaticFeatSource.General,
 		level: 1,
 		description:
-			'You have an uncanny knack for mimicking animal sounds. If you are familiar with it, and a humanoid could conceivably reproduce it, you can make a good-enough impression that an untrained ear could not distinguish it. An expert (such as someone with the Sylvan Upbringing) could run an [[Stat_Intuition | Intuition]] Check (or [[Stat_Knowledge | Knowledge]] if they have reason to suspect) to try to assess the veracity of the sound.',
+			'You have an uncanny knack for mimicking animal sounds. If you are familiar with it, and a humanoid could conceivably reproduce it, you can make a good-enough impression that an untrained ear could not distinguish it. An expert (such as someone with the Sylvan Upbringing) could run an [[Intuition]] Check (or [[Knowledge]] if they have reason to suspect) to try to assess the veracity of the sound.',
 	}),
 	[Feat.GirthCompensation]: new FeatDefinition<void>({
 		key: Feat.GirthCompensation,
@@ -398,7 +398,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Major,
 		source: StaticFeatSource.General,
 		level: 1,
-		description: 'You can use [[Stat_STR | STR]] as the **Primary Attribute** for **Light Melee** weapons.',
+		description: 'You can use [[STR]] as the **Primary Attribute** for **Light Melee** weapons.',
 	}),
 	[Feat.QuickDraw]: new FeatDefinition<void>({
 		key: Feat.QuickDraw,
@@ -407,7 +407,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: StaticFeatSource.General,
 		level: 2,
 		description:
-			'If you have at least one hand free, you can spend 1 [[Resource_Focus_Point | FP]] to draw a Light Melee Weapon without spending an action.',
+			'If you have at least one hand free, you can spend 1 [[Focus_Point | FP]] to draw a Light Melee Weapon without spending an action.',
 	}),
 	[Feat.BlindSense]: new FeatDefinition<void>({
 		key: Feat.BlindSense,
@@ -416,7 +416,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: StaticFeatSource.General,
 		level: 3,
 		description:
-			'Your strong connection to your Soul Realm allows you to expand your sense of hearing and smell. You can spend 1 [[Resource_Action_Point | AP]] and 2 [[Resource_Spirit_Point | SP]] to know the positions of any creature you are aware of within `6m` as well as if you could see them clearly. If they are explicitly trying to sneak, you get a +6 in your [[Stat_Perception | Perception]] Check.',
+			'Your strong connection to your Soul Realm allows you to expand your sense of hearing and smell. You can spend 1 [[Action_Point | AP]] and 2 [[Spirit_Point | SP]] to know the positions of any creature you are aware of within `6m` as well as if you could see them clearly. If they are explicitly trying to sneak, you get a +6 in your [[Perception]] Check.',
 	}),
 	// Class
 	[Feat.ClassSpecialization]: new FeatDefinition<ClassRole>({
@@ -572,7 +572,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassRole.Melee,
 		level: 1,
 		description:
-			'You can spend `3` [[Resource_Action_Points | AP]] and `1` [[Resource_Focus_Points | FP]] to perform an advanced **Melee Strike** against up to three adjacent enemies within your reach. You roll once for all targets, but they resist separately.',
+			'You can spend `3` [[Action_Points | AP]] and `1` [[Focus_Points | FP]] to perform an advanced **Melee Strike** against up to three adjacent enemies within your reach. You roll once for all targets, but they resist separately.',
 	}),
 	[Feat.OpportunityWindow]: new FeatDefinition<void>({
 		key: Feat.OpportunityWindow,
@@ -581,7 +581,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassRole.Melee,
 		level: 2,
 		description:
-			'You can spend 1 [[Resource_Soul_Point | SP]] to reduce by 1 (min 1) the amount of [[Resource_Action_Point | AP]] you would spend to perform the [[Action_Opportunity_Attack | Opportunity Attack]] reaction.',
+			'You can spend 1 [[Soul_Point | SP]] to reduce by 1 (min 1) the amount of [[Action_Point | AP]] you would spend to perform the [[Action_Opportunity_Attack | Opportunity Attack]] reaction.',
 	}),
 	[Feat.SpinAttack]: new FeatDefinition<void>({
 		key: Feat.SpinAttack,
@@ -599,7 +599,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassRole.Ranged,
 		level: 1,
 		description:
-			'Spend 1 [[Resource_Focus_Points | FP]] and 1 [[Resource_Action_Points | AP]] to target a specific enemy within range of your Ranged Weapon and that you can see clearly; if your next action is a **Basic Ranged Attack** against that target, you can roll with [[Stat_Finesse | Finesse]] instead and +3 [[Circumstance Modifier | CM]] to the **Attack Check**.',
+			'Spend 1 [[Focus_Points | FP]] and 1 [[Action_Points | AP]] to target a specific enemy within range of your Ranged Weapon and that you can see clearly; if your next action is a **Basic Ranged Attack** against that target, you can roll with [[Finesse]] instead and +3 [[Circumstance Modifier | CM]] to the **Attack Check**.',
 	}),
 	[Feat.RapidFire]: new FeatDefinition<void>({
 		key: Feat.RapidFire,
@@ -608,7 +608,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassRole.Ranged,
 		level: 2,
 		description:
-			'Spend 2 [[Resource_Spirit_Points | SP]] (and the [[Resource_Action_Point | AP]] that it would cost) to use a [[Action_Strike | Strike]] action for **Basic Ranged Attack** as a reaction; it loses the [[Concentrate]] trait.',
+			'Spend 2 [[Spirit_Points | SP]] (and the [[Action_Point | AP]] that it would cost) to use a [[Strike]] action for **Basic Ranged Attack** as a reaction; it loses the [[Concentrate]] trait.',
 	}),
 	[Feat.PinningShot]: new FeatDefinition<void>({
 		key: Feat.PinningShot,
@@ -616,7 +616,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Major,
 		source: ClassRole.Ranged,
 		level: 2,
-		description: 'You can perform the [[Action_Stun | Stun]] action with **Ranged Attacks**.',
+		description: 'You can perform the [[Stun]] action with **Ranged Attacks**.',
 	}),
 	[Feat.DoubleShot]: new FeatDefinition<void>({
 		key: Feat.DoubleShot,
@@ -625,7 +625,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassRole.Ranged,
 		level: 4,
 		description:
-			'You can spend 3 [[Resource_Spirit_Points | SP]] to shoot two projectiles with a single [[Action_Strike | Strike]] action. Roll for each separately, one after the other.',
+			'You can spend 3 [[Spirit_Points | SP]] to shoot two projectiles with a single [[Strike]] action. Roll for each separately, one after the other.',
 	}),
 	// Tank
 	[Feat.ImprovedTaunt]: new FeatDefinition<void>({
@@ -635,7 +635,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassRole.Tank,
 		level: 1,
 		description:
-			'You can spend an additional 1 [[Resource_Spirit_Point | SP]] as you perform a [[Action_Taunt | Taunt]] action to get a +6 [[Circumstance Modifier | CM]] to your [[Stat_Intimidation | Intimidation]] Check.',
+			'You can spend an additional 1 [[Spirit_Point | SP]] as you perform a [[Taunt]] action to get a +6 [[Circumstance Modifier | CM]] to your [[Intimidation]] Check.',
 	}),
 	[Feat.QuickBash]: new FeatDefinition<void>({
 		key: Feat.QuickBash,
@@ -643,7 +643,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Major,
 		source: ClassRole.Tank,
 		level: 2,
-		description: 'You only need to spend 1 [[Resource_Action_Point | AP]] to perform a **Shield Bash** .',
+		description: 'You only need to spend 1 [[Action_Point | AP]] to perform a **Shield Bash** .',
 	}),
 	[Feat.ArmorFamiliarity]: new FeatDefinition<void>({
 		key: Feat.ArmorFamiliarity,
@@ -651,7 +651,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Minor,
 		source: ClassRole.Tank,
 		level: 3,
-		description: 'You reduce your [[Stat_DEX | DEX]] penalty from wearing Armor by `1` (min `0`).',
+		description: 'You reduce your [[DEX]] penalty from wearing Armor by `1` (min `0`).',
 	}),
 	[Feat.BulkyFrame]: new FeatDefinition<void>({
 		key: Feat.BulkyFrame,
@@ -660,7 +660,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassRole.Tank,
 		level: 2,
 		description:
-			'You have a `+6` [[Circumstance Modifier | CM]] to your [[Stat_Stance | Stance]] Checks to resist opponents of your size or larger attempting to [[Action_Stumble_Through | Stumble Through]] you.',
+			'You have a `+6` [[Circumstance Modifier | CM]] to your [[Stance]] Checks to resist opponents of your size or larger attempting to [[Stumble_Through | Stumble Through]] you.',
 	}),
 	// Martial
 	[Feat.ExertAuthority]: new FeatDefinition<void>({
@@ -670,7 +670,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassFlavor.Martial,
 		level: 1,
 		description:
-			'Spend 1 [[Resource_Action_Point | AP]] and 1 [[Resource_Spirit_Point | SP]] to authoritatively command an ally that can see and hear you clearly to perform a specific 1 [[Resource_Action_Point | AP]] action of your choice. The ally can choose to perform the action immediately without spending any AP if they wish.',
+			'Spend 1 [[Action_Point | AP]] and 1 [[Spirit_Point | SP]] to authoritatively command an ally that can see and hear you clearly to perform a specific 1 [[Action_Point | AP]] action of your choice. The ally can choose to perform the action immediately without spending any AP if they wish.',
 	}),
 	[Feat.DistributedShifts]: new FeatDefinition<void>({
 		key: Feat.DistributedShifts,
@@ -679,7 +679,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassFlavor.Martial,
 		level: 2,
 		description:
-			'When you would inflict additional damage through a **Basic Melee Strike** to an enemy via **Crit Shifts**, you can instead attempt to distribute that additional Shift damage to any other adjacent creatures that would have been valid targets for this attack; they can resist with a [[Stat_Evasiveness | Evasiveness]], [[Stat_Toughness | Toughness]] or [[Stat_Karma | Karma]] Check.',
+			'When you would inflict additional damage through a **Basic Melee Strike** to an enemy via **Crit Shifts**, you can instead attempt to distribute that additional Shift damage to any other adjacent creatures that would have been valid targets for this attack; they can resist with a [[Evasiveness]], [[Toughness]] or [[Karma]] Check.',
 	}),
 	// Survivalist
 	[Feat.Rage]: new FeatDefinition<void>({
@@ -689,7 +689,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassFlavor.Survivalist,
 		level: 1,
 		description:
-			'You can spend 1 [[Resource_Action_Point | AP]] and 2 [[Resource_Spirit_Point | SP]] to become **Enraged**: reduce your [[Resource_Focus_Points | Focus Points]] to `1`, and it cannot be further reduced while you are **Enraged**; you cannot [[Concentrate]] while **Enraged**; and you gain a [[Circumstance Modifier | CM]] to your next **Basic Attacks** while **Enraged** that starts with `+6` and is reduced by `1` each time it is used. When the bonus reaches `0`, or you fail to perform at least on **Basic Attack** in your turn, you are no longer **Enraged**.',
+			'You can spend 1 [[Action_Point | AP]] and 2 [[Spirit_Point | SP]] to become **Enraged**: reduce your [[Focus_Points | Focus Points]] to `1`, and it cannot be further reduced while you are **Enraged**; you cannot [[Concentrate]] while **Enraged**; and you gain a [[Circumstance Modifier | CM]] to your next **Basic Attacks** while **Enraged** that starts with `+6` and is reduced by `1` each time it is used. When the bonus reaches `0`, or you fail to perform at least on **Basic Attack** in your turn, you are no longer **Enraged**.',
 	}),
 	[Feat.InstinctiveTracking]: new FeatDefinition<void>({
 		key: Feat.InstinctiveTracking,
@@ -726,7 +726,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassFlavor.Scoundrel,
 		level: 2,
 		description:
-			'You get a `+3` [[Circumstance Modifier | CM]] to any Checks you perform associated with lock picking or trap disarming. You can spend 1 [[Resource_Focus_Point | FP]] to get an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).',
+			'You get a `+3` [[Circumstance Modifier | CM]] to any Checks you perform associated with lock picking or trap disarming. You can spend 1 [[Focus_Point | FP]] to get an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).',
 	}),
 	[Feat.Leverage]: new FeatDefinition<void>({
 		key: Feat.Leverage,
@@ -735,7 +735,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassFlavor.Scoundrel,
 		level: 2,
 		description:
-			'If you would inflict additional damage through a **Basic Strike** to an enemy via **Crit Shifts**, you can instead spend any number of [[Resource_Spirit_Point | SP]] (up to your level) to inflict that many additional [[Resource_Vitality_Point | VP]] of damage.',
+			'If you would inflict additional damage through a **Basic Strike** to an enemy via **Crit Shifts**, you can instead spend any number of [[Spirit_Point | SP]] (up to your level) to inflict that many additional [[Vitality_Point | VP]] of damage.',
 	}),
 	[Feat.BeginnersLuck]: new FeatDefinition<void>({
 		key: Feat.BeginnersLuck,
@@ -744,7 +744,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassFlavor.Scoundrel,
 		level: 2,
 		description:
-			'You can use a [[Resource_Focus_Point | FP]] to pay for a [[Action_Luck_Die | Luck Die]] for a Check of a Skill you do not have any points invested in.',
+			'You can use a [[Focus_Point | FP]] to pay for a [[Luck_Die | Luck Die]] for a Check of a Skill you do not have any points invested in.',
 	}),
 	// Caster
 	[Feat.ArcaneCasting]: new FeatDefinition<MindAttributes>({
@@ -770,7 +770,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassFlavor.Arcanist,
 		level: 1,
 		description:
-			'You can spend 1 [[Resource_Action_Point | AP]] and 1 [[Resource_Focus_Point | FP]] to cast a spell of your choice as a reaction.',
+			'You can spend 1 [[Action_Point | AP]] and 1 [[Focus_Point | FP]] to cast a spell of your choice as a reaction.',
 	}),
 	// Mechanist
 	[Feat.ToolAssistedCasting]: new FeatDefinition<void>({
@@ -809,7 +809,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassFlavor.Musicist,
 		level: 2,
 		description:
-			'You can attempt to hide a message in a song you are singing, only to be perceived by certain listeners. Roll a [[Stat_Speechcraft | Speechcraft]] Check with `+6` [[Circumstance Modifier | CM]]; all listeners then contest with an [[Stat_IQ | IQ]] Check. The targets you wanted to understand get a `+3` [[Circumstance Modifier | CM]] to their Check, or a `+6` if they are aware that you are trying to hide a message.',
+			'You can attempt to hide a message in a song you are singing, only to be perceived by certain listeners. Roll a [[Speechcraft]] Check with `+6` [[Circumstance Modifier | CM]]; all listeners then contest with an [[IQ]] Check. The targets you wanted to understand get a `+3` [[Circumstance Modifier | CM]] to their Check, or a `+6` if they are aware that you are trying to hide a message.',
 	}),
 	// Mystic
 	[Feat.DivineChanneling]: new FeatDefinition<void>({
@@ -829,7 +829,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassRealm.Mystic,
 		level: 1,
 		description:
-			'You can perform the [[Action_Calm | Calm]] action on an ally that you can touch. You can spend an additional 1 [[Resource_Focus_Point | FP]] to get a +3 [[Circumstance Modifier | CM]] when performing the [[Action_Calm | Calm]] action.',
+			'You can perform the [[Calm]] action on an ally that you can touch. You can spend an additional 1 [[Focus_Point | FP]] to get a +3 [[Circumstance Modifier | CM]] when performing the [[Calm]] action.',
 	}),
 	// Disciple
 	[Feat.FlurryOfBlows]: new FeatDefinition<void>({
@@ -839,7 +839,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassRealm.Mystic,
 		level: 1,
 		description:
-			'You can spend 1 [[Resource_Spirit_Point | SP]] to make an unarmed [[Action_Strike | Strike]] cost only 1 [[Resource_Action_Point | AP]].',
+			'You can spend 1 [[Spirit_Point | SP]] to make an unarmed [[Strike]] cost only 1 [[Action_Point | AP]].',
 	}),
 	[Feat.ChannelingFists]: new FeatDefinition<void>({
 		key: Feat.ChannelingFists,
@@ -848,7 +848,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassRealm.Mystic,
 		level: 2,
 		description:
-			'You can spend 1 [[Resource_Spirit_Point | SP]] to get a +1 [[Circumstance Modifier | CM]] to an unarmed Attack Check.',
+			'You can spend 1 [[Spirit_Point | SP]] to get a +1 [[Circumstance Modifier | CM]] to an unarmed Attack Check.',
 	}),
 	[Feat.CallousFists]: new FeatDefinition<void>({
 		key: Feat.CallousFists,
@@ -856,7 +856,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Major,
 		source: ClassRealm.Mystic,
 		level: 2,
-		description: 'You can use [[Stat_CON | CON]] instead of [[Stat_STR | STR]] to perform unarmed attacks.',
+		description: 'You can use [[CON]] instead of [[STR]] to perform unarmed attacks.',
 	}),
 	// Inspired
 	[Feat.BountifulLuck]: new FeatDefinition<void>({
@@ -866,7 +866,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassRealm.Mystic,
 		level: 1,
 		description:
-			'You can spend [[Resource_Spirit_Points | SP]] instead of [[Resource_Heroism_Points | Heroism Points]] to use the [[Action_Karmic_Resistance | Karmic Resistance]], [[Action_Write_History | Write History]] and [[Action_Luck_Die | Luck Die]] actions.',
+			'You can spend [[Spirit_Points | SP]] instead of [[Heroism_Points | Heroism Points]] to use the [[Karmic_Resistance | Karmic Resistance]], [[Write_History | Write History]] and [[Luck_Die | Luck Die]] actions.',
 	}),
 	[Feat.LuckyRelentlessness]: new FeatDefinition<void>({
 		key: Feat.LuckyRelentlessness,
@@ -874,7 +874,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Minor,
 		source: ClassRealm.Mystic,
 		level: 2,
-		description: 'Your DC for the [[Action_Heroic_Relentlessness | Heroic Relentlessness]] action is `15`.',
+		description: 'Your DC for the [[Heroic_Relentlessness | Heroic Relentlessness]] action is `15`.',
 	}),
 	[Feat.FavorableMovement]: new FeatDefinition<void>({
 		key: Feat.FavorableMovement,
@@ -883,7 +883,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassRealm.Mystic,
 		level: 3,
 		description:
-			'You can spend 1 [[Resource_Focus_Point | FP]] to ignore the **Difficult Terrain** trait of a hex while moving through it.',
+			'You can spend 1 [[Focus_Point | FP]] to ignore the **Difficult Terrain** trait of a hex while moving through it.',
 	}),
 	// Devout
 	[Feat.EffortlessImbuedItemChanneling]: new FeatDefinition<void>({
@@ -893,7 +893,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassFlavor.Devout,
 		level: 1,
 		description:
-			'Whenever you would spend [[Resource_Spirit_Point | Spirit Points]] to use an **Imbued Item** that would otherwise not require a [[Stat_Channeling | Channeling]] Check, you can make a [[Stat_Channeling | Channeling]] Check DC 15 to spend one less [[Resource_Spirit_Point | SP]].',
+			'Whenever you would spend [[Spirit_Point | Spirit Points]] to use an **Imbued Item** that would otherwise not require a [[Channeling]] Check, you can make a [[Channeling]] Check DC 15 to spend one less [[Spirit_Point | SP]].',
 	}),
 	[Feat.FocusedChanneling]: new FeatDefinition<void>({
 		key: Feat.FocusedChanneling,
@@ -902,7 +902,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassFlavor.Devout,
 		level: 3,
 		description:
-			"You can spend 2 [[Resource_Focus_Points | FP]] (and add the [[Concentrate]] trait, if it didn't have it already) when doing an action with the [[Channeling]] trait to get a +3 [[Circumstance Modifier | CM]].",
+			"You can spend 2 [[Focus_Points | FP]] (and add the [[Concentrate]] trait, if it didn't have it already) when doing an action with the [[Channeling]] trait to get a +3 [[Circumstance Modifier | CM]].",
 	}),
 	// Mixed
 	// Crusader
@@ -913,7 +913,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassFlavor.Crusader,
 		level: 1,
 		description:
-			'You can spend 2 [[Resource_Spirit_Point | SP]] when striking with a weapon to get a +3 [[Circumstance Modifier | CM]] as you channel raw power into it, making it acquire a distinct glow as you lift it to strike.',
+			'You can spend 2 [[Spirit_Point | SP]] when striking with a weapon to get a +3 [[Circumstance Modifier | CM]] as you channel raw power into it, making it acquire a distinct glow as you lift it to strike.',
 	}),
 	[Feat.SpiritualArmor]: new FeatDefinition<void>({
 		key: Feat.SpiritualArmor,
@@ -922,7 +922,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassFlavor.Crusader,
 		level: 2,
 		description:
-			'You can roll the [[Action_Shrug_Off | Shrug Off]] action using your **Primary Attribute** instead of [[Stat_Toughness | Toughness]].',
+			'You can roll the [[Shrug_Off | Shrug Off]] action using your **Primary Attribute** instead of [[Toughness]].',
 	}),
 };
 

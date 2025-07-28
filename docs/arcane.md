@@ -14,7 +14,7 @@ Arcane spells are first and foremost a specific combination of a verb and a noun
 
 In the view of the Arcane, the bodies of Beings are not just material, as they are tied to their Spark (or Soul). Think of Beings having an impenetrable aura that prevents Matter and Energy manipulation inside. However, the Being can still be manipulated directly, via Transfiguration or Command. While Telekinesis cannot be used directly on beings, the air around beings can be controlled to cause gusts of wind While Telekinesis cannot be used directly on beings, the air around beings can be controlled to cause gusts of wind for various effects.
 
-Casting a spell typically will require a certain amount of AP ([[Resource_Action_Point | Action Points]]) and FP ([[Resource_Focus_Point | Focus Points]]) to be spent (see Basic Arcane Spell below), requires executing some non-zero amount of Spell Components, and will require a Check on the Spellcaster's Base Attribute:
+Casting a spell typically will require a certain amount of AP ([[Action_Point | Action Points]]) and FP ([[Focus_Point | Focus Points]]) to be spent (see Basic Arcane Spell below), requires executing some non-zero amount of Spell Components, and will require a Check on the Spellcaster's Base Attribute:
 
 > Roll Base Spellcasting Attribute + Component Modifiers + Augmentation Modifiers [+ Other Circumstance Modifiers]
 
@@ -45,7 +45,7 @@ Narratively, if the Check rolls between the Spell DC using the Base DC and the (
 
 ## Basic Spell Attacks
 
-Regardless of specific narrative flavor (see Predefined Spells below for inspiration), a Caster can use a Basic Arcane Spell (2[[Resource_Action_Point | AP]], 1[[Resource_Focus_Point | FP]]) with Spell DC 15 to harm an enemy within 1m as a Basic Attack against a target's Body or Soul. The most typical Augmentations for a Basic Spell Attack are Range, Multi-target, and Casting Time.
+Regardless of specific narrative flavor (see Predefined Spells below for inspiration), a Caster can use a Basic Arcane Spell (2[[Action_Point | AP]], 1[[Focus_Point | FP]]) with Spell DC 15 to harm an enemy within 1m as a Basic Attack against a target's Body or Soul. The most typical Augmentations for a Basic Spell Attack are Range, Multi-target, and Casting Time.
 
 ## Shifts
 
@@ -65,7 +65,7 @@ Different **Flavors** of **Casters** have different access to different types of
 | Somatic    | Y        | YY          |            |          |
 | Focal      | Y        |             | YY         |          |
 
-It is important to note that the difficulty in executing **Spell Components** is due to figuring out what exact movements and sounds are needed to produce the desired effect, rather than the technical difficulty of performing the acts themselves. Therefore, you do not need high [[Stat_DEX | DEX]] to execute **Somatic** components, or high [[Stat_CHA | CHA]] for **Verbal** components; however if your hands are restricted, or you are unable to speak, you would not be able to perform the associated components.
+It is important to note that the difficulty in executing **Spell Components** is due to figuring out what exact movements and sounds are needed to produce the desired effect, rather than the technical difficulty of performing the acts themselves. Therefore, you do not need high [[DEX]] to execute **Somatic** components, or high [[CHA]] for **Verbal** components; however if your hands are restricted, or you are unable to speak, you would not be able to perform the associated components.
 
 ### Verbal
 
@@ -75,7 +75,7 @@ The **Verbal Component** can include shouting, chanting, singing, or music produ
 **One-Handed Instrument**: +2 (**Musicists** only)
 **Two-Handed Instrument**: +3 (**Musicists** only)
 
-The execution of **Verbal Components** requires a baseline freedom of speech; so they cannot be performed while under the [[Condition_Silenced | Silenced]] condition.
+The execution of **Verbal Components** requires a baseline freedom of speech; so they cannot be performed while under the [[Silenced]] condition.
 
 ### Somatic
 
@@ -85,15 +85,15 @@ The **Somatic Component** can include hand gestures, body movements, or tool-ass
 * **One-Handed Tool Use**: +2 (**Mechanistics** only)
 * **Two-Handed Tool Use**: +3 (**Mechanistics** only)
 
-The execution of Somatic components require a baseline freedom of movement; so they cannot be performed while under the [[Condition_Immobilized | Immobilized]] condition.
+The execution of Somatic components require a baseline freedom of movement; so they cannot be performed while under the [[Immobilized]] condition.
 
 ### Focal
 
 The **Focal Component** is a [[Imbued Item]] that uses power from the **Aether** to manipulate the vibrations on the **Material Plane** to assist in creating **Arcane Spell Components**. Essentially it is using Divine power to assist on the executing of casting Arcane Spells. **Wands**, **Staves** and other types of **Imbued Items** can be considered **Foci**, with different bonuses (similar to weapon bonuses).
 
-However, as any [[Imbued Item]], using a **Focal Component** requires spending a certain number of [[Resource_Spirit_Point | Spirit Points]] to activate (typically 1 [[Resource_Spirit_Point | SP]]). Essentially, the **Caster** is connecting (a very weak form of **Channeling**) to the **Focal Component** to activate it in the correct way. That still requires mental concentration, as the **Foci** need to be instructed on the exact nature of the required vibrations, and therefore cannot be used by non-Casters.
+However, as any [[Imbued Item]], using a **Focal Component** requires spending a certain number of [[Spirit_Point | Spirit Points]] to activate (typically 1 [[Spirit_Point | SP]]). Essentially, the **Caster** is connecting (a very weak form of **Channeling**) to the **Focal Component** to activate it in the correct way. That still requires mental concentration, as the **Foci** need to be instructed on the exact nature of the required vibrations, and therefore cannot be used by non-Casters.
 
-Therefore, the usages of a **Focal Component** require touching, concentrating, and very minor manipulation of the **Imbued Item**; so the [[Action_Disarm | Disarm]] action can be used to try to remove the **Focal Component** from a **Caster**'s hand.
+Therefore, the usages of a **Focal Component** require touching, concentrating, and very minor manipulation of the **Imbued Item**; so the [[Disarm]] action can be used to try to remove the **Focal Component** from a **Caster**'s hand.
 
 * **One-Handed Wand**: +1
 * **Two-Handed Staff**: +2
@@ -124,7 +124,7 @@ Extending the casting time over longer periods has severe diminishing returns, a
 
 ### Focus Cost
 
-The typical focus cost of the Basic Arcane Spell is 1 [[Resource_Focus_Point | FP]]. Each additional [[Resource_Focus_Point | FP]] will add a +1 modifier, up to twice the number of [[Resource_Action_Point | AP]] used (one can't just cram that much focus into too little time). If the spell is being cast as a Ritual, there is no limit on the amount of [[Resource_Focus_Point | FP]] that can be spent.
+The typical focus cost of the Basic Arcane Spell is 1 [[Focus_Point | FP]]. Each additional [[Focus_Point | FP]] will add a +1 modifier, up to twice the number of [[Action_Point | AP]] used (one can't just cram that much focus into too little time). If the spell is being cast as a Ritual, there is no limit on the amount of [[Focus_Point | FP]] that can be spent.
 
 ### Duration
 
@@ -179,7 +179,7 @@ While the Player can control the exact effect they aim to achieve, the DM has th
 
 While a Caster can choose any effect within the realms of the Arcane, below is a list of predefined spells with predefined Augmentation Modifiers making it easier for Players and DMs; they can both be used exactly as-is, or used to judge modifiers by comparison.
 
-Across all Schools, the Basic Arcane Spell takes **2 [[Resource_Action_Point | AP]]** and **1 [[Resource_Focus_Point | FP]]** to cast, with **Base DC 15** (or contested if higher).
+Across all Schools, the Basic Arcane Spell takes **2 [[Action_Point | AP]]** and **1 [[Focus_Point | FP]]** to cast, with **Base DC 15** (or contested if higher).
 
 Some typical Augmentations for each are combined to form the **Minimal Augmentation Modifier**; do note that every single spell can be Augmented by **Range**, which is the most common Augmentation; so that will not be included.
 
@@ -198,19 +198,19 @@ N.B.: with no other mineral/electrolyte intake, drinking exclusively pure water 
 
 #### Rock Smash [Special Attack]
 
-The Caster conjures a medium-sized (20L) boulder of weak rock above the target, within 1m, which can resist with an Evasiveness Check to avoid being hit by the falling debris, which causes 1[[Resource_Vitality_Point | VP]] of damage.
+The Caster conjures a medium-sized (20L) boulder of weak rock above the target, within 1m, which can resist with an Evasiveness Check to avoid being hit by the falling debris, which causes 1[[Vitality_Point | VP]] of damage.
 **Minimal Augmentation**: -3 [Volume: 20L]
 
 #### Conjure Debris
 
-The caster creates loose weak rocks, pebbles and/or gravel over 1 Hex, causing it to count as Difficult Terrain. The debris can be cleared gradually with 4 [[Resource_Action_Point | AP]] worth of actions.
+The caster creates loose weak rocks, pebbles and/or gravel over 1 Hex, causing it to count as Difficult Terrain. The debris can be cleared gradually with 4 [[Action_Point | AP]] worth of actions.
 **Minimal Augmentation**: -3 [Volume: 20L]
 
 #### Poison Cloud [Special Attack]
 
 The Caster conjures a 1m radius cloud of Noxious Gas in a Hex within 1m of them. The Hex _can_ be occupied by other creatures or objects, as the gas will be created around them.
 As the gas disperses, it lose its potency after 3 rounds. Creating more gas on the same space will just dislodge the excess poison around.
-**Noxious Gas**: A purple-ish toxic gas sometimes found in the Wilds; every creature at the end of turn must make a Resilience Check (DC 15 if passed through; DC 20 if they ended their turn within the cloud) or suffer 1[[Resource_Vitality_Point | VP]] of poison damage. If an incapacitated creature fails their check, they start to stack a Poisoned (1) Consequence.
+**Noxious Gas**: A purple-ish toxic gas sometimes found in the Wilds; every creature at the end of turn must make a Resilience Check (DC 15 if passed through; DC 20 if they ended their turn within the cloud) or suffer 1[[Vitality_Point | VP]] of poison damage. If an incapacitated creature fails their check, they start to stack a Poisoned (1) Consequence.
 **Requirements**: Caster must be familiar with Noxious Gas, having experienced it first hand at least once or studied it extensively.
 **Minimal Augmentation**: -8 [Material: Noxious Gas]
 **Area Augmentation**: +4 for each additional contiguous Hex of area.
@@ -228,7 +228,7 @@ The Caster evokes forth a harmless fist-sized ball of light, which will float in
 
 The Caster evokes a momentary flash of bright light within 1m of them, potentially affecting any seeing creatures within a 4m radius.
 The Caster and any creatures that were made aware of what was about to happen can Avert their gaze; other creatures must succeed an Agility Check against the Spell Check to do so.
-Creatures who were unable to Avert their gaze take the [[Condition_Blinded | Blinded]] condition until the end of their next round.
+Creatures who were unable to Avert their gaze take the [[Blinded]] condition until the end of their next round.
 **Minimal Augmentation**: -3 [Potency: Greater Intensity]
 **Area Augmentation**: +4 for each additional +1m of radius.
 
@@ -244,7 +244,7 @@ The Transmutation Basic Arcane Spell can be used to change the state of a small 
 
 #### Mud Feet [Special Attack]
 
-The Caster strategically transforms a small patch of ground underneath a target's feet (within 1m) into slimy mud. The target must check Evasiveness against the Spell Check or become [[Condition_Off_Guard | Off-Guard]]. A Shift will cause the target to become [[Condition_Prone | Prone]] instead.
+The Caster strategically transforms a small patch of ground underneath a target's feet (within 1m) into slimy mud. The target must check Evasiveness against the Spell Check or become [[Off_Guard | Off-Guard]]. A Shift will cause the target to become [[Prone]] instead.
 **Minimal Augmentation**: -1 [Material: Slimy Mud]
 
 #### Mend Object
@@ -268,7 +268,7 @@ The Caster can use Telekinesis to move around flames, potentially extinguishing 
 
 #### Magic Shove [Special Attack]
 
-The Caster uses Telekinesis to control a gust of wind towards a target, shoving them back 1m. The target can resist with a Stance check. Shifts can be used to push the target further back, make them [[Condition_Prone | Prone]], or deal 1[[Resource_Vitality_Point | VP]] of damage.
+The Caster uses Telekinesis to control a gust of wind towards a target, shoving them back 1m. The target can resist with a Stance check. Shifts can be used to push the target further back, make them [[Prone]], or deal 1[[Vitality_Point | VP]] of damage.
 **Minimal Augmentation**: -5 [Potency: Greater Intensity]
 
 ### Transfiguration
@@ -282,7 +282,7 @@ The Caster transfigures target's fists to be harder than normal, giving them a +
 
 #### Harden Skin
 
-The Caster transfigures target's skin to be harder than normal, giving them a +6 bonus to their [[Action_Shrug_Off | Shrug Off]] Toughness Checks.
+The Caster transfigures target's skin to be harder than normal, giving them a +6 bonus to their [[Shrug_Off | Shrug Off]] Toughness Checks.
 **Minimal Augmentation**: -3 [Area: Whole Body]
 
 #### Disguise Being
@@ -301,12 +301,12 @@ The Command Basic Arcane Spell can be used to mentally tax a sentient Being's wi
 
 #### Confuse Mind [Special Attack]
 
-The Caster tries to mentally confuse a sentient Being's mind (within 1m), causing them to become [[Condition_Distracted | Distracted]] unless they resist with a Tenacity Check. Shifts can be used to cause [[Resource_Focus_Point | FP]] damage.
+The Caster tries to mentally confuse a sentient Being's mind (within 1m), causing them to become [[Distracted]] unless they resist with a Tenacity Check. Shifts can be used to cause [[Focus_Point | FP]] damage.
 **Minimal Augmentation**: 0
 
 #### Erode Will [Special Attack]
 
-The Caster tries to mentally tax a sentient Being's willpower (within 1m), causing them to lose 1[[Resource_Spirit_Point | SP]] unless they resist with a Resolve Check.
+The Caster tries to mentally tax a sentient Being's willpower (within 1m), causing them to lose 1[[Spirit_Point | SP]] unless they resist with a Resolve Check.
 **Minimal Augmentation**: -3 [Potency: Greater Intensity]
 
 #### Ensnare [Special Attack]
@@ -327,11 +327,11 @@ The Caster gives a simple single word command to a sentient Being (within 1m). T
 
 ### Combined Spells
 
-These spells are actually a combination of two Basic Arcane Spell casts, and therefore by default require 4[[Resource_Action_Point | AP]] (a whole turn) and 2[[Resource_Focus_Point | FP]] to cast. Since they are cast together, for simplicity, the Caster can roll a single Spell Check against the hardest modifier between the two spells.
+These spells are actually a combination of two Basic Arcane Spell casts, and therefore by default require 4[[Action_Point | AP]] (a whole turn) and 2[[Focus_Point | FP]] to cast. Since they are cast together, for simplicity, the Caster can roll a single Spell Check against the hardest modifier between the two spells.
 
 #### Hurl Spikes [Special Attack]
 
-The Caster conjures and then telekinetically throws a small amount of spikes and shards at a target within 10m. The target can resist with an Evasiveness Check, or become [[Condition_Off_Guard | Off-Guard]] and [[Condition_Distracted | Distracted]] if they fail. Shifts deal [[Resource_Vitality_Point | VP]] damage.
+The Caster conjures and then telekinetically throws a small amount of spikes and shards at a target within 10m. The target can resist with an Evasiveness Check, or become [[Off_Guard | Off-Guard]] and [[Distracted]] if they fail. Shifts deal [[Vitality_Point | VP]] damage.
 **Minimal Augmentation**: 0
 
 #### Energy Bolt [Basic Attack]

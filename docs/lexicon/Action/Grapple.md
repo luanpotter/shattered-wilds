@@ -4,4 +4,4 @@ ap: 1
 melee: true
 ---
 
-**Special Attack** against [[Stat_Evasiveness | Evasiveness]]. Causes target to become [[Condition_Immobilized | Immobilized]].
+**Special Attack** against [[Evasiveness]]. Causes target to become [[Immobilized]].

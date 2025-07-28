@@ -87,7 +87,7 @@ export class StatType {
 		name: StatTypeName.Body,
 		description: `The realm of physical capabilities, representing the character's physique.`,
 		exampleUsages: [
-			`Determines [[Resource_Vitality_Point | Vitality Points]].`,
+			`Determines [[Vitality_Point | Vitality Points]].`,
 			`Is used for **Basic Body Defense** resisted checks.`,
 		],
 	});
@@ -97,7 +97,7 @@ export class StatType {
 		name: StatTypeName.Mind,
 		description: `The realm of mental capabilities, representing your character's intellect.`,
 		exampleUsages: [
-			`Determines [[Resource_Focus_Point | Focus Points]].`,
+			`Determines [[Focus_Point | Focus Points]].`,
 			`Is used for **Basic Mind Defense** resisted checks.`,
 		],
 	});
@@ -106,91 +106,88 @@ export class StatType {
 		parent: StatType.Level,
 		name: StatTypeName.Soul,
 		description: `The realm of spiritual capabilities, representing your character's life force, connection to the **Aether** and to their own Soul.`,
-		exampleUsages: [
-			`Determines [[Resource_Soul_Point | Soul Points]].`,
-			`Is used for **Basic Soul Defense** resisted checks.`,
-		],
+		exampleUsages: [`Determines [[Soul_Point | Soul Points]].`, `Is used for **Basic Soul Defense** resisted checks.`],
 	});
 	static readonly STR = StatType.build({
 		hierarchy: StatHierarchy.Attribute,
 		parent: StatType.Body,
 		name: StatTypeName.STR,
-		description: `**Strength** is a measure of the power of the [[Stat_Body | Body]]. Think punch hard, big muscles, heavy lifting.`,
+		description: `**Strength** is a measure of the power of the [[Body]]. Think punch hard, big muscles, heavy lifting.`,
 	});
 	static readonly DEX = StatType.build({
 		hierarchy: StatHierarchy.Attribute,
 		parent: StatType.Body,
 		name: StatTypeName.DEX,
-		description: `**Dexterity** is a measure of speed of the [[Stat_Body | Body]]. Think reflexes, quickness, agility, precision.`,
+		description: `**Dexterity** is a measure of speed of the [[Body]]. Think reflexes, quickness, agility, precision.`,
 	});
 	static readonly CON = StatType.build({
 		hierarchy: StatHierarchy.Attribute,
 		parent: StatType.Body,
 		name: StatTypeName.CON,
-		description: `**Constitution** is a measure of the endurance of the [[Stat_Body | Body]]. Think stamina, health, resilience.`,
+		description: `**Constitution** is a measure of the endurance of the [[Body]]. Think stamina, health, resilience.`,
 	});
 	static readonly INT = StatType.build({
 		hierarchy: StatHierarchy.Attribute,
 		parent: StatType.Mind,
 		name: StatTypeName.INT,
-		description: `**Intelligence** is a measure of the [[Stat_Mind | Mind]]'s ability to learn, reason, and understand. Think logic, reasoning, and knowledge.`,
+		description: `**Intelligence** is a measure of the [[Mind]]'s ability to learn, reason, and understand. Think logic, reasoning, and knowledge.`,
 	});
 	static readonly WIS = StatType.build({
 		hierarchy: StatHierarchy.Attribute,
 		parent: StatType.Mind,
 		name: StatTypeName.WIS,
-		description: `**Wisdom** is a measure of the [[Stat_Mind | Mind]]'s ability to perceive and interpret the world. Think perception, awareness, and intuition.`,
+		description: `**Wisdom** is a measure of the [[Mind]]'s ability to perceive and interpret the world. Think perception, awareness, and intuition.`,
 	});
 	static readonly CHA = StatType.build({
 		hierarchy: StatHierarchy.Attribute,
 		parent: StatType.Mind,
 		name: StatTypeName.CHA,
-		description: `**Charisma** is a measure of the [[Stat_Mind | Mind]]'s ability to influence, persuade, inspire, and connect with others, as well as understand emotions (be it your own or others'). Think empathy, magnetism, charm, physical attractiveness.`,
+		description: `**Charisma** is a measure of the [[Mind]]'s ability to influence, persuade, inspire, and connect with others, as well as understand emotions (be it your own or others'). Think empathy, magnetism, charm, physical attractiveness.`,
 		longDescription: `Unlike on other systems, where Charisma is further broken down into Skills based on _intent of usage_, such as Persuasion, Intimidation, Seduction, etc. In Shattered Wilds, we break it down by means, and different Skills can be used for different intents.
 
 In fact the exact nature of _how_ the Charisma is being applied will determine which are the best Skills to use for certain situations. Depending on the flavor and roleplaying, all 3 Skills can be used for most intents. The table below gives some guidance on which Skills are better suited for which intents. This also includes a column for potential Extras to be used in such rolls.
 
 | Function   | Speechcraft | Presence | Empathy | Extra                            |
 |------------|-------------|----------|---------|----------------------------------|
-| Intimidate |  0          | +1       | -1      | <a href="/wiki/Stat_STR">STR</a> |
-| Deceive    | +1          | -1       |  0      | <a href="/wiki/Stat_WIS">WIS</a> |
-| Persuade   | +1          | -1       |  0      | <a href="/wiki/Stat_INT">INT</a> |
-| Inspire    |  0          | -1       | +1      | <a href="/wiki/Stat_DIV">DIV</a> |
-| Beguile    | -1          | +1       |  0      | <a href="/wiki/Stat_FOW">FOW</a> |
-| Seduce     | -1          | +1       |  0      | <a href="/wiki/Stat_DEX">DEX</a> |
+| Intimidate |  0          | +1       | -1      | <a href="/wiki/STR">STR</a> |
+| Deceive    | +1          | -1       |  0      | <a href="/wiki/WIS">WIS</a> |
+| Persuade   | +1          | -1       |  0      | <a href="/wiki/INT">INT</a> |
+| Inspire    |  0          | -1       | +1      | <a href="/wiki/DIV">DIV</a> |
+| Beguile    | -1          | +1       |  0      | <a href="/wiki/FOW">FOW</a> |
+| Seduce     | -1          | +1       |  0      | <a href="/wiki/DEX">DEX</a> |
 
 Similarly, the different Skills can be used for different types of performances:
 
 | Performances       | Speechcraft | Presence | Empathy | Extra                            |
 |--------------------|-------------|----------|---------|----------------------------------|
-| Singing            | +1          | -1       |  0      | <a href="/wiki/Stat_CON">CON</a> |
-| Playing Instrument | +1          | -1       |  0      | <a href="/wiki/Stat_INT">INT</a> |
-| Dancing            | -1          | +1       |  0      | <a href="/wiki/Stat_DEX">DEX</a> |
-| Acting             | +1          | +1       | -1      | <a href="/wiki/Stat_FOW">FOW</a> |
-| Storytelling       | +1          | -1       |  0      | <a href="/wiki/Stat_WIS">WIS</a> |
+| Singing            | +1          | -1       |  0      | <a href="/wiki/CON">CON</a> |
+| Playing Instrument | +1          | -1       |  0      | <a href="/wiki/INT">INT</a> |
+| Dancing            | -1          | +1       |  0      | <a href="/wiki/DEX">DEX</a> |
+| Acting             | +1          | +1       | -1      | <a href="/wiki/FOW">FOW</a> |
+| Storytelling       | +1          | -1       |  0      | <a href="/wiki/WIS">WIS</a> |
 
 If you want to be particularly good at a specific type of performance, you can get the appropriate Minor Feat.
 
-On top of these types of actions, the different Skills can still be used for other purposes; for example, [[Stat_Empathy | Empathy]] can be used to read emotions or figure out if someone is lying or has hidden intents; [[Stat_Speechcraft | Speechcraft]] can be used to craft poems and texts with specific artistic or practical intents; and [[Stat_Presence | Presence]] can be used to command attention or exert authority over crowds.
+On top of these types of actions, the different Skills can still be used for other purposes; for example, [[Empathy]] can be used to read emotions or figure out if someone is lying or has hidden intents; [[Speechcraft]] can be used to craft poems and texts with specific artistic or practical intents; and [[Presence]] can be used to command attention or exert authority over crowds.
 `,
 	});
 	static readonly DIV = StatType.build({
 		hierarchy: StatHierarchy.Attribute,
 		parent: StatType.Soul,
 		name: StatTypeName.DIV,
-		description: `**Divinity** is a measure of the [[Stat_Soul | Soul]]'s ability to connect with the Aether. It determines the conviction of one's faith and devotion in the unknown and how well one can attune to [[Imbued Item | Imbued Items]].`,
+		description: `**Divinity** is a measure of the [[Soul]]'s ability to connect with the Aether. It determines the conviction of one's faith and devotion in the unknown and how well one can attune to [[Imbued Item | Imbued Items]].`,
 	});
 	static readonly FOW = StatType.build({
 		hierarchy: StatHierarchy.Attribute,
 		parent: StatType.Soul,
 		name: StatTypeName.FOW,
-		description: `**Force of Will** is a measure of the [[Stat_Soul | Soul]]'s ability to resist temptations, vices, and instant gratification. Think willpower, determination, and psychological resilience.`,
+		description: `**Force of Will** is a measure of the [[Soul]]'s ability to resist temptations, vices, and instant gratification. Think willpower, determination, and psychological resilience.`,
 	});
 	static readonly LCK = StatType.build({
 		hierarchy: StatHierarchy.Attribute,
 		parent: StatType.Soul,
 		name: StatTypeName.LCK,
-		description: `**Luck** is a measure of the [[Stat_Soul | Soul]]'s connection with forces even beyond the Aether, measuring a character's unexplainable connection with Luck as a concept that appears to escape the realm of reality itself.`,
+		description: `**Luck** is a measure of the [[Soul]]'s connection with forces even beyond the Aether, measuring a character's unexplainable connection with Luck as a concept that appears to escape the realm of reality itself.`,
 	});
 	static readonly Muscles = StatType.build({
 		hierarchy: StatHierarchy.Skill,
@@ -198,9 +195,9 @@ On top of these types of actions, the different Skills can still be used for oth
 		name: StatTypeName.Muscles,
 		description: `Raw power that can be impacted in a short burst, e.g. pulling a stuck lever, breaking down an inanimate object, smashing a mug on one's hands.`,
 		exampleUsages: [
-			`Can be used instead of [[Stat_STR | STR]] to perform an attack with the [[Action_Charge | Charge]] action.`,
+			`Can be used instead of [[STR]] to perform an attack with the [[Charge]] action.`,
 			`A Contested Check can be used to resist certain Transfiguration Arcane Spells.`,
-			`A Contested Check can be used to resist a [[Action_Disarm | Disarm]] Special Attack.`,
+			`A Contested Check can be used to resist a [[Disarm]] Special Attack.`,
 			`A Contested Check can be used to resist a [[Action_Drag_Grappler | Drag Grappler]] Special Attack.`,
 		],
 	});
@@ -210,7 +207,7 @@ On top of these types of actions, the different Skills can still be used for oth
 		name: StatTypeName.Stance,
 		description: `How hard it is to move or push one around, how well one can keep their stance, resist to being shoved back.`,
 		exampleUsages: [
-			`A Contested Check can be used to resist a [[Action_Shove | Shove]] Special Attack.`,
+			`A Contested Check can be used to resist a [[Shove]] Special Attack.`,
 			`A Contested Check can be used to resist some Telekinesis Arcane Special Attacks, such as Magic Shove.`,
 		],
 	});
@@ -230,8 +227,8 @@ On top of these types of actions, the different Skills can still be used for oth
 		name: StatTypeName.Finesse,
 		description: `Aim, quick fingers, sleight of hand, stealth; delicate movement of the hands and the body.`,
 		exampleUsages: [
-			`A Check can be used to aim a particularly tricky short through the [[Action_Aim | Aim]] action.`,
-			`A Check can be used to perform a [[Action_Sneak | Sneak]] or [[Action_Hide | Hide]] action.`,
+			`A Check can be used to aim a particularly tricky short through the [[Aim]] action.`,
+			`A Check can be used to perform a [[Sneak]] or [[Hide]] action.`,
 			`A Check can be used to disarm a trap, pick a lock or a pocket.`,
 		],
 	});
@@ -239,11 +236,11 @@ On top of these types of actions, the different Skills can still be used for oth
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.DEX,
 		name: StatTypeName.Evasiveness,
-		description: `Evasion, acrobatics; precise movement of the body; used for the [[Action_Dodge | Dodge]] action.`,
+		description: `Evasion, acrobatics; precise movement of the body; used for the [[Dodge]] action.`,
 		exampleUsages: [
 			`A Check can be used to perform a tricky acrobatic maneuver.`,
-			`A Contested Check can be used to defend against a **Basic Body Attack** by using the [[Action_Dodge | Dodge]] action.`,
-			`A Contested Check can be used to resist certain **Special Attacks** actions such as [[Action_Grapple | Grapple]].`,
+			`A Contested Check can be used to defend against a **Basic Body Attack** by using the [[Dodge]] action.`,
+			`A Contested Check can be used to resist certain **Special Attacks** actions such as [[Grapple]].`,
 			`A Contested Check can be used to resist **Arcane Special Attacks** such as **Hurl Spikes**.`,
 		],
 	});
@@ -253,8 +250,8 @@ On top of these types of actions, the different Skills can still be used for oth
 		name: StatTypeName.Agility,
 		description: `Speed, quickness; how fast one can move and do things.`,
 		exampleUsages: [
-			`Used to computed [[Derived_Stat_Initiative | Initiative]]`,
-			`Used to computed [[Derived_Stat_Movement | Movement]]`,
+			`Used to computed [[Initiative]]`,
+			`Used to computed [[Movement]]`,
 			`A Check can be used to react quickly enough to an event; for example, catching a poorly or unexpectedly thrown object.`,
 		],
 	});
@@ -262,9 +259,9 @@ On top of these types of actions, the different Skills can still be used for oth
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.CON,
 		name: StatTypeName.Toughness,
-		description: `Tough skin, resistance to fall damage; damage reduction through [[Action_Shrug_Off | Shrug Off]].`,
+		description: `Tough skin, resistance to fall damage; damage reduction through [[Shrug_Off | Shrug Off]].`,
 		exampleUsages: [
-			`A Check can be used to perform the [[Action_Shrug_Off | Shrug Off]] action.`,
+			`A Check can be used to perform the [[Shrug_Off | Shrug Off]] action.`,
 			`A Contested Check can be used to resist certain Transfiguration Arcane Spells.`,
 			`A Contested Check can be used to resist fall damage.`,
 		],
@@ -275,8 +272,8 @@ On top of these types of actions, the different Skills can still be used for oth
 		name: StatTypeName.Stamina,
 		description: `Breath, how much exertion can be sustained in a short period of time; continued athleticism.`,
 		exampleUsages: [
-			`A Check can be used to perform a [[Action_Catch_Breath | Catch Breath]] action.`,
-			`A Check is required to avoid losing a [[Resource_Vitality_Point | VP]] when performing the [[Action_Run | Run]] action.`,
+			`A Check can be used to perform a [[Catch_Breath | Catch Breath]] action.`,
+			`A Check is required to avoid losing a [[Vitality_Point | VP]] when performing the [[Run]] action.`,
 			`A Check can be used to push your limits in physical activities, such as running, climbing, etc.`,
 		],
 	});
@@ -306,7 +303,7 @@ On top of these types of actions, the different Skills can still be used for oth
 		parent: StatType.INT,
 		name: StatTypeName.Knowledge,
 		description: `Consolidated knowledge and lore about the world and how it works; learned information and academic understanding; "book smarts".`,
-		longDescription: `**Note**: before using a **Knowledge Check**, one should always consider if they might want to use the [[Action_Write_History | Write History]] action instead.`,
+		longDescription: `**Note**: before using a **Knowledge Check**, one should always consider if they might want to use the [[Write_History | Write History]] action instead.`,
 		exampleUsages: [
 			`A Check can be used to recall specific historical events, geographical information, or cultural details.`,
 			`A Check can be used to recall details about creatures, plants, or magical phenomena encountered in the world.`,
@@ -340,8 +337,8 @@ On top of these types of actions, the different Skills can still be used for oth
 		name: StatTypeName.Awareness,
 		description: `Alertness, passive perception, attention to details when not paying attention; intuitive awareness of surroundings.`,
 		exampleUsages: [
-			`Used to compute [[Derived_Stat_Initiative | Initiative]] alongside [[Stat_Agility | Agility]].`,
-			`A Contested Check is used in case an opponent is attempting to [[Action_Sneak | Sneak]] past you.`,
+			`Used to compute [[Initiative]] alongside [[Agility]].`,
+			`A Contested Check is used in case an opponent is attempting to [[Sneak]] past you.`,
 			`A Check can be used to sense ambushes or detect when you're being followed.`,
 			`A Check can be used for any other form of "Passive Perception".`,
 		],
@@ -362,8 +359,8 @@ On top of these types of actions, the different Skills can still be used for oth
 		name: StatTypeName.Speechcraft,
 		description: `Rhetoric, speech, verbal (or written) communication; the art of expressing ideas through language.`,
 		exampleUsages: [
-			`A Check can be used for various social influence attempts (see [[Stat_CHA | CHA]] for the full table).`,
-			`A Check can be used for verbal performances like singing, playing instruments, or storytelling (see [[Stat_CHA | CHA]] for the full table).`,
+			`A Check can be used for various social influence attempts (see [[CHA]] for the full table).`,
+			`A Check can be used for verbal performances like singing, playing instruments, or storytelling (see [[CHA]] for the full table).`,
 			`A Check can be used to deliver complex information clearly, succinctly, artfully, and / or memorably.`,
 			`A Check can be used to conduct formal negotiations or legal proceedings.`,
 		],
@@ -374,8 +371,8 @@ On top of these types of actions, the different Skills can still be used for oth
 		name: StatTypeName.Presence,
 		description: `Personal magnetism, body language, physical attractiveness, and non-verbal communication through physical poise.`,
 		exampleUsages: [
-			`A Check can be used for various social influence attempts (see [[Stat_CHA | CHA]] for the full table).`,
-			`A Check can be used for physical performances like dancing or acting (see [[Stat_CHA | CHA]] for the full table).`,
+			`A Check can be used for various social influence attempts (see [[CHA]] for the full table).`,
+			`A Check can be used for physical performances like dancing or acting (see [[CHA]] for the full table).`,
 			`A Check can be used to command attention in a crowded room, even without speaking.`,
 			`A Check can be used to project authority and leadership in crisis situations.`,
 		],
@@ -387,7 +384,7 @@ On top of these types of actions, the different Skills can still be used for oth
 		description: `Reading people, understanding emotions and motivations, connecting with others on an emotional level.`,
 		exampleUsages: [
 			`A Check can be used to read emotions or figure out if someone is lying or has hidden intents.`,
-			`A Check can be used for social influence attempts that rely on emotional connection (see [[Stat_CHA | CHA]] for the full table).`,
+			`A Check can be used for social influence attempts that rely on emotional connection (see [[CHA]] for the full table).`,
 			`A Check can be used to assess someone's emotional state or mental condition.`,
 			`A Check can be used to understand cultural nuances and social hierarchies.`,
 		],
@@ -397,9 +394,9 @@ On top of these types of actions, the different Skills can still be used for oth
 		parent: StatType.DIV,
 		name: StatTypeName.Devotion,
 		description: `A personal connection to a deity; faith, ability to believe and ask for providence through Prayer.`,
-		longDescription: `**Note**: While a character does not need to be an **Adept** to perform **Devotion Checks**, they do need to have a connection to at least one **Protean**. If they start investing in the skill, and attempt to use the [[Action_Pray | Pray]] action, they might be answered by some unspecified force, or it might not work at all.`,
+		longDescription: `**Note**: While a character does not need to be an **Adept** to perform **Devotion Checks**, they do need to have a connection to at least one **Protean**. If they start investing in the skill, and attempt to use the [[Pray]] action, they might be answered by some unspecified force, or it might not work at all.`,
 		exampleUsages: [
-			`A Check can be used to determine the effectiveness of the [[Action_Pray | Pray]] action.`,
+			`A Check can be used to determine the effectiveness of the [[Pray]] action.`,
 			`A Check can be used to maintain divine favor during morally challenging situations.`,
 			`A Check can be used to resist effects that would corrupt or turn you away from your faith.`,
 		],
@@ -409,9 +406,9 @@ On top of these types of actions, the different Skills can still be used for oth
 		parent: StatType.DIV,
 		name: StatTypeName.Revelation,
 		description: `Ability to channel messages, visions or revelations from a deity.`,
-		longDescription: `**Note**: While a character does not need to be an **Adept** to invest and receive Revelation Checks, they do need to have a connection to at least one **Protean**. If they do not yet have a connection, they might attempt to form a new bond through roleplaying and investing in [[Stat_Devotion | Devotion]] first.`,
+		longDescription: `**Note**: While a character does not need to be an **Adept** to invest and receive Revelation Checks, they do need to have a connection to at least one **Protean**. If they do not yet have a connection, they might attempt to form a new bond through roleplaying and investing in [[Devotion]] first.`,
 		exampleUsages: [
-			`A Check can be requested by the DM while using the [[Action_Pray | Pray]] action, or during specific circumstances, to receive and understand messages, visions, omens, guidance or requests from your **Protean**.`,
+			`A Check can be requested by the DM while using the [[Pray]] action, or during specific circumstances, to receive and understand messages, visions, omens, guidance or requests from your **Protean**.`,
 			`A Check can be used when trying to connect to, interpret, or understand your deity.`,
 		],
 	});
@@ -443,7 +440,7 @@ On top of these types of actions, the different Skills can still be used for oth
 		name: StatTypeName.Tenacity,
 		description: `Concentration, ability to ignore pain or hardship or being disturbed and keep going, mental toughness and grit.`,
 		exampleUsages: [
-			`A Check can be used to perform the [[Action_Focus | Focus]] action.`,
+			`A Check can be used to perform the [[Focus]] action.`,
 			`A Check can be used to maintain [[Concentration]] when disrupted or damaged.`,
 			`A Check can be used to continue acting in the face of pain, hardship, or distractions.`,
 			`A Check can be used to temporarily mitigate the effects of [[Consequence_Exhaustion | Exhaustion]].`,
@@ -464,9 +461,9 @@ On top of these types of actions, the different Skills can still be used for oth
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.LCK,
 		name: StatTypeName.Fortune,
-		description: `Personal luck for one's own actions; used for the [[Action_Luck_Die | Luck Die]] mechanic.`,
+		description: `Personal luck for one's own actions; used for the [[Luck_Die | Luck Die]] mechanic.`,
 		exampleUsages: [
-			`Can be used for the [[Action_Luck_Die | Luck Die]] mechanic.`,
+			`Can be used for the [[Luck_Die | Luck Die]] mechanic.`,
 			`A Check can be used when a character is actively trying to achieve a lucky outcome, such as gambling, games of chance, rolling dice, etc.`,
 		],
 	});
@@ -474,9 +471,9 @@ On top of these types of actions, the different Skills can still be used for oth
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.LCK,
 		name: StatTypeName.Karma,
-		description: `Things just don't seem to go well for people who wrong ones with high Karma; used for the [[Action_Karmic_Resistance | Karmic Resistance]] reaction.`,
+		description: `Things just don't seem to go well for people who wrong ones with high Karma; used for the [[Karmic_Resistance | Karmic Resistance]] reaction.`,
 		exampleUsages: [
-			`Use for the [[Action_Karmic_Resistance | Karmic Resistance]] reaction.`,
+			`Use for the [[Karmic_Resistance | Karmic Resistance]] reaction.`,
 			`A Check can be used to decide Luck-based aspects related to others.`,
 		],
 	});
@@ -484,9 +481,9 @@ On top of these types of actions, the different Skills can still be used for oth
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.LCK,
 		name: StatTypeName.Serendipity,
-		description: `The Luck for the world itself; an uncanny ability to be favored by external chance and coincidences; synchronism; used for the [[Action_Write_History | Write History]] action.`,
+		description: `The Luck for the world itself; an uncanny ability to be favored by external chance and coincidences; synchronism; used for the [[Write_History | Write History]] action.`,
 		exampleUsages: [
-			`Can be used for the [[Action_Write_History | Write History]] action.`,
+			`Can be used for the [[Write_History | Write History]] action.`,
 			`A Check can be used to determine the outcome of external random events (not caused by the character or others), such as the weather.`,
 		],
 	});

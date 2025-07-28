@@ -40,19 +40,8 @@ Starting on **Level 3** and on every other odd Level, the character will pick a 
 
 ## General Minor Feats
 
-* **Trade Specialization** (Minor Feat, Level 1): You are acquainted with a specific trade, allowing you to perform basic tasks associated with it, such as a Blacksmith, Bookbinder, Carpenter, Cartographer, Chandler, Clothier, Cook, Farmer, Fisher, Fletcher, Herbalist, Jeweler, Locksmith, Mason, Miner, Potter, Tanner, Weaver, Weaver, Woodcutter, etc. You can pick this Feat multiple times for different trades.
-
-* **Lip Reading** (Minor Feat, Level 1): You can read lips to understand what people are saying when you can see them clearly.
-
-* **Animal Mimicry** (Minor Feat, Level 1): You have an uncanny knack for mimicking animal sounds. If you are familiar with it, and a humanoid could conceivably reproduce it, you can make a good-enough impression that an untrained ear could not distinguish it. An expert (such as someone with the Sylvan Upbringing) could run an [[Stat_Intuition | Intuition]] Check (or [[Stat_Knowledge | Knowledge]] if they have reason to suspect) to try to assess the veracity of the sound.
-
-* **Girth Compensation** (Minor Feat, Level 1): You can use [[Stat_STR | STR]] as the **Primary Attribute** for **Light Melee** weapons.
+{% list "feats", "level", "type" "Minor", "category" "General" %}
 
 ## General Major Feats
 
-* **Quick Draw** (Major Feat, Level 2): If you have at least one hand free, you can spend 1 [[Resource_Focus_Point | FP]] to draw a Light Melee Weapon without spending an action.
-
-* **Blind Sense** (Major Feat, Level 2) [Concentrate]: Your strong connection to your Soul Realm allows you to expand your sense of hearing and smell. You can spend 1 [[Resource_Action_Point | AP]] and 2 [[Resource_Spirit_Point | SP]] to know the positions of any creature you are aware of within `6m` as well as if you could see them clearly. If they are explicitly trying to sneak, you get a +6 in your [[Stat_Perception | Perception]] Check.
-
-* **Mounted Combat Specialization** (Major Feat, Level 2):
-    > <mark>WIP</mark> Mounted Combat Rules are still being developed and are not available as an option yet.
+{% list "feats", "level", "type" "Major", "category" "General" %}

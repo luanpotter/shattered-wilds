@@ -54,11 +54,12 @@
       "name": "@shattered-wilds/site",
       "version": "0.1.0",
       "dependencies": {
-        "@shattered-wilds/commons": "workspace:*",
         "simpledotcss": "^2.2.1",
+        "type-comparator": "^0.2.10",
       },
       "devDependencies": {
         "@11ty/eleventy": "^3.1.2",
+        "@shattered-wilds/commons": "workspace:*",
         "@types/js-yaml": "^4.0.9",
         "@types/lodash": "^4.17.13",
         "@types/markdown-it": "^14.1.2",

@@ -1,16 +1,21 @@
 import { StatType } from '@shattered-wilds/commons';
+import { slugify } from '../utils.js';
 
 export const stats = StatType.values
 	.filter(stat => stat.name)
 	.map(stat => {
 		const children = StatType.childrenOf(stat);
+		const slug = slugify(stat.name);
 		return {
 			// wiki parameters
-			slug: stat.name,
+			group: 'stats',
+			slug,
 			title: stat.name,
-			url: `/wiki/Stat_${stat.name}/`,
+			url: `/wiki/${slug}/`,
+			content: stat.description,
+			metadata: [],
 
-			// stat parameters
+			// other parameters
 			name: stat.name,
 			hierarchy: stat.hierarchy,
 			parent: stat.parent?.name,

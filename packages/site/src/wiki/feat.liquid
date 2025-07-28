@@ -1,0 +1,34 @@
+---js
+{
+    permalink: "/{{ pagination.items[0].url }}/index.html",
+    pagination: {
+        data: "feats",
+        alias: "feat",
+        size: 1,
+    }
+}
+---
+
+<h1>{{ feat.name }}</h1>
+
+<div class='item-header'>
+	<div class='item-metadata'>
+		{% for meta in feat.metadata %}
+			{% if meta.value %}
+				<span class='{{ meta.cssClass }}'>{{ meta.title }}: {{ meta.value }}</span>
+			{% else %}
+				<span class='{{ meta.cssClass }}'>{{ meta.title }}</span>
+			{% endif %}
+		{% endfor %}
+	</div>
+	<div class='breadcrumb'>
+		<a href='/wiki/Feats'>← Back to Feats</a>
+	</div>
+</div>
+
+<div>
+	<p><strong>Type</strong>: {{ feat.type }}</p>
+	<p><strong>Source</strong>: {{ feat.source }}</p>
+	<p><strong>Level</strong>: {{ feat.level }}</p>
+	<p><strong>Description</strong>: {{ feat.description }}</p>
+</div>

@@ -6,6 +6,7 @@ import markdownItWiki from 'markdown-it-wikilinks';
 import yaml from 'js-yaml';
 import eleventyGoogleFonts from 'eleventy-google-fonts';
 import { stats } from './src/_config/data/stats.js';
+import { feats } from './src/_config/data/feats.js';
 import { classes } from './src/_config/data/classes.js';
 import { parseLexicon } from './src/_config/lexicon.js';
 import { TextProcessor } from './src/_config/TextProcessor.js';
@@ -17,17 +18,16 @@ export default function (eleventyConfig) {
 	// Add global data for lexicon files
 	const lexiconFiles = parseLexicon();
 
-	const processor = new TextProcessor(lexiconFiles);
-
 	eleventyConfig.setDataDeepMerge(true);
 	eleventyConfig.addPlugin(HtmlBasePlugin, { baseHref: pathPrefix });
 	eleventyConfig.addPlugin(eleventyGoogleFonts);
 
 	eleventyConfig.addGlobalData('lexiconFiles', lexiconFiles);
 	eleventyConfig.addGlobalData('stats', stats);
+	eleventyConfig.addGlobalData('feats', feats);
 	eleventyConfig.addGlobalData('classes', classes);
 
-	const wikiPages = [...lexiconFiles, ...stats, ...classes]
+	const wikiPages = [...lexiconFiles, ...stats, ...feats, ...classes]
 		.filter(e => e.slug)
 		.sort((a, b) => {
 			if (!a.title) {
@@ -35,7 +35,16 @@ export default function (eleventyConfig) {
 			}
 			return a.title.localeCompare(b.title);
 		});
+	const isValid = new Set(wikiPages.map(e => e.slug)).size === wikiPages.length;
+	if (!isValid) {
+		console.error(
+			'Duplicate slugs in wikiPages: ',
+			wikiPages.filter((e, i, a) => a.findIndex(t => t.slug === e.slug) !== i),
+		);
+	}
 	eleventyConfig.addGlobalData('wikiPages', wikiPages);
+
+	const processor = new TextProcessor(wikiPages);
 
 	// Set default layout for all pages
 	eleventyConfig.addGlobalData('layout', 'main');
@@ -72,14 +81,11 @@ export default function (eleventyConfig) {
 	eleventyConfig.addLiquidFilter('mdb', text => processor.processMarkdown(text, { inline: false }));
 	eleventyConfig.addLiquidFilter('mdi', text => processor.processMarkdown(text, { inline: true }));
 
-	eleventyConfig.addShortcode('item', (path, excludeTags = []) => {
-		return processor.renderLexiconEntry('item', path, excludeTags);
-	});
-	eleventyConfig.addShortcode('text', path => {
-		return processor.renderLexiconEntry('text', path);
-	});
-	const addMark = value => `<mark class="todo">${value}</mark>`;
-	eleventyConfig.addShortcode('TODO', value => addMark(value ? `TODO: ${value}` : 'TODO'));
+	// Register shortcodes using the processor's shortcodes field
+	eleventyConfig.addShortcode('item', processor.shortcodes.item);
+	eleventyConfig.addShortcode('text', processor.shortcodes.text);
+	eleventyConfig.addShortcode('list', processor.shortcodes.list);
+	eleventyConfig.addShortcode('TODO', processor.shortcodes.TODO);
 
 	return {
 		passthroughFileCopy: true,

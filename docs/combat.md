@@ -13,15 +13,15 @@
 <details>
     <summary>Conditions</summary>
     <ul>
-        <li>{% item "Condition/Blinded" %}</li>
-        <li>{% item "Condition/Distracted" %}</li>
-        <li>{% item "Condition/Distraught" %}</li>
-        <li>{% item "Condition/Immobilized" %}</li>
-        <li>{% item "Condition/Incapacitated" %}</li>
-        <li>{% item "Condition/Off_Guard" %}</li>
-        <li>{% item "Condition/Prone" %}</li>
-        <li>{% item "Condition/Silenced" %}</li>
-        <li>{% item "Condition/Unconscious" %}</li>
+        <li>{% item "Blinded" %}</li>
+        <li>{% item "Distracted" %}</li>
+        <li>{% item "Distraught" %}</li>
+        <li>{% item "Immobilized" %}</li>
+        <li>{% item "Incapacitated" %}</li>
+        <li>{% item "Off_Guard" %}</li>
+        <li>{% item "Prone" %}</li>
+        <li>{% item "Silenced" %}</li>
+        <li>{% item "Unconscious" %}</li>
     </ul>
 </details>
 

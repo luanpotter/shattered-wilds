@@ -25,13 +25,13 @@
 {% endif %}
 
 {% if stat.parent %}
-<p><strong>{{ stat.name }}</strong> is a {{ stat.hierarchy }} of <a href="/wiki/Stat_{{ stat.parent }}/">{{ stat.parent }}</a>.</p>
+<p><strong>{{ stat.name }}</strong> is a {{ stat.hierarchy }} of <a href="/wiki/{{ stat.parent }}/">{{ stat.parent }}</a>.</p>
 {% endif %}
 {% if stat.children.size > 0 %}
     <p>It has the following {{ stat.childHierarchy }}s:</p>
     <ul>
         {% for child in stat.children %}
-            <li><a href="/wiki/Stat_{{ child }}/">{{ child }}</a></li>
+            <li><a href="/wiki/{{ child }}/">{{ child }}</a></li>
         {% endfor %}
     </ul>
 {% endif %}

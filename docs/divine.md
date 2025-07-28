@@ -1,6 +1,6 @@
 Unlike the **Arcane**, the **Divine** is a much softer magical system, by which characters outsource the power through the **Aether** (be it from Proteans, their own Soul, or an unexplainable connection to Luck itself). **Divine** is definitely _not_ a science, and it is _not_ predictable. Instead of describing exact desired effects as the **Arcanists** do, **Mystics** have vague desires and roll a Check, letting the DM decide the effect.
 
-**Mystics** with the **Divine Channeling** **Feat** can spend 1 [[Resource_Action_Point | AP]] and any number (at least 1, at most your [[Stat_Level | Level]]) of [[Resource_Spirit_Point | SP]] to perform a specific **Divine Channeling** action (with the [Channeling] trait) to basically cast a "divine spell". Roll a [[Stat_DIV | DIV]] Check (regardless of your **Class**) and the DM will determine the effect based on the result.
+**Mystics** with the **Divine Channeling** **Feat** can spend 1 [[Action_Point | AP]] and any number (at least 1, at most your [[Level]]) of [[Spirit_Point | SP]] to perform a specific **Divine Channeling** action (with the [Channeling] trait) to basically cast a "divine spell". Roll a [[DIV]] Check (regardless of your **Class**) and the DM will determine the effect based on the result.
 
 All divine spells are pleas to the forces of the beyond to grant a desired effect. The vaguer the request, the more likely it is for it to succeed in some form or another. While very specific spell effects (akin to the **Arcane** casting) are not possible, it is possible to at least specify the general nature of the desired effect.
 
@@ -18,7 +18,7 @@ However, there is no pre-defined spell list; the **Mystic** can choose to cast a
 
 ### Heal
 
-A plea to heal you or your allies of some [[Resource_Vitality_Point | VP]], [[Resource_Focus_Point | FP]], or [[Resource_Spirit_Point | SP]]. Specifiers can include what type of resource to heal, the target and how much.
+A plea to heal you or your allies of some [[Vitality_Point | VP]], [[Focus_Point | FP]], or [[Spirit_Point | SP]]. Specifiers can include what type of resource to heal, the target and how much.
 
 ### Harm
 
@@ -30,7 +30,7 @@ A plea to bless you or your allies, clearing negative [[Condition | Conditions]]
 
 ### Desecrate
 
-A plea to desecrate your foes, afflicting them with negative [[Condition | Conditions]] such as [[Condition_Silenced | Silenced]], [[Condition_Blinded | Blinded]], [[Condition_Off_Guard | Off Guard]], [[Condition_Distracted | Distracted]] or [[Condition_Distraught | Distraught]] or giving them a temporary negative [[Circumstance Modifier | CM]] to their **Attack Checks**.
+A plea to desecrate your foes, afflicting them with negative [[Condition | Conditions]] such as [[Silenced]], [[Blinded]], [[Off_Guard | Off Guard]], [[Distracted]] or [[Distraught]] or giving them a temporary negative [[Circumstance Modifier | CM]] to their **Attack Checks**.
 
 ### Protect
 

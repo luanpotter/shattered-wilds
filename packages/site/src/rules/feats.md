@@ -9,4 +9,4 @@ next:
 
 # Rules - Feats
 
-{% include "docs/feats.md" %}
+{% include "docs/lexicon/Feats.md" %}

@@ -1,6 +1,6 @@
-The amount of hexes a character can move using a regular [[Action_Stride | Stride]] action.
+The amount of hexes a character can move using a regular [[Stride]] action.
 
-> Movement = [3 (humanoid base) + Size Modifier + ([[Stat_Agility | Agility]] / 4) (rounded down)] hexes
+> Movement = [3 (humanoid base) + Size Modifier + ([[Agility]] / 4) (rounded down)] hexes
 
 This determines how many hexes a character can move in a single turn. The formula includes:
 

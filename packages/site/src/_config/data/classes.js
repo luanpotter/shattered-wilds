@@ -1,15 +1,22 @@
 import { CLASS_DEFINITIONS } from '@shattered-wilds/commons';
+import { slugify } from '../utils.js';
 
-export const classes = Object.values(CLASS_DEFINITIONS).map(def => ({
-	// wiki parameters
-	slug: `${def.name}`,
-	title: `${def.name}`,
-	url: `/wiki/Class_${def.name}/`,
+export const classes = Object.values(CLASS_DEFINITIONS).map(def => {
+	const slug = slugify(def.name);
+	return {
+		// wiki parameters
+		group: 'classes',
+		slug,
+		title: `${def.name}`,
+		url: `/wiki/${slug}/`,
+		content: def.description,
+		metadata: [],
 
-	// class parameters
-	name: def.name,
-	realm: def.realm,
-	primaryAttribute: def.primaryAttribute,
-	role: def.role,
-	flavor: def.flavor,
-}));
+		// other parameters
+		name: def.name,
+		realm: def.realm,
+		primaryAttribute: def.primaryAttribute,
+		role: def.role,
+		flavor: def.flavor,
+	};
+});
