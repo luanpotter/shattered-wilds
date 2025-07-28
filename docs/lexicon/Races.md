@@ -62,7 +62,7 @@ A typical scenario is a small group of low-level adventurers, that eventually ha
 
 This character grew up in a settlement with a strong tribal structure, with hierarchies and clans. **Dwarven**, **Fey** and **Goliath** communities are often **Tribal**.
 
-* **Tribal Endurance** (Core Feat, Level 0): Pay 1 [[Heroism_Point | Heroism Point]] to reduce your [[Consequence_Exhaustion | Exhaustion]] Level by 1 if you can directly tie a current task to your personal sense of duty to your tribe (not doable during an Encounter).
+* **Tribal Endurance** (Core Feat, Level 0): Pay 1 [[Heroism_Point | Heroism Point]] to reduce your [[Exhaustion]] Level by 1 if you can directly tie a current task to your personal sense of duty to your tribe (not doable during an Encounter).
 * Typical choices for **Upbringing Modifiers**: + [[CHA]]/[[DIV]]/[[FOW]], - [[INT]]/[[WIS]]/[[LCK]]
 * Typical applications of **Specialized Training (Tribal)**: recall specific tribal knowledge and lore (depends on the tribe), intuit hierarchical structures between people, etc.
 

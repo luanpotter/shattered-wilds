@@ -18,4 +18,4 @@ Exhaustion Levels and their effects:
 * [[Level]] 7: -16 [[Circumstance Modifier | CM]] to all [[Check | checks]].
 * [[Level]] 8: -32 [[Circumstance Modifier | CM]] to all [[Check | checks]].
 * [[Level]] 9: -64 [[Circumstance Modifier | CM]] to all [[Check | checks]].
-* [[Level]] 10+: [[Consequence_Death | Death]].
+* [[Level]] 10+: [[Death]].

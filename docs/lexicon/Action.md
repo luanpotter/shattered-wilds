@@ -70,7 +70,7 @@ Since your **AP** is replenished at the end of your turn, you do not need to dec
 <details>
   <summary>Reaction Actions</summary>
   <ul>
-    <li>{% item "Sheathe_Unsheathe", "type" %}</li>
+    <li>{% item "Sheathe/Unsheathe", "type" %}</li>
     <li>{% item "Reload", "type" %}</li>
     <li>{% item "Catch_Breath", "type" %}</li>
     <li>{% item "Focus", "type" %}</li>

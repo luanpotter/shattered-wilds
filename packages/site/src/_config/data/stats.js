@@ -8,7 +8,7 @@ export const stats = StatType.values
 		const slug = slugify(stat.name);
 		return {
 			// wiki parameters
-			group: 'stats',
+			group: 'Stat',
 			slug,
 			title: stat.name,
 			url: `/wiki/${slug}/`,

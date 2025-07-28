@@ -39,8 +39,7 @@ export class TextProcessor {
 		return `<ul>${items.map(e => `<li>${e}</li>`).join('')}</ul>`;
 	};
 
-	renderPath = (type, path, excludeTags = []) => {
-		const slug = path.replace(/[/\\]/g, '_');
+	renderPath = (type, slug, excludeTags = []) => {
 		const entry = this.wiki[slug];
 		if (!entry) {
 			return `<span style='color:red'>[Missing lexicon entry: ${slug}]</span>`;

@@ -3,6 +3,20 @@ import { slugify } from '../utils.js';
 
 export const actions = Object.values(ACTIONS).map(def => {
 	const slug = slugify(def.name);
+	const addCostMetadata = (resource, name, force) => {
+		const key = name.toLowerCase();
+		const value = def.costs.find(c => c.resource === resource)?.amount ?? 0;
+		if (value === 0 && !force) {
+			return undefined;
+		}
+
+		return {
+			key,
+			title: name,
+			value,
+			cssClass: `metadata-cost`,
+		};
+	};
 	return {
 		// wiki parameters
 		group: 'Action',
@@ -17,12 +31,11 @@ export const actions = Object.values(ACTIONS).map(def => {
 				value: def.type,
 				cssClass: 'metadata-type',
 			},
-			{
-				key: 'ap',
-				title: 'AP',
-				value: def.costs.find(c => c.resource === ActionCostResource.ActionPoint)?.amount ?? 0,
-				cssClass: 'metadata-ap',
-			},
-		],
+			addCostMetadata(ActionCostResource.ActionPoint, 'AP', true),
+			addCostMetadata(ActionCostResource.FocusPoint, 'FP', false),
+			addCostMetadata(ActionCostResource.SpiritPoint, 'SP', false),
+			addCostMetadata(ActionCostResource.VitalityPoint, 'VP', false),
+			addCostMetadata(ActionCostResource.HeroismPoint, 'HP', false),
+		].filter(Boolean),
 	};
 });

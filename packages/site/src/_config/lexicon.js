@@ -85,11 +85,11 @@ export const parseLexicon = () => {
 	// Group items by category for category pages
 	const groups = {};
 	markdownFiles.forEach(file => {
-		if (file.category) {
-			if (!groups[file.category]) {
-				groups[file.category] = [];
+		if (file.group) {
+			if (!groups[file.group]) {
+				groups[file.group] = [];
 			}
-			groups[file.category].push(file);
+			groups[file.group].push(file);
 		}
 	});
 

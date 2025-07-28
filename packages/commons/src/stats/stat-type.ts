@@ -87,7 +87,7 @@ export class StatType {
 		name: StatTypeName.Body,
 		description: `The realm of physical capabilities, representing the character's physique.`,
 		exampleUsages: [
-			`Determines [[Vitality_Point | Vitality Points]].`,
+			`Determines [[Vitality Point | Vitality Points]].`,
 			`Is used for **Basic Body Defense** resisted checks.`,
 		],
 	});
@@ -97,7 +97,7 @@ export class StatType {
 		name: StatTypeName.Mind,
 		description: `The realm of mental capabilities, representing your character's intellect.`,
 		exampleUsages: [
-			`Determines [[Focus_Point | Focus Points]].`,
+			`Determines [[Focus Point | Focus Points]].`,
 			`Is used for **Basic Mind Defense** resisted checks.`,
 		],
 	});
@@ -106,7 +106,10 @@ export class StatType {
 		parent: StatType.Level,
 		name: StatTypeName.Soul,
 		description: `The realm of spiritual capabilities, representing your character's life force, connection to the **Aether** and to their own Soul.`,
-		exampleUsages: [`Determines [[Soul_Point | Soul Points]].`, `Is used for **Basic Soul Defense** resisted checks.`],
+		exampleUsages: [
+			`Determines [[Spirit Point | Spirit Points]].`,
+			`Is used for **Basic Soul Defense** resisted checks.`,
+		],
 	});
 	static readonly STR = StatType.build({
 		hierarchy: StatHierarchy.Attribute,
@@ -443,7 +446,7 @@ On top of these types of actions, the different Skills can still be used for oth
 			`A Check can be used to perform the [[Focus]] action.`,
 			`A Check can be used to maintain [[Concentration]] when disrupted or damaged.`,
 			`A Check can be used to continue acting in the face of pain, hardship, or distractions.`,
-			`A Check can be used to temporarily mitigate the effects of [[Consequence_Exhaustion | Exhaustion]].`,
+			`A Check can be used to temporarily mitigate the effects of [[Exhaustion]].`,
 		],
 	});
 	static readonly Resolve = StatType.build({
