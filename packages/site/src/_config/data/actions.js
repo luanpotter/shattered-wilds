@@ -37,5 +37,8 @@ export const actions = Object.values(ACTIONS).map(def => {
 			addCostMetadata(ActionCostResource.VitalityPoint, 'VP', false),
 			addCostMetadata(ActionCostResource.HeroismPoint, 'HP', false),
 		].filter(Boolean),
+
+		// other data
+		type: def.type,
 	};
 });

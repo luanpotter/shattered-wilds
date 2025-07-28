@@ -12,21 +12,7 @@ If a hex has Difficult Terrain, it counts as 2 hexes for the purposes of **Movem
 
 <details>
   <summary>Movement Actions</summary>
-  <ul>
-    <li>{% item "Stride", "type" %}</li>
-    <li>{% item "Side_Step", "type" %}</li>
-    <li>{% item "Get_Up", "type" %}</li>
-    <li>{% item "Run", "type" %}</li>
-    <li>{% item "Climb", "type" %}</li>
-    <li>{% item "Swim", "type" %}</li>
-    <li>{% item "Escape", "type" %}</li>
-    <li>{% item "Drag_Grappler", "type" %}</li>
-    <li>{% item "Stumble_Through", "type" %}</li>
-    <li>{% item "Ride_Mount", "type" %}</li>
-    <li>{% item "Hide", "type" %}</li>
-    <li>{% item "Sneak", "type" %}</li>
-    <li>{% item "Charge", "type" %}</li>
-  </ul>
+  {% list "Action", "title", "type" "Movement" %}
 </details>
 
 ## Type: Attack
@@ -49,16 +35,7 @@ Basic Cover will grant you a [[Circumstance Modifier | CM]] to your **Basic Body
 
 <details>
   <summary>Attack Actions</summary>
-  <ul>
-    <li>{% item "Stun", "type" %}</li>
-    <li>{% item "Feint", "type" %}</li>
-    <li>{% item "Strike", "type" %}</li>
-    <li>{% item "Focused_Strike", "type" %}</li>
-    <li>{% item "Trip", "type" %}</li>
-    <li>{% item "Shove", "type" %}</li>
-    <li>{% item "Disarm", "type" %}</li>
-    <li>{% item "Grapple", "type" %}</li>
-  </ul>
+  {% list "Action", "title", "type" "Attack" %}
 </details>
 
 ## Type: Reaction
@@ -69,14 +46,7 @@ Since your **AP** is replenished at the end of your turn, you do not need to dec
 
 <details>
   <summary>Reaction Actions</summary>
-  <ul>
-    <li>{% item "Sheathe/Unsheathe", "type" %}</li>
-    <li>{% item "Reload", "type" %}</li>
-    <li>{% item "Catch_Breath", "type" %}</li>
-    <li>{% item "Focus", "type" %}</li>
-    <li>{% item "Inspire", "type" %}</li>
-    <li>{% item "Heroic_Relentlessness", "type" %}</li>
-  </ul>
+  {% list "Action", "title", "type" "Reaction" %}
 </details>
 
 ## Type: Miscellaneous
@@ -85,16 +55,7 @@ These are actions that do not fit into the other categories.
 
 <details>
   <summary>Miscellaneous Actions</summary>
-  <ul>
-    <li>{% item "Opportunity_Attack", "type" %}</li>
-    <li>{% item "Dodge", "type" %}</li>
-    <li>{% item "Take_Cover", "type" %}</li>
-    <li>{% item "Shield_Block", "type" %}</li>
-    <li>{% item "Shrug_Off", "type" %}</li>
-    <li>{% item "Flank", "type" %}</li>
-    <li>{% item "Taunt", "type" %}</li>
-    <li>{% item "Distract", "type" %}</li>
-  </ul>
+  {% list "Action", "title", "type" "Miscellaneous" %}
 </details>
 
 ## Type: Luck
@@ -103,11 +64,7 @@ There a few ways to exert your supernatural connection to Luck in Shattered Wild
 
 <details>
   <summary>Luck Actions</summary>
-  <ul>
-    <li>{% item "Luck_Die", "type" %}</li>
-    <li>{% item "Karmic_Resistance", "type" %}</li>
-    <li>{% item "Write_History", "type" %}</li>
-  </ul>
+  {% list "Action", "title", "type" "Luck" %}
 </details>
 
 ## Type: Meta
@@ -116,9 +73,5 @@ Turns in Shattered Wilds are very reactive due to the higher possibility of Reac
 
 <details>
   <summary>Meta Actions</summary>
-  <ul>
-    <li>{% item "Decrease_Initiative", "type" %}</li>
-    <li>{% item "Prepare_Action", "type" %}</li>
-    <li>{% item "Extra_Die", "type" %}</li>
-  </ul>
+  {% list "Action", "title", "type" "Meta" %}
 </details>
