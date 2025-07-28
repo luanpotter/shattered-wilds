@@ -1,47 +1,24 @@
+---js
+{
+    permalink: "/wiki/{{ lexicon.slug }}/index.html",
+    title: "{{ lexicon.title }}",
+    pagination: {
+        data: "lexiconFiles",
+        alias: "lexicon",
+        size: 1,
+    }
+}
 ---
-pagination:
-  data: lexiconFiles
-  size: 1
-  alias: lexicon
-permalink: "wiki/{{ lexicon.slug }}/index.html"
-title: "{{ lexicon.title }}"
----
 
-<h1>{{ lexicon.title }}</h1>
+{% include 'wiki-header.liquid' %}
 
-{% if lexicon.categoryItems and lexicon.categoryItems.size > 0 %}
-  <!-- Category page with definition and auto-generated list -->
-  {{ lexicon.content | mdb }}
+{{ lexicon.content | mdb }}
 
-  <h2>{{ lexicon.title }} List</h2>
-  <ul class="category-list">
-    {% for item in lexicon.categoryItems %}
-      <li class="category-list-item">{% item item.slug %}</li>
-    {% endfor %}
-  </ul>
-{% else %}
-  <!-- Category page with no sub-items or individual item page -->
-  {% if lexicon.category or lexicon.metadata %}
-    <div class="item-header">
-      {% if lexicon.metadata %}
-        <div class="item-metadata">
-          {% for meta in lexicon.metadata %}
-            {% if meta.value %}
-              <span class="{{ meta.cssClass }}">{{ meta.title }}: {{ meta.value }}</span>
-            {% else %}
-              <span class="{{ meta.cssClass }}">{{ meta.title }}</span>
-            {% endif %}
-          {% endfor %}
-        </div>
-      {% endif %}
-
-      {% if lexicon.category %}
-        <div class="breadcrumb">
-          <a href="/wiki/{{ lexicon.category }}/">← Back to {{ lexicon.category }}</a>
-        </div>
-      {% endif %}
-    </div>
-  {% endif %}
-
-  {{ lexicon.content | mdb }}
+{% if lexicon.groupItems and lexicon.groupItems.size > 0 %}
+	<h2>{{ lexicon.title }} List</h2>
+	<ul class='category-list'>
+		{% for item in lexicon.groupItems %}
+			<li class='category-list-item'>{% item item.slug %}</li>
+		{% endfor %}
+	</ul>
 {% endif %}

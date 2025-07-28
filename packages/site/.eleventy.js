@@ -5,6 +5,7 @@ import markdownItAttrs from 'markdown-it-attrs';
 import markdownItWiki from 'markdown-it-wikilinks';
 import yaml from 'js-yaml';
 import eleventyGoogleFonts from 'eleventy-google-fonts';
+import { actions } from './src/_config/data/actions.js';
 import { stats } from './src/_config/data/stats.js';
 import { feats } from './src/_config/data/feats.js';
 import { classes } from './src/_config/data/classes.js';
@@ -23,11 +24,12 @@ export default function (eleventyConfig) {
 	eleventyConfig.addPlugin(eleventyGoogleFonts);
 
 	eleventyConfig.addGlobalData('lexiconFiles', lexiconFiles);
+	eleventyConfig.addGlobalData('actions', actions);
 	eleventyConfig.addGlobalData('stats', stats);
 	eleventyConfig.addGlobalData('feats', feats);
 	eleventyConfig.addGlobalData('classes', classes);
 
-	const wikiPages = [...lexiconFiles, ...stats, ...feats, ...classes]
+	const wikiPages = [...lexiconFiles, ...actions, ...stats, ...feats, ...classes]
 		.filter(e => e.slug)
 		.sort((a, b) => {
 			if (!a.title) {

@@ -5,7 +5,7 @@ export const feats = Object.values(FEATS).map(feat => {
 	const slug = slugify(feat.name);
 	return {
 		// wiki parameters
-		group: 'feats',
+		group: 'Feat',
 		slug,
 		title: feat.name,
 		url: `/wiki/${slug}/`,

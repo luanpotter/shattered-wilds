@@ -1,0 +1,23 @@
+<h1>{{ lexicon.title }}</h1>
+
+{% if lexicon.category or lexicon.metadata %}
+	<div class='item-header'>
+		{% if lexicon.metadata %}
+			<div class='item-metadata'>
+				{% for meta in lexicon.metadata %}
+					{% if meta.value %}
+						<span class='{{ meta.cssClass }}'>{{ meta.title }}: {{ meta.value }}</span>
+					{% else %}
+						<span class='{{ meta.cssClass }}'>{{ meta.title }}</span>
+					{% endif %}
+				{% endfor %}
+			</div>
+		{% endif %}
+
+		{% if lexicon.group %}
+			<div class='breadcrumb'>
+				<a href='/wiki/{{ lexicon.group }}/'>← Back to {{ lexicon.group }}</a>
+			</div>
+		{% endif %}
+	</div>
+{% endif %}

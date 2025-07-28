@@ -29,7 +29,7 @@ export const parseLexicon = () => {
 				const relativePath = path.relative(lexiconDir, fullPath).replace(/\.md$/, '');
 
 				const bits = relativePath.split('/').slice(-2);
-				const [category, slug] = bits.length === 1 ? [undefined, ...bits] : bits;
+				const [group, slug] = bits.length === 1 ? [undefined, ...bits] : bits;
 				const title = slug.replace(/_/g, ' ');
 
 				// Parse frontmatter if present
@@ -68,11 +68,11 @@ export const parseLexicon = () => {
 				files.push({
 					filePath: fullPath,
 					slug: slug,
+					group,
 					title: title,
 					basePath: basePath,
 					content: markdownContent,
 					metadata: parseFrontMatter(frontMatter),
-					category,
 				});
 			}
 		}
@@ -83,13 +83,13 @@ export const parseLexicon = () => {
 	const markdownFiles = getAllMarkdownFiles(lexiconDir);
 
 	// Group items by category for category pages
-	const categoryGroups = {};
+	const groups = {};
 	markdownFiles.forEach(file => {
 		if (file.category) {
-			if (!categoryGroups[file.category]) {
-				categoryGroups[file.category] = [];
+			if (!groups[file.category]) {
+				groups[file.category] = [];
 			}
-			categoryGroups[file.category].push(file);
+			groups[file.category].push(file);
 		}
 	});
 
@@ -100,9 +100,9 @@ export const parseLexicon = () => {
 	});
 
 	return markdownFiles.map(file => {
-		let categoryItems = null;
-		if (categoryGroups[file.title]) {
-			categoryItems = categoryGroups[file.title]
+		let groupItems = null;
+		if (groups[file.title]) {
+			groupItems = groups[file.title]
 				.filter(item => item.slug !== file.slug)
 				.map(item => ({
 					...item,
@@ -110,16 +110,13 @@ export const parseLexicon = () => {
 				}));
 		}
 		return {
-			// wiki parameters
+			group: file.group,
 			slug: file.slug,
 			title: file.title,
 			url: `/wiki/${file.slug}/`,
-
-			// data
 			content: file.content,
 			metadata: file.metadata,
-			category: file.category,
-			categoryItems: categoryItems,
+			groupItems: groupItems,
 		};
 	});
 };

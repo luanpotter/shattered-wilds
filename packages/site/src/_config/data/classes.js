@@ -5,7 +5,7 @@ export const classes = Object.values(CLASS_DEFINITIONS).map(def => {
 	const slug = slugify(def.name);
 	return {
 		// wiki parameters
-		group: 'classes',
+		group: 'Class',
 		slug,
 		title: `${def.name}`,
 		url: `/wiki/${slug}/`,

@@ -3,43 +3,36 @@
     permalink: "/{{ pagination.items[0].url }}/index.html",
     pagination: {
         data: "stats",
-        alias: "stat",
+        alias: "lexicon",
         size: 1,
     }
 }
 ---
 
-<h1>{{ stat.name }}</h1>
+{% include 'wiki-header.liquid' %}
 
-<div class="item-header">
-    <div class="item-metadata"></div>
-    <div class="breadcrumb">
-      <a href="/wiki/Stat">← Back to Stats</a>
-    </div>
-</div>
+<p>{{ lexicon.description | mdb }}</p>
 
-<p>{{ stat.description | mdb }}</p>
-
-{% if stat.longDescription %}
-    <p>{{ stat.longDescription | mdb }}</p>
+{% if lexicon.longDescription %}
+    <p>{{ lexicon.longDescription | mdb }}</p>
 {% endif %}
 
-{% if stat.parent %}
-<p><strong>{{ stat.name }}</strong> is a {{ stat.hierarchy }} of <a href="/wiki/{{ stat.parent }}/">{{ stat.parent }}</a>.</p>
+{% if lexicon.parent %}
+<p><strong>{{ lexicon.name }}</strong> is a {{ lexicon.hierarchy }} of <a href="/wiki/{{ lexicon.parent }}/">{{ lexicon.parent }}</a>.</p>
 {% endif %}
-{% if stat.children.size > 0 %}
-    <p>It has the following {{ stat.childHierarchy }}s:</p>
+{% if lexicon.children.size > 0 %}
+    <p>It has the following {{ lexicon.childHierarchy }}s:</p>
     <ul>
-        {% for child in stat.children %}
+        {% for child in lexicon.children %}
             <li><a href="/wiki/{{ child }}/">{{ child }}</a></li>
         {% endfor %}
     </ul>
 {% endif %}
 
-{% if stat.exampleUsages.size > 0 %}
+{% if lexicon.exampleUsages.size > 0 %}
 <h3>Example Usages</h3>
 <ul>
-{% for usage in stat.exampleUsages %}
+{% for usage in lexicon.exampleUsages %}
     <li>{{ usage | mdi }}</li>
 {% endfor %}
 </ul>

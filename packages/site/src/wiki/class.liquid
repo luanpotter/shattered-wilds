@@ -3,24 +3,17 @@
     permalink: "/{{ pagination.items[0].url }}/index.html",
     pagination: {
         data: "classes",
-        alias: "class",
+        alias: "lexicon",
         size: 1,
     }
 }
 ---
 
-<h1>{{ class.name }}</h1>
-
-<div class="item-header">
-    <div class="item-metadata"></div>
-    <div class="breadcrumb">
-      <a href="/wiki/Classes">← Back to Classes</a>
-    </div>
-</div>
+{% include 'wiki-header.liquid' %}
 
 <div>
-    <p><strong>Realm</strong>: {{ class.realm }}</p>
-    <p><strong>Primary Attribute</strong>: {{ class.primaryAttribute }}</p>
-    <p><strong>Role</strong>: {{ class.role }}</p>
-    <p><strong>Flavor</strong>: {{ class.flavor }}</p>
+    <p><strong>Realm</strong>: {{ lexicon.realm }}</p>
+    <p><strong>Primary Attribute</strong>: {{ lexicon.primaryAttribute }}</p>
+    <p><strong>Role</strong>: {{ lexicon.role }}</p>
+    <p><strong>Flavor</strong>: {{ lexicon.flavor }}</p>
 </div>
