@@ -337,7 +337,7 @@ export const ACTIONS = {
 		type: ActionType.Reaction,
 		name: 'Take Cover',
 		description:
-			'When rolling a **Body Defense** against a **Ranged Basic Attack**, you can roll a [[Speed]] Check with a `+6` [[Circumstance_Modifier | CM]] instead when already benefiting from **Basic Cover**.',
+			'When rolling a **Body Defense** against a **Ranged Basic Attack**, you can roll an [[Agility]] Check with a `+6` [[Circumstance_Modifier | CM]] instead when already benefiting from **Basic Cover**.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
 	}),
 	[Action.Shield_Block]: new ActionDefinition({
