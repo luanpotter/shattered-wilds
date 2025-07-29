@@ -32,8 +32,8 @@
 <details>
     <summary>Consequences</summary>
     <ul>
-        <li>{% item "Consequence/Exhaustion" %}</li>
-        <li>{% item "Consequence/Poisoned" %}</li>
-        <li>{% item "Consequence/Death" %}</li>
+        <li>{% item "Exhaustion" %}</li>
+        <li>{% item "Poisoned" %}</li>
+        <li>{% item "Death" %}</li>
     </ul>
 </details>

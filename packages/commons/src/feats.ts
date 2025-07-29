@@ -516,7 +516,8 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Core,
 		source: StaticFeatSource.Upbringing,
 		level: 0,
-		description: 'You have +3 to Knowledge or Intuition Checks about aspects related to a specific area of expertise',
+		description:
+			'You have `+3` to [[Knowledge]] or [[Intuition]] Checks about aspects related to a specific area of expertise.',
 		parameter: {
 			id: 'upbringing',
 			name: 'Upbringing',
@@ -529,7 +530,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Core,
 		source: Upbringing.Urban,
 		level: 0,
-		description: 'You gain two additional Minor Feat slots at Level 1',
+		description: 'You gain two additional **Minor Feat** slots at Level 1.',
 	}),
 	[Feat.NomadicAlertness]: new FeatDefinition<void>({
 		key: Feat.NomadicAlertness,
@@ -537,7 +538,8 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Core,
 		source: Upbringing.Nomadic,
 		level: 0,
-		description: 'Can make Awareness Checks to spot danger while sleeping in the Wilds with no CM penalty',
+		description:
+			'Can make [[Awareness]] Checks to spot danger while sleeping in the Wilds with no [[Circumstance Modifier | CM]] penalty.',
 	}),
 	[Feat.TribalEndurance]: new FeatDefinition<void>({
 		key: Feat.TribalEndurance,
@@ -546,7 +548,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: Upbringing.Tribal,
 		level: 0,
 		description:
-			'Pay 1 Heroism Point to reduce your Exhaustion Level by 1 if you can directly tie a current task to your personal sense of duty to your tribe',
+			'Pay 1 [[Heroism_Point | Heroism Point]] to reduce your [[Exhaustion]] Level by 1 if you can directly tie a current task to your personal sense of duty to your tribe.',
 	}),
 	[Feat.LightFeet]: new FeatDefinition<void>({
 		key: Feat.LightFeet,
@@ -554,7 +556,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Core,
 		source: Upbringing.Sylvan,
 		level: 0,
-		description: 'Ignore difficult terrain due to natural vegetation, forest growth, etc.',
+		description: 'Ignore **Difficult Terrain** due to natural vegetation, forest growth, etc.',
 	}),
 	[Feat.DarkVision]: new FeatDefinition<void>({
 		key: Feat.DarkVision,
@@ -562,7 +564,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Core,
 		source: Upbringing.Telluric,
 		level: 0,
-		description: 'See black-and-white in the dark',
+		description: 'See black-and-white in the dark.',
 	}),
 	// Melee
 	[Feat.SweepAttack]: new FeatDefinition<void>({
@@ -581,7 +583,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassRole.Melee,
 		level: 2,
 		description:
-			'You can spend 1 [[Soul_Point | SP]] to reduce by 1 (min 1) the amount of [[Action_Point | AP]] you would spend to perform the [[Action_Opportunity_Attack | Opportunity Attack]] reaction.',
+			'You can spend `1` [[Spirit_Point | SP]] to reduce by `1` (min `1`) the amount of [[Action_Point | AP]] you would spend to perform the [[Action_Opportunity_Attack | Opportunity Attack]] reaction.',
 	}),
 	[Feat.SpinAttack]: new FeatDefinition<void>({
 		key: Feat.SpinAttack,
@@ -826,7 +828,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.SacredCalm,
 		name: 'Sacred Calm',
 		type: FeatType.Core,
-		source: ClassRealm.Mystic,
+		source: ClassRole.Adept,
 		level: 1,
 		description:
 			'You can perform the [[Calm]] action on an ally that you can touch. You can spend an additional 1 [[Focus_Point | FP]] to get a +3 [[Circumstance Modifier | CM]] when performing the [[Calm]] action.',
@@ -836,7 +838,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.FlurryOfBlows,
 		name: 'Flurry of Blows',
 		type: FeatType.Core,
-		source: ClassRealm.Mystic,
+		source: ClassRole.Disciple,
 		level: 1,
 		description:
 			'You can spend 1 [[Spirit_Point | SP]] to make an unarmed [[Strike]] cost only 1 [[Action_Point | AP]].',
@@ -845,7 +847,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.ChannelingFists,
 		name: 'Channeling Fists',
 		type: FeatType.Minor,
-		source: ClassRealm.Mystic,
+		source: ClassRole.Disciple,
 		level: 2,
 		description:
 			'You can spend 1 [[Spirit_Point | SP]] to get a +1 [[Circumstance Modifier | CM]] to an unarmed Attack Check.',
@@ -854,7 +856,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.CallousFists,
 		name: 'Callous Fists',
 		type: FeatType.Major,
-		source: ClassRealm.Mystic,
+		source: ClassRole.Disciple,
 		level: 2,
 		description: 'You can use [[CON]] instead of [[STR]] to perform unarmed attacks.',
 	}),
@@ -863,7 +865,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.BountifulLuck,
 		name: 'Bountiful Luck',
 		type: FeatType.Core,
-		source: ClassRealm.Mystic,
+		source: ClassRole.Inspired,
 		level: 1,
 		description:
 			'You can spend [[Spirit_Points | SP]] instead of [[Heroism_Points | Heroism Points]] to use the [[Karmic_Resistance | Karmic Resistance]], [[Write_History | Write History]] and [[Luck_Die | Luck Die]] actions.',
@@ -872,7 +874,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.LuckyRelentlessness,
 		name: 'Lucky Relentlessness',
 		type: FeatType.Minor,
-		source: ClassRealm.Mystic,
+		source: ClassRole.Inspired,
 		level: 2,
 		description: 'Your DC for the [[Heroic_Relentlessness | Heroic Relentlessness]] action is `15`.',
 	}),
@@ -880,7 +882,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.FavorableMovement,
 		name: 'Favorable Movement',
 		type: FeatType.Major,
-		source: ClassRealm.Mystic,
+		source: ClassRole.Inspired,
 		level: 3,
 		description:
 			'You can spend 1 [[Focus_Point | FP]] to ignore the **Difficult Terrain** trait of a hex while moving through it.',

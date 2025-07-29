@@ -22,50 +22,53 @@ There are 9 Warrior classes, which are divided in a `3x3` matrix of **Roles** an
 
 The **Role** will also define your **Primary Attribute** (STR, DEX or CON) for the **Core Class Modifier**.
 
-### Melee Warriors Feats
+### Melee Warriors
 
 Melee Warriors focus on Strength, and thus are favored to use **Heavy Melee** or **Thrown** weapons (see a Weapons breakdown under [Equipment](rules/equipment)).
 
-* **Sweep Attack** (Core Feat, Level 1): You can spend 3 [[Action_Point | AP]] and 1 [[Focus_Point | FP]] to perform an advanced **Melee Strike** against up to three adjacent enemies within your reach. You roll once for all targets, but they Resist separately.
-* **Opportunity Window** (Major Feat, Level 2): You can spend 1 [[Soul_Point | SP]] to reduce by 1 (min 1) the amount of [[Action_Point | AP]] you would spend to perform the [[Action_Opportunity_Attack | Opportunity Attack]] reaction.
-* **Spin Attack** (Major Feat, Level 3, Requires **Sweep Attack**): Upgrade your **Sweep Attack** to target any number of creatures adjacent to you.
+<details>
+  <summary>Melee Warriors Feats</summary>
+  {% list "Feat", "level", "source" "Melee" %}
+</details>
 
-### Ranged Warriors Feats
+### Ranged Warriors
 
 Ranged Warriors focus on Dexterity, and thus are favored to use **Light Melee** or **Ranged** weapons (or both).
 
-* **Take Aim** (Core Feat, Level 1): Spend 1 [[Focus_Point | FP]] and 1 [[Action_Point | AP]] to target a specific enemy within range of your Ranged Weapon and that you can see clearly; if your next action is a **Basic Ranged Attack** against that target, you can roll with [[Finesse]] instead and +3 [[Circumstance Modifier | CM]] to the Attack Check.
-* **Rapid Fire** (Major Feat, Level 2): Spend 2 [[Spirit_Point | SP]] (and the [[Action_Point | AP]] that it would cost) to use a [[Strike]] action for **Basic Ranged Attack** as a reaction; it loses the [[Concentrate]] trait.
-* **Pinning Shot** (Major Feat, Level 2): You can perform the [[Stun]] action with **Ranged Attacks**.
-* **Double Shot** (Major Feat, Level 4): You can spend 3 [[Spirit_Point | SP]] to shoot two projectiles with a single [[Strike]] action. Roll for each separately, one after the other.
+<details>
+  <summary>Ranged Warriors Feats</summary>
+  {% list "Feat", "level", "source" "Ranged" %}
+</details>
 
-### Tank Warriors Feats
+### Tank Warriors
 
 Tank Warriors focus on Constitution, and thus are focused on defense and therefore do not have a specific weapon focus.
 
-* **Improved Taunt** (Core Feat, Level 1): You can spend an additional 1 [[Spirit_Point | SP]] as you perform a [[Taunt]] action to get a +6 [[Circumstance Modifier | CM]] to your [[Intimidation]] Check.
-* **Quick Bash** (Major Feat, Level 2): You only need to spend 1 [[Action_Point | AP]] to perform a **Shield Bash** .
-* **Armor Familiarity** (Minor Feat, Level 3): You reduce your [[DEX]] penalty from wearing Armor by `1` (min `0`).
-* **Bulky Frame** (Minor Feat, Level 2+): You have a `+6` [[Circumstance Modifier | CM]] to your [[Stance]] Checks to resist opponents of your size or larger attempting to [[Stumble_Through | Stumble Through]] you.
+<details>
+  <summary>Tank Warriors Feats</summary>
+  {% list "Feat", "level", "source" "Tank" %}
+</details>
 
-### Martial Warriors Feats
+### Martial Warriors
 
-* **Exert Authority** (Core Feat, Level 1): Spend 1 [[Action_Point | AP]] and 1 [[Spirit_Point | SP]] to authoritatively command an ally that can see and hear you clearly to perform a specific 1 [[Action_Point | AP]] action of your choice. The ally can choose to perform the action immediately without spending any AP if they wish.
-* **Distributed Shifts** (Major Feat, Level 2): When you would inflict additional damage through a **Basic Melee Strike** to an enemy via **Crit Shifts**, you can instead attempt to distribute that additional Shift damage to any other adjacent creatures that would have been valid targets for this attack; they can resist with a [[Evasiveness]], [[Toughness]] or [[Karma]] Check.
+<details>
+  <summary>Martial Warriors Feats</summary>
+  {% list "Feat", "level", "source" "Martial" %}
+</details>
 
-### Survivalist Warriors Feats
+### Survivalist Warriors
 
-* **Rage** (Core Feat, Level 1): You can spend 1 [[Action_Point | AP]] and 2 [[Spirit_Point | SP]] to become **Enraged**: reduce your [[Focus_Point | Focus Points]] to `1`, and it cannot be further reduced while you are **Enraged**; you cannot [[Concentrate]] while **Enraged**; and you gain a [[Circumstance Modifier | CM]] to your next **Basic Attacks** while **Enraged** that starts with `+6` and is reduced by `1` each time it is used. When the bonus reaches `0`, or you fail to perform at least on **Basic Attack** in your turn, you are no longer **Enraged**.
-* **Specialized Knowledge (Sylvian)** (Minor Feat, Level 2): Exactly the same as the one obtained via the **Sylvian Upbringing**.
-* **Instinctive Tracking** (Minor Feat, Level 2): You get a `+3` [[Circumstance Modifier | CM]] to Checks you make related to tracking creatures (following footprints, etc).
-* **Disregard Cover** (Major Feat, Level 4): You can consider **Basic Cover** for your **Ranged Attacks** to be of one degree less than it would otherwise be.
+<details>
+  <summary>Survivalist Warriors Feats</summary>
+  {% list "Feat", "level", "source" "Survivalist" %}
+</details>
 
-### Scoundrel Warriors Feats
+### Scoundrel Warriors
 
-* **Fancy Footwork** (Core Feat, Level 1): If you make a **Melee Basic Attack** against a target, you do not provoke [[Opportunity_Attack | Opportunity Attacks]] from that target until the end of the turn.
-* **Thieves's Fingers** (Minor Feat, Level 2): You get a `+3` [[Circumstance Modifier | CM]] to any Checks you perform associated with lock picking or trap disarming. You can spend 1 [[Focus_Point | FP]] to get an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).
-* **Leverage** (Major Feat, Level 3): If you would inflict additional damage through a **Basic Strike** to an enemy via **Crit Shifts**, you can instead spend any number of [[Spirit_Point | SP]] (up to your level) to inflict that many additional [[Vitality_Point | VP]] of damage.
-* **Beginner's Luck** (Minor Feat, Level 3): You can use a [[Focus_Point | FP]] to pay for a [[Luck_Die | Luck Die]] for a Check of a Skill you do not have any points invested in.
+<details>
+  <summary>Scoundrel Warriors Feats</summary>
+  {% list "Feat", "level", "source" "Scoundrel" %}
+</details>
 
 ## Casters
 
@@ -79,7 +82,7 @@ There are a total of 12 **Caster** classes, which are divided in a 3x4 matrix de
 
 The **Core Major Feat** for all **Casters** is:
 
-* **Arcane Casting ([Primary Attribute])** (Core Feat, Level 1) [[Concentration]]: Unlocks Arcane Casting. See [Arcane Spellcasting](/rules/arcane) for details on how the **Arcane** magic system works.
+{% item "Arcane_Casting" %}
 
 See [Arcane Spellcasting](/rules/arcane) for a detailed breakdown of what each **Role** and **Flavor** entails and how the **Arcane** magic system works.
 
@@ -87,27 +90,37 @@ See [Arcane Spellcasting](/rules/arcane) for a detailed breakdown of what each *
 
 The Arcanist is the generalist **Caster**; they are able to use all types of **Spell Components**, but are not particularly proficient in any of them.
 
-* **Signature Spell ([Spell])** (Core & Major Feat, Level 1): Choose a specific spell (that means specific **Noun**, **Verb**, description, and set of **Augmentations**; see the examples in the [Arcane Spellcasting](/rules/arcane) page; players can work with their DM to define what is specific enough). You have the exact execution step decision tree for this specific spell committed to muscle memory; get a `+3` [[Circumstance Modifier | CM]] when casting this specific spell.
+<details>
+  <summary>Arcanist Feats</summary>
+  {% list "Feat", "level", "source" "Arcanist" %}
+</details>
 
 ### The Mechanist
 
 The Mechanist is able to use tools and devices that they can devise to assist with the execution of **Somatic Spell Components**. In contrast, they are unable to use **Verbal** or **Focal** components.
 
-* **Tool-Assisted Casting** (Core Feat, Level 1): You can create and use **One-Handed** (`+2`) and **Two-Handed** (`+3`) tools, crazy mechanical contraptions to assist you with the execution of **Somatic Spell Components**. You can use these tools to execute a **Somatic Component** of any spell, but you cannot use any other type of **Spell Component**.
+<details>
+  <summary>Mechanist Feats</summary>
+  {% list "Feat", "level", "source" "Mechanist" %}
+</details>
 
 ### The Naturalist
 
 The Naturalist is able to use the natural world around them to assist with the execution of **Somatic Spell Components**. In contrast, they are unable to use **Verbal** or **Focal** components.
 
-* **Focal Connection** (Core Feat, Level 1): You can create and use a personal **Custom Focus** (`+3`) that is bound to you. You can use this **Custom Focus** to execute the **Focal Component** of any spell, but you cannot use any other type of **Spell Component**.
-* **Specialized Knowledge (Sylvian)** (Minor Feat, Level 3): Exactly the same as the one obtained via the **Sylvian Upbringing**.
+<details>
+  <summary>Naturalist Feats</summary>
+  {% list "Feat", "level", "source" "Naturalist" %}
+</details>
 
 ### The Musicist
 
 The Musicist is able to use music and instruments to assist with the execution of **Verbal Spell Components**. In contrast, they are unable to use **Somatic** or **Focal** components.
 
-* **Lyrical Resonance** (Core Feat, Level 1): You can use **One-Handed** (`+2`) and **Two-Handed** (`+3`) instruments to assist you with the execution of **Verbal Spell Components**. You can use these instruments to execute a **Verbal Component** of any spell, but you cannot use any other type of **Spell Component**.
-* **There's More to This Song** (Minor Feat, Level 2): You can attempt to hide a message in a song you are singing, only to be perceived by certain listeners. Roll a [[Speechcraft]] Check with `+6` [[Circumstance Modifier | CM]]; all listeners then contest with an [[IQ]] Check. The targets you wanted to understand get a `+3` [[Circumstance Modifier | CM]] to their Check, or a `+6` if they are aware that you are trying to hide a message.
+<details>
+  <summary>Musicist Feats</summary>
+  {% list "Feat", "level", "source" "Musicist" %}
+</details>
 
 ## Mystics
 
@@ -154,32 +167,37 @@ Typically, Adepts will **Pray** once at the start of every day (after a [[Long R
 
 A character can attempt to **Pray** on any longer moments of peace and quiet (like a [[Short Rest]]), but typically praying more than once a day is infective. Similarly, a DM might request a [[Revelation]] Check at any moment, depending on circumstances, the nature of the **Protean** and the connection, or circumstances and events.
 
-* **Divine Channeling** (Core Feat, Level 1) [[Channeling]]: Unlocks Divine Channeling. See [Divine Channeling](/rules/divine) for details on how the **Divine** magic system works.
-* **Sacred Calm** (Major Feat, Level 2): You can perform the [[Calm]] action on an ally that you can touch. You can spend an additional 1 [[Focus_Point | FP]] to get a +3 [[Circumstance Modifier | CM]] when performing the [[Calm]] action.
+<details>
+  <summary>Adept Feats</summary>
+  {% list "Feat", "level", "source" "Adept" %}
+</details>
 
 ## The Disciple
 
 The **Disciple** is a **Mystic** who is able to channel the power within their **Soul** into the Material World. They are still finely connected and attuned to the **Aether**, but they are not bound to a specific **Protean**, but rather strengthen the connection with their own **Soul**. Therefore, they are uniquely equipped to fight with their own power-unlocked Body.
 
-* **Flurry of Blows** (Core Feat, Level 1) [[Channeling]]: You can spend 1 [[Spirit_Point | SP]] to make an unarmed [[Strike]] cost only 1 [[Action_Point | AP]].
-* **Channeling Fists** (Minor Feat, Level 2) [[Channeling]]: You can spend 1 [[Spirit_Point | SP]] to get a +1 [[Circumstance Modifier | CM]] to an unarmed Attack Check.
-* **Callous Fists** (Major Feat, Level 2): You can use [[CON]] instead of [[STR]] to perform unarmed attacks.
+<details>
+  <summary>Disciple Feats</summary>
+  {% list "Feat", "level", "source" "Disciple" %}
+</details>
 
 ## The Inspired
 
 The **Inspired** is a **Mystic** who is able to receive their [[LCK]] through an unexplainable connection to the **Aether** (and possibly beyond). If the typical channeling power is vague and abstract, the origin of the good fortune of the **Inspired** is completely beyond comprehension.
 
-* **Bountiful Luck** (Core Feat, Level 1) [[Channeling]]: You can spend [[Spirit_Points | SP]] instead of [[Heroism_Points | Heroism Points]] to use the [[Karmic_Resistance | Karmic Resistance]], [[Write_History | Write History]] and [[Luck_Die | Luck Die]] actions.
-* **Lucky Relentlessness** (Minor Feat, Level 2) [[Channeling]]: Your DC for the [[Heroic_Relentlessness | Heroic Relentlessness]] action is `15`.
-* **Favorable Movement** (Major Feat, Level 3): You can spend 1 [[Focus_Point | FP]] to ignore the **Difficult Terrain** trait of a hex while moving through it.
+<details>
+  <summary>Inspired Feats</summary>
+  {% list "Feat", "level", "source" "Inspired" %}
+</details>
 
 ## Flavor: Devout
 
 The **Devout** will be completely focused on their channeling, instead of diverging into more martial-focused faculties.
 
-* **Effortless Imbued Item Channeling** (Core Feat, Level 1): Whenever you would spend [[Spirit_Point | Spirit Points]] to use an **Imbued Item** that would otherwise not require a [[Channeling]] Check, you can make a [[Channeling]] Check DC 15 to spend one less [[Spirit_Point | SP]].
-* **Divine Channeling** (Major Feat, Level 2) [[Channeling]]: Unlocks Divine Channeling. See [Divine Channeling](/rules/divine) for details on how the **Divine** magic system works.
-* **Focused Channeling** (Minor Feat, Level 3): You can spend 2 [[Focus_Points | FP]] (and add the [[Concentrate]] trait, if it didn't have it already) when doing an action with the [[Channeling]] trait to get a +3 [[Circumstance Modifier | CM]].
+<details>
+  <summary>Devout Feats</summary>
+  {% list "Feat", "level", "source" "Devout" %}
+</details>
 
 ## Flavor: Mixed
 
@@ -191,9 +209,10 @@ The **Mixed** will be in between the Devout and the Crusader.
 
 Of the three **Flavors**, the **Crusader** will have the most focus on martial expertise, but still being primarily focused on their channeling.
 
-* **Divine Smite** (Core Feat, Level 1) [[Channeling]]: You can spend 2 [[Spirit_Point | SP]] when striking with a weapon to get a +3 [[Circumstance Modifier | CM]] as you channel raw power into it, making it acquire a distinct glow as you lift it to strike.
-* **Spiritual Armor** (Minor Feat, Level 2) [[Channeling]]: You can roll the [[Shrug_Off | Shrug Off]] action using your **Primary Attribute** instead of [[Toughness]].
-* **Divine Channeling** (Major Feat, Level 3) [[Channeling]]: Unlocks Divine Channeling. See [Divine Channeling](/rules/divine) for details on how the **Divine** magic system works.
+<details>
+  <summary>Crusader Feats</summary>
+  {% list "Feat", "level", "source" "Crusader" %}
+</details>
 
 ## Archetypes
 

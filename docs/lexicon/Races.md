@@ -34,9 +34,9 @@ A character gets the size of their primary race and they can decide to get the c
 
 Your upbringing grants you three **Core Feats**:
 
-* **Upbringing Modifiers**: A pair of [[Mind]]/[[Soul]] Realms modifiers (+1 in one Attribute, -1 in another), which will also bypass level cap.
+* **Upbringing Modifiers**: A pair of [[Mind]]/[[Soul]] Realms modifiers (`+1` in one Attribute, `-1` in another), which will also bypass level cap.
 * The [[Level]] 0 **Core Feat** from your chosen **Upbringing**
-* The **Specialized Knowledge ([Upbringing])** (Core Feat): You have +3 to [[Knowledge]] or [[Intuition]] Checks about aspects related to your upbringing environment.
+* The **[[Specialized_Knowledge | Specialized Knowledge]]** feat associated with your **Upbringing** (You have `+3` to [[Knowledge]] or [[Intuition]] Checks about aspects related to your upbringing environment).
 
 Players are welcome to craft their own **Upbringings** with their DMs, but there are five pre-defined options to choose from. You can still choose any attributes for the modifiers, but you should choose a pair of modifiers that make sense with your backstory. If your class is a **Caster** or **Mystic**, choosing your the `+1` modifier to go to your **Primary Attribute** is usually inherently justifiable.
 
@@ -44,9 +44,9 @@ Players are welcome to craft their own **Upbringings** with their DMs, but there
 
 This character lived their childhood in a medium-sized village or town (much larger cities are extremely rare and hard to find). **Human** and **Elven** communities are often **Urban**.
 
-* **Specialized Training** (Core Feat, Level 0): Choose any two Level 1 **Minor Feats** from the **General Feats** list.
+* {% item "Specialized_Training" "source" %}
 * Typical choices for **Upbringing Modifiers**: + [[INT]]/[[CHA]]/[[LCK]], - [[WIS]]/[[DIV]]/[[FOW]]
-* Typical applications of **Specialized Training (Urban)**: recall urban lore, politics, commerce, something specific about the city, etc.
+* Typical applications of **[[Specialized_Knowledge | Specialized Knowledge (Urban)]]**: recall urban lore, politics, commerce, something specific about the city, etc.
 
 ### Nomadic
 
@@ -54,30 +54,30 @@ This character grew up as a nomad, traveling in a small party, family or group v
 
 A typical scenario is a small group of low-level adventurers, that eventually have (or encounter) a child, and now must find a way to raise them until they can find the next safe village to drop them off (which can be rare to find depending on where they are).
 
-* **Nomadic Alertness** (Core Feat, Level 0): Can make [[Awareness]] Checks to spot danger while sleeping in the Wilds with no [[Circumstance Modifier | CM]] penalty.
+* {% item "Nomadic_Alertness" "source" %}
 * Typical choices for **Upbringing Modifiers**: + [[WIS]]/[[FOW]]/[[LCK]], - [[INT]]/[[CHA]]/[[DIV]]
-* Typical applications of **Specialized Training (Nomadic)**: intuit about surviving in the Wilds, foraging, tracking, etc.
+* Typical applications of **[[Specialized_Knowledge | Specialized Knowledge (Nomadic)]]**: intuit about surviving in the Wilds, foraging, tracking, etc.
 
 ### Tribal
 
 This character grew up in a settlement with a strong tribal structure, with hierarchies and clans. **Dwarven**, **Fey** and **Goliath** communities are often **Tribal**.
 
-* **Tribal Endurance** (Core Feat, Level 0): Pay 1 [[Heroism_Point | Heroism Point]] to reduce your [[Exhaustion]] Level by 1 if you can directly tie a current task to your personal sense of duty to your tribe (not doable during an Encounter).
+* {% item "Tribal_Endurance" "source" %}
 * Typical choices for **Upbringing Modifiers**: + [[CHA]]/[[DIV]]/[[FOW]], - [[INT]]/[[WIS]]/[[LCK]]
-* Typical applications of **Specialized Training (Tribal)**: recall specific tribal knowledge and lore (depends on the tribe), intuit hierarchical structures between people, etc.
+* Typical applications of **[[Specialized_Knowledge | Specialized Knowledge (Tribal)]]**: recall specific tribal knowledge and lore (depends on the tribe), intuit hierarchical structures between people, etc.
 
 ### Sylvan
 
 This character grew up in very small settlement embedded deep within the woods. **Elven**, **Fey**, and **Goblin** communities are often **Sylvan**.
 
-* **Light Feet** (Core Feat, Level 0): Ignore difficult terrain due to natural vegetation, forest growth, etc.
+* {% item "Light_Feet" "source" %}
 * Typical choices for **Upbringing Modifiers**: + [[WIS]]/[[DIV]]/[[FOW]], - [[INT]]/[[CHA]]/[[LCK]]
-* Typical applications of **Specialized Training (Sylvan)**: recall fauna and flora lore,
+* Typical applications of **[[Specialized_Knowledge | Specialized Knowledge (Sylvan)]]**: recall fauna and flora lore,
 
 ### Telluric
 
 This character grew up in a cave-dwelling settlement, deep within cave systems. **Dwarven**, **Orc** and **Goliath** communities are often **Telluric**.
 
-* **Dark Vision** (Core Feat, Level 0): See black-and-white in the dark.
+* {% item "Dark_Vision" "source" %}
 * Typical choices for **Upbringing Modifiers**: + [[INT]]/[[CHA]]/[[LCK]], - [[WIS]]/[[DIV]]/[[FOW]]
-* Typical applications of **Specialized Training (Telluric)**: intuit your way through caves and dungeons, recall minerals, mining, and ore lore, etc.
+* Typical applications of **[[Specialized_Knowledge | Specialized Knowledge (Telluric)]]**: intuit your way through caves and dungeons, recall minerals, mining, and ore lore, etc.

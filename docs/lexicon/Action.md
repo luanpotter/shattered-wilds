@@ -8,7 +8,7 @@ These are actions associated with movement, and can take several forms. All move
 
 ### Difficult Terrain
 
-If a hex has Difficult Terrain, it counts as 2 hexes for the purposes of **Movement** (except for the [[Step]] action).
+If a hex has Difficult Terrain, it counts as 2 hexes for the purposes of **Movement** (except for the [[Side Step]] action).
 
 <details>
   <summary>Movement Actions</summary>

@@ -18,10 +18,10 @@ export const feats = Object.values(FEATS).map(feat => {
 				cssClass: 'metadata-type',
 			},
 			{
-				key: 'category',
-				title: 'Category',
-				value: feat.category,
-				cssClass: 'metadata-category',
+				key: 'source',
+				title: 'Source',
+				value: feat.source,
+				cssClass: 'metadata-source',
 			},
 			{
 				key: 'level',

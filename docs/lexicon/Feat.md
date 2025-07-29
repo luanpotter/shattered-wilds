@@ -40,8 +40,14 @@ Starting on **Level 3** and on every other odd Level, the character will pick a 
 
 ## General Minor Feats
 
-{% list "Feat", "level", "type" "Minor", "category" "General" %}
+<details>
+  <summary>General Minor Feats</summary>
+  {% list "Feat", "level", "type" "Minor", "source" "General" %}
+</details>
 
 ## General Major Feats
 
-{% list "Feat", "level", "type" "Major", "category" "General" %}
+<details>
+  <summary>General Major Feats</summary>
+  {% list "Feat", "level", "type" "Major", "source" "General" %}
+</details>

@@ -332,7 +332,8 @@ div.pagination p {
 	color: #4ecdc4;
 }
 
-.metadata-cost {
+.metadata-cost,
+.metadata-level {
 	color: #ff6b6b;
 }
 
@@ -340,12 +341,9 @@ div.pagination p {
 	color: #6bff6b;
 }
 
-.metadata-category {
+.metadata-category,
+.metadata-source {
 	color: #abad30;
-}
-
-.metadata-level {
-	color: #ff6b6b;
 }
 
 /* Breadcrumb styles */
