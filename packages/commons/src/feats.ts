@@ -285,7 +285,7 @@ export enum Feat {
 	OpportunityWindow = 'OpportunityWindow',
 	SpinAttack = 'SpinAttack',
 	// Ranged
-	TakeAim = 'TakeAim',
+	RefinedAiming = 'TakeAim',
 	RapidFire = 'RapidFire',
 	PinningShot = 'PinningShot',
 	DoubleShot = 'DoubleShot',
@@ -594,14 +594,14 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		description: 'Upgrade the **Sweep Attack** to target any number of adjacent creatures.',
 	}),
 	// Ranged
-	[Feat.TakeAim]: new FeatDefinition<void>({
-		key: Feat.TakeAim,
-		name: 'Take Aim',
+	[Feat.RefinedAiming]: new FeatDefinition<void>({
+		key: Feat.RefinedAiming,
+		name: 'Refined Aiming',
 		type: FeatType.Core,
 		source: ClassRole.Ranged,
 		level: 1,
 		description:
-			'Spend 1 [[Focus_Points | FP]] and 1 [[Action_Points | AP]] to target a specific enemy within range of your Ranged Weapon and that you can see clearly; if your next action is a **Basic Ranged Attack** against that target, you can roll with [[Finesse]] instead and +3 [[Circumstance Modifier | CM]] to the **Attack Check**.',
+			'When using the [[Aim]] action, you can increase the base range of your Ranged Weapon by your [[Finesse]] modifier.',
 	}),
 	[Feat.RapidFire]: new FeatDefinition<void>({
 		key: Feat.RapidFire,

@@ -228,9 +228,9 @@ On top of these types of actions, the different Skills can still be used for oth
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.DEX,
 		name: StatTypeName.Finesse,
-		description: `Aim, quick fingers, sleight of hand, stealth; delicate movement of the hands and the body.`,
+		description: `Aim, quick fingers, sleight of hand, stealth; delicate movement of the hands and the body; used for the [[Aim]] action.`,
 		exampleUsages: [
-			`A Check can be used to aim a particularly tricky short through the [[Aim]] action.`,
+			`A Check can be used to aim a particularly tricky shot or reduce range increment penalties through the [[Aim]] action.`,
 			`A Check can be used to perform a [[Sneak]] or [[Hide]] action.`,
 			`A Check can be used to disarm a trap, pick a lock or a pocket.`,
 		],
@@ -251,7 +251,7 @@ On top of these types of actions, the different Skills can still be used for oth
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.DEX,
 		name: StatTypeName.Agility,
-		description: `Speed, quickness; how fast one can move and do things.`,
+		description: `Speed, quickness; how fast one can move and do things; used to derive [[Movement]] and [[Initiative]] stats.`,
 		exampleUsages: [
 			`Used to computed [[Initiative]]`,
 			`Used to computed [[Movement]]`,

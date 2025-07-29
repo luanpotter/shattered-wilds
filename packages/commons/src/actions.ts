@@ -74,6 +74,7 @@ export class ActionDefinition {
 }
 
 export enum Action {
+	Aim = 'Aim',
 	Stride = 'Stride',
 	Stun = 'Stun',
 	Catch_Breath = 'Catch_Breath',
@@ -214,6 +215,17 @@ export const ACTIONS = {
 	}),
 
 	// Attack
+	[Action.Aim]: new ActionDefinition({
+		key: Action.Aim,
+		type: ActionType.Attack,
+		name: 'Aim',
+		description:
+			'Target a specific enemy that you can see clearly; if your next action this turn is a **Basic Ranged Attack** against that target, you can roll with [[Finesse]] instead reduce the range increment by `1` (min `0`).',
+		costs: [
+			new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 }),
+			new ActionCost({ resource: ActionCostResource.FocusPoint, amount: 1 }),
+		],
+	}),
 	[Action.Stun]: new ActionDefinition({
 		key: Action.Stun,
 		type: ActionType.Attack,

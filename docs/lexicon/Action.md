@@ -23,6 +23,18 @@ Attack Actions can be either **Basic** or **Special**. Basic Attack actions are 
 
 **Special Attacks** are contested against specific [[Skills]], depending on the nature of the attack. Special Attacks might cause other effects, such as [[Condition | Conditions]], and also cause damage.
 
+### Ranged Attacks
+
+Range attacks will typically have to contend with a few categories of [[Circumstance Modifier | CMs]], such as:
+
+#### Range Increments
+
+A ranged (or thrown) weapon will be listed with its base range in hexes (for example, a thrown **Dagger** has a base range of `3m`, while a **Bow** has a base range of `12m`). However it is entirely possible to attempt to hit a target further than the base range. To do so, apply a **Range Increment** [[Circumstance Modifier | CM]] based on the number of range increments in excess of the base range. The range increment is equal to `min(1, floor([base range] / 2))`, and each range increment will incur a `-3` [[Circumstance Modifier | CM]] to the **Attack Check**.
+
+So for example, attempting to throw a **Javelin** (range: `6` hexes, increment: `3` hexes) against a target 10 hexes away will incur a `-6` penalty.
+
+The [[Aim]] action can be used to reduce the range increment by `1` (min `0`).
+
 #### Basic Cover
 
 When there is not a clear line of sight for a ranged attack, there are enemies or allies in the way, or the target is adjacent to a wall, you automatically benefit from Basic Cover against ranged attacks.
@@ -32,6 +44,16 @@ Basic Cover will grant you a [[Circumstance Modifier | CM]] to your **Basic Body
 * **Lesser**: +1 (creatures on the way, 1m-tall obstacle, etc)
 * **Standard**: +2 (line of sight is blocked by the corners of obstacles)
 * **Greater**: +4 (line of sight is almost completely obstructed)
+
+Note that on top of the **Basic Cover**, a target might want to react with the [[Take_Cover]] reaction when applicable.
+
+#### High-Ground Advantage
+
+In situations where the attacker and the target are not at the same elevation, count the elevation increments between them and apply the following formula, with the advantage being to the character on the high ground.
+
+```text
+  CM = floor([height increment] / 2)
+```
 
 <details>
   <summary>Attack Actions</summary>
