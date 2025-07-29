@@ -9,14 +9,14 @@ export enum PrimaryWeaponType {
 }
 
 export enum ArmorType {
-	Light = 'Light Armor',
-	Medium = 'Medium Armor',
-	Heavy = 'Heavy Armor',
+	LightArmor = 'Light Armor',
+	MediumArmor = 'Medium Armor',
+	HeavyArmor = 'Heavy Armor',
 }
 
 export enum ShieldType {
-	Small = 'Small Shield',
-	Large = 'Large Shield',
+	SmallShield = 'Small Shield',
+	LargeShield = 'Large Shield',
 }
 
 export interface Item {
@@ -28,7 +28,7 @@ export class Weapon implements Item {
 	type: PrimaryWeaponType;
 	bonus: number;
 	traits: string[];
-	range: number | undefined; // in meters, for thrown/ranged weapons
+	range: number | undefined; // in hexes, for thrown/ranged weapons
 	attribute: StatType;
 
 	constructor(
@@ -84,48 +84,67 @@ export class Equipment {
 	}
 
 	static from(prop: string): Equipment {
-		if (!prop) {
-			return new Equipment();
-		}
+		const itemData = JSON.parse(prop) as Array<{
+			name: string;
+			type: string;
+			bonus?: number;
+			traits?: string[];
+			range?: number;
+			attribute?: string;
+			dexPenalty?: number;
+			twoHanded?: boolean;
+		}>;
 
-		try {
-			const itemData = JSON.parse(prop) as Array<{
-				name: string;
-				type: string;
-				bonus?: number;
-				traits?: string[];
-				range?: number;
-				attribute?: string;
-				dexPenalty?: number;
-				twoHanded?: boolean;
-			}>;
+		const items: Item[] = itemData.map(data => {
+			if (Object.values(PrimaryWeaponType).includes(data.type as PrimaryWeaponType)) {
+				const attributeType = Object.values(StatType).find(attr => attr.name === data.attribute) || StatType.STR;
+				return new Weapon(
+					data.name,
+					data.type as PrimaryWeaponType,
+					data.bonus || 0,
+					data.traits || [],
+					attributeType,
+					data.range,
+				);
+			} else if (Object.values(ArmorType).includes(data.type as ArmorType)) {
+				return new Armor(data.name, data.type as ArmorType, data.bonus || 0, data.dexPenalty || 0);
+			} else if (Object.values(ShieldType).includes(data.type as ShieldType)) {
+				return new Shield(data.name, data.type as ShieldType, data.bonus || 0, data.twoHanded || false);
+			}
+			return { name: data.name };
+		});
 
-			const items: Item[] = itemData.map(data => {
-				if (Object.values(PrimaryWeaponType).includes(data.type as PrimaryWeaponType)) {
-					const attributeType = Object.values(StatType).find(attr => attr.name === data.attribute) || StatType.STR;
-					return new Weapon(
-						data.name,
-						data.type as PrimaryWeaponType,
-						data.bonus || 0,
-						data.traits || [],
-						attributeType,
-						data.range,
-					);
-				} else if (Object.values(ArmorType).includes(data.type as ArmorType)) {
-					return new Armor(data.name, data.type as ArmorType, data.bonus || 0, data.dexPenalty || 0);
-				} else if (Object.values(ShieldType).includes(data.type as ShieldType)) {
-					return new Shield(data.name, data.type as ShieldType, data.bonus || 0, data.twoHanded || false);
-				}
-				return { name: data.name };
-			});
-
-			return new Equipment(items);
-		} catch {
-			return new Equipment();
-		}
+		return new Equipment(items);
 	}
 
 	toProp(): string {
 		return JSON.stringify(this.items);
 	}
 }
+
+export const EQUIPMENT: Record<string, () => Item> = {
+	Javelin: () => new Weapon('Javelin', PrimaryWeaponType.Thrown, 2, [], StatType.STR, 7),
+	Hatchet: () => new Weapon('Hatchet', PrimaryWeaponType.LightMelee, 2, ['Thrown (Range 3m)'], StatType.DEX, 5),
+	Dagger: () =>
+		new Weapon('Dagger', PrimaryWeaponType.LightMelee, 3, ['Concealable', 'Thrown (Range 3m)'], StatType.DEX, 5),
+	Rapier: () => new Weapon('Rapier', PrimaryWeaponType.LightMelee, 4, [], StatType.DEX),
+	'Bow & Arrows': () =>
+		new Weapon('Bow & Arrows', PrimaryWeaponType.Ranged, 4, ['Concentrate', 'Two-Handed'], StatType.DEX, 12),
+	'Crossbow & Darts': () =>
+		new Weapon(
+			'Crossbow & Darts',
+			PrimaryWeaponType.Ranged,
+			5,
+			['Concentrate', 'Two-Handed', 'Reload'],
+			StatType.DEX,
+			12,
+		),
+	Spear: () => new Weapon('Spear', PrimaryWeaponType.HeavyMelee, 4, ['Polearm', 'Two-Handed'], StatType.STR),
+	Mace: () => new Weapon('Mace', PrimaryWeaponType.HeavyMelee, 5, [], StatType.STR),
+	Longsword: () => new Weapon('Longsword', PrimaryWeaponType.HeavyMelee, 6, ['Two-Handed'], StatType.STR),
+	'Light Armor': () => new Armor('Light Armor', ArmorType.LightArmor, 1, 0),
+	'Medium Armor': () => new Armor('Medium Armor', ArmorType.MediumArmor, 3, -1),
+	'Heavy Armor': () => new Armor('Heavy Armor', ArmorType.HeavyArmor, 5, -3),
+	'Small Shield': () => new Shield('Small Shield', ShieldType.SmallShield, 2, false),
+	'Large Shield': () => new Shield('Large Shield', ShieldType.LargeShield, 6, true),
+};

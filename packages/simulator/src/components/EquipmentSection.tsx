@@ -1,49 +1,9 @@
 import React, { useState } from 'react';
 import { FaTrash } from 'react-icons/fa';
 
-import {
-	Character,
-	Weapon,
-	Armor,
-	Shield,
-	ArmorType,
-	ShieldType,
-	CharacterSheet,
-	StatType,
-	PrimaryWeaponType,
-	Equipment,
-	Item,
-} from '../types';
+import { Character, CharacterSheet, Equipment, EQUIPMENT } from '../types';
 
 import Block from './shared/Block';
-
-// Predefined equipment (mapping from name to a factory function that returns an Item)
-const predefinedEquipment: Record<string, () => Item> = {
-	Javelin: () => new Weapon('Javelin', PrimaryWeaponType.Thrown, 2, [], StatType.STR, 7),
-	Hatchet: () => new Weapon('Hatchet', PrimaryWeaponType.LightMelee, 2, ['Thrown (Range 5m)'], StatType.DEX, 5),
-	Dagger: () =>
-		new Weapon('Dagger', PrimaryWeaponType.LightMelee, 3, ['Concealable', 'Thrown (Range 5m)'], StatType.DEX, 5),
-	Rapier: () => new Weapon('Rapier', PrimaryWeaponType.LightMelee, 4, [], StatType.DEX),
-	'Bow & Arrows': () =>
-		new Weapon('Bow & Arrows', PrimaryWeaponType.Ranged, 4, ['Concentrate', 'Two-Handed'], StatType.DEX, 20),
-	'Crossbow & Darts': () =>
-		new Weapon(
-			'Crossbow & Darts',
-			PrimaryWeaponType.Ranged,
-			5,
-			['Concentrate', 'Two-Handed', 'Reload'],
-			StatType.DEX,
-			20,
-		),
-	Spear: () => new Weapon('Spear', PrimaryWeaponType.HeavyMelee, 4, ['Polearm', 'Two-Handed'], StatType.STR),
-	Mace: () => new Weapon('Mace', PrimaryWeaponType.HeavyMelee, 5, [], StatType.STR),
-	Longsword: () => new Weapon('Longsword', PrimaryWeaponType.HeavyMelee, 6, ['Two-Handed'], StatType.STR),
-	'Light Armor': () => new Armor('Light Armor', ArmorType.Light, 1, 0),
-	'Medium Armor': () => new Armor('Medium Armor', ArmorType.Medium, 3, -1),
-	'Heavy Armor': () => new Armor('Heavy Armor', ArmorType.Heavy, 5, -3),
-	'Small Shield': () => new Shield('Small Shield', ShieldType.Small, 2, false),
-	'Large Shield': () => new Shield('Large Shield', ShieldType.Large, 6, true),
-};
 
 interface EquipmentSectionProps {
 	character: Character;
@@ -60,8 +20,8 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ character, o
 	// On dropdown change, if a predefined item is selected, add it (and reset dropdown)
 	const handleAddPredefinedItem = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const name = e.target.value;
-		if (name && predefinedEquipment[name]) {
-			const newItem = predefinedEquipment[name]();
+		if (name && EQUIPMENT[name]) {
+			const newItem = EQUIPMENT[name]();
 			equipment.equipment.items.push(newItem);
 			onUpdateEquipment(equipment.equipment);
 			setSelectedItem('');
@@ -119,7 +79,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ character, o
 								style={{ padding: '2px 6px', fontSize: '0.9em' }}
 							>
 								<option value=''>Select…</option>
-								{Object.keys(predefinedEquipment).map(name => (
+								{Object.keys(EQUIPMENT).map(name => (
 									<option key={name} value={name}>
 										{name}
 									</option>
