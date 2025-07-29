@@ -9,6 +9,7 @@ import { FeatsSection } from '../types/feats-section';
 import { EquipmentSection } from './EquipmentSection';
 import Block from './shared/Block';
 import LabeledInput from './shared/LabeledInput';
+import { RichText } from './shared/RichText';
 import { StatTreeGridComponent } from './stat-tree/StatTreeGridComponent';
 
 interface FullPageCharacterSheetProps {
@@ -268,7 +269,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 													color: 'var(--text)',
 												}}
 											>
-												{feat?.name ?? `-Empty Feat Slot ${featOrSlot.slot?.name}`}
+												{feat?.name ?? `Empty ${featOrSlot.slot?.name}`}
 											</div>
 											<div
 												style={{
@@ -288,7 +289,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 													lineHeight: '1.3',
 												}}
 											>
-												{description}
+												<RichText>{description}</RichText>
 											</div>
 										)}
 									</div>
