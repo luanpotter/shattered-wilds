@@ -6,6 +6,7 @@ import { useStore } from '../store';
 import { CharacterSheet, Size, SizeModifiers } from '../types';
 import { FeatsSection } from '../types/feats-section';
 
+import { ActionsSection } from './ActionsSection';
 import { EquipmentSection } from './EquipmentSection';
 import Block from './shared/Block';
 import { Button } from './shared/Button';
@@ -460,6 +461,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 						onUpdateEquipment={equipment => updateCharacterProp(character, 'equipment', equipment.toProp())}
 						editMode={editMode}
 					/>
+					<ActionsSection character={character} />
 				</div>
 			</main>
 		</div>
