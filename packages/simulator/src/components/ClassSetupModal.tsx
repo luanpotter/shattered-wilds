@@ -12,6 +12,8 @@ import {
 	CLASS_ROLE_PRIMARY_ATTRIBUTE,
 } from '../types';
 
+import { Button } from './shared/Button';
+
 interface ClassSetupModalProps {
 	character: Character;
 	onClose?: () => void;
@@ -330,19 +332,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 			{/* Action Buttons */}
 			{onClose && (
 				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '16px' }}>
-					<button
-						onClick={onClose}
-						style={{
-							padding: '6px 12px',
-							border: '1px solid var(--text)',
-							backgroundColor: 'var(--background-alt)',
-							color: 'var(--text)',
-							borderRadius: '4px',
-							cursor: 'pointer',
-						}}
-					>
-						Close
-					</button>
+					<Button onClick={onClose} title='Close' />
 				</div>
 			)}
 		</div>

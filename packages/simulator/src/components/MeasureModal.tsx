@@ -3,6 +3,8 @@ import { FaRuler } from 'react-icons/fa';
 
 import { Character, HexPosition } from '../types';
 
+import { Button } from './shared/Button';
+
 interface MeasureModalProps {
 	fromCharacter: Character;
 	toPosition: HexPosition;
@@ -19,22 +21,6 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({ fromCharacter, toPos
 		border: '1px solid var(--text)',
 		borderRadius: '8px',
 		boxSizing: 'border-box',
-	};
-
-	const buttonStyle: React.CSSProperties = {
-		padding: '8px 16px',
-		backgroundColor: 'var(--background-alt)',
-		border: '1px solid var(--text)',
-		borderRadius: '4px',
-		color: 'var(--text)',
-		cursor: 'pointer',
-		margin: '0 4px',
-	};
-
-	const moveButtonStyle: React.CSSProperties = {
-		...buttonStyle,
-		backgroundColor: 'var(--success)',
-		color: 'white',
 	};
 
 	return (
@@ -68,12 +54,8 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({ fromCharacter, toPos
 			</div>
 
 			<div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
-				<button style={moveButtonStyle} onClick={onMove}>
-					Move
-				</button>
-				<button style={buttonStyle} onClick={onClose}>
-					Close
-				</button>
+				<Button onClick={onMove} title='Move' />
+				<Button onClick={onClose} title='Close' />
 			</div>
 		</div>
 	);

@@ -275,12 +275,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 						<h2>No Characters Found</h2>
 						<p>Create your first character or import one from clipboard to get started!</p>
 						<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-							<button
-								onClick={() => void handleImportFromClipboard()}
-								style={{ padding: '1rem 2rem', fontSize: '1.1em' }}
-							>
-								<FaClipboard /> Import Character
-							</button>
+							<Button onClick={() => void handleImportFromClipboard()} icon={FaClipboard} title='Import Character' />
 							<div style={{ position: 'relative' }}>
 								<button
 									onClick={() => setShowCreateDropdown(!showCreateDropdown)}

@@ -4,6 +4,7 @@ import { useStore } from '../store';
 import { CharacterSheet, StatType, Race, Upbringing } from '../types';
 
 import DropdownSelect from './DropdownSelect';
+import { Button } from './shared/Button';
 
 interface RaceSetupModalProps {
 	characterId: string;
@@ -252,19 +253,7 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 			</div>
 
 			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
-				<button
-					onClick={onClose}
-					style={{
-						padding: '6px 12px',
-						border: '1px solid var(--text)',
-						backgroundColor: 'var(--background-alt)',
-						color: 'var(--text)',
-						borderRadius: '4px',
-						cursor: 'pointer',
-					}}
-				>
-					Close
-				</button>
+				<Button onClick={onClose} title='Close' />
 			</div>
 		</div>
 	);

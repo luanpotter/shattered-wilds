@@ -69,15 +69,8 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 							incorrect.
 						</p>
 						<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-							<button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-								<FaArrowLeft /> Back to Character List
-							</button>
-							<button
-								onClick={() => (window.location.hash = '#/')}
-								style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-							>
-								<FaArrowLeft /> Back to Simulator
-							</button>
+							<Button onClick={onBack} icon={FaArrowLeft} title='Back to Character List' />
+							<Button onClick={() => (window.location.hash = '#/')} icon={FaArrowLeft} title='Back to Simulator' />
 						</div>
 					</div>
 				</main>
@@ -310,18 +303,12 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-						<button onClick={() => (window.location.hash = '#/')}>
-							<FaArrowLeft /> Back to Simulator
-						</button>
-						<button onClick={onBack}>
-							<FaArrowLeft /> Back to List
-						</button>
+						<Button onClick={() => (window.location.hash = '#/')} icon={FaArrowLeft} title='Back to Simulator' />
+						<Button onClick={onBack} icon={FaArrowLeft} title='Back to List' />
 						<h2 style={{ margin: 0, fontSize: '1.5rem' }}>{character.props.name}&apos;s Character Sheet</h2>
 					</div>
 					<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-						<button onClick={handleCopyCharacterSheet} title='Copy character data to clipboard'>
-							<FaCopy /> Export
-						</button>
+						<Button onClick={handleCopyCharacterSheet} icon={FaCopy} title='Export' />
 					</div>
 				</div>
 				<div

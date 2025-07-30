@@ -5,6 +5,8 @@ import { useStore } from '../store';
 import { CharacterSheet, Shield, DefenseType } from '../types';
 import { findNextWindowPosition } from '../utils';
 
+import { Button } from './shared/Button';
+
 interface AttackActionModalProps {
 	attackerId: string;
 	defenderId: string;
@@ -250,6 +252,13 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		margin: '8px 0',
 	};
 
+	const defenseButtonText =
+		defender.automaticMode && defenseResult && !usedDodge && !usedShieldBlock
+			? 'Override Defense'
+			: defender.automaticMode
+				? 'Use Auto Defense'
+				: 'Roll Defense';
+
 	return (
 		<div style={modalStyle}>
 			<h3 style={{ textAlign: 'center', margin: '0 0 20px 0' }}>
@@ -268,23 +277,14 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 					{hasShield ? <p>Shield Defense: {shieldDefense.value}</p> : ''}
 
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-						<button style={buttonStyle} onClick={handleDefenseRoll}>
-							<FaDice />{' '}
-							{defender.automaticMode && defenseResult && !usedDodge && !usedShieldBlock
-								? 'Override Defense'
-								: defender.automaticMode
-									? 'Use Auto Defense'
-									: 'Roll Defense'}
-						</button>
-
-						<button style={buttonStyle} onClick={handleDodgeRoll}>
-							<FaDice /> Roll Dodge (1 AP)
-						</button>
-
+						<Button icon={FaDice} title={defenseButtonText} onClick={handleDefenseRoll} />
+						<Button icon={FaDice} title='Roll Dodge (1 AP)' onClick={handleDodgeRoll} />
 						{hasShield && (
-							<button style={buttonStyle} onClick={handleShieldBlockRoll}>
-								<FaDice /> Roll Shield Block (1 AP) +{shieldDefense.value}
-							</button>
+							<Button
+								icon={FaDice}
+								title={`Roll Shield Block (1 AP) +${shieldDefense.value}`}
+								onClick={handleShieldBlockRoll}
+							/>
 						)}
 					</div>
 
@@ -378,21 +378,8 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 
 			{/* Action Buttons */}
 			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
-				{outcome && (
-					<button
-						style={{
-							...buttonStyle,
-							backgroundColor: outcome.hit ? 'green' : 'var(--background-alt)',
-							color: outcome.hit ? 'white' : 'var(--text)',
-						}}
-						onClick={handleExecute}
-					>
-						Execute
-					</button>
-				)}
-				<button style={buttonStyle} onClick={onClose}>
-					Close
-				</button>
+				{outcome && <Button onClick={handleExecute} title='Execute' />}
+				<Button onClick={onClose} title='Close' />
 			</div>
 		</div>
 	);

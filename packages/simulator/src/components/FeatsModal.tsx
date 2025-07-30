@@ -6,6 +6,7 @@ import { useStore } from '../store';
 import { Character, CharacterSheet } from '../types';
 import { FeatsSection } from '../types/feats-section';
 
+import { Button } from './shared/Button';
 import { RichText } from './shared/RichText';
 
 interface FeatsModalProps {
@@ -375,19 +376,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 						</h4>
 
 						<div style={{ marginBottom: '16px' }}>
-							<button
-								onClick={() => handleFeatSelect(selectedSlot, null)}
-								style={{
-									padding: '8px 16px',
-									backgroundColor: 'var(--background-alt)',
-									border: '1px solid var(--text)',
-									borderRadius: '4px',
-									cursor: 'pointer',
-									marginRight: '8px',
-								}}
-							>
-								Clear Slot
-							</button>
+							<Button onClick={() => handleFeatSelect(selectedSlot, null)} title='Clear Slot' />
 						</div>
 
 						<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -425,18 +414,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 						</div>
 
 						<div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-							<button
-								onClick={() => setSelectedSlot(null)}
-								style={{
-									padding: '8px 16px',
-									backgroundColor: 'var(--background-alt)',
-									border: '1px solid var(--text)',
-									borderRadius: '4px',
-									cursor: 'pointer',
-								}}
-							>
-								Cancel
-							</button>
+							<Button onClick={() => setSelectedSlot(null)} title='Cancel' />
 						</div>
 					</div>
 				</div>
@@ -481,35 +459,15 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 						</div>
 
 						<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-							<button
+							<Button
 								onClick={() => {
 									setSelectedBaseFeat(null);
 									setParameter(null);
 									setParameterError(null);
 								}}
-								style={{
-									padding: '8px 16px',
-									backgroundColor: 'var(--background-alt)',
-									border: '1px solid var(--text)',
-									borderRadius: '4px',
-									cursor: 'pointer',
-								}}
-							>
-								Cancel
-							</button>
-							<button
-								onClick={handleParameterizedFeatConfirm}
-								style={{
-									padding: '8px 16px',
-									backgroundColor: '#4CAF50',
-									border: '1px solid #2E7D32',
-									borderRadius: '4px',
-									color: 'white',
-									cursor: 'pointer',
-								}}
-							>
-								Confirm
-							</button>
+								title='Cancel'
+							/>
+							<Button onClick={handleParameterizedFeatConfirm} title='Confirm' />
 						</div>
 					</div>
 				</div>
@@ -517,19 +475,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 
 			{/* Action Buttons */}
 			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '16px' }}>
-				<button
-					onClick={onClose}
-					style={{
-						padding: '6px 12px',
-						border: '1px solid var(--text)',
-						backgroundColor: 'var(--background-alt)',
-						color: 'var(--text)',
-						borderRadius: '4px',
-						cursor: 'pointer',
-					}}
-				>
-					Close
-				</button>
+				<Button onClick={onClose} title='Close' />
 			</div>
 		</div>
 	);
