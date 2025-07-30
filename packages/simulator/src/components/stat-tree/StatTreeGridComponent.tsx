@@ -133,7 +133,7 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 				tree={tree}
 				onUpdateCharacterProp={onUpdateCharacterProp}
 				attributeValueNode={<StatValue node={tree.root} />}
-				variant='compact'
+				variant='default'
 			/>
 
 			{/* Main Grid Layout */}

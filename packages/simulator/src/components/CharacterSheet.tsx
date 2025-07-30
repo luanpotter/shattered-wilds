@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { FaBatteryFull, FaExclamationTriangle, FaMinus, FaPlus } from 'react-icons/fa';
+import { FaBatteryFull, FaCog, FaMinus, FaPlus } from 'react-icons/fa';
 
 import { useStore } from '../store';
 import { Character, CharacterSheet, DefenseType, DerivedStat, Equipment, Point, Size, SizeModifiers } from '../types';
@@ -7,6 +7,7 @@ import { FeatsSection } from '../types/feats-section';
 import { findNextWindowPosition } from '../utils';
 
 import { EquipmentSection } from './EquipmentSection';
+import { Button } from './shared/Button';
 import { StatTreeToggleComponent } from './stat-tree/StatTreeToggleComponent';
 
 interface CharacterSheetModalProps {
@@ -308,32 +309,13 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 						</div>
 
 						<div style={{ ...halfRowStyle, flex: '0 0 auto', minWidth: '120px' }}>
-							<button
-								id='character-feats'
-								onClick={editMode ? handleOpenFeatsSetup : undefined}
-								disabled={!editMode}
-								style={{
-									...inputStyle,
-									cursor: editMode ? 'pointer' : 'default',
-									backgroundColor: 'var(--background)',
-									border: editMode ? '1px solid var(--text)' : 'none',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'space-between',
-									padding: '2px 4px',
-									width: '100%',
-								}}
-								title={editMode ? 'Click to manage feats' : 'Feats (Edit mode required)'}
-							>
-								<span>Feats</span>
-								{editMode && hasWarnings && (
-									<FaExclamationTriangle
-										size={12}
-										style={{ color: 'orange', marginLeft: '4px' }}
-										title='Feats have warnings'
-									/>
-								)}
-							</button>
+							<Button
+								type='inline-full'
+								title='Feats'
+								icon={FaCog}
+								onClick={handleOpenFeatsSetup}
+								warning={editMode && hasWarnings ? 'Feats have warnings' : undefined}
+							/>
 						</div>
 					</div>
 				</div>
@@ -686,28 +668,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 								</button>
 							</div>
 						</div>
-					</div>
-
-					{/* Refill Points Button Row */}
-					<div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
-						<button
-							onClick={handleRefillPoints}
-							style={{
-								background: 'none',
-								border: '1px solid var(--text)',
-								borderRadius: '4px',
-								cursor: 'pointer',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '4px',
-								padding: '4px 8px',
-								color: 'var(--text)',
-							}}
-							title='Refill all points to maximum'
-						>
-							<FaBatteryFull />
-							<span>Refill Points</span>
-						</button>
+						<Button type='inline' title='Refill points' icon={FaBatteryFull} onClick={handleRefillPoints} />
 					</div>
 				</div>
 			</div>

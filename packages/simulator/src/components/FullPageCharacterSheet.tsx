@@ -8,6 +8,7 @@ import { FeatsSection } from '../types/feats-section';
 
 import { EquipmentSection } from './EquipmentSection';
 import Block from './shared/Block';
+import { Button } from './shared/Button';
 import LabeledInput from './shared/LabeledInput';
 import { RichText } from './shared/RichText';
 import { StatTreeGridComponent } from './stat-tree/StatTreeGridComponent';
@@ -171,26 +172,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 				<Block>
 					<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 						<h3 style={{ margin: '0 0 8px 0', fontSize: '1.1em' }}>Feats</h3>
-						{editMode && (
-							<button
-								onClick={handleOpenFeatsSetup}
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: '0.5rem',
-									padding: '0.5rem 1rem',
-									backgroundColor: 'var(--background)',
-									color: 'var(--text)',
-									border: '1px solid var(--text)',
-									borderRadius: '4px',
-									cursor: 'pointer',
-								}}
-								title='Open feats management'
-							>
-								<FaCog />
-								Manage Feats
-							</button>
-						)}
+						{editMode && <Button onClick={handleOpenFeatsSetup} title='Manage Feats' icon={FaCog} />}
 					</div>
 					{children}
 				</Block>

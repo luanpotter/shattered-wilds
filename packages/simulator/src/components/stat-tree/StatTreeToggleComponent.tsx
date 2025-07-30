@@ -179,7 +179,7 @@ export const StatTreeToggleComponent: React.FC<StatTreeToggleComponentProps> = (
 				tree={tree}
 				onUpdateCharacterProp={onUpdateCharacterProp}
 				attributeValueNode={<StatValue node={rootNode} />}
-				variant='default'
+				variant='compact'
 			/>
 
 			{/* Realms Section with Tab Panel */}
