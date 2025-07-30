@@ -446,25 +446,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 							})}
 
 							<div style={{ display: 'flex', alignItems: 'end' }}>
-								<button
-									onClick={handleRefillPoints}
-									style={{
-										display: 'flex',
-										alignItems: 'center',
-										gap: '0.5rem',
-										padding: '0.5rem 1rem',
-										backgroundColor: 'var(--success)',
-										color: 'white',
-										border: 'none',
-										borderRadius: '4px',
-										cursor: 'pointer',
-										height: 'fit-content',
-									}}
-									title='Refill all points to maximum'
-								>
-									<FaBatteryFull />
-									Refill All
-								</button>
+								<Button onClick={handleRefillPoints} icon={FaBatteryFull} title='Refill All' />
 							</div>
 						</div>
 					</Block>

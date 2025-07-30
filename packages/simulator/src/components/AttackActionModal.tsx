@@ -239,25 +239,20 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		margin: '8px',
 	};
 
-	const buttonStyle: React.CSSProperties = {
-		padding: '8px 16px',
-		backgroundColor: 'var(--background-alt)',
-		border: '1px solid var(--text)',
-		borderRadius: '4px',
-		color: 'var(--text)',
-		cursor: 'pointer',
-		display: 'flex',
-		alignItems: 'center',
-		gap: '8px',
-		margin: '8px 0',
-	};
-
 	const defenseButtonText =
 		defender.automaticMode && defenseResult && !usedDodge && !usedShieldBlock
 			? 'Override Defense'
 			: defender.automaticMode
 				? 'Use Auto Defense'
 				: 'Roll Defense';
+
+	const attackButtonText = `${
+		attacker.automaticMode && attackResult
+			? 'Override Attack'
+			: attacker.automaticMode
+				? 'Use Auto Attack'
+				: 'Roll Attack'
+	} ${defenseResult ? `(DC ${defenseResult.total})` : '(Roll Defense First)'}`;
 
 	return (
 		<div style={modalStyle}>
@@ -319,23 +314,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 					<p>Attack: {attack.name}</p>
 					<p>Modifier: {attack.check.modifier}</p>
 
-					<button
-						style={{
-							...buttonStyle,
-							opacity: defenseResult ? 1 : 0.5,
-							cursor: defenseResult ? 'pointer' : 'not-allowed',
-						}}
-						onClick={handleAttackRoll}
-						disabled={!defenseResult}
-					>
-						<FaDice />{' '}
-						{attacker.automaticMode && attackResult
-							? 'Override Attack'
-							: attacker.automaticMode
-								? 'Use Auto Attack'
-								: 'Roll Attack'}{' '}
-						{defenseResult ? `(DC ${defenseResult.total})` : '(Roll Defense First)'}
-					</button>
+					<Button icon={FaDice} title={attackButtonText} onClick={handleAttackRoll} disabled={!defenseResult} />
 
 					{attackResult && (
 						<div

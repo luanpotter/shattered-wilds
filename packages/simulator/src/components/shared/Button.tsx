@@ -9,9 +9,10 @@ interface ButtonProps {
 	tooltip?: string;
 	onClick: () => void;
 	warning?: string | undefined;
+	disabled?: boolean;
 }
 
-export const Button: React.FC<ButtonProps> = ({ type, icon: Icon, title, tooltip, onClick, warning }) => {
+export const Button: React.FC<ButtonProps> = ({ type, icon: Icon, title, tooltip, onClick, warning, disabled }) => {
 	if (!title && !Icon) {
 		throw new Error('Button requires either title or icon prop');
 	}
@@ -26,10 +27,11 @@ export const Button: React.FC<ButtonProps> = ({ type, icon: Icon, title, tooltip
 		gap: '0.5rem',
 		...(isInline ? { padding: '2px 6px', fontSize: '0.9em' } : {}),
 		...(type === 'inline-full' ? { width: '100%' } : {}),
+		...(disabled ? { opacity: 0.5, cursor: 'not-allowed' } : {}),
 	};
 
 	return (
-		<button onClick={onClick} style={style} title={tooltip ?? title}>
+		<button onClick={onClick} style={style} title={tooltip ?? title} disabled={disabled}>
 			{Icon && <Icon />}
 			{title}
 			{warning && <FaExclamationTriangle size={12} style={{ color: 'orange', marginLeft: 'auto' }} title={warning} />}
