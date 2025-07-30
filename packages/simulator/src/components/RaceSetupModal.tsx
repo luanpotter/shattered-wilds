@@ -5,6 +5,7 @@ import { CharacterSheet, StatType, Race, Upbringing } from '../types';
 
 import DropdownSelect from './DropdownSelect';
 import { Button } from './shared/Button';
+import { RichText } from './shared/RichText';
 
 interface RaceSetupModalProps {
 	characterId: string;
@@ -246,7 +247,9 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 							}}
 						>
 							<div style={{ fontWeight: 'bold', marginBottom: '2px', fontSize: '0.9em' }}>{feat.feat.name}</div>
-							<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>{feat.feat.description}</div>
+							<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>
+								<RichText>{feat.feat.description}</RichText>
+							</div>
 						</div>
 					))}
 				</div>

@@ -13,6 +13,7 @@ import {
 } from '../types';
 
 import { Button } from './shared/Button';
+import { RichText } from './shared/RichText';
 
 interface ClassSetupModalProps {
 	character: Character;
@@ -260,7 +261,9 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 											}}
 										>
 											<div style={{ fontWeight: 'bold', marginBottom: '2px', fontSize: '0.9em' }}>{feat.name}</div>
-											<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>{feat.description}</div>
+											<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>
+												<RichText>{feat.description}</RichText>
+											</div>
 										</div>
 									);
 								})}

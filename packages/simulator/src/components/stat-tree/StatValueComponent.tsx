@@ -68,16 +68,7 @@ export const StatValueComponent: React.FC<StatValueComponentProps> = ({
 		}
 	};
 
-	// Get tooltip text from modifiers and level cap
-	const getModifierTooltip = () => {
-		const tooltip = [];
-		tooltip.push(
-			...modifier.appliedModifiers.map(mod => `${mod.source}: ${mod.value > 0 ? '+' + mod.value : mod.value}`),
-		);
-		return tooltip.join('\n');
-	};
-
-	const tooltip = getModifierTooltip();
+	const tooltip = modifier.appliedModifiers.map(mod => mod.description).join('\n');
 	const hasTooltip = tooltip.length > 0;
 
 	const commonClickProps = !editMode
