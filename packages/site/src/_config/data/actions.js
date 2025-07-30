@@ -31,6 +31,12 @@ export const actions = Object.values(ACTIONS).map(def => {
 				value: def.type,
 				cssClass: 'metadata-type',
 			},
+			...def.traits.map(trait => ({
+				key: trait,
+				title: trait,
+				value: undefined,
+				cssClass: 'metadata-trait',
+			})),
 			addCostMetadata(ActionCostResource.ActionPoint, 'AP', true),
 			addCostMetadata(ActionCostResource.FocusPoint, 'FP', false),
 			addCostMetadata(ActionCostResource.SpiritPoint, 'SP', false),
