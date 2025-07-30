@@ -1,9 +1,10 @@
 import { ACTIONS, ActionType } from '@shattered-wilds/commons';
 import React, { useEffect, useState } from 'react';
-import { FaDice, FaRunning, FaUserShield } from 'react-icons/fa';
+import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
+import { FaShield } from 'react-icons/fa6';
 
 import { useStore } from '../store';
-import { Character, CharacterSheet, Weapon, DefenseType } from '../types';
+import { Character, CharacterSheet, Weapon } from '../types';
 
 import Block from './shared/Block';
 import { RichText } from './shared/RichText';
@@ -12,12 +13,10 @@ interface ActionsSectionProps {
 	character: Character;
 }
 
-type TabType = ActionType | 'Defenses';
-
 export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => {
 	const editMode = useStore(state => state.editMode);
 	const [selectedWeapon, setSelectedWeapon] = useState<Weapon | null>(null);
-	const [activeTab, setActiveTab] = useState<TabType>(ActionType.Movement);
+	const [activeTab, setActiveTab] = useState<ActionType>(ActionType.Movement);
 
 	const sheet = CharacterSheet.from(character.props);
 	const weapons = sheet.equipment.items.filter(item => item instanceof Weapon) as Weapon[];
@@ -37,37 +36,25 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 		});
 	};
 
-	const getAvailableTabs = (): TabType[] => {
-		const actionTypes = getAvailableActionTypes();
-		return [...actionTypes, 'Defenses'];
-	};
-
-	const getTypeIcon = (type: TabType) => {
+	const getTypeIcon = (type: ActionType) => {
 		switch (type) {
 			case ActionType.Movement:
 				return FaRunning;
 			case ActionType.Attack:
+				return FaFistRaised;
+			case ActionType.Defense:
+				return FaShield;
+			case ActionType.Support:
+				return FaHandHolding;
+			case ActionType.Heroic:
+				return FaStar;
+			case ActionType.Meta:
 				return FaDice;
-			case 'Defenses':
-				return FaUserShield;
-			default:
-				return FaDice;
-		}
-	};
-
-	const getTypeDisplayName = (type: TabType) => {
-		switch (type) {
-			case ActionType.Miscellaneous:
-				return 'Misc';
-			case 'Defenses':
-				return 'Defenses';
-			default:
-				return type;
 		}
 	};
 
 	const renderTabButtons = () => {
-		const availableTabs = getAvailableTabs();
+		const availableTabs = getAvailableActionTypes();
 
 		return (
 			<div
@@ -101,7 +88,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 							}}
 						>
 							<Icon size={14} />
-							{getTypeDisplayName(tab)}
+							{tab}
 						</button>
 					);
 				})}
@@ -227,86 +214,12 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 		);
 	};
 
-	const renderDefenses = () => {
-		const basicDefense = sheet.getBasicDefense(DefenseType.Basic);
-		const dodgeDefense = sheet.getBasicDefense(DefenseType.Dodge);
-		const shieldDefense = sheet.getBasicDefense(DefenseType.Shield);
-
-		return (
-			<div>
-				<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-					<div
-						style={{
-							display: 'flex',
-							justifyContent: 'space-between',
-							padding: '12px',
-							backgroundColor: 'var(--background-alt)',
-							borderRadius: '4px',
-							border: '1px solid var(--text)',
-							fontSize: '1em',
-						}}
-					>
-						<span>
-							<strong>Basic Body Defense</strong>
-						</span>
-						<span title={basicDefense.description} style={{ fontWeight: 'bold' }}>
-							{basicDefense.value}
-						</span>
-					</div>
-					<div
-						style={{
-							display: 'flex',
-							justifyContent: 'space-between',
-							padding: '12px',
-							backgroundColor: 'var(--background-alt)',
-							borderRadius: '4px',
-							border: '1px solid var(--text)',
-							fontSize: '1em',
-						}}
-					>
-						<span>
-							<strong>Dodge</strong>
-						</span>
-						<span title={dodgeDefense.description} style={{ fontWeight: 'bold' }}>
-							{dodgeDefense.value}
-						</span>
-					</div>
-					<div
-						style={{
-							display: 'flex',
-							justifyContent: 'space-between',
-							padding: '12px',
-							backgroundColor: 'var(--background-alt)',
-							borderRadius: '4px',
-							border: '1px solid var(--text)',
-							fontSize: '1em',
-						}}
-					>
-						<span>
-							<strong>Shield Block</strong>
-						</span>
-						<span title={shieldDefense.description} style={{ fontWeight: 'bold' }}>
-							{shieldDefense.value}
-						</span>
-					</div>
-				</div>
-			</div>
-		);
-	};
-
-	const renderActiveTabContent = () => {
-		if (activeTab === 'Defenses') {
-			return renderDefenses();
-		}
-		return renderActionsByType(activeTab as ActionType);
-	};
-
 	return (
 		<Block>
 			<h3 style={{ margin: '0 0 16px 0', fontSize: '1.1em' }}>Actions</h3>
 
 			{renderTabButtons()}
-			{renderActiveTabContent()}
+			{renderActionsByType(activeTab)}
 		</Block>
 	);
 };

@@ -2,11 +2,31 @@ Actions are the fundamental building blocks of combat and interaction in **Shatt
 
 Each character has a limited number of [[Action_Point | Action Points]] (AP) per turn that they can spend to perform actions (including reactions).
 
-## Type: Movement
+## Traits
 
-These are actions associated with movement, and can take several forms. All movement forms can move at least 1 Hex, regardless of the character's Speed. Unused movement cannot be saved for later.
+### Concentrate and Channeling
 
-### Difficult Terrain
+TODO: desc.
+
+### Melee and Ranged
+
+Describe Attack Actions that can only be used through a Melee or Ranged attack.
+
+### Reaction
+
+These are actions that can be taken at any time in combat, often in response to a specific event or situation. Unlike other systems, a character can take as many Reactions as they want, as long as they have the [[Action_Point | AP]] to afford them.
+
+Since your **AP** is replenished at the end of your turn, you do not need to decide whether to "save" **AP** for reactions.
+
+## Action Types
+
+For simplicity, actions are categorized into 4 types: Movement, Attack, Defense, Support, Luck and Meta. This is mostly for organization rather than mechanical purposes.
+
+### Type: Movement
+
+These are actions associated with movement, and can take several forms. All movement forms can move at least 1 Hex, regardless of the character's Speed. Unused movement from the [[Stride]] action can be saved for later.
+
+#### Difficult Terrain
 
 If a hex has Difficult Terrain, it counts as 2 hexes for the purposes of **Movement** (except for the [[Side Step]] action).
 
@@ -15,7 +35,7 @@ If a hex has Difficult Terrain, it counts as 2 hexes for the purposes of **Movem
   {% list "Action", "title", "type" "Movement" %}
 </details>
 
-## Type: Attack
+### Type: Attack
 
 These are actions in which the intent is to inflict damage (either to [[Vitality_Point | VP]], [[Focus_Point | FP]] or [[Spirit_Point | SP]]) to an opponent. Attack Actions are an active contested check against the target's Defense (which depends on the nature of the Attack).
 
@@ -23,9 +43,10 @@ Attack Actions can be either **Basic** or **Special**. Basic Attack actions are 
 
 **Special Attacks** are contested against specific [[Skills]], depending on the nature of the attack. Special Attacks might cause other effects, such as [[Condition | Conditions]], and also cause damage.
 
-### Ranged Attacks
+<details>
+  <summary>Ranged Attacks</summary>
 
-Range attacks will typically have to contend with a few categories of [[Circumstance Modifier | CMs]], such as:
+Ranged attacks will typically have to contend with a few categories of [[Circumstance Modifier | CMs]], such as:
 
 #### Range Increments
 
@@ -55,38 +76,38 @@ In situations where the attacker and the target are not at the same elevation, c
   CM = floor([height increment] / 2)
 ```
 
+</details>
+
 <details>
   <summary>Attack Actions</summary>
   {% list "Action", "title", "type" "Attack" %}
 </details>
 
-## Type: Reaction
+## Type: Defense
 
-These are actions that can be taken at any time in combat, often in response to a specific event or situation. Unlike other systems, a character can take as many Reactions as they want, as long as they have the [[Action_Point | AP]] to afford them.
-
-Since your **AP** is replenished at the end of your turn, you do not need to decide whether to "save" **AP** for reactions.
+These are actions that are used to defend against attacks. The most basic defense is the [[Basic_Defense]] reaction, which costs no [[Action_Point | AP]] and thus can be done in response to any applicable attack.
 
 <details>
-  <summary>Reaction Actions</summary>
-  {% list "Action", "title", "type" "Reaction" %}
+  <summary>Defense Actions</summary>
+  {% list "Action", "title", "type" "Defense" %}
 </details>
 
-## Type: Miscellaneous
+## Type: Support
 
-These are actions that do not fit into the other categories.
+These are actions that are used to support you or your allies.
 
 <details>
-  <summary>Miscellaneous Actions</summary>
-  {% list "Action", "title", "type" "Miscellaneous" %}
+  <summary>Support Actions</summary>
+  {% list "Action", "title", "type" "Support" %}
 </details>
 
-## Type: Luck
+## Type: Heroic
 
-There a few ways to exert your supernatural connection to Luck in Shattered Wilds.
+As a Hero, there are a few ways to exert your supernatural connection to Luck in Shattered Wilds.
 
 <details>
-  <summary>Luck Actions</summary>
-  {% list "Action", "title", "type" "Luck" %}
+  <summary>Heroic Actions</summary>
+  {% list "Action", "title", "type" "Heroic" %}
 </details>
 
 ## Type: Meta
