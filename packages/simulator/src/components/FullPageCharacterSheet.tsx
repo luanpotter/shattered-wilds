@@ -329,14 +329,12 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 							}}
 						>
 							<LabeledInput
-								id='character-name'
 								label='Name'
 								value={character.props.name}
 								onChange={value => updateCharacterName(character, value)}
 								editMode={editMode}
 							/>
 							<LabeledInput
-								id='character-race'
 								label='Race'
 								value={sheet.race.toString()}
 								editMode={editMode}
@@ -355,7 +353,6 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 								role={editMode ? 'button' : undefined}
 							/>
 							<LabeledInput
-								id='character-class'
 								label='Class'
 								value={sheet.characterClass.characterClass}
 								editMode={editMode}
@@ -384,21 +381,18 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 						>
 							{/* Derived Stats */}
 							<LabeledInput
-								id='character-size'
 								label='Size'
 								value={getSizeDisplay(sheet.derivedStats.size.value)}
 								editMode={false}
 								title={sheet.derivedStats.size.description}
 							/>
 							<LabeledInput
-								id='character-movement'
 								label='Movement'
 								value={sheet.derivedStats.movement.value.toString()}
 								editMode={false}
 								title={sheet.derivedStats.movement.description}
 							/>
 							<LabeledInput
-								id='character-initiative'
 								label='Initiative'
 								value={sheet.derivedStats.initiative.value.toString()}
 								editMode={false}
