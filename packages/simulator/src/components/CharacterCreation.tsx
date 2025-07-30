@@ -4,6 +4,8 @@ import { useStore } from '../store';
 import { HexPosition } from '../types';
 import { findNextCharacterNumber } from '../utils';
 
+import { Button } from './shared/Button';
+
 interface CharacterCreationModalProps {
 	hexPosition: HexPosition | undefined;
 }
@@ -83,12 +85,8 @@ export const CharacterCreationModal: React.FC<CharacterCreationModalProps> = ({ 
 				/>
 			</div>
 			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px' }}>
-				<button onClick={handleCancel} style={{ fontSize: '0.9em', padding: '4px 8px' }}>
-					Cancel
-				</button>
-				<button onClick={handleCreateCharacter} style={{ fontSize: '0.9em', padding: '4px 8px' }}>
-					Create
-				</button>
+				<Button onClick={handleCancel} title='Cancel' type='inline' />
+				<Button onClick={handleCreateCharacter} title='Create' type='inline' />
 			</div>
 		</div>
 	);

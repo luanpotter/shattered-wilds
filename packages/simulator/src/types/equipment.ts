@@ -84,6 +84,10 @@ export class Equipment {
 	}
 
 	static from(prop: string): Equipment {
+		if (!prop) {
+			return new Equipment();
+		}
+
 		const itemData = JSON.parse(prop) as Array<{
 			name: string;
 			type: string;

@@ -6,6 +6,7 @@ import { Character } from '../types';
 import { findNextWindowPosition, findNextEmptyHexPosition } from '../utils';
 
 import { FullPageCharacterSheet } from './FullPageCharacterSheet';
+import { Button } from './shared/Button';
 
 interface CharacterSheetsPageProps {
 	onNavigateToCharacterSheet: (characterId: string) => void;
@@ -162,9 +163,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 					>
 						<p style={{ margin: '0 0 1rem 0' }}>{importError}</p>
 						<div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-							<button onClick={() => setImportError(null)} style={{ padding: '0.5rem 1rem' }}>
-								Dismiss
-							</button>
+							<Button onClick={() => setImportError(null)} title='Dismiss' />
 						</div>
 					</div>
 				)}
@@ -198,16 +197,8 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 								Are you sure you want to delete {characters.find(c => c.id === confirmDelete)?.props.name}?
 							</p>
 							<div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-								<button onClick={handleCancelDelete}>Cancel</button>
-								<button
-									onClick={handleConfirmDelete}
-									style={{
-										backgroundColor: 'var(--error)',
-										color: 'white',
-									}}
-								>
-									Delete
-								</button>
+								<Button onClick={handleCancelDelete} title='Cancel' />
+								<Button onClick={handleConfirmDelete} title='Delete' />
 							</div>
 						</div>
 					</div>
@@ -222,15 +213,11 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-						<button onClick={() => (window.location.hash = '#/')}>
-							<FaArrowLeft /> Back to Simulator
-						</button>
+						<Button onClick={() => (window.location.hash = '#/')} icon={FaArrowLeft} title='Back to Simulator' />
 						<h2 style={{ margin: 0 }}>Character Sheets</h2>
 					</div>
 					<div style={{ display: 'flex', gap: '1rem' }}>
-						<button onClick={() => void handleImportFromClipboard()}>
-							<FaClipboard /> Import Character
-						</button>
+						<Button onClick={() => void handleImportFromClipboard()} icon={FaClipboard} title='Import Character' />
 						<div ref={dropdownRef} style={{ position: 'relative' }}>
 							<button
 								onClick={() => setShowCreateDropdown(!showCreateDropdown)}
@@ -374,19 +361,8 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 										{character.props['race'] || 'Unknown'} {character.props['class'] || 'Unknown'}
 									</span>
 									<div style={{ display: 'flex', gap: '0.5rem' }}>
-										<button onClick={() => handleViewCharacter(character)} style={{ padding: '0.5rem 1rem' }}>
-											<FaEye /> View
-										</button>
-										<button
-											onClick={() => handleDeleteCharacter(character.id)}
-											style={{
-												padding: '0.5rem',
-												backgroundColor: 'var(--error)',
-												color: 'white',
-											}}
-										>
-											<FaTrash />
-										</button>
+										<Button onClick={() => handleViewCharacter(character)} icon={FaEye} title='View' />
+										<Button onClick={() => handleDeleteCharacter(character.id)} icon={FaTrash} title='Delete' />
 									</div>
 								</div>
 							))}

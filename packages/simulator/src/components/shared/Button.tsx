@@ -4,7 +4,7 @@ import { FaExclamationTriangle } from 'react-icons/fa';
 
 interface ButtonProps {
 	type?: 'normal' | 'inline' | 'inline-full';
-	icon: IconType;
+	icon?: IconType;
 	title: string;
 	onClick: () => void;
 	warning?: string | undefined;
@@ -21,7 +21,7 @@ export const Button: React.FC<ButtonProps> = ({ type, icon: Icon, title, onClick
 	};
 	return (
 		<button onClick={onClick} style={style} title={title}>
-			<Icon />
+			{Icon && <Icon />}
 			{title}
 			{warning && <FaExclamationTriangle size={12} style={{ color: 'orange', marginLeft: 'auto' }} title={warning} />}
 		</button>

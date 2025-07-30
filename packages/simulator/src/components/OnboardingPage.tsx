@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 
+import { Button } from './shared/Button';
+
 interface OnboardingPageProps {
 	onNavigateToCharacterSheets: () => void;
 }
@@ -714,12 +716,8 @@ const StepWrapper = ({
 					gap: '1rem',
 				}}
 			>
-				<button onClick={onQuit}>
-					<FaArrowLeft /> Quit
-				</button>
-				<button onClick={onBack}>
-					<FaArrowLeft /> Go Back
-				</button>
+				<Button onClick={onQuit} icon={FaArrowLeft} title='Quit' />
+				<Button onClick={onBack} icon={FaArrowLeft} title='Go Back' />
 				<div>
 					Step {step}/{totalSteps}
 				</div>

@@ -5,6 +5,8 @@ import { useStore } from '../store';
 import { Character } from '../types';
 import { findNextWindowPosition, findNextEmptyHexPosition } from '../utils';
 
+import { Button } from './shared/Button';
+
 export const CharacterList: React.FC = () => {
 	const characters = useStore(state => state.characters);
 	const windows = useStore(state => state.windows);
@@ -106,9 +108,7 @@ export const CharacterList: React.FC = () => {
 				>
 					<p style={{ margin: '0 0 6px 0' }}>{importError}</p>
 					<div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-						<button onClick={() => setImportError(null)} style={{ padding: '2px 6px', fontSize: '0.9em' }}>
-							Dismiss
-						</button>
+						<Button onClick={() => setImportError(null)} title='Dismiss' type='inline' />
 					</div>
 				</div>
 			)}
@@ -126,30 +126,19 @@ export const CharacterList: React.FC = () => {
 				>
 					<p style={{ margin: '0 0 6px 0' }}>Delete {characters.find(c => c.id === confirmDelete)?.props.name}?</p>
 					<div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
-						<button onClick={handleCancelDelete} style={{ padding: '2px 6px', fontSize: '0.9em' }}>
-							Cancel
-						</button>
-						<button
-							onClick={handleConfirmDelete}
-							style={{
-								padding: '2px 6px',
-								fontSize: '0.9em',
-								backgroundColor: 'var(--error)',
-								color: 'white',
-							}}
-						>
-							Delete
-						</button>
+						<Button onClick={handleCancelDelete} title='Cancel' type='inline' />
+						<Button onClick={handleConfirmDelete} title='Delete' type='inline' />
 					</div>
 				</div>
 			)}
 			<div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'flex-end', gap: '4px' }}>
-				<button onClick={() => void handleImportFromClipboard()} style={{ padding: '4px 8px', fontSize: '0.9em' }}>
-					<FaClipboard /> Import Character
-				</button>
-				<button onClick={handleOpenNewCharacterModal} style={{ padding: '4px 8px', fontSize: '0.9em' }}>
-					<FaPlus /> New Character
-				</button>
+				<Button
+					onClick={() => void handleImportFromClipboard()}
+					icon={FaClipboard}
+					title='Import Character'
+					type='inline'
+				/>
+				<Button onClick={handleOpenNewCharacterModal} icon={FaPlus} title='New Character' type='inline' />
 			</div>
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.9em' }}>
 				{characters.map(character => (
@@ -166,21 +155,8 @@ export const CharacterList: React.FC = () => {
 					>
 						<span>{character.props.name}</span>
 						<div style={{ display: 'flex', gap: '4px' }}>
-							<button
-								onClick={() => handleOpenCharacterSheet(character)}
-								style={{ padding: '2px 6px', fontSize: '0.9em' }}
-							>
-								<FaEdit /> Edit
-							</button>
-							<button
-								onClick={() => handleRequestDelete(character.id)}
-								style={{
-									padding: '2px 6px',
-									fontSize: '0.9em',
-								}}
-							>
-								<FaTrash /> Delete
-							</button>
+							<Button onClick={() => handleOpenCharacterSheet(character)} icon={FaEdit} title='Edit' type='inline' />
+							<Button onClick={() => handleRequestDelete(character.id)} icon={FaTrash} title='Delete' type='inline' />
 						</div>
 					</div>
 				))}

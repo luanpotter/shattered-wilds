@@ -6,6 +6,7 @@ import { useStore } from '../store';
 import { CharacterSheet, StatType, RollType } from '../types';
 
 import DropdownSelect from './DropdownSelect';
+import { Button } from './shared/Button';
 
 // Define the skills directly from AttributeType
 const SKILL_OPTIONS = {
@@ -543,49 +544,16 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 				)}
 
 				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-					<button
-						onClick={() => setRollResults(null)}
-						style={{
-							padding: '8px 16px',
-							backgroundColor: 'var(--background-alt)',
-							border: '1px solid var(--text)',
-							borderRadius: '4px',
-							color: 'var(--text)',
-							cursor: 'pointer',
-						}}
-					>
-						Roll Again
-					</button>
-					<button
+					<Button onClick={() => setRollResults(null)} title='Roll Again' />
+					<Button
 						onClick={() => {
 							void window.navigator.clipboard.writeText(rollResults.total.toString()).catch(() => {
 								// Ignore clipboard errors
 							});
 						}}
-						style={{
-							padding: '8px 16px',
-							backgroundColor: 'var(--background-alt)',
-							border: '1px solid var(--text)',
-							borderRadius: '4px',
-							color: 'var(--text)',
-							cursor: 'pointer',
-						}}
-					>
-						Copy Result
-					</button>
-					<button
-						onClick={handleCloseWithCallback}
-						style={{
-							padding: '8px 16px',
-							backgroundColor: 'var(--background-alt)',
-							border: '1px solid var(--text)',
-							borderRadius: '4px',
-							color: 'var(--text)',
-							cursor: 'pointer',
-						}}
-					>
-						Close
-					</button>
+						title='Copy Result'
+					/>
+					<Button onClick={handleCloseWithCallback} title='Close' />
 				</div>
 			</div>
 		);
@@ -699,32 +667,8 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 			</div>
 
 			<div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
-				<button
-					onClick={handleCopyToVTT}
-					style={{
-						padding: '8px 16px',
-						backgroundColor: 'var(--background-alt)',
-						border: '1px solid var(--text)',
-						borderRadius: '4px',
-						color: 'var(--text)',
-						cursor: 'pointer',
-					}}
-				>
-					Copy to VTT
-				</button>
-				<button
-					onClick={handleRollDice}
-					style={{
-						padding: '8px 16px',
-						backgroundColor: 'var(--background-alt)',
-						border: '1px solid var(--text)',
-						borderRadius: '4px',
-						color: 'var(--text)',
-						cursor: 'pointer',
-					}}
-				>
-					Roll Dice
-				</button>
+				<Button onClick={handleCopyToVTT} title='Copy to VTT' />
+				<Button onClick={handleRollDice} title='Roll Dice' />
 			</div>
 		</div>
 	);

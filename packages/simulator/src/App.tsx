@@ -4,6 +4,7 @@ import { FaUsers, FaCrosshairs, FaTimes, FaEdit, FaPlay, FaHome } from 'react-ic
 import { CharacterSheetsPage } from './components/CharacterSheetsPage';
 import { BattleGrid } from './components/HexGrid';
 import { OnboardingPage } from './components/OnboardingPage';
+import { Button } from './components/shared/Button';
 import { WindowComponent } from './components/Window';
 import { useStore } from './store';
 import { Point, Character } from './types';
@@ -237,21 +238,15 @@ const App = (): React.ReactElement => {
 						>
 							<h1 style={{ margin: 0 }}>D12 Simulator</h1>
 							<div style={{ display: 'flex', gap: '1rem' }}>
-								<button onClick={() => (window.location.href = '/')}>
-									<FaHome /> Back to Site
-								</button>
-								<button onClick={handleOpenCharacterList}>
-									<FaUsers /> Characters
-								</button>
-								<button onClick={toggleEditMode}>
-									{editMode ? <FaPlay /> : <FaEdit />} {editMode ? 'Switch to Play' : 'Switch to Edit'}
-								</button>
-								<button onClick={handleRecenter}>
-									<FaCrosshairs /> Re-center
-								</button>
-								<button onClick={handleCloseAllWindows}>
-									<FaTimes /> Close All
-								</button>
+								<Button onClick={() => (window.location.href = '/')} icon={FaHome} title='Back to Site' />
+								<Button onClick={handleOpenCharacterList} icon={FaUsers} title='Characters' />
+								<Button
+									onClick={toggleEditMode}
+									icon={editMode ? FaPlay : FaEdit}
+									title={editMode ? 'Switch to Play' : 'Switch to Edit'}
+								/>
+								<Button onClick={handleRecenter} icon={FaCrosshairs} title='Re-center' />
+								<Button onClick={handleCloseAllWindows} icon={FaTimes} title='Close All' />
 							</div>
 						</div>
 					</div>
