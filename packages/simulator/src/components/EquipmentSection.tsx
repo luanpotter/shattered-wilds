@@ -4,6 +4,7 @@ import { FaTrash } from 'react-icons/fa';
 import { Character, CharacterSheet, Equipment, EQUIPMENT } from '../types';
 
 import Block from './shared/Block';
+import { Button } from './shared/Button';
 
 interface EquipmentSectionProps {
 	character: Character;
@@ -103,9 +104,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ character, o
 									style={commonInputStyle}
 									placeholder='Item name'
 								/>
-								<button onClick={() => handleRemoveItem(idx)} style={{ padding: '2px 6px', fontSize: '0.9em' }}>
-									<FaTrash />
-								</button>
+								<Button onClick={() => handleRemoveItem(idx)} icon={FaTrash} tooltip='Remove item' type='inline' />
 							</>
 						) : (
 							<span style={commonLabelStyle}>{item.name}</span>

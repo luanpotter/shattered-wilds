@@ -414,18 +414,12 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 									<div key={pointType}>
 										<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>{pointType}</span>
 										<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-											<button
+											<Button
 												onClick={() => handlePointChange(pointType, -1)}
-												style={{
-													padding: '0.25rem 0.5rem',
-													backgroundColor: 'var(--background)',
-													border: '1px solid var(--text)',
-													borderRadius: '4px',
-													cursor: 'pointer',
-												}}
-											>
-												<FaMinus size={12} />
-											</button>
+												icon={FaMinus}
+												tooltip={`Decrease ${pointType}`}
+												type='inline'
+											/>
 											<div
 												style={{
 													flex: 1,
@@ -440,18 +434,12 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 											>
 												{currentValue}/{maxValue}
 											</div>
-											<button
+											<Button
 												onClick={() => handlePointChange(pointType, 1)}
-												style={{
-													padding: '0.25rem 0.5rem',
-													backgroundColor: 'var(--background)',
-													border: '1px solid var(--text)',
-													borderRadius: '4px',
-													cursor: 'pointer',
-												}}
-											>
-												<FaPlus size={12} />
-											</button>
+												icon={FaPlus}
+												tooltip={`Increase ${pointType}`}
+												type='inline'
+											/>
 										</div>
 									</div>
 								);

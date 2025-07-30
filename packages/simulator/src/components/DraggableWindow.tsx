@@ -4,6 +4,8 @@ import { FaTimes } from 'react-icons/fa';
 import { useStore } from '../store';
 import { Window } from '../types';
 
+import { Button } from './shared/Button';
+
 interface DraggableWindowProps {
 	window: Window;
 	children: React.ReactNode;
@@ -142,9 +144,7 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({ window, childr
 					<span>{window.title}</span>
 					<div style={{ display: 'flex', gap: '4px' }}>
 						{titleBarButtons}
-						<button onClick={handleClose} className='icon-button' style={{ padding: '1px', fontSize: '0.9em' }}>
-							<FaTimes />
-						</button>
+						<Button onClick={handleClose} icon={FaTimes} tooltip='Close' type='inline' />
 					</div>
 				</div>
 				<div

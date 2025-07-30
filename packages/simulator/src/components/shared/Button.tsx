@@ -5,12 +5,20 @@ import { FaExclamationTriangle } from 'react-icons/fa';
 interface ButtonProps {
 	type?: 'normal' | 'inline' | 'inline-full';
 	icon?: IconType;
-	title: string;
+	title?: string;
+	tooltip?: string;
 	onClick: () => void;
 	warning?: string | undefined;
 }
 
-export const Button: React.FC<ButtonProps> = ({ type, icon: Icon, title, onClick, warning }) => {
+export const Button: React.FC<ButtonProps> = ({ type, icon: Icon, title, tooltip, onClick, warning }) => {
+	if (!title && !Icon) {
+		throw new Error('Button requires either title or icon prop');
+	}
+	if (!title && !tooltip) {
+		throw new Error('Button requires either title or tooltip prop');
+	}
+
 	const isInline = type === 'inline' || type === 'inline-full';
 	const style = {
 		display: 'flex',
@@ -19,8 +27,9 @@ export const Button: React.FC<ButtonProps> = ({ type, icon: Icon, title, onClick
 		...(isInline ? { padding: '2px 6px', fontSize: '0.9em' } : {}),
 		...(type === 'inline-full' ? { width: '100%' } : {}),
 	};
+
 	return (
-		<button onClick={onClick} style={style} title={title}>
+		<button onClick={onClick} style={style} title={tooltip ?? title}>
 			{Icon && <Icon />}
 			{title}
 			{warning && <FaExclamationTriangle size={12} style={{ color: 'orange', marginLeft: 'auto' }} title={warning} />}

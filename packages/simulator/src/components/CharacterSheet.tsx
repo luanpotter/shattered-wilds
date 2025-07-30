@@ -477,36 +477,18 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 								>
 									{sheet.currentValues.currentHeroism}/{sheet.derivedStats.maxHeroism.value}
 								</div>
-								<button
+								<Button
 									onClick={() => handlePointChange('Heroism', -1)}
-									style={{
-										padding: '2px 4px',
-										backgroundColor: 'var(--background-alt)',
-										border: '1px solid var(--text)',
-										borderRadius: '4px',
-										cursor: 'pointer',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-									}}
-								>
-									<FaMinus size={10} />
-								</button>
-								<button
+									icon={FaMinus}
+									tooltip='Decrease Heroism'
+									type='inline'
+								/>
+								<Button
 									onClick={() => handlePointChange('Heroism', 1)}
-									style={{
-										padding: '2px 4px',
-										backgroundColor: 'var(--background-alt)',
-										border: '1px solid var(--text)',
-										borderRadius: '4px',
-										cursor: 'pointer',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-									}}
-								>
-									<FaPlus size={10} />
-								</button>
+									icon={FaPlus}
+									tooltip='Increase Heroism'
+									type='inline'
+								/>
 							</div>
 						</div>
 
@@ -530,36 +512,18 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 								>
 									{sheet.currentValues.currentVitality}/{sheet.derivedStats.maxVitality.value}
 								</div>
-								<button
+								<Button
 									onClick={() => handlePointChange('Vitality', -1)}
-									style={{
-										padding: '2px 4px',
-										backgroundColor: 'var(--background-alt)',
-										border: '1px solid var(--text)',
-										borderRadius: '4px',
-										cursor: 'pointer',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-									}}
-								>
-									<FaMinus size={10} />
-								</button>
-								<button
+									icon={FaMinus}
+									tooltip='Decrease Vitality'
+									type='inline'
+								/>
+								<Button
 									onClick={() => handlePointChange('Vitality', 1)}
-									style={{
-										padding: '2px 4px',
-										backgroundColor: 'var(--background-alt)',
-										border: '1px solid var(--text)',
-										borderRadius: '4px',
-										cursor: 'pointer',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-									}}
-								>
-									<FaPlus size={10} />
-								</button>
+									icon={FaPlus}
+									tooltip='Increase Vitality'
+									type='inline'
+								/>
 							</div>
 						</div>
 
@@ -583,36 +547,18 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 								>
 									{sheet.currentValues.currentFocus}/{sheet.derivedStats.maxFocus.value}
 								</div>
-								<button
+								<Button
 									onClick={() => handlePointChange('Focus', -1)}
-									style={{
-										padding: '2px 4px',
-										backgroundColor: 'var(--background-alt)',
-										border: '1px solid var(--text)',
-										borderRadius: '4px',
-										cursor: 'pointer',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-									}}
-								>
-									<FaMinus size={10} />
-								</button>
-								<button
+									icon={FaMinus}
+									tooltip='Decrease Focus'
+									type='inline'
+								/>
+								<Button
 									onClick={() => handlePointChange('Focus', 1)}
-									style={{
-										padding: '2px 4px',
-										backgroundColor: 'var(--background-alt)',
-										border: '1px solid var(--text)',
-										borderRadius: '4px',
-										cursor: 'pointer',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-									}}
-								>
-									<FaPlus size={10} />
-								</button>
+									icon={FaPlus}
+									tooltip='Increase Focus'
+									type='inline'
+								/>
 							</div>
 						</div>
 
@@ -636,36 +582,18 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 								>
 									{sheet.currentValues.currentSpirit}/{sheet.derivedStats.maxSpirit.value}
 								</div>
-								<button
+								<Button
 									onClick={() => handlePointChange('Spirit', -1)}
-									style={{
-										padding: '2px 4px',
-										backgroundColor: 'var(--background-alt)',
-										border: '1px solid var(--text)',
-										borderRadius: '4px',
-										cursor: 'pointer',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-									}}
-								>
-									<FaMinus size={10} />
-								</button>
-								<button
+									icon={FaMinus}
+									tooltip='Decrease Spirit'
+									type='inline'
+								/>
+								<Button
 									onClick={() => handlePointChange('Spirit', 1)}
-									style={{
-										padding: '2px 4px',
-										backgroundColor: 'var(--background-alt)',
-										border: '1px solid var(--text)',
-										borderRadius: '4px',
-										cursor: 'pointer',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-									}}
-								>
-									<FaPlus size={10} />
-								</button>
+									icon={FaPlus}
+									tooltip='Increase Spirit'
+									type='inline'
+								/>
 							</div>
 						</div>
 						<Button type='inline' title='Refill points' icon={FaBatteryFull} onClick={handleRefillPoints} />

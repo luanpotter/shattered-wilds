@@ -15,6 +15,7 @@ import { DraggableWindow } from './DraggableWindow';
 import { FeatsModal } from './FeatsModal';
 import { MeasureModal } from './MeasureModal';
 import RaceSetupModal from './RaceSetupModal';
+import { Button } from './shared/Button';
 
 const navigator = window.navigator;
 
@@ -65,35 +66,29 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({
 		switch (window.type) {
 			case 'character-list':
 				return (
-					<button
+					<Button
 						onClick={handleExpandCharacterList}
-						className='icon-button'
-						style={{ padding: '1px', fontSize: '0.9em' }}
-						title='Open full character sheets page'
-					>
-						<FaExpand />
-					</button>
+						icon={FaExpand}
+						tooltip='Open full character sheets page'
+						type='inline'
+					/>
 				);
 			case 'character-sheet':
 				if (window.characterId) {
 					return (
 						<>
-							<button
+							<Button
 								onClick={() => handleCopyCharacterSheet(window.characterId!)}
-								className='icon-button'
-								style={{ padding: '1px', fontSize: '0.9em' }}
-								title='Copy character sheet'
-							>
-								<FaCopy />
-							</button>
-							<button
+								icon={FaCopy}
+								tooltip='Copy character sheet'
+								type='inline'
+							/>
+							<Button
 								onClick={() => handleExpandCharacterSheet(window.characterId!)}
-								className='icon-button'
-								style={{ padding: '1px', fontSize: '0.9em' }}
-								title='Open character sheet full page'
-							>
-								<FaExpand />
-							</button>
+								icon={FaExpand}
+								tooltip='Open character sheet full page'
+								type='inline'
+							/>
 						</>
 					);
 				}
