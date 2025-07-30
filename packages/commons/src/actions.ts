@@ -1,5 +1,6 @@
 export enum ActionTrait {
 	Melee = 'Melee',
+	Ranged = 'Ranged',
 	Concentrate = 'Concentrate',
 	Channel = 'Channel',
 }
@@ -77,27 +78,27 @@ export enum Action {
 	Aim = 'Aim',
 	Stride = 'Stride',
 	Stun = 'Stun',
-	Catch_Breath = 'Catch_Breath',
-	Karmic_Resistance = 'Karmic_Resistance',
-	Write_History = 'Write_History',
-	Extra_Die = 'Extra_Die',
+	CatchBreath = 'CatchBreath',
+	KarmicResistance = 'KarmicResistance',
+	WriteHistory = 'WriteHistory',
+	ExtraDie = 'ExtraDie',
 	Feint = 'Feint',
-	Prepare_Action = 'Prepare_Action',
+	PrepareAction = 'PrepareAction',
 	Strike = 'Strike',
 	Taunt = 'Taunt',
 	Calm = 'Calm',
 	Focus = 'Focus',
-	Heroic_Relentlessness = 'Heroic_Relentlessness',
-	Opportunity_Attack = 'Opportunity_Attack',
+	HeroicRelentlessness = 'HeroicRelentlessness',
+	OpportunityAttack = 'OpportunityAttack',
 	Run = 'Run',
-	Shrug_Off = 'Shrug_Off',
-	Focused_Strike = 'Focused_Strike',
+	ShrugOff = 'ShrugOff',
+	FocusedStrike = 'FocusedStrike',
 	Demoralize = 'Demoralize',
 	Trip = 'Trip',
-	Luck_Die = 'Luck_Die',
-	Drag_Grappler = 'Drag_Grappler',
+	LuckDie = 'LuckDie',
+	DragGrappler = 'DragGrappler',
 	Escape = 'Escape',
-	Get_Up = 'Get_Up',
+	GetUp = 'GetUp',
 	Grapple = 'Grapple',
 	Charge = 'Charge',
 	Climb = 'Climb',
@@ -105,18 +106,18 @@ export enum Action {
 	Inspire = 'Inspire',
 	Shove = 'Shove',
 	Sneak = 'Sneak',
-	Stumble_Through = 'Stumble_Through',
+	StumbleThrough = 'StumbleThrough',
 	Swim = 'Swim',
-	Take_Cover = 'Take_Cover',
-	Side_Step = 'Side_Step',
-	Ride_Mount = 'Ride_Mount',
-	Shield_Block = 'Shield_Block',
-	Sheathe_Unsheathe = 'Sheathe_Unsheathe',
+	TakeCover = 'TakeCover',
+	SideStep = 'SideStep',
+	RideMount = 'RideMount',
+	ShieldBlock = 'ShieldBlock',
+	SheatheUnsheathe = 'SheatheUnsheathe',
 	Reload = 'Reload',
 	Flank = 'Flank',
 	Dodge = 'Dodge',
 	Disarm = 'Disarm',
-	Decrease_Initiative = 'Decrease_Initiative',
+	DecreaseInitiative = 'DecreaseInitiative',
 	Distract = 'Distract',
 }
 
@@ -137,8 +138,8 @@ export const ACTIONS = {
 			'Move up to `4 * Speed` hexes. Make a [[Stamina]] Check DC `10 + hexes moved`, or pay 1 [[Vitality_Point | VP]].',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 3 })],
 	}),
-	[Action.Drag_Grappler]: new ActionDefinition({
-		key: Action.Drag_Grappler,
+	[Action.DragGrappler]: new ActionDefinition({
+		key: Action.DragGrappler,
 		type: ActionType.Movement,
 		name: 'Drag Grappler',
 		description:
@@ -152,8 +153,8 @@ export const ACTIONS = {
 		description: 'Contested [[Evasiveness]] check to clear [[Immobilized]] against a grappler.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
 	}),
-	[Action.Get_Up]: new ActionDefinition({
-		key: Action.Get_Up,
+	[Action.GetUp]: new ActionDefinition({
+		key: Action.GetUp,
 		type: ActionType.Movement,
 		name: 'Get Up',
 		description: 'Clears [[Prone]].',
@@ -183,8 +184,8 @@ export const ACTIONS = {
 			'Move `Speed - 1` hexes making an additional [[Finesse]] check. Any other participant for which you are Concealed can make a contested [[Awareness]] check to spot you.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
 	}),
-	[Action.Stumble_Through]: new ActionDefinition({
-		key: Action.Stumble_Through,
+	[Action.StumbleThrough]: new ActionDefinition({
+		key: Action.StumbleThrough,
 		type: ActionType.Movement,
 		name: 'Stumble Through',
 		description:
@@ -198,16 +199,16 @@ export const ACTIONS = {
 		description: 'Swim up to `Speed / 2` (round up) hexes. You might need a [[Stamina]] Check to sustain.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
 	}),
-	[Action.Side_Step]: new ActionDefinition({
-		key: Action.Side_Step,
+	[Action.SideStep]: new ActionDefinition({
+		key: Action.SideStep,
 		type: ActionType.Movement,
 		name: 'Side Step',
 		description:
 			'Move 1 hex in any direction, ignoring **Difficult Terrain**. This does not trigger [[Opportunity_Attack | Opportunity Attacks]].',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
 	}),
-	[Action.Ride_Mount]: new ActionDefinition({
-		key: Action.Ride_Mount,
+	[Action.RideMount]: new ActionDefinition({
+		key: Action.RideMount,
 		type: ActionType.Movement,
 		name: 'Ride Mount',
 		description: 'WIP: Mounted Combat Rules',
@@ -221,6 +222,7 @@ export const ACTIONS = {
 		name: 'Aim',
 		description:
 			'Target a specific enemy that you can see clearly; if your next action this turn is a **Basic Ranged Attack** against that target, you can roll with [[Finesse]] instead reduce the range increment by `1` (min `0`).',
+		traits: [ActionTrait.Concentrate, ActionTrait.Ranged],
 		costs: [
 			new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 }),
 			new ActionCost({ resource: ActionCostResource.FocusPoint, amount: 1 }),
@@ -251,8 +253,8 @@ export const ACTIONS = {
 			'Special Attack against [[Tenacity]]. Causes [[Distracted]]. **Crit Shifts** deal [[Focus_Point | FP]] damage.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
 	}),
-	[Action.Focused_Strike]: new ActionDefinition({
-		key: Action.Focused_Strike,
+	[Action.FocusedStrike]: new ActionDefinition({
+		key: Action.FocusedStrike,
 		type: ActionType.Attack,
 		name: 'Focused Strike',
 		description: 'Pay 1 [[Focus_Point | FP]]; Basic Attack with a +3 [[Circumstance Modifier | CM]].',
@@ -303,6 +305,14 @@ export const ACTIONS = {
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 2 })],
 		traits: [ActionTrait.Melee, ActionTrait.Concentrate],
 	}),
+	[Action.Demoralize]: new ActionDefinition({
+		key: Action.Demoralize,
+		type: ActionType.Attack,
+		name: 'Demoralize',
+		description:
+			"Special Attack using [[Speechcraft]] against target's [[Resolve]]: target becomes [[Distraught]]. **Crit Shifts** deal [[Spirit_Point | SP]] damage.",
+		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
+	}),
 
 	// Reaction
 	[Action.Taunt]: new ActionDefinition({
@@ -316,32 +326,32 @@ export const ACTIONS = {
 			new ActionCost({ resource: ActionCostResource.FocusPoint, amount: 1 }),
 		],
 	}),
-	[Action.Opportunity_Attack]: new ActionDefinition({
-		key: Action.Opportunity_Attack,
+	[Action.OpportunityAttack]: new ActionDefinition({
+		key: Action.OpportunityAttack,
 		type: ActionType.Reaction,
 		name: 'Opportunity Attack',
 		description:
 			'Triggered by an opponent either (1) leaving your threat area or (2) performing a [[Concentrate]] action on your threat area. You can choose what kind of **Melee Basic Attack** to perform as your Opportunity Attack (this will cost the same amount of [[Action_Point | AP]] as that action would (at least `1`)).',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1, variable: true })],
 	}),
-	[Action.Shrug_Off]: new ActionDefinition({
-		key: Action.Shrug_Off,
+	[Action.ShrugOff]: new ActionDefinition({
+		key: Action.ShrugOff,
 		type: ActionType.Reaction,
 		name: 'Shrug Off',
 		description:
 			'Immediately as taking >1 [[Vitality_Point | VP]] damage, you can attempt a [[Toughness]] Check (DC 20) to reduce the damage by 1 (+ **Crit Shifts**).',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
 	}),
-	[Action.Take_Cover]: new ActionDefinition({
-		key: Action.Take_Cover,
+	[Action.TakeCover]: new ActionDefinition({
+		key: Action.TakeCover,
 		type: ActionType.Reaction,
 		name: 'Take Cover',
 		description:
 			'When rolling a **Body Defense** against a **Ranged Basic Attack**, you can roll an [[Agility]] Check with a `+6` [[Circumstance_Modifier | CM]] instead when already benefiting from **Basic Cover**.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
 	}),
-	[Action.Shield_Block]: new ActionDefinition({
-		key: Action.Shield_Block,
+	[Action.ShieldBlock]: new ActionDefinition({
+		key: Action.ShieldBlock,
 		type: ActionType.Reaction,
 		name: 'Shield Block',
 		description: 'Add **Shield Bonus** to a **Defend Body** contested Check.',
@@ -364,15 +374,15 @@ export const ACTIONS = {
 	}),
 	[Action.Distract]: new ActionDefinition({
 		key: Action.Distract,
-		type: ActionType.Miscellaneous,
+		type: ActionType.Reaction,
 		name: 'Distract',
 		description: 'TODO: Attempt to disrupt a character performing a [[Concentrate]] action.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
 	}),
 
 	// Miscellaneous
-	[Action.Catch_Breath]: new ActionDefinition({
-		key: Action.Catch_Breath,
+	[Action.CatchBreath]: new ActionDefinition({
+		key: Action.CatchBreath,
 		type: ActionType.Miscellaneous,
 		name: 'Catch Breath',
 		description:
@@ -404,25 +414,6 @@ export const ACTIONS = {
 			new ActionCost({ resource: ActionCostResource.SpiritPoint, amount: 1 }),
 		],
 	}),
-	[Action.Heroic_Relentlessness]: new ActionDefinition({
-		key: Action.Heroic_Relentlessness,
-		type: ActionType.Miscellaneous,
-		name: 'Heroic Relentlessness',
-		description:
-			'A special Action you can take as a full-round-action when you are [[Incapacitated]] by paying a [[Heroism_Point | Heroism Point]] to make a [[FOW]] Check DC 25 (Hard). Restore your [[Vitality_Point | Vitality]], [[Focus_Point | Focus]] and [[Spirit_Point | Spirit]] Points to at least 1 each, thus clearing [[Incapacitated]] (you get a level of [[Exhaustion]] as usual).',
-		costs: [
-			new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 4 }),
-			new ActionCost({ resource: ActionCostResource.HeroismPoint, amount: 1 }),
-		],
-	}),
-	[Action.Demoralize]: new ActionDefinition({
-		key: Action.Demoralize,
-		type: ActionType.Miscellaneous,
-		name: 'Demoralize',
-		description:
-			"Special Attack using [[Speechcraft]] against target's [[Resolve]]: target becomes [[Distraught]]. **Crit Shifts** deal [[Spirit_Point | SP]] damage.",
-		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
-	}),
 	[Action.Inspire]: new ActionDefinition({
 		key: Action.Inspire,
 		type: ActionType.Miscellaneous,
@@ -432,8 +423,8 @@ export const ACTIONS = {
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 2 })],
 		traits: [ActionTrait.Concentrate],
 	}),
-	[Action.Sheathe_Unsheathe]: new ActionDefinition({
-		key: Action.Sheathe_Unsheathe,
+	[Action.SheatheUnsheathe]: new ActionDefinition({
+		key: Action.SheatheUnsheathe,
 		type: ActionType.Miscellaneous,
 		name: 'Sheathe/Unsheathe',
 		description: 'Equip or unequip carried weapons, equipment and/or shields.',
@@ -448,8 +439,8 @@ export const ACTIONS = {
 	}),
 
 	// Luck
-	[Action.Karmic_Resistance]: new ActionDefinition({
-		key: Action.Karmic_Resistance,
+	[Action.KarmicResistance]: new ActionDefinition({
+		key: Action.KarmicResistance,
 		type: ActionType.Luck,
 		name: 'Karmic Resistance',
 		description:
@@ -459,8 +450,8 @@ export const ACTIONS = {
 			new ActionCost({ resource: ActionCostResource.HeroismPoint, amount: 1 }),
 		],
 	}),
-	[Action.Write_History]: new ActionDefinition({
-		key: Action.Write_History,
+	[Action.WriteHistory]: new ActionDefinition({
+		key: Action.WriteHistory,
 		type: ActionType.Luck,
 		name: 'Write History',
 		description:
@@ -470,8 +461,8 @@ export const ACTIONS = {
 			new ActionCost({ resource: ActionCostResource.HeroismPoint, amount: 1, variable: true }),
 		],
 	}),
-	[Action.Luck_Die]: new ActionDefinition({
-		key: Action.Luck_Die,
+	[Action.LuckDie]: new ActionDefinition({
+		key: Action.LuckDie,
 		type: ActionType.Luck,
 		name: 'Luck Die',
 		description:
@@ -481,8 +472,8 @@ export const ACTIONS = {
 			new ActionCost({ resource: ActionCostResource.HeroismPoint, amount: 1 }),
 		],
 	}),
-	[Action.Extra_Die]: new ActionDefinition({
-		key: Action.Extra_Die,
+	[Action.ExtraDie]: new ActionDefinition({
+		key: Action.ExtraDie,
 		type: ActionType.Luck,
 		name: 'Extra Die',
 		description:
@@ -492,10 +483,21 @@ export const ACTIONS = {
 			new ActionCost({ resource: ActionCostResource.HeroismPoint, amount: 1 }),
 		],
 	}),
+	[Action.HeroicRelentlessness]: new ActionDefinition({
+		key: Action.HeroicRelentlessness,
+		type: ActionType.Luck,
+		name: 'Heroic Relentlessness',
+		description:
+			'A special Action you can take as a full-round-action when you are [[Incapacitated]] by paying a [[Heroism_Point | Heroism Point]] to make a [[FOW]] Check DC 25 (Hard). Restore your [[Vitality_Point | Vitality]], [[Focus_Point | Focus]] and [[Spirit_Point | Spirit]] Points to at least 1 each, thus clearing [[Incapacitated]] (you get a level of [[Exhaustion]] as usual).',
+		costs: [
+			new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 4 }),
+			new ActionCost({ resource: ActionCostResource.HeroismPoint, amount: 1 }),
+		],
+	}),
 
 	// Meta
-	[Action.Prepare_Action]: new ActionDefinition({
-		key: Action.Prepare_Action,
+	[Action.PrepareAction]: new ActionDefinition({
+		key: Action.PrepareAction,
 		type: ActionType.Meta,
 		name: 'Prepare Action',
 		description:
@@ -503,8 +505,8 @@ export const ACTIONS = {
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1, variable: true })],
 		traits: [ActionTrait.Concentrate],
 	}),
-	[Action.Decrease_Initiative]: new ActionDefinition({
-		key: Action.Decrease_Initiative,
+	[Action.DecreaseInitiative]: new ActionDefinition({
+		key: Action.DecreaseInitiative,
 		type: ActionType.Meta,
 		name: 'Decrease Initiative',
 		description:
