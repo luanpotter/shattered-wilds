@@ -1,7 +1,7 @@
 import { CLASS_ROLE_PRIMARY_ATTRIBUTE, ClassDefinition, ClassFlavor, ClassRealm, ClassRole } from './classes.js';
 import { Race, RACE_DEFINITIONS, RacialStatModifier, Upbringing } from './races.js';
-import { generateModifierBonusString, Modifier, ModifierSource } from './stats/stat-tree.js';
-import { StatType, StatTypeName } from './stats/stat-type.js';
+import { generateModifierBonusString, Modifier, ModifierSource } from '../stats/stat-tree.js';
+import { StatType, StatTypeName } from '../stats/stat-type.js';
 
 export enum FeatType {
 	Core = 'Core',

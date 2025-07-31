@@ -1,5 +1,5 @@
 import { Size } from './size.js';
-import { StatType } from './stats/stat-type.js';
+import { StatType } from '../stats/stat-type.js';
 
 export enum Race {
 	Human = 'Human',

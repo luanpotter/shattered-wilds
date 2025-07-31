@@ -1,10 +1,4 @@
-export enum ActionTrait {
-	Reaction = 'Reaction',
-	Melee = 'Melee',
-	Ranged = 'Ranged',
-	Concentrate = 'Concentrate',
-	Channel = 'Channel',
-}
+import { Trait } from './traits.js';
 
 export enum ActionType {
 	Movement = 'Movement',
@@ -49,7 +43,7 @@ export class ActionDefinition {
 	name: string;
 	description: string;
 	costs: ActionCost[];
-	traits: ActionTrait[];
+	traits: Trait[];
 
 	constructor({
 		key,
@@ -64,7 +58,7 @@ export class ActionDefinition {
 		name: string;
 		description: string;
 		costs: ActionCost[];
-		traits?: ActionTrait[];
+		traits?: Trait[];
 	}) {
 		this.key = key;
 		this.type = type;
@@ -202,7 +196,7 @@ export const ACTIONS = {
 		description:
 			'Special Attack against Body Defense. Causes [[Off_Guard | Off-Guard]]. **Crit Shifts** deal [[Vitality_Point | VP]] damage.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
-		traits: [ActionTrait.Melee],
+		traits: [Trait.Melee],
 	}),
 	[Action.Strike]: new ActionDefinition({
 		key: Action.Strike,
@@ -229,7 +223,7 @@ export const ACTIONS = {
 			new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 3 }),
 			new ActionCost({ resource: ActionCostResource.FocusPoint, amount: 1 }),
 		],
-		traits: [ActionTrait.Concentrate, ActionTrait.Melee],
+		traits: [Trait.Concentrate, Trait.Melee],
 	}),
 	[Action.Trip]: new ActionDefinition({
 		key: Action.Trip,
@@ -238,7 +232,7 @@ export const ACTIONS = {
 		description:
 			'**Special Attack** against [[Stance]]. Causes opponent to be [[Prone]]. Shifts deal [[Vitality_Point | VP]] damage.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
-		traits: [ActionTrait.Melee],
+		traits: [Trait.Melee],
 	}),
 	[Action.Grapple]: new ActionDefinition({
 		key: Action.Grapple,
@@ -246,7 +240,7 @@ export const ACTIONS = {
 		name: 'Grapple',
 		description: '**Special Attack** against [[Evasiveness]]. Causes target to become [[Immobilized]].',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
-		traits: [ActionTrait.Melee],
+		traits: [Trait.Melee],
 	}),
 	[Action.Charge]: new ActionDefinition({
 		key: Action.Charge,
@@ -262,7 +256,7 @@ export const ACTIONS = {
 		name: 'Shove',
 		description: 'Special Attack against [[Stance]]. Shoves opponent to the next hex in the incoming direction.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
-		traits: [ActionTrait.Melee],
+		traits: [Trait.Melee],
 	}),
 	[Action.Disarm]: new ActionDefinition({
 		key: Action.Disarm,
@@ -270,7 +264,7 @@ export const ACTIONS = {
 		name: 'Disarm',
 		description: 'Melee only; Special Attack against Muscles or Finesse. Requires at least one Shift to succeed.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 2 })],
-		traits: [ActionTrait.Melee, ActionTrait.Concentrate],
+		traits: [Trait.Melee, Trait.Concentrate],
 	}),
 	[Action.Demoralize]: new ActionDefinition({
 		key: Action.Demoralize,
@@ -286,7 +280,7 @@ export const ACTIONS = {
 		name: 'Opportunity Attack',
 		description:
 			'Triggered by an opponent either (1) leaving your threat area or (2) performing a [[Concentrate]] action on your threat area. You can choose what kind of **Melee Basic Attack** to perform as your Opportunity Attack (this will cost the same amount of [[Action_Point | AP]] as that action would (at least `1`)).',
-		traits: [ActionTrait.Reaction, ActionTrait.Melee],
+		traits: [Trait.Reaction, Trait.Melee],
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1, variable: true })],
 	}),
 	[Action.Distract]: new ActionDefinition({
@@ -294,7 +288,7 @@ export const ACTIONS = {
 		type: ActionType.Attack,
 		name: 'Distract',
 		description: 'TODO: Attempt to disrupt a character performing a [[Concentrate]] action.',
-		traits: [ActionTrait.Reaction],
+		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
 	}),
 
@@ -305,7 +299,7 @@ export const ACTIONS = {
 		name: 'Basic Defense',
 		description:
 			'Most Basic Defense against any form of Basic Attack - contest with either [[Body]], [[Mind]] or [[Soul]] against the Attack. This does not cost any [[Action_Point | AP]] and thus can always be responded with.',
-		traits: [ActionTrait.Reaction],
+		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 0 })],
 	}),
 	[Action.ShrugOff]: new ActionDefinition({
@@ -314,7 +308,7 @@ export const ACTIONS = {
 		name: 'Shrug Off',
 		description:
 			'Immediately as taking >1 [[Vitality_Point | VP]] damage, you can attempt a [[Toughness]] Check (DC 20) to reduce the damage by 1 (+ **Crit Shifts**).',
-		traits: [ActionTrait.Reaction],
+		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
 	}),
 	[Action.TakeCover]: new ActionDefinition({
@@ -323,7 +317,7 @@ export const ACTIONS = {
 		name: 'Take Cover',
 		description:
 			'When rolling a **Body Defense** against a **Ranged Basic Attack**, you can roll an [[Agility]] Check with a `+6` [[Circumstance_Modifier | CM]] instead when already benefiting from **Basic Cover**.',
-		traits: [ActionTrait.Reaction],
+		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
 	}),
 	[Action.ShieldBlock]: new ActionDefinition({
@@ -331,7 +325,7 @@ export const ACTIONS = {
 		type: ActionType.Defense,
 		name: 'Shield Block',
 		description: 'Add **Shield Bonus** to a **Basic Body Defense** contested Check.',
-		traits: [ActionTrait.Reaction],
+		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
 	}),
 	[Action.Dodge]: new ActionDefinition({
@@ -340,7 +334,7 @@ export const ACTIONS = {
 		name: 'Dodge',
 		description:
 			'Defend Body against a Basic Attack with an [[Evasiveness]] Check and a `+3` [[Circumstance Modifier | CM]] instead.',
-		traits: [ActionTrait.Reaction],
+		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
 	}),
 
@@ -366,7 +360,7 @@ export const ACTIONS = {
 		description:
 			"Try to conceal yourself; make a [[Finesse]] active check that can be contested by each opponent's [[Perception]] Check.",
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
-		traits: [ActionTrait.Concentrate],
+		traits: [Trait.Concentrate],
 	}),
 	[Action.Aim]: new ActionDefinition({
 		key: Action.Aim,
@@ -374,7 +368,7 @@ export const ACTIONS = {
 		name: 'Aim',
 		description:
 			'Target a specific enemy that you can see clearly; if your next action this turn is a **Basic Ranged Attack** against that target, you can roll with [[Finesse]] instead reduce the range increment by `1` (min `0`).',
-		traits: [ActionTrait.Concentrate, ActionTrait.Ranged],
+		traits: [Trait.Concentrate, Trait.Ranged],
 		costs: [
 			new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 }),
 			new ActionCost({ resource: ActionCostResource.FocusPoint, amount: 1 }),
@@ -386,7 +380,7 @@ export const ACTIONS = {
 		name: 'Flank',
 		description:
 			'When an ally attacks, if on Flanking position, give them a +3 [[Circumstance Modifier | CM]] to their attack roll.',
-		traits: [ActionTrait.Reaction],
+		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
 	}),
 	[Action.Taunt]: new ActionDefinition({
@@ -395,7 +389,7 @@ export const ACTIONS = {
 		name: 'Taunt',
 		description:
 			'Spend 1 [[Focus_Point | FP]]; roll a [[Presence]] Check against targets [[Resolve]] to persuade an enemy attempting to **Melee Attack** a different target to instead attack you (when you are also in range and would be a valid target).',
-		traits: [ActionTrait.Reaction, ActionTrait.Concentrate],
+		traits: [Trait.Reaction, Trait.Concentrate],
 		costs: [
 			new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 }),
 			new ActionCost({ resource: ActionCostResource.FocusPoint, amount: 1 }),
@@ -442,7 +436,7 @@ export const ACTIONS = {
 		description:
 			'Make an [[Empathy]] Check DC `20` (Medium; target can resist with [[Resolve]] if they so desire): target gets a `+1` [[Circumstance Modifier | CM]] to a Attack or Defense action of their choice until the end of their next turn. **Crit Shifts** grant additional modifiers.\nApply a `-3` [[Circumstance Modifier | CM]] if they cannot see you.\nApply a `-6` [[Circumstance Modifier | CM]] for each additional target you are trying to inspire at once.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 2 })],
-		traits: [ActionTrait.Concentrate],
+		traits: [Trait.Concentrate],
 	}),
 	[Action.SheatheUnsheathe]: new ActionDefinition({
 		key: Action.SheatheUnsheathe,
@@ -524,7 +518,7 @@ export const ACTIONS = {
 		description:
 			'You can prepare a specific Action to be executed during the next round as a reaction. You must pay 1 extra [[Action_Point | AP]] to prepare, plus the AP associated with the Action you are preparing now, and will be **Concentrating** and cannot take any other Action or Reaction until your trigger procs during the next round. You will be Concentrating during this period and therefore can lose the action if you become [[Distracted]]. Depending on the complexity of the trigger, the DM might need to ask for an [[IQ]], [[Perception]], or some other check to determine your ability to properly react to your trigger.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1, variable: true })],
-		traits: [ActionTrait.Concentrate],
+		traits: [Trait.Concentrate],
 	}),
 	[Action.DecreaseInitiative]: new ActionDefinition({
 		key: Action.DecreaseInitiative,

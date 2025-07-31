@@ -1,4 +1,4 @@
-import { StatType } from './stats/stat-type.js';
+import { StatType } from '../stats/stat-type.js';
 
 export enum CharacterClass {
 	// Warriors - Melee (STR)
