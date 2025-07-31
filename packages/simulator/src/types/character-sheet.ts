@@ -1,7 +1,7 @@
 import {
 	StatTree,
 	StatNode,
-	Modifier,
+	InherentModifier,
 	ModifierSource,
 	StatType,
 	Size,
@@ -16,15 +16,19 @@ import {
 	FeatType,
 	FeatCategory,
 	FeatStatModifier,
-	generateModifierBonusString,
 	FeatSlot,
 	Feat,
 	FeatSource,
 	StaticFeatSource,
 	ClassDefinition,
+	StatModifier,
+	Check,
+	CheckNature,
+	CheckMode,
+	CircumstanceModifier,
 } from '@shattered-wilds/commons';
 
-import { DerivedStat, BasicAttack, DefenseType } from './core';
+import { DerivedStat, BasicAttack, DefenseType, DEFENSE_TYPE_PROPERTIES } from './core';
 import { Equipment, Armor, Shield, Weapon } from './equipment';
 
 export class RaceInfo {
@@ -170,7 +174,7 @@ export class DerivedStats {
 
 	private computeMovement(statTree: StatTree): DerivedStat<number> {
 		const HUMANOID_BASE = 3;
-		const sizeModifier = SizeModifiers[this.size.value];
+		const sizeModifier = SizeModifiers[this.size.value].value;
 		const agility = statTree.valueOf(StatType.Agility);
 		const value = HUMANOID_BASE + sizeModifier + Math.floor(agility / 4);
 		return new DerivedStat(
@@ -267,8 +271,8 @@ export class CharacterFeats {
 		return this.featInfos.filter(info => info.slot);
 	}
 
-	getFeatModifiers(): Modifier[] {
-		const modifiers: Modifier[] = [];
+	getFeatModifiers(): InherentModifier[] {
+		const modifiers: InherentModifier[] = [];
 
 		for (const info of this.featInfos) {
 			const feat = info.feat;
@@ -276,14 +280,12 @@ export class CharacterFeats {
 			const featModifiers = effects
 				.filter(e => e instanceof FeatStatModifier)
 				.map(e => {
-					const bonusString = generateModifierBonusString(e.statType, e.value);
-					return {
+					return new InherentModifier({
 						source: ModifierSource.Feat,
 						name: feat.name,
-						description: `${bonusString} from feat ${feat.name}`,
 						statType: e.statType,
 						value: e.value,
-					};
+					});
 				});
 			modifiers.push(...featModifiers);
 		}
@@ -358,8 +360,8 @@ export class CharacterSheet {
 	}
 
 	// Get all modifiers from all sources (feats, equipment, etc.)
-	getAllModifiers(): Modifier[] {
-		const modifiers: Modifier[] = [];
+	getAllModifiers(): InherentModifier[] {
+		const modifiers: InherentModifier[] = [];
 
 		// Add feat modifiers (includes race, class, and upbringing modifiers)
 		modifiers.push(...this.feats.getFeatModifiers());
@@ -370,13 +372,14 @@ export class CharacterSheet {
 			.forEach(item => {
 				const armor = item as Armor;
 				if (armor.dexPenalty !== 0) {
-					modifiers.push({
-						source: ModifierSource.Equipment,
-						name: `${armor.name} (${armor.type})`,
-						description: `Dexterity penalty from wearing ${armor.name}`,
-						statType: StatType.DEX,
-						value: armor.dexPenalty, // dexPenalty is already stored as negative
-					});
+					modifiers.push(
+						new InherentModifier({
+							source: ModifierSource.Equipment,
+							name: `${armor.name} (${armor.type}) DEX Penalty`,
+							statType: StatType.DEX,
+							value: armor.dexPenalty, // dexPenalty is already stored as negative
+						}),
+					);
 				}
 			});
 
@@ -393,28 +396,40 @@ export class CharacterSheet {
 			.forEach(item => {
 				const weapon = item as Weapon;
 				const name = weapon.name;
+				const weaponModifier = <CircumstanceModifier>{
+					source: ModifierSource.Equipment,
+					name: `${name} (${weapon.type})`,
+					description: `Weapon bonus from ${name} (${weapon.type})`,
+					value: weapon.bonus,
+				};
 				attacks.push({
 					name: name,
 					description: `${name} (+${weapon.bonus})`,
-					check: {
-						attribute: weapon.attribute,
-						bonus: weapon.bonus,
-						modifier: tree.valueOf(weapon.attribute) + weapon.bonus,
-					},
+					check: new Check({
+						mode: CheckMode.Static,
+						nature: CheckNature.Active,
+						statModifier: tree.getModifier(weapon.attribute, [weaponModifier]),
+					}),
 				});
 			});
 
 		// Add Shield Bash if a shield is equipped
-		const hasShield = this.equipment.items.some(item => item instanceof Shield);
-		if (hasShield) {
+		const shield = this.equipment.items.find(item => item instanceof Shield);
+		if (shield) {
+			const shieldModifier = <CircumstanceModifier>{
+				source: ModifierSource.Equipment,
+				name: 'Shield Bash',
+				description: `Shield Bash bonus from ${shield.name}`,
+				value: 1,
+			};
 			attacks.push({
 				name: 'Shield Bash',
 				description: 'Shield Bash',
-				check: {
-					attribute: StatType.STR,
-					bonus: 1,
-					modifier: tree.valueOf(StatType.STR) + 1,
-				},
+				check: new Check({
+					mode: CheckMode.Static,
+					nature: CheckNature.Active,
+					statModifier: tree.getModifier(StatType.STR, [shieldModifier]),
+				}),
 			});
 		}
 
@@ -422,50 +437,59 @@ export class CharacterSheet {
 		attacks.push({
 			name: 'Unarmed',
 			description: 'Unarmed',
-			check: {
-				attribute: StatType.STR,
-				bonus: 0,
-				modifier: tree.valueOf(StatType.STR),
-			},
+			check: new Check({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statModifier: tree.getModifier(StatType.STR),
+			}),
 		});
 
 		return attacks;
 	}
 
-	getBasicDefense(type: DefenseType): DerivedStat<number> {
-		const sizeModifier = SizeModifiers[this.derivedStats.size.value];
-		const armorBonus = this.equipment.items
-			.filter(item => item instanceof Armor)
-			.reduce((acc, item) => acc + (item as Armor).bonus, 0);
-		switch (type) {
-			case DefenseType.Basic: {
-				const body = this.getStatTree().valueOf(StatType.Body);
-				const defense = body - sizeModifier + armorBonus;
-				return {
-					value: defense,
-					description: `Basic Defense = ${body} (Body) - ${sizeModifier} (size modifier) + ${armorBonus} (armor bonus)`,
+	getBasicDefense(type: DefenseType): StatModifier {
+		const { stat, cm } = DEFENSE_TYPE_PROPERTIES[type];
+
+		const cms: CircumstanceModifier[] = [];
+
+		const sizeModifier = SizeModifiers[this.derivedStats.size.value].penalty();
+		cms.push(sizeModifier);
+
+		const armor = this.equipment.items.find(item => item instanceof Armor);
+		if (armor) {
+			const armorModifier = <CircumstanceModifier>{
+				source: ModifierSource.Equipment,
+				name: 'Armor',
+				description: `Armor bonus from ${armor.name}`,
+				value: armor.bonus,
+			};
+			cms.push(armorModifier);
+		}
+
+		if (type === DefenseType.ShieldBlock) {
+			const shield = this.equipment.items.find(item => item instanceof Shield);
+			if (shield) {
+				const shieldModifier = <CircumstanceModifier>{
+					source: ModifierSource.Equipment,
+					name: 'Shield Block',
+					description: `Shield Block bonus from ${shield.name}`,
+					value: shield.bonus,
 				};
-			}
-			case DefenseType.Dodge: {
-				const evasiveness = this.getStatTree().valueOf(StatType.Evasiveness);
-				const defense = evasiveness - sizeModifier + armorBonus + 3;
-				return {
-					value: defense,
-					description: `Dodge Defense = ${evasiveness} (Evasiveness) - ${sizeModifier} (size modifier) + ${armorBonus} (armor bonus) + 3 (base)`,
-				};
-			}
-			case DefenseType.Shield: {
-				const body = this.getStatTree().valueOf(StatType.Body);
-				const shieldBonus = this.equipment.items
-					.filter(item => item instanceof Shield)
-					.reduce((acc, item) => acc + (item as Shield).bonus, 0);
-				const defense = body - sizeModifier + armorBonus + shieldBonus;
-				return {
-					value: defense,
-					description: `Shield Defense = ${body} (Body) - ${sizeModifier} (size modifier) + ${armorBonus} (armor bonus) + ${shieldBonus} (shield bonus)`,
-				};
+				cms.push(shieldModifier);
 			}
 		}
+
+		if (cm !== 0) {
+			cms.push(
+				new CircumstanceModifier({
+					source: ModifierSource.Circumstance,
+					name: type,
+					value: cm,
+				}),
+			);
+		}
+
+		return this.getStatTree().getModifier(stat, cms);
 	}
 
 	static from(props: Record<string, string>): CharacterSheet {

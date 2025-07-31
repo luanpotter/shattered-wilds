@@ -32,10 +32,8 @@ export const BasicAttacksModal: React.FC<BasicAttacksModalProps> = ({ attacks, c
 					title: `Roll ${attack.name} Attack`,
 					type: 'dice-roll',
 					position: position ?? { x: 0, y: 0 },
-					modifier: attack.check.modifier,
-					attributeName: `${attack.name} (${attack.check.attribute.name})`,
+					check: attack.check,
 					characterId: character.id,
-					initialRollType: 'Contested (Active)',
 				});
 			}
 		}
@@ -54,9 +52,9 @@ export const BasicAttacksModal: React.FC<BasicAttacksModalProps> = ({ attacks, c
 				}}
 			>
 				{attacks.map(attack => {
-					const bonus = attack.check.bonus > 0 ? `+${attack.check.bonus}` : attack.check.bonus;
+					const bonus = attack.check.modifierValue > 0 ? `+${attack.check.modifierValue}` : attack.check.modifierValue;
 					const name = `${attack.name} ${bonus}`;
-					const desc = `${attack.check.attribute.name} ${bonus} = ${attack.check.modifier}`;
+					const desc = `${attack.check.statModifier.description} ${bonus} = ${attack.check.modifierValue}`;
 					const isClickable = !editMode;
 
 					return (
@@ -64,7 +62,7 @@ export const BasicAttacksModal: React.FC<BasicAttacksModalProps> = ({ attacks, c
 							<FormRow label={name} id={name.toLowerCase()}>
 								<ReadOnlyInput
 									id={name}
-									value={attack.check.modifier}
+									value={attack.check.modifierValue}
 									tooltip={isClickable ? `Click to roll ${attack.name} attack` : desc}
 									style={{
 										cursor: isClickable ? 'pointer' : 'help',

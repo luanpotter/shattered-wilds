@@ -1,3 +1,4 @@
+import { Check, CheckMode, CheckNature } from '@shattered-wilds/commons';
 import React, { useEffect, useMemo } from 'react';
 import { FaBatteryFull, FaCog, FaMinus, FaPlus } from 'react-icons/fa';
 
@@ -129,10 +130,8 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 					type: 'dice-roll',
 					// TODO(luan): make position optional for addWindow
 					position: position ?? { x: 0, y: 0 },
-					modifier: attack.check.modifier,
-					attributeName: `${attack.name} (${attack.check.attribute.name})`,
+					check: attack.check,
 					characterId: character.id,
-					initialRollType: 'Contested (Active)',
 				});
 			} else if (basicAttacks.length > 1) {
 				// Multiple attacks - show Basic Attacks modal for selection
@@ -151,10 +150,12 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 				type: 'dice-roll',
 				// TODO(luan): make position optional for addWindow
 				position: position ?? { x: 0, y: 0 },
-				modifier: basicDefense.value,
-				attributeName: 'Basic Defense',
+				check: new Check({
+					mode: CheckMode.Contested,
+					nature: CheckNature.Resisted,
+					statModifier: basicDefense,
+				}),
 				characterId: character.id,
-				initialRollType: 'Contested (Resisted)',
 			});
 		}
 	};
@@ -219,16 +220,14 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 
 	// Map size enum to display value
 	const getSizeDisplay = (size: Size): string => {
-		const modifier = SizeModifiers[size];
-		const modifierStr = modifier >= 0 ? `+${modifier}` : `${modifier}`;
-		return `${size} (${modifierStr})`;
+		return SizeModifiers[size].description;
 	};
 
 	const { hasWarnings } = FeatsSection.create(sheet);
 
 	// Create reactive basic attacks and defense that update when sheet changes
 	const basicAttacks = useMemo(() => sheet.getBasicAttacks(), [sheet]);
-	const basicDefense = useMemo(() => sheet.getBasicDefense(DefenseType.Basic), [sheet]);
+	const basicDefense = useMemo(() => sheet.getBasicDefense(DefenseType.BasicBody), [sheet]);
 
 	return (
 		<div style={{ margin: 0, padding: 0, width: '100%', height: '100%', overflowY: 'scroll' }}>

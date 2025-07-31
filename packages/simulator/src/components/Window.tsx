@@ -143,11 +143,9 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({
 			case 'dice-roll': {
 				return (
 					<DiceRollModal
-						modifier={window.modifier ?? 0}
-						onClose={() => removeWindow(window.id)}
-						attributeName={window.attributeName ?? ''}
 						characterId={window.characterId!}
-						initialRollType={window.initialRollType ?? 'Static'}
+						check={window.check!}
+						onClose={() => removeWindow(window.id)}
 						onDiceRollComplete={window.onDiceRollComplete}
 					/>
 				);

@@ -1,3 +1,4 @@
+import { Check, CheckMode, CheckNature } from '@shattered-wilds/commons';
 import React, { useState, useEffect } from 'react';
 import { FaDice, FaFistRaised, FaUserShield } from 'react-icons/fa';
 
@@ -54,14 +55,14 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			const attackerSheet = CharacterSheet.from(attacker.props);
 			const defenderSheet = CharacterSheet.from(defender.props);
 			const attack = attackerSheet.getBasicAttacks()[attackIndex];
-			const defense = defenderSheet.getBasicDefense(DefenseType.Basic);
+			const defense = defenderSheet.getBasicDefense(DefenseType.BasicBody);
 
 			if (attack && defender.automaticMode) {
 				const autoResult = getAutomaticResult(defense.value);
 				setDefenseResult(autoResult);
 			}
 			if (attack && attacker.automaticMode) {
-				const autoResult = getAutomaticResult(attack.check.modifier);
+				const autoResult = getAutomaticResult(attack.check.modifierValue);
 				setAttackResult(autoResult);
 			}
 		}
@@ -75,9 +76,9 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	const defenderSheet = CharacterSheet.from(defender.props);
 	const attack = attackerSheet.getBasicAttacks()[attackIndex];
 
-	const basicDefense = defenderSheet.getBasicDefense(DefenseType.Basic);
+	const basicDefense = defenderSheet.getBasicDefense(DefenseType.BasicBody);
 	const dodgeDefense = defenderSheet.getBasicDefense(DefenseType.Dodge);
-	const shieldDefense = defenderSheet.getBasicDefense(DefenseType.Shield);
+	const shieldDefense = defenderSheet.getBasicDefense(DefenseType.ShieldBlock);
 
 	// Check if defender has a shield and calculate shield block value
 	const hasShield = defenderSheet.equipment.items.some(item => item instanceof Shield);
@@ -99,10 +100,12 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 				title: `Roll Defense - ${defender.props.name}`,
 				type: 'dice-roll',
 				position: findNextWindowPosition(useStore.getState().windows),
-				modifier: basicDefense.value,
-				attributeName: basicDefense.description,
+				check: new Check({
+					mode: CheckMode.Contested,
+					nature: CheckNature.Resisted,
+					statModifier: basicDefense,
+				}),
 				characterId: defender.id,
-				initialRollType: 'Contested (Resisted)',
 				onDiceRollComplete: (result: { total: number; shifts: number }) => {
 					setDefenseResult(result);
 					setUsedDodge(false);
@@ -119,10 +122,12 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			title: `Roll Dodge - ${defender.props.name}`,
 			type: 'dice-roll',
 			position: findNextWindowPosition(useStore.getState().windows),
-			modifier: dodgeDefense.value,
-			attributeName: dodgeDefense.description,
+			check: new Check({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Resisted,
+				statModifier: dodgeDefense,
+			}),
 			characterId: defender.id,
-			initialRollType: 'Contested (Resisted)',
 			onDiceRollComplete: (result: { total: number; shifts: number }) => {
 				setDefenseResult(result);
 				setUsedDodge(true);
@@ -138,10 +143,12 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			title: `Roll Shield Block - ${defender.props.name}`,
 			type: 'dice-roll',
 			position: findNextWindowPosition(useStore.getState().windows),
-			modifier: shieldDefense.value,
-			attributeName: shieldDefense.description,
+			check: new Check({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Resisted,
+				statModifier: shieldDefense,
+			}),
 			characterId: defender.id,
-			initialRollType: 'Contested (Resisted)',
 			onDiceRollComplete: (result: { total: number; shifts: number }) => {
 				setDefenseResult(result);
 				setUsedShieldBlock(true);
@@ -153,7 +160,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	const handleAttackRoll = () => {
 		if (attacker.automaticMode && !attackResult) {
 			// Use automatic value for attack (initial)
-			const autoResult = getAutomaticResult(attack.check.modifier);
+			const autoResult = getAutomaticResult(attack.check.modifierValue);
 			setAttackResult(autoResult);
 		} else {
 			// Open dice roll modal for manual rolling (override)
@@ -162,10 +169,12 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 				title: `Roll Attack - ${attacker.props.name}`,
 				type: 'dice-roll',
 				position: findNextWindowPosition(useStore.getState().windows),
-				modifier: attack.check.modifier,
-				attributeName: `${attack.name} (${attack.check.attribute.name})`,
+				check: new Check({
+					mode: CheckMode.Contested,
+					nature: CheckNature.Active,
+					statModifier: attack.check.statModifier,
+				}),
 				characterId: attacker.id,
-				initialRollType: 'Contested (Active)',
 				onDiceRollComplete: (result: { total: number; shifts: number }) => {
 					setAttackResult(result);
 				},
@@ -312,7 +321,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 					</h4>
 
 					<p>Attack: {attack.name}</p>
-					<p>Modifier: {attack.check.modifier}</p>
+					<p>Modifier: {attack.check.modifierValue}</p>
 
 					<Button icon={FaDice} title={attackButtonText} onClick={handleAttackRoll} disabled={!defenseResult} />
 

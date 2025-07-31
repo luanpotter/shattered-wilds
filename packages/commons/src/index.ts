@@ -6,3 +6,4 @@ export * from './core/races.js';
 export * from './core/classes.js';
 export * from './core/feats.js';
 export * from './core/actions.js';
+export * from './character/check.js';

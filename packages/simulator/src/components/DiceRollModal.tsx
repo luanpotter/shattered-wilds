@@ -1,9 +1,10 @@
+import { Check, CheckType, CHECK_TYPES } from '@shattered-wilds/commons';
 import React from 'react';
 import { useState } from 'react';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { CharacterSheet, StatType, RollType } from '../types';
+import { CharacterSheet, StatType } from '../types';
 
 import DropdownSelect from './DropdownSelect';
 import { Button } from './shared/Button';
@@ -46,12 +47,9 @@ const getAttributeType = (skill: SkillType): StatType => {
 };
 
 export interface DiceRollModalProps {
-	modifier: number;
+	characterId: string;
+	check: Check;
 	onClose: () => void;
-	attributeName: string;
-	characterSheet?: CharacterSheet | undefined;
-	characterId?: string;
-	initialRollType?: RollType;
 	onDiceRollComplete?: ((result: { total: number; shifts: number }) => void) | undefined;
 }
 
@@ -85,38 +83,26 @@ const calculateShifts = (excess: number): number => {
 	return shifts;
 };
 
-export const DiceRollModal: React.FC<DiceRollModalProps> = ({
-	modifier,
-	onClose,
-	attributeName,
-	characterSheet,
-	characterId,
-	initialRollType = 'Static',
-	onDiceRollComplete,
-}) => {
+export const DiceRollModal: React.FC<DiceRollModalProps> = ({ characterId, check, onClose, onDiceRollComplete }) => {
 	const characters = useStore(state => state.characters);
 
 	// If characterId is provided, reconstruct the character sheet
-	const activeCharacterSheet = characterId
-		? (() => {
-				const character = characters.find(c => c.id === characterId);
-				return character ? CharacterSheet.from(character.props) : undefined;
-			})()
-		: characterSheet;
-	const tree = activeCharacterSheet?.getStatTree();
+	const character = characters.find(c => c.id === characterId)!;
+	const characterSheet = CharacterSheet.from(character.props);
+	const tree = characterSheet.getStatTree();
 
 	const [circumstantialModifier, setCircumstantialModifier] = useState(0);
-	const [rollType, setRollType] = useState<RollType>(initialRollType);
+	const [checkType, setCheckType] = useState<CheckType>(check.type);
 	const [dc, setDc] = useState<number | null>(null);
 	const [useExtra, setUseExtra] = useState(false);
 	const [useLuck, setUseLuck] = useState(false);
 	const [extraSkill, setExtraSkill] = useState<SkillType>('Muscles');
 	const [rollResults, setRollResults] = useState<RollResults | null>(null);
 
-	const updateResults = (newRollType?: RollType, newDc?: number | null) => {
+	const updateResults = (newCheckType?: CheckType, newDc?: number | null) => {
 		if (!rollResults) return;
 
-		const currentType = newRollType ?? rollType;
+		const currentType = newCheckType ?? checkType;
 		const currentDc = newDc ?? dc;
 
 		// Recalculate auto-fail status based on roll type
@@ -126,21 +112,23 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 			...(rollResults.luckResult && rollResults.luckValid ? [rollResults.luckResult] : []),
 		];
 		const hasPairOfOnes = allDice.filter(n => n === 1).length >= 2;
-		const autoFail = hasPairOfOnes && currentType !== 'Contested (Resisted)';
+		const isContestedActive = currentType === 'Contested-Active';
+		const isStatic = currentType === 'Static-Active' || currentType === 'Static-Resisted';
+		const autoFail = hasPairOfOnes && isContestedActive;
 
 		let success = false;
 		let critShifts = 0;
 
 		if (!autoFail && currentDc !== null) {
 			// For Active rolls, ties are losses unless there's a crit modifier
-			if (currentType === 'Contested (Active)') {
+			if (isContestedActive) {
 				success = rollResults.total > currentDc || (rollResults.total === currentDc && rollResults.critModifiers > 0);
 				if (success) {
 					critShifts = calculateShifts(rollResults.total - currentDc);
 				}
 			} else {
 				success = rollResults.total >= currentDc;
-				if (success && currentType === 'Static') {
+				if (success && isStatic) {
 					critShifts = calculateShifts(rollResults.total - currentDc);
 				}
 			}
@@ -154,9 +142,9 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 		});
 	};
 
-	const handleRollTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		const newType = e.target.value as RollType;
-		setRollType(newType);
+	const handleCheckTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const newType = e.target.value as CheckType;
+		setCheckType(newType);
 		updateResults(newType);
 	};
 
@@ -167,15 +155,13 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 	};
 
 	const handleCopyToVTT = () => {
-		const circumstantialPart = circumstantialModifier !== 0 ? ` + ${circumstantialModifier}` : '';
 		const extraPart = useExtra ? ' extra' : '';
 		const luckPart = useLuck ? ' luck' : '';
 		const dcPart = dc !== null ? ` dc ${dc}` : '';
-		void window.navigator.clipboard
-			.writeText(`/r d12 + ${modifier}${circumstantialPart}${extraPart}${luckPart}${dcPart}`)
-			.catch(() => {
-				// Ignore clipboard errors
-			});
+		const modifier = check.modifierValue;
+		void window.navigator.clipboard.writeText(`/r d12 + ${modifier}${extraPart}${luckPart}${dcPart}`).catch(() => {
+			// Ignore clipboard errors
+		});
 	};
 
 	const rollD12 = () => {
@@ -211,7 +197,8 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 		if (extraResult && extraValid) allDice.push(extraResult);
 		if (luckResult && luckValid) allDice.push(luckResult);
 		const hasPairOfOnes = allDice.filter(n => n === 1).length >= 2;
-		const autoFail = hasPairOfOnes && rollType !== 'Contested (Resisted)';
+		const isContestedResisted = checkType === 'Contested-Resisted';
+		const autoFail = hasPairOfOnes && !isContestedResisted;
 
 		// Calculate crit modifiers
 		let critModifiers = 0;
@@ -235,7 +222,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 			selectedDice = [sorted[0], sorted[1]];
 		}
 
-		const baseTotal = selectedDice[0] + selectedDice[1] + modifier + circumstantialModifier;
+		const baseTotal = selectedDice[0] + selectedDice[1] + check.modifierValue;
 
 		// Calculate final total
 		const total = baseTotal + critModifiers;
@@ -243,16 +230,19 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 		let success = false;
 		let critShifts = 0;
 
+		const isContestedActive = checkType === 'Contested-Active';
+		const isStatic = checkType === 'Static-Active' || checkType === 'Static-Resisted';
+
 		if (!autoFail && dc !== null) {
 			// For Active rolls, ties are losses unless there's a crit modifier
-			if (rollType === 'Contested (Active)') {
+			if (isContestedActive) {
 				success = total > dc || (total === dc && critModifiers > 0);
 				if (success) {
 					critShifts = calculateShifts(total - dc);
 				}
 			} else {
 				success = total >= dc;
-				if (success && rollType === 'Static') {
+				if (success && isStatic) {
 					critShifts = calculateShifts(total - dc);
 				}
 			}
@@ -384,32 +374,32 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 			<div style={{ padding: '16px' }}>
 				<h3 style={{ margin: '0 0 16px 0' }}>Roll Results</h3>
 
-				{/* Roll Type Selection and DC */}
 				<div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
 					<div style={{ flex: 1 }}>
-						<label htmlFor='roll-type' style={{ display: 'block', marginBottom: '4px' }}>
-							Roll Type:
+						<label style={{ display: 'block', marginBottom: '4px' }}>
+							Check Type:
+							<select
+								value={checkType}
+								onChange={handleCheckTypeChange}
+								style={{
+									width: '100%',
+									padding: '4px',
+									border: '1px solid var(--text)',
+									borderRadius: '4px',
+									backgroundColor: 'var(--background)',
+									color: 'var(--text)',
+								}}
+							>
+								{CHECK_TYPES.map(type => (
+									<option key={type} value={type}>
+										{type}
+									</option>
+								))}
+							</select>
 						</label>
-						<select
-							id='roll-type'
-							value={rollType}
-							onChange={handleRollTypeChange}
-							style={{
-								width: '100%',
-								padding: '4px',
-								border: '1px solid var(--text)',
-								borderRadius: '4px',
-								backgroundColor: 'var(--background)',
-								color: 'var(--text)',
-							}}
-						>
-							<option value='Static'>Static Check</option>
-							<option value='Contested (Active)'>Contested (Active)</option>
-							<option value='Contested (Resisted)'>Contested (Resisted)</option>
-						</select>
 					</div>
 
-					{(rollType === 'Static' || rollType === 'Contested (Active)') && (
+					{(checkType === 'Static-Active' || checkType === 'Contested-Active') && (
 						<div style={{ flex: 1 }}>
 							<label htmlFor='dc' style={{ display: 'block', marginBottom: '4px' }}>
 								DC:
@@ -483,7 +473,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 
 				{/* Pair of 1s on Contested Resisted (no auto-fail) */}
 				{!rollResults.autoFail &&
-					rollType === 'Contested (Resisted)' &&
+					checkType === 'Contested-Resisted' &&
 					(() => {
 						const allDice = [
 							...rollResults.dice,
@@ -513,8 +503,8 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 						<div style={{ marginBottom: '8px' }}>
 							<span>
 								[{rollResults.selectedDice.join(' + ')}
-								{rollResults.critModifiers > 0 && ` + ${rollResults.critModifiers} (Crit)`}] + [{modifier} (Modifier)
-								{circumstantialModifier !== 0 && ` + ${circumstantialModifier} (Circumstance)`}] = {rollResults.total}
+								{rollResults.critModifiers > 0 && ` + ${rollResults.critModifiers} (Crit)`}] + [{check.modifierValue}{' '}
+								(Modifier)] = {rollResults.total}
 							</span>
 						</div>
 
@@ -561,34 +551,34 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 
 	return (
 		<div style={{ padding: '16px' }}>
-			<h3 style={{ margin: '0 0 16px 0' }}>Roll {attributeName} Check</h3>
+			<h3 style={{ margin: '0 0 16px 0' }}>Roll Check</h3>
 
-			{/* Roll Type Selection and DC */}
 			<div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
 				<div style={{ flex: 1 }}>
-					<label htmlFor='roll-type' style={{ display: 'block', marginBottom: '4px' }}>
-						Roll Type:
+					<label style={{ display: 'block', marginBottom: '4px' }}>
+						Check Type:
+						<select
+							value={checkType}
+							onChange={handleCheckTypeChange}
+							style={{
+								width: '100%',
+								padding: '4px',
+								border: '1px solid var(--text)',
+								borderRadius: '4px',
+								backgroundColor: 'var(--background)',
+								color: 'var(--text)',
+							}}
+						>
+							{CHECK_TYPES.map(type => (
+								<option key={type} value={type}>
+									{type}
+								</option>
+							))}
+						</select>
 					</label>
-					<select
-						id='roll-type'
-						value={rollType}
-						onChange={handleRollTypeChange}
-						style={{
-							width: '100%',
-							padding: '4px',
-							border: '1px solid var(--text)',
-							borderRadius: '4px',
-							backgroundColor: 'var(--background)',
-							color: 'var(--text)',
-						}}
-					>
-						<option value='Static'>Static Check</option>
-						<option value='Contested (Active)'>Contested (Active)</option>
-						<option value='Contested (Resisted)'>Contested (Resisted)</option>
-					</select>
 				</div>
 
-				{(rollType === 'Static' || rollType === 'Contested (Active)') && (
+				{(checkType === 'Static-Active' || checkType === 'Contested-Active') && (
 					<div style={{ flex: 1 }}>
 						<label htmlFor='dc' style={{ display: 'block', marginBottom: '4px' }}>
 							DC:
@@ -614,7 +604,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 			{/* Modifiers */}
 			<div style={{ marginBottom: '16px' }}>
 				<div style={{ marginBottom: '8px' }}>
-					<span>Base Modifier: {modifier >= 0 ? `+${modifier}` : modifier}</span>
+					<span>Base Modifier: {check.statModifier.description}</span>
 				</div>
 
 				<div style={{ marginBottom: '8px' }}>

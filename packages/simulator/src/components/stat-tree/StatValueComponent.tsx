@@ -1,3 +1,4 @@
+import { Check, CheckMode, CheckNature } from '@shattered-wilds/commons';
 import React from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
 
@@ -60,8 +61,11 @@ export const StatValueComponent: React.FC<StatValueComponentProps> = ({
 					title: `Roll ${attributeName} Check`,
 					type: 'dice-roll',
 					position: { x: e.clientX, y: e.clientY },
-					modifier: value,
-					attributeName,
+					check: new Check({
+						mode: CheckMode.Static,
+						nature: CheckNature.Active,
+						statModifier: modifier,
+					}),
 					characterId: characterId,
 				});
 			}

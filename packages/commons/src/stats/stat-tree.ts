@@ -3,32 +3,82 @@ import { StatHierarchyProperties, StatType } from './stat-type.js';
 export enum ModifierSource {
 	Feat = 'Feat',
 	Equipment = 'Equipment',
+	Size = 'Size',
 	Circumstance = 'Circumstance',
 }
 
-export interface Modifier {
+export class CircumstanceModifier {
 	source: ModifierSource;
 	name: string;
-	description: string;
-	statType: StatType;
 	value: number;
+
+	constructor({ source, name, value }: { source: ModifierSource; name: string; value: number }) {
+		this.source = source;
+		this.name = name;
+		this.value = value;
+	}
+
+	get bonusString(): string {
+		const value = this.value;
+		const sign = value >= 0 ? '+' : '-';
+		return `${sign}${Math.abs(value)}`;
+	}
+
+	get description(): string {
+		return `${this.bonusString} from ${this.source} ${this.name}`;
+	}
+
+	penalty(): CircumstanceModifier {
+		return new CircumstanceModifier({
+			source: this.source,
+			name: this.name,
+			value: -this.value,
+		});
+	}
 }
 
-export const generateModifierBonusString = (statType: StatType, value: number): string => {
-	const sign = value >= 0 ? '+' : '-';
-	return `${sign}${Math.abs(value)} ${statType}`;
-};
+export class InherentModifier extends CircumstanceModifier {
+	statType: StatType;
+
+	constructor({
+		source,
+		name,
+		value,
+		statType,
+	}: {
+		source: ModifierSource;
+		name: string;
+		value: number;
+		statType: StatType;
+	}) {
+		super({ source, name, value });
+		this.statType = statType;
+	}
+
+	override get description(): string {
+		return `${this.bonusString} ${this.statType} from ${this.source} ${this.name}`;
+	}
+
+	override penalty(): InherentModifier {
+		return new InherentModifier({
+			source: this.source,
+			name: this.name,
+			value: -this.value,
+			statType: this.statType,
+		});
+	}
+}
 
 export class StatTree {
 	root: StatNode;
-	modifiers: Modifier[];
+	modifiers: InherentModifier[];
 
-	constructor(root: StatNode, modifiers: Modifier[]) {
+	constructor(root: StatNode, modifiers: InherentModifier[]) {
 		this.root = root;
 		this.modifiers = modifiers;
 	}
 
-	static build(props: Record<string, string>, modifiers: Modifier[]): StatTree {
+	static build(props: Record<string, string>, modifiers: InherentModifier[]): StatTree {
 		const root = StatTree.buildRootNode(props);
 		return new StatTree(root, modifiers);
 	}
@@ -58,7 +108,7 @@ export class StatTree {
 		]);
 	};
 
-	private getApplicableModifiers(stat: StatType): Modifier[] {
+	private getApplicableModifiers(stat: StatType): InherentModifier[] {
 		return this.modifiers.filter(mod => mod.statType === stat);
 	}
 
@@ -84,18 +134,25 @@ export class StatTree {
 		return node;
 	}
 
-	getModifier(stat: StatType): StatModifier {
+	getModifier(stat: StatType, cms: CircumstanceModifier[] = []): StatModifier {
 		const node = this.getNode(stat);
-		return this.getNodeModifier(node);
+		return this.getNodeModifier(node, cms);
 	}
 
-	getNodeModifier(node: StatNode): StatModifier {
+	getNodeModifier(node: StatNode, cms: CircumstanceModifier[] = []): StatModifier {
 		const parentValue = this.getParentModifier(node);
 		const selfValue = this.getSelfModifier(node);
 		const baseValue = selfValue + parentValue;
-		const appliedModifiers = this.getApplicableModifiers(node.type);
+		const appliedModifiers = [...this.getApplicableModifiers(node.type), ...cms];
 		const value = baseValue + appliedModifiers.reduce((sum, mod) => sum + mod.value, 0);
-		return { parentValue, selfValue, baseValue, appliedModifiers, value };
+		return new StatModifier({
+			statType: node.type,
+			parentValue,
+			selfValue,
+			baseValue,
+			appliedModifiers,
+			value,
+		});
 	}
 
 	valueOf(stat: StatType): number {
@@ -198,10 +255,38 @@ export class StatNode {
 	}
 }
 
-export interface StatModifier {
+export class StatModifier {
+	statType: StatType;
 	parentValue: number;
 	selfValue: number;
 	baseValue: number;
-	appliedModifiers: Modifier[];
+	appliedModifiers: CircumstanceModifier[];
 	value: number;
+
+	constructor({
+		statType,
+		parentValue,
+		selfValue,
+		baseValue,
+		appliedModifiers,
+		value,
+	}: {
+		statType: StatType;
+		parentValue: number;
+		selfValue: number;
+		baseValue: number;
+		appliedModifiers: CircumstanceModifier[];
+		value: number;
+	}) {
+		this.statType = statType;
+		this.parentValue = parentValue;
+		this.selfValue = selfValue;
+		this.baseValue = baseValue;
+		this.appliedModifiers = appliedModifiers;
+		this.value = value;
+	}
+
+	get description(): string {
+		return `${this.statType.name} = ${this.value} (${this.baseValue} + ${this.appliedModifiers.map(mod => `[${mod.description}]`).join(' + ')})`;
+	}
 }

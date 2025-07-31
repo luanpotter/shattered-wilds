@@ -1,9 +1,18 @@
 import { describe, it, expect } from 'vitest';
-import { ClassRole, FEATS, FeatStatModifier, Modifier, Race, RACE_DEFINITIONS, StatTree, StatType } from '../index.js';
+import {
+	ClassRole,
+	FEATS,
+	FeatStatModifier,
+	InherentModifier,
+	Race,
+	RACE_DEFINITIONS,
+	StatTree,
+	StatType,
+} from '../index.js';
 
 describe('StatTree', () => {
 	describe('modifier calculation', () => {
-		const compute = (values: Map<StatType, number>, modifiers: Modifier[] = []): Map<StatType, number> => {
+		const compute = (values: Map<StatType, number>, modifiers: InherentModifier[] = []): Map<StatType, number> => {
 			const props = Object.fromEntries(
 				Array.from(values.entries()).map(([stat, value]) => [stat.name, value.toString()]),
 			);
@@ -35,11 +44,11 @@ describe('StatTree', () => {
 			return map;
 		};
 
-		const racialModifier = (race: Race): Modifier[] => {
+		const racialModifier = (race: Race): InherentModifier[] => {
 			return RACE_DEFINITIONS[race].modifiers.map(m => FeatStatModifier.from(m).toModifier(FEATS.RacialModifier));
 		};
 
-		const classModifier = (role: ClassRole): Modifier[] => {
+		const classModifier = (role: ClassRole): InherentModifier[] => {
 			return FEATS.ClassSpecialization.computeEffects(role)
 				.filter(m => m instanceof FeatStatModifier)
 				.map(m => m.toModifier(FEATS.ClassSpecialization));

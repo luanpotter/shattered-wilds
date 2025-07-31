@@ -16,7 +16,7 @@ export {
 	ClassFlavor,
 	CLASS_ROLE_PRIMARY_ATTRIBUTE,
 } from '@shattered-wilds/commons';
-export type { StatModifier, Modifier } from '@shattered-wilds/commons';
+export type { StatModifier, InherentModifier as Modifier } from '@shattered-wilds/commons';
 
 export * from './ui';
 export * from './core';

@@ -102,9 +102,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 	};
 
 	const getSizeDisplay = (size: Size): string => {
-		const modifier = SizeModifiers[size];
-		const modifierStr = modifier >= 0 ? `+${modifier}` : `${modifier}`;
-		return `${size} (${modifierStr})`;
+		return SizeModifiers[size].description;
 	};
 
 	const handleOpenRaceSetup = () => {

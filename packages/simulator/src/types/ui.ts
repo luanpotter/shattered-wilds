@@ -1,4 +1,4 @@
-import { RollType } from './core';
+import { Check } from '@shattered-wilds/commons';
 
 export interface Point {
 	x: number;
@@ -41,9 +41,7 @@ export interface Window {
 	characterId?: string;
 	position: Point;
 	hexPosition?: HexPosition;
-	modifier?: number;
-	attributeName?: string;
-	initialRollType?: RollType;
+	check?: Check;
 	attackerId?: string;
 	defenderId?: string;
 	attackIndex?: number;

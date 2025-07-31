@@ -1,6 +1,6 @@
 import { CLASS_ROLE_PRIMARY_ATTRIBUTE, ClassDefinition, ClassFlavor, ClassRealm, ClassRole } from './classes.js';
 import { Race, RACE_DEFINITIONS, RacialStatModifier, Upbringing } from './races.js';
-import { generateModifierBonusString, Modifier, ModifierSource } from '../stats/stat-tree.js';
+import { InherentModifier, ModifierSource } from '../stats/stat-tree.js';
 import { StatType, StatTypeName } from '../stats/stat-type.js';
 
 export enum FeatType {
@@ -33,15 +33,13 @@ export class FeatStatModifier implements FeatEffect {
 		public value: number,
 	) {}
 
-	toModifier(feat: FeatDefinition<string | void>): Modifier {
-		const bonusString = generateModifierBonusString(this.statType, this.value);
-		return {
+	toModifier(feat: FeatDefinition<string | void>): InherentModifier {
+		return new InherentModifier({
 			source: ModifierSource.Feat,
 			name: feat.name,
-			description: `${bonusString} from feat ${feat.name}`,
 			statType: this.statType,
 			value: this.value,
-		};
+		});
 	}
 
 	static from(raceModifier: RacialStatModifier): FeatStatModifier {
