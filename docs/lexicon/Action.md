@@ -80,6 +80,8 @@ In situations where the attacker and the target are not at the same elevation, c
 
 These are actions that are used to defend against attacks. The most basic defense is the [[Basic_Defense]] reaction, which costs no [[Action_Point | AP]] and thus can be done in response to any applicable attack.
 
+Note that you can only use a single **Defense** reaction in response to each attack; so for example you cannot both [[Dodge]] and [[Shield_Block]] in response to the same attack - you must choose one way to react.
+
 <details>
   <summary>Defense Actions</summary>
   {% list "Action", "title", "type" "Defense" %}
