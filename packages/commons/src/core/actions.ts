@@ -139,7 +139,7 @@ export const ACTIONS = {
 		type: ActionType.Movement,
 		name: 'Drag Grappler',
 		description:
-			'Move 1 hex while [[Immobilized]], dragging your grappler with you. Requires a contested Muscles check against Stance with a -3 modifier. You can use more APs to move extra hexes.',
+			'Move 1 hex while [[Immobilized]], dragging your grappler with you. Requires a contested [[Muscles]] check against [[Stance]] with a `-3` [[Circumstance Modifier | CM]]. You can use more [[Action_Point | APs]] to move extra hexes.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1, variable: true })],
 	}),
 	[Action.Climb]: new ActionDefinition({
@@ -161,7 +161,7 @@ export const ACTIONS = {
 		key: Action.Swim,
 		type: ActionType.Movement,
 		name: 'Swim',
-		description: 'Swim up to `Speed / 2` (round up) hexes. You might need a [[Stamina]] Check to sustain.',
+		description: 'Swim up to `ceil(Speed / 2)` hexes. You might need a [[Stamina]] Check to sustain.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
 	}),
 	[Action.SideStep]: new ActionDefinition({
@@ -247,7 +247,7 @@ export const ACTIONS = {
 		type: ActionType.Attack,
 		name: 'Charge',
 		description:
-			'Move `Speed + 1` hexes in a straight line, followed by Melee Attack with [[Muscles]] instead of [[STR]]. This can be used for a "Tackle" if the "Shove" Attack Action is chosen, in which case a Circumstance Bonus of +3 is granted to the attacker.',
+			'Move `Speed + 1` hexes in a straight line, followed by Melee Attack with [[Muscles]] instead of [[STR]]. This can be used for a "tackle" if the [[Shove]] Attack Action is chosen, in which case a `+3` [[Circumstance Modifier | CM]] is granted to the attacker.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 2 })],
 		traits: [Trait.Melee],
 	}),
@@ -263,7 +263,7 @@ export const ACTIONS = {
 		key: Action.Disarm,
 		type: ActionType.Attack,
 		name: 'Disarm',
-		description: 'Melee only; Special Attack against Muscles or Finesse. Requires at least one Shift to succeed.',
+		description: 'Special Attack against [[Muscles]] or [[Finesse]]. Requires at least one **Shift** to succeed.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 2 })],
 		traits: [Trait.Melee, Trait.Concentrate],
 	}),
@@ -389,11 +389,11 @@ export const ACTIONS = {
 		type: ActionType.Support,
 		name: 'Taunt',
 		description:
-			'Spend 1 [[Focus_Point | FP]]; roll a [[Presence]] Check against targets [[Resolve]] to persuade an enemy attempting to **Melee Attack** a different target to instead attack you (when you are also in range and would be a valid target).',
+			'Spend 1 [[Spirit_Point | SP]]; roll a [[Presence]] Check against targets [[Resolve]] to persuade an enemy attempting to **Melee Attack** a different target to instead attack you (when you are also in range and would be a valid target).',
 		traits: [Trait.Reaction, Trait.Concentrate],
 		costs: [
 			new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 }),
-			new ActionCost({ resource: ActionCostResource.FocusPoint, amount: 1 }),
+			new ActionCost({ resource: ActionCostResource.SpiritPoint, amount: 1 }),
 		],
 	}),
 
