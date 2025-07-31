@@ -1,5 +1,6 @@
 export * from './stats/stat-type.js';
 export * from './stats/stat-tree.js';
+export * from './traits.js';
 export * from './size.js';
 export * from './races.js';
 export * from './classes.js';

@@ -4,21 +4,14 @@ Each character has a limited number of [[Action_Point | Action Points]] (AP) per
 
 ## Traits
 
-### Concentrate and Channeling
+Traits are keywords added to actions to describe some specific aspect of their nature.
 
-TODO: desc.
+<details>
+  <summary>Traits</summary>
+  {% list "Trait", "title", "description" %}
+</details>
 
-### Melee and Ranged
-
-Describe Attack Actions that can only be used through a Melee or Ranged attack.
-
-### Reaction
-
-These are actions that can be taken at any time in combat, often in response to a specific event or situation. Unlike other systems, a character can take as many Reactions as they want, as long as they have the [[Action_Point | AP]] to afford them.
-
-Since your **AP** is replenished at the end of your turn, you do not need to decide whether to "save" **AP** for reactions.
-
-## Action Types
+## Types
 
 For simplicity, actions are categorized into 4 types: Movement, Attack, Defense, Support, Luck and Meta. This is mostly for organization rather than mechanical purposes.
 

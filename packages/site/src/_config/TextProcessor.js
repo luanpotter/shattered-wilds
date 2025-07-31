@@ -69,7 +69,10 @@ export class TextProcessor {
 				'<span class="item-metadata">' +
 				metadata
 					.map(tag => {
-						return `<span class="${tag.cssClass}">${tag.title}${tag.value !== undefined ? `: ${tag.value}` : ''}</span>`;
+						const isKeyword = tag.value === undefined;
+						const title = isKeyword ? `<a href="/wiki/${tag.key}/">${tag.title}</a>` : tag.title;
+						const value = isKeyword ? '' : `: ${tag.value}`;
+						return `<span class="${tag.cssClass}">${title}${value}</span>`;
 					})
 					.join(' ') +
 				'</span> '

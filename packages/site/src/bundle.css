@@ -337,7 +337,8 @@ div.pagination p {
 	color: #ff6b6b;
 }
 
-.metadata-trait {
+.metadata-trait,
+.metadata-trait a {
 	color: #6bff6b;
 }
 

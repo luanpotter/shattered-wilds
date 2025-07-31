@@ -9,6 +9,7 @@ import { actions } from './src/_config/data/actions.js';
 import { stats } from './src/_config/data/stats.js';
 import { feats } from './src/_config/data/feats.js';
 import { classes } from './src/_config/data/classes.js';
+import { traits } from './src/_config/data/traits.js';
 import { parseLexicon } from './src/_config/lexicon.js';
 import { TextProcessor } from './src/_config/TextProcessor.js';
 
@@ -28,8 +29,9 @@ export default function (eleventyConfig) {
 	eleventyConfig.addGlobalData('stats', stats);
 	eleventyConfig.addGlobalData('feats', feats);
 	eleventyConfig.addGlobalData('classes', classes);
+	eleventyConfig.addGlobalData('traits', traits);
 
-	const wikiPages = [...lexiconFiles, ...actions, ...stats, ...feats, ...classes]
+	const wikiPages = [...lexiconFiles, ...actions, ...stats, ...feats, ...classes, ...traits]
 		.filter(e => e.slug)
 		.sort((a, b) => {
 			if (!a.title) {

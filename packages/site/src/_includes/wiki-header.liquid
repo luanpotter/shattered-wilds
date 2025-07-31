@@ -8,7 +8,7 @@
 					{% if meta.value %}
 						<span class='{{ meta.cssClass }}'>{{ meta.title }}: {{ meta.value }}</span>
 					{% else %}
-						<span class='{{ meta.cssClass }}'>{{ meta.title }}</span>
+						<span class='{{ meta.cssClass }}'><a href='/wiki/{{ meta.key }}/'>{{ meta.title }}</a></span>
 					{% endif %}
 				{% endfor %}
 			</div>
