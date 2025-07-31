@@ -338,7 +338,8 @@ export const ACTIONS = {
 		key: Action.Dodge,
 		type: ActionType.Defense,
 		name: 'Dodge',
-		description: 'Defend Body against a Basic Attack with an [[Evasiveness]] Check and a `+3` [[Circumstance Modifier | CM]] instead.',
+		description:
+			'Defend Body against a Basic Attack with an [[Evasiveness]] Check and a `+3` [[Circumstance Modifier | CM]] instead.',
 		traits: [ActionTrait.Reaction],
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
 	}),
