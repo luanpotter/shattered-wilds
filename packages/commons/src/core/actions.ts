@@ -71,7 +71,7 @@ export enum DerivedStatType {
 
 export class ActionValueParameterFactor {
 	coefficient: number;
-	variable: StatType | DerivedStatType;
+	variable: StatType | DerivedStatType | undefined;
 	round: 'ceil' | 'floor' | 'round' | undefined;
 
 	constructor({
@@ -80,7 +80,7 @@ export class ActionValueParameterFactor {
 		round,
 	}: {
 		coefficient?: number;
-		variable: StatType | DerivedStatType;
+		variable?: StatType | DerivedStatType;
 		round?: 'ceil' | 'floor' | 'round';
 	}) {
 		this.coefficient = coefficient ?? 1;
@@ -89,6 +89,9 @@ export class ActionValueParameterFactor {
 	}
 
 	private computeValue(statTree: StatTree): number {
+		if (!this.variable) {
+			return 1;
+		}
 		if (this.variable === 'Movement') {
 			// TODO(luan): support derived stats
 			return statTree.valueOf(StatType.Agility);
@@ -245,16 +248,16 @@ export const ACTIONS = {
 			'Move up to `4 * Movement` hexes. Make a [[Stamina]] Check DC `10 + hexes moved`, or pay 1 [[Vitality_Point | VP]].',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 3 })],
 		parameters: [
-			new ActionValueParameter({
-				name: 'Distance',
-				unit: ActionValueUnit.Hex,
-				formula: [new ActionValueParameterFactor({ coefficient: 4, variable: DerivedStatType.Movement })],
-			}),
 			new ActionCheckParameter({
 				name: 'Stamina',
 				mode: CheckMode.Static,
 				nature: CheckNature.Active,
 				statType: StatType.Stamina,
+			}),
+			new ActionValueParameter({
+				name: 'Distance',
+				unit: ActionValueUnit.Hex,
+				formula: [new ActionValueParameterFactor({ coefficient: 4, variable: DerivedStatType.Movement })],
 			}),
 		],
 	}),
@@ -277,6 +280,11 @@ export const ACTIONS = {
 					value: -3,
 				}),
 			}),
+			new ActionValueParameter({
+				name: 'Distance',
+				unit: ActionValueUnit.Hex,
+				formula: [new ActionValueParameterFactor({ coefficient: 1 })],
+			}),
 		],
 	}),
 	[Action.Climb]: new ActionDefinition({
@@ -291,6 +299,11 @@ export const ACTIONS = {
 				mode: CheckMode.Static,
 				nature: CheckNature.Active,
 				statType: StatType.Lift,
+			}),
+			new ActionValueParameter({
+				name: 'Distance',
+				unit: ActionValueUnit.Hex,
+				formula: [new ActionValueParameterFactor({ coefficient: 1 })],
 			}),
 		],
 	}),
@@ -307,6 +320,11 @@ export const ACTIONS = {
 				mode: CheckMode.Contested,
 				nature: CheckNature.Active,
 				statType: StatType.Finesse,
+			}),
+			new ActionValueParameter({
+				name: 'Distance',
+				unit: ActionValueUnit.Hex,
+				formula: [new ActionValueParameterFactor({ coefficient: 2 })],
 			}),
 		],
 	}),
@@ -333,13 +351,13 @@ export const ACTIONS = {
 		description:
 			'Move 1 hex in any direction, ignoring **Difficult Terrain**. This does not trigger [[Opportunity_Attack | Opportunity Attacks]].',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
-	}),
-	[Action.RideMount]: new ActionDefinition({
-		key: Action.RideMount,
-		type: ActionType.Movement,
-		name: 'Ride Mount',
-		description: 'WIP: Mounted Combat Rules',
-		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 2 })],
+		parameters: [
+			new ActionValueParameter({
+				name: 'Distance',
+				unit: ActionValueUnit.Hex,
+				formula: [new ActionValueParameterFactor({ coefficient: 1 })],
+			}),
+		],
 	}),
 	[Action.Sneak]: new ActionDefinition({
 		key: Action.Sneak,
@@ -348,6 +366,23 @@ export const ACTIONS = {
 		description:
 			'Move `Movement - 1` hexes making an additional [[Finesse]] check. Any other participant for which you are concealed can make a contested [[Awareness]] check to spot you. Typically used after taking the [[Hide]] action.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
+		parameters: [
+			new ActionValueParameter({
+				name: 'Distance',
+				unit: ActionValueUnit.Hex,
+				formula: [
+					new ActionValueParameterFactor({ coefficient: 1, variable: DerivedStatType.Movement }),
+					new ActionValueParameterFactor({ coefficient: -1 }),
+				],
+			}),
+		],
+	}),
+	[Action.RideMount]: new ActionDefinition({
+		key: Action.RideMount,
+		type: ActionType.Movement,
+		name: 'Ride Mount',
+		description: 'WIP: Mounted Combat Rules',
+		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 2 })],
 	}),
 
 	// Attack

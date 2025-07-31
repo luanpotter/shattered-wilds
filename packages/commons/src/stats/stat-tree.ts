@@ -7,6 +7,11 @@ export enum ModifierSource {
 	Circumstance = 'Circumstance',
 }
 
+const modifierToString = (value: number): string => {
+	const sign = value >= 0 ? '+' : '-';
+	return `${sign}${Math.abs(value)}`;
+};
+
 export class CircumstanceModifier {
 	source: ModifierSource;
 	name: string;
@@ -19,9 +24,7 @@ export class CircumstanceModifier {
 	}
 
 	get bonusString(): string {
-		const value = this.value;
-		const sign = value >= 0 ? '+' : '-';
-		return `${sign}${Math.abs(value)}`;
+		return modifierToString(this.value);
 	}
 
 	get description(): string {
@@ -286,7 +289,19 @@ export class StatModifier {
 		this.value = value;
 	}
 
+	get baseValueString(): string {
+		return modifierToString(this.baseValue);
+	}
+
+	get valueString(): string {
+		return modifierToString(this.value);
+	}
+
 	get description(): string {
-		return `${this.statType.name} = ${this.value} (${this.baseValue} + ${this.appliedModifiers.map(mod => `[${mod.description}]`).join(' + ')})`;
+		const breakdown =
+			this.appliedModifiers.length > 0
+				? [this.baseValue, ...this.appliedModifiers.map(mod => `[${mod.description}]`)].join(' + ')
+				: undefined;
+		return `${this.statType.name} = ${this.value}${breakdown ? ` (${breakdown})` : ''}`;
 	}
 }

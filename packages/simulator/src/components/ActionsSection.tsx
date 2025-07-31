@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
 import { FaShield } from 'react-icons/fa6';
 
-import { useStore } from '../store';
 import { Character, CharacterSheet, Weapon } from '../types';
 
 import Block from './shared/Block';
@@ -24,7 +23,8 @@ const ValueParameter: React.FC<ValueParameterProps> = ({ parameter, statTree }) 
 		.map(factor => {
 			const factorValue = factor.compute(statTree);
 			const roundText = factor.round ? ` (${factor.round})` : '';
-			return `${factor.coefficient} × ${factor.variable} = ${factorValue}${roundText}`;
+			const variableText = factor.variable ? ` × ${factor.variable}` : '';
+			return `${factor.coefficient}${variableText} = ${factorValue}${roundText}`;
 		})
 		.join(' + ');
 
@@ -61,7 +61,6 @@ interface CheckParameterProps {
 const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree }) => {
 	const circumstanceModifiers = parameter.circumstanceModifier ? [parameter.circumstanceModifier] : [];
 	const statModifier = statTree.getModifier(parameter.statType, circumstanceModifiers);
-	const totalModifier = statModifier.value;
 
 	const tooltipText = [
 		`Stat: ${parameter.statType.name}`,
@@ -82,25 +81,34 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree }) 
 				padding: '8px',
 				border: '1px solid var(--text)',
 				borderRadius: '4px',
-				backgroundColor: 'var(--background-alt)',
+				backgroundColor: 'var(--background)',
 				minWidth: '100px',
 				textAlign: 'center',
 				cursor: 'pointer',
 			}}
 			title={tooltipText}
 		>
-			<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)', marginBottom: '2px' }}>{parameter.name}</div>
-			<div style={{ fontSize: '1.1em', fontWeight: 'bold', marginBottom: '2px' }}>
-				{totalModifier >= 0 ? '+' : ''}
-				{totalModifier}
+			<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)', marginBottom: '2px' }}>
+				{parameter.name} ({statModifier.baseValueString})
 			</div>
-			<FaDice size={12} style={{ color: 'var(--text-secondary)' }} />
+			<div
+				style={{
+					fontSize: '1.1em',
+					fontWeight: 'bold',
+					marginBottom: '2px',
+					display: 'flex',
+					alignItems: 'center',
+					gap: '2px',
+				}}
+			>
+				{statModifier.valueString}
+				<FaDice size={12} style={{ color: 'var(--text-secondary)' }} />
+			</div>
 		</div>
 	);
 };
 
 export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => {
-	const editMode = useStore(state => state.editMode);
 	const [selectedWeapon, setSelectedWeapon] = useState<Weapon | null>(null);
 	const [activeTab, setActiveTab] = useState<ActionType>(ActionType.Movement);
 
@@ -266,10 +274,6 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 							})
 							.join(', ');
 
-						const actionModifier = undefined; // TODO(luan): compute action modifier
-						const displayName = actionModifier ? `${action.name} (${actionModifier})` : action.name;
-						const isClickable = false; // TODO(luan): add action modals
-
 						return (
 							<div key={action.key} style={{ display: 'flex', gap: '2px' }}>
 								<div
@@ -281,10 +285,10 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 										padding: '12px',
 										border: '1px solid var(--text)',
 										borderRadius: '4px',
-										backgroundColor: editMode ? 'var(--background-alt)' : 'var(--background)',
-										opacity: editMode ? 0.7 : 1,
+										backgroundColor: 'var(--background)',
 										minWidth: '120px',
 										textAlign: 'center',
+										cursor: 'pointer',
 									}}
 								>
 									<div style={{ fontSize: '1.2em', color: 'var(--text-secondary)' }}>{costs}</div>
@@ -296,14 +300,12 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 										padding: '12px',
 										border: '1px solid var(--text)',
 										borderRadius: '4px',
-										backgroundColor: editMode ? 'var(--background-alt)' : 'var(--background)',
-										cursor: isClickable ? 'pointer' : 'default',
-										opacity: editMode ? 0.7 : 1,
+										backgroundColor: 'var(--background-alt)',
 									}}
 								>
 									<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
 										<div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-											<span style={{ fontWeight: 'bold' }}>{displayName}</span>
+											<span style={{ fontWeight: 'bold' }}>{action.name}</span>
 											{action.traits.map(trait => (
 												<span key={trait} className='trait'>
 													{trait}
