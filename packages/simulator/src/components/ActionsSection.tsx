@@ -1,4 +1,4 @@
-import { ACTIONS, ActionType } from '@shattered-wilds/commons';
+import { ACTIONS, ActionType, ActionValueParameter, ActionCheckParameter, StatTree } from '@shattered-wilds/commons';
 import React, { useEffect, useState } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
 import { FaShield } from 'react-icons/fa6';
@@ -13,12 +13,99 @@ interface ActionsSectionProps {
 	character: Character;
 }
 
+interface ValueParameterProps {
+	parameter: ActionValueParameter;
+	statTree: StatTree;
+}
+
+const ValueParameter: React.FC<ValueParameterProps> = ({ parameter, statTree }) => {
+	const computedValue = parameter.compute(statTree);
+	const tooltipText = parameter.formula
+		.map(factor => {
+			const factorValue = factor.compute(statTree);
+			const roundText = factor.round ? ` (${factor.round})` : '';
+			return `${factor.coefficient} × ${factor.variable} = ${factorValue}${roundText}`;
+		})
+		.join(' + ');
+
+	return (
+		<div
+			style={{
+				display: 'flex',
+				flexDirection: 'column',
+				alignItems: 'center',
+				justifyContent: 'center',
+				padding: '8px',
+				border: '1px solid var(--text)',
+				borderRadius: '4px',
+				backgroundColor: 'var(--background-alt)',
+				minWidth: '100px',
+				textAlign: 'center',
+				cursor: 'help',
+			}}
+			title={tooltipText}
+		>
+			<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)', marginBottom: '2px' }}>{parameter.name}</div>
+			<div style={{ fontSize: '1.1em', fontWeight: 'bold' }}>
+				{computedValue} {parameter.unit}
+			</div>
+		</div>
+	);
+};
+
+interface CheckParameterProps {
+	parameter: ActionCheckParameter;
+	statTree: StatTree;
+}
+
+const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree }) => {
+	const circumstanceModifiers = parameter.circumstanceModifier ? [parameter.circumstanceModifier] : [];
+	const statModifier = statTree.getModifier(parameter.statType, circumstanceModifiers);
+	const totalModifier = statModifier.value;
+
+	const tooltipText = [
+		`Stat: ${parameter.statType.name}`,
+		statModifier.description,
+		`Check type: ${parameter.mode}-${parameter.nature}`,
+		parameter.targetDc && `Target DC: ${parameter.targetDc}`,
+	]
+		.filter(Boolean)
+		.join('\n');
+
+	return (
+		<div
+			style={{
+				display: 'flex',
+				flexDirection: 'column',
+				alignItems: 'center',
+				justifyContent: 'center',
+				padding: '8px',
+				border: '1px solid var(--text)',
+				borderRadius: '4px',
+				backgroundColor: 'var(--background-alt)',
+				minWidth: '100px',
+				textAlign: 'center',
+				cursor: 'pointer',
+			}}
+			title={tooltipText}
+		>
+			<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)', marginBottom: '2px' }}>{parameter.name}</div>
+			<div style={{ fontSize: '1.1em', fontWeight: 'bold', marginBottom: '2px' }}>
+				{totalModifier >= 0 ? '+' : ''}
+				{totalModifier}
+			</div>
+			<FaDice size={12} style={{ color: 'var(--text-secondary)' }} />
+		</div>
+	);
+};
+
 export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => {
 	const editMode = useStore(state => state.editMode);
 	const [selectedWeapon, setSelectedWeapon] = useState<Weapon | null>(null);
 	const [activeTab, setActiveTab] = useState<ActionType>(ActionType.Movement);
 
 	const sheet = CharacterSheet.from(character.props);
+	const tree = sheet.getStatTree();
 	const weapons = sheet.equipment.items.filter(item => item instanceof Weapon) as Weapon[];
 
 	// Auto-select first weapon if available
@@ -101,7 +188,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 		if (actions.length === 0) return null;
 
 		return (
-			<div>
+			<div key={type}>
 				{/* Type-specific info */}
 				{type === ActionType.Movement && (
 					<>
@@ -162,7 +249,6 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 						const costs = action.costs
 							.map(cost => {
 								let displayName: string;
-								// TODO(luan): generify resources
 								if (cost.resource === 'ActionPoint') {
 									displayName = 'AP';
 								} else if (cost.resource === 'VitalityPoint') {
@@ -185,34 +271,59 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 						const isClickable = false; // TODO(luan): add action modals
 
 						return (
-							<div
-								key={action.key}
-								style={{
-									padding: '12px',
-									border: '1px solid var(--text)',
-									borderRadius: '4px',
-									backgroundColor: editMode ? 'var(--background-alt)' : 'var(--background)',
-									cursor: isClickable ? 'pointer' : 'default',
-									opacity: editMode ? 0.7 : 1,
-								}}
-								tabIndex={isClickable ? 0 : -1}
-								role={isClickable ? 'button' : undefined}
-								aria-label={isClickable ? `Use ${action.name} action` : undefined}
-							>
-								<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-									<div style={{ display: 'flex', gap: '4px' }}>
-										<span style={{ fontWeight: 'bold' }}>{displayName}</span>
-										{action.traits.map(trait => (
-											<span key={trait} className='trait'>
-												{trait}
-											</span>
-										))}
+							<div key={action.key} style={{ display: 'flex', gap: '2px' }}>
+								<div
+									style={{
+										display: 'flex',
+										flexDirection: 'column',
+										alignItems: 'center',
+										justifyContent: 'center',
+										padding: '12px',
+										border: '1px solid var(--text)',
+										borderRadius: '4px',
+										backgroundColor: editMode ? 'var(--background-alt)' : 'var(--background)',
+										opacity: editMode ? 0.7 : 1,
+										minWidth: '120px',
+										textAlign: 'center',
+									}}
+								>
+									<div style={{ fontSize: '1.2em', color: 'var(--text-secondary)' }}>{costs}</div>
+								</div>
+
+								<div
+									style={{
+										flex: 1,
+										padding: '12px',
+										border: '1px solid var(--text)',
+										borderRadius: '4px',
+										backgroundColor: editMode ? 'var(--background-alt)' : 'var(--background)',
+										cursor: isClickable ? 'pointer' : 'default',
+										opacity: editMode ? 0.7 : 1,
+									}}
+								>
+									<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+										<div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+											<span style={{ fontWeight: 'bold' }}>{displayName}</span>
+											{action.traits.map(trait => (
+												<span key={trait} className='trait'>
+													{trait}
+												</span>
+											))}
+										</div>
 									</div>
-									<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)' }}>{costs}</div>
+									<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)' }}>
+										<RichText>{action.description}</RichText>
+									</div>
 								</div>
-								<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)' }}>
-									<RichText>{action.description}</RichText>
-								</div>
+
+								{action.parameters.map((parameter, index) => {
+									if (parameter instanceof ActionValueParameter) {
+										return <ValueParameter key={index} parameter={parameter} statTree={tree} />;
+									} else if (parameter instanceof ActionCheckParameter) {
+										return <CheckParameter key={index} parameter={parameter} statTree={tree} />;
+									}
+									return null;
+								})}
 							</div>
 						);
 					})}

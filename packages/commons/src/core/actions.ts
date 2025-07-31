@@ -1,3 +1,6 @@
+import { CheckMode, CheckNature } from '../stats/check.js';
+import { CircumstanceModifier, ModifierSource, StatTree } from '../stats/stat-tree.js';
+import { StatType } from '../stats/stat-type.js';
 import { Trait } from './traits.js';
 
 export enum ActionType {
@@ -37,6 +40,103 @@ export class ActionCost {
 	}
 }
 
+export enum ActionValueUnit {
+	Hex = 'Hex',
+	Modifier = 'Modifier',
+}
+
+export interface ActionParameter {
+	name: string;
+}
+
+export class ActionValueParameter implements ActionParameter {
+	name: string;
+	unit: ActionValueUnit;
+	formula: ActionValueParameterFactor[];
+
+	constructor({ name, unit, formula }: { name: string; unit: ActionValueUnit; formula: ActionValueParameterFactor[] }) {
+		this.name = name;
+		this.unit = unit;
+		this.formula = formula;
+	}
+
+	compute(statTree: StatTree): number {
+		return this.formula.reduce((acc, factor) => acc + factor.compute(statTree), 0);
+	}
+}
+
+export enum DerivedStatType {
+	Movement = 'Movement',
+}
+
+export class ActionValueParameterFactor {
+	coefficient: number;
+	variable: StatType | DerivedStatType;
+	round: 'ceil' | 'floor' | 'round' | undefined;
+
+	constructor({
+		coefficient,
+		variable,
+		round,
+	}: {
+		coefficient?: number;
+		variable: StatType | DerivedStatType;
+		round?: 'ceil' | 'floor' | 'round';
+	}) {
+		this.coefficient = coefficient ?? 1;
+		this.variable = variable;
+		this.round = round ?? undefined;
+	}
+
+	private computeValue(statTree: StatTree): number {
+		if (this.variable === 'Movement') {
+			// TODO(luan): support derived stats
+			return statTree.valueOf(StatType.Agility);
+		}
+		return statTree.valueOf(this.variable);
+	}
+
+	compute(statTree: StatTree): number {
+		const value = this.coefficient * this.computeValue(statTree);
+		if (this.round) {
+			return Math[this.round](value);
+		}
+		return value;
+	}
+}
+
+export class ActionCheckParameter implements ActionParameter {
+	name: string;
+	mode: CheckMode;
+	nature: CheckNature;
+	statType: StatType;
+	circumstanceModifier: CircumstanceModifier | undefined;
+	targetDc: number | undefined;
+
+	constructor({
+		name,
+		mode,
+		nature,
+		statType,
+		circumstanceModifier,
+		targetDc,
+	}: {
+		name: string;
+		mode: CheckMode;
+		nature: CheckNature;
+		statType: StatType;
+		circumstanceModifier?: CircumstanceModifier;
+		targetDc?: number;
+	}) {
+		this.name = name;
+		this.mode = mode;
+		this.nature = nature;
+		this.statType = statType;
+		this.circumstanceModifier = circumstanceModifier ?? undefined;
+		this.targetDc = targetDc ?? undefined;
+	}
+}
+
 export class ActionDefinition {
 	key: Action;
 	type: ActionType;
@@ -44,6 +144,7 @@ export class ActionDefinition {
 	description: string;
 	costs: ActionCost[];
 	traits: Trait[];
+	parameters: ActionParameter[];
 
 	constructor({
 		key,
@@ -52,6 +153,7 @@ export class ActionDefinition {
 		description,
 		costs,
 		traits = [],
+		parameters = [],
 	}: {
 		key: Action;
 		type: ActionType;
@@ -59,6 +161,7 @@ export class ActionDefinition {
 		description: string;
 		costs: ActionCost[];
 		traits?: Trait[];
+		parameters?: ActionParameter[];
 	}) {
 		this.key = key;
 		this.type = type;
@@ -66,6 +169,7 @@ export class ActionDefinition {
 		this.description = description;
 		this.costs = costs;
 		this.traits = traits;
+		this.parameters = parameters;
 	}
 }
 
@@ -125,14 +229,34 @@ export const ACTIONS = {
 		name: 'Stride',
 		description: 'Enables you to move up to [[Movement]] hexes. Movement can be saved for later.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
+		parameters: [
+			new ActionValueParameter({
+				name: 'Distance',
+				unit: ActionValueUnit.Hex,
+				formula: [new ActionValueParameterFactor({ variable: DerivedStatType.Movement })],
+			}),
+		],
 	}),
 	[Action.Run]: new ActionDefinition({
 		key: Action.Run,
 		type: ActionType.Movement,
 		name: 'Run',
 		description:
-			'Move up to `4 * Speed` hexes. Make a [[Stamina]] Check DC `10 + hexes moved`, or pay 1 [[Vitality_Point | VP]].',
+			'Move up to `4 * Movement` hexes. Make a [[Stamina]] Check DC `10 + hexes moved`, or pay 1 [[Vitality_Point | VP]].',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 3 })],
+		parameters: [
+			new ActionValueParameter({
+				name: 'Distance',
+				unit: ActionValueUnit.Hex,
+				formula: [new ActionValueParameterFactor({ coefficient: 4, variable: DerivedStatType.Movement })],
+			}),
+			new ActionCheckParameter({
+				name: 'Stamina',
+				mode: CheckMode.Static,
+				nature: CheckNature.Active,
+				statType: StatType.Stamina,
+			}),
+		],
 	}),
 	[Action.DragGrappler]: new ActionDefinition({
 		key: Action.DragGrappler,
@@ -141,6 +265,19 @@ export const ACTIONS = {
 		description:
 			'Move 1 hex while [[Immobilized]], dragging your grappler with you. Requires a contested [[Muscles]] check against [[Stance]] with a `-3` [[Circumstance Modifier | CM]]. You can use more [[Action_Point | APs]] to move extra hexes.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1, variable: true })],
+		parameters: [
+			new ActionCheckParameter({
+				name: 'Muscles',
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StatType.Muscles,
+				circumstanceModifier: new CircumstanceModifier({
+					source: ModifierSource.Circumstance,
+					name: 'Drag Grappler',
+					value: -3,
+				}),
+			}),
+		],
 	}),
 	[Action.Climb]: new ActionDefinition({
 		key: Action.Climb,
@@ -148,21 +285,46 @@ export const ACTIONS = {
 		name: 'Climb',
 		description: 'Climb one reasonable ledge (moving one hex). Harder climbs might require a [[Lift]] Check.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
+		parameters: [
+			new ActionCheckParameter({
+				name: 'Lift',
+				mode: CheckMode.Static,
+				nature: CheckNature.Active,
+				statType: StatType.Lift,
+			}),
+		],
 	}),
 	[Action.StumbleThrough]: new ActionDefinition({
 		key: Action.StumbleThrough,
 		type: ActionType.Movement,
 		name: 'Stumble Through',
 		description:
-			"Contested [[Finesse]] check against opponent's [[Stance]]. Move past one enemy to an adjacent hex, as long as your `Speed` is 2 or more.  Apply a `-[Size Modifier]` [[Circumstance Modifier | CM]] to both Checks if they don't match.",
+			"Contested [[Finesse]] check against opponent's [[Stance]]. Move past one enemy to an adjacent hex, as long as your `Movement` is 2 or more.  Apply a `-[Size Modifier]` [[Circumstance Modifier | CM]] to both Checks if they don't match.",
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
+		parameters: [
+			new ActionCheckParameter({
+				name: 'Finesse',
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StatType.Finesse,
+			}),
+		],
 	}),
 	[Action.Swim]: new ActionDefinition({
 		key: Action.Swim,
 		type: ActionType.Movement,
 		name: 'Swim',
-		description: 'Swim up to `ceil(Speed / 2)` hexes. You might need a [[Stamina]] Check to sustain.',
+		description: 'Swim up to `ceil(Movement / 2)` hexes. You might need a [[Stamina]] Check to sustain.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
+		parameters: [
+			new ActionValueParameter({
+				name: 'Distance',
+				unit: ActionValueUnit.Hex,
+				formula: [
+					new ActionValueParameterFactor({ coefficient: 0.5, variable: DerivedStatType.Movement, round: 'ceil' }),
+				],
+			}),
+		],
 	}),
 	[Action.SideStep]: new ActionDefinition({
 		key: Action.SideStep,
@@ -184,7 +346,7 @@ export const ACTIONS = {
 		type: ActionType.Movement,
 		name: 'Sneak',
 		description:
-			'Move `Speed - 1` hexes making an additional [[Finesse]] check. Any other participant for which you are concealed can make a contested [[Awareness]] check to spot you. Typically used after taking the [[Hide]] action.',
+			'Move `Movement - 1` hexes making an additional [[Finesse]] check. Any other participant for which you are concealed can make a contested [[Awareness]] check to spot you. Typically used after taking the [[Hide]] action.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
 	}),
 
@@ -247,7 +409,7 @@ export const ACTIONS = {
 		type: ActionType.Attack,
 		name: 'Charge',
 		description:
-			'Move `Speed + 1` hexes in a straight line, followed by Melee Attack with [[Muscles]] instead of [[STR]]. This can be used for a "tackle" if the [[Shove]] Attack Action is chosen, in which case a `+3` [[Circumstance Modifier | CM]] is granted to the attacker.',
+			'Move `Movement + 1` hexes in a straight line, followed by Melee Attack with [[Muscles]] instead of [[STR]]. This can be used for a "tackle" if the [[Shove]] Attack Action is chosen, in which case a `+3` [[Circumstance Modifier | CM]] is granted to the attacker.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 2 })],
 		traits: [Trait.Melee],
 	}),
