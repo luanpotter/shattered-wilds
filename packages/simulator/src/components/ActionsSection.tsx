@@ -200,7 +200,14 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 								aria-label={isClickable ? `Use ${action.name} action` : undefined}
 							>
 								<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-									<span style={{ fontWeight: 'bold' }}>{displayName}</span>
+									<div style={{ display: 'flex', gap: '4px' }}>
+										<span style={{ fontWeight: 'bold' }}>{displayName}</span>
+										{action.traits.map(trait => (
+											<span key={trait} className='trait'>
+												{trait}
+											</span>
+										))}
+									</div>
 									<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)' }}>{costs}</div>
 								</div>
 								<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)' }}>
