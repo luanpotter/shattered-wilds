@@ -1,4 +1,4 @@
-import { StatModifier } from '../stats/stat-tree.js';
+import { StatModifier } from './stat-tree.js';
 
 export enum CheckMode {
 	Static = 'Static',

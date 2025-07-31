@@ -6,143 +6,23 @@ import {
 	StatType,
 	Size,
 	SizeModifiers,
-	Race,
-	Upbringing,
 	RACE_DEFINITIONS,
-	CharacterClass,
-	CLASS_DEFINITIONS,
 	FeatInfo,
-	FEATS,
 	FeatType,
-	FeatCategory,
 	FeatStatModifier,
 	FeatSlot,
 	Feat,
-	FeatSource,
-	StaticFeatSource,
-	ClassDefinition,
 	StatModifier,
 	Check,
 	CheckNature,
 	CheckMode,
 	CircumstanceModifier,
+	RaceInfo,
+	ClassInfo,
 } from '@shattered-wilds/commons';
 
 import { DerivedStat, BasicAttack, DefenseType, DEFENSE_TYPE_PROPERTIES } from './core';
 import { Equipment, Armor, Shield, Weapon } from './equipment';
-
-export class RaceInfo {
-	primaryRace: Race;
-	halfRace: Race | null;
-	combineHalfRaceStats: boolean;
-	upbringing: Upbringing;
-	upbringingPlusModifier: StatType;
-	upbringingMinusModifier: StatType;
-
-	constructor(
-		primaryRace: Race,
-		upbringing: Upbringing,
-		halfRace: Race | null = null,
-		combineHalfRaceStats: boolean = false,
-		upbringingPlusModifier: StatType = StatType.INT,
-		upbringingMinusModifier: StatType = StatType.WIS,
-	) {
-		this.primaryRace = primaryRace;
-		this.halfRace = halfRace;
-		this.combineHalfRaceStats = combineHalfRaceStats;
-		this.upbringing = upbringing;
-		this.upbringingPlusModifier = upbringingPlusModifier;
-		this.upbringingMinusModifier = upbringingMinusModifier;
-	}
-
-	static from(props: Record<string, string>): RaceInfo {
-		const primaryRace = (props['race'] as Race) ?? Race.Human;
-		const halfRace = props['race.half'] ? (props['race.half'] as Race) : null;
-		const combineHalfRaceStats = props['race.half.combined-stats'] === 'true';
-		const upbringing = (props['upbringing'] as Upbringing) ?? Upbringing.Urban;
-		const upbringingPlusModifier = StatType.fromString(props['upbringing.plus'], StatType.INT);
-		const upbringingMinusModifier = StatType.fromString(props['upbringing.minus'], StatType.WIS);
-
-		return new RaceInfo(
-			primaryRace,
-			upbringing,
-			halfRace,
-			combineHalfRaceStats,
-			upbringingPlusModifier,
-			upbringingMinusModifier,
-		);
-	}
-
-	private getRacialFeatSources(): FeatSource[] {
-		return [StaticFeatSource.Race, StaticFeatSource.Upbringing, this.primaryRace, this.upbringing];
-	}
-
-	// Get the core feats that should be assigned to this race/upbringing combination
-	getCoreFeats(): FeatInfo<string | void>[] {
-		const racialFeatCategories = [FeatCategory.Racial, FeatCategory.Upbringing];
-		const racialFeatSources = this.getRacialFeatSources();
-		const racialFeats = Object.values(FEATS)
-			.filter(feat => feat.type === FeatType.Core && racialFeatCategories.includes(feat.category))
-			.filter(feat => racialFeatSources.includes(feat.source));
-
-		const parameters = {
-			race: this.primaryRace,
-			upbringing: this.upbringing,
-			'upbringing-favored-modifier': this.upbringingPlusModifier.name,
-			'upbringing-disfavored-modifier': this.upbringingMinusModifier.name,
-		};
-		return FeatInfo.hydrateFeatDefinitions(racialFeats, parameters);
-	}
-
-	toString(): string {
-		if (this.halfRace) {
-			return `Half ${this.primaryRace} / Half ${this.halfRace}`;
-		}
-		return this.primaryRace;
-	}
-}
-
-export class ClassInfo {
-	characterClass: CharacterClass;
-
-	constructor(characterClass: CharacterClass) {
-		this.characterClass = characterClass;
-	}
-
-	static from(props: Record<string, string>): ClassInfo {
-		const characterClass = (props['class'] as CharacterClass) ?? CharacterClass.Fighter;
-
-		return new ClassInfo(characterClass);
-	}
-
-	private getClassFeatSources(): FeatSource[] {
-		const classDefinition = CLASS_DEFINITIONS[this.characterClass];
-		return [StaticFeatSource.ClassRole, classDefinition.realm, classDefinition.role, classDefinition.flavor];
-	}
-
-	get definition(): ClassDefinition {
-		return CLASS_DEFINITIONS[this.characterClass];
-	}
-
-	getCoreFeats(): FeatInfo<string | void>[] {
-		const classFeatCategories = [FeatCategory.ClassFlavor, FeatCategory.ClassRole];
-		const classFeatSources = this.getClassFeatSources();
-		const classFeats = Object.values(FEATS)
-			.filter(feat => feat.type === FeatType.Core && classFeatCategories.includes(feat.category))
-			.filter(feat => classFeatSources.includes(feat.source));
-
-		const classDefinition = CLASS_DEFINITIONS[this.characterClass];
-		const parameters = {
-			'class-role': classDefinition.role,
-			stat: classDefinition.primaryAttribute.name,
-		};
-		return FeatInfo.hydrateFeatDefinitions(classFeats, parameters);
-	}
-
-	toString(): string {
-		return this.characterClass;
-	}
-}
 
 export class DerivedStats {
 	size: DerivedStat<Size>;

@@ -1,10 +1,10 @@
+import { ClassInfo } from '@shattered-wilds/commons';
 import React, { useState } from 'react';
 
 import { useStore } from '../store';
 import {
 	Character,
 	CharacterClass,
-	ClassInfo,
 	CLASS_DEFINITIONS,
 	ClassRealm,
 	ClassRole,
