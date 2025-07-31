@@ -249,6 +249,7 @@ export const ACTIONS = {
 		description:
 			'Move `Speed + 1` hexes in a straight line, followed by Melee Attack with [[Muscles]] instead of [[STR]]. This can be used for a "Tackle" if the "Shove" Attack Action is chosen, in which case a Circumstance Bonus of +3 is granted to the attacker.',
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 2 })],
+		traits: [Trait.Melee],
 	}),
 	[Action.Shove]: new ActionDefinition({
 		key: Action.Shove,
