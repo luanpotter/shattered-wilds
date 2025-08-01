@@ -2,5 +2,5 @@ Derived Statistics are values calculated from Primary Stats using specific formu
 
 ## Derived Stats
 
-* {% item "Derived_Stat/Initiative" %}
-* {% item "Derived_Stat/Movement" %}
+* {% item "Initiative" %}
+* {% item "Movement" %}

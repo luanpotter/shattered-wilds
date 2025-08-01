@@ -7,6 +7,7 @@ import yaml from 'js-yaml';
 import eleventyGoogleFonts from 'eleventy-google-fonts';
 import { actions } from './src/_config/data/actions.js';
 import { stats } from './src/_config/data/stats.js';
+import { derivedStats } from './src/_config/data/derived_stat.js';
 import { feats } from './src/_config/data/feats.js';
 import { classes } from './src/_config/data/classes.js';
 import { traits } from './src/_config/data/traits.js';
@@ -27,11 +28,12 @@ export default function (eleventyConfig) {
 	eleventyConfig.addGlobalData('lexiconFiles', lexiconFiles);
 	eleventyConfig.addGlobalData('actions', actions);
 	eleventyConfig.addGlobalData('stats', stats);
+	eleventyConfig.addGlobalData('derivedStats', derivedStats);
 	eleventyConfig.addGlobalData('feats', feats);
 	eleventyConfig.addGlobalData('classes', classes);
 	eleventyConfig.addGlobalData('traits', traits);
 
-	const wikiPages = [...lexiconFiles, ...actions, ...stats, ...feats, ...classes, ...traits]
+	const wikiPages = [...lexiconFiles, ...actions, ...stats, ...derivedStats, ...feats, ...classes, ...traits]
 		.filter(e => e.slug)
 		.sort((a, b) => {
 			if (!a.title) {
