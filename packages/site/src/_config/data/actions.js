@@ -1,18 +1,17 @@
-import { ACTIONS, ActionCostResource } from '@shattered-wilds/commons';
+import { ACTIONS, RESOURCES, Resource } from '@shattered-wilds/commons';
 import { slugify } from '../utils.js';
 
 export const actions = Object.values(ACTIONS).map(def => {
 	const slug = slugify(def.name);
-	const addCostMetadata = (resource, name, force) => {
-		const key = name.toLowerCase();
+	const addCostMetadata = (resource, force) => {
 		const value = def.costs.find(c => c.resource === resource)?.amount ?? 0;
 		if (value === 0 && !force) {
 			return undefined;
 		}
 
 		return {
-			key,
-			title: name,
+			key: resource,
+			title: RESOURCES[resource].shortName,
 			value,
 			cssClass: `metadata-cost`,
 		};
@@ -37,11 +36,11 @@ export const actions = Object.values(ACTIONS).map(def => {
 				value: undefined,
 				cssClass: 'metadata-trait',
 			})),
-			addCostMetadata(ActionCostResource.ActionPoint, 'AP', true),
-			addCostMetadata(ActionCostResource.FocusPoint, 'FP', false),
-			addCostMetadata(ActionCostResource.SpiritPoint, 'SP', false),
-			addCostMetadata(ActionCostResource.VitalityPoint, 'VP', false),
-			addCostMetadata(ActionCostResource.HeroismPoint, 'HP', false),
+			addCostMetadata(Resource.ActionPoint, true),
+			addCostMetadata(Resource.FocusPoint, false),
+			addCostMetadata(Resource.SpiritPoint, false),
+			addCostMetadata(Resource.VitalityPoint, false),
+			addCostMetadata(Resource.HeroismPoint, false),
 		].filter(Boolean),
 
 		// other data

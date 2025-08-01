@@ -1,4 +1,4 @@
-import { ActionCost } from '@shattered-wilds/commons';
+import { ActionCost, Resource, RESOURCES } from '@shattered-wilds/commons';
 import React, { useState } from 'react';
 import { FaCoins, FaMinus, FaPlus, FaTimes, FaCheck } from 'react-icons/fa';
 
@@ -41,47 +41,36 @@ export const ConsumeResourceModal: React.FC<ConsumeResourceModalProps> = ({ char
 		marginBottom: '8px',
 	};
 
-	const getResourceDisplayName = (resource: string): string => {
-		switch (resource) {
-			case 'ActionPoint':
-				return 'AP';
-			case 'VitalityPoint':
-				return 'VP';
-			case 'FocusPoint':
-				return 'FP';
-			case 'SpiritPoint':
-				return 'SP';
-			case 'HeroismPoint':
-				return 'HP';
-			default:
-				return resource;
-		}
+	const getResourceDisplayName = (resource: Resource): string => {
+		return RESOURCES[resource].shortName;
 	};
 
-	const getCurrentResourceValue = (resource: string): number => {
+	// TODO(luan): wire up properly to character sheet
+	const getCurrentResourceValue = (resource: Resource): number => {
 		switch (resource) {
-			case 'HeroismPoint':
+			case Resource.HeroismPoint:
 				return sheet.currentValues.currentHeroism;
-			case 'VitalityPoint':
+			case Resource.VitalityPoint:
 				return sheet.currentValues.currentVitality;
-			case 'FocusPoint':
+			case Resource.FocusPoint:
 				return sheet.currentValues.currentFocus;
-			case 'SpiritPoint':
+			case Resource.SpiritPoint:
 				return sheet.currentValues.currentSpirit;
 			default:
 				return 0;
 		}
 	};
 
-	const getMaxResourceValue = (resource: string): number => {
+	// TODO(luan): wire up properly to character sheet
+	const getMaxResourceValue = (resource: Resource): number => {
 		switch (resource) {
-			case 'HeroismPoint':
+			case Resource.HeroismPoint:
 				return sheet.derivedStats.maxHeroism.value;
-			case 'VitalityPoint':
+			case Resource.VitalityPoint:
 				return sheet.derivedStats.maxVitality.value;
-			case 'FocusPoint':
+			case Resource.FocusPoint:
 				return sheet.derivedStats.maxFocus.value;
-			case 'SpiritPoint':
+			case Resource.SpiritPoint:
 				return sheet.derivedStats.maxSpirit.value;
 			default:
 				return 0;
@@ -110,16 +99,16 @@ export const ConsumeResourceModal: React.FC<ConsumeResourceModalProps> = ({ char
 
 			let propKey: string;
 			switch (cost.resource) {
-				case 'HeroismPoint':
+				case Resource.HeroismPoint:
 					propKey = 'currentHeroism';
 					break;
-				case 'VitalityPoint':
+				case Resource.VitalityPoint:
 					propKey = 'currentVitality';
 					break;
-				case 'FocusPoint':
+				case Resource.FocusPoint:
 					propKey = 'currentFocus';
 					break;
-				case 'SpiritPoint':
+				case Resource.SpiritPoint:
 					propKey = 'currentSpirit';
 					break;
 				default:
