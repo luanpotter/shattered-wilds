@@ -1,1 +1,0 @@
-Represents a character's morale and spiritual strength. They are a different form of Mana (for non-Arcane powers) or a form of mental stress or morale in other games, but they are also used by any characters to power special abilities. A character has a maximum **SP** equal to 4 + [[Soul]] modifier.

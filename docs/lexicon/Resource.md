@@ -2,7 +2,7 @@
 
 The most **ephemeral** resource point is the [[Action_Point | Action Point]] That represents the amount of actions you can perform every turn in an [[Encounter]], and is replenished at the end of your turn.
 
-Then we have the three **crucial** Resource Points, each representing one of the character's [[Realm | Realms]], that can be recovered with a [[Short Rest]]:
+Then we have the three **crucial** Resource Points, each representing one of the character's **Realms**, that can be recovered with a [[Short Rest]]:
 
 * [[Vitality_Point | Vitality Points]] ([[Body]])
 * [[Focus_Point | Focus Points]] ([[Mind]])

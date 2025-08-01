@@ -1,1 +1,0 @@
-Represents a character's mental vigor and ability to focus during intense situations. They are analogous to Mana in other games for Arcane casters, but they are also used by any characters to power special abilities that require focus, mental acuity and concentration. A character has a maximum **FP** equal to 4 + [[Mind]] modifier.

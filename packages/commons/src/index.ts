@@ -2,6 +2,7 @@ export * from './stats/stat-type.js';
 export * from './stats/stat-tree.js';
 export * from './stats/derived-stat.js';
 export * from './stats/check.js';
+export * from './stats/resources.js';
 export * from './core/traits.js';
 export * from './core/size.js';
 export * from './core/races.js';
