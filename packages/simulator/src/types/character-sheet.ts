@@ -5,7 +5,6 @@ import {
 	ModifierSource,
 	StatType,
 	Size,
-	SizeModifiers,
 	RACE_DEFINITIONS,
 	FeatInfo,
 	FeatType,
@@ -20,6 +19,8 @@ import {
 	RaceInfo,
 	ClassInfo,
 } from '@shattered-wilds/commons';
+
+import { DerivedStatType } from '../../../commons/dist/stats/derived-stat';
 
 import { DerivedStat, BasicAttack, DefenseType, DEFENSE_TYPE_PROPERTIES } from './core';
 import { Equipment, Armor, Shield, Weapon } from './equipment';
@@ -53,21 +54,13 @@ export class DerivedStats {
 	}
 
 	private computeMovement(statTree: StatTree): DerivedStat<number> {
-		const HUMANOID_BASE = 3;
-		const sizeModifier = SizeModifiers[this.size.value].value;
-		const agility = statTree.valueOf(StatType.Agility);
-		const value = HUMANOID_BASE + sizeModifier + Math.floor(agility / 4);
-		return new DerivedStat(
-			Math.max(value, 1),
-			`Movement = ${HUMANOID_BASE} (base) + ${sizeModifier} (size) + ${agility} (Agility) / 4`,
-		);
+		const result = statTree.computeDerivedStat(DerivedStatType.Movement);
+		return new DerivedStat(Math.max(result.value, 1), `Movement = ${result.tooltip}`);
 	}
 
 	private computeInitiative(statTree: StatTree): DerivedStat<number> {
-		const agility = statTree.valueOf(StatType.Agility);
-		const awareness = statTree.valueOf(StatType.Awareness);
-		const value = agility + awareness;
-		return new DerivedStat(value, `Initiative = ${agility} (Agility) + ${awareness} (Awareness)`);
+		const result = statTree.computeDerivedStat(DerivedStatType.Initiative);
+		return new DerivedStat(result.value, `Initiative = ${result.tooltip}`);
 	}
 
 	private computeMaxHeroism(statTree: StatTree): DerivedStat<number> {
@@ -331,9 +324,6 @@ export class CharacterSheet {
 		const { stat, cm } = DEFENSE_TYPE_PROPERTIES[type];
 
 		const cms: CircumstanceModifier[] = [];
-
-		const sizeModifier = SizeModifiers[this.derivedStats.size.value].penalty();
-		cms.push(sizeModifier);
 
 		const armor = this.equipment.items.find(item => item instanceof Armor);
 		if (armor) {

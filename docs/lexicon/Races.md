@@ -12,19 +12,19 @@ There are 7 humanoid races in the world of **Shattered Wilds**, all belonging to
 
 A character's **Race** grants them a set of **Racial Modifiers** as a Core Feat (these changes will bypass level cap) and a **Size Category**. Races have _typical_ **Upbringings**, but players are absolutely free to choose any background that fits their character and backstory.
 
-The **Size Category** determines the **Size Modifier** which is used in a few derived attributes and checks on the character sheet:
+The **Size Category** is mostly for flavor as effects of a creature's size are already incorporated into their stats. Notably, however, the **Size Category** determines the amount of hexes a creature occupies in the grid.
 
-| Size       | Modifier |
-|------------|----------|
-| Fine       | -8       |
-| Diminutive | -4       |
-| Tiny       | -2       |
-| Small      | -1       |
-| Medium     | 0        |
-| Large      | 1        |
-| Huge       | 2        |
-| Gargantuan | 4        |
-| Colossal   | 8        |
+| Size       | Hex Grid Size |
+|------------|---------------|
+| Fine       | 1             |
+| Diminutive | 1             |
+| Tiny       | 1             |
+| Small      | 1             |
+| Medium     | 1             |
+| Large      | 1             |
+| Huge       | 3             |
+| Gargantuan | 4             |
+| Colossal   | 7             |
 
 Characters can also be half-breed. While typically peoples breed within their own, all races are compatible so you can have a double ancestry (you could theoretically be a convoluted mix, but there are no specific rules for that - eventually races even out to Human). If a character picks two races, they will be considered a Half-X Half-Y, where X is their primary race.
 

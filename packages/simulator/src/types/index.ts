@@ -5,7 +5,6 @@ export {
 	StatTree,
 	StatNode,
 	Size,
-	SizeModifiers,
 	Race,
 	Upbringing,
 	RACE_DEFINITIONS,

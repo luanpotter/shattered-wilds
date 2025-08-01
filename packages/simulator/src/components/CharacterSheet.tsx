@@ -3,7 +3,7 @@ import React, { useEffect, useMemo } from 'react';
 import { FaBatteryFull, FaCog, FaMinus, FaPlus } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { Character, CharacterSheet, DefenseType, DerivedStat, Equipment, Point, Size, SizeModifiers } from '../types';
+import { Character, CharacterSheet, DefenseType, DerivedStat, Equipment, Point } from '../types';
 import { FeatsSection } from '../types/feats-section';
 import { findNextWindowPosition } from '../utils';
 
@@ -218,11 +218,6 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 	// Create a reactive sheet that updates when character props change
 	const sheet = useMemo(() => CharacterSheet.from(character.props), [character.props]);
 
-	// Map size enum to display value
-	const getSizeDisplay = (size: Size): string => {
-		return SizeModifiers[size].description;
-	};
-
 	const { hasWarnings } = FeatsSection.create(sheet);
 
 	// Create reactive basic attacks and defense that update when sheet changes
@@ -338,7 +333,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 									cursor: 'help',
 								}}
 							>
-								{getSizeDisplay(sheet.derivedStats.size.value)}
+								{sheet.derivedStats.size.value}
 							</div>
 						</div>
 

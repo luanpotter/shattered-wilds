@@ -18,15 +18,7 @@ interface ValueParameterProps {
 }
 
 const ValueParameter: React.FC<ValueParameterProps> = ({ parameter, statTree }) => {
-	const computedValue = parameter.compute(statTree);
-	const tooltipText = parameter.formula
-		.map(factor => {
-			const factorValue = factor.compute(statTree);
-			const roundText = factor.round ? ` (${factor.round})` : '';
-			const variableText = factor.variable ? ` × ${factor.variable}` : '';
-			return `${factor.coefficient}${variableText} = ${factorValue}${roundText}`;
-		})
-		.join(' + ');
+	const result = parameter.compute(statTree);
 
 	return (
 		<div
@@ -43,11 +35,11 @@ const ValueParameter: React.FC<ValueParameterProps> = ({ parameter, statTree }) 
 				textAlign: 'center',
 				cursor: 'help',
 			}}
-			title={tooltipText}
+			title={result.tooltip}
 		>
 			<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)', marginBottom: '2px' }}>{parameter.name}</div>
 			<div style={{ fontSize: '1.1em', fontWeight: 'bold' }}>
-				{computedValue} {parameter.unit}
+				{result.value} {parameter.unit}
 			</div>
 		</div>
 	);

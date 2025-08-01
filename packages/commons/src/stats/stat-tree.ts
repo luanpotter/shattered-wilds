@@ -1,3 +1,5 @@
+import { DERIVED_STATS, DerivedStatType } from './derived-stat.js';
+import { FormulaResult } from './formula.js';
 import { StatHierarchyProperties, StatType } from './stat-type.js';
 
 export enum ModifierSource {
@@ -30,14 +32,6 @@ export class CircumstanceModifier {
 	get description(): string {
 		return `${this.bonusString} from ${this.source} ${this.name}`;
 	}
-
-	penalty(): CircumstanceModifier {
-		return new CircumstanceModifier({
-			source: this.source,
-			name: this.name,
-			value: -this.value,
-		});
-	}
 }
 
 export class InherentModifier extends CircumstanceModifier {
@@ -60,15 +54,6 @@ export class InherentModifier extends CircumstanceModifier {
 
 	override get description(): string {
 		return `${this.bonusString} ${this.statType} from ${this.source} ${this.name}`;
-	}
-
-	override penalty(): InherentModifier {
-		return new InherentModifier({
-			source: this.source,
-			name: this.name,
-			value: -this.value,
-			statType: this.statType,
-		});
 	}
 }
 
@@ -158,8 +143,15 @@ export class StatTree {
 		});
 	}
 
-	valueOf(stat: StatType): number {
-		return this.getModifier(stat).value;
+	computeDerivedStat(stat: DerivedStatType): FormulaResult {
+		return DERIVED_STATS[stat].compute(this);
+	}
+
+	valueOf(stat: StatType | DerivedStatType): number {
+		if (stat instanceof StatType) {
+			return this.getModifier(stat).value;
+		}
+		return this.computeDerivedStat(stat).value;
 	}
 
 	fullReset(): { key: string; value: string }[] {

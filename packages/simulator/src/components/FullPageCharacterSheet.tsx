@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { FaArrowLeft, FaBatteryFull, FaCog, FaCopy, FaExclamationTriangle, FaMinus, FaPlus } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { CharacterSheet, Size, SizeModifiers } from '../types';
+import { CharacterSheet } from '../types';
 import { FeatsSection } from '../types/feats-section';
 
 import { ActionsSection } from './ActionsSection';
@@ -99,10 +99,6 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 			.map(([key, value]) => `${key}: ${value}`)
 			.join('\n');
 		void window.navigator.clipboard.writeText(keyValuePairs);
-	};
-
-	const getSizeDisplay = (size: Size): string => {
-		return SizeModifiers[size].description;
 	};
 
 	const handleOpenRaceSetup = () => {
@@ -381,7 +377,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 							{/* Derived Stats */}
 							<LabeledInput
 								label='Size'
-								value={getSizeDisplay(sheet.derivedStats.size.value)}
+								value={sheet.derivedStats.size.value}
 								editMode={false}
 								title={sheet.derivedStats.size.description}
 							/>

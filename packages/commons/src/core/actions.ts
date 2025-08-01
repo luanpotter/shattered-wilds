@@ -1,4 +1,6 @@
 import { CheckMode, CheckNature } from '../stats/check.js';
+import { DerivedStatType } from '../stats/derived-stat.js';
+import { F, Formula, FormulaResult, RoundMode } from '../stats/formula.js';
 import { CircumstanceModifier, ModifierSource, StatTree } from '../stats/stat-tree.js';
 import { StatType } from '../stats/stat-type.js';
 import { Trait } from './traits.js';
@@ -52,59 +54,16 @@ export interface ActionParameter {
 export class ActionValueParameter implements ActionParameter {
 	name: string;
 	unit: ActionValueUnit;
-	formula: ActionValueParameterFactor[];
+	formula: Formula;
 
-	constructor({ name, unit, formula }: { name: string; unit: ActionValueUnit; formula: ActionValueParameterFactor[] }) {
+	constructor({ name, unit, formula }: { name: string; unit: ActionValueUnit; formula: Formula }) {
 		this.name = name;
 		this.unit = unit;
 		this.formula = formula;
 	}
 
-	compute(statTree: StatTree): number {
-		return this.formula.reduce((acc, factor) => acc + factor.compute(statTree), 0);
-	}
-}
-
-export enum DerivedStatType {
-	Movement = 'Movement',
-}
-
-export class ActionValueParameterFactor {
-	coefficient: number;
-	variable: StatType | DerivedStatType | undefined;
-	round: 'ceil' | 'floor' | 'round' | undefined;
-
-	constructor({
-		coefficient,
-		variable,
-		round,
-	}: {
-		coefficient?: number;
-		variable?: StatType | DerivedStatType;
-		round?: 'ceil' | 'floor' | 'round';
-	}) {
-		this.coefficient = coefficient ?? 1;
-		this.variable = variable;
-		this.round = round ?? undefined;
-	}
-
-	private computeValue(statTree: StatTree): number {
-		if (!this.variable) {
-			return 1;
-		}
-		if (this.variable === 'Movement') {
-			// TODO(luan): support derived stats
-			return statTree.valueOf(StatType.Agility);
-		}
-		return statTree.valueOf(this.variable);
-	}
-
-	compute(statTree: StatTree): number {
-		const value = this.coefficient * this.computeValue(statTree);
-		if (this.round) {
-			return Math[this.round](value);
-		}
-		return value;
+	compute(statTree: StatTree): FormulaResult {
+		return this.formula.compute(statTree);
 	}
 }
 
@@ -236,7 +195,7 @@ export const ACTIONS = {
 			new ActionValueParameter({
 				name: 'Distance',
 				unit: ActionValueUnit.Hex,
-				formula: [new ActionValueParameterFactor({ variable: DerivedStatType.Movement })],
+				formula: F.variable(1, DerivedStatType.Movement),
 			}),
 		],
 	}),
@@ -257,7 +216,7 @@ export const ACTIONS = {
 			new ActionValueParameter({
 				name: 'Distance',
 				unit: ActionValueUnit.Hex,
-				formula: [new ActionValueParameterFactor({ coefficient: 4, variable: DerivedStatType.Movement })],
+				formula: F.variable(4, DerivedStatType.Movement),
 			}),
 		],
 	}),
@@ -283,7 +242,7 @@ export const ACTIONS = {
 			new ActionValueParameter({
 				name: 'Distance',
 				unit: ActionValueUnit.Hex,
-				formula: [new ActionValueParameterFactor({ coefficient: 1 })],
+				formula: F.constant(1),
 			}),
 		],
 	}),
@@ -303,7 +262,7 @@ export const ACTIONS = {
 			new ActionValueParameter({
 				name: 'Distance',
 				unit: ActionValueUnit.Hex,
-				formula: [new ActionValueParameterFactor({ coefficient: 1 })],
+				formula: F.constant(1),
 			}),
 		],
 	}),
@@ -312,7 +271,7 @@ export const ACTIONS = {
 		type: ActionType.Movement,
 		name: 'Stumble Through',
 		description:
-			"Contested [[Finesse]] check against opponent's [[Stance]]. Move past one enemy to an adjacent hex, as long as your `Movement` is 2 or more.  Apply a `-[Size Modifier]` [[Circumstance Modifier | CM]] to both Checks if they don't match.",
+			"Contested [[Finesse]] check against opponent's [[Stance]]. Move past one enemy to an adjacent hex, as long as your [[Movement]] is 2 or more.",
 		costs: [new ActionCost({ resource: ActionCostResource.ActionPoint, amount: 1 })],
 		parameters: [
 			new ActionCheckParameter({
@@ -324,7 +283,7 @@ export const ACTIONS = {
 			new ActionValueParameter({
 				name: 'Distance',
 				unit: ActionValueUnit.Hex,
-				formula: [new ActionValueParameterFactor({ coefficient: 2 })],
+				formula: F.constant(2),
 			}),
 		],
 	}),
@@ -338,9 +297,7 @@ export const ACTIONS = {
 			new ActionValueParameter({
 				name: 'Distance',
 				unit: ActionValueUnit.Hex,
-				formula: [
-					new ActionValueParameterFactor({ coefficient: 0.5, variable: DerivedStatType.Movement, round: 'ceil' }),
-				],
+				formula: F.variable(0.5, DerivedStatType.Movement, RoundMode.ceil),
 			}),
 		],
 	}),
@@ -355,7 +312,7 @@ export const ACTIONS = {
 			new ActionValueParameter({
 				name: 'Distance',
 				unit: ActionValueUnit.Hex,
-				formula: [new ActionValueParameterFactor({ coefficient: 1 })],
+				formula: F.constant(1),
 			}),
 		],
 	}),
@@ -370,10 +327,7 @@ export const ACTIONS = {
 			new ActionValueParameter({
 				name: 'Distance',
 				unit: ActionValueUnit.Hex,
-				formula: [
-					new ActionValueParameterFactor({ coefficient: 1, variable: DerivedStatType.Movement }),
-					new ActionValueParameterFactor({ coefficient: -1 }),
-				],
+				formula: F.variable(1, DerivedStatType.Movement).add(F.constant(-1)),
 			}),
 		],
 	}),
