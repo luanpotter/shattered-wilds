@@ -6,20 +6,19 @@ import { FaShield } from 'react-icons/fa6';
 import { Character, CharacterSheet, Weapon } from '../types';
 
 import Block from './shared/Block';
+import LabeledInput from './shared/LabeledInput';
 import { RichText } from './shared/RichText';
 
 interface ActionsSectionProps {
 	character: Character;
 }
 
-interface ValueParameterProps {
-	parameter: ActionValueParameter;
-	statTree: StatTree;
-}
-
-const ValueParameter: React.FC<ValueParameterProps> = ({ parameter, statTree }) => {
-	const result = parameter.compute(statTree);
-
+const ParameterBox: React.FC<{
+	title: string;
+	tooltip: string;
+	children: React.ReactNode;
+	onClick?: () => void;
+}> = ({ title, tooltip, children, onClick }) => {
 	return (
 		<div
 			style={{
@@ -30,18 +29,39 @@ const ValueParameter: React.FC<ValueParameterProps> = ({ parameter, statTree }) 
 				padding: '8px',
 				border: '1px solid var(--text)',
 				borderRadius: '4px',
-				backgroundColor: 'var(--background-alt)',
+				backgroundColor: onClick ? 'var(--button-base)' : 'var(--background-alt)',
 				minWidth: '100px',
 				textAlign: 'center',
-				cursor: 'help',
+				cursor: onClick ? 'pointer' : 'help',
 			}}
-			title={result.tooltip}
+			title={tooltip}
+			onClick={onClick}
+			onKeyDown={e => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					onClick?.();
+				}
+			}}
 		>
-			<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)', marginBottom: '2px' }}>{parameter.name}</div>
-			<div style={{ fontSize: '1.1em', fontWeight: 'bold' }}>
-				{result.value} {parameter.unit}
+			<div style={{ fontSize: '0.8em', fontWeight: 'bold', color: 'var(--text-secondary)', marginBottom: '2px' }}>
+				{title}
 			</div>
+			<div style={{ fontSize: '1.1em', fontWeight: 'bold' }}>{children}</div>
 		</div>
+	);
+};
+
+interface ValueParameterProps {
+	parameter: ActionValueParameter;
+	statTree: StatTree;
+}
+
+const ValueParameter: React.FC<ValueParameterProps> = ({ parameter, statTree }) => {
+	const result = parameter.compute(statTree);
+
+	return (
+		<ParameterBox title={parameter.name} tooltip={result.tooltip}>
+			{`${result.value} ${parameter.unit}`}
+		</ParameterBox>
 	);
 };
 
@@ -64,39 +84,16 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree }) 
 		.join('\n');
 
 	return (
-		<div
-			style={{
-				display: 'flex',
-				flexDirection: 'column',
-				alignItems: 'center',
-				justifyContent: 'center',
-				padding: '8px',
-				border: '1px solid var(--text)',
-				borderRadius: '4px',
-				backgroundColor: 'var(--background)',
-				minWidth: '100px',
-				textAlign: 'center',
-				cursor: 'pointer',
+		<ParameterBox
+			title={`${parameter.name} (${statModifier.baseValueString})`}
+			tooltip={tooltipText}
+			onClick={() => {
+				/* TODO */
 			}}
-			title={tooltipText}
 		>
-			<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)', marginBottom: '2px' }}>
-				{parameter.name} ({statModifier.baseValueString})
-			</div>
-			<div
-				style={{
-					fontSize: '1.1em',
-					fontWeight: 'bold',
-					marginBottom: '2px',
-					display: 'flex',
-					alignItems: 'center',
-					gap: '2px',
-				}}
-			>
-				{statModifier.valueString}
-				<FaDice size={12} style={{ color: 'var(--text-secondary)' }} />
-			</div>
-		</div>
+			{statModifier.valueString}
+			<FaDice size={12} style={{ color: 'var(--text-secondary)' }} />
+		</ParameterBox>
 	);
 };
 
@@ -192,19 +189,12 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 				{/* Type-specific info */}
 				{type === ActionType.Movement && (
 					<>
-						<div
-							style={{
-								fontSize: '0.9em',
-								color: 'var(--text-secondary)',
-								marginBottom: '12px',
-								padding: '8px 12px',
-								backgroundColor: 'var(--background-alt)',
-								borderRadius: '4px',
-								border: '1px solid var(--text)',
-							}}
-						>
-							<strong>Movement:</strong> {sheet.derivedStats.movement.value} hexes
-						</div>
+						<LabeledInput
+							label='Movement'
+							tooltip={sheet.derivedStats.movement.description}
+							value={sheet.derivedStats.movement.value.toString()}
+							disabled={true}
+						/>
 						<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '0 0 12px 0', opacity: 0.3 }} />
 					</>
 				)}
@@ -246,45 +236,39 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 				{/* Action cards */}
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 					{actions.map(action => {
-						const costs = action.costs
-							.map(cost => {
-								let displayName: string;
-								if (cost.resource === 'ActionPoint') {
-									displayName = 'AP';
-								} else if (cost.resource === 'VitalityPoint') {
-									displayName = 'VP';
-								} else if (cost.resource === 'FocusPoint') {
-									displayName = 'FP';
-								} else if (cost.resource === 'SpiritPoint') {
-									displayName = 'SP';
-								} else if (cost.resource === 'HeroismPoint') {
-									displayName = 'HP';
-								} else {
-									displayName = cost.resource;
-								}
-								return `${cost.amount}${cost.variable ? '+' : ''} ${displayName}`;
-							})
-							.join(', ');
+						const costs = action.costs.map(cost => {
+							let displayName: string;
+							if (cost.resource === 'ActionPoint') {
+								displayName = 'AP';
+							} else if (cost.resource === 'VitalityPoint') {
+								displayName = 'VP';
+							} else if (cost.resource === 'FocusPoint') {
+								displayName = 'FP';
+							} else if (cost.resource === 'SpiritPoint') {
+								displayName = 'SP';
+							} else if (cost.resource === 'HeroismPoint') {
+								displayName = 'HP';
+							} else {
+								displayName = cost.resource;
+							}
+							const value = `${cost.amount}${cost.variable ? '+' : ''} ${displayName}`;
+							const tooltip = `${cost.amount}${cost.variable ? '+' : ''} ${cost.resource}`;
+							return { value, tooltip };
+						});
 
 						return (
 							<div key={action.key} style={{ display: 'flex', gap: '2px' }}>
-								<div
-									style={{
-										display: 'flex',
-										flexDirection: 'column',
-										alignItems: 'center',
-										justifyContent: 'center',
-										padding: '12px',
-										border: '1px solid var(--text)',
-										borderRadius: '4px',
-										backgroundColor: 'var(--background)',
-										minWidth: '120px',
-										textAlign: 'center',
-										cursor: 'pointer',
+								<ParameterBox
+									title='COST'
+									tooltip={costs.map(e => e.tooltip).join('\n')}
+									onClick={() => {
+										/* TODO */
 									}}
 								>
-									<div style={{ fontSize: '1.2em', color: 'var(--text-secondary)' }}>{costs}</div>
-								</div>
+									{costs.map(e => (
+										<div key={e.value}>{e.value}</div>
+									))}
+								</ParameterBox>
 
 								<div
 									style={{

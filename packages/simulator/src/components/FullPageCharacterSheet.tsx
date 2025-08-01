@@ -327,12 +327,12 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 								label='Name'
 								value={character.props.name}
 								onChange={value => updateCharacterName(character, value)}
-								editMode={editMode}
+								disabled={!editMode}
 							/>
 							<LabeledInput
 								label='Race'
 								value={sheet.race.toString()}
-								editMode={editMode}
+								disabled={!editMode}
 								onClick={editMode ? handleOpenRaceSetup : undefined}
 								onKeyDown={
 									editMode
@@ -350,7 +350,7 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 							<LabeledInput
 								label='Class'
 								value={sheet.characterClass.characterClass}
-								editMode={editMode}
+								disabled={!editMode}
 								onClick={editMode ? handleOpenClassSetup : undefined}
 								onKeyDown={
 									editMode
@@ -378,20 +378,20 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 							<LabeledInput
 								label='Size'
 								value={sheet.derivedStats.size.value}
-								editMode={false}
-								title={sheet.derivedStats.size.description}
+								disabled={true}
+								tooltip={sheet.derivedStats.size.description}
 							/>
 							<LabeledInput
 								label='Movement'
 								value={sheet.derivedStats.movement.value.toString()}
-								editMode={false}
-								title={sheet.derivedStats.movement.description}
+								disabled={true}
+								tooltip={sheet.derivedStats.movement.description}
 							/>
 							<LabeledInput
 								label='Initiative'
 								value={sheet.derivedStats.initiative.value.toString()}
-								editMode={false}
-								title={sheet.derivedStats.initiative.description}
+								disabled={true}
+								tooltip={sheet.derivedStats.initiative.description}
 							/>
 
 							{/* Resource Points */}
