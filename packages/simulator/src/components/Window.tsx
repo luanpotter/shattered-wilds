@@ -10,6 +10,7 @@ import { CharacterCreationModal } from './CharacterCreation';
 import { CharacterList } from './CharacterList';
 import { CharacterSheetModal } from './CharacterSheet';
 import { ClassSetupModal } from './ClassSetupModal';
+import { ConsumeResourceModal } from './ConsumeResourceModal';
 import { DiceRollModal } from './DiceRollModal';
 import { DraggableWindow } from './DraggableWindow';
 import { FeatsModal } from './FeatsModal';
@@ -175,6 +176,19 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({
 							updateCharacterPos(fromCharacter, window.toPosition!);
 							removeWindow(window.id);
 						}}
+					/>
+				);
+			}
+			case 'consume-resource': {
+				const character = characters.find(c => c.id === window.characterId);
+				if (!character || !window.actionCosts) {
+					return <div>Missing consume resource data</div>;
+				}
+				return (
+					<ConsumeResourceModal
+						character={character}
+						costs={window.actionCosts}
+						onClose={() => removeWindow(window.id)}
 					/>
 				);
 			}

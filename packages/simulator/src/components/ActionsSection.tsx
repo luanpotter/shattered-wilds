@@ -3,7 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
 import { FaShield } from 'react-icons/fa6';
 
+import { useStore } from '../store';
 import { Character, CharacterSheet, Weapon } from '../types';
+import { findNextWindowPosition } from '../utils';
 
 import Block from './shared/Block';
 import LabeledInput from './shared/LabeledInput';
@@ -98,6 +100,8 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree }) 
 };
 
 export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => {
+	const addWindow = useStore(state => state.addWindow);
+	const windows = useStore(state => state.windows);
 	const [selectedWeapon, setSelectedWeapon] = useState<Weapon | null>(null);
 	const [activeTab, setActiveTab] = useState<ActionType>(ActionType.Movement);
 
@@ -262,7 +266,15 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 									title='COST'
 									tooltip={costs.map(e => e.tooltip).join('\n')}
 									onClick={() => {
-										/* TODO */
+										addWindow({
+											id: window.crypto.randomUUID(),
+											title: `Consume Resources - ${action.name}`,
+											type: 'consume-resource',
+											characterId: character.id,
+											position: findNextWindowPosition(windows),
+											actionCosts: action.costs,
+											width: '400px',
+										});
 									}}
 								>
 									{costs.map(e => (

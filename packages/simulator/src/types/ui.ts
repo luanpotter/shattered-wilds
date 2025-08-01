@@ -1,4 +1,4 @@
-import { Check } from '@shattered-wilds/commons';
+import { ActionCost, Check } from '@shattered-wilds/commons';
 
 export interface Point {
 	x: number;
@@ -37,7 +37,8 @@ export interface Window {
 		| 'basic-attacks'
 		| 'dice-roll'
 		| 'attack-action'
-		| 'measure';
+		| 'measure'
+		| 'consume-resource';
 	characterId?: string;
 	position: Point;
 	hexPosition?: HexPosition;
@@ -49,6 +50,7 @@ export interface Window {
 	toPosition?: HexPosition;
 	distance?: number;
 	onDiceRollComplete?: (result: { total: number; shifts: number }) => void;
+	actionCosts?: ActionCost[];
 	width?: string;
 	height?: string;
 }
