@@ -342,36 +342,12 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 								value={sheet.race.toString()}
 								disabled={!editMode}
 								onClick={editMode ? handleOpenRaceSetup : undefined}
-								onKeyDown={
-									editMode
-										? e => {
-												if (e.key === 'Enter' || e.key === ' ') {
-													e.preventDefault();
-													handleOpenRaceSetup();
-												}
-											}
-										: undefined
-								}
-								tabIndex={editMode ? 0 : -1}
-								role={editMode ? 'button' : undefined}
 							/>
 							<LabeledInput
 								label='Class'
 								value={sheet.characterClass.characterClass}
 								disabled={!editMode}
 								onClick={editMode ? handleOpenClassSetup : undefined}
-								onKeyDown={
-									editMode
-										? e => {
-												if (e.key === 'Enter' || e.key === ' ') {
-													e.preventDefault();
-													handleOpenClassSetup();
-												}
-											}
-										: undefined
-								}
-								tabIndex={editMode ? 0 : -1}
-								role={editMode ? 'button' : undefined}
 							/>
 						</div>
 						<div

@@ -5,9 +5,6 @@ const LabeledInput = ({
 	onChange,
 	disabled = false,
 	onClick,
-	onKeyDown,
-	tabIndex,
-	role,
 }: {
 	label: string;
 	tooltip?: string | undefined;
@@ -15,9 +12,6 @@ const LabeledInput = ({
 	disabled?: boolean;
 	onChange?: ((value: string) => void) | undefined;
 	onClick?: (() => void) | undefined;
-	onKeyDown?: ((e: React.KeyboardEvent<HTMLInputElement>) => void) | undefined;
-	tabIndex?: number | undefined;
-	role?: string | undefined;
 }) => {
 	return (
 		<div title={tooltip}>
@@ -37,9 +31,16 @@ const LabeledInput = ({
 					}}
 					onChange={e => onChange?.(e.target.value)}
 					onClick={onClick}
-					onKeyDown={onKeyDown}
-					tabIndex={tabIndex}
-					role={role}
+					onKeyDown={
+						onClick
+							? e => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										e.preventDefault();
+										onClick();
+									}
+								}
+							: undefined
+					}
 				/>
 			</label>
 		</div>
