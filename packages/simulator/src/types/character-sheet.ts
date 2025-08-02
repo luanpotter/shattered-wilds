@@ -173,6 +173,11 @@ export class CharacterSheet {
 		return this.currentResources.get(this.getStatTree(), resource);
 	}
 
+	updateResource(resource: Resource, delta: number): number {
+		const { current, max } = this.getResource(resource);
+		return Math.max(0, Math.min(max, current + delta));
+	}
+
 	getStatTree(): StatTree {
 		return new StatTree(this.attributeRoot, this.getAllModifiers());
 	}

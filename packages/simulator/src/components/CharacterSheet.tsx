@@ -3,7 +3,7 @@ import React, { useEffect, useMemo } from 'react';
 import { FaBatteryFull, FaCog, FaMinus, FaPlus } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { Character, CharacterSheet, DefenseType, Equipment, Point } from '../types';
+import { Character, CharacterSheet, CurrentResources, DefenseType, Equipment, Point } from '../types';
 import { FeatsSection } from '../types/feats-section';
 import { findNextWindowPosition } from '../utils';
 
@@ -161,8 +161,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 	};
 
 	const handlePointChange = (resource: Resource, delta: number) => {
-		const { max, current } = sheet.getResource(resource);
-		const newValue = Math.max(0, Math.min(max, current + delta));
+		const newValue = sheet.updateResource(resource, delta);
 		updateCharacterProp(character, resource, newValue.toString());
 	};
 
@@ -172,8 +171,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 
 	const handleRefillPoints = () => {
 		Object.values(Resource).forEach(resource => {
-			const { max } = sheet.getResource(resource);
-			updateCharacterProp(character, resource, max.toString());
+			updateCharacterProp(character, resource, CurrentResources.MAX_VALUE.toString());
 		});
 	};
 

@@ -1,9 +1,9 @@
-import { DerivedStatType, FeatType, Resource } from '@shattered-wilds/commons';
+import { DerivedStatType, FeatType, Resource, RESOURCES } from '@shattered-wilds/commons';
 import React, { useMemo } from 'react';
 import { FaArrowLeft, FaBatteryFull, FaCog, FaCopy, FaExclamationTriangle, FaMinus, FaPlus } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { Character, CharacterSheet } from '../types';
+import { Character, CharacterSheet, CurrentResources } from '../types';
 import { FeatsSection } from '../types/feats-section';
 
 import { ActionsSection } from './ActionsSection';
@@ -92,16 +92,13 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 	}
 
 	const handlePointChange = (resource: Resource, delta: number) => {
-		const { max } = sheet.getResource(resource);
-		const currentValue = sheet.getResource(resource).current;
-		const newValue = Math.max(0, Math.min(max, currentValue + delta));
+		const newValue = sheet.updateResource(resource, delta);
 		updateCharacterProp(character, resource, newValue.toString());
 	};
 
 	const handleRefillPoints = () => {
 		Object.values(Resource).forEach(resource => {
-			const { max } = sheet.getResource(resource);
-			updateCharacterProp(character, resource, max.toString());
+			updateCharacterProp(character, resource, CurrentResources.MAX_VALUE.toString());
 		});
 	};
 
@@ -403,10 +400,11 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 							{/* Resource Points */}
 							{Object.values(Resource).map(resource => {
 								const { max, current } = sheet.getResource(resource);
+								const { name } = RESOURCES[resource];
 
 								return (
 									<div key={resource}>
-										<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>{resource}</span>
+										<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>{name}</span>
 										<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 											<Button
 												onClick={() => handlePointChange(resource, -1)}
