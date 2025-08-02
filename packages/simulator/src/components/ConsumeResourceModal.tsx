@@ -21,15 +21,6 @@ export const ConsumeResourceModal: React.FC<ConsumeResourceModalProps> = ({ char
 		costs.map(cost => ({ ...cost, adjustedAmount: cost.amount })),
 	);
 
-	const modalStyle: React.CSSProperties = {
-		padding: '20px',
-		maxWidth: '400px',
-		backgroundColor: 'var(--background)',
-		border: '1px solid var(--text)',
-		borderRadius: '8px',
-		boxSizing: 'border-box',
-	};
-
 	const resourceStyle: React.CSSProperties = {
 		display: 'flex',
 		alignItems: 'center',
@@ -72,7 +63,7 @@ export const ConsumeResourceModal: React.FC<ConsumeResourceModalProps> = ({ char
 	};
 
 	return (
-		<div style={modalStyle}>
+		<div>
 			<h3
 				style={{
 					textAlign: 'center',
