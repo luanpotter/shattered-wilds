@@ -353,7 +353,7 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 						<div
 							style={{
 								display: 'grid',
-								gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+								gridTemplateColumns: '80px 100px 80px repeat(auto-fit, minmax(80px, 1fr))',
 								gap: '1rem',
 								marginBottom: '1rem',
 							}}
@@ -379,41 +379,32 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 								const { name } = RESOURCES[resource];
 
 								return (
-									<div key={resource}>
-										<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>{name}</span>
-										<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+									<LabeledInput
+										key={resource}
+										label={name}
+										value={`${current}/${max}`}
+										disabled={true}
+										prefix={
 											<Button
 												onClick={() => handlePointChange(resource, -1)}
 												icon={FaMinus}
 												tooltip={`Decrease ${resource}`}
 												type='inline'
 											/>
-											<div
-												style={{
-													flex: 1,
-													padding: '0.5rem',
-													border: '1px solid var(--text)',
-													borderRadius: '4px',
-													backgroundColor: 'var(--background)',
-													textAlign: 'center',
-													fontSize: '1.1rem',
-													fontWeight: 'bold',
-												}}
-											>
-												{current}/{max}
-											</div>
+										}
+										suffix={
 											<Button
 												onClick={() => handlePointChange(resource, 1)}
 												icon={FaPlus}
 												tooltip={`Increase ${resource}`}
 												type='inline'
 											/>
-										</div>
-									</div>
+										}
+									/>
 								);
 							})}
 
-							<div style={{ display: 'flex', alignItems: 'end' }}>
+							<div style={{ display: 'flex', alignItems: 'end', marginBottom: '0.75rem' }}>
 								<Button onClick={handleRefillPoints} icon={FaBatteryFull} title='Refill All' />
 							</div>
 						</div>
