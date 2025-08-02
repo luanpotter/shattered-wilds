@@ -6,6 +6,7 @@ import {
 	StatTree,
 	DerivedStatType,
 	RESOURCES,
+	Check,
 } from '@shattered-wilds/commons';
 import React, { useEffect, useState } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
@@ -78,9 +79,11 @@ const ValueParameter: React.FC<ValueParameterProps> = ({ parameter, statTree }) 
 interface CheckParameterProps {
 	parameter: ActionCheckParameter;
 	statTree: StatTree;
+	character: Character;
 }
 
-const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree }) => {
+const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, character }) => {
+	const addWindow = useStore(state => state.addWindow);
 	const circumstanceModifiers = parameter.circumstanceModifier ? [parameter.circumstanceModifier] : [];
 	const statModifier = statTree.getModifier(parameter.statType, circumstanceModifiers);
 
@@ -98,7 +101,18 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree }) 
 			title={`${parameter.name} (${statModifier.baseValueString})`}
 			tooltip={tooltipText}
 			onClick={() => {
-				/* TODO */
+				addWindow({
+					id: window.crypto.randomUUID(),
+					title: `Roll ${parameter.name} Check`,
+					type: 'dice-roll',
+					position: findNextWindowPosition(useStore.getState().windows),
+					check: new Check({
+						mode: parameter.mode,
+						nature: parameter.nature,
+						statModifier: statModifier,
+					}),
+					characterId: character.id,
+				});
 			}}
 		>
 			{statModifier.valueString}
@@ -124,14 +138,6 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 		}
 	}, [weapons, selectedWeapon]);
 
-	const getAvailableActionTypes = () => {
-		const types = Object.values(ActionType);
-		return types.filter(type => {
-			const actions = Object.values(ACTIONS).filter(action => action.type === type);
-			return actions.length > 0;
-		});
-	};
-
 	const getTypeIcon = (type: ActionType) => {
 		switch (type) {
 			case ActionType.Movement:
@@ -150,7 +156,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 	};
 
 	const renderTabButtons = () => {
-		const availableTabs = getAvailableActionTypes();
+		const availableTabs = Object.values(ACTIONS);
 
 		return (
 			<div
@@ -161,7 +167,8 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 					gap: '2px',
 				}}
 			>
-				{availableTabs.map(tab => {
+				{availableTabs.map(action => {
+					const tab = action.type;
 					const Icon = getTypeIcon(tab);
 					const isActive = activeTab === tab;
 
@@ -306,7 +313,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 									if (parameter instanceof ActionValueParameter) {
 										return <ValueParameter key={index} parameter={parameter} statTree={tree} />;
 									} else if (parameter instanceof ActionCheckParameter) {
-										return <CheckParameter key={index} parameter={parameter} statTree={tree} />;
+										return <CheckParameter key={index} parameter={parameter} statTree={tree} character={character} />;
 									}
 									return null;
 								})}
