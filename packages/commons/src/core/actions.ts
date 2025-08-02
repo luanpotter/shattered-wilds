@@ -32,9 +32,7 @@ export enum ActionValueUnit {
 	Modifier = 'Modifier',
 }
 
-export interface ActionParameter {
-	name: string;
-}
+export interface ActionParameter {}
 
 export class ActionValueParameter implements ActionParameter {
 	name: string;
@@ -52,30 +50,31 @@ export class ActionValueParameter implements ActionParameter {
 	}
 }
 
+export enum StandardCheck {
+	Attack = 'Attack',
+	Defense = 'Defense',
+}
+
 export class ActionCheckParameter implements ActionParameter {
-	name: string;
 	mode: CheckMode;
 	nature: CheckNature;
-	statType: StatType;
+	statType: StatType | StandardCheck;
 	circumstanceModifier: CircumstanceModifier | undefined;
 	targetDc: number | undefined;
 
 	constructor({
-		name,
 		mode,
 		nature,
 		statType,
 		circumstanceModifier,
 		targetDc,
 	}: {
-		name: string;
 		mode: CheckMode;
 		nature: CheckNature;
-		statType: StatType;
+		statType: StatType | StandardCheck;
 		circumstanceModifier?: CircumstanceModifier;
 		targetDc?: number;
 	}) {
-		this.name = name;
 		this.mode = mode;
 		this.nature = nature;
 		this.statType = statType;
@@ -193,7 +192,6 @@ export const ACTIONS = {
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 3 })],
 		parameters: [
 			new ActionCheckParameter({
-				name: 'Stamina',
 				mode: CheckMode.Static,
 				nature: CheckNature.Active,
 				statType: StatType.Stamina,
@@ -214,7 +212,6 @@ export const ACTIONS = {
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1, variable: true })],
 		parameters: [
 			new ActionCheckParameter({
-				name: 'Muscles',
 				mode: CheckMode.Contested,
 				nature: CheckNature.Active,
 				statType: StatType.Muscles,
@@ -239,7 +236,6 @@ export const ACTIONS = {
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		parameters: [
 			new ActionCheckParameter({
-				name: 'Lift',
 				mode: CheckMode.Static,
 				nature: CheckNature.Active,
 				statType: StatType.Lift,
@@ -260,7 +256,6 @@ export const ACTIONS = {
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		parameters: [
 			new ActionCheckParameter({
-				name: 'Finesse',
 				mode: CheckMode.Contested,
 				nature: CheckNature.Active,
 				statType: StatType.Finesse,
@@ -333,6 +328,13 @@ export const ACTIONS = {
 			'Special Attack against Body Defense. Causes [[Off_Guard | Off-Guard]]. **Crit Shifts** deal [[Vitality_Point | VP]] damage.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		traits: [Trait.Melee],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StandardCheck.Attack,
+			}),
+		],
 	}),
 	[Action.Strike]: new ActionDefinition({
 		key: Action.Strike,
@@ -341,6 +343,13 @@ export const ACTIONS = {
 		description:
 			"Basic Body Attack against target's Body Defense. Deals [[Vitality_Point | VP]] damage. **Crit Shifts** deal extra [[Vitality_Point | VP]] damage.",
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 2 })],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StandardCheck.Attack,
+			}),
+		],
 	}),
 	[Action.Feint]: new ActionDefinition({
 		key: Action.Feint,
@@ -349,6 +358,13 @@ export const ACTIONS = {
 		description:
 			'Special Attack against [[Tenacity]]. Causes [[Distracted]]. **Crit Shifts** deal [[Focus_Point | FP]] damage.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StandardCheck.Attack,
+			}),
+		],
 	}),
 	[Action.FocusedStrike]: new ActionDefinition({
 		key: Action.FocusedStrike,
@@ -360,6 +376,18 @@ export const ACTIONS = {
 			new ActionCost({ resource: Resource.FocusPoint, amount: 1 }),
 		],
 		traits: [Trait.Concentrate, Trait.Melee],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StandardCheck.Attack,
+				circumstanceModifier: new CircumstanceModifier({
+					source: ModifierSource.Circumstance,
+					name: 'Focused Strike',
+					value: 3,
+				}),
+			}),
+		],
 	}),
 	[Action.Trip]: new ActionDefinition({
 		key: Action.Trip,
@@ -369,6 +397,13 @@ export const ACTIONS = {
 			'**Special Attack** against [[Stance]]. Causes opponent to be [[Prone]]. Shifts deal [[Vitality_Point | VP]] damage.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		traits: [Trait.Melee],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StandardCheck.Attack,
+			}),
+		],
 	}),
 	[Action.Grapple]: new ActionDefinition({
 		key: Action.Grapple,
@@ -377,6 +412,13 @@ export const ACTIONS = {
 		description: '**Special Attack** against [[Evasiveness]]. Causes target to become [[Immobilized]].',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		traits: [Trait.Melee],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StandardCheck.Attack,
+			}),
+		],
 	}),
 	[Action.Charge]: new ActionDefinition({
 		key: Action.Charge,
@@ -386,6 +428,13 @@ export const ACTIONS = {
 			'Move `Movement + 1` hexes in a straight line, followed by Melee Attack with [[Muscles]] instead of [[STR]]. This can be used for a "tackle" if the [[Shove]] Attack Action is chosen, in which case a `+3` [[Circumstance Modifier | CM]] is granted to the attacker.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 2 })],
 		traits: [Trait.Melee],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StandardCheck.Attack,
+			}),
+		],
 	}),
 	[Action.Shove]: new ActionDefinition({
 		key: Action.Shove,
@@ -394,6 +443,13 @@ export const ACTIONS = {
 		description: 'Special Attack against [[Stance]]. Shoves opponent to the next hex in the incoming direction.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		traits: [Trait.Melee],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StandardCheck.Attack,
+			}),
+		],
 	}),
 	[Action.Disarm]: new ActionDefinition({
 		key: Action.Disarm,
@@ -402,6 +458,13 @@ export const ACTIONS = {
 		description: 'Special Attack against [[Muscles]] or [[Finesse]]. Requires at least one **Shift** to succeed.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 2 })],
 		traits: [Trait.Melee, Trait.Concentrate],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StandardCheck.Attack,
+			}),
+		],
 	}),
 	[Action.Demoralize]: new ActionDefinition({
 		key: Action.Demoralize,
@@ -410,6 +473,13 @@ export const ACTIONS = {
 		description:
 			"Special Attack using [[Speechcraft]] against target's [[Resolve]]: target becomes [[Distraught]]. **Crit Shifts** deal [[Spirit_Point | SP]] damage.",
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StatType.Speechcraft,
+			}),
+		],
 	}),
 	[Action.OpportunityAttack]: new ActionDefinition({
 		key: Action.OpportunityAttack,
@@ -438,6 +508,13 @@ export const ACTIONS = {
 			'Most Basic Defense against any form of Basic Attack - contest with either [[Body]], [[Mind]] or [[Soul]] against the Attack. This does not cost any [[Action_Point | AP]] and thus can always be responded with.',
 		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 0 })],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Resisted,
+				statType: StandardCheck.Defense,
+			}),
+		],
 	}),
 	[Action.ShrugOff]: new ActionDefinition({
 		key: Action.ShrugOff,
@@ -447,6 +524,14 @@ export const ACTIONS = {
 			'Immediately as taking >1 [[Vitality_Point | VP]] damage, you can attempt a [[Toughness]] Check (DC 20) to reduce the damage by 1 (+ **Crit Shifts**).',
 		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Static,
+				nature: CheckNature.Resisted,
+				statType: StatType.Toughness,
+				targetDc: 20,
+			}),
+		],
 	}),
 	[Action.TakeCover]: new ActionDefinition({
 		key: Action.TakeCover,
@@ -456,6 +541,13 @@ export const ACTIONS = {
 			'When rolling a **Body Defense** against a **Ranged Basic Attack**, you can roll an [[Agility]] Check with a `+6` [[Circumstance_Modifier | CM]] instead when already benefiting from **Basic Cover**.',
 		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Resisted,
+				statType: StatType.Agility,
+			}),
+		],
 	}),
 	[Action.ShieldBlock]: new ActionDefinition({
 		key: Action.ShieldBlock,
@@ -464,6 +556,7 @@ export const ACTIONS = {
 		description: 'Add **Shield Bonus** to a **Basic Body Defense** contested Check.',
 		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
+		// TODO(luan): model this
 	}),
 	[Action.Dodge]: new ActionDefinition({
 		key: Action.Dodge,
@@ -473,6 +566,18 @@ export const ACTIONS = {
 			'Defend Body against a Basic Attack with an [[Evasiveness]] Check and a `+3` [[Circumstance Modifier | CM]] instead.',
 		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Resisted,
+				statType: StatType.Evasiveness,
+				circumstanceModifier: new CircumstanceModifier({
+					source: ModifierSource.Circumstance,
+					name: 'Dodge',
+					value: 3,
+				}),
+			}),
+		],
 	}),
 
 	// Support
@@ -482,6 +587,13 @@ export const ACTIONS = {
 		name: 'Escape',
 		description: 'Contested [[Evasiveness]] check to clear [[Immobilized]] against a grappler.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Resisted,
+				statType: StatType.Evasiveness,
+			}),
+		],
 	}),
 	[Action.GetUp]: new ActionDefinition({
 		key: Action.GetUp,
@@ -498,6 +610,13 @@ export const ACTIONS = {
 			"Try to conceal yourself; make a [[Finesse]] active check that can be contested by each opponent's [[Perception]] Check.",
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		traits: [Trait.Concentrate],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StatType.Finesse,
+			}),
+		],
 	}),
 	[Action.Aim]: new ActionDefinition({
 		key: Action.Aim,
@@ -519,6 +638,13 @@ export const ACTIONS = {
 			'When an ally attacks, if on Flanking position, give them a +3 [[Circumstance Modifier | CM]] to their attack roll.',
 		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
+		parameters: [
+			new ActionValueParameter({
+				name: 'Flank Bonus',
+				formula: F.constant(3),
+				unit: ActionValueUnit.Modifier,
+			}),
+		],
 	}),
 	[Action.Taunt]: new ActionDefinition({
 		key: Action.Taunt,
@@ -530,6 +656,13 @@ export const ACTIONS = {
 		costs: [
 			new ActionCost({ resource: Resource.ActionPoint, amount: 1 }),
 			new ActionCost({ resource: Resource.SpiritPoint, amount: 1 }),
+		],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StatType.Presence,
+			}),
 		],
 	}),
 
@@ -543,6 +676,14 @@ export const ACTIONS = {
 			new ActionCost({ resource: Resource.ActionPoint, amount: 1 }),
 			new ActionCost({ resource: Resource.FocusPoint, amount: 1 }),
 		],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StatType.Stamina,
+				targetDc: 20,
+			}),
+		],
 	}),
 	[Action.Calm]: new ActionDefinition({
 		key: Action.Calm,
@@ -553,6 +694,14 @@ export const ACTIONS = {
 		costs: [
 			new ActionCost({ resource: Resource.ActionPoint, amount: 1 }),
 			new ActionCost({ resource: Resource.VitalityPoint, amount: 1 }),
+		],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StatType.Resolve,
+				targetDc: 20,
+			}),
 		],
 	}),
 	[Action.Focus]: new ActionDefinition({
@@ -565,15 +714,34 @@ export const ACTIONS = {
 			new ActionCost({ resource: Resource.ActionPoint, amount: 1 }),
 			new ActionCost({ resource: Resource.SpiritPoint, amount: 1 }),
 		],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StatType.Tenacity,
+				targetDc: 20,
+			}),
+		],
 	}),
 	[Action.Inspire]: new ActionDefinition({
 		key: Action.Inspire,
 		type: ActionType.Support,
 		name: 'Inspire',
 		description:
-			'Make an [[Empathy]] Check DC `20` (Medium; target can resist with [[Resolve]] if they so desire): target gets a `+1` [[Circumstance Modifier | CM]] to a Attack or Defense action of their choice until the end of their next turn. **Crit Shifts** grant additional modifiers.\nApply a `-3` [[Circumstance Modifier | CM]] if they cannot see you.\nApply a `-6` [[Circumstance Modifier | CM]] for each additional target you are trying to inspire at once.',
-		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 2 })],
+			'Make an [[Empathy]] Check DC `20` (Medium; target can resist with [[Resolve]] if they so desire): target gets a `+3` [[Circumstance Modifier | CM]] to a Attack or Defense action of their choice until the end of their next turn. Each **Crit Shifts** grants an additional `+3`.\nApply a `-3` [[Circumstance Modifier | CM]] to your check if they cannot see you.\nApply a `-6` [[Circumstance Modifier | CM]] for each additional target you are trying to inspire at once.',
+		costs: [
+			new ActionCost({ resource: Resource.ActionPoint, amount: 2 }),
+			new ActionCost({ resource: Resource.SpiritPoint, amount: 1 }),
+		],
 		traits: [Trait.Concentrate],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StatType.Empathy,
+				targetDc: 20,
+			}),
+		],
 	}),
 	[Action.SheatheUnsheathe]: new ActionDefinition({
 		key: Action.SheatheUnsheathe,
@@ -601,6 +769,13 @@ export const ACTIONS = {
 			new ActionCost({ resource: Resource.ActionPoint, amount: 0 }),
 			new ActionCost({ resource: Resource.HeroismPoint, amount: 1 }),
 		],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StatType.Karma,
+			}),
+		],
 	}),
 	[Action.WriteHistory]: new ActionDefinition({
 		key: Action.WriteHistory,
@@ -611,6 +786,32 @@ export const ACTIONS = {
 		costs: [
 			new ActionCost({ resource: Resource.ActionPoint, amount: 0 }),
 			new ActionCost({ resource: Resource.HeroismPoint, amount: 1, variable: true }),
+		],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StatType.Serendipity,
+			}),
+		],
+	}),
+	[Action.HeroicRelentlessness]: new ActionDefinition({
+		key: Action.HeroicRelentlessness,
+		type: ActionType.Heroic,
+		name: 'Heroic Relentlessness',
+		description:
+			'A special Action you can take as a full-round-action when you are [[Incapacitated]] by paying a [[Heroism_Point | Heroism Point]] to make a [[FOW]] Check DC 20 (Medium). Restore your [[Vitality_Point | Vitality]], [[Focus_Point | Focus]] and [[Spirit_Point | Spirit]] Points to at least 1 each, thus clearing [[Incapacitated]] (you get a level of [[Exhaustion]] as usual).',
+		costs: [
+			new ActionCost({ resource: Resource.ActionPoint, amount: 4 }),
+			new ActionCost({ resource: Resource.HeroismPoint, amount: 1 }),
+		],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StatType.FOW,
+				targetDc: 20,
+			}),
 		],
 	}),
 	[Action.LuckDie]: new ActionDefinition({
@@ -632,17 +833,6 @@ export const ACTIONS = {
 			'The **Extra Die** is a special mechanic that allows you to enhance your **Active Skill Checks** by leveraging a different **Attribute** alongside your main **Skill**.\n\nFor example, imagine you are trying to deceive a guard with a [[Speechcraft]] check, but you have a high [[WIS]]. You can leverage your **Wisdom score** to complement your **Speechcraft Check** by paying 1 [[Heroism_Point | Heroism Point]]. You then roll an extra, visually distinct `d12` for the **Check** (check the [[CHA]] attribute for more examples of Extras).\n\nIn order for this extra die to be valid, it must be less or equal than the Attribute chosen as the **Extra**. If it is, that is a valid ***Extra Die** that can be picked as one of the two for the final total. Note that, regardless if you pick the extra die or even if it is valid or not, it still counts for **Crit Modifiers** and **Auto Fail** when applicable.\n\nThe **Extra Die** must be invoked before the roll is made.',
 		costs: [
 			new ActionCost({ resource: Resource.ActionPoint, amount: 0 }),
-			new ActionCost({ resource: Resource.HeroismPoint, amount: 1 }),
-		],
-	}),
-	[Action.HeroicRelentlessness]: new ActionDefinition({
-		key: Action.HeroicRelentlessness,
-		type: ActionType.Heroic,
-		name: 'Heroic Relentlessness',
-		description:
-			'A special Action you can take as a full-round-action when you are [[Incapacitated]] by paying a [[Heroism_Point | Heroism Point]] to make a [[FOW]] Check DC 25 (Hard). Restore your [[Vitality_Point | Vitality]], [[Focus_Point | Focus]] and [[Spirit_Point | Spirit]] Points to at least 1 each, thus clearing [[Incapacitated]] (you get a level of [[Exhaustion]] as usual).',
-		costs: [
-			new ActionCost({ resource: Resource.ActionPoint, amount: 4 }),
 			new ActionCost({ resource: Resource.HeroismPoint, amount: 1 }),
 		],
 	}),

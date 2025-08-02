@@ -7,6 +7,12 @@ import {
 	DerivedStatType,
 	RESOURCES,
 	Check,
+	StatType,
+	StandardCheck,
+	CircumstanceModifier,
+	ModifierSource,
+	ActionValueUnit,
+	modifierToString,
 } from '@shattered-wilds/commons';
 import React, { useEffect, useState } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
@@ -67,11 +73,21 @@ interface ValueParameterProps {
 }
 
 const ValueParameter: React.FC<ValueParameterProps> = ({ parameter, statTree }) => {
+	const computeValueForUnit = (value: number, unit: ActionValueUnit) => {
+		switch (unit) {
+			case ActionValueUnit.Modifier:
+				return `${modifierToString(value)}`;
+			case ActionValueUnit.Hex:
+				return `${value} Hex`;
+		}
+	};
 	const result = parameter.compute(statTree);
+	const text = computeValueForUnit(result.value, parameter.unit);
+	const tooltip = [parameter.name, result.tooltip].filter(Boolean).join('\n');
 
 	return (
-		<ParameterBox title={parameter.name} tooltip={result.tooltip}>
-			{`${result.value} ${parameter.unit}`}
+		<ParameterBox title={parameter.name} tooltip={tooltip}>
+			{text}
 		</ParameterBox>
 	);
 };
@@ -80,15 +96,44 @@ interface CheckParameterProps {
 	parameter: ActionCheckParameter;
 	statTree: StatTree;
 	character: Character;
+	tabParameters: TabParameters;
 }
 
-const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, character }) => {
-	const addWindow = useStore(state => state.addWindow);
-	const circumstanceModifiers = parameter.circumstanceModifier ? [parameter.circumstanceModifier] : [];
-	const statModifier = statTree.getModifier(parameter.statType, circumstanceModifiers);
+interface TabParameters {
+	selectedWeapon: Weapon | null;
+}
 
+const checkOptions = (statType: StatType | StandardCheck, tabParameters: TabParameters): [StatType, number] => {
+	if (statType instanceof StatType) {
+		return [statType, 0];
+	}
+
+	switch (statType) {
+		case StandardCheck.Attack: {
+			const type = tabParameters.selectedWeapon ? tabParameters.selectedWeapon.statType : StatType.STR;
+			const bonus = tabParameters.selectedWeapon ? tabParameters.selectedWeapon.bonus : 0;
+			return [type, bonus];
+		}
+		case StandardCheck.Defense: {
+			return [StatType.Body, 0];
+		}
+	}
+};
+
+const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, character, tabParameters }) => {
+	const addWindow = useStore(state => state.addWindow);
+	const [statType, bonus] = checkOptions(parameter.statType, tabParameters);
+	const circumstanceModifiers = [
+		parameter.circumstanceModifier ? parameter.circumstanceModifier : undefined,
+		bonus !== 0
+			? new CircumstanceModifier({ source: ModifierSource.Equipment, name: 'Weapon Bonus', value: bonus })
+			: undefined,
+	].filter(Boolean) as CircumstanceModifier[];
+
+	const statModifier = statTree.getModifier(statType, circumstanceModifiers);
+	const name = statType.name;
 	const tooltipText = [
-		`Stat: ${parameter.statType.name}`,
+		`Stat: ${statType.name}`,
 		statModifier.description,
 		`Check type: ${parameter.mode}-${parameter.nature}`,
 		parameter.targetDc && `Target DC: ${parameter.targetDc}`,
@@ -96,14 +141,15 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, ch
 		.filter(Boolean)
 		.join('\n');
 
+	const inherentModifier = statModifier.inherentModifierString;
 	return (
 		<ParameterBox
-			title={`${parameter.name} (${statModifier.baseValueString})`}
+			title={`${name} (${inherentModifier})`}
 			tooltip={tooltipText}
 			onClick={() => {
 				addWindow({
 					id: window.crypto.randomUUID(),
-					title: `Roll ${parameter.name} Check`,
+					title: `Roll ${name} Check`,
 					type: 'dice-roll',
 					position: findNextWindowPosition(useStore.getState().windows),
 					check: new Check({
@@ -312,7 +358,15 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 									if (parameter instanceof ActionValueParameter) {
 										return <ValueParameter key={index} parameter={parameter} statTree={tree} />;
 									} else if (parameter instanceof ActionCheckParameter) {
-										return <CheckParameter key={index} parameter={parameter} statTree={tree} character={character} />;
+										return (
+											<CheckParameter
+												key={index}
+												parameter={parameter}
+												statTree={tree}
+												character={character}
+												tabParameters={{ selectedWeapon }}
+											/>
+										);
 									}
 									return null;
 								})}

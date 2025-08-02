@@ -10,7 +10,8 @@ export enum ModifierSource {
 	Circumstance = 'Circumstance',
 }
 
-const modifierToString = (value: number): string => {
+// TODO(luan): create Bonus class
+export const modifierToString = (value: number): string => {
 	const sign = value >= 0 ? '+' : '-';
 	return `${sign}${Math.abs(value)}`;
 };
@@ -286,6 +287,17 @@ export class StatModifier {
 		this.value = value;
 	}
 
+	get inherentModifier(): number {
+		const inherentModifiers = this.appliedModifiers
+			.filter(mod => mod instanceof InherentModifier)
+			.reduce((sum, mod) => sum + mod.value, 0);
+		return this.baseValue + inherentModifiers;
+	}
+
+	get inherentModifierString(): string {
+		return modifierToString(this.inherentModifier);
+	}
+
 	get baseValueString(): string {
 		return modifierToString(this.baseValue);
 	}
@@ -297,7 +309,9 @@ export class StatModifier {
 	get description(): string {
 		const breakdown =
 			this.appliedModifiers.length > 0
-				? [this.baseValue, ...this.appliedModifiers.map(mod => `[${mod.description}]`)].join(' + ')
+				? [`${this.baseValue} (${this.statType})`, ...this.appliedModifiers.map(mod => `[${mod.description}]`)].join(
+						' + ',
+					)
 				: undefined;
 		return `${this.statType.name} = ${this.value}${breakdown ? ` (${breakdown})` : ''}`;
 	}

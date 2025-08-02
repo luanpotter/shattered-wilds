@@ -238,7 +238,7 @@ export class CharacterSheet {
 					check: new Check({
 						mode: CheckMode.Static,
 						nature: CheckNature.Active,
-						statModifier: tree.getModifier(weapon.attribute, [weaponModifier]),
+						statModifier: tree.getModifier(weapon.statType, [weaponModifier]),
 					}),
 				});
 			});
