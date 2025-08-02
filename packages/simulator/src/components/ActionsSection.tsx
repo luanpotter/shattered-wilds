@@ -1,4 +1,12 @@
-import { ACTIONS, ActionType, ActionValueParameter, ActionCheckParameter, StatTree } from '@shattered-wilds/commons';
+import {
+	ACTIONS,
+	ActionType,
+	ActionValueParameter,
+	ActionCheckParameter,
+	StatTree,
+	DerivedStatType,
+	RESOURCES,
+} from '@shattered-wilds/commons';
 import React, { useEffect, useState } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
 import { FaShield } from 'react-icons/fa6';
@@ -188,6 +196,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 		const actions = Object.values(ACTIONS).filter(action => action.type === type);
 		if (actions.length === 0) return null;
 
+		const movement = sheet.getStatTree().computeDerivedStat(DerivedStatType.Movement);
 		return (
 			<div key={type}>
 				{/* Type-specific info */}
@@ -195,8 +204,8 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 					<>
 						<LabeledInput
 							label='Movement'
-							tooltip={sheet.derivedStats.movement.description}
-							value={sheet.derivedStats.movement.value.toString()}
+							tooltip={movement.tooltip}
+							value={movement.value.toString()}
 							disabled={true}
 						/>
 						<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '0 0 12px 0', opacity: 0.3 }} />
@@ -241,22 +250,9 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 					{actions.map(action => {
 						const costs = action.costs.map(cost => {
-							let displayName: string;
-							if (cost.resource === 'ActionPoint') {
-								displayName = 'AP';
-							} else if (cost.resource === 'VitalityPoint') {
-								displayName = 'VP';
-							} else if (cost.resource === 'FocusPoint') {
-								displayName = 'FP';
-							} else if (cost.resource === 'SpiritPoint') {
-								displayName = 'SP';
-							} else if (cost.resource === 'HeroismPoint') {
-								displayName = 'HP';
-							} else {
-								displayName = cost.resource;
-							}
-							const value = `${cost.amount}${cost.variable ? '+' : ''} ${displayName}`;
-							const tooltip = `${cost.amount}${cost.variable ? '+' : ''} ${cost.resource}`;
+							const resource = RESOURCES[cost.resource];
+							const value = `${cost.amount}${cost.variable ? '+' : ''} ${resource.shortName}`;
+							const tooltip = `${cost.amount}${cost.variable ? '+' : ''} ${resource.name}`;
 							return { value, tooltip };
 						});
 

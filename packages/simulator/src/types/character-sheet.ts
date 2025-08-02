@@ -4,8 +4,6 @@ import {
 	InherentModifier,
 	ModifierSource,
 	StatType,
-	Size,
-	RACE_DEFINITIONS,
 	FeatInfo,
 	FeatType,
 	FeatStatModifier,
@@ -18,114 +16,55 @@ import {
 	CircumstanceModifier,
 	RaceInfo,
 	ClassInfo,
+	Resource,
+	Size,
 } from '@shattered-wilds/commons';
 
-import { DerivedStatType } from '../../../commons/dist/stats/derived-stat';
-
-import { DerivedStat, BasicAttack, DefenseType, DEFENSE_TYPE_PROPERTIES } from './core';
+import { BasicAttack, DefenseType, DEFENSE_TYPE_PROPERTIES } from './core';
 import { Equipment, Armor, Shield, Weapon } from './equipment';
 
-export class DerivedStats {
-	size: DerivedStat<Size>;
-	movement: DerivedStat<number>;
-	initiative: DerivedStat<number>;
-	maxHeroism: DerivedStat<number>;
-	maxVitality: DerivedStat<number>;
-	maxFocus: DerivedStat<number>;
-	maxSpirit: DerivedStat<number>;
-
-	constructor(race: RaceInfo, statTree: StatTree) {
-		this.size = this.computeSize(race);
-		this.movement = this.computeMovement(statTree);
-		this.initiative = this.computeInitiative(statTree);
-		this.maxHeroism = this.computeMaxHeroism(statTree);
-		this.maxVitality = this.computeMaxVitality(statTree);
-		this.maxFocus = this.computeMaxFocus(statTree);
-		this.maxSpirit = this.computeMaxSpirit(statTree);
-	}
-
-	get<T>(key: string): DerivedStat<T> {
-		return this[key as keyof DerivedStats] as DerivedStat<T>;
-	}
-
-	private computeSize(race: RaceInfo): DerivedStat<Size> {
-		const size = RACE_DEFINITIONS[race.primaryRace].size;
-		return new DerivedStat(size, `Size is determined by your primary race (${size})`);
-	}
-
-	private computeMovement(statTree: StatTree): DerivedStat<number> {
-		const result = statTree.computeDerivedStat(DerivedStatType.Movement);
-		return new DerivedStat(Math.max(result.value, 1), `Movement = ${result.tooltip}`);
-	}
-
-	private computeInitiative(statTree: StatTree): DerivedStat<number> {
-		const result = statTree.computeDerivedStat(DerivedStatType.Initiative);
-		return new DerivedStat(result.value, `Initiative = ${result.tooltip}`);
-	}
-
-	private computeMaxHeroism(statTree: StatTree): DerivedStat<number> {
-		const level = statTree.root.points;
-		return new DerivedStat(level, `Max Heroism Points = ${level} (Level)`);
-	}
-
-	private computeMaxVitality(statTree: StatTree): DerivedStat<number> {
-		const body = statTree.valueOf(StatType.Body);
-		const value = Math.max(1, 4 + body);
-		return new DerivedStat(value, `Max Vitality Points = max(1, 4 + ${body} (Body))`);
-	}
-
-	private computeMaxFocus(statTree: StatTree): DerivedStat<number> {
-		const mind = statTree.valueOf(StatType.Mind);
-		const value = Math.max(1, 4 + mind);
-		return new DerivedStat(value, `Max Focus Points = max(1, 4 + ${mind} (Mind))`);
-	}
-
-	private computeMaxSpirit(statTree: StatTree): DerivedStat<number> {
-		const soul = statTree.valueOf(StatType.Soul);
-		const value = Math.max(1, 4 + soul);
-		return new DerivedStat(value, `Max Spirit Points = max(1, 4 + ${soul} (Soul))`);
-	}
+export interface ResourceValue {
+	resource: Resource;
+	current: number;
+	max: number;
 }
 
-export class CurrentValues {
-	currentHeroism: number;
-	currentVitality: number;
-	currentFocus: number;
-	currentSpirit: number;
+export class CurrentResources {
+	currentResources: Record<Resource, number>;
 
-	constructor(currentHeroism: number, currentVitality: number, currentFocus: number, currentSpirit: number) {
-		this.currentHeroism = currentHeroism;
-		this.currentVitality = currentVitality;
-		this.currentFocus = currentFocus;
-		this.currentSpirit = currentSpirit;
+	constructor(currentResources: Record<Resource, number>) {
+		this.currentResources = currentResources;
 	}
 
 	static MAX_VALUE = -1;
 
-	static from(props: Record<string, string>): CurrentValues {
+	static from(props: Record<string, string>): CurrentResources {
 		const parse = (value?: string): number => {
-			return value ? parseInt(value) : CurrentValues.MAX_VALUE;
+			return value ? parseInt(value) : CurrentResources.MAX_VALUE;
 		};
-		const currentHeroism = parse(props['currentHeroism']);
-		const currentVitality = parse(props['currentVitality']);
-		const currentFocus = parse(props['currentFocus']);
-		const currentSpirit = parse(props['currentSpirit']);
+		const currentResources = Object.values(Resource).reduce(
+			(acc, resource) => {
+				acc[resource] = parse(props[resource]);
+				return acc;
+			},
+			<Record<Resource, number>>{},
+		);
 
-		return new CurrentValues(currentHeroism, currentVitality, currentFocus, currentSpirit);
+		return new CurrentResources(currentResources);
 	}
 
-	get(key: string): number {
-		return this[key as keyof CurrentValues] as number;
+	private getCurrentValue(resource: Resource): number {
+		return this.currentResources[resource];
 	}
 
-	backfill(sheet: CharacterSheet) {
-		const fallback = (value: number, fallback: () => number): number => {
-			return value === CurrentValues.MAX_VALUE ? fallback() : value;
+	get(statTree: StatTree, resource: Resource) {
+		const max = statTree.computeResource(resource).value;
+		const current = this.getCurrentValue(resource);
+		return {
+			resource,
+			current: current === CurrentResources.MAX_VALUE ? max : current,
+			max,
 		};
-		this.currentHeroism = fallback(this.currentHeroism, () => sheet.derivedStats.maxHeroism.value);
-		this.currentVitality = fallback(this.currentVitality, () => sheet.derivedStats.maxVitality.value);
-		this.currentFocus = fallback(this.currentFocus, () => sheet.derivedStats.maxFocus.value);
-		this.currentSpirit = fallback(this.currentSpirit, () => sheet.derivedStats.maxSpirit.value);
 	}
 }
 
@@ -193,32 +132,45 @@ export class CharacterSheet {
 	characterClass: ClassInfo;
 	feats: CharacterFeats;
 	attributeRoot: StatNode;
-	derivedStats: DerivedStats;
-	currentValues: CurrentValues;
+	currentResources: CurrentResources;
 	equipment: Equipment;
 
-	constructor(
-		name: string,
-		race: RaceInfo,
-		characterClass: ClassInfo,
-		feats: CharacterFeats,
-		attributeRoot: StatNode,
-		equipment: Equipment,
-		currentValues: CurrentValues,
-	) {
+	constructor({
+		name,
+		race,
+		characterClass,
+		feats,
+		attributeRoot,
+		equipment,
+		currentResources,
+	}: {
+		name: string;
+		race: RaceInfo;
+		characterClass: ClassInfo;
+		feats: CharacterFeats;
+		attributeRoot: StatNode;
+		equipment: Equipment;
+		currentResources: CurrentResources;
+	}) {
 		this.name = name;
 		this.race = race;
 		this.characterClass = characterClass;
 		this.feats = feats;
 		this.attributeRoot = attributeRoot;
 		this.equipment = equipment;
+		this.currentResources = currentResources;
+	}
 
-		this.derivedStats = new DerivedStats(this.race, this.getStatTree());
-		this.currentValues = currentValues;
+	get size(): Size {
+		return this.race.size;
 	}
 
 	get level(): number {
 		return this.getStatTree().root.points;
+	}
+
+	getResource(resource: Resource): ResourceValue {
+		return this.currentResources.get(this.getStatTree(), resource);
 	}
 
 	getStatTree(): StatTree {
@@ -365,17 +317,14 @@ export class CharacterSheet {
 	static from(props: Record<string, string>): CharacterSheet {
 		const race = RaceInfo.from(props);
 		const characterClass = ClassInfo.from(props);
-		const sheet = new CharacterSheet(
-			props['name']!,
+		return new CharacterSheet({
+			name: props['name']!,
 			race,
 			characterClass,
-			CharacterFeats.from(props, race, characterClass),
-			StatTree.buildRootNode(props),
-			Equipment.from(props['equipment']),
-			CurrentValues.from(props),
-		);
-		// backfill maximal current values from attribute tree if needed
-		sheet.currentValues.backfill(sheet);
-		return sheet;
+			feats: CharacterFeats.from(props, race, characterClass),
+			attributeRoot: StatTree.buildRootNode(props),
+			equipment: Equipment.from(props['equipment']),
+			currentResources: CurrentResources.from(props),
+		});
 	}
 }

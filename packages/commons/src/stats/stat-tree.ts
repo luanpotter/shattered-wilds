@@ -1,5 +1,6 @@
 import { DERIVED_STATS, DerivedStatType } from './derived-stat.js';
 import { FormulaResult } from './formula.js';
+import { Resource, RESOURCES } from './resources.js';
 import { StatHierarchyProperties, StatType } from './stat-type.js';
 
 export enum ModifierSource {
@@ -145,6 +146,10 @@ export class StatTree {
 
 	computeDerivedStat(stat: DerivedStatType): FormulaResult {
 		return DERIVED_STATS[stat].compute(this);
+	}
+
+	computeResource(resource: Resource): FormulaResult {
+		return RESOURCES[resource].formula.compute(this);
 	}
 
 	valueOf(stat: StatType | DerivedStatType): number {

@@ -1,9 +1,9 @@
-import { FeatType } from '@shattered-wilds/commons';
+import { DerivedStatType, FeatType, Resource } from '@shattered-wilds/commons';
 import React, { useMemo } from 'react';
 import { FaArrowLeft, FaBatteryFull, FaCog, FaCopy, FaExclamationTriangle, FaMinus, FaPlus } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { CharacterSheet } from '../types';
+import { Character, CharacterSheet } from '../types';
 import { FeatsSection } from '../types/feats-section';
 
 import { ActionsSection } from './ActionsSection';
@@ -21,6 +21,18 @@ interface FullPageCharacterSheetProps {
 
 export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ characterId, onBack }) => {
 	const characters = useStore(state => state.characters);
+	const character = useMemo(() => characters.find(c => c.id === characterId), [characters, characterId]);
+	if (!character) {
+		return <div>Character {characterId} not found</div>;
+	}
+
+	return <FullPageCharacterSheetContent character={character} onBack={onBack} />;
+};
+
+const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: () => void }> = ({
+	character,
+	onBack,
+}) => {
 	const updateCharacterName = useStore(state => state.updateCharacterName);
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
 	const editMode = useStore(state => state.editMode);
@@ -28,11 +40,11 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 	const addWindow = useStore(state => state.addWindow);
 	const windows = useStore(state => state.windows);
 
-	// Get the current character from the store (reactive to store changes)
-	const character = useMemo(() => characters.find(c => c.id === characterId), [characters, characterId]);
-
 	// Create a reactive sheet that updates when character props change
-	const sheet = useMemo(() => (character ? CharacterSheet.from(character.props) : null), [character]);
+	const sheet = useMemo(() => CharacterSheet.from(character.props), [character]);
+	const statTree = useMemo(() => sheet.getStatTree(), [sheet]);
+	const movement = useMemo(() => statTree.computeDerivedStat(DerivedStatType.Movement), [statTree]);
+	const initiative = useMemo(() => statTree.computeDerivedStat(DerivedStatType.Initiative), [statTree]);
 
 	// Show error message if character not found
 	if (!character || !sheet) {
@@ -79,18 +91,17 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 		);
 	}
 
-	const handlePointChange = (pointType: string, delta: number) => {
-		const maxValue = sheet.derivedStats.get<number>(`max${pointType}`).value;
-		const currentValue = parseInt(character.props[`current${pointType}`] ?? maxValue.toString());
-		const newValue = Math.max(0, Math.min(maxValue, currentValue + delta));
-		updateCharacterProp(character, `current${pointType}`, newValue.toString());
+	const handlePointChange = (resource: Resource, delta: number) => {
+		const { max } = sheet.getResource(resource);
+		const currentValue = sheet.getResource(resource).current;
+		const newValue = Math.max(0, Math.min(max, currentValue + delta));
+		updateCharacterProp(character, resource, newValue.toString());
 	};
 
 	const handleRefillPoints = () => {
-		const pointTypes = ['Heroism', 'Vitality', 'Focus', 'Spirit'];
-		pointTypes.forEach(pointType => {
-			const maxValue = sheet.derivedStats.get<number>(`max${pointType}`).value;
-			updateCharacterProp(character, `current${pointType}`, maxValue.toString());
+		Object.values(Resource).forEach(resource => {
+			const { max } = sheet.getResource(resource);
+			updateCharacterProp(character, resource, max.toString());
 		});
 	};
 
@@ -375,38 +386,32 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 							}}
 						>
 							{/* Derived Stats */}
-							<LabeledInput
-								label='Size'
-								value={sheet.derivedStats.size.value}
-								disabled={true}
-								tooltip={sheet.derivedStats.size.description}
-							/>
+							<LabeledInput label='Size' value={sheet.size} disabled={true} tooltip={sheet.size} />
 							<LabeledInput
 								label='Movement'
-								value={sheet.derivedStats.movement.value.toString()}
+								value={movement.value.toString()}
 								disabled={true}
-								tooltip={sheet.derivedStats.movement.description}
+								tooltip={movement.tooltip}
 							/>
 							<LabeledInput
 								label='Initiative'
-								value={sheet.derivedStats.initiative.value.toString()}
+								value={initiative.value.toString()}
 								disabled={true}
-								tooltip={sheet.derivedStats.initiative.description}
+								tooltip={initiative.tooltip}
 							/>
 
 							{/* Resource Points */}
-							{['Heroism', 'Vitality', 'Focus', 'Spirit'].map(pointType => {
-								const maxValue = sheet.derivedStats.get<number>(`max${pointType}`).value;
-								const currentValue = sheet.currentValues.get(`current${pointType}`);
+							{Object.values(Resource).map(resource => {
+								const { max, current } = sheet.getResource(resource);
 
 								return (
-									<div key={pointType}>
-										<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>{pointType}</span>
+									<div key={resource}>
+										<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>{resource}</span>
 										<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 											<Button
-												onClick={() => handlePointChange(pointType, -1)}
+												onClick={() => handlePointChange(resource, -1)}
 												icon={FaMinus}
-												tooltip={`Decrease ${pointType}`}
+												tooltip={`Decrease ${resource}`}
 												type='inline'
 											/>
 											<div
@@ -421,12 +426,12 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 													fontWeight: 'bold',
 												}}
 											>
-												{currentValue}/{maxValue}
+												{current}/{max}
 											</div>
 											<Button
-												onClick={() => handlePointChange(pointType, 1)}
+												onClick={() => handlePointChange(resource, 1)}
 												icon={FaPlus}
-												tooltip={`Increase ${pointType}`}
+												tooltip={`Increase ${resource}`}
 												type='inline'
 											/>
 										</div>

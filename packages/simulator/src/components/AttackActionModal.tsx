@@ -1,4 +1,4 @@
-import { Check, CheckMode, CheckNature } from '@shattered-wilds/commons';
+import { Check, CheckMode, CheckNature, Resource } from '@shattered-wilds/commons';
 import React, { useState, useEffect } from 'react';
 import { FaDice, FaFistRaised, FaUserShield } from 'react-icons/fa';
 
@@ -218,12 +218,10 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		if (!outcome) return;
 
 		if (outcome.hit && outcome.damage > 0) {
-			const currentVitality = parseInt(
-				defender.props['currentVitality'] ?? defenderSheet.derivedStats.maxVitality.value.toString(),
-			);
-			const newVitality = Math.max(0, currentVitality - outcome.damage);
+			const { current } = defenderSheet.getResource(Resource.VitalityPoint);
+			const newVitality = Math.max(0, current - outcome.damage);
 
-			updateCharacterProp(defender, 'currentVitality', newVitality.toString());
+			updateCharacterProp(defender, Resource.VitalityPoint, newVitality.toString());
 		}
 
 		onClose();

@@ -1,5 +1,6 @@
 import { FeatCategory, FeatInfo, FEATS, FeatSource, FeatType, StaticFeatSource } from '../core/feats.js';
-import { Race, Upbringing } from '../core/races.js';
+import { Race, RACE_DEFINITIONS, Upbringing } from '../core/races.js';
+import { Size } from '../core/size.js';
 import { StatType } from '../stats/stat-type.js';
 
 export class RaceInfo {
@@ -24,6 +25,10 @@ export class RaceInfo {
 		this.upbringing = upbringing;
 		this.upbringingPlusModifier = upbringingPlusModifier;
 		this.upbringingMinusModifier = upbringingMinusModifier;
+	}
+
+	get size(): Size {
+		return RACE_DEFINITIONS[this.primaryRace].size;
 	}
 
 	static from(props: Record<string, string>): RaceInfo {

@@ -1,3 +1,4 @@
+import { DerivedStatType } from '@shattered-wilds/commons';
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 
 import { useStore } from '../store';
@@ -531,7 +532,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 					<g style={{ pointerEvents: 'none' }}>
 						{getHexesInRange(
 							hoveredCharacter.position,
-							CharacterSheet.from(hoveredCharacter.props).derivedStats.movement.value,
+							CharacterSheet.from(hoveredCharacter.props).getStatTree().computeDerivedStat(DerivedStatType.Movement)
+								.value,
 						).map(({ q, r }, i) => (
 							<Hex key={`range-${i}`} q={q} r={r}>
 								<path

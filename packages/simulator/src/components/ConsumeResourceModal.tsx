@@ -45,38 +45,6 @@ export const ConsumeResourceModal: React.FC<ConsumeResourceModalProps> = ({ char
 		return RESOURCES[resource].shortName;
 	};
 
-	// TODO(luan): wire up properly to character sheet
-	const getCurrentResourceValue = (resource: Resource): number => {
-		switch (resource) {
-			case Resource.HeroismPoint:
-				return sheet.currentValues.currentHeroism;
-			case Resource.VitalityPoint:
-				return sheet.currentValues.currentVitality;
-			case Resource.FocusPoint:
-				return sheet.currentValues.currentFocus;
-			case Resource.SpiritPoint:
-				return sheet.currentValues.currentSpirit;
-			default:
-				return 0;
-		}
-	};
-
-	// TODO(luan): wire up properly to character sheet
-	const getMaxResourceValue = (resource: Resource): number => {
-		switch (resource) {
-			case Resource.HeroismPoint:
-				return sheet.derivedStats.maxHeroism.value;
-			case Resource.VitalityPoint:
-				return sheet.derivedStats.maxVitality.value;
-			case Resource.FocusPoint:
-				return sheet.derivedStats.maxFocus.value;
-			case Resource.SpiritPoint:
-				return sheet.derivedStats.maxSpirit.value;
-			default:
-				return 0;
-		}
-	};
-
 	const adjustCost = (index: number, delta: number) => {
 		setAdjustedCosts(prev =>
 			prev.map((cost, i) =>
@@ -87,33 +55,16 @@ export const ConsumeResourceModal: React.FC<ConsumeResourceModalProps> = ({ char
 
 	const canAffordCosts = (): boolean => {
 		return adjustedCosts.every(cost => {
-			const currentValue = getCurrentResourceValue(cost.resource);
+			const currentValue = sheet.getResource(cost.resource).current;
 			return currentValue >= cost.adjustedAmount;
 		});
 	};
 
 	const handleConsume = () => {
 		adjustedCosts.forEach(cost => {
-			const currentValue = getCurrentResourceValue(cost.resource);
+			const currentValue = sheet.getResource(cost.resource).current;
 			const newValue = currentValue - cost.adjustedAmount;
-
-			let propKey: string;
-			switch (cost.resource) {
-				case Resource.HeroismPoint:
-					propKey = 'currentHeroism';
-					break;
-				case Resource.VitalityPoint:
-					propKey = 'currentVitality';
-					break;
-				case Resource.FocusPoint:
-					propKey = 'currentFocus';
-					break;
-				case Resource.SpiritPoint:
-					propKey = 'currentSpirit';
-					break;
-				default:
-					return;
-			}
+			const propKey = cost.resource;
 
 			updateCharacterProp(character, propKey, newValue.toString());
 		});
@@ -137,8 +88,8 @@ export const ConsumeResourceModal: React.FC<ConsumeResourceModalProps> = ({ char
 
 			<div style={{ marginBottom: '20px' }}>
 				{adjustedCosts.map((cost, index) => {
-					const current = getCurrentResourceValue(cost.resource);
-					const max = getMaxResourceValue(cost.resource);
+					const current = sheet.getResource(cost.resource).current;
+					const max = sheet.getResource(cost.resource).max;
 					const displayName = getResourceDisplayName(cost.resource);
 					const insufficient = current < cost.adjustedAmount;
 

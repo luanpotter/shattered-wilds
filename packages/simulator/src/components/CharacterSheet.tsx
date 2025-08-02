@@ -1,9 +1,9 @@
-import { Check, CheckMode, CheckNature } from '@shattered-wilds/commons';
+import { Check, CheckMode, CheckNature, DerivedStatType, Resource, RESOURCES } from '@shattered-wilds/commons';
 import React, { useEffect, useMemo } from 'react';
 import { FaBatteryFull, FaCog, FaMinus, FaPlus } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { Character, CharacterSheet, DefenseType, DerivedStat, Equipment, Point } from '../types';
+import { Character, CharacterSheet, DefenseType, Equipment, Point } from '../types';
 import { FeatsSection } from '../types/feats-section';
 import { findNextWindowPosition } from '../utils';
 
@@ -160,12 +160,10 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 		}
 	};
 
-	const handlePointChange = (pointType: string, delta: number) => {
-		const maxValue = (sheet.derivedStats[`max${pointType}` as keyof typeof sheet.derivedStats] as DerivedStat<number>)
-			.value;
-		const currentValue = parseInt(character.props[`current${pointType}`] ?? maxValue.toString());
-		const newValue = Math.max(0, Math.min(maxValue, currentValue + delta));
-		updateCharacterProp(character, `current${pointType}`, newValue.toString());
+	const handlePointChange = (resource: Resource, delta: number) => {
+		const { max, current } = sheet.getResource(resource);
+		const newValue = Math.max(0, Math.min(max, current + delta));
+		updateCharacterProp(character, resource, newValue.toString());
 	};
 
 	const handleUpdateEquipment = (equipment: Equipment) => {
@@ -173,11 +171,9 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 	};
 
 	const handleRefillPoints = () => {
-		const pointTypes = ['Heroism', 'Vitality', 'Focus', 'Spirit'];
-		pointTypes.forEach(pointType => {
-			const maxValue = (sheet.derivedStats[`max${pointType}` as keyof typeof sheet.derivedStats] as DerivedStat<number>)
-				.value;
-			updateCharacterProp(character, `current${pointType}`, maxValue.toString());
+		Object.values(Resource).forEach(resource => {
+			const { max } = sheet.getResource(resource);
+			updateCharacterProp(character, resource, max.toString());
 		});
 	};
 
@@ -223,6 +219,10 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 	// Create reactive basic attacks and defense that update when sheet changes
 	const basicAttacks = useMemo(() => sheet.getBasicAttacks(), [sheet]);
 	const basicDefense = useMemo(() => sheet.getBasicDefense(DefenseType.BasicBody), [sheet]);
+
+	const statTree = useMemo(() => sheet.getStatTree(), [sheet]);
+	const movement = useMemo(() => statTree.computeDerivedStat(DerivedStatType.Movement), [statTree]);
+	const initiative = useMemo(() => statTree.computeDerivedStat(DerivedStatType.Initiative), [statTree]);
 
 	return (
 		<div style={{ margin: 0, padding: 0, width: '100%', height: '100%', overflowY: 'scroll' }}>
@@ -324,7 +324,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 							</label>
 							<div
 								id='character-size'
-								title={sheet.derivedStats.size.description}
+								title={sheet.size}
 								style={{
 									...inputStyle,
 									display: 'flex',
@@ -333,7 +333,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 									cursor: 'help',
 								}}
 							>
-								{sheet.derivedStats.size.value}
+								{sheet.size}
 							</div>
 						</div>
 
@@ -344,7 +344,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 							</label>
 							<div
 								id='character-movement'
-								title={sheet.derivedStats.movement.description}
+								title={movement.tooltip}
 								style={{
 									...inputStyle,
 									display: 'flex',
@@ -353,7 +353,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 									cursor: 'help',
 								}}
 							>
-								{sheet.derivedStats.movement.value}
+								{movement.value}
 							</div>
 						</div>
 
@@ -364,7 +364,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 							</label>
 							<div
 								id='character-initiative'
-								title={sheet.derivedStats.initiative.description}
+								title={initiative.tooltip}
 								style={{
 									...inputStyle,
 									display: 'flex',
@@ -373,7 +373,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 									cursor: 'help',
 								}}
 							>
-								{sheet.derivedStats.initiative.value}
+								{initiative.value}
 							</div>
 						</div>
 					</div>
@@ -451,145 +451,47 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 
 					{/* Points Row */}
 					<div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-						{/* Heroism Points */}
-						<div style={{ ...halfRowStyle, flex: 1 }}>
-							<label htmlFor='character-heroism' style={labelStyle}>
-								Heroism:
-							</label>
-							<div style={{ display: 'flex', gap: '4px', flex: 1 }}>
-								<div
-									id='character-heroism'
-									title={sheet.derivedStats.maxHeroism.description}
-									style={{
-										...inputStyle,
-										display: 'flex',
-										alignItems: 'center',
-										backgroundColor: 'var(--background)',
-										cursor: 'help',
-										flex: 1,
-									}}
-								>
-									{sheet.currentValues.currentHeroism}/{sheet.derivedStats.maxHeroism.value}
-								</div>
-								<Button
-									onClick={() => handlePointChange('Heroism', -1)}
-									icon={FaMinus}
-									tooltip='Decrease Heroism'
-									type='inline'
-								/>
-								<Button
-									onClick={() => handlePointChange('Heroism', 1)}
-									icon={FaPlus}
-									tooltip='Increase Heroism'
-									type='inline'
-								/>
-							</div>
-						</div>
+						{Object.values(Resource).map(resource => {
+							const resourceData = sheet.getResource(resource);
+							const displayName = RESOURCES[resource].name.replace(' Point', '');
+							const kebabName = displayName.toLowerCase();
 
-						{/* Vitality Points */}
-						<div style={{ ...halfRowStyle, flex: 1 }}>
-							<label htmlFor='character-vitality' style={labelStyle}>
-								Vitality:
-							</label>
-							<div style={{ display: 'flex', gap: '4px', flex: 1 }}>
-								<div
-									id='character-vitality'
-									title={sheet.derivedStats.maxVitality.description}
-									style={{
-										...inputStyle,
-										display: 'flex',
-										alignItems: 'center',
-										backgroundColor: 'var(--background)',
-										cursor: 'help',
-										flex: 1,
-									}}
-								>
-									{sheet.currentValues.currentVitality}/{sheet.derivedStats.maxVitality.value}
+							return (
+								<div key={resource} style={{ ...halfRowStyle, flex: 1 }}>
+									<label htmlFor={`character-${kebabName}`} style={labelStyle}>
+										{displayName}:
+									</label>
+									<div style={{ display: 'flex', gap: '4px', flex: 1 }}>
+										<div
+											id={`character-${kebabName}`}
+											title={resourceData.max.toString()}
+											style={{
+												...inputStyle,
+												display: 'flex',
+												alignItems: 'center',
+												backgroundColor: 'var(--background)',
+												cursor: 'help',
+												flex: 1,
+											}}
+										>
+											{resourceData.current}/{resourceData.max}
+										</div>
+										<Button
+											onClick={() => handlePointChange(resource, -1)}
+											icon={FaMinus}
+											tooltip={`Decrease ${displayName}`}
+											type='inline'
+										/>
+										<Button
+											onClick={() => handlePointChange(resource, 1)}
+											icon={FaPlus}
+											tooltip={`Increase ${displayName}`}
+											type='inline'
+										/>
+									</div>
 								</div>
-								<Button
-									onClick={() => handlePointChange('Vitality', -1)}
-									icon={FaMinus}
-									tooltip='Decrease Vitality'
-									type='inline'
-								/>
-								<Button
-									onClick={() => handlePointChange('Vitality', 1)}
-									icon={FaPlus}
-									tooltip='Increase Vitality'
-									type='inline'
-								/>
-							</div>
-						</div>
-
-						{/* Focus Points */}
-						<div style={{ ...halfRowStyle, flex: 1 }}>
-							<label htmlFor='character-focus' style={labelStyle}>
-								Focus:
-							</label>
-							<div style={{ display: 'flex', gap: '4px', flex: 1 }}>
-								<div
-									id='character-focus'
-									title={sheet.derivedStats.maxFocus.description}
-									style={{
-										...inputStyle,
-										display: 'flex',
-										alignItems: 'center',
-										backgroundColor: 'var(--background)',
-										cursor: 'help',
-										flex: 1,
-									}}
-								>
-									{sheet.currentValues.currentFocus}/{sheet.derivedStats.maxFocus.value}
-								</div>
-								<Button
-									onClick={() => handlePointChange('Focus', -1)}
-									icon={FaMinus}
-									tooltip='Decrease Focus'
-									type='inline'
-								/>
-								<Button
-									onClick={() => handlePointChange('Focus', 1)}
-									icon={FaPlus}
-									tooltip='Increase Focus'
-									type='inline'
-								/>
-							</div>
-						</div>
-
-						{/* Spirit Points */}
-						<div style={{ ...halfRowStyle, flex: 1 }}>
-							<label htmlFor='character-spirit' style={labelStyle}>
-								Spirit:
-							</label>
-							<div style={{ display: 'flex', gap: '4px', flex: 1 }}>
-								<div
-									id='character-spirit'
-									title={sheet.derivedStats.maxSpirit.description}
-									style={{
-										...inputStyle,
-										display: 'flex',
-										alignItems: 'center',
-										backgroundColor: 'var(--background)',
-										cursor: 'help',
-										flex: 1,
-									}}
-								>
-									{sheet.currentValues.currentSpirit}/{sheet.derivedStats.maxSpirit.value}
-								</div>
-								<Button
-									onClick={() => handlePointChange('Spirit', -1)}
-									icon={FaMinus}
-									tooltip='Decrease Spirit'
-									type='inline'
-								/>
-								<Button
-									onClick={() => handlePointChange('Spirit', 1)}
-									icon={FaPlus}
-									tooltip='Increase Spirit'
-									type='inline'
-								/>
-							</div>
-						</div>
+							);
+						})}
 						<Button type='inline' title='Refill points' icon={FaBatteryFull} onClick={handleRefillPoints} />
 					</div>
 				</div>
