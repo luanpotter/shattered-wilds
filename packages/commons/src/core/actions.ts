@@ -193,7 +193,7 @@ export const ACTIONS = {
 		parameters: [
 			new ActionCheckParameter({
 				mode: CheckMode.Static,
-				nature: CheckNature.Active,
+				nature: CheckNature.Resisted,
 				statType: StatType.Stamina,
 			}),
 			new ActionValueParameter({
