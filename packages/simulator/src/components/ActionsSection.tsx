@@ -156,7 +156,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 	};
 
 	const renderTabButtons = () => {
-		const availableTabs = Object.values(ACTIONS);
+		const availableTabs = [...new Set(Object.values(ACTIONS).map(action => action.type))];
 
 		return (
 			<div
@@ -167,8 +167,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 					gap: '2px',
 				}}
 			>
-				{availableTabs.map(action => {
-					const tab = action.type;
+				{availableTabs.map(tab => {
 					const Icon = getTypeIcon(tab);
 					const isActive = activeTab === tab;
 
