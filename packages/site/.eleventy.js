@@ -44,7 +44,7 @@ export default function (eleventyConfig) {
 			return a.title.localeCompare(b.title);
 		});
 
-	const wikiGroupChildren = wikiPages.reduce((acc, e) => {
+	const wikiByGroup = wikiPages.reduce((acc, e) => {
 		if (!e.group) {
 			return acc;
 		}
@@ -62,8 +62,11 @@ export default function (eleventyConfig) {
 			wikiPages.filter((e, i, a) => a.findIndex(t => t.slug === e.slug) !== i),
 		);
 	}
-	eleventyConfig.addGlobalData('wikiPages', wikiPages);
-	eleventyConfig.addGlobalData('wikiGroupChildren', wikiGroupChildren);
+	const wiki = {
+		pages: wikiPages,
+		byGroup: wikiByGroup,
+	}
+	eleventyConfig.addGlobalData('wiki', wiki);
 
 	const processor = new TextProcessor(wikiPages);
 
