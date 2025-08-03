@@ -187,17 +187,33 @@ export class Equipment {
 	}
 }
 
-// TODO(luan): rename to BASIC_EQUIPMENT and add a BasicEquipmentType enum
-export const EQUIPMENT: Record<string, () => Item> = {
+export enum BasicEquipmentType {
+	Javelin = 'Javelin',
+	Hatchet = 'Hatchet',
+	Dagger = 'Dagger',
+	Rapier = 'Rapier',
+	BowAndArrows = 'Bow & Arrows',
+	CrossbowAndDarts = 'Crossbow & Darts',
+	Spear = 'Spear',
+	Mace = 'Mace',
+	Longsword = 'Longsword',
+	LightArmor = 'Light Armor',
+	MediumArmor = 'Medium Armor',
+	HeavyArmor = 'Heavy Armor',
+	SmallShield = 'Small Shield',
+	LargeShield = 'Large Shield',
+}
+
+export const BASIC_EQUIPMENT: Record<BasicEquipmentType, () => Item> = {
 	// Weapons
-	Javelin: () =>
+	[BasicEquipmentType.Javelin]: () =>
 		Weapon.simple({
 			name: 'Javelin',
 			type: PrimaryWeaponType.Thrown,
 			bonus: Bonus.of(2),
 			range: Distance.of(6),
 		}),
-	Hatchet: () =>
+	[BasicEquipmentType.Hatchet]: () =>
 		new Weapon({
 			name: 'Hatchet',
 			modes: [
@@ -212,7 +228,7 @@ export const EQUIPMENT: Record<string, () => Item> = {
 				}),
 			],
 		}),
-	Dagger: () =>
+	[BasicEquipmentType.Dagger]: () =>
 		new Weapon({
 			name: 'Dagger',
 			modes: [
@@ -228,20 +244,20 @@ export const EQUIPMENT: Record<string, () => Item> = {
 			],
 			traits: [Trait.Concealable],
 		}),
-	Rapier: () =>
+	[BasicEquipmentType.Rapier]: () =>
 		Weapon.simple({
 			name: 'Rapier',
 			type: PrimaryWeaponType.LightMelee,
 			bonus: Bonus.of(4),
 		}),
-	'Bow & Arrows': () =>
+	[BasicEquipmentType.BowAndArrows]: () =>
 		Weapon.simple({
 			name: 'Bow & Arrows',
 			type: PrimaryWeaponType.Ranged,
 			bonus: Bonus.of(4),
 			range: Distance.of(12),
 		}),
-	'Crossbow & Darts': () =>
+	[BasicEquipmentType.CrossbowAndDarts]: () =>
 		Weapon.simple({
 			name: 'Crossbow & Darts',
 			type: PrimaryWeaponType.Ranged,
@@ -249,7 +265,7 @@ export const EQUIPMENT: Record<string, () => Item> = {
 			range: Distance.of(12),
 			traits: [Trait.Reloadable],
 		}),
-	Spear: () =>
+	[BasicEquipmentType.Spear]: () =>
 		Weapon.simple({
 			name: 'Spear',
 			type: PrimaryWeaponType.HeavyMelee,
@@ -257,14 +273,14 @@ export const EQUIPMENT: Record<string, () => Item> = {
 			range: Distance.of(2),
 			traits: [Trait.Polearm],
 		}),
-	Mace: () =>
+	[BasicEquipmentType.Mace]: () =>
 		Weapon.simple({
 			name: 'Mace',
 			type: PrimaryWeaponType.HeavyMelee,
 			bonus: Bonus.of(5),
 			range: Distance.of(12),
 		}),
-	Longsword: () =>
+	[BasicEquipmentType.Longsword]: () =>
 		Weapon.simple({
 			name: 'Longsword',
 			type: PrimaryWeaponType.HeavyMelee,
@@ -273,21 +289,21 @@ export const EQUIPMENT: Record<string, () => Item> = {
 		}),
 
 	// Armor
-	'Light Armor': () =>
+	[BasicEquipmentType.LightArmor]: () =>
 		new Armor({
 			name: 'Light Armor',
 			type: ArmorType.LightArmor,
 			bonus: Bonus.of(1),
 			dexPenalty: Bonus.of(-1),
 		}),
-	'Medium Armor': () =>
+	[BasicEquipmentType.MediumArmor]: () =>
 		new Armor({
 			name: 'Medium Armor',
 			type: ArmorType.MediumArmor,
 			bonus: Bonus.of(3),
 			dexPenalty: Bonus.of(-1),
 		}),
-	'Heavy Armor': () =>
+	[BasicEquipmentType.HeavyArmor]: () =>
 		new Armor({
 			name: 'Heavy Armor',
 			type: ArmorType.HeavyArmor,
@@ -296,13 +312,13 @@ export const EQUIPMENT: Record<string, () => Item> = {
 		}),
 
 	// Shields
-	'Small Shield': () =>
+	[BasicEquipmentType.SmallShield]: () =>
 		new Shield({
 			name: 'Small Shield',
 			type: ShieldType.SmallShield,
 			bonus: Bonus.of(2),
 		}),
-	'Large Shield': () =>
+	[BasicEquipmentType.LargeShield]: () =>
 		new Shield({
 			name: 'Large Shield',
 			type: ShieldType.LargeShield,

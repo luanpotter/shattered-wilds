@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FaTrash } from 'react-icons/fa';
 
-import { Character, CharacterSheet, Equipment, EQUIPMENT } from '../types';
+import { Character, CharacterSheet, Equipment, BASIC_EQUIPMENT, BasicEquipmentType } from '../types';
 
 import Block from './shared/Block';
 import { Button } from './shared/Button';
@@ -20,9 +20,9 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ character, o
 
 	// On dropdown change, if a predefined item is selected, add it (and reset dropdown)
 	const handleAddPredefinedItem = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		const name = e.target.value;
-		if (name && EQUIPMENT[name]) {
-			const newItem = EQUIPMENT[name]();
+		const name = e.target.value as BasicEquipmentType;
+		if (name && BASIC_EQUIPMENT[name]) {
+			const newItem = BASIC_EQUIPMENT[name]();
 			equipment.equipment.items.push(newItem);
 			onUpdateEquipment(equipment.equipment);
 			setSelectedItem('');
@@ -80,7 +80,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ character, o
 								style={{ padding: '2px 6px', fontSize: '0.9em' }}
 							>
 								<option value=''>Select…</option>
-								{Object.keys(EQUIPMENT).map(name => (
+								{Object.keys(BASIC_EQUIPMENT).map(name => (
 									<option key={name} value={name}>
 										{name}
 									</option>
