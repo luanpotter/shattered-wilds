@@ -5,10 +5,10 @@ import { CharacterSheetsPage } from './components/CharacterSheetsPage';
 import { BattleGrid } from './components/HexGrid';
 import { OnboardingPage } from './components/OnboardingPage';
 import { Button } from './components/shared/Button';
-import { WindowComponent } from './components/Window';
+import { ModalComponent } from './components/Window';
+import { useModals } from './hooks/useModals';
 import { useStore } from './store';
-import { Point, Character } from './types';
-import { findNextWindowPosition } from './utils';
+import { Point, Character, DragState } from './types';
 
 type ViewType = 'simulator' | 'character-sheets' | 'onboarding';
 
@@ -32,23 +32,16 @@ const getInitialCharacterId = (): string | null => {
 const App = (): React.ReactElement => {
 	const [currentView, setCurrentView] = useState<ViewType>(getInitialView());
 	const [initialCharacterId, setInitialCharacterId] = useState<string | null>(getInitialCharacterId());
-	const [dragState, setDragState] = useState<{
-		type: 'none' | 'window' | 'grid' | 'character';
-		objectId?: string;
-		offset?: Point;
-		startPosition?: Point;
-	}>({ type: 'none' });
+	const [dragState, setDragState] = useState<DragState>({ type: 'none' });
 
-	const windows = useStore(state => state.windows);
 	const characters = useStore(state => state.characters);
-	const addWindow = useStore(state => state.addWindow);
 	const updateGridState = useStore(state => state.updateGridState);
-	const updateWindow = useStore(state => state.updateWindow);
 	const updateCharacterPos = useStore(state => state.updateCharacterPos);
-	const removeWindow = useStore(state => state.removeWindow);
 	const gridState = useStore(state => state.gridState);
 	const editMode = useStore(state => state.editMode);
 	const toggleEditMode = useStore(state => state.toggleEditMode);
+	const modals = useStore(state => state.modals);
+	const { openCharacterListModal, closeAllModals, updateModal } = useModals();
 
 	// Handle browser navigation (back/forward buttons)
 	useEffect(() => {
@@ -83,12 +76,12 @@ const App = (): React.ReactElement => {
 
 	useEffect(() => {
 		const handleMouseMove = (e: MouseEvent) => {
-			if (dragState.type === 'window' && dragState.objectId && dragState.offset) {
+			if (dragState.type === 'modal' && dragState.objectId && dragState.offset) {
 				const newX = e.clientX - dragState.offset.x;
 				const newY = e.clientY - dragState.offset.y;
 
-				updateWindow({
-					...windows.find(w => w.id === dragState.objectId)!,
+				updateModal({
+					...modals.find(modal => modal.id === dragState.objectId)!,
 					position: { x: newX, y: newY },
 				});
 			} else if (dragState.type === 'grid') {
@@ -162,7 +155,7 @@ const App = (): React.ReactElement => {
 		}
 
 		return () => {};
-	}, [dragState, gridState, updateGridState, updateWindow, windows, characters, updateCharacterPos]);
+	}, [dragState, gridState, updateGridState, updateModal, modals, characters, updateCharacterPos]);
 
 	const handleMouseDown = (e: React.MouseEvent) => {
 		if (e.button === 1) {
@@ -182,12 +175,7 @@ const App = (): React.ReactElement => {
 	};
 
 	const handleOpenCharacterList = () => {
-		addWindow({
-			id: window.crypto.randomUUID(),
-			title: 'Characters',
-			type: 'character-list',
-			position: findNextWindowPosition(windows),
-		});
+		openCharacterListModal();
 	};
 
 	const handleRecenter = () => {
@@ -197,11 +185,8 @@ const App = (): React.ReactElement => {
 		});
 	};
 
-	const handleCloseAllWindows = () => {
-		// Close all windows by removing each one
-		windows.forEach(window => {
-			removeWindow(window.id);
-		});
+	const handleCloseAllModals = () => {
+		closeAllModals();
 	};
 
 	return (
@@ -246,7 +231,7 @@ const App = (): React.ReactElement => {
 									title={editMode ? 'Switch to Play' : 'Switch to Edit'}
 								/>
 								<Button onClick={handleRecenter} icon={FaCrosshairs} title='Re-center' />
-								<Button onClick={handleCloseAllWindows} icon={FaTimes} title='Close All' />
+								<Button onClick={handleCloseAllModals} icon={FaTimes} title='Close All' />
 							</div>
 						</div>
 					</div>
@@ -304,15 +289,15 @@ const App = (): React.ReactElement => {
 					</div>
 				</footer>
 			)}
-			{windows.map(window => (
-				<WindowComponent
-					key={window.id}
-					window={window}
+			{modals.map(modal => (
+				<ModalComponent
+					key={modal.id}
+					modal={modal}
 					onStartDrag={(e: React.MouseEvent) => {
 						const rect = e.currentTarget.getBoundingClientRect();
 						setDragState({
-							type: 'window',
-							objectId: window.id,
+							type: 'modal',
+							objectId: modal.id,
 							offset: {
 								x: e.clientX - rect.left,
 								y: e.clientY - rect.top,

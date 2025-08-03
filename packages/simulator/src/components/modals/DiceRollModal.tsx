@@ -3,11 +3,11 @@ import React from 'react';
 import { useState } from 'react';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 
-import { useStore } from '../store';
-import { CharacterSheet, StatType } from '../types';
-
-import DropdownSelect from './DropdownSelect';
-import { Button } from './shared/Button';
+import { useStore } from '../../store';
+import { CharacterSheet, StatType } from '../../types';
+import DropdownSelect from '../DropdownSelect';
+import { Button } from '../shared/Button';
+import LabeledDropdown from '../shared/LabeledDropdown';
 
 // Define the skills directly from AttributeType
 const SKILL_OPTIONS = {
@@ -154,8 +154,7 @@ const DiceRollModealContent: React.FC<{
 		});
 	};
 
-	const handleCheckTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		const newType = e.target.value as CheckType;
+	const handleCheckTypeChange = (newType: CheckType) => {
 		setCheckType(newType);
 		updateResults(newType);
 	};
@@ -388,27 +387,13 @@ const DiceRollModealContent: React.FC<{
 
 				<div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
 					<div style={{ flex: 1 }}>
-						<label style={{ display: 'block', marginBottom: '4px' }}>
-							Check Type:
-							<select
-								value={checkType}
-								onChange={handleCheckTypeChange}
-								style={{
-									width: '100%',
-									padding: '4px',
-									border: '1px solid var(--text)',
-									borderRadius: '4px',
-									backgroundColor: 'var(--background)',
-									color: 'var(--text)',
-								}}
-							>
-								{CHECK_TYPES.map(type => (
-									<option key={type} value={type}>
-										{type}
-									</option>
-								))}
-							</select>
-						</label>
+						<LabeledDropdown
+							label='Check Type'
+							value={checkType}
+							options={CHECK_TYPES}
+							describe={type => type}
+							onChange={handleCheckTypeChange}
+						/>
 					</div>
 
 					{(checkType === 'Static-Active' || checkType === 'Contested-Active') && (
@@ -567,27 +552,13 @@ const DiceRollModealContent: React.FC<{
 
 			<div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
 				<div style={{ flex: 1 }}>
-					<label style={{ display: 'block', marginBottom: '4px' }}>
-						Check Type:
-						<select
-							value={checkType}
-							onChange={handleCheckTypeChange}
-							style={{
-								width: '100%',
-								padding: '4px',
-								border: '1px solid var(--text)',
-								borderRadius: '4px',
-								backgroundColor: 'var(--background)',
-								color: 'var(--text)',
-							}}
-						>
-							{CHECK_TYPES.map(type => (
-								<option key={type} value={type}>
-									{type}
-								</option>
-							))}
-						</select>
-					</label>
+					<LabeledDropdown
+						label='Check Type'
+						value={checkType}
+						options={CHECK_TYPES}
+						describe={type => type}
+						onChange={handleCheckTypeChange}
+					/>
 				</div>
 
 				{(checkType === 'Static-Active' || checkType === 'Contested-Active') && (

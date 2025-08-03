@@ -20,9 +20,8 @@ import React, { useEffect, useState } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
 import { FaShield } from 'react-icons/fa6';
 
-import { useStore } from '../store';
+import { useModals } from '../hooks/useModals';
 import { Character, CharacterSheet, Weapon, WeaponMode } from '../types';
-import { findNextWindowPosition } from '../utils';
 
 import Block from './shared/Block';
 import LabeledDropdown from './shared/LabeledDropdown';
@@ -130,7 +129,7 @@ const checkOptions = (statType: StatType | StandardCheck, tabParameters: TabPara
 };
 
 const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, character, tabParameters }) => {
-	const addWindow = useStore(state => state.addWindow);
+	const { openDiceRollModal } = useModals();
 	const [statType, bonus] = checkOptions(parameter.statType, tabParameters);
 	const circumstanceModifiers = [
 		parameter.circumstanceModifier ? parameter.circumstanceModifier : undefined,
@@ -156,17 +155,14 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, ch
 			title={`${name} (${inherentModifier.description})`}
 			tooltip={tooltipText}
 			onClick={() => {
-				addWindow({
-					id: window.crypto.randomUUID(),
-					title: `Roll ${name} Check`,
-					type: 'dice-roll',
-					position: findNextWindowPosition(useStore.getState().windows),
+				openDiceRollModal({
+					characterId: character.id,
 					check: new Check({
 						mode: parameter.mode,
 						nature: parameter.nature,
 						statModifier: statModifier,
 					}),
-					characterId: character.id,
+					title: `Roll ${name} Check`,
 				});
 			}}
 		>
@@ -177,8 +173,7 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, ch
 };
 
 export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => {
-	const addWindow = useStore(state => state.addWindow);
-	const windows = useStore(state => state.windows);
+	const { openConsumeResourceModal } = useModals();
 	const [selectedWeapon, setSelectedWeapon] = useState<WeaponModeOption | null>(null);
 	const [activeTab, setActiveTab] = useState<ActionType>(ActionType.Movement);
 
@@ -305,14 +300,10 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 									title='COST'
 									tooltip={costs.map(e => e.tooltip).join('\n')}
 									onClick={() => {
-										addWindow({
-											id: window.crypto.randomUUID(),
-											title: `Consume Resources - ${action.name}`,
-											type: 'consume-resource',
+										openConsumeResourceModal({
 											characterId: character.id,
-											position: findNextWindowPosition(windows),
 											actionCosts: action.costs,
-											width: '400px',
+											title: `Consume Resources - ${action.name}`,
 										});
 									}}
 								>

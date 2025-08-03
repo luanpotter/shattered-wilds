@@ -2,10 +2,10 @@ import { Check, CheckMode, CheckNature, DerivedStatType, Resource, RESOURCES } f
 import React, { useEffect, useMemo } from 'react';
 import { FaBatteryFull, FaCog, FaMinus, FaPlus } from 'react-icons/fa';
 
+import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
-import { Character, CharacterSheet, CurrentResources, DefenseType, Equipment, Point } from '../types';
+import { Character, CharacterSheet, CurrentResources, DefenseType, Equipment } from '../types';
 import { FeatsSection } from '../types/feats-section';
-import { findNextWindowPosition } from '../utils';
 
 import { EquipmentSection } from './EquipmentSection';
 import { Button } from './shared/Button';
@@ -19,27 +19,33 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 	const updateCharacterName = useStore(state => state.updateCharacterName);
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
 	const updateCharacterAutomaticMode = useStore(state => state.updateCharacterAutomaticMode);
-	const windows = useStore(state => state.windows);
-	const updateWindow = useStore(state => state.updateWindow);
-	const addWindow = useStore(state => state.addWindow);
 	const editMode = useStore(state => state.editMode);
+	const modals = useStore(state => state.modals);
+	const {
+		updateModal,
+		openRaceSetupModal,
+		openClassSetupModal,
+		openFeatsSetupModal,
+		openBasicAttacksModal,
+		openDiceRollModal,
+	} = useModals();
 
-	// Update window title when character name changes
+	// Update modal title when character name changes
 	useEffect(() => {
-		// Find the window for this character
-		const characterWindow = windows.find(w => w.type === 'character-sheet' && w.characterId === character.id);
+		// Find the modal for this character
+		const characterModal = modals.find(modal => modal.type === 'character-sheet' && modal.characterId === character.id);
 
-		if (characterWindow) {
+		if (characterModal) {
 			// Only update if the title doesn't match the current character name
 			const expectedTitle = `${character.props.name}'s Sheet`;
-			if (characterWindow.title !== expectedTitle) {
-				updateWindow({
-					...characterWindow,
+			if (characterModal.title !== expectedTitle) {
+				updateModal({
+					...characterModal,
 					title: expectedTitle,
 				});
 			}
 		}
-	}, [character.props.name, character.id, windows, updateWindow]);
+	}, [character.props.name, character.id, modals, updateModal]);
 
 	const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		updateCharacterName(character, e.target.value);
@@ -50,73 +56,22 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 	};
 
 	const handleOpenRaceSetup = () => {
-		// Check if a race setup window is already open for this character
-		const raceSetupWindow = windows.find(w => w.type === 'race-setup' && w.characterId === character.id);
-
-		// If not, open a new race setup window
-		if (!raceSetupWindow) {
-			addWindow({
-				id: window.crypto.randomUUID(),
-				title: `${character.props.name}'s Race Setup`,
-				type: 'race-setup',
-				characterId: character.id,
-				position: findNextWindowPosition(windows),
-				width: '500px',
-			});
-		}
+		openRaceSetupModal({ characterId: character.id });
 	};
 
 	const handleOpenClassSetup = () => {
-		// Check if a class setup window is already open for this character
-		const classSetupWindow = windows.find(w => w.type === 'class-setup' && w.characterId === character.id);
-
-		// If not, open a new class setup window
-		if (!classSetupWindow) {
-			addWindow({
-				id: window.crypto.randomUUID(),
-				title: `${character.props.name}'s Class Setup`,
-				type: 'class-setup',
-				characterId: character.id,
-				position: findNextWindowPosition(windows),
-				width: '700px',
-			});
-		}
+		openClassSetupModal({ characterId: character.id });
 	};
 
 	const handleOpenFeatsSetup = () => {
-		// Check if a feats setup window is already open for this character
-		const featsSetupWindow = windows.find(w => w.type === 'feats-setup' && w.characterId === character.id);
-
-		// If not, open a new feats setup window
-		if (!featsSetupWindow) {
-			addWindow({
-				id: window.crypto.randomUUID(),
-				title: `${character.props.name}'s Feats`,
-				type: 'feats-setup',
-				characterId: character.id,
-				position: findNextWindowPosition(windows),
-				width: '700px',
-			});
-		}
+		openFeatsSetupModal({ characterId: character.id });
 	};
 
 	const handleOpenBasicAttacks = () => {
-		// Check if a basic attacks window is already open for this character
-		const basicAttacksWindow = windows.find(w => w.type === 'basic-attacks' && w.characterId === character.id);
-
-		// If not, open a new basic attacks window
-		if (!basicAttacksWindow) {
-			addWindow({
-				id: window.crypto.randomUUID(),
-				title: `${character.props.name}'s Basic Attacks`,
-				type: 'basic-attacks',
-				characterId: character.id,
-				position: findNextWindowPosition(windows),
-			});
-		}
+		openBasicAttacksModal({ characterId: character.id });
 	};
 
-	const handleBasicAttackClick = (position?: Point) => {
+	const handleBasicAttackClick = () => {
 		if (editMode) {
 			handleOpenBasicAttacks();
 		} else {
@@ -124,14 +79,10 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 			if (basicAttacks.length === 1) {
 				// Only one attack - roll dice directly
 				const attack = basicAttacks[0];
-				addWindow({
-					id: window.crypto.randomUUID(),
-					title: `Roll ${attack.name} Attack`,
-					type: 'dice-roll',
-					// TODO(luan): make position optional for addWindow
-					position: position ?? { x: 0, y: 0 },
-					check: attack.check,
+				openDiceRollModal({
 					characterId: character.id,
+					check: attack.check,
+					title: `Roll ${attack.name} Attack`,
 				});
 			} else if (basicAttacks.length > 1) {
 				// Multiple attacks - show Basic Attacks modal for selection
@@ -141,21 +92,17 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 		}
 	};
 
-	const handleBasicDefenseClick = (position?: Point) => {
+	const handleBasicDefenseClick = () => {
 		if (!editMode) {
 			// In play mode, roll a defense check
-			addWindow({
-				id: window.crypto.randomUUID(),
-				title: `Roll Defense Check`,
-				type: 'dice-roll',
-				// TODO(luan): make position optional for addWindow
-				position: position ?? { x: 0, y: 0 },
+			openDiceRollModal({
+				characterId: character.id,
 				check: new Check({
 					mode: CheckMode.Contested,
 					nature: CheckNature.Resisted,
 					statModifier: basicDefense,
 				}),
-				characterId: character.id,
+				title: `Roll Defense Check`,
 			});
 		}
 	};
@@ -388,7 +335,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 								title={basicAttacks.map(attack => attack.description).join(' / ')}
 								onClick={e => {
 									e.preventDefault();
-									handleBasicAttackClick({ x: e.clientX, y: e.clientY });
+									handleBasicAttackClick();
 								}}
 								onKeyDown={e => {
 									if (e.key === 'Enter' || e.key === ' ') {
@@ -423,7 +370,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 								title={basicDefense.description}
 								onClick={e => {
 									e.preventDefault();
-									handleBasicDefenseClick({ x: e.clientX, y: e.clientY });
+									handleBasicDefenseClick();
 								}}
 								onKeyDown={e => {
 									if (e.key === 'Enter' || e.key === ' ') {

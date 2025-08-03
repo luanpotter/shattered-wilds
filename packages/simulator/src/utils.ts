@@ -1,16 +1,16 @@
-import { Character, Point, Window, HexPosition } from './types';
+import { Character, Point, Modal, HexPosition } from './types';
 
-// Constants for window positioning
+// Constants for modal positioning
 const INITIAL_POSITION: Point = { x: 20, y: 20 };
 const WINDOW_SIZE = { width: 300, height: 300 };
 const OVERLAP_MARGIN = 8; // Additional buffer when checking for overlaps
 
 /**
- * Find the next available position for a new window
+ * Find the next available position for a new modal
  */
-export function findNextWindowPosition(windows: Window[]): Point {
-	// If no windows, return default position
-	if (windows.length === 0) {
+export function findNextWindowPosition(modals: Modal[]): Point {
+	// If no modals, return default position
+	if (modals.length === 0) {
 		return INITIAL_POSITION;
 	}
 
@@ -26,7 +26,7 @@ export function findNextWindowPosition(windows: Window[]): Point {
 	const gridRows = Math.ceil(viewportHeight / stepSize);
 	const gridSize = Math.max(gridCols, gridRows);
 
-	// Create a grid to represent potential window positions
+	// Create a grid to represent potential modal positions
 	const grid: boolean[][] = [];
 
 	// Initialize the grid (all positions free)
@@ -37,15 +37,15 @@ export function findNextWindowPosition(windows: Window[]): Point {
 		}
 	}
 
-	// Mark occupied positions based on existing windows
-	for (const window of windows) {
-		// Get the window's bounds
-		const winLeft = window.position.x;
-		const winRight = window.position.x + WINDOW_SIZE.width;
-		const winTop = window.position.y;
-		const winBottom = window.position.y + WINDOW_SIZE.height;
+	// Mark occupied positions based on existing modals
+	for (const modal of modals) {
+		// Get the modal's bounds
+		const modalLeft = modal.position.x;
+		const modalRight = modal.position.x + WINDOW_SIZE.width;
+		const modalTop = modal.position.y;
+		const modalBottom = modal.position.y + WINDOW_SIZE.height;
 
-		// Check each grid cell to see if it overlaps with this window
+		// Check each grid cell to see if it overlaps with this modal
 		for (let row = 0; row < gridSize; row++) {
 			for (let col = 0; col < gridSize; col++) {
 				// Calculate the grid cell's bounds
@@ -56,10 +56,10 @@ export function findNextWindowPosition(windows: Window[]): Point {
 
 				// Check for overlap (with margin)
 				if (
-					cellRight + OVERLAP_MARGIN > winLeft &&
-					cellLeft - OVERLAP_MARGIN < winRight &&
-					cellBottom + OVERLAP_MARGIN > winTop &&
-					cellTop - OVERLAP_MARGIN < winBottom
+					cellRight + OVERLAP_MARGIN > modalLeft &&
+					cellLeft - OVERLAP_MARGIN < modalRight &&
+					cellBottom + OVERLAP_MARGIN > modalTop &&
+					cellTop - OVERLAP_MARGIN < modalBottom
 				) {
 					grid[row][col] = true; // Mark as occupied
 				}
@@ -82,10 +82,10 @@ export function findNextWindowPosition(windows: Window[]): Point {
 		}
 	}
 
-	// If no free position found, cascade from the last window
-	const lastWindow = windows[windows.length - 1];
-	const x = Math.min(lastWindow.position.x + 20, viewportWidth - 20);
-	const y = Math.min(lastWindow.position.y + 20, viewportHeight - 20);
+	// If no free position found, cascade from the last modal
+	const lastModal = modals[modals.length - 1];
+	const x = Math.min(lastModal.position.x + 20, viewportWidth - 20);
+	const y = Math.min(lastModal.position.y + 20, viewportHeight - 20);
 
 	return { x, y };
 }

@@ -5,6 +5,7 @@ import { Character, CharacterSheet, Equipment, BASIC_EQUIPMENT, BasicEquipmentTy
 
 import Block from './shared/Block';
 import { Button } from './shared/Button';
+import LabeledDropdown from './shared/LabeledDropdown';
 
 interface EquipmentSectionProps {
 	character: Character;
@@ -16,17 +17,13 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ character, o
 	const equipment = CharacterSheet.from(character.props);
 
 	// State for the dropdown (selected predefined item)
-	const [selectedItem, setSelectedItem] = useState<string>('');
+	const [selectedItem, setSelectedItem] = useState<BasicEquipmentType | null>(null);
 
-	// On dropdown change, if a predefined item is selected, add it (and reset dropdown)
-	const handleAddPredefinedItem = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		const name = e.target.value as BasicEquipmentType;
-		if (name && BASIC_EQUIPMENT[name]) {
-			const newItem = BASIC_EQUIPMENT[name]();
-			equipment.equipment.items.push(newItem);
-			onUpdateEquipment(equipment.equipment);
-			setSelectedItem('');
-		}
+	const handleAddPredefinedItem = (item: BasicEquipmentType) => {
+		const newItem = BASIC_EQUIPMENT[item]();
+		equipment.equipment.items.push(newItem);
+		onUpdateEquipment(equipment.equipment);
+		setSelectedItem(null);
 	};
 
 	const handleRemoveItem = (idx: number) => {
@@ -74,18 +71,13 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ character, o
 				>
 					{editMode && (
 						<div>
-							<select
+							<LabeledDropdown
+								label='Add Equipment'
 								value={selectedItem}
+								options={Object.values(BasicEquipmentType)}
+								describe={item => item}
 								onChange={handleAddPredefinedItem}
-								style={{ padding: '2px 6px', fontSize: '0.9em' }}
-							>
-								<option value=''>Select…</option>
-								{Object.keys(BASIC_EQUIPMENT).map(name => (
-									<option key={name} value={name}>
-										{name}
-									</option>
-								))}
-							</select>
+							/>
 						</div>
 					)}
 				</div>

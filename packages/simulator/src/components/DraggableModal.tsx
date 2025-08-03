@@ -2,26 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { FaTimes } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { Window } from '../types';
+import { Modal } from '../types';
 
 import { Button } from './shared/Button';
 
-interface DraggableWindowProps {
-	window: Window;
+interface DraggableModalProps {
+	modal: Modal;
 	children: React.ReactNode;
 	onStartDrag: (e: React.MouseEvent) => void;
 	titleBarButtons?: React.ReactNode;
 }
 
-export const DraggableWindow: React.FC<DraggableWindowProps> = ({ window, children, onStartDrag, titleBarButtons }) => {
-	const updateWindow = useStore(state => state.updateWindow);
-	const removeWindow = useStore(state => state.removeWindow);
+export const DraggableModal: React.FC<DraggableModalProps> = ({ modal, children, onStartDrag, titleBarButtons }) => {
+	const updateModal = useStore(state => state.updateModal);
+	const removeModal = useStore(state => state.removeModal);
 	const [isDragging, setIsDragging] = useState(false);
 
 	const handleMouseDown = (e: React.MouseEvent) => {
 		if (e.button === 0) {
 			// Left click only
-			const titleBar = e.target instanceof Element && e.target.closest('.window-title');
+			const titleBar = e.target instanceof Element && e.target.closest('.modal-title');
 			if (titleBar) {
 				e.preventDefault();
 				e.stopPropagation(); // Prevent grid from handling this
@@ -33,8 +33,8 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({ window, childr
 	const handleMouseMove = (e: React.MouseEvent) => {
 		if (isDragging) {
 			e.preventDefault();
-			updateWindow({
-				...window,
+			updateModal({
+				...modal,
 				position: {
 					x: e.clientX,
 					y: e.clientY,
@@ -48,7 +48,7 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({ window, childr
 	};
 
 	const handleClose = () => {
-		removeWindow(window.id);
+		removeModal(modal.id);
 	};
 
 	// Add useEffect to handle document-level mouse events
@@ -57,8 +57,8 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({ window, childr
 			const handleDocumentMouseMove = (e: MouseEvent) => {
 				e.preventDefault();
 				e.stopPropagation();
-				updateWindow({
-					...window,
+				updateModal({
+					...modal,
 					position: {
 						x: e.clientX,
 						y: e.clientY,
@@ -82,7 +82,7 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({ window, childr
 		}
 
 		return () => {};
-	}, [isDragging, window, updateWindow]);
+	}, [isDragging, modal, updateModal]);
 
 	return (
 		<>
@@ -103,16 +103,15 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({ window, childr
 				/>
 			)}
 			<div
-				className='draggable-window'
 				onMouseDown={handleMouseDown}
 				style={{
 					position: 'absolute',
-					left: window.position.x,
-					top: window.position.y,
-					width: window.width || 'fit-content',
-					height: window.height || 'auto',
+					left: modal.position.x,
+					top: modal.position.y,
+					width: modal.width || 'fit-content',
+					height: modal.height || 'auto',
 					minWidth: '250px',
-					minHeight: window.width ? '200px' : 'auto', // If width is set, ensure minimum height
+					minHeight: modal.width ? '200px' : 'auto', // If width is set, ensure minimum height
 					maxWidth: '95vw',
 					maxHeight: '90vh',
 					backgroundColor: 'var(--background)',
@@ -127,7 +126,7 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({ window, childr
 				}}
 			>
 				<div
-					className='window-title'
+					className='modal-title'
 					style={{
 						padding: '2px 6px', // Reduced from 4px 8px
 						backgroundColor: 'var(--background-alt)',
@@ -141,7 +140,7 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({ window, childr
 						overflow: 'hidden', // Keep title bar with hidden overflow
 					}}
 				>
-					<span>{window.title}</span>
+					<span>{modal.title}</span>
 					<div style={{ display: 'flex', gap: '4px' }}>
 						{titleBarButtons}
 						<Button onClick={handleClose} icon={FaTimes} tooltip='Close' type='inline' />

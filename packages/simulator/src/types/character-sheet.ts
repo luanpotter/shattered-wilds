@@ -240,7 +240,7 @@ export class CharacterSheet {
 					};
 					attacks.push({
 						name: name,
-						description: `${name} (+${mode.bonus})`,
+						description: `${name} ${mode.type} (${mode.bonus.description})`,
 						check: new Check({
 							mode: CheckMode.Static,
 							nature: CheckNature.Active,

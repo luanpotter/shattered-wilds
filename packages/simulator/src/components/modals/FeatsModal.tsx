@@ -2,12 +2,12 @@ import { FeatDefinition, FeatInfo, FeatParameter, FeatSlot, FeatType } from '@sh
 import React, { useState } from 'react';
 import { FaChevronDown, FaChevronRight, FaExclamationTriangle } from 'react-icons/fa';
 
-import { useStore } from '../store';
-import { Character, CharacterSheet } from '../types';
-import { FeatsSection } from '../types/feats-section';
-
-import { Button } from './shared/Button';
-import { RichText } from './shared/RichText';
+import { useStore } from '../../store';
+import { Character, CharacterSheet } from '../../types';
+import { FeatsSection } from '../../types/feats-section';
+import { Button } from '../shared/Button';
+import LabeledDropdown from '../shared/LabeledDropdown';
+import { RichText } from '../shared/RichText';
 
 interface FeatsModalProps {
 	character: Character;
@@ -92,7 +92,6 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 		setParameterError(null);
 	};
 
-	// Handle parameter value change
 	const handleParameterChange = (value: string) => {
 		setParameter(value);
 		setParameterError(null);
@@ -117,26 +116,13 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 		const hasError = parameterError!;
 		return (
 			<div key={param.id} style={{ marginBottom: '12px' }}>
-				<label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>{param.name}</label>
-				<select
-					value={parameter ?? ''}
-					onChange={e => handleParameterChange(e.target.value)}
-					style={{
-						width: '100%',
-						padding: '6px',
-						border: `1px solid ${hasError ? 'red' : 'var(--text)'}`,
-						borderRadius: '4px',
-						backgroundColor: 'var(--background)',
-						color: 'var(--text)',
-					}}
-				>
-					<option value=''>Select {param.name}...</option>
-					{param.values?.map(option => (
-						<option key={option} value={option}>
-							{option}
-						</option>
-					))}
-				</select>
+				<LabeledDropdown
+					label={param.name}
+					value={parameter}
+					options={param.values || []}
+					describe={option => option}
+					onChange={handleParameterChange}
+				/>
 				{hasError && (
 					<div
 						style={{

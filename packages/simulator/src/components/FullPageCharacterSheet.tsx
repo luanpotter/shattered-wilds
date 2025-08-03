@@ -2,6 +2,7 @@ import { DerivedStatType, FeatType, Resource, RESOURCES } from '@shattered-wilds
 import React, { useMemo } from 'react';
 import { FaArrowLeft, FaBatteryFull, FaCog, FaCopy, FaExclamationTriangle, FaMinus, FaPlus } from 'react-icons/fa';
 
+import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
 import { Character, CharacterSheet, CurrentResources } from '../types';
 import { FeatsSection } from '../types/feats-section';
@@ -37,8 +38,8 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
 	const editMode = useStore(state => state.editMode);
 
-	const addWindow = useStore(state => state.addWindow);
-	const windows = useStore(state => state.windows);
+	const modals = useStore(state => state.modals);
+	const { openRaceSetupModal, openClassSetupModal, openFeatsSetupModal } = useModals();
 
 	// Create a reactive sheet that updates when character props change
 	const sheet = useMemo(() => CharacterSheet.from(character.props), [character]);
@@ -110,53 +111,32 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 	};
 
 	const handleOpenRaceSetup = () => {
-		// Check if a race setup window is already open for this character
-		const raceSetupWindow = windows.find(w => w.type === 'race-setup' && w.characterId === character.id);
+		// Check if a race setup modal is already open for this character
+		const raceSetupModal = modals.find(modal => modal.type === 'race-setup' && modal.characterId === character.id);
 
-		// If not, open a new race setup window
-		if (!raceSetupWindow) {
-			addWindow({
-				id: window.crypto.randomUUID(),
-				title: `${character.props.name}&apos;s Race Setup`,
-				type: 'race-setup',
-				characterId: character.id,
-				position: { x: 100, y: 100 }, // Default position for full page context
-				width: '500px',
-			});
+		// If not, open a new race setup modal
+		if (!raceSetupModal) {
+			openRaceSetupModal({ characterId: character.id });
 		}
 	};
 
 	const handleOpenClassSetup = () => {
-		// Check if a class setup window is already open for this character
-		const classSetupWindow = windows.find(w => w.type === 'class-setup' && w.characterId === character.id);
+		// Check if a class setup modal is already open for this character
+		const classSetupModal = modals.find(modal => modal.type === 'class-setup' && modal.characterId === character.id);
 
-		// If not, open a new class setup window
-		if (!classSetupWindow) {
-			addWindow({
-				id: window.crypto.randomUUID(),
-				title: `${character.props.name}&apos;s Class Setup`,
-				type: 'class-setup',
-				characterId: character.id,
-				position: { x: 100, y: 100 }, // Default position for full page context
-				width: '700px',
-			});
+		// If not, open a new class setup modal
+		if (!classSetupModal) {
+			openClassSetupModal({ characterId: character.id });
 		}
 	};
 
 	const handleOpenFeatsSetup = () => {
-		// Check if a feats setup window is already open for this character
-		const featsSetupWindow = windows.find(w => w.type === 'feats-setup' && w.characterId === character.id);
+		// Check if a feats setup modal is already open for this character
+		const featsSetupModal = modals.find(modal => modal.type === 'feats-setup' && modal.characterId === character.id);
 
-		// If not, open a new feats setup window
-		if (!featsSetupWindow) {
-			addWindow({
-				id: window.crypto.randomUUID(),
-				title: `${character.props.name}&apos;s Feats`,
-				type: 'feats-setup',
-				characterId: character.id,
-				position: { x: 100, y: 100 }, // Default position for full page context
-				width: '700px',
-			});
+		// If not, open a new feats setup modal
+		if (!featsSetupModal) {
+			openFeatsSetupModal({ characterId: character.id });
 		}
 	};
 

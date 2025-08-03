@@ -2,11 +2,10 @@ import { Bonus, Check, CheckMode, CheckNature, Resource } from '@shattered-wilds
 import React, { useState, useEffect } from 'react';
 import { FaDice, FaFistRaised, FaUserShield } from 'react-icons/fa';
 
-import { useStore } from '../store';
-import { CharacterSheet, Shield, DefenseType } from '../types';
-import { findNextWindowPosition } from '../utils';
-
-import { Button } from './shared/Button';
+import { useModals } from '../../hooks/useModals';
+import { useStore } from '../../store';
+import { CharacterSheet, Shield, DefenseType } from '../../types';
+import { Button } from '../shared/Button';
 
 interface AttackActionModalProps {
 	attackerId: string;
@@ -28,8 +27,8 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	onClose,
 }) => {
 	const characters = useStore(state => state.characters);
-	const addWindow = useStore(state => state.addWindow);
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
+	const { openDiceRollModal } = useModals();
 
 	const attacker = characters.find(c => c.id === attackerId);
 	const defender = characters.find(c => c.id === defenderId);
@@ -95,17 +94,14 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			setUsedDodge(false);
 		} else {
 			// Open dice roll modal for manual rolling (override)
-			addWindow({
-				id: window.crypto.randomUUID(),
-				title: `Roll Defense - ${defender.props.name}`,
-				type: 'dice-roll',
-				position: findNextWindowPosition(useStore.getState().windows),
+			openDiceRollModal({
+				characterId: defender.id,
 				check: new Check({
 					mode: CheckMode.Contested,
 					nature: CheckNature.Resisted,
 					statModifier: basicDefense,
 				}),
-				characterId: defender.id,
+				title: `Roll Defense - ${defender.props.name}`,
 				onDiceRollComplete: (result: { total: number; shifts: number }) => {
 					setDefenseResult(result);
 					setUsedDodge(false);
@@ -117,17 +113,14 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 
 	const handleDodgeRoll = () => {
 		// Open dice roll modal for dodge (always manual, even for automatic mode)
-		addWindow({
-			id: window.crypto.randomUUID(),
-			title: `Roll Dodge - ${defender.props.name}`,
-			type: 'dice-roll',
-			position: findNextWindowPosition(useStore.getState().windows),
+		openDiceRollModal({
+			characterId: defender.id,
 			check: new Check({
 				mode: CheckMode.Contested,
 				nature: CheckNature.Resisted,
 				statModifier: dodgeDefense,
 			}),
-			characterId: defender.id,
+			title: `Roll Dodge - ${defender.props.name}`,
 			onDiceRollComplete: (result: { total: number; shifts: number }) => {
 				setDefenseResult(result);
 				setUsedDodge(true);
@@ -138,17 +131,14 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 
 	const handleShieldBlockRoll = () => {
 		// Open dice roll modal for shield block (always manual, even for automatic mode)
-		addWindow({
-			id: window.crypto.randomUUID(),
-			title: `Roll Shield Block - ${defender.props.name}`,
-			type: 'dice-roll',
-			position: findNextWindowPosition(useStore.getState().windows),
+		openDiceRollModal({
+			characterId: defender.id,
 			check: new Check({
 				mode: CheckMode.Contested,
 				nature: CheckNature.Resisted,
 				statModifier: shieldDefense,
 			}),
-			characterId: defender.id,
+			title: `Roll Shield Block - ${defender.props.name}`,
 			onDiceRollComplete: (result: { total: number; shifts: number }) => {
 				setDefenseResult(result);
 				setUsedShieldBlock(true);
@@ -164,17 +154,14 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			setAttackResult(autoResult);
 		} else {
 			// Open dice roll modal for manual rolling (override)
-			addWindow({
-				id: window.crypto.randomUUID(),
-				title: `Roll Attack - ${attacker.props.name}`,
-				type: 'dice-roll',
-				position: findNextWindowPosition(useStore.getState().windows),
+			openDiceRollModal({
+				characterId: attacker.id,
 				check: new Check({
 					mode: CheckMode.Contested,
 					nature: CheckNature.Active,
 					statModifier: attack.check.statModifier,
 				}),
-				characterId: attacker.id,
+				title: `Roll Attack - ${attacker.props.name}`,
 				onDiceRollComplete: (result: { total: number; shifts: number }) => {
 					setAttackResult(result);
 				},

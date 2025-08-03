@@ -1,11 +1,10 @@
 import React from 'react';
 
-import { useStore } from '../store';
-import { CharacterSheet, StatType, Race, Upbringing } from '../types';
-
-import DropdownSelect from './DropdownSelect';
-import { Button } from './shared/Button';
-import { RichText } from './shared/RichText';
+import { useStore } from '../../store';
+import { CharacterSheet, StatType, Race, Upbringing } from '../../types';
+import DropdownSelect from '../DropdownSelect';
+import { Button } from '../shared/Button';
+import { RichText } from '../shared/RichText';
 
 interface RaceSetupModalProps {
 	characterId: string;

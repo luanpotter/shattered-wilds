@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaClipboard } from 'react-icons/fa';
 
+import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
 import { Character } from '../types';
-import { findNextWindowPosition, findNextEmptyHexPosition } from '../utils';
+import { findNextEmptyHexPosition } from '../utils';
 
 import { Button } from './shared/Button';
 
 export const CharacterList: React.FC = () => {
 	const characters = useStore(state => state.characters);
-	const windows = useStore(state => state.windows);
-	const addWindow = useStore(state => state.addWindow);
+
+	const { openCharacterCreationModal, openCharacterSheetModal } = useModals();
 	const removeCharacter = useStore(state => state.removeCharacter);
 	const addCharacter = useStore(state => state.addCharacter);
 	const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
@@ -18,14 +19,7 @@ export const CharacterList: React.FC = () => {
 
 	const handleOpenNewCharacterModal = () => {
 		const hexPosition = findNextEmptyHexPosition(characters);
-
-		addWindow({
-			id: window.crypto.randomUUID(),
-			title: `Create Character (${hexPosition.q}, ${hexPosition.r})`,
-			type: 'character-creation',
-			position: findNextWindowPosition(windows),
-			hexPosition: hexPosition,
-		});
+		openCharacterCreationModal({ hexPosition });
 	};
 
 	const handleImportFromClipboard = async () => {
@@ -68,13 +62,7 @@ export const CharacterList: React.FC = () => {
 	};
 
 	const handleOpenCharacterSheet = (character: Character) => {
-		addWindow({
-			id: window.crypto.randomUUID(),
-			title: `${character.props.name}'s Sheet`,
-			type: 'character-sheet',
-			characterId: character.id,
-			position: findNextWindowPosition(windows),
-		});
+		openCharacterSheetModal({ characterId: character.id });
 	};
 
 	const handleRequestDelete = (id: string) => {

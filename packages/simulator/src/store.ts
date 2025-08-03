@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { Character, Window, GridState, HexPosition } from './types';
+import { Character, Modal, GridState, HexPosition } from './types';
 
 type AddCharacter = (character: Character) => void;
 type UpdateCharacterName = (character: Character, newName: string) => void;
@@ -9,14 +9,14 @@ type UpdateCharacterProp = (character: Character, prop: string, value: string | 
 type UpdateCharacterPos = (character: Character, pos: HexPosition) => void;
 type UpdateCharacterAutomaticMode = (character: Character, automaticMode: boolean) => void;
 type RemoveCharacter = (id: string) => void;
-type AddWindow = (window: Window) => void;
-type UpdateWindow = (window: Window) => void;
-type RemoveWindow = (id: string) => void;
+type AddModal = (modal: Modal) => void;
+type UpdateModal = (modal: Modal) => void;
+type RemoveModal = (id: string) => void;
 type UpdateGridState = (state: Partial<GridState>) => void;
 type ToggleEditMode = () => void;
 
 interface AppState {
-	windows: Window[];
+	modals: Modal[];
 	characters: Character[];
 	gridState: GridState;
 	editMode: boolean;
@@ -26,9 +26,9 @@ interface AppState {
 	updateCharacterPos: UpdateCharacterPos;
 	updateCharacterAutomaticMode: UpdateCharacterAutomaticMode;
 	removeCharacter: RemoveCharacter;
-	addWindow: AddWindow;
-	updateWindow: UpdateWindow;
-	removeWindow: RemoveWindow;
+	addModal: AddModal;
+	updateModal: UpdateModal;
+	removeModal: RemoveModal;
 	updateGridState: UpdateGridState;
 	toggleEditMode: ToggleEditMode;
 }
@@ -36,7 +36,7 @@ interface AppState {
 export const useStore = create<AppState>()(
 	persist(
 		set => ({
-			windows: [],
+			modals: [],
 			characters: [],
 			gridState: {
 				scale: 1,
@@ -79,20 +79,20 @@ export const useStore = create<AppState>()(
 			removeCharacter: id =>
 				set(state => ({
 					characters: state.characters.filter(c => c.id !== id),
-					// Also close any windows associated with this character
-					windows: state.windows.filter(w => w.characterId !== id),
+					// Also close any modals associated with this character
+					modals: state.modals.filter(modal => !('characterId' in modal) || modal.characterId !== id),
 				})),
-			addWindow: window =>
+			addModal: modal =>
 				set(state => ({
-					windows: [...state.windows, window],
+					modals: [...state.modals, modal],
 				})),
-			updateWindow: window =>
+			updateModal: modal =>
 				set(state => ({
-					windows: state.windows.map(w => (w.id === window.id ? window : w)),
+					modals: state.modals.map(m => (m.id === modal.id ? modal : m)),
 				})),
-			removeWindow: id =>
+			removeModal: id =>
 				set(state => ({
-					windows: state.windows.filter(w => w.id !== id),
+					modals: state.modals.filter(modal => modal.id !== id),
 				})),
 			updateGridState: (gridState: Partial<GridState>) =>
 				set(state => ({

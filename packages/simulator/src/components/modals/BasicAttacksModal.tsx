@@ -1,11 +1,10 @@
 import React from 'react';
 
-import { useModals } from '../hooks/useModals';
-import { useStore } from '../store';
-import { BasicAttack, CharacterSheet } from '../types';
-
-import { Button } from './shared/Button';
-import { FormRow, ReadOnlyInput } from './shared/FormComponents';
+import { useModals } from '../../hooks/useModals';
+import { useStore } from '../../store';
+import { BasicAttack, CharacterSheet } from '../../types';
+import { Button } from '../shared/Button';
+import { FormRow, ReadOnlyInput } from '../shared/FormComponents';
 
 interface BasicAttacksModalProps {
 	attacks: BasicAttack[];
@@ -15,8 +14,8 @@ interface BasicAttacksModalProps {
 
 export const BasicAttacksModal: React.FC<BasicAttacksModalProps> = ({ attacks, characterSheet, onClose }) => {
 	const editMode = useStore(state => state.editMode);
-	const { openDiceRollModal } = useModals();
 	const characters = useStore(state => state.characters);
+	const { openDiceRollModal } = useModals();
 
 	const handleAttackClick = (attack: BasicAttack) => {
 		if (!editMode && characterSheet) {

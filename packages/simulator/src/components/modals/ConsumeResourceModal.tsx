@@ -2,10 +2,9 @@ import { ActionCost, Resource, RESOURCES } from '@shattered-wilds/commons';
 import React, { useState } from 'react';
 import { FaCoins, FaMinus, FaPlus, FaTimes, FaCheck } from 'react-icons/fa';
 
-import { useStore } from '../store';
-import { Character, CharacterSheet } from '../types';
-
-import { Button } from './shared/Button';
+import { useStore } from '../../store';
+import { Character, CharacterSheet } from '../../types';
+import { Button } from '../shared/Button';
 
 interface ConsumeResourceModalProps {
 	character: Character;

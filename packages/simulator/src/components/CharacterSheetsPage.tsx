@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FaPlus, FaEye, FaTrash, FaArrowLeft, FaClipboard, FaChevronDown } from 'react-icons/fa';
 
+import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
 import { Character } from '../types';
-import { findNextWindowPosition, findNextEmptyHexPosition } from '../utils';
+import { findNextEmptyHexPosition } from '../utils';
 
 import { FullPageCharacterSheet } from './FullPageCharacterSheet';
 import { Button } from './shared/Button';
@@ -20,10 +21,10 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 	initialCharacterId,
 }) => {
 	const characters = useStore(state => state.characters);
-	const windows = useStore(state => state.windows);
+
 	const removeCharacter = useStore(state => state.removeCharacter);
 	const addCharacter = useStore(state => state.addCharacter);
-	const addWindow = useStore(state => state.addWindow);
+	const { openCharacterCreationModal } = useModals();
 	const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(initialCharacterId);
 	const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 	const [importError, setImportError] = useState<string | null>(null);
@@ -62,13 +63,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 
 	const handleEmptyCharacterCreation = () => {
 		const hexPosition = findNextEmptyHexPosition(characters);
-		addWindow({
-			id: window.crypto.randomUUID(),
-			title: `Create Character (${hexPosition.q}, ${hexPosition.r})`,
-			type: 'character-creation',
-			position: findNextWindowPosition(windows),
-			hexPosition: hexPosition,
-		});
+		openCharacterCreationModal({ hexPosition });
 		setShowCreateDropdown(false);
 	};
 

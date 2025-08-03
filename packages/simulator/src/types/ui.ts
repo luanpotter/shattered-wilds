@@ -10,7 +10,7 @@ export interface HexPosition {
 	r: number;
 }
 
-export type DragType = 'none' | 'window' | 'grid' | 'character';
+export type DragType = 'none' | 'modal' | 'grid' | 'character';
 
 export interface DragState {
 	type: DragType;
@@ -24,36 +24,67 @@ export interface GridState {
 	offset: Point;
 }
 
-export interface Window {
+// Base modal interface with common properties
+interface BaseModal {
 	id: string;
 	title: string;
-	type:
-		| 'character-sheet'
-		| 'character-list'
-		| 'character-creation'
-		| 'race-setup'
-		| 'class-setup'
-		| 'feats-setup'
-		| 'basic-attacks'
-		| 'dice-roll'
-		| 'attack-action'
-		| 'measure'
-		| 'consume-resource';
-	characterId?: string;
 	position: Point;
-	hexPosition?: HexPosition;
-	check?: Check;
-	attackerId?: string;
-	defenderId?: string;
-	attackIndex?: number;
-	fromCharacterId?: string;
-	toPosition?: HexPosition;
-	distance?: number;
-	onDiceRollComplete?: (result: { total: number; shifts: number }) => void;
-	actionCosts?: ActionCost[];
 	width?: string;
 	height?: string;
 }
+
+// Modal type discriminated unions
+export type Modal =
+	| (BaseModal & {
+			type: 'character-list';
+	  })
+	| (BaseModal & {
+			type: 'character-creation';
+			hexPosition?: HexPosition;
+	  })
+	| (BaseModal & {
+			type: 'character-sheet';
+			characterId: string;
+	  })
+	| (BaseModal & {
+			type: 'race-setup';
+			characterId: string;
+	  })
+	| (BaseModal & {
+			type: 'class-setup';
+			characterId: string;
+	  })
+	| (BaseModal & {
+			type: 'feats-setup';
+			characterId: string;
+	  })
+	| (BaseModal & {
+			type: 'basic-attacks';
+			characterId: string;
+	  })
+	| (BaseModal & {
+			type: 'dice-roll';
+			characterId: string;
+			check: Check;
+			onDiceRollComplete?: (result: { total: number; shifts: number }) => void;
+	  })
+	| (BaseModal & {
+			type: 'attack-action';
+			attackerId: string;
+			defenderId: string;
+			attackIndex: number;
+	  })
+	| (BaseModal & {
+			type: 'measure';
+			fromCharacterId: string;
+			toPosition: HexPosition;
+			distance: number;
+	  })
+	| (BaseModal & {
+			type: 'consume-resource';
+			characterId: string;
+			actionCosts: ActionCost[];
+	  });
 
 export interface Character {
 	id: string;

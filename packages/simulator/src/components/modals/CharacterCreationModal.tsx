@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
 
-import { useStore } from '../store';
-import { HexPosition } from '../types';
-import { findNextCharacterNumber } from '../utils';
-
-import { Button } from './shared/Button';
+import { useStore } from '../../store';
+import { HexPosition } from '../../types';
+import { findNextCharacterNumber } from '../../utils';
+import { Button } from '../shared/Button';
 
 interface CharacterCreationModalProps {
-	hexPosition: HexPosition | undefined;
+	hexPosition?: HexPosition | undefined;
+	onClose: () => void;
 }
 
-export const CharacterCreationModal: React.FC<CharacterCreationModalProps> = ({ hexPosition }) => {
+export const CharacterCreationModal: React.FC<CharacterCreationModalProps> = ({ hexPosition, onClose }) => {
 	const addCharacter = useStore(state => state.addCharacter);
 	const characters = useStore(state => state.characters);
-	const removeModal = useStore(state => state.removeModal);
-	const modals = useStore(state => state.modals);
 	const [characterName, setCharacterName] = useState('');
 
 	// Set default name on mount - use utility function to find next available number
@@ -38,34 +36,15 @@ export const CharacterCreationModal: React.FC<CharacterCreationModalProps> = ({ 
 			}
 
 			addCharacter(newCharacter);
-
-			// Find and close this modal
-			const currentModal = modals.find(
-				modal =>
-					modal.type === 'character-creation' &&
-					(hexPosition
-						? modal.hexPosition?.q === hexPosition.q && modal.hexPosition?.r === hexPosition.r
-						: !modal.hexPosition),
-			);
-
-			if (currentModal) {
-				removeModal(currentModal.id);
-			}
+			onClose();
 		}
 	};
 
-	const handleCancel = () => {
-		// Find and close this modal
-		const currentModal = modals.find(
-			modal =>
-				modal.type === 'character-creation' &&
-				(hexPosition
-					? modal.hexPosition?.q === hexPosition.q && modal.hexPosition?.r === hexPosition.r
-					: !modal.hexPosition),
-		);
-
-		if (currentModal) {
-			removeModal(currentModal.id);
+	const handleKeyPress = (e: React.KeyboardEvent) => {
+		if (e.key === 'Enter') {
+			handleCreateCharacter();
+		} else if (e.key === 'Escape') {
+			onClose();
 		}
 	};
 
@@ -80,6 +59,7 @@ export const CharacterCreationModal: React.FC<CharacterCreationModalProps> = ({ 
 					type='text'
 					value={characterName}
 					onChange={e => setCharacterName(e.target.value)}
+					onKeyDown={handleKeyPress}
 					style={{
 						width: 'calc(100% - 8px)',
 						boxSizing: 'border-box',
@@ -89,7 +69,7 @@ export const CharacterCreationModal: React.FC<CharacterCreationModalProps> = ({ 
 				/>
 			</div>
 			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px' }}>
-				<Button onClick={handleCancel} title='Cancel' type='inline' />
+				<Button onClick={onClose} title='Cancel' type='inline' />
 				<Button onClick={handleCreateCharacter} title='Create' type='inline' />
 			</div>
 		</div>

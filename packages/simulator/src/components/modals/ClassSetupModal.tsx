@@ -1,7 +1,7 @@
 import { ClassInfo } from '@shattered-wilds/commons';
 import React, { useState } from 'react';
 
-import { useStore } from '../store';
+import { useStore } from '../../store';
 import {
 	Character,
 	CharacterClass,
@@ -10,10 +10,9 @@ import {
 	ClassRole,
 	ClassFlavor,
 	CLASS_ROLE_PRIMARY_ATTRIBUTE,
-} from '../types';
-
-import { Button } from './shared/Button';
-import { RichText } from './shared/RichText';
+} from '../../types';
+import { Button } from '../shared/Button';
+import { RichText } from '../shared/RichText';
 
 interface ClassSetupModalProps {
 	character: Character;

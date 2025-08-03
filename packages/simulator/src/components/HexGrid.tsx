@@ -1,9 +1,10 @@
 import { DerivedStatType, Distance } from '@shattered-wilds/commons';
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 
+import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
 import { CharacterSheet, DragState, Point, Character, HexPosition } from '../types';
-import { findNextWindowPosition, findCharacterAtPosition, axialToPixel } from '../utils';
+import { findCharacterAtPosition, axialToPixel } from '../utils';
 
 import { CharacterToken } from './CharacterToken';
 import { TokenContextMenu } from './TokenContextMenu';
@@ -52,8 +53,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 	const characters = useStore(state => state.characters);
 	const gridState = useStore(state => state.gridState);
 	const updateGridState = useStore(state => state.updateGridState);
-	const addWindow = useStore(state => state.addWindow);
-	const windows = useStore(state => state.windows);
+	const modals = useStore(state => state.modals);
+	const { openCharacterSheetModal, openCharacterCreationModal, openAttackActionModal, openMeasureModal } = useModals();
 	const editMode = useStore(state => state.editMode);
 	const [ghostPosition, setGhostPosition] = useState<Point | null>(null);
 	const [hoveredCharacter, setHoveredCharacter] = useState<Character | null>(null);
@@ -123,15 +124,15 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 		return () => document.removeEventListener('keydown', handleKeyDown);
 	}, [measureState, attackState]);
 
-	// Clear measure state when measure window is closed
+	// Clear measure state when measure modal is closed
 	useEffect(() => {
 		if (measureState && !measureState.isSelectingTarget) {
-			const hasMeasureWindow = windows.some(window => window.type === 'measure');
-			if (!hasMeasureWindow) {
+			const hasMeasureModal = modals.some(modal => modal.type === 'measure');
+			if (!hasMeasureModal) {
 				setMeasureState(null);
 			}
 		}
-	}, [windows, measureState]);
+	}, [modals, measureState]);
 
 	const handleWheel = (e: React.WheelEvent) => {
 		e.preventDefault();
@@ -153,13 +154,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 	};
 
 	const handleOpenCharacterSheet = (character: Character) => {
-		addWindow({
-			id: window.crypto.randomUUID(),
-			title: `${character.props.name}'s Sheet`,
-			type: 'character-sheet',
-			characterId: character.id,
-			position: findNextWindowPosition(windows),
-		});
+		openCharacterSheetModal({ characterId: character.id });
 	};
 
 	const handleAttackAction = (attacker: Character, attackIndex: number) => {
@@ -195,11 +190,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 
 				if (distance <= attackRange) {
 					// Valid target - open Attack Action Modal
-					addWindow({
-						id: window.crypto.randomUUID(),
-						title: 'Attack Action',
-						type: 'attack-action',
-						position: findNextWindowPosition(windows),
+					openAttackActionModal({
 						attackerId: attackState.attacker.id,
 						defenderId: character.id,
 						attackIndex: attackState.attackIndex,
@@ -256,13 +247,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 		const existingCharacter = findCharacterAtPosition(characters, q, r);
 
 		if (!existingCharacter) {
-			addWindow({
-				id: window.crypto.randomUUID(),
-				title: `Create Character (${q}, ${r})`,
-				type: 'character-creation',
-				position: findNextWindowPosition(windows),
-				hexPosition: { q, r },
-			});
+			openCharacterCreationModal({ hexPosition: { q, r } });
 		}
 	};
 
@@ -405,11 +390,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 			const distance = getHexDistance(measureState.fromCharacter.position, toPosition);
 
 			// Open measure modal
-			addWindow({
-				id: window.crypto.randomUUID(),
-				title: 'Measure Distance',
-				type: 'measure',
-				position: findNextWindowPosition(windows),
+			openMeasureModal({
 				fromCharacterId: measureState.fromCharacter.id,
 				toPosition,
 				distance,

@@ -2,6 +2,7 @@ import { Check, CheckMode, CheckNature } from '@shattered-wilds/commons';
 import React from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
 
+import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
 import { StatNode, StatTree } from '../../types';
 
@@ -31,7 +32,7 @@ export const StatValueComponent: React.FC<StatValueComponentProps> = ({
 	const onRightClick = () => onDeallocate(node);
 
 	const editMode = useStore(state => state.editMode);
-	const addWindow = useStore(state => state.addWindow);
+	const { openDiceRollModal } = useModals();
 
 	const modifier = tree.getNodeModifier(node);
 	const value = modifier.value;
@@ -56,17 +57,14 @@ export const StatValueComponent: React.FC<StatValueComponentProps> = ({
 		} else {
 			// In play mode, open dice roll modal
 			if (characterId) {
-				addWindow({
-					id: window.crypto.randomUUID(),
-					title: `Roll ${attributeName} Check`,
-					type: 'dice-roll',
-					position: { x: e.clientX, y: e.clientY },
+				openDiceRollModal({
+					characterId,
 					check: new Check({
 						mode: CheckMode.Static,
 						nature: CheckNature.Active,
 						statModifier: modifier,
 					}),
-					characterId: characterId,
+					title: `Roll ${attributeName} Check`,
 				});
 			}
 		}
