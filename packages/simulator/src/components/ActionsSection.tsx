@@ -17,7 +17,7 @@ import {
 	Distance,
 	Shield,
 } from '@shattered-wilds/commons';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
 import { FaShield } from 'react-icons/fa6';
 
@@ -178,16 +178,20 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 	const { openConsumeResourceModal } = useModals();
 	const [selectedWeapon, setSelectedWeapon] = useState<WeaponModeOption | null>(null);
 	const [activeTab, setActiveTab] = useState<ActionType>(ActionType.Movement);
+	const [showAll, setShowAll] = useState(true);
 
 	const sheet = CharacterSheet.from(character.props);
 	const tree = sheet.getStatTree();
 	const hasShield = sheet.equipment.items.some(item => item instanceof Shield);
 	const weapons = sheet.equipment.items.filter(item => item instanceof Weapon) as Weapon[];
-	const weaponModes = [
-		Weapon.unarmed(),
-		...(hasShield ? [Weapon.shieldBash()] : []),
-		...weapons.flatMap(weapon => weapon.modes.map(mode => ({ weapon, mode }))),
-	];
+	const weaponModes = useMemo(
+		() => [
+			Weapon.unarmed(),
+			...(hasShield ? [Weapon.shieldBash()] : []),
+			...weapons.flatMap(weapon => weapon.modes.map(mode => ({ weapon, mode }))),
+		],
+		[hasShield, weapons],
+	);
 
 	// Auto-select first weapon if available
 	useEffect(() => {
@@ -256,28 +260,24 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 		);
 	};
 
-	const renderActionsByType = (type: ActionType) => {
-		const actions = Object.values(ACTIONS).filter(action => action.type === type);
-		if (actions.length === 0) return null;
-
-		const movement = sheet.getStatTree().computeDerivedStat(DerivedStatType.Movement);
-		return (
-			<div key={type}>
-				{/* Type-specific info */}
-				{type === ActionType.Movement && (
-					<>
+	const getHeaderForTab = (type: ActionType): { Header: React.ReactNode | undefined } => {
+		switch (type) {
+			case ActionType.Movement: {
+				const movement = sheet.getStatTree().computeDerivedStat(DerivedStatType.Movement);
+				return {
+					Header: (
 						<LabeledInput
 							label='Movement'
 							tooltip={movement.tooltip}
 							value={movement.value.toString()}
 							disabled={true}
 						/>
-						<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '0 0 12px 0', opacity: 0.3 }} />
-					</>
-				)}
-
-				{type === ActionType.Attack && weaponModes.length > 0 && (
-					<>
+					),
+				};
+			}
+			case ActionType.Attack: {
+				return {
+					Header: (
 						<div style={{ marginBottom: '12px' }}>
 							<LabeledDropdown
 								label='Weapon'
@@ -287,11 +287,27 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 								onChange={setSelectedWeapon}
 							/>
 						</div>
-						<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '0 0 12px 0', opacity: 0.3 }} />
-					</>
+					),
+				};
+			}
+			default: {
+				return { Header: undefined };
+			}
+		}
+	};
+
+	const renderActionsByType = (type: ActionType) => {
+		const actions = Object.values(ACTIONS).filter(action => action.type === type);
+
+		const { Header } = getHeaderForTab(type);
+
+		return (
+			<div key={type}>
+				{Header}
+				{Header && (
+					<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '0 0 12px 0', opacity: 0.3 }} />
 				)}
 
-				{/* Action cards */}
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 					{actions.map(action => {
 						const costs = action.costs.map(cost => {
@@ -370,7 +386,13 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 
 	return (
 		<Block>
-			<h3 style={{ margin: '0 0 16px 0', fontSize: '1.1em' }}>Actions</h3>
+			<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+				<h3 style={{ margin: '0 0 16px 0', fontSize: '1.1em' }}>Actions</h3>
+				<label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+					<input type='checkbox' checked={showAll} onChange={e => setShowAll(e.target.checked)} />
+					Show All
+				</label>
+			</div>
 
 			{renderTabButtons()}
 			{renderActionsByType(activeTab)}
