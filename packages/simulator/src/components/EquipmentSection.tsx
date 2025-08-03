@@ -100,7 +100,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ character, o
 								<Button onClick={() => handleRemoveItem(idx)} icon={FaTrash} tooltip='Remove item' type='inline' />
 							</>
 						) : (
-							<span style={commonLabelStyle}>{item.name}</span>
+							<span style={commonLabelStyle}>{item.description}</span>
 						)}
 					</div>
 				))}

@@ -31,6 +31,7 @@ export enum ShieldType {
 
 export interface Item {
 	name: string;
+	description: string;
 	traits: Trait[];
 }
 
@@ -47,6 +48,10 @@ export class WeaponMode {
 
 	get statType(): StatType {
 		return PRIMARY_WEAPON_TYPES[this.type];
+	}
+
+	get description(): string {
+		return `${this.type} (${this.bonus.description}, ${this.range.description})`;
 	}
 }
 
@@ -103,6 +108,10 @@ export class Weapon implements Item {
 		});
 		return { weapon, mode };
 	}
+
+	get description(): string {
+		return `${this.name} - ${this.modes.map(mode => mode.description).join(' / ')}`;
+	}
 }
 
 export class Armor implements Item {
@@ -131,6 +140,11 @@ export class Armor implements Item {
 		this.dexPenalty = dexPenalty;
 		this.traits = traits;
 	}
+
+	get description(): string {
+		const dexPenalty = this.dexPenalty.isNotZero ? `, Dex Penalty: ${this.dexPenalty.description}` : '';
+		return `${this.name} (${this.type} ${this.bonus.description}${dexPenalty})`;
+	}
 }
 
 export class Shield implements Item {
@@ -144,6 +158,10 @@ export class Shield implements Item {
 		this.type = type;
 		this.bonus = bonus;
 		this.traits = traits;
+	}
+
+	get description(): string {
+		return `${this.name} (${this.type} ${this.bonus.description})`;
 	}
 }
 

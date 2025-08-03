@@ -283,7 +283,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 								label='Weapon'
 								value={selectedWeapon}
 								options={weaponModes}
-								describe={({ weapon, mode }) => `${weapon.name} - ${mode.type} (${mode.bonus.description})`}
+								describe={weaponMode => `${weaponMode.weapon.name} - ${weaponMode.mode.description}`}
 								onChange={setSelectedWeapon}
 							/>
 						</div>
