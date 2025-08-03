@@ -20,10 +20,13 @@ import {
 	Size,
 	Bonus,
 	Distance,
+	Equipment,
+	Weapon,
+	Shield,
+	Armor,
 } from '@shattered-wilds/commons';
 
 import { BasicAttack, DefenseType, DEFENSE_TYPE_PROPERTIES } from './core';
-import { Equipment, Armor, Shield, Weapon } from './equipment';
 
 export interface ResourceValue {
 	resource: Resource;

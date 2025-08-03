@@ -1,6 +1,6 @@
-import { DerivedStatType } from './derived-stat';
-import { StatTree } from './stat-tree';
-import { StatType } from './stat-type';
+import { DerivedStatType } from './derived-stat.js';
+import { StatTree } from './stat-tree.js';
+import { StatType } from './stat-type.js';
 
 export interface FormulaResult {
 	value: number;

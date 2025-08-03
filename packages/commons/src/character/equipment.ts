@@ -1,4 +1,6 @@
-import { Bonus, Distance, StatType, Trait } from '@shattered-wilds/commons';
+import { Trait } from '../core/traits.js';
+import { StatType } from '../stats/stat-type.js';
+import { Bonus, Distance } from '../stats/value.js';
 
 export enum PrimaryWeaponType {
 	Unarmed = 'Unarmed',
@@ -135,47 +137,58 @@ export class Equipment {
 		}
 
 		const itemData = JSON.parse(prop) as Array<{
+			itemType: 'weapon' | 'armor' | 'shield';
 			name: string;
-			type: string;
+			modes?: Array<{
+				type: string;
+				bonus: number;
+				range?: number;
+			}>;
+			type?: string;
 			bonus?: number;
-			traits?: string[];
-			range?: number;
-			attribute?: string;
 			dexPenalty?: number;
-			twoHanded?: boolean;
+			traits?: string[];
 		}>;
 
 		const items: Item[] = itemData.map(data => {
 			const traits = data.traits?.map(trait => trait as Trait) || [];
-			if (Object.values(PrimaryWeaponType).includes(data.type as PrimaryWeaponType)) {
-				return new Weapon({
-					name: data.name,
-					modes: [
-						new WeaponMode({
-							type: data.type as PrimaryWeaponType,
-							bonus: Bonus.of((data.bonus as number) ?? 0),
-							range: data.range ? new Distance({ value: data.range }) : undefined,
-						}),
-					],
-					traits,
-				});
-			} else if (Object.values(ArmorType).includes(data.type as ArmorType)) {
-				return new Armor({
-					name: data.name,
-					type: data.type as ArmorType,
-					bonus: Bonus.of(data.bonus ?? 0),
-					dexPenalty: Bonus.of(data.dexPenalty ?? 0),
-					traits,
-				});
-			} else if (Object.values(ShieldType).includes(data.type as ShieldType)) {
-				return new Shield({
-					name: data.name,
-					type: data.type as ShieldType,
-					bonus: Bonus.of(data.bonus ?? 0),
-					traits,
-				});
-			} else {
-				throw new Error(`Unknown equipment type: ${data.type}`);
+
+			switch (data.itemType) {
+				case 'weapon': {
+					if (!data.modes || data.modes.length === 0) {
+						throw new Error(`Weapon ${data.name} must have at least one mode`);
+					}
+					const modes = data.modes.map(
+						modeData =>
+							new WeaponMode({
+								type: modeData.type as PrimaryWeaponType,
+								bonus: Bonus.of(modeData.bonus),
+								range: modeData.range ? Distance.of(modeData.range) : undefined,
+							}),
+					);
+					return new Weapon({ name: data.name, modes, traits });
+				}
+				case 'armor': {
+					if (!data.type) throw new Error(`Armor ${data.name} must have a type`);
+					return new Armor({
+						name: data.name,
+						type: data.type as ArmorType,
+						bonus: Bonus.of(data.bonus ?? 0),
+						dexPenalty: Bonus.of(data.dexPenalty ?? 0),
+						traits,
+					});
+				}
+				case 'shield': {
+					if (!data.type) throw new Error(`Shield ${data.name} must have a type`);
+					return new Shield({
+						name: data.name,
+						type: data.type as ShieldType,
+						bonus: Bonus.of(data.bonus ?? 0),
+						traits,
+					});
+				}
+				default:
+					throw new Error(`Unknown item type: ${(data as any).itemType}`);
 			}
 		});
 
@@ -183,7 +196,40 @@ export class Equipment {
 	}
 
 	toProp(): string {
-		return JSON.stringify(this.items);
+		const serializedItems = this.items.map(item => {
+			if (item instanceof Weapon) {
+				return {
+					itemType: 'weapon' as const,
+					name: item.name,
+					modes: item.modes.map(mode => ({
+						type: mode.type,
+						bonus: mode.bonus.value,
+						range: mode.range.value,
+					})),
+					traits: item.traits,
+				};
+			} else if (item instanceof Armor) {
+				return {
+					itemType: 'armor' as const,
+					name: item.name,
+					type: item.type,
+					bonus: item.bonus.value,
+					dexPenalty: item.dexPenalty.value,
+					traits: item.traits,
+				};
+			} else if (item instanceof Shield) {
+				return {
+					itemType: 'shield' as const,
+					name: item.name,
+					type: item.type,
+					bonus: item.bonus.value,
+					traits: item.traits,
+				};
+			} else {
+				throw new Error(`Unknown item type: ${item.constructor.name}`);
+			}
+		});
+		return JSON.stringify(serializedItems);
 	}
 }
 
