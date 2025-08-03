@@ -12,3 +12,12 @@
 {% include 'wiki-header.liquid' %}
 
 {{ lexicon.content | mdb }}
+
+{% for target in lexicon.targets %}
+    <h3>{{ target }} with {{ lexicon.title }}</h3>
+    <ul>
+        {% for item in wiki.byGroupByTrait[target][lexicon.slug] %}
+            <li>{% item item.slug %}</li>
+        {% endfor %}
+    </ul>
+{% endfor %}

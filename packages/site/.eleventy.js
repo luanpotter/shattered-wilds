@@ -35,7 +35,16 @@ export default function (eleventyConfig) {
 	eleventyConfig.addGlobalData('classes', classes);
 	eleventyConfig.addGlobalData('traits', traits);
 
-	const wikiPages = [...lexiconFiles, ...actions, ...stats, ...derivedStats, ...resources, ...feats, ...classes, ...traits]
+	const wikiPages = [
+		...lexiconFiles,
+		...actions,
+		...stats,
+		...derivedStats,
+		...resources,
+		...feats,
+		...classes,
+		...traits,
+	]
 		.filter(e => e.slug)
 		.sort((a, b) => {
 			if (!a.title) {
@@ -55,6 +64,19 @@ export default function (eleventyConfig) {
 		return acc;
 	}, {});
 
+	const allTraits = wikiByGroup['Trait'].map(e => e.slug);
+	const wikiByGroupByTrait = {};
+	for (const [group, pages] of Object.entries(wikiByGroup)) {
+		for (const trait of allTraits) {
+			const filtered = pages.filter(e => (e.traits ?? []).includes(trait));
+			if (filtered.length > 0) {
+				(wikiByGroupByTrait[group] ??= {})[trait] = filtered;
+			}
+		}
+	}
+
+	console.log(wikiByGroupByTrait);
+
 	const isValid = new Set(wikiPages.map(e => e.slug)).size === wikiPages.length;
 	if (!isValid) {
 		console.error(
@@ -65,7 +87,8 @@ export default function (eleventyConfig) {
 	const wiki = {
 		pages: wikiPages,
 		byGroup: wikiByGroup,
-	}
+		byGroupByTrait: wikiByGroupByTrait,
+	};
 	eleventyConfig.addGlobalData('wiki', wiki);
 
 	const processor = new TextProcessor(wikiPages);

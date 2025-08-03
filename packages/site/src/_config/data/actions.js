@@ -45,5 +45,6 @@ export const actions = Object.values(ACTIONS).map(def => {
 
 		// other data
 		type: def.type,
+		traits: def.traits,
 	};
 });
