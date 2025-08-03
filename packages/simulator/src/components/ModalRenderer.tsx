@@ -6,9 +6,8 @@ import { Modal as ModalType, CharacterSheet } from '../types';
 
 import { CharacterList } from './CharacterList';
 import { CharacterSheetModal } from './CharacterSheet';
-import { DraggableModal } from './DraggableModal';
 import {
-	Modal,
+	ModalWrapper,
 	CharacterCreationModal,
 	BasicAttacksModal,
 	MeasureModal,
@@ -23,14 +22,14 @@ import { Button } from './shared/Button';
 
 const navigator = window.navigator;
 
-interface ModalComponentProps {
+interface ModalRendererProps {
 	modal: ModalType;
 	onStartDrag: (e: React.MouseEvent) => void;
 	onNavigateToCharacterSheets?: () => void;
 	onNavigateToCharacterSheet?: (characterId: string) => void;
 }
 
-export const ModalComponent: React.FC<ModalComponentProps> = ({
+export const ModalRenderer: React.FC<ModalRendererProps> = ({
 	modal,
 	onStartDrag,
 	onNavigateToCharacterSheets,
@@ -196,22 +195,10 @@ export const ModalComponent: React.FC<ModalComponentProps> = ({
 		}
 	};
 
-	// Determine which modals use the new Modal wrapper
-	const useNewModalWrapper = (modalType: string) => {
-		return ['character-creation', 'basic-attacks', 'measure'].includes(modalType);
-	};
-
-	if (useNewModalWrapper(modal.type)) {
-		return (
-			<Modal modal={modal} onStartDrag={onStartDrag} titleBarButtons={generateTitleBarButtons()}>
-				{renderContent()}
-			</Modal>
-		);
-	}
-
+	// All modals now use the unified ModalWrapper system
 	return (
-		<DraggableModal modal={modal} onStartDrag={onStartDrag} titleBarButtons={generateTitleBarButtons()}>
+		<ModalWrapper modal={modal} onStartDrag={onStartDrag} titleBarButtons={generateTitleBarButtons()}>
 			{renderContent()}
-		</DraggableModal>
+		</ModalWrapper>
 	);
 };

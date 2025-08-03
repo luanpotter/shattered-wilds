@@ -1,10 +1,13 @@
-export { Modal } from './Modal';
-export { CharacterCreationModal } from './CharacterCreationModal';
+// Modal wrapper component
+export { ModalWrapper } from './ModalWrapper';
+
+// Individual modal components
+export { AttackActionModal } from './AttackActionModal';
 export { BasicAttacksModal } from './BasicAttacksModal';
-export { MeasureModal } from './MeasureModal';
-export { FeatsModal } from './FeatsModal';
-export { DiceRollModal } from './DiceRollModal';
+export { CharacterCreationModal } from './CharacterCreationModal';
 export { ClassSetupModal } from './ClassSetupModal';
 export { ConsumeResourceModal } from './ConsumeResourceModal';
+export { DiceRollModal } from './DiceRollModal';
+export { FeatsModal } from './FeatsModal';
+export { MeasureModal } from './MeasureModal';
 export { default as RaceSetupModal } from './RaceSetupModal';
-export { AttackActionModal } from './AttackActionModal';

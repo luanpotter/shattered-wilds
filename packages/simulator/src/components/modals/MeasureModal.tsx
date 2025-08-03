@@ -13,8 +13,17 @@ interface MeasureModalProps {
 }
 
 export const MeasureModal: React.FC<MeasureModalProps> = ({ fromCharacter, toPosition, distance, onClose, onMove }) => {
+	const modalStyle: React.CSSProperties = {
+		padding: '20px',
+		maxWidth: '400px',
+		backgroundColor: 'var(--background)',
+		border: '1px solid var(--text)',
+		borderRadius: '8px',
+		boxSizing: 'border-box',
+	};
+
 	return (
-		<div style={{ padding: '20px', maxWidth: '400px' }}>
+		<div style={modalStyle}>
 			<h3
 				style={{
 					textAlign: 'center',

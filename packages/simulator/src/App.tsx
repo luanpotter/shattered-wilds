@@ -3,9 +3,9 @@ import { FaUsers, FaCrosshairs, FaTimes, FaEdit, FaPlay, FaHome } from 'react-ic
 
 import { CharacterSheetsPage } from './components/CharacterSheetsPage';
 import { BattleGrid } from './components/HexGrid';
+import { ModalRenderer } from './components/ModalRenderer';
 import { OnboardingPage } from './components/OnboardingPage';
 import { Button } from './components/shared/Button';
-import { ModalComponent } from './components/Window';
 import { useModals } from './hooks/useModals';
 import { useStore } from './store';
 import { Point, Character, DragState } from './types';
@@ -290,7 +290,7 @@ const App = (): React.ReactElement => {
 				</footer>
 			)}
 			{modals.map(modal => (
-				<ModalComponent
+				<ModalRenderer
 					key={modal.id}
 					modal={modal}
 					onStartDrag={(e: React.MouseEvent) => {

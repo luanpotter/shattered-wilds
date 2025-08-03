@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { FaTimes } from 'react-icons/fa';
 
-import { useStore } from '../store';
-import { Modal } from '../types';
+import { useModals } from '../../hooks/useModals';
+import { Modal as ModalType } from '../../types';
+import { Button } from '../shared/Button';
 
-import { Button } from './shared/Button';
-
-interface DraggableModalProps {
-	modal: Modal;
+interface ModalWrapperProps {
+	modal: ModalType;
 	children: React.ReactNode;
 	onStartDrag: (e: React.MouseEvent) => void;
 	titleBarButtons?: React.ReactNode;
 }
 
-export const DraggableModal: React.FC<DraggableModalProps> = ({ modal, children, onStartDrag, titleBarButtons }) => {
-	const updateModal = useStore(state => state.updateModal);
-	const removeModal = useStore(state => state.removeModal);
+export const ModalWrapper: React.FC<ModalWrapperProps> = ({ modal, children, onStartDrag, titleBarButtons }) => {
+	const { closeModal, updateModal } = useModals();
 	const [isDragging, setIsDragging] = useState(false);
 
 	const handleMouseDown = (e: React.MouseEvent) => {
@@ -48,7 +46,7 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({ modal, children,
 	};
 
 	const handleClose = () => {
-		removeModal(modal.id);
+		closeModal(modal.id);
 	};
 
 	// Add useEffect to handle document-level mouse events
@@ -103,6 +101,7 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({ modal, children,
 				/>
 			)}
 			<div
+				className='draggable-modal'
 				onMouseDown={handleMouseDown}
 				style={{
 					position: 'absolute',

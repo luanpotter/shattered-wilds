@@ -14,8 +14,8 @@ interface BasicAttacksModalProps {
 
 export const BasicAttacksModal: React.FC<BasicAttacksModalProps> = ({ attacks, characterSheet, onClose }) => {
 	const editMode = useStore(state => state.editMode);
-	const characters = useStore(state => state.characters);
 	const { openDiceRollModal } = useModals();
+	const characters = useStore(state => state.characters);
 
 	const handleAttackClick = (attack: BasicAttack) => {
 		if (!editMode && characterSheet) {
