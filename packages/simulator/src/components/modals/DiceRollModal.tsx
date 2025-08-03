@@ -51,6 +51,7 @@ export interface DiceRollModalProps {
 	check: Check;
 	onClose: () => void;
 	onDiceRollComplete?: ((result: { total: number; shifts: number }) => void) | undefined;
+	initialTargetDC?: number;
 }
 
 interface RollResults {
@@ -87,7 +88,13 @@ const showTargetDC = (checkType: CheckType) => {
 	return checkType === 'Static-Active' || checkType === 'Static-Resisted' || checkType === 'Contested-Active';
 };
 
-export const DiceRollModal: React.FC<DiceRollModalProps> = ({ characterId, check, onClose, onDiceRollComplete }) => {
+export const DiceRollModal: React.FC<DiceRollModalProps> = ({
+	characterId,
+	check,
+	onClose,
+	onDiceRollComplete,
+	initialTargetDC,
+}) => {
 	const characters = useStore(state => state.characters);
 
 	const character = characters.find(c => c.id === characterId)!;
@@ -98,7 +105,15 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({ characterId, check
 		return <div>Character ${characterId} not found</div>;
 	}
 
-	return <DiceRollModalContent tree={tree} check={check} onClose={onClose} onDiceRollComplete={onDiceRollComplete} />;
+	return (
+		<DiceRollModalContent
+			tree={tree}
+			check={check}
+			onClose={onClose}
+			onDiceRollComplete={onDiceRollComplete}
+			{...(initialTargetDC !== undefined && { initialTargetDC })}
+		/>
+	);
 };
 
 const DiceRollModalContent: React.FC<{
@@ -106,10 +121,11 @@ const DiceRollModalContent: React.FC<{
 	check: Check;
 	onClose: () => void;
 	onDiceRollComplete: ((result: { total: number; shifts: number }) => void) | undefined;
-}> = ({ tree, check, onClose, onDiceRollComplete }) => {
+	initialTargetDC?: number;
+}> = ({ tree, check, onClose, onDiceRollComplete, initialTargetDC }) => {
 	const [circumstantialModifier, setCircumstantialModifier] = useState(0);
 	const [checkType, setCheckType] = useState<CheckType>(check.type);
-	const [dc, setDc] = useState<number | null>(null);
+	const [dc, setDc] = useState<number | null>(initialTargetDC ?? null);
 	const [useExtra, setUseExtra] = useState(false);
 	const [useLuck, setUseLuck] = useState(false);
 	const [extraSkill, setExtraSkill] = useState<SkillType>('Muscles');

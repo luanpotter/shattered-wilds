@@ -164,6 +164,7 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({
 						check={modal.check}
 						onClose={onClose}
 						onDiceRollComplete={modal.onDiceRollComplete}
+						{...(modal.initialTargetDC !== undefined && { initialTargetDC: modal.initialTargetDC })}
 					/>
 				);
 			}

@@ -614,6 +614,11 @@ export const ACTIONS = {
 				nature: CheckNature.Active,
 				statType: StatType.Finesse,
 			}),
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Resisted,
+				statType: StatType.Perception,
+			}),
 		],
 	}),
 	[Action.Aim]: new ActionDefinition({

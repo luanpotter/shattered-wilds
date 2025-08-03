@@ -67,6 +67,7 @@ export type Modal =
 			characterId: string;
 			check: Check;
 			onDiceRollComplete?: (result: { total: number; shifts: number }) => void;
+			initialTargetDC?: number;
 	  })
 	| (BaseModal & {
 			type: 'attack-action';

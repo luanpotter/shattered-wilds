@@ -163,6 +163,7 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, ch
 						statModifier: statModifier,
 					}),
 					title: `Roll ${name} Check`,
+					...(parameter.targetDc !== undefined && { initialTargetDC: parameter.targetDc }),
 				});
 			}}
 		>

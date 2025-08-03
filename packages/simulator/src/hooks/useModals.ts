@@ -148,11 +148,13 @@ export function useModals() {
 		check,
 		onDiceRollComplete,
 		title,
+		initialTargetDC,
 	}: {
 		characterId: string;
 		check: Check;
 		onDiceRollComplete?: (result: { total: number; shifts: number }) => void;
 		title?: string;
+		initialTargetDC?: number;
 	}) => {
 		addModal({
 			id: generateModalId(),
@@ -162,6 +164,7 @@ export function useModals() {
 			check,
 			position: getNextPosition(),
 			...(onDiceRollComplete && { onDiceRollComplete }),
+			...(initialTargetDC !== undefined && { initialTargetDC }),
 		});
 	};
 
