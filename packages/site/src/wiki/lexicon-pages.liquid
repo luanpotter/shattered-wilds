@@ -14,10 +14,10 @@
 
 {{ lexicon.content | mdb }}
 
-{% if lexicon.groupItems and lexicon.groupItems.size > 0 %}
+{% if wikiGroupChildren[lexicon.slug] and wikiGroupChildren[lexicon.slug].length > 0 %}
 	<h2>{{ lexicon.title }} List</h2>
 	<ul class='category-list'>
-		{% for item in lexicon.groupItems %}
+		{% for item in wikiGroupChildren[lexicon.slug] %}
 			<li class='category-list-item'>{% item item.slug %}</li>
 		{% endfor %}
 	</ul>

@@ -43,6 +43,18 @@ export default function (eleventyConfig) {
 			}
 			return a.title.localeCompare(b.title);
 		});
+
+	const wikiGroupChildren = wikiPages.reduce((acc, e) => {
+		if (!e.group) {
+			return acc;
+		}
+		if (!acc[e.group]) {
+			acc[e.group] = [];
+		}
+		acc[e.group].push(e);
+		return acc;
+	}, {});
+
 	const isValid = new Set(wikiPages.map(e => e.slug)).size === wikiPages.length;
 	if (!isValid) {
 		console.error(
@@ -51,6 +63,7 @@ export default function (eleventyConfig) {
 		);
 	}
 	eleventyConfig.addGlobalData('wikiPages', wikiPages);
+	eleventyConfig.addGlobalData('wikiGroupChildren', wikiGroupChildren);
 
 	const processor = new TextProcessor(wikiPages);
 

@@ -13,9 +13,9 @@ export const parseLexicon = () => {
 	}
 
 	function getAllMarkdownFiles(dir, basePath = '') {
-		const files = [];
 		const items = fs.readdirSync(dir);
 
+		const results = [];
 		for (const item of items) {
 			const fullPath = path.join(dir, item);
 			const stat = fs.statSync(fullPath);
@@ -23,7 +23,7 @@ export const parseLexicon = () => {
 			if (stat.isDirectory()) {
 				// Recursively scan subdirectories
 				const subFiles = getAllMarkdownFiles(fullPath, path.join(basePath, item));
-				files.push(...subFiles);
+				results.push(...subFiles);
 			} else if (item.endsWith('.md')) {
 				// Create slug from relative path to lexicon root
 				const relativePath = path.relative(lexiconDir, fullPath).replace(/\.md$/, '');
@@ -65,58 +65,19 @@ export const parseLexicon = () => {
 					});
 				};
 
-				files.push({
-					filePath: fullPath,
-					slug: slug,
+				results.push({
 					group,
+					slug,
 					title: title,
-					basePath: basePath,
+					url: `/wiki/${slug}/`,
 					content: markdownContent,
 					metadata: parseFrontMatter(frontMatter),
 				});
 			}
 		}
 
-		return files;
+		return results;
 	}
 
-	const markdownFiles = getAllMarkdownFiles(lexiconDir);
-
-	// Group items by category for category pages
-	const groups = {};
-	markdownFiles.forEach(file => {
-		if (file.group) {
-			if (!groups[file.group]) {
-				groups[file.group] = [];
-			}
-			groups[file.group].push(file);
-		}
-	});
-
-	// Build a lookup for slug to url
-	const slugToUrl = {};
-	markdownFiles.forEach(file => {
-		slugToUrl[file.slug] = `/wiki/${file.slug}/`;
-	});
-
-	return markdownFiles.map(file => {
-		let groupItems = null;
-		if (groups[file.title]) {
-			groupItems = groups[file.title]
-				.filter(item => item.slug !== file.slug)
-				.map(item => ({
-					...item,
-					url: slugToUrl[item.slug],
-				}));
-		}
-		return {
-			group: file.group,
-			slug: file.slug,
-			title: file.title,
-			url: `/wiki/${file.slug}/`,
-			content: file.content,
-			metadata: file.metadata,
-			groupItems: groupItems,
-		};
-	});
+	return getAllMarkdownFiles(lexiconDir);
 };
