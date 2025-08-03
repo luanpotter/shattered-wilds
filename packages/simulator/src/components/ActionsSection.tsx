@@ -337,12 +337,13 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 								</div>
 
 								{action.parameters.map((parameter, index) => {
+									const key = `${action.name}-${parameter.constructor.name}-${index}`;
 									if (parameter instanceof ActionValueParameter) {
-										return <ValueParameter key={index} parameter={parameter} statTree={tree} />;
+										return <ValueParameter key={key} parameter={parameter} statTree={tree} />;
 									} else if (parameter instanceof ActionCheckParameter) {
 										return (
 											<CheckParameter
-												key={index}
+												key={key}
 												parameter={parameter}
 												statTree={tree}
 												character={character}

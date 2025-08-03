@@ -13,7 +13,7 @@ export enum PrimaryWeaponType {
 export const PRIMARY_WEAPON_TYPES: Record<PrimaryWeaponType, StatType> = {
 	[PrimaryWeaponType.Unarmed]: StatType.STR,
 	[PrimaryWeaponType.Thrown]: StatType.STR,
-	[PrimaryWeaponType.LightMelee]: StatType.STR,
+	[PrimaryWeaponType.LightMelee]: StatType.DEX,
 	[PrimaryWeaponType.Ranged]: StatType.DEX,
 	[PrimaryWeaponType.HeavyMelee]: StatType.STR,
 };

@@ -83,6 +83,10 @@ const calculateShifts = (excess: number): number => {
 	return shifts;
 };
 
+const showTargetDC = (checkType: CheckType) => {
+	return checkType === 'Static-Active' || checkType === 'Static-Resisted' || checkType === 'Contested-Active';
+};
+
 export const DiceRollModal: React.FC<DiceRollModalProps> = ({ characterId, check, onClose, onDiceRollComplete }) => {
 	const characters = useStore(state => state.characters);
 
@@ -94,10 +98,10 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({ characterId, check
 		return <div>Character ${characterId} not found</div>;
 	}
 
-	return <DiceRollModealContent tree={tree} check={check} onClose={onClose} onDiceRollComplete={onDiceRollComplete} />;
+	return <DiceRollModalContent tree={tree} check={check} onClose={onClose} onDiceRollComplete={onDiceRollComplete} />;
 };
 
-const DiceRollModealContent: React.FC<{
+const DiceRollModalContent: React.FC<{
 	tree: StatTree;
 	check: Check;
 	onClose: () => void;
@@ -396,7 +400,7 @@ const DiceRollModealContent: React.FC<{
 						/>
 					</div>
 
-					{(checkType === 'Static-Active' || checkType === 'Contested-Active') && (
+					{showTargetDC(checkType) && (
 						<div style={{ flex: 1 }}>
 							<label htmlFor='dc' style={{ display: 'block', marginBottom: '4px' }}>
 								DC:
@@ -561,7 +565,7 @@ const DiceRollModealContent: React.FC<{
 					/>
 				</div>
 
-				{(checkType === 'Static-Active' || checkType === 'Contested-Active') && (
+				{showTargetDC(checkType) && (
 					<div style={{ flex: 1 }}>
 						<label htmlFor='dc' style={{ display: 'block', marginBottom: '4px' }}>
 							DC:

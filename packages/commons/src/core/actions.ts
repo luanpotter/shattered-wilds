@@ -260,6 +260,11 @@ export const ACTIONS = {
 				nature: CheckNature.Active,
 				statType: StatType.Finesse,
 			}),
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Resisted,
+				statType: StatType.Stance,
+			}),
 			new ActionValueParameter({
 				name: 'Distance',
 				unit: ActionValueUnit.Hex,

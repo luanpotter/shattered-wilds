@@ -40,7 +40,7 @@ export class Distance implements Value {
 	value: number;
 
 	constructor({ value }: { value: number }) {
-		this.value = Math.min(value, 1);
+		this.value = Math.max(value, 1);
 	}
 
 	get description(): string {
