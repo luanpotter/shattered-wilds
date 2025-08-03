@@ -10,12 +10,17 @@ export enum PrimaryWeaponType {
 	HeavyMelee = 'Heavy Melee',
 }
 
-export const PRIMARY_WEAPON_TYPES: Record<PrimaryWeaponType, StatType> = {
-	[PrimaryWeaponType.Unarmed]: StatType.STR,
-	[PrimaryWeaponType.Thrown]: StatType.STR,
-	[PrimaryWeaponType.LightMelee]: StatType.DEX,
-	[PrimaryWeaponType.Ranged]: StatType.DEX,
-	[PrimaryWeaponType.HeavyMelee]: StatType.STR,
+export interface PrimaryWeaponTypeDefinition {
+	statType: StatType;
+	rangeType: Trait.Melee | Trait.Ranged;
+}
+
+export const PRIMARY_WEAPON_TYPES: Record<PrimaryWeaponType, PrimaryWeaponTypeDefinition> = {
+	[PrimaryWeaponType.Unarmed]: { statType: StatType.STR, rangeType: Trait.Melee },
+	[PrimaryWeaponType.Thrown]: { statType: StatType.DEX, rangeType: Trait.Ranged },
+	[PrimaryWeaponType.LightMelee]: { statType: StatType.DEX, rangeType: Trait.Melee },
+	[PrimaryWeaponType.Ranged]: { statType: StatType.DEX, rangeType: Trait.Ranged },
+	[PrimaryWeaponType.HeavyMelee]: { statType: StatType.STR, rangeType: Trait.Melee },
 };
 
 export enum ArmorType {
@@ -47,7 +52,11 @@ export class WeaponMode {
 	}
 
 	get statType(): StatType {
-		return PRIMARY_WEAPON_TYPES[this.type];
+		return PRIMARY_WEAPON_TYPES[this.type].statType;
+	}
+
+	get rangeType(): Trait.Melee | Trait.Ranged {
+		return PRIMARY_WEAPON_TYPES[this.type].rangeType;
 	}
 
 	get description(): string {

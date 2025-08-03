@@ -16,6 +16,8 @@ import {
 	Bonus,
 	Distance,
 	Shield,
+	ActionDefinition,
+	Trait,
 } from '@shattered-wilds/commons';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
@@ -109,6 +111,7 @@ interface CheckParameterProps {
 
 interface TabParameters {
 	selectedWeapon: WeaponModeOption | null;
+	selectedDefenseRealm: StatType | null;
 }
 
 const checkOptions = (statType: StatType | StandardCheck, tabParameters: TabParameters): [StatType, Bonus] => {
@@ -124,7 +127,8 @@ const checkOptions = (statType: StatType | StandardCheck, tabParameters: TabPara
 			return [type, bonus];
 		}
 		case StandardCheck.Defense: {
-			return [StatType.Body, Bonus.zero()];
+			const realm = tabParameters.selectedDefenseRealm ?? StatType.Body;
+			return [realm, Bonus.zero()];
 		}
 	}
 };
@@ -177,6 +181,7 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, ch
 export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => {
 	const { openConsumeResourceModal } = useModals();
 	const [selectedWeapon, setSelectedWeapon] = useState<WeaponModeOption | null>(null);
+	const [selectedDefenseRealm, setSelectedDefenseRealm] = useState<StatType | null>(null);
 	const [activeTab, setActiveTab] = useState<ActionType>(ActionType.Movement);
 	const [showAll, setShowAll] = useState(true);
 
@@ -260,7 +265,12 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 		);
 	};
 
-	const getHeaderForTab = (type: ActionType): { Header: React.ReactNode | undefined } => {
+	const getHeaderForTab = (
+		type: ActionType,
+	): {
+		Header: React.ReactNode | undefined;
+		filter?: (action: ActionDefinition) => boolean;
+	} => {
 		switch (type) {
 			case ActionType.Movement: {
 				const movement = sheet.getStatTree().computeDerivedStat(DerivedStatType.Movement);
@@ -288,6 +298,34 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 							/>
 						</div>
 					),
+					filter: action => {
+						if (action.type !== ActionType.Attack) {
+							return false;
+						}
+						const weaponMode = selectedWeapon?.mode?.rangeType;
+						switch (weaponMode) {
+							case Trait.Melee:
+								return !action.traits.includes(Trait.Ranged);
+							case Trait.Ranged:
+								return !action.traits.includes(Trait.Melee);
+							default:
+								return true;
+						}
+					},
+				};
+			}
+			case ActionType.Defense: {
+				const realms = StatType.childrenOf(StatType.Level);
+				return {
+					Header: (
+						<LabeledDropdown
+							label='Realm'
+							value={selectedDefenseRealm}
+							options={realms}
+							describe={realm => realm.name}
+							onChange={realm => setSelectedDefenseRealm(realm)}
+						/>
+					),
 				};
 			}
 			default: {
@@ -297,9 +335,10 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 	};
 
 	const renderActionsByType = (type: ActionType) => {
-		const actions = Object.values(ACTIONS).filter(action => action.type === type);
-
-		const { Header } = getHeaderForTab(type);
+		const { Header, filter } = getHeaderForTab(type);
+		const actions = Object.values(ACTIONS)
+			.filter(action => action.type === type)
+			.filter(action => showAll || (filter?.(action) ?? true));
 
 		return (
 			<div key={type}>
@@ -379,7 +418,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 												parameter={parameter}
 												statTree={tree}
 												character={character}
-												tabParameters={{ selectedWeapon }}
+												tabParameters={{ selectedWeapon, selectedDefenseRealm }}
 											/>
 										);
 									}
