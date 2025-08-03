@@ -5,6 +5,7 @@ const LabeledDropdown = <T,>({
 	options,
 	describe,
 	disabled = false,
+	placeholder,
 	onChange,
 }: {
 	label: string;
@@ -13,6 +14,7 @@ const LabeledDropdown = <T,>({
 	options: T[];
 	describe: (option: T) => string;
 	disabled?: boolean;
+	placeholder?: string;
 	onChange: (value: T) => void;
 }) => {
 	const findItem = (value: string): T | undefined => options.find(option => describe(option) === value);
@@ -36,12 +38,21 @@ const LabeledDropdown = <T,>({
 					}}
 					onChange={e => {
 						const value = e.target.value;
+						if (value === '' && placeholder) {
+							// Don't call onChange for placeholder selection
+							return;
+						}
 						const item = findItem(value);
 						if (item) {
 							onChange(item);
 						}
 					}}
 				>
+					{placeholder && (
+						<option value='' disabled={value !== null}>
+							{placeholder}
+						</option>
+					)}
 					{options.map(option => {
 						const key = describe(option);
 						return (
