@@ -1,4 +1,5 @@
 import { StatModifier } from './stat-tree.js';
+import { Bonus } from './value.js';
 
 export enum CheckMode {
 	Static = 'Static',
@@ -31,7 +32,7 @@ export class Check {
 		return `${this.mode}-${this.nature}`;
 	}
 
-	get modifierValue(): number {
+	get modifierValue(): Bonus {
 		return this.statModifier.value;
 	}
 }

@@ -121,13 +121,13 @@ export const StatValueComponent: React.FC<StatValueComponentProps> = ({
 			<span
 				style={{
 					fontSize: '0.9em',
-					fontWeight: value >= 0 ? 'bold' : 'normal',
+					fontWeight: 'bold',
 					cursor: !editMode ? 'pointer' : 'default',
 				}}
 				title={tooltip}
 				{...commonClickProps}
 			>
-				{value >= 0 ? `+${value}` : value}
+				{value.description}
 				{hasTooltip && (
 					<FaInfoCircle
 						style={{
@@ -151,14 +151,14 @@ export const StatValueComponent: React.FC<StatValueComponentProps> = ({
 					borderRadius: '4px',
 					backgroundColor: 'var(--background-alt)',
 					fontSize: '0.9em',
-					fontWeight: value >= 0 ? 'bold' : 'normal',
+					fontWeight: 'bold',
 					position: 'relative',
 					cursor: !editMode ? 'pointer' : 'default',
 				}}
 				title={tooltip}
 				{...commonClickProps}
 			>
-				{value >= 0 ? `+${value}` : value}
+				{value.description}
 				{hasTooltip && (
 					<FaInfoCircle
 						style={{

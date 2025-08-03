@@ -1,4 +1,4 @@
-import { Check, StatType } from '@shattered-wilds/commons';
+import { Bonus, Check, Distance, StatType } from '@shattered-wilds/commons';
 
 export class DerivedStat<T> {
 	value: T;
@@ -14,6 +14,7 @@ export interface BasicAttack {
 	name: string;
 	description: string;
 	check: Check;
+	range: Distance;
 }
 
 // TODO(luan): get rid of this and use ACTIONS instead
@@ -30,31 +31,31 @@ export const DEFENSE_TYPE_PROPERTIES: Record<
 	DefenseType,
 	{
 		stat: StatType;
-		cm: number;
+		cm: Bonus;
 	}
 > = {
 	[DefenseType.BasicBody]: {
 		stat: StatType.Body,
-		cm: 0,
+		cm: Bonus.zero(),
 	},
 	[DefenseType.BasicMind]: {
 		stat: StatType.Mind,
-		cm: 0,
+		cm: Bonus.zero(),
 	},
 	[DefenseType.BasicSoul]: {
 		stat: StatType.Soul,
-		cm: 0,
+		cm: Bonus.zero(),
 	},
 	[DefenseType.Dodge]: {
 		stat: StatType.Evasiveness,
-		cm: 3,
+		cm: Bonus.of(3),
 	},
 	[DefenseType.TakeCover]: {
 		stat: StatType.Agility,
-		cm: 6,
+		cm: Bonus.of(6),
 	},
 	[DefenseType.ShieldBlock]: {
 		stat: StatType.Body,
-		cm: 0,
+		cm: Bonus.zero(),
 	},
 };

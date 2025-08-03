@@ -442,7 +442,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 									cursor: editMode ? 'help' : 'pointer',
 								}}
 							>
-								{basicDefense.value}
+								{basicDefense.value.description}
 							</div>
 						</div>
 					</div>

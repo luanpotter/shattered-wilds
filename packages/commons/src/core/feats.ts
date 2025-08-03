@@ -2,6 +2,7 @@ import { CLASS_ROLE_PRIMARY_ATTRIBUTE, ClassDefinition, ClassFlavor, ClassRealm,
 import { Race, RACE_DEFINITIONS, RacialStatModifier, Upbringing } from './races.js';
 import { InherentModifier, ModifierSource } from '../stats/stat-tree.js';
 import { StatType, StatTypeName } from '../stats/stat-type.js';
+import { Bonus } from '../stats/value.js';
 
 export enum FeatType {
 	Core = 'Core',
@@ -30,7 +31,7 @@ export interface FeatEffect {}
 export class FeatStatModifier implements FeatEffect {
 	constructor(
 		public statType: StatType,
-		public value: number,
+		public value: Bonus,
 	) {}
 
 	toModifier(feat: FeatDefinition<string | void>): InherentModifier {
@@ -435,7 +436,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		},
 		effects: info => {
 			const primaryAttribute = CLASS_ROLE_PRIMARY_ATTRIBUTE[info.parameter];
-			return [new FeatStatModifier(primaryAttribute, 1)];
+			return [new FeatStatModifier(primaryAttribute, Bonus.of(1))];
 		},
 	}),
 	// Race
@@ -453,9 +454,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		},
 		fullDescription: info => {
 			const raceDefinition = RACE_DEFINITIONS[info.parameter];
-			const modifiers = raceDefinition.modifiers
-				.map(e => `${e.statType}: ${e.value > 0 ? '+' : ''}${e.value}`)
-				.join(' / ');
+			const modifiers = raceDefinition.modifiers.map(e => `${e.statType}: ${e.value.description}`).join(' / ');
 			if (!modifiers) {
 				return `Racial Modifiers for ${raceDefinition.name}: Neutral.`;
 			}
@@ -484,7 +483,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		},
 		effects: info => {
 			const statName = info.parameter;
-			return [new FeatStatModifier(StatType.fromName(statName), 1)];
+			return [new FeatStatModifier(StatType.fromName(statName), Bonus.of(1))];
 		},
 	}),
 	[Feat.UpbringingDisfavoredModifier]: new FeatDefinition<MindOrSoulAttributes>({
@@ -505,7 +504,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		},
 		effects: info => {
 			const stat = info.parameter;
-			return [new FeatStatModifier(StatType.fromName(stat), -1)];
+			return [new FeatStatModifier(StatType.fromName(stat), Bonus.of(-1))];
 		},
 	}),
 	[Feat.SpecializedKnowledge]: new FeatDefinition<Upbringing>({

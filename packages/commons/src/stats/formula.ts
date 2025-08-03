@@ -68,7 +68,7 @@ export class FormulaFactor {
 	}
 
 	private computeValue(statTree: StatTree): number {
-		const variableValue = this.variable ? statTree.valueOf(this.variable) : 1;
+		const variableValue = this.variable ? statTree.valueOf(this.variable).value : 1;
 		const value = this.coefficient * variableValue;
 		if (this.round) {
 			return Math[this.round](value);

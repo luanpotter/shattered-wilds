@@ -1,8 +1,8 @@
-import { DerivedStatType } from '@shattered-wilds/commons';
+import { DerivedStatType, Distance } from '@shattered-wilds/commons';
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 
 import { useStore } from '../store';
-import { CharacterSheet, DragState, Point, Character, HexPosition, Weapon } from '../types';
+import { CharacterSheet, DragState, Point, Character, HexPosition } from '../types';
 import { findNextWindowPosition, findCharacterAtPosition, axialToPixel } from '../utils';
 
 import { CharacterToken } from './CharacterToken';
@@ -170,34 +170,15 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 		});
 	};
 
-	const getAttackRange = (attacker: Character, attackIndex: number): number => {
+	const getAttackRange = (attacker: Character, attackIndex: number): Distance => {
 		const sheet = CharacterSheet.from(attacker.props);
 		const attacks = sheet.getBasicAttacks();
 		const attack = attacks[attackIndex];
 
-		if (!attack) return 1;
-
-		// Get the weapon from equipment to check traits and range
-		const weapon = sheet.equipment.items.find(item => item.name === attack.name);
-		if (!weapon) {
-			return 1; // Default melee range
+		if (!attack) {
+			throw new Error(`Attack not found: ${attackIndex}`);
 		}
-
-		// Check if it's a weapon
-		if (weapon instanceof Weapon) {
-			// Check for polearm trait (2 hex range)
-			if (weapon.traits.some(trait => trait.toLowerCase().includes('polearm'))) {
-				return 2;
-			}
-
-			// Check for ranged weapon with explicit range
-			if (weapon.range && weapon.range > 0) {
-				return weapon.range; // Range in meters = range in hexes
-			}
-		}
-
-		// Default to adjacent (1 hex) for melee
-		return 1;
+		return attack.range;
 	};
 
 	const handleCharacterMouseDown = (e: React.MouseEvent, character: Character) => {
@@ -209,7 +190,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 				e.stopPropagation();
 
 				// Check if the target is within range
-				const attackRange = getAttackRange(attackState.attacker, attackState.attackIndex);
+				const attackRange = getAttackRange(attackState.attacker, attackState.attackIndex).value;
 				const distance = getHexDistance(attackState.attacker.position!, character.position!);
 
 				if (distance <= attackRange) {
@@ -552,7 +533,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 					<g style={{ pointerEvents: 'none' }}>
 						{getHexesInRange(
 							attackState.attacker.position,
-							getAttackRange(attackState.attacker, attackState.attackIndex),
+							getAttackRange(attackState.attacker, attackState.attackIndex).value,
 						).map(({ q, r }, i) => (
 							<Hex key={`attack-range-${i}`} q={q} r={r}>
 								<path

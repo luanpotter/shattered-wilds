@@ -19,7 +19,7 @@ describe('StatTree', () => {
 			const tree = StatTree.build(props, modifiers);
 			const map = new Map<StatType, number>();
 			for (const stat of StatType.values) {
-				map.set(stat, tree.getModifier(stat).value);
+				map.set(stat, tree.getModifier(stat).value.value);
 			}
 			return map;
 		};

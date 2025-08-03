@@ -2,6 +2,7 @@ import { DERIVED_STATS, DerivedStatType } from './derived-stat.js';
 import { FormulaResult } from './formula.js';
 import { Resource, RESOURCES } from './resources.js';
 import { StatHierarchyProperties, StatType } from './stat-type.js';
+import { Bonus } from './value.js';
 
 export enum ModifierSource {
 	Feat = 'Feat',
@@ -10,29 +11,19 @@ export enum ModifierSource {
 	Circumstance = 'Circumstance',
 }
 
-// TODO(luan): create Bonus class
-export const modifierToString = (value: number): string => {
-	const sign = value >= 0 ? '+' : '-';
-	return `${sign}${Math.abs(value)}`;
-};
-
 export class CircumstanceModifier {
 	source: ModifierSource;
 	name: string;
-	value: number;
+	value: Bonus;
 
-	constructor({ source, name, value }: { source: ModifierSource; name: string; value: number }) {
+	constructor({ source, name, value }: { source: ModifierSource; name: string; value: Bonus }) {
 		this.source = source;
 		this.name = name;
 		this.value = value;
 	}
 
-	get bonusString(): string {
-		return modifierToString(this.value);
-	}
-
 	get description(): string {
-		return `${this.bonusString} from ${this.source} ${this.name}`;
+		return `${this.value.description} from ${this.source} ${this.name}`;
 	}
 }
 
@@ -47,7 +38,7 @@ export class InherentModifier extends CircumstanceModifier {
 	}: {
 		source: ModifierSource;
 		name: string;
-		value: number;
+		value: Bonus;
 		statType: StatType;
 	}) {
 		super({ source, name, value });
@@ -55,7 +46,7 @@ export class InherentModifier extends CircumstanceModifier {
 	}
 
 	override get description(): string {
-		return `${this.bonusString} ${this.statType} from ${this.source} ${this.name}`;
+		return `${this.value.description} ${this.statType} from ${this.source} ${this.name}`;
 	}
 }
 
@@ -102,18 +93,19 @@ export class StatTree {
 		return this.modifiers.filter(mod => mod.statType === stat);
 	}
 
-	private getParentModifier(node: StatNode): number {
+	private getParentModifier(node: StatNode): Bonus {
 		const parent = node.parent;
 		if (!parent) {
-			return 0;
+			return Bonus.zero();
 		}
 		return this.getModifier(parent.type).value;
 	}
 
-	private getSelfModifier(node: StatNode): number {
+	private getSelfModifier(node: StatNode): Bonus {
 		const hierarchy = node.type.hierarchy;
 		const properties = StatHierarchyProperties[hierarchy];
-		return Math.ceil(node.points * properties.baseMultiplier);
+		const value = Math.ceil(node.points * properties.baseMultiplier);
+		return new Bonus({ value });
 	}
 
 	getNode(stat: StatType): StatNode {
@@ -132,9 +124,9 @@ export class StatTree {
 	getNodeModifier(node: StatNode, cms: CircumstanceModifier[] = []): StatModifier {
 		const parentValue = this.getParentModifier(node);
 		const selfValue = this.getSelfModifier(node);
-		const baseValue = selfValue + parentValue;
+		const baseValue = Bonus.add([selfValue, parentValue]);
 		const appliedModifiers = [...this.getApplicableModifiers(node.type), ...cms];
-		const value = baseValue + appliedModifiers.reduce((sum, mod) => sum + mod.value, 0);
+		const value = Bonus.add([baseValue, ...appliedModifiers.map(mod => mod.value)]);
 		return new StatModifier({
 			statType: node.type,
 			parentValue,
@@ -153,11 +145,12 @@ export class StatTree {
 		return RESOURCES[resource].formula.compute(this);
 	}
 
-	valueOf(stat: StatType | DerivedStatType): number {
+	valueOf(stat: StatType | DerivedStatType): Bonus {
 		if (stat instanceof StatType) {
 			return this.getModifier(stat).value;
 		}
-		return this.computeDerivedStat(stat).value;
+		const { value } = this.computeDerivedStat(stat);
+		return new Bonus({ value });
 	}
 
 	fullReset(): { key: string; value: string }[] {
@@ -258,11 +251,11 @@ export class StatNode {
 
 export class StatModifier {
 	statType: StatType;
-	parentValue: number;
-	selfValue: number;
-	baseValue: number;
+	parentValue: Bonus;
+	selfValue: Bonus;
+	baseValue: Bonus;
 	appliedModifiers: CircumstanceModifier[];
-	value: number;
+	value: Bonus;
 
 	constructor({
 		statType,
@@ -273,11 +266,11 @@ export class StatModifier {
 		value,
 	}: {
 		statType: StatType;
-		parentValue: number;
-		selfValue: number;
-		baseValue: number;
+		parentValue: Bonus;
+		selfValue: Bonus;
+		baseValue: Bonus;
 		appliedModifiers: CircumstanceModifier[];
-		value: number;
+		value: Bonus;
 	}) {
 		this.statType = statType;
 		this.parentValue = parentValue;
@@ -287,32 +280,26 @@ export class StatModifier {
 		this.value = value;
 	}
 
-	get inherentModifier(): number {
-		const inherentModifiers = this.appliedModifiers
-			.filter(mod => mod instanceof InherentModifier)
-			.reduce((sum, mod) => sum + mod.value, 0);
-		return this.baseValue + inherentModifiers;
+	get inherentModifier(): Bonus {
+		const inherentModifiers = Bonus.add(
+			this.appliedModifiers.filter(mod => mod instanceof InherentModifier).map(e => e.value),
+		);
+
+		return Bonus.add([this.baseValue, inherentModifiers]);
 	}
 
-	get inherentModifierString(): string {
-		return modifierToString(this.inherentModifier);
-	}
-
-	get baseValueString(): string {
-		return modifierToString(this.baseValue);
-	}
-
-	get valueString(): string {
-		return modifierToString(this.value);
+	get simpleDescription(): string {
+		return `${this.statType.name} = ${this.value.description}`;
 	}
 
 	get description(): string {
 		const breakdown =
 			this.appliedModifiers.length > 0
-				? [`${this.baseValue} (${this.statType})`, ...this.appliedModifiers.map(mod => `[${mod.description}]`)].join(
-						' + ',
-					)
+				? [
+						`${this.baseValue.description} (${this.statType})`,
+						...this.appliedModifiers.map(mod => `[${mod.description}]`),
+					].join(' + ')
 				: undefined;
-		return `${this.statType.name} = ${this.value}${breakdown ? ` (${breakdown})` : ''}`;
+		return `${this.simpleDescription}${breakdown ? ` (${breakdown})` : ''}`;
 	}
 }

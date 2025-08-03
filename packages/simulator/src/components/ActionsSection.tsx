@@ -12,17 +12,20 @@ import {
 	CircumstanceModifier,
 	ModifierSource,
 	ActionValueUnit,
-	modifierToString,
+	Value,
+	Bonus,
+	Distance,
 } from '@shattered-wilds/commons';
 import React, { useEffect, useState } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
 import { FaShield } from 'react-icons/fa6';
 
 import { useStore } from '../store';
-import { Character, CharacterSheet, Weapon } from '../types';
+import { Character, CharacterSheet, Weapon, WeaponMode } from '../types';
 import { findNextWindowPosition } from '../utils';
 
 import Block from './shared/Block';
+import LabeledDropdown from './shared/LabeledDropdown';
 import LabeledInput from './shared/LabeledInput';
 import { RichText } from './shared/RichText';
 
@@ -67,27 +70,32 @@ const ParameterBox: React.FC<{
 	);
 };
 
+interface WeaponModeOption {
+	weapon: Weapon;
+	mode: WeaponMode;
+}
+
 interface ValueParameterProps {
 	parameter: ActionValueParameter;
 	statTree: StatTree;
 }
 
 const ValueParameter: React.FC<ValueParameterProps> = ({ parameter, statTree }) => {
-	const computeValueForUnit = (value: number, unit: ActionValueUnit) => {
+	const computeValueForUnit = (value: number, unit: ActionValueUnit): Value => {
 		switch (unit) {
 			case ActionValueUnit.Modifier:
-				return `${modifierToString(value)}`;
+				return new Bonus({ value });
 			case ActionValueUnit.Hex:
-				return `${value} Hex`;
+				return new Distance({ value });
 		}
 	};
 	const result = parameter.compute(statTree);
-	const text = computeValueForUnit(result.value, parameter.unit);
+	const value = computeValueForUnit(result.value, parameter.unit);
 	const tooltip = [parameter.name, result.tooltip].filter(Boolean).join('\n');
 
 	return (
 		<ParameterBox title={parameter.name} tooltip={tooltip}>
-			{text}
+			{value.description}
 		</ParameterBox>
 	);
 };
@@ -100,22 +108,23 @@ interface CheckParameterProps {
 }
 
 interface TabParameters {
-	selectedWeapon: Weapon | null;
+	selectedWeapon: WeaponModeOption | null;
 }
 
-const checkOptions = (statType: StatType | StandardCheck, tabParameters: TabParameters): [StatType, number] => {
+const checkOptions = (statType: StatType | StandardCheck, tabParameters: TabParameters): [StatType, Bonus] => {
 	if (statType instanceof StatType) {
-		return [statType, 0];
+		return [statType, Bonus.zero()];
 	}
 
+	const weaponMode = tabParameters.selectedWeapon?.mode;
 	switch (statType) {
 		case StandardCheck.Attack: {
-			const type = tabParameters.selectedWeapon ? tabParameters.selectedWeapon.statType : StatType.STR;
-			const bonus = tabParameters.selectedWeapon ? tabParameters.selectedWeapon.bonus : 0;
+			const type = weaponMode ? weaponMode.statType : StatType.STR;
+			const bonus = weaponMode ? weaponMode.bonus : Bonus.zero();
 			return [type, bonus];
 		}
 		case StandardCheck.Defense: {
-			return [StatType.Body, 0];
+			return [StatType.Body, Bonus.zero()];
 		}
 	}
 };
@@ -125,7 +134,7 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, ch
 	const [statType, bonus] = checkOptions(parameter.statType, tabParameters);
 	const circumstanceModifiers = [
 		parameter.circumstanceModifier ? parameter.circumstanceModifier : undefined,
-		bonus !== 0
+		bonus.isNotZero
 			? new CircumstanceModifier({ source: ModifierSource.Equipment, name: 'Weapon Bonus', value: bonus })
 			: undefined,
 	].filter(Boolean) as CircumstanceModifier[];
@@ -141,10 +150,10 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, ch
 		.filter(Boolean)
 		.join('\n');
 
-	const inherentModifier = statModifier.inherentModifierString;
+	const inherentModifier = statModifier.inherentModifier;
 	return (
 		<ParameterBox
-			title={`${name} (${inherentModifier})`}
+			title={`${name} (${inherentModifier.description})`}
 			tooltip={tooltipText}
 			onClick={() => {
 				addWindow({
@@ -161,7 +170,7 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, ch
 				});
 			}}
 		>
-			{statModifier.valueString}
+			{statModifier.value.description}
 			<FaDice size={12} style={{ color: 'var(--text-secondary)' }} />
 		</ParameterBox>
 	);
@@ -170,19 +179,20 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, ch
 export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => {
 	const addWindow = useStore(state => state.addWindow);
 	const windows = useStore(state => state.windows);
-	const [selectedWeapon, setSelectedWeapon] = useState<Weapon | null>(null);
+	const [selectedWeapon, setSelectedWeapon] = useState<WeaponModeOption | null>(null);
 	const [activeTab, setActiveTab] = useState<ActionType>(ActionType.Movement);
 
 	const sheet = CharacterSheet.from(character.props);
 	const tree = sheet.getStatTree();
 	const weapons = sheet.equipment.items.filter(item => item instanceof Weapon) as Weapon[];
+	const weaponModes = weapons.flatMap(weapon => weapon.modes.map(mode => ({ weapon, mode })));
 
 	// Auto-select first weapon if available
 	useEffect(() => {
-		if (weapons.length > 0 && !selectedWeapon) {
-			setSelectedWeapon(weapons[0]);
+		if (weaponModes.length > 0 && !selectedWeapon) {
+			setSelectedWeapon(weaponModes[0]);
 		}
-	}, [weapons, selectedWeapon]);
+	}, [weaponModes, selectedWeapon]);
 
 	const getTypeIcon = (type: ActionType) => {
 		switch (type) {
@@ -264,35 +274,16 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 					</>
 				)}
 
-				{type === ActionType.Attack && weapons.length > 0 && (
+				{type === ActionType.Attack && weaponModes.length > 0 && (
 					<>
 						<div style={{ marginBottom: '12px' }}>
-							<label htmlFor='weapon-select' style={{ fontSize: '0.9em', marginBottom: '4px', display: 'block' }}>
-								<strong>Weapon:</strong>
-							</label>
-							<select
-								id='weapon-select'
-								value={selectedWeapon?.name || ''}
-								onChange={e => {
-									const weapon = weapons.find(w => w.name === e.target.value);
-									setSelectedWeapon(weapon || null);
-								}}
-								style={{
-									padding: '6px 10px',
-									fontSize: '0.9em',
-									borderRadius: '4px',
-									border: '1px solid var(--text)',
-									backgroundColor: 'var(--background)',
-									color: 'var(--text)',
-									width: '100%',
-								}}
-							>
-								{weapons.map(weapon => (
-									<option key={weapon.name} value={weapon.name}>
-										{weapon.name} (+{weapon.bonus})
-									</option>
-								))}
-							</select>
+							<LabeledDropdown
+								label='Weapon'
+								value={selectedWeapon}
+								options={weaponModes}
+								describe={({ weapon, mode }) => `${weapon.name} - ${mode.type} (${mode.bonus.description})`}
+								onChange={setSelectedWeapon}
+							/>
 						</div>
 						<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '0 0 12px 0', opacity: 0.3 }} />
 					</>

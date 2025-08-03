@@ -1,4 +1,4 @@
-import { StatType } from '@shattered-wilds/commons';
+import { Bonus, Distance, StatType, Trait } from '@shattered-wilds/commons';
 
 export enum PrimaryWeaponType {
 	Unarmed = 'Unarmed',
@@ -29,33 +29,18 @@ export enum ShieldType {
 
 export interface Item {
 	name: string;
+	traits: Trait[];
 }
 
-export class Weapon implements Item {
-	name: string;
+export class WeaponMode {
 	type: PrimaryWeaponType;
-	bonus: number;
-	traits: string[];
-	range: number | undefined; // in hexes, for thrown/ranged weapons
+	bonus: Bonus;
+	range: Distance;
 
-	constructor({
-		name,
-		type,
-		bonus,
-		traits = [],
-		range,
-	}: {
-		name: string;
-		type: PrimaryWeaponType;
-		bonus: number;
-		traits?: string[];
-		range: number | undefined;
-	}) {
-		this.name = name;
+	constructor({ type, bonus, range }: { type: PrimaryWeaponType; bonus: Bonus; range?: Distance | undefined }) {
 		this.type = type;
 		this.bonus = bonus;
-		this.traits = traits;
-		this.range = range;
+		this.range = range ?? Distance.of(1);
 	}
 
 	get statType(): StatType {
@@ -63,31 +48,77 @@ export class Weapon implements Item {
 	}
 }
 
+export class Weapon implements Item {
+	name: string;
+	modes: WeaponMode[];
+	traits: Trait[];
+
+	constructor({ name, modes, traits = [] }: { name: string; modes: WeaponMode[]; traits?: Trait[] }) {
+		this.name = name;
+		this.modes = modes;
+		this.traits = traits;
+	}
+
+	static simple({
+		name,
+		type,
+		bonus,
+		range,
+		traits = [],
+	}: {
+		name: string;
+		type: PrimaryWeaponType;
+		bonus: Bonus;
+		range?: Distance;
+		traits?: Trait[];
+	}): Weapon {
+		return new Weapon({
+			name,
+			modes: [new WeaponMode({ type, bonus, range })],
+			traits,
+		});
+	}
+}
+
 export class Armor implements Item {
 	name: string;
 	type: ArmorType;
-	bonus: number;
-	dexPenalty: number;
+	bonus: Bonus;
+	dexPenalty: Bonus;
+	traits: Trait[];
 
-	constructor(name: string, type: ArmorType, bonus: number, dexPenalty: number) {
+	constructor({
+		name,
+		type,
+		bonus,
+		dexPenalty,
+		traits = [],
+	}: {
+		name: string;
+		type: ArmorType;
+		bonus: Bonus;
+		dexPenalty: Bonus;
+		traits?: Trait[];
+	}) {
 		this.name = name;
 		this.type = type;
 		this.bonus = bonus;
 		this.dexPenalty = dexPenalty;
+		this.traits = traits;
 	}
 }
 
 export class Shield implements Item {
 	name: string;
 	type: ShieldType;
-	bonus: number;
-	twoHanded: boolean;
+	bonus: Bonus;
+	traits: Trait[];
 
-	constructor(name: string, type: ShieldType, bonus: number, twoHanded: boolean) {
+	constructor({ name, type, bonus, traits = [] }: { name: string; type: ShieldType; bonus: Bonus; traits?: Trait[] }) {
 		this.name = name;
 		this.type = type;
 		this.bonus = bonus;
-		this.twoHanded = twoHanded;
+		this.traits = traits;
 	}
 }
 
@@ -115,20 +146,37 @@ export class Equipment {
 		}>;
 
 		const items: Item[] = itemData.map(data => {
+			const traits = data.traits?.map(trait => trait as Trait) || [];
 			if (Object.values(PrimaryWeaponType).includes(data.type as PrimaryWeaponType)) {
 				return new Weapon({
 					name: data.name,
-					type: data.type as PrimaryWeaponType,
-					bonus: data.bonus || 0,
-					traits: data.traits || [],
-					range: data.range,
+					modes: [
+						new WeaponMode({
+							type: data.type as PrimaryWeaponType,
+							bonus: Bonus.of((data.bonus as number) ?? 0),
+							range: data.range ? new Distance({ value: data.range }) : undefined,
+						}),
+					],
+					traits,
 				});
 			} else if (Object.values(ArmorType).includes(data.type as ArmorType)) {
-				return new Armor(data.name, data.type as ArmorType, data.bonus || 0, data.dexPenalty || 0);
+				return new Armor({
+					name: data.name,
+					type: data.type as ArmorType,
+					bonus: Bonus.of(data.bonus ?? 0),
+					dexPenalty: Bonus.of(data.dexPenalty ?? 0),
+					traits,
+				});
 			} else if (Object.values(ShieldType).includes(data.type as ShieldType)) {
-				return new Shield(data.name, data.type as ShieldType, data.bonus || 0, data.twoHanded || false);
+				return new Shield({
+					name: data.name,
+					type: data.type as ShieldType,
+					bonus: Bonus.of(data.bonus ?? 0),
+					traits,
+				});
+			} else {
+				throw new Error(`Unknown equipment type: ${data.type}`);
 			}
-			return { name: data.name };
 		});
 
 		return new Equipment(items);
@@ -139,55 +187,126 @@ export class Equipment {
 	}
 }
 
+// TODO(luan): rename to BASIC_EQUIPMENT and add a BasicEquipmentType enum
 export const EQUIPMENT: Record<string, () => Item> = {
-	Javelin: () => new Weapon({ name: 'Javelin', type: PrimaryWeaponType.Thrown, bonus: 2, range: 7 }),
+	// Weapons
+	Javelin: () =>
+		Weapon.simple({
+			name: 'Javelin',
+			type: PrimaryWeaponType.Thrown,
+			bonus: Bonus.of(2),
+			range: Distance.of(6),
+		}),
 	Hatchet: () =>
 		new Weapon({
 			name: 'Hatchet',
-			type: PrimaryWeaponType.LightMelee,
-			bonus: 2,
-			traits: ['Thrown (Range 3m)'],
-			range: 5,
+			modes: [
+				new WeaponMode({
+					type: PrimaryWeaponType.LightMelee,
+					bonus: Bonus.of(2),
+				}),
+				new WeaponMode({
+					type: PrimaryWeaponType.Thrown,
+					bonus: Bonus.of(3),
+					range: Distance.of(3),
+				}),
+			],
 		}),
 	Dagger: () =>
 		new Weapon({
 			name: 'Dagger',
-			type: PrimaryWeaponType.LightMelee,
-			bonus: 3,
-			traits: ['Concealable', 'Thrown (Range 3m)'],
-			range: 5,
+			modes: [
+				new WeaponMode({
+					type: PrimaryWeaponType.LightMelee,
+					bonus: Bonus.of(3),
+				}),
+				new WeaponMode({
+					type: PrimaryWeaponType.Thrown,
+					bonus: Bonus.of(2),
+					range: Distance.of(3),
+				}),
+			],
+			traits: [Trait.Concealable],
 		}),
-	Rapier: () => new Weapon({ name: 'Rapier', type: PrimaryWeaponType.LightMelee, bonus: 4, range: 12 }),
+	Rapier: () =>
+		Weapon.simple({
+			name: 'Rapier',
+			type: PrimaryWeaponType.LightMelee,
+			bonus: Bonus.of(4),
+		}),
 	'Bow & Arrows': () =>
-		new Weapon({
+		Weapon.simple({
 			name: 'Bow & Arrows',
 			type: PrimaryWeaponType.Ranged,
-			bonus: 4,
-			traits: ['Concentrate', 'Two-Handed'],
-			range: 12,
+			bonus: Bonus.of(4),
+			range: Distance.of(12),
 		}),
 	'Crossbow & Darts': () =>
-		new Weapon({
+		Weapon.simple({
 			name: 'Crossbow & Darts',
 			type: PrimaryWeaponType.Ranged,
-			bonus: 5,
-			traits: ['Concentrate', 'Two-Handed', 'Reload'],
-			range: 12,
+			bonus: Bonus.of(5),
+			range: Distance.of(12),
+			traits: [Trait.Reloadable],
 		}),
 	Spear: () =>
-		new Weapon({
+		Weapon.simple({
 			name: 'Spear',
 			type: PrimaryWeaponType.HeavyMelee,
-			bonus: 4,
-			traits: ['Polearm', 'Two-Handed'],
-			range: 12,
+			bonus: Bonus.of(4),
+			range: Distance.of(2),
+			traits: [Trait.Polearm],
 		}),
-	Mace: () => new Weapon({ name: 'Mace', type: PrimaryWeaponType.HeavyMelee, bonus: 5, range: 12 }),
+	Mace: () =>
+		Weapon.simple({
+			name: 'Mace',
+			type: PrimaryWeaponType.HeavyMelee,
+			bonus: Bonus.of(5),
+			range: Distance.of(12),
+		}),
 	Longsword: () =>
-		new Weapon({ name: 'Longsword', type: PrimaryWeaponType.HeavyMelee, bonus: 6, traits: ['Two-Handed'], range: 12 }),
-	'Light Armor': () => new Armor('Light Armor', ArmorType.LightArmor, 1, 0),
-	'Medium Armor': () => new Armor('Medium Armor', ArmorType.MediumArmor, 3, -1),
-	'Heavy Armor': () => new Armor('Heavy Armor', ArmorType.HeavyArmor, 5, -3),
-	'Small Shield': () => new Shield('Small Shield', ShieldType.SmallShield, 2, false),
-	'Large Shield': () => new Shield('Large Shield', ShieldType.LargeShield, 6, true),
+		Weapon.simple({
+			name: 'Longsword',
+			type: PrimaryWeaponType.HeavyMelee,
+			bonus: Bonus.of(6),
+			traits: [Trait.TwoHanded],
+		}),
+
+	// Armor
+	'Light Armor': () =>
+		new Armor({
+			name: 'Light Armor',
+			type: ArmorType.LightArmor,
+			bonus: Bonus.of(1),
+			dexPenalty: Bonus.of(-1),
+		}),
+	'Medium Armor': () =>
+		new Armor({
+			name: 'Medium Armor',
+			type: ArmorType.MediumArmor,
+			bonus: Bonus.of(3),
+			dexPenalty: Bonus.of(-1),
+		}),
+	'Heavy Armor': () =>
+		new Armor({
+			name: 'Heavy Armor',
+			type: ArmorType.HeavyArmor,
+			bonus: Bonus.of(5),
+			dexPenalty: Bonus.of(-3),
+		}),
+
+	// Shields
+	'Small Shield': () =>
+		new Shield({
+			name: 'Small Shield',
+			type: ShieldType.SmallShield,
+			bonus: Bonus.of(2),
+		}),
+	'Large Shield': () =>
+		new Shield({
+			name: 'Large Shield',
+			type: ShieldType.LargeShield,
+			bonus: Bonus.of(6),
+			traits: [Trait.TwoHanded],
+		}),
 };

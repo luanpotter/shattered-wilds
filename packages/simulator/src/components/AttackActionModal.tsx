@@ -1,4 +1,4 @@
-import { Check, CheckMode, CheckNature, Resource } from '@shattered-wilds/commons';
+import { Bonus, Check, CheckMode, CheckNature, Resource } from '@shattered-wilds/commons';
 import React, { useState, useEffect } from 'react';
 import { FaDice, FaFistRaised, FaUserShield } from 'react-icons/fa';
 
@@ -40,8 +40,8 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	const [usedShieldBlock, setUsedShieldBlock] = useState(false);
 
 	// Auto-calculate values for automatic mode characters
-	const getAutomaticResult = (modifier: number): RollResult => {
-		const total = 13.5 + modifier;
+	const getAutomaticResult = (modifier: Bonus): RollResult => {
+		const total = 13.5 + modifier.value;
 		return {
 			total,
 			shifts: 0, // Base automatic roll has no crit shifts
@@ -274,9 +274,9 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 						<FaUserShield /> Defender: {defender.props.name}
 					</h4>
 
-					<p>Basic Defense: {basicDefense.value}</p>
-					<p>Dodge Defense: {dodgeDefense.value}</p>
-					{hasShield ? <p>Shield Defense: {shieldDefense.value}</p> : ''}
+					<p>Basic Defense: {basicDefense.value.description}</p>
+					<p>Dodge Defense: {dodgeDefense.value.description}</p>
+					{hasShield ? <p>Shield Defense: {shieldDefense.value.description}</p> : ''}
 
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 						<Button icon={FaDice} title={defenseButtonText} onClick={handleDefenseRoll} />
@@ -319,7 +319,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 					</h4>
 
 					<p>Attack: {attack.name}</p>
-					<p>Modifier: {attack.check.modifierValue}</p>
+					<p>Modifier: {attack.check.modifierValue.description}</p>
 
 					<Button icon={FaDice} title={attackButtonText} onClick={handleAttackRoll} disabled={!defenseResult} />
 

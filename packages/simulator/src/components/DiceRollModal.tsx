@@ -1,4 +1,4 @@
-import { Check, CheckType, CHECK_TYPES } from '@shattered-wilds/commons';
+import { Check, CheckType, CHECK_TYPES, StatTree } from '@shattered-wilds/commons';
 import React from 'react';
 import { useState } from 'react';
 import { FaCheck, FaTimes } from 'react-icons/fa';
@@ -86,11 +86,23 @@ const calculateShifts = (excess: number): number => {
 export const DiceRollModal: React.FC<DiceRollModalProps> = ({ characterId, check, onClose, onDiceRollComplete }) => {
 	const characters = useStore(state => state.characters);
 
-	// If characterId is provided, reconstruct the character sheet
 	const character = characters.find(c => c.id === characterId)!;
 	const characterSheet = CharacterSheet.from(character.props);
 	const tree = characterSheet.getStatTree();
 
+	if (!character || !tree) {
+		return <div>Character ${characterId} not found</div>;
+	}
+
+	return <DiceRollModealContent tree={tree} check={check} onClose={onClose} onDiceRollComplete={onDiceRollComplete} />;
+};
+
+const DiceRollModealContent: React.FC<{
+	tree: StatTree;
+	check: Check;
+	onClose: () => void;
+	onDiceRollComplete: ((result: { total: number; shifts: number }) => void) | undefined;
+}> = ({ tree, check, onClose, onDiceRollComplete }) => {
 	const [circumstantialModifier, setCircumstantialModifier] = useState(0);
 	const [checkType, setCheckType] = useState<CheckType>(check.type);
 	const [dc, setDc] = useState<number | null>(null);
@@ -180,16 +192,16 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({ characterId, check
 		if (useExtra) {
 			extraResult = rollD12();
 			// Get actual skill value from character sheet
-			const extraSkillValue = tree?.valueOf(getAttributeType(extraSkill)) ?? 0;
-			extraValid = extraResult <= extraSkillValue;
+			const extraSkillValue = tree.valueOf(getAttributeType(extraSkill));
+			extraValid = extraResult <= extraSkillValue.value;
 		}
 
 		// Roll luck die if enabled
 		if (useLuck) {
 			luckResult = rollD12();
 			// Get actual Fortune value from character sheet
-			const fortuneValue = tree?.valueOf(StatType.Fortune) ?? 0;
-			luckValid = luckResult <= fortuneValue;
+			const fortuneValue = tree.valueOf(StatType.Fortune);
+			luckValid = luckResult <= fortuneValue.value;
 		}
 
 		// Check for auto fail (any pair of 1s) - but contested resisted rolls cannot auto fail
@@ -222,7 +234,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({ characterId, check
 			selectedDice = [sorted[0], sorted[1]];
 		}
 
-		const baseTotal = selectedDice[0] + selectedDice[1] + check.modifierValue;
+		const baseTotal = selectedDice[0] + selectedDice[1] + check.modifierValue.value;
 
 		// Calculate final total
 		const total = baseTotal + critModifiers;
@@ -435,7 +447,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({ characterId, check
 								rollResults.extraValid && rollResults.selectedDice.includes(rollResults.extraResult),
 							)}
 							<div style={{ textAlign: 'center', fontSize: '12px', marginTop: '4px' }}>
-								Extra ({tree?.valueOf(getAttributeType(extraSkill)) ?? 0})
+								Extra ({tree?.valueOf(getAttributeType(extraSkill))?.value ?? 0})
 							</div>
 						</div>
 					)}
@@ -447,7 +459,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({ characterId, check
 								rollResults.luckValid && rollResults.selectedDice.includes(rollResults.luckResult),
 							)}
 							<div style={{ textAlign: 'center', fontSize: '12px', marginTop: '4px' }}>
-								Luck ({tree?.valueOf(StatType.Fortune) ?? 0})
+								Luck ({tree?.valueOf(StatType.Fortune)?.value ?? 0})
 							</div>
 						</div>
 					)}
@@ -503,8 +515,8 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({ characterId, check
 						<div style={{ marginBottom: '8px' }}>
 							<span>
 								[{rollResults.selectedDice.join(' + ')}
-								{rollResults.critModifiers > 0 && ` + ${rollResults.critModifiers} (Crit)`}] + [{check.modifierValue}{' '}
-								(Modifier)] = {rollResults.total}
+								{rollResults.critModifiers > 0 && ` + ${rollResults.critModifiers} (Crit)`}] + [
+								{check.modifierValue.description} (Modifier)] = {rollResults.total}
 							</span>
 						</div>
 
@@ -604,7 +616,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({ characterId, check
 			{/* Modifiers */}
 			<div style={{ marginBottom: '16px' }}>
 				<div style={{ marginBottom: '8px' }}>
-					<span>Base Modifier: {check.statModifier.description}</span>
+					<span title={check.statModifier.description}>Base Modifier: {check.statModifier.simpleDescription}</span>
 				</div>
 
 				<div style={{ marginBottom: '8px' }}>

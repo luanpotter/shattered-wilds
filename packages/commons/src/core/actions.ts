@@ -4,6 +4,7 @@ import { F, Formula, FormulaResult, RoundMode } from '../stats/formula.js';
 import { Resource } from '../stats/resources.js';
 import { CircumstanceModifier, ModifierSource, StatTree } from '../stats/stat-tree.js';
 import { StatType } from '../stats/stat-type.js';
+import { Bonus } from '../stats/value.js';
 import { Trait } from './traits.js';
 
 export enum ActionType {
@@ -218,7 +219,7 @@ export const ACTIONS = {
 				circumstanceModifier: new CircumstanceModifier({
 					source: ModifierSource.Circumstance,
 					name: 'Drag Grappler',
-					value: -3,
+					value: Bonus.of(-3),
 				}),
 			}),
 			new ActionValueParameter({
@@ -384,7 +385,7 @@ export const ACTIONS = {
 				circumstanceModifier: new CircumstanceModifier({
 					source: ModifierSource.Circumstance,
 					name: 'Focused Strike',
-					value: 3,
+					value: Bonus.of(3),
 				}),
 			}),
 		],
@@ -574,7 +575,7 @@ export const ACTIONS = {
 				circumstanceModifier: new CircumstanceModifier({
 					source: ModifierSource.Circumstance,
 					name: 'Dodge',
-					value: 3,
+					value: Bonus.of(3),
 				}),
 			}),
 		],

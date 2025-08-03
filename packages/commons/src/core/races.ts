@@ -1,5 +1,6 @@
 import { Size } from './size.js';
 import { StatType } from '../stats/stat-type.js';
+import { Bonus } from '../stats/value.js';
 
 export enum Race {
 	Human = 'Human',
@@ -21,7 +22,7 @@ export enum Upbringing {
 
 export interface RacialStatModifier {
 	statType: StatType;
-	value: number;
+	value: Bonus;
 }
 
 export interface RaceDefinition {
@@ -39,48 +40,48 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 	[Race.Elf]: {
 		name: Race.Elf,
 		modifiers: [
-			{ statType: StatType.DEX, value: 1 },
-			{ statType: StatType.CON, value: -1 },
+			{ statType: StatType.DEX, value: Bonus.of(1) },
+			{ statType: StatType.CON, value: Bonus.of(-1) },
 		],
 		size: Size.M,
 	},
 	[Race.Dwarf]: {
 		name: Race.Dwarf,
 		modifiers: [
-			{ statType: StatType.CON, value: 1 },
-			{ statType: StatType.DEX, value: -1 },
+			{ statType: StatType.CON, value: Bonus.of(1) },
+			{ statType: StatType.DEX, value: Bonus.of(-1) },
 		],
 		size: Size.S,
 	},
 	[Race.Orc]: {
 		name: Race.Orc,
 		modifiers: [
-			{ statType: StatType.STR, value: 1 },
-			{ statType: StatType.DEX, value: -1 },
+			{ statType: StatType.STR, value: Bonus.of(1) },
+			{ statType: StatType.DEX, value: Bonus.of(-1) },
 		],
 		size: Size.L,
 	},
 	[Race.Fey]: {
 		name: Race.Fey,
 		modifiers: [
-			{ statType: StatType.DEX, value: 1 },
-			{ statType: StatType.STR, value: -1 },
+			{ statType: StatType.DEX, value: Bonus.of(1) },
+			{ statType: StatType.STR, value: Bonus.of(-1) },
 		],
 		size: Size.S,
 	},
 	[Race.Goliath]: {
 		name: Race.Goliath,
 		modifiers: [
-			{ statType: StatType.STR, value: 1 },
-			{ statType: StatType.CON, value: -1 },
+			{ statType: StatType.STR, value: Bonus.of(1) },
+			{ statType: StatType.CON, value: Bonus.of(-1) },
 		],
 		size: Size.L,
 	},
 	[Race.Goblin]: {
 		name: Race.Goblin,
 		modifiers: [
-			{ statType: StatType.CON, value: 1 },
-			{ statType: StatType.STR, value: -1 },
+			{ statType: StatType.CON, value: Bonus.of(1) },
+			{ statType: StatType.STR, value: Bonus.of(-1) },
 		],
 		size: Size.S,
 	},

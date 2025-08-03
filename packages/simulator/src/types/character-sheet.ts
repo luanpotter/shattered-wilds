@@ -18,6 +18,8 @@ import {
 	ClassInfo,
 	Resource,
 	Size,
+	Bonus,
+	Distance,
 } from '@shattered-wilds/commons';
 
 import { BasicAttack, DefenseType, DEFENSE_TYPE_PROPERTIES } from './core';
@@ -201,7 +203,7 @@ export class CharacterSheet {
 			.filter(item => item instanceof Armor)
 			.forEach(item => {
 				const armor = item as Armor;
-				if (armor.dexPenalty !== 0) {
+				if (armor.dexPenalty.isNotZero) {
 					modifiers.push(
 						new InherentModifier({
 							source: ModifierSource.Equipment,
@@ -225,21 +227,24 @@ export class CharacterSheet {
 			.filter(item => item instanceof Weapon)
 			.forEach(item => {
 				const weapon = item as Weapon;
-				const name = weapon.name;
-				const weaponModifier = <CircumstanceModifier>{
-					source: ModifierSource.Equipment,
-					name: `${name} (${weapon.type})`,
-					description: `Weapon bonus from ${name} (${weapon.type})`,
-					value: weapon.bonus,
-				};
-				attacks.push({
-					name: name,
-					description: `${name} (+${weapon.bonus})`,
-					check: new Check({
-						mode: CheckMode.Static,
-						nature: CheckNature.Active,
-						statModifier: tree.getModifier(weapon.statType, [weaponModifier]),
-					}),
+				weapon.modes.forEach(mode => {
+					const name = weapon.name;
+					const weaponModifier = <CircumstanceModifier>{
+						source: ModifierSource.Equipment,
+						name: `${name} (${mode.type})`,
+						description: `Weapon bonus from ${name} (${mode.type})`,
+						value: mode.bonus,
+					};
+					attacks.push({
+						name: name,
+						description: `${name} (+${mode.bonus})`,
+						check: new Check({
+							mode: CheckMode.Static,
+							nature: CheckNature.Active,
+							statModifier: tree.getModifier(mode.statType, [weaponModifier]),
+						}),
+						range: mode.range,
+					});
 				});
 			});
 
@@ -250,7 +255,7 @@ export class CharacterSheet {
 				source: ModifierSource.Equipment,
 				name: 'Shield Bash',
 				description: `Shield Bash bonus from ${shield.name}`,
-				value: 1,
+				value: Bonus.of(1),
 			};
 			attacks.push({
 				name: 'Shield Bash',
@@ -260,6 +265,7 @@ export class CharacterSheet {
 					nature: CheckNature.Active,
 					statModifier: tree.getModifier(StatType.STR, [shieldModifier]),
 				}),
+				range: Distance.melee(),
 			});
 		}
 
@@ -272,6 +278,7 @@ export class CharacterSheet {
 				nature: CheckNature.Active,
 				statModifier: tree.getModifier(StatType.STR),
 			}),
+			range: Distance.melee(),
 		});
 
 		return attacks;
@@ -306,7 +313,7 @@ export class CharacterSheet {
 			}
 		}
 
-		if (cm !== 0) {
+		if (cm.isNotZero) {
 			cms.push(
 				new CircumstanceModifier({
 					source: ModifierSource.Circumstance,
