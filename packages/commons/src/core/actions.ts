@@ -777,6 +777,7 @@ export const ACTIONS = {
 				statType: StatType.Karma,
 			}),
 		],
+		traits: [Trait.Channel],
 	}),
 	[Action.WriteHistory]: new ActionDefinition({
 		key: Action.WriteHistory,
@@ -795,6 +796,7 @@ export const ACTIONS = {
 				statType: StatType.Serendipity,
 			}),
 		],
+		traits: [Trait.Channel],
 	}),
 	[Action.HeroicRelentlessness]: new ActionDefinition({
 		key: Action.HeroicRelentlessness,
@@ -814,6 +816,7 @@ export const ACTIONS = {
 				targetDc: 20,
 			}),
 		],
+		traits: [Trait.Channel],
 	}),
 	[Action.LuckDie]: new ActionDefinition({
 		key: Action.LuckDie,
@@ -825,6 +828,7 @@ export const ACTIONS = {
 			new ActionCost({ resource: Resource.ActionPoint, amount: 0 }),
 			new ActionCost({ resource: Resource.HeroismPoint, amount: 1 }),
 		],
+		traits: [Trait.Channel],
 	}),
 	[Action.ExtraDie]: new ActionDefinition({
 		key: Action.ExtraDie,
@@ -836,6 +840,7 @@ export const ACTIONS = {
 			new ActionCost({ resource: Resource.ActionPoint, amount: 0 }),
 			new ActionCost({ resource: Resource.HeroismPoint, amount: 1 }),
 		],
+		traits: [Trait.Channel],
 	}),
 
 	// Meta
