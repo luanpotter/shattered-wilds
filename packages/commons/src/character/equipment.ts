@@ -50,6 +50,11 @@ export class WeaponMode {
 	}
 }
 
+export interface WeaponModeOption {
+	weapon: Weapon;
+	mode: WeaponMode;
+}
+
 export class Weapon implements Item {
 	name: string;
 	modes: WeaponMode[];
@@ -79,6 +84,24 @@ export class Weapon implements Item {
 			modes: [new WeaponMode({ type, bonus, range })],
 			traits,
 		});
+	}
+
+	static unarmed(): WeaponModeOption {
+		const mode = new WeaponMode({ type: PrimaryWeaponType.Unarmed, bonus: Bonus.of(0) });
+		const weapon = new Weapon({
+			name: 'Unarmed',
+			modes: [mode],
+		});
+		return { weapon, mode };
+	}
+
+	static shieldBash(): WeaponModeOption {
+		const mode = new WeaponMode({ type: PrimaryWeaponType.Unarmed, bonus: Bonus.of(1) });
+		const weapon = new Weapon({
+			name: 'Shield Bash',
+			modes: [mode],
+		});
+		return { weapon, mode };
 	}
 }
 

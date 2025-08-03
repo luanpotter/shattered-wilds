@@ -15,6 +15,7 @@ import {
 	Value,
 	Bonus,
 	Distance,
+	Shield,
 } from '@shattered-wilds/commons';
 import React, { useEffect, useState } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
@@ -180,8 +181,13 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 
 	const sheet = CharacterSheet.from(character.props);
 	const tree = sheet.getStatTree();
+	const hasShield = sheet.equipment.items.some(item => item instanceof Shield);
 	const weapons = sheet.equipment.items.filter(item => item instanceof Weapon) as Weapon[];
-	const weaponModes = weapons.flatMap(weapon => weapon.modes.map(mode => ({ weapon, mode })));
+	const weaponModes = [
+		Weapon.unarmed(),
+		...(hasShield ? [Weapon.shieldBash()] : []),
+		...weapons.flatMap(weapon => weapon.modes.map(mode => ({ weapon, mode }))),
+	];
 
 	// Auto-select first weapon if available
 	useEffect(() => {
