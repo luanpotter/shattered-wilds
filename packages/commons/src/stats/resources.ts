@@ -45,7 +45,7 @@ export const RESOURCES: Record<Resource, ResourceDefinition> = {
 		description: `Represents a character's heroic potential in the narrative. Each character has a maximum number of Heroism Points equal to their [[Level]] value.
 
 They can be used to invoke [[Extra Die | Extras]] and [[Luck Die]], to call for [[Write History]], amongst other powerful actions. These are harder to recover, at one per long rest rate plus the DM can award Heroism Points (within your maximum) to reward good roleplaying or other out-of-the-box thinking (similar to the Inspiration mechanic in D&D 5e).`,
-		formula: F.variable(1, StatType.Level),
+		formula: F.level(),
 	}),
 	[Resource.VitalityPoint]: new ResourceDefinition({
 		key: Resource.VitalityPoint,

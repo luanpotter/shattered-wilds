@@ -28,11 +28,15 @@ export class Formula {
 
 export class F {
 	static constant(value: number): Formula {
-		return new Formula([new FormulaFactor({ coefficient: value })]);
+		return new Formula([new SimpleFormulaFactor({ coefficient: value })]);
 	}
 
 	static variable(coefficient: number, variable: StatType | DerivedStatType, round?: RoundMode | undefined): Formula {
-		return new Formula([new FormulaFactor({ coefficient, variable, round })]);
+		return new Formula([new SimpleFormulaFactor({ coefficient, variable, round })]);
+	}
+
+	static level(): Formula {
+		return new Formula([new LevelFormulaFactor()]);
 	}
 }
 
@@ -42,7 +46,23 @@ export enum RoundMode {
 	round = 'round',
 }
 
-export class FormulaFactor {
+export interface FormulaFactor {
+	compute(statTree: StatTree): FormulaResult;
+}
+
+/**
+ * Some formulas might require the actual Level value of a character (rather than their level modifier which is
+ * already built into the rest of the stat tree). Level is the _only_ stat whose raw point value might be used in for
+ * anything.
+ */
+export class LevelFormulaFactor implements FormulaFactor {
+	compute(statTree: StatTree): FormulaResult {
+		const level = statTree.level;
+		return { value: level, tooltip: `Level: ${level}` };
+	}
+}
+
+export class SimpleFormulaFactor implements FormulaFactor {
 	coefficient: number;
 	variable: StatType | DerivedStatType | undefined;
 	round: RoundMode | undefined;

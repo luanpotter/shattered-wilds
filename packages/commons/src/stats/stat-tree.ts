@@ -59,6 +59,10 @@ export class StatTree {
 		this.modifiers = modifiers;
 	}
 
+	get level(): number {
+		return this.root.points;
+	}
+
 	static build(props: Record<string, string>, modifiers: InherentModifier[]): StatTree {
 		const root = StatTree.buildRootNode(props);
 		return new StatTree(root, modifiers);
