@@ -314,7 +314,9 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 							const resource = RESOURCES[cost.resource];
 							const value = `${cost.amount}${cost.variable ? '+' : ''} ${resource.shortName}`;
 							const tooltip = `${cost.amount}${cost.variable ? '+' : ''} ${resource.name}`;
-							return { value, tooltip };
+							const current = sheet.getResource(cost.resource).current;
+							const insufficient = current < cost.amount;
+							return { value, tooltip, insufficient };
 						});
 
 						return (
@@ -331,7 +333,14 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 									}}
 								>
 									{costs.map(e => (
-										<div key={e.value}>{e.value}</div>
+										<div
+											key={e.value}
+											style={{
+												color: e.insufficient ? 'var(--error-color, #ff6b6b)' : 'inherit',
+											}}
+										>
+											{e.value}
+										</div>
 									))}
 								</ParameterBox>
 
