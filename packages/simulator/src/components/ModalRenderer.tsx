@@ -37,6 +37,7 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({
 }) => {
 	const characters = useStore(state => state.characters);
 	const removeModal = useStore(state => state.removeModal);
+	const updateCharacterPos = useStore(state => state.updateCharacterPos);
 
 	const handleCopyCharacterSheet = (characterId: string) => {
 		const character = characters.find(c => c.id === characterId);
@@ -102,53 +103,66 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({
 		return null;
 	};
 
+	const renderCharacterNotFound = (characterId: string) => {
+		return <div>Character not found: {characterId}</div>;
+	};
+
 	const renderContent = () => {
+		const onClose = () => removeModal(modal.id);
+
 		switch (modal.type) {
 			case 'character-list':
 				return <CharacterList />;
 			case 'character-creation':
-				return <CharacterCreationModal hexPosition={modal.hexPosition} onClose={() => removeModal(modal.id)} />;
+				return <CharacterCreationModal hexPosition={modal.hexPosition} onClose={onClose} />;
 			case 'character-sheet': {
 				const character = characters.find(c => c.id === modal.characterId);
-				return character ? <CharacterSheetModal character={character} /> : <div>Character not found</div>;
+				if (!character) {
+					return renderCharacterNotFound(modal.characterId);
+				}
+				return <CharacterSheetModal character={character} />;
 			}
 			case 'race-setup': {
 				const character = characters.find(c => c.id === modal.characterId);
-				if (!character) return <div>Character not found</div>;
-				return <RaceSetupModal characterId={character.id} onClose={() => removeModal(modal.id)} />;
+				if (!character) {
+					return renderCharacterNotFound(modal.characterId);
+				}
+				return <RaceSetupModal characterId={character.id} onClose={onClose} />;
 			}
 			case 'class-setup': {
 				const character = characters.find(c => c.id === modal.characterId);
 				if (!character) {
-					return <div>Character not found</div>;
+					return renderCharacterNotFound(modal.characterId);
 				}
-				return <ClassSetupModal character={character} onClose={() => removeModal(modal.id)} />;
+				return <ClassSetupModal character={character} onClose={onClose} />;
 			}
 			case 'feats-setup': {
 				const character = characters.find(c => c.id === modal.characterId);
 				if (!character) {
-					return <div>Character not found</div>;
+					return renderCharacterNotFound(modal.characterId);
 				}
-				return <FeatsModal character={character} onClose={() => removeModal(modal.id)} />;
+				return <FeatsModal character={character} onClose={onClose} />;
 			}
 			case 'basic-attacks': {
 				const character = characters.find(c => c.id === modal.characterId);
-				if (!character) return <div>Character not found</div>;
+				if (!character) {
+					return renderCharacterNotFound(modal.characterId);
+				}
 				const characterSheet = CharacterSheet.from(character.props);
 				return (
 					<BasicAttacksModal
 						attacks={characterSheet.getBasicAttacks()}
 						characterSheet={characterSheet}
-						onClose={() => removeModal(modal.id)}
+						onClose={onClose}
 					/>
 				);
 			}
 			case 'dice-roll': {
 				return (
 					<DiceRollModal
-						characterId={modal.characterId!}
-						check={modal.check!}
-						onClose={() => removeModal(modal.id)}
+						characterId={modal.characterId}
+						check={modal.check}
+						onClose={onClose}
 						onDiceRollComplete={modal.onDiceRollComplete}
 					/>
 				);
@@ -156,46 +170,42 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({
 			case 'attack-action':
 				return (
 					<AttackActionModal
-						attackerId={modal.attackerId ?? ''}
-						defenderId={modal.defenderId ?? ''}
-						attackIndex={modal.attackIndex ?? 0}
-						onClose={() => removeModal(modal.id)}
+						attackerId={modal.attackerId}
+						defenderId={modal.defenderId}
+						attackIndex={modal.attackIndex}
+						onClose={onClose}
 					/>
 				);
 			case 'measure': {
 				const fromCharacter = characters.find(c => c.id === modal.fromCharacterId);
-				if (!fromCharacter || !modal.toPosition) {
-					return <div>Missing measure data</div>;
+				if (!fromCharacter) {
+					return renderCharacterNotFound(modal.fromCharacterId);
 				}
 				return (
 					<MeasureModal
 						fromCharacter={fromCharacter}
 						toPosition={modal.toPosition}
-						distance={modal.distance ?? 0}
-						onClose={() => removeModal(modal.id)}
+						distance={modal.distance}
+						onClose={onClose}
 						onMove={() => {
-							const updateCharacterPos = useStore.getState().updateCharacterPos;
-							updateCharacterPos(fromCharacter, modal.toPosition!);
-							removeModal(modal.id);
+							updateCharacterPos(fromCharacter, modal.toPosition);
+							onClose();
 						}}
 					/>
 				);
 			}
 			case 'consume-resource': {
 				const character = characters.find(c => c.id === modal.characterId);
-				if (!character || !modal.actionCosts) {
-					return <div>Missing consume resource data</div>;
+				if (!character) {
+					return renderCharacterNotFound(modal.characterId);
 				}
-				return (
-					<ConsumeResourceModal character={character} costs={modal.actionCosts} onClose={() => removeModal(modal.id)} />
-				);
+				return <ConsumeResourceModal character={character} costs={modal.actionCosts} onClose={onClose} />;
 			}
 			default:
 				return <div>Unknown modal type</div>;
 		}
 	};
 
-	// All modals now use the unified ModalWrapper system
 	return (
 		<ModalWrapper modal={modal} onStartDrag={onStartDrag} titleBarButtons={generateTitleBarButtons()}>
 			{renderContent()}
