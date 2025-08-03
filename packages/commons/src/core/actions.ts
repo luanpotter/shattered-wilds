@@ -156,7 +156,6 @@ export enum Action {
 	Swim = 'Swim',
 	TakeCover = 'TakeCover',
 	SideStep = 'SideStep',
-	RideMount = 'RideMount',
 	ShieldBlock = 'ShieldBlock',
 	SheatheUnsheathe = 'SheatheUnsheathe',
 	Reload = 'Reload',
@@ -311,13 +310,6 @@ export const ACTIONS = {
 				formula: F.variable(1, DerivedStatType.Movement).add(F.constant(-1)),
 			}),
 		],
-	}),
-	[Action.RideMount]: new ActionDefinition({
-		key: Action.RideMount,
-		type: ActionType.Movement,
-		name: 'Ride Mount',
-		description: 'WIP: Mounted Combat Rules',
-		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 2 })],
 	}),
 
 	// Attack
