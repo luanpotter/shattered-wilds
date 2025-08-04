@@ -47,7 +47,7 @@ export enum StatTypeName {
 	Presence = 'Presence',
 	Empathy = 'Empathy',
 	Devotion = 'Devotion',
-	Revelation = 'Revelation',
+	Aura = 'Aura',
 	Attunement = 'Attunement',
 	Discipline = 'Discipline',
 	Tenacity = 'Tenacity',
@@ -396,23 +396,25 @@ On top of these types of actions, the different Skills can still be used for oth
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.DIV,
 		name: StatTypeName.Devotion,
-		description: `A personal connection to a deity; faith, ability to believe and ask for providence through Prayer.`,
-		longDescription: `**Note**: While a character does not need to be an **Adept** to perform **Devotion Checks**, they do need to have a connection to at least one **Protean**. If they start investing in the skill, and attempt to use the [[Pray]] action, they might be answered by some unspecified force, or it might not work at all.`,
+		description: `A personal connection to a deity; faith, ability to believe, ask and receive for providence through Prayer.`,
+		longDescription: `**Note**: While a character does not need to be an **Adept** to perform **Devotion Checks**, they do need to have a connection to one specific **Protean**. If they start investing in [[Devotion]], and attempt to use the [[Pray]] action, they might be answered by some unspecified force, or it might not work at all.`,
 		exampleUsages: [
 			`A Check can be used to determine the effectiveness of the [[Pray]] action.`,
 			`A Check can be used to maintain divine favor during morally challenging situations.`,
 			`A Check can be used to resist effects that would corrupt or turn you away from your faith.`,
+			`A Check can be requested by the DM to receive and understand messages, visions, omens, guidance or requests from your **Protean**.`,
+			`A Check can be used when trying to connect to, interpret, or understand your deity.`,
 		],
 	});
-	static readonly Revelation = StatType.build({
+	static readonly Aura = StatType.build({
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.DIV,
-		name: StatTypeName.Revelation,
-		description: `Ability to channel messages, visions or revelations from a deity.`,
-		longDescription: `**Note**: While a character does not need to be an **Adept** to invest and receive Revelation Checks, they do need to have a connection to at least one **Protean**. If they do not yet have a connection, they might attempt to form a new bond through roleplaying and investing in [[Devotion]] first.`,
+		name: StatTypeName.Aura,
+		description: `The extent and range of the power of your Soul over the Aether (and the material world). Your spiritual presence, as well as your ability to perceive other people's Souls (or influences).`,
 		exampleUsages: [
-			`A Check can be requested by the DM while using the [[Pray]] action, or during specific circumstances, to receive and understand messages, visions, omens, guidance or requests from your **Protean**.`,
-			`A Check can be used when trying to connect to, interpret, or understand your deity.`,
+			`Used to determine the range increment of your [Arcane](/rules/arcane) and [Divine](/rules/divine) spells.`,
+			`A Check can be used to detect the presence of other Souls or influences from the **Aether**.`,
+			`A Check can be used to strengthen the projection of your own Soul and power into the material world.`,
 		],
 	});
 	static readonly Attunement = StatType.build({
@@ -421,8 +423,8 @@ On top of these types of actions, the different Skills can still be used for oth
 		name: StatTypeName.Attunement,
 		description: `General attunement to the Aether, how well external forces can flow and be channeled through one's Soul; conduit to external powers.`,
 		exampleUsages: [
-			`A Check can be required to use or get the best of [[Imbued Item | Imbued Items]].`,
-			`A Check can be used to sense the presence and strength of external powers.`,
+			`A Check can be required to use or get the best use of [[Imbued Item | Imbued Items]].`,
+			`A Check can be used to interact with powers originating from the **Aether**..`,
 		],
 	});
 	static readonly Discipline = StatType.build({
