@@ -21,6 +21,7 @@ import {
 	Resource,
 	PassiveCoverType,
 	COVER_TYPES,
+	Armor,
 } from '@shattered-wilds/commons';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
@@ -120,42 +121,45 @@ interface TabParameters {
 	rangeIncrementModifier: CircumstanceModifier | null;
 	passiveCoverModifier: CircumstanceModifier | null;
 	heightIncrementsModifier: CircumstanceModifier | null;
-	selectedDefenseRealm: StatType | null;
+	selectedDefenseRealm: StatType;
 	selectedShield: Shield | null;
+	selectedArmor: Armor | null;
 }
 
 const checkOptions = (
 	statType: StatType | StandardCheck,
 	tabParameters: TabParameters,
-): [StatType, Bonus, CircumstanceModifier[]] | undefined => {
+): [StatType, CircumstanceModifier[]] | undefined => {
 	if (statType instanceof StatType) {
-		return [statType, Bonus.zero(), []];
+		return [statType, []];
 	}
 
-	const weaponMode = tabParameters.selectedWeapon?.mode;
+	const weaponMode = tabParameters.selectedWeapon;
 	switch (statType) {
 		case StandardCheck.Attack: {
-			const type = weaponMode ? weaponMode.statType : StatType.STR;
-			const bonus = weaponMode ? weaponMode.bonus : Bonus.zero();
+			const type = weaponMode ? weaponMode.mode.statType : StatType.STR;
+			const weaponModifier = weaponMode ? weaponMode.weapon.getEquipmentModifier(weaponMode.mode) : null;
 
 			const modifiers = [
+				weaponModifier,
 				tabParameters.rangeIncrementModifier,
 				tabParameters.passiveCoverModifier,
 				tabParameters.heightIncrementsModifier,
 			].filter(e => e !== null);
 
-			return [type, bonus, modifiers];
+			return [type, modifiers];
 		}
 		case StandardCheck.Defense: {
-			const realm = tabParameters.selectedDefenseRealm ?? StatType.Body;
-			return [realm, Bonus.zero(), []];
+			const realm = tabParameters.selectedDefenseRealm;
+			const armor = tabParameters.selectedArmor;
+			return [realm, armor ? [armor.getEquipmentModifier()] : []];
 		}
 		case StandardCheck.ShieldBlock: {
 			const shield = tabParameters.selectedShield;
 			if (!shield) {
 				return undefined;
 			}
-			return [StatType.Body, shield.bonus, []];
+			return [StatType.Body, [shield.getEquipmentModifier()]];
 		}
 	}
 };
@@ -167,14 +171,8 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, ch
 		return null;
 	}
 
-	const [statType, bonus, cms] = options;
-	const circumstanceModifiers = [
-		parameter.circumstanceModifier ? parameter.circumstanceModifier : undefined,
-		bonus.isNotZero
-			? new CircumstanceModifier({ source: ModifierSource.Equipment, name: 'Weapon Bonus', value: bonus })
-			: undefined,
-		...cms,
-	].filter(Boolean) as CircumstanceModifier[];
+	const [statType, cms] = options;
+	const circumstanceModifiers = [parameter.circumstanceModifier, ...cms].filter(e => e !== undefined);
 
 	const statModifier = statTree.getModifier(statType, circumstanceModifiers);
 	const name = statType.name;
@@ -219,9 +217,10 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 	const [showAll, setShowAll] = useState(true);
 
 	const [selectedWeapon, setSelectedWeapon] = useState<WeaponModeOption | null>(null);
-	const [selectedShield, setSelectedShield] = useState<Shield | null>(null);
 	const [selectedRange, setSelectedRange] = useState<Distance | null>(null);
-	const [selectedDefenseRealm, setSelectedDefenseRealm] = useState<StatType | null>(null);
+	const [selectedDefenseRealm, setSelectedDefenseRealm] = useState<StatType>(StatType.Body);
+	const [selectedArmor, setSelectedArmor] = useState<Armor | null>(null);
+	const [selectedShield, setSelectedShield] = useState<Shield | null>(null);
 	const [selectedPassiveCover, setSelectedPassiveCover] = useState<PassiveCoverType>(PassiveCoverType.None);
 	const [heightIncrements, setHeightIncrements] = useState<string>('');
 
@@ -237,6 +236,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 		],
 		[hasShield, weapons],
 	);
+	const armors = sheet.equipment.items.filter(item => item instanceof Armor) as Armor[];
 
 	const rangeIncrementModifier = useMemo(() => {
 		if (!selectedWeapon || !selectedRange || selectedWeapon.mode.rangeType !== Trait.Ranged) {
@@ -270,12 +270,17 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 		});
 	}, [heightIncrements]);
 
-	// Auto-select first weapon if available
+	// Auto-select first weapon and armor if available
 	useEffect(() => {
 		if (weaponModes.length > 0 && !selectedWeapon) {
 			setSelectedWeapon(weaponModes[0]);
 		}
 	}, [weaponModes, selectedWeapon]);
+	useEffect(() => {
+		if (armors.length > 0 && !selectedArmor) {
+			setSelectedArmor(armors[0]);
+		}
+	}, [armors, selectedArmor]);
 
 	const getTypeIcon = (type: ActionType) => {
 		switch (type) {
@@ -459,6 +464,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 			}
 			case ActionType.Defense: {
 				const shields = sheet.equipment.items.filter(item => item instanceof Shield) as Shield[];
+				const isBody = selectedDefenseRealm === StatType.Body;
 				return {
 					Header: (
 						<div style={headerDivStyle}>
@@ -469,15 +475,26 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 								describe={realm => realm.name}
 								onChange={realm => setSelectedDefenseRealm(realm)}
 							/>
-							<LabeledDropdown
-								label='Shield'
-								value={selectedShield}
-								options={shields}
-								describe={shield => shield.displayText}
-								placeholder='Select shield...'
-								onChange={shield => setSelectedShield(shield ?? null)}
-								disabled={!hasShield}
-							/>
+							{isBody && selectedArmor && (
+								<LabeledDropdown
+									label='Armor'
+									value={selectedArmor}
+									options={armors}
+									describe={armor => armor.displayText}
+									onChange={armor => setSelectedArmor(armor)}
+								/>
+							)}
+							{isBody && shields.length > 0 && (
+								<LabeledDropdown
+									label='Shield'
+									value={selectedShield}
+									options={shields}
+									describe={shield => shield.displayText}
+									placeholder='Select shield...'
+									onChange={shield => setSelectedShield(shield ?? null)}
+									disabled={!hasShield}
+								/>
+							)}
 						</div>
 					),
 				};
@@ -612,6 +629,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 												tabParameters={{
 													selectedWeapon,
 													selectedDefenseRealm,
+													selectedArmor,
 													selectedShield,
 													rangeIncrementModifier,
 													passiveCoverModifier,

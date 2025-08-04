@@ -1,4 +1,5 @@
 import { Trait } from '../core/traits.js';
+import { CircumstanceModifier, ModifierSource } from '../stats/stat-tree.js';
 import { StatType } from '../stats/stat-type.js';
 import { Bonus, Distance } from '../stats/value.js';
 
@@ -101,6 +102,14 @@ export class Weapon implements Item {
 		});
 	}
 
+	getEquipmentModifier(mode: WeaponMode): CircumstanceModifier {
+		return new CircumstanceModifier({
+			source: ModifierSource.Equipment,
+			name: `${this.name} (${mode.description})`,
+			value: mode.bonus,
+		});
+	}
+
 	static unarmed(): WeaponModeOption {
 		const mode = new WeaponMode({ type: PrimaryWeaponType.Unarmed, bonus: Bonus.of(0) });
 		const weapon = new Weapon({
@@ -163,6 +172,14 @@ export class Armor implements Item {
 	get displayText(): string {
 		return `${this.name} (${this.description})`;
 	}
+
+	getEquipmentModifier(): CircumstanceModifier {
+		return new CircumstanceModifier({
+			source: ModifierSource.Equipment,
+			name: this.description,
+			value: this.bonus,
+		});
+	}
 }
 
 export class Shield implements Item {
@@ -184,6 +201,14 @@ export class Shield implements Item {
 
 	get displayText(): string {
 		return `${this.name} (${this.description})`;
+	}
+
+	getEquipmentModifier(): CircumstanceModifier {
+		return new CircumstanceModifier({
+			source: ModifierSource.Equipment,
+			name: this.description,
+			value: this.bonus,
+		});
 	}
 }
 
