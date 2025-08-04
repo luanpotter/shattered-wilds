@@ -34,6 +34,7 @@ export const LevelSection: React.FC<LevelSectionProps> = ({
 				marginBottom: variant === 'default' ? '1rem' : '12px',
 				backgroundColor: 'var(--background-alt)',
 				borderRadius: variant === 'default' ? '8px' : '4px',
+				padding: '4px',
 			}}
 		>
 			<div style={{ display: 'flex', alignItems: 'center', gap }}>
@@ -44,7 +45,7 @@ export const LevelSection: React.FC<LevelSectionProps> = ({
 				<div style={{ display: 'flex', alignItems: 'center', gap }}>
 					<PointAllocationWarning node={tree.root} />
 					<Button
-						variant={variant === 'compact' ? 'inline' : 'normal'}
+						variant='inline'
 						icon={FaUndo}
 						title='Reset all points'
 						onClick={() => {
