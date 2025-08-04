@@ -442,7 +442,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 				name: 'Leather Armor',
 				type: ArmorType.LightArmor,
 				bonus: Bonus.of(1),
-				dexPenalty: Bonus.of(-1),
+				dexPenalty: Bonus.zero(),
 			}),
 		alternativeNames: ['Padded Armor', 'Hide'],
 	}),
