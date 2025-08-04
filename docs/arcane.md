@@ -1,10 +1,10 @@
-The Arcane is a science about the laws of physics, the art of controlling the world by recreating shockwaves in reality by precise hand movements and sounds in order to produce certain effects based on the current state of the world. It requires a strong level of focus and mental ability to concoct the exact movements for any desired outcome given any current circumstances.
+The **Arcane** is a science about the laws of physics, the art of controlling the world by recreating shockwaves in reality by precise movements and sounds in order to produce certain effects based on the current state of the world. It requires a strong level of focus and mental acuity to concoct the exact movements for any desired outcome given any current circumstances.
 
-While creating the necessary movements and sounds can be assisted through the use of mechanical devices, it appears that their primordial source must be tied to a Soul, so it is not possible to completely automate the process. Some sequences of movements can be combined by crafting mechanical devices (the specialty of the Mechanistic caster), but those must still be executed by the caster. Also since the exact movements depend on the circumstances, it cannot be fully prepared ahead of time, requiring intense focus during the moment of casting.
+While creating the necessary movements and sounds can be assisted through the use of mechanical devices or instruments, it appears that their primordial source must be tied to a **Soul**, and thus cannot be completely automated. Some sequences of movements can be combined by crafting mechanical devices (the specialty of the Mechanistic caster), but those must still be executed by the caster. Also since the exact movements depend on the circumstances, it cannot be fully prepared ahead of time, requiring intense focus during the moment of casting.
 
-You can think of Arcane as a spell system where the Player chooses the desired effect, and the DM tells them how hard it will be (as opposed to the Divine spell system, where the Player rolls a Check and the DM tells them the effect).
+You can think of Arcane as a spell system where the Player chooses the desired effect, and the DM tells them how hard it will be (as opposed to the [Divine](/rules/divine.md) spell system, where the Player rolls a Check and the DM tells them the effect).
 
-Arcane spells are first and foremost a specific combination of a verb and a noun, which together define their School.
+Arcane spells are first and foremost a specific combination of a **Verb** and a **Noun**, which together define the spell's **School**.
 
 | Verb / Noun     | Matter        | Energy      | Being           |
 |-----------------|---------------|-------------|-----------------|
@@ -12,9 +12,13 @@ Arcane spells are first and foremost a specific combination of a verb and a noun
 | **Transform**   | Transmutation | -           | Transfiguration |
 | **Control**     | -             | Telekinesis | Command         |
 
-In the view of the Arcane, the bodies of Beings are not just material, as they are tied to their Spark (or Soul). Think of Beings having an impenetrable aura that prevents Matter and Energy manipulation inside. However, the Being can still be manipulated directly, via Transfiguration or Command. While Telekinesis cannot be used directly on beings, the air around beings can be controlled to cause gusts of wind While Telekinesis cannot be used directly on beings, the air around beings can be controlled to cause gusts of wind for various effects.
+From the point of view of the Arcane, the bodies of **Beings** are not just material; as they are tied to their Spark (or Soul). Think of Beings having an impenetrable aura that prevents Matter and Energy manipulation inside. However, the Being can still be manipulated directly, via Transfiguration or Command. While Telekinesis cannot be used directly on beings, the air around them can be controlled in the form of gusts of wind for pushes and pulls.
 
-Casting a spell typically will require a certain amount of AP ([[Action_Point | Action Points]]) and FP ([[Focus_Point | Focus Points]]) to be spent (see Basic Arcane Spell below), requires executing some non-zero amount of Spell Components, and will require a Check on the Spellcaster's Base Attribute:
+Casting a spell typically will require (see **Basic Arcane Spell** below):
+
+* a certain amount of **AP** ([[Action_Point | Action Points]]) and **FP** ([[Focus_Point | Focus Points]]) to be spent;
+* executing some non-zero amount of Spell Components;
+* rolling a Check using the Spellcaster's Base Attribute:
 
 > Roll Base Spellcasting Attribute + Component Modifiers + Augmentation Modifiers [+ Other Circumstance Modifiers]
 
@@ -22,30 +26,30 @@ The Base DC for an uncontested Basic Arcane Spell is 15. That is the minimum DC 
 
 ## Concentration
 
-Depending on the chosen School and desired effect, spells can be instantaneous, meaning they are done after the Casting Time over which the Components are executed; or they can be held in Concentration. While Concentrating, the Caster cannot take any actions with the Concentrate trait (such as other Spells). A Caster can always just drop Concentration at will. See more details about which types of effects can be instantaneous or not under Augmentations > Duration below.
+Casting a spell has the [[Concentrate]] trait (even if instantaneous). Depending on the chosen School and desired effect, spells can be instantaneous, meaning they are done after the Casting Time over which the Components are executed; or they can be held in Concentration. While Concentrating, the Caster cannot take other [[Concentrate]] actions (such as other Spells). A Caster can always just drop Concentration at will. See more details about which types of effects can be instantaneous or not under **Augmentations > Duration** below.
 
-As with any other Concentrate Action, if the Caster is disrupted during concentration (or during the Spell Casting), they must roll a Tenacity check to sustain Concentration or finalize the cast. See more details on the [[Action | Actions]] page.
+As with any other Concentrate Action, if the Caster is disrupted during concentration (or during the Spell Casting) via the [[Feint]] action, they must roll a [[Tenacity]] check to sustain Concentration or finalize the cast.
 
 ## Contested Checks
 
 When directly trying to affect a creature with a spell, the Base DC is replaced with a Contested Check (but the Base DC is still the minimum). Which Check to be used depends on the nature of the spell being cast.
 
-Launching a projectile, be it matter or energy, onto a creature, is considered a Basic Attack, and therefore is contested with a Basic Defense Check.
+Launching a projectile, be it matter or energy, onto a creature, is considered a **Basic Body Attack**, and therefore is contested with a **Basic Body Defense** Check.
 
-Other effects are considered Special Attacks, and therefore are contested by specific Skills. For example:
+Other effects are typically considered **Special Attacks**, and therefore are contested by specific **Skills**. For example:
 
-* Using Telekinesis to form a gust of wind to push a creature: Stance
-* Using Command to control a creature: Resolve
-* Using Transfiguration to modify a creature's body: Resilience or Toughness (depending on the nature of the transformation)
-* Using Command to control vines to Grapple a creature: Evasiveness
+* Using **Telekinesis** to form a gust of wind to push a creature: [[Stance]]
+* Using **Command** to control a creature: [[Resolve]]
+* Using **Transfiguration** to modify a creature's body: [[Resilience]] or [[Toughness]] (depending on the nature of the transformation)
+* Using **Command** to control vines to Grapple a creature: [[Evasiveness]]
 
-Note that a creature can choose not to resist; in which case the Base DC is used instead.
+Note that a creature can choose not to resist; in which case the **Base DC** is used instead.
 
-Narratively, if the Check rolls between the Spell DC using the Base DC and the (higher) Spell DC using the Contested Check, the spell succeeds but is resisted by the target, while if it fails even the Base DC, the spell just fails.
+Narratively, if the Check rolls between the Spell DC using the **Base DC** and the (higher) Spell DC using the **Contested Check**, the spell succeeds but is resisted by the target, while if it fails even the **Base DC**, the spell just fails to produce any effect.
 
 ## Basic Spell Attacks
 
-Regardless of specific narrative flavor (see Predefined Spells below for inspiration), a Caster can use a Basic Arcane Spell (2[[Action_Point | AP]], 1[[Focus_Point | FP]]) with Spell DC 15 to harm an enemy within 1m as a Basic Attack against a target's Body or Soul. The most typical Augmentations for a Basic Spell Attack are Range, Multi-target, and Casting Time.
+Regardless of specific narrative flavor (see **Predefined Spells** below for inspiration), a Caster can use a **Basic Arcane Spell** (2 [[Action_Point | AP]], 1 [[Focus_Point | FP]]), with **Spell DC 15** to harm an enemy within 1m as a Basic Attack against a target's Body or Soul. The most typical Augmentations for a Basic Spell Attack are Range, Multi-target, and Casting Time.
 
 ## Shifts
 
