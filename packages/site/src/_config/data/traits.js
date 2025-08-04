@@ -10,14 +10,16 @@ export const traits = Object.values(TRAITS).map(def => {
 		title: `${def.name}`,
 		url: `/wiki/${slug}/`,
 		content: def.description,
-		metadata: def.targets.map(target => ({
-			key: target,
-			title: target,
-			value: undefined,
-			cssClass: `metadata-trait`,
-		})),
+		metadata: [
+			{
+				key: def.target,
+				title: def.target,
+				value: undefined,
+				cssClass: `metadata-trait`,
+			},
+		],
 
 		// other data
-		targets: def.targets,
+		target: def.target,
 	};
 });

@@ -13,11 +13,9 @@
 
 {{ lexicon.content | mdb }}
 
-{% for target in lexicon.targets %}
-    <h3>{{ target }} with {{ lexicon.title }}</h3>
-    <ul>
-        {% for item in wiki.byGroupByTrait[target][lexicon.slug] %}
-            <li>{% item item.slug %}</li>
-        {% endfor %}
-    </ul>
-{% endfor %}
+<h3>{{ lexicon.target }} with {{ lexicon.title }}</h3>
+<ul>
+    {% for item in wiki.byGroupByTrait[lexicon.target][lexicon.slug] %}
+        <li>{% item item.slug %}</li>
+    {% endfor %}
+</ul>

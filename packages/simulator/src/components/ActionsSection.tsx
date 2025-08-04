@@ -467,7 +467,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 								label='Shield'
 								value={selectedShield}
 								options={shields}
-								describe={shield => shield.description}
+								describe={shield => shield.displayText}
 								placeholder='Select shield...'
 								onChange={shield => setSelectedShield(shield ?? null)}
 								disabled={!hasShield}

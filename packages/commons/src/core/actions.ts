@@ -792,7 +792,7 @@ export const ACTIONS = {
 		key: Action.Reload,
 		type: ActionType.Support,
 		name: 'Reload',
-		description: 'Reload a weapon with the [[Reload]] trait.',
+		description: 'Reload a weapon with the [[Reloadable]] trait.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 	}),
 

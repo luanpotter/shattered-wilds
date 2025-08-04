@@ -11,16 +11,14 @@
 
 {% include 'wiki-header.liquid' %}
 
-{{ lexicon.content | mdb }}
-
-<p><strong>Type:</strong> {{ lexicon.type }}</p>
-
 {% if lexicon.modes %}
     <ul>
         {% for mode in lexicon.modes %}
             <li>{{ mode.description }}</li>
         {% endfor %}
     </ul>
+{% else %}
+    {{ lexicon.content | mdb }}
 {% endif %}
 
 {% if lexicon.alternativeNames.length > 0 %}

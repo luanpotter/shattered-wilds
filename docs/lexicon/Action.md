@@ -8,7 +8,7 @@ Traits are keywords added to actions to describe some specific aspect of their n
 
 <details>
   <summary>Traits</summary>
-  {% list "Trait", "title", "description" %}
+  {% list "Trait", "title", "target" "Action" %}
 </details>
 
 ## Types

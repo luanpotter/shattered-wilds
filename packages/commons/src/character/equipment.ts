@@ -37,6 +37,7 @@ export enum ShieldType {
 export interface Item {
 	name: string;
 	description: string;
+	displayText: string;
 	traits: Trait[];
 }
 
@@ -119,7 +120,11 @@ export class Weapon implements Item {
 	}
 
 	get description(): string {
-		return `${this.name} - ${this.modes.map(mode => mode.description).join(' / ')}`;
+		return `${this.modes.map(mode => mode.description).join(' / ')}`;
+	}
+
+	get displayText(): string {
+		return `${this.name} (${this.description})`;
 	}
 }
 
@@ -152,7 +157,11 @@ export class Armor implements Item {
 
 	get description(): string {
 		const dexPenalty = this.dexPenalty.isNotZero ? `, Dex Penalty: ${this.dexPenalty.description}` : '';
-		return `${this.name} (${this.type} ${this.bonus.description}${dexPenalty})`;
+		return `${this.type} ${this.bonus.description}${dexPenalty}`;
+	}
+
+	get displayText(): string {
+		return `${this.name} (${this.description})`;
 	}
 }
 
@@ -170,7 +179,11 @@ export class Shield implements Item {
 	}
 
 	get description(): string {
-		return `${this.name} (${this.type} ${this.bonus.description})`;
+		return `${this.type} ${this.bonus.description}`;
+	}
+
+	get displayText(): string {
+		return `${this.name} (${this.description})`;
 	}
 }
 
@@ -461,7 +474,6 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 				type: ShieldType.SmallShield,
 				bonus: Bonus.of(3),
 			}),
-		alternativeNames: ['Small Shield'],
 	}),
 	[BasicEquipmentType.LargeShield]: new BasicEquipmentDefinition({
 		generator: () =>
@@ -471,6 +483,5 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 				bonus: Bonus.of(6),
 				traits: [Trait.TwoHanded],
 			}),
-		alternativeNames: ['Large Shield'],
 	}),
 };

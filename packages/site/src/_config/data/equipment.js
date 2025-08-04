@@ -19,6 +19,7 @@ export const equipment = Object.values(BASIC_EQUIPMENT).map(def => {
 	const slug = slugify(item.name);
 
 	const type = computeType(item);
+	const bonusForSorting = item.modes ? Math.min(...item.modes.map(mode => mode.bonus.value)) : (item.bonus?.value ?? 0);
 	return {
 		// wiki parameters
 		group: 'Equipment',
@@ -40,6 +41,7 @@ export const equipment = Object.values(BASIC_EQUIPMENT).map(def => {
 				cssClass: 'metadata-trait',
 			})),
 		].filter(Boolean),
+		order: bonusForSorting,
 
 		// other data
 		type,
