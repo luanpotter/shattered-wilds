@@ -138,9 +138,9 @@ The realm of the **Divine** can produce effects much different than that of the 
 
 * Direct Healing and Harming
 * Buffs and Debuffs
-* Divination (through [[Revelation]])
-* Illusions
-* Luck Bending
+* Divination
+* Illusions (including Invisibility)
+* Luck Manipulation (through [[LCK]])
 
 However, differently from the **Casters** table, this matrix is a bit more diverse; each **Role** will have access to different tools and abilities (though some form of **Channeling** will always connect all **Mystics**):
 
@@ -157,15 +157,15 @@ The nature of their connection can be varied, from an abstract concept and blind
 
 Regardless of the nature of their connection, the **Adept** can:
 
-* Actively [[Pray]] as a means of indirect expressing their desires and needs to their **Protean**, using a [[Devotion]] Check;
-* Actively **Channel** powers from the **Aether** into the material world (i.e. divine spellcasting); that uses a [[DIV]] Check;
-* Passively receive messages, guidance, or visions from their **Protean**; that requires a [[Revelation]] Check.
+* Actively **Channel** powers from the **Aether** into the material world (i.e. Divine Channeling), using a [[DIV]] Check;
+* Actively [[Pray]] as a one-way communication with their **Protean** to inform their desires, needs, concerns and requests, typically done once a day after a [[Long Rest]], using a [[Devotion]] Check;
+* Passively receive messages, guidance, or visions from their **Protean**, at the discretion of the DM.
 
 In exchange, they are responsible for respecting and furthering their **Protean**'s cause. Unlike other settings, there is no defined pantheon of impossibly powerful (or even omnipotent) gods. Instead, players should work with their DMs to create **Proteans** as part of their character creation. However, some pre-defined templates will be provided below.
 
-Typically, Adepts will **Pray** once at the start of every day (after a [[Long Rest]]), and they can at this moment express their vague desires, needs, and concerns to their **Protean**. They can attempt to ask for more specific requests, but depending on the type of request, how aligned it is with their **Protean**'s cause, the complexity, specificity and difficulty of the requests, it will be less likely to succeed. Regardless of the ask, the character will do a [[Devotion]] Check, and the DM will rule over the outcome. At this moment, the DM might also request a [[Revelation]] Check, that will determine wether the **Protean** has any messages, visions, omens, guidance or requests.
+Typically, Adepts will **Pray** once at the start of every day (after a [[Long Rest]]), and they can at this moment express their vague desires, needs, and concerns to their **Protean**. They can attempt to ask for more specific requests, but depending on the type of request, how aligned it is with their **Protean**'s cause, the complexity, specificity and difficulty of the requests, it will be less likely to succeed. Regardless of the ask, the character will do a [[Devotion]] Check, and the DM will rule over the outcome, which might be nothing right now, undisclosed things that might happen later, or might include any immediate messages, visions, omens, guidance or requests from the **Protean**.
 
-A character can attempt to **Pray** on any longer moments of peace and quiet (like a [[Short Rest]]), but typically praying more than once a day is infective. Similarly, a DM might request a [[Revelation]] Check at any moment, depending on circumstances, the nature of the **Protean** and the connection, or circumstances and events.
+A character can attempt to **Pray** on any longer moments of peace and quiet (like a [[Short Rest]]), but typically praying more than once a day is infective. Similarly, a DM might request a [[Devotion]] Check at any moment, depending on circumstances, the nature of the **Protean** and the connection, or any other reason.
 
 <details>
   <summary>Adept Feats</summary>
