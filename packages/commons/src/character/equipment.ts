@@ -293,132 +293,184 @@ export enum BasicEquipmentType {
 	Spear = 'Spear',
 	Mace = 'Mace',
 	Longsword = 'Longsword',
-	LightArmor = 'Light Armor',
-	MediumArmor = 'Medium Armor',
-	HeavyArmor = 'Heavy Armor',
+	LeatherArmor = 'Leather Armor',
+	Chainmail = 'Chainmail',
+	FullPlate = 'Full Plate',
 	SmallShield = 'Small Shield',
 	LargeShield = 'Large Shield',
 }
 
-export const BASIC_EQUIPMENT: Record<BasicEquipmentType, () => Item> = {
+export class BasicEquipmentDefinition {
+	generator: () => Item;
+	alternativeNames: string[];
+
+	constructor({ generator, alternativeNames }: { generator: () => Item; alternativeNames?: string[] }) {
+		this.generator = generator;
+		this.alternativeNames = alternativeNames ?? [];
+	}
+}
+
+export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinition> = {
 	// Weapons
-	[BasicEquipmentType.Javelin]: () =>
-		Weapon.simple({
-			name: 'Javelin',
-			type: PrimaryWeaponType.Thrown,
-			bonus: Bonus.of(2),
-			range: Distance.of(6),
-		}),
-	[BasicEquipmentType.Hatchet]: () =>
-		new Weapon({
-			name: 'Hatchet',
-			modes: [
-				new WeaponMode({
-					type: PrimaryWeaponType.LightMelee,
-					bonus: Bonus.of(2),
-				}),
-				new WeaponMode({
-					type: PrimaryWeaponType.Thrown,
-					bonus: Bonus.of(3),
-					range: Distance.of(3),
-				}),
-			],
-		}),
-	[BasicEquipmentType.Dagger]: () =>
-		new Weapon({
-			name: 'Dagger',
-			modes: [
-				new WeaponMode({
-					type: PrimaryWeaponType.LightMelee,
-					bonus: Bonus.of(3),
-				}),
-				new WeaponMode({
-					type: PrimaryWeaponType.Thrown,
-					bonus: Bonus.of(2),
-					range: Distance.of(3),
-				}),
-			],
-			traits: [Trait.Concealable],
-		}),
-	[BasicEquipmentType.Rapier]: () =>
-		Weapon.simple({
-			name: 'Rapier',
-			type: PrimaryWeaponType.LightMelee,
-			bonus: Bonus.of(4),
-		}),
-	[BasicEquipmentType.BowAndArrows]: () =>
-		Weapon.simple({
-			name: 'Bow & Arrows',
-			type: PrimaryWeaponType.Ranged,
-			bonus: Bonus.of(4),
-			range: Distance.of(12),
-		}),
-	[BasicEquipmentType.CrossbowAndDarts]: () =>
-		Weapon.simple({
-			name: 'Crossbow & Darts',
-			type: PrimaryWeaponType.Ranged,
-			bonus: Bonus.of(5),
-			range: Distance.of(12),
-			traits: [Trait.Reloadable],
-		}),
-	[BasicEquipmentType.Spear]: () =>
-		Weapon.simple({
-			name: 'Spear',
-			type: PrimaryWeaponType.HeavyMelee,
-			bonus: Bonus.of(4),
-			range: Distance.of(2),
-			traits: [Trait.Polearm],
-		}),
-	[BasicEquipmentType.Mace]: () =>
-		Weapon.simple({
-			name: 'Mace',
-			type: PrimaryWeaponType.HeavyMelee,
-			bonus: Bonus.of(5),
-			range: Distance.of(12),
-		}),
-	[BasicEquipmentType.Longsword]: () =>
-		Weapon.simple({
-			name: 'Longsword',
-			type: PrimaryWeaponType.HeavyMelee,
-			bonus: Bonus.of(6),
-			traits: [Trait.TwoHanded],
-		}),
+	[BasicEquipmentType.Javelin]: new BasicEquipmentDefinition({
+		generator: () =>
+			Weapon.simple({
+				name: 'Javelin',
+				type: PrimaryWeaponType.Thrown,
+				bonus: Bonus.of(2),
+				range: Distance.of(6),
+			}),
+		alternativeNames: ['Darts'],
+	}),
+	[BasicEquipmentType.Hatchet]: new BasicEquipmentDefinition({
+		generator: () =>
+			new Weapon({
+				name: 'Hatchet',
+				modes: [
+					new WeaponMode({
+						type: PrimaryWeaponType.LightMelee,
+						bonus: Bonus.of(2),
+					}),
+					new WeaponMode({
+						type: PrimaryWeaponType.Thrown,
+						bonus: Bonus.of(3),
+						range: Distance.of(3),
+					}),
+				],
+			}),
+		alternativeNames: ['Hand Axe'],
+	}),
+	[BasicEquipmentType.Dagger]: new BasicEquipmentDefinition({
+		generator: () =>
+			new Weapon({
+				name: 'Dagger',
+				modes: [
+					new WeaponMode({
+						type: PrimaryWeaponType.LightMelee,
+						bonus: Bonus.of(3),
+					}),
+					new WeaponMode({
+						type: PrimaryWeaponType.Thrown,
+						bonus: Bonus.of(2),
+						range: Distance.of(3),
+					}),
+				],
+				traits: [Trait.Concealable],
+			}),
+		alternativeNames: ['Knife'],
+	}),
+	[BasicEquipmentType.Rapier]: new BasicEquipmentDefinition({
+		generator: () =>
+			Weapon.simple({
+				name: 'Rapier',
+				type: PrimaryWeaponType.LightMelee,
+				bonus: Bonus.of(4),
+			}),
+		alternativeNames: ['Short Sword'],
+	}),
+	[BasicEquipmentType.BowAndArrows]: new BasicEquipmentDefinition({
+		generator: () =>
+			Weapon.simple({
+				name: 'Bow & Arrows',
+				type: PrimaryWeaponType.Ranged,
+				bonus: Bonus.of(4),
+				range: Distance.of(12),
+				traits: [Trait.TwoHanded],
+			}),
+		alternativeNames: ['Shortbow', 'Longbow', 'Composite Bow'],
+	}),
+	[BasicEquipmentType.CrossbowAndDarts]: new BasicEquipmentDefinition({
+		generator: () =>
+			Weapon.simple({
+				name: 'Crossbow & Darts',
+				type: PrimaryWeaponType.Ranged,
+				bonus: Bonus.of(5),
+				range: Distance.of(12),
+				traits: [Trait.Reloadable],
+			}),
+		alternativeNames: ['Light Crossbow', 'Heavy Crossbow', 'Hand Crossbow'],
+	}),
+	[BasicEquipmentType.Spear]: new BasicEquipmentDefinition({
+		generator: () =>
+			Weapon.simple({
+				name: 'Spear',
+				type: PrimaryWeaponType.HeavyMelee,
+				bonus: Bonus.of(4),
+				range: Distance.of(2),
+				traits: [Trait.Polearm],
+			}),
+		alternativeNames: ['Glaive', 'Halberd', 'Pike'],
+	}),
+	[BasicEquipmentType.Mace]: new BasicEquipmentDefinition({
+		generator: () =>
+			Weapon.simple({
+				name: 'Mace',
+				type: PrimaryWeaponType.HeavyMelee,
+				bonus: Bonus.of(5),
+				range: Distance.of(12),
+			}),
+		alternativeNames: ['Club', 'Mace', 'Morningstar'],
+	}),
+	[BasicEquipmentType.Longsword]: new BasicEquipmentDefinition({
+		generator: () =>
+			Weapon.simple({
+				name: 'Longsword',
+				type: PrimaryWeaponType.HeavyMelee,
+				bonus: Bonus.of(6),
+				traits: [Trait.TwoHanded],
+			}),
+		alternativeNames: ['Bastard Sword', 'Claymore'],
+	}),
 
 	// Armor
-	[BasicEquipmentType.LightArmor]: () =>
-		new Armor({
-			name: 'Light Armor',
-			type: ArmorType.LightArmor,
-			bonus: Bonus.of(1),
-			dexPenalty: Bonus.of(-1),
-		}),
-	[BasicEquipmentType.MediumArmor]: () =>
-		new Armor({
-			name: 'Medium Armor',
-			type: ArmorType.MediumArmor,
-			bonus: Bonus.of(3),
-			dexPenalty: Bonus.of(-1),
-		}),
-	[BasicEquipmentType.HeavyArmor]: () =>
-		new Armor({
-			name: 'Heavy Armor',
-			type: ArmorType.HeavyArmor,
-			bonus: Bonus.of(5),
-			dexPenalty: Bonus.of(-3),
-		}),
+	[BasicEquipmentType.LeatherArmor]: new BasicEquipmentDefinition({
+		generator: () =>
+			new Armor({
+				name: 'Leather Armor',
+				type: ArmorType.LightArmor,
+				bonus: Bonus.of(1),
+				dexPenalty: Bonus.of(-1),
+			}),
+		alternativeNames: ['Padded Armor', 'Hide'],
+	}),
+	[BasicEquipmentType.Chainmail]: new BasicEquipmentDefinition({
+		generator: () =>
+			new Armor({
+				name: 'Chainmail',
+				type: ArmorType.MediumArmor,
+				bonus: Bonus.of(3),
+				dexPenalty: Bonus.of(-1),
+			}),
+		alternativeNames: ['Half Plate'],
+	}),
+	[BasicEquipmentType.FullPlate]: new BasicEquipmentDefinition({
+		generator: () =>
+			new Armor({
+				name: 'Full Plate',
+				type: ArmorType.HeavyArmor,
+				bonus: Bonus.of(5),
+				dexPenalty: Bonus.of(-3),
+			}),
+	}),
 
 	// Shields
-	[BasicEquipmentType.SmallShield]: () =>
-		new Shield({
-			name: 'Small Shield',
-			type: ShieldType.SmallShield,
-			bonus: Bonus.of(3),
-		}),
-	[BasicEquipmentType.LargeShield]: () =>
-		new Shield({
-			name: 'Large Shield',
-			type: ShieldType.LargeShield,
-			bonus: Bonus.of(6),
-			traits: [Trait.TwoHanded],
-		}),
+	[BasicEquipmentType.SmallShield]: new BasicEquipmentDefinition({
+		generator: () =>
+			new Shield({
+				name: 'Small Shield',
+				type: ShieldType.SmallShield,
+				bonus: Bonus.of(3),
+			}),
+		alternativeNames: ['Small Shield'],
+	}),
+	[BasicEquipmentType.LargeShield]: new BasicEquipmentDefinition({
+		generator: () =>
+			new Shield({
+				name: 'Large Shield',
+				type: ShieldType.LargeShield,
+				bonus: Bonus.of(6),
+				traits: [Trait.TwoHanded],
+			}),
+		alternativeNames: ['Large Shield'],
+	}),
 };

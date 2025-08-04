@@ -1,0 +1,23 @@
+---js
+{
+    permalink: "/{{ pagination.items[0].url }}/index.html",
+    pagination: {
+        data: "equipment",
+        alias: "lexicon",
+        size: 1,
+    }
+}
+---
+
+{% include 'wiki-header.liquid' %}
+
+{{ lexicon.content | mdb }}
+
+{% if lexicon.alternativeNames.length > 0 %}
+<h2>Alternative Names</h2>
+<ul>
+    {% for name in lexicon.alternativeNames %}
+        <li>{{ name }}</li>
+    {% endfor %}
+</ul>
+{% endif %}

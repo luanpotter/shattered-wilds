@@ -6,13 +6,13 @@ Unlike other games, weapons don't have separate damage dice, as damage is determ
 
 Different **Primary Weapon Types** have different "power tiers". This means that two similarly rare weapons of different types will _typically_ have different bonuses. For example, a common _Dagger (Light Melee)_ will be have a +3 bonus, while a common _Longsword (Heavy Melee)_ will have a +8 bonus, because a _Longsword_ is inherently more powerful. However, rarer and more powerful weapons of any kind can have higher bonuses, and the weapon bonus is the only modifier that matters for your Basic Attack Check. So a _Dagger +10_ has the same bonus as a _Longsword +10_, but finding or forging such a powerful dagger would be much more difficult.
 
-| Primary Weapon Type | Base Attribute     | Power Tier |
-|---------------------|--------------------|------------|
-| Unarmed             | [[STR]] or [[DEX]] | T0         |
-| Thrown              | [[STR]]            | T1         |
-| Light Melee         | [[DEX]]            | T2         |
-| Ranged              | [[DEX]]            | T2         |
-| Heavy Melee         | [[STR]]            | T3         |
+| Primary Weapon Type | Base Attribute | Power Tier |
+|---------------------|----------------|------------|
+| Unarmed             | [[STR]]        | T0         |
+| Thrown              | [[STR]]        | T1         |
+| Light Melee         | [[DEX]]        | T2         |
+| Ranged              | [[DEX]]        | T2         |
+| Heavy Melee         | [[STR]]        | T3         |
 
 The list below contains an assortment of common weapons that could be find in blacksmiths and shops on a typical village. As players explore, they might encounter more powerful versions or more exotic weapon types. Note that this list contains slightly broad category of weapons but the exact flavor can be changed (e.g. a Spear can be a Glaive or a Halberd, a Longsword can be a Bastard Sword or a Claymore, etc.).
 

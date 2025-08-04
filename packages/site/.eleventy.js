@@ -10,6 +10,7 @@ import { stats } from './src/_config/data/stats.js';
 import { derivedStats } from './src/_config/data/derived_stats.js';
 import { resources } from './src/_config/data/resources.js';
 import { feats } from './src/_config/data/feats.js';
+import { equipment } from './src/_config/data/equipment.js';
 import { classes } from './src/_config/data/classes.js';
 import { traits } from './src/_config/data/traits.js';
 import { parseLexicon } from './src/_config/lexicon.js';
@@ -32,6 +33,7 @@ export default function (eleventyConfig) {
 	eleventyConfig.addGlobalData('derivedStats', derivedStats);
 	eleventyConfig.addGlobalData('resources', resources);
 	eleventyConfig.addGlobalData('feats', feats);
+	eleventyConfig.addGlobalData('equipment', equipment);
 	eleventyConfig.addGlobalData('classes', classes);
 	eleventyConfig.addGlobalData('traits', traits);
 
@@ -42,6 +44,7 @@ export default function (eleventyConfig) {
 		...derivedStats,
 		...resources,
 		...feats,
+		...equipment,
 		...classes,
 		...traits,
 	]
@@ -74,8 +77,6 @@ export default function (eleventyConfig) {
 			}
 		}
 	}
-
-	console.log(wikiByGroupByTrait);
 
 	const isValid = new Set(wikiPages.map(e => e.slug)).size === wikiPages.length;
 	if (!isValid) {

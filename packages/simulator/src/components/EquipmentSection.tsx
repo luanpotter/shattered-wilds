@@ -20,7 +20,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ character, o
 	const [selectedItem, setSelectedItem] = useState<BasicEquipmentType | null>(null);
 
 	const handleAddPredefinedItem = (item: BasicEquipmentType) => {
-		const newItem = BASIC_EQUIPMENT[item]();
+		const newItem = BASIC_EQUIPMENT[item].generator();
 		equipment.equipment.items.push(newItem);
 		onUpdateEquipment(equipment.equipment);
 		setSelectedItem(null);
