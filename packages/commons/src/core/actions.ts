@@ -164,7 +164,6 @@ export enum Action {
 	Dodge = 'Dodge',
 	Disarm = 'Disarm',
 	DecreaseInitiative = 'DecreaseInitiative',
-	Distract = 'Distract',
 	BasicDefense = 'BasicDefense',
 }
 
@@ -388,6 +387,25 @@ export const ACTIONS = {
 			}),
 		],
 	}),
+	[Action.Aim]: new ActionDefinition({
+		key: Action.Aim,
+		type: ActionType.Attack,
+		name: 'Aim',
+		description:
+			'Target a specific enemy that you can see clearly; if your next action this turn is a **Basic Ranged Attack** against that target, you can roll with [[Finesse]] instead reduce the range increment by `1` (min `0`).',
+		traits: [Trait.Concentrate, Trait.Ranged],
+		costs: [
+			new ActionCost({ resource: Resource.ActionPoint, amount: 1 }),
+			new ActionCost({ resource: Resource.FocusPoint, amount: 1 }),
+		],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StatType.Finesse,
+			}),
+		],
+	}),
 	[Action.Trip]: new ActionDefinition({
 		key: Action.Trip,
 		type: ActionType.Attack,
@@ -488,26 +506,6 @@ export const ACTIONS = {
 			'Triggered by an opponent either (1) leaving your threat area or (2) performing a [[Concentrate]] action on your threat area. You can choose what kind of **Melee Basic Attack** to perform as your Opportunity Attack (this will cost the same amount of [[Action_Point | AP]] as that action would (at least `1`)).',
 		traits: [Trait.Reaction, Trait.Melee],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1, variable: true })],
-	}),
-	[Action.Distract]: new ActionDefinition({
-		key: Action.Distract,
-		type: ActionType.Attack,
-		name: 'Distract',
-		description: 'TODO: Attempt to disrupt a character performing a [[Concentrate]] action.',
-		traits: [Trait.Reaction],
-		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
-	}),
-	[Action.Aim]: new ActionDefinition({
-		key: Action.Aim,
-		type: ActionType.Attack,
-		name: 'Aim',
-		description:
-			'Target a specific enemy that you can see clearly; if your next action this turn is a **Basic Ranged Attack** against that target, you can roll with [[Finesse]] instead reduce the range increment by `1` (min `0`).',
-		traits: [Trait.Concentrate, Trait.Ranged],
-		costs: [
-			new ActionCost({ resource: Resource.ActionPoint, amount: 1 }),
-			new ActionCost({ resource: Resource.FocusPoint, amount: 1 }),
-		],
 	}),
 
 	// Defense
