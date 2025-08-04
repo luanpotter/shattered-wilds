@@ -6,9 +6,26 @@ const WINDOW_SIZE = { width: 300, height: 300 };
 const OVERLAP_MARGIN = 8; // Additional buffer when checking for overlaps
 
 /**
+ * Convert a number to an ordinal string, for example 1 -> "1st", 7 -> "7th" or 22 -> "22nd".
+ * @param number - The number to convert
+ * @returns The ordinal string
+ */
+export const numberToOrdinal = (number: number): string => {
+	const suffix =
+		number % 100 === 11 || number % 100 === 12 || number % 100 === 13
+			? 'th'
+			: {
+					1: 'st',
+					2: 'nd',
+					3: 'rd',
+				}[number % 10] || 'th';
+	return `${number}${suffix}`;
+};
+
+/**
  * Find the next available position for a new modal
  */
-export function findNextWindowPosition(modals: Modal[]): Point {
+export const findNextWindowPosition = (modals: Modal[]): Point => {
 	// If no modals, return default position
 	if (modals.length === 0) {
 		return INITIAL_POSITION;
@@ -88,13 +105,13 @@ export function findNextWindowPosition(modals: Modal[]): Point {
 	const y = Math.min(lastModal.position.y + 20, viewportHeight - 20);
 
 	return { x, y };
-}
+};
 
 /**
  * Find the next available character number
  * Skips numbers that are already used in existing character names
  */
-export function findNextCharacterNumber(characters: Character[]): number {
+export const findNextCharacterNumber = (characters: Character[]): number => {
 	// Extract numbers from existing character names
 	const usedNumbers = characters
 		.map(c => {
@@ -119,7 +136,7 @@ export function findNextCharacterNumber(characters: Character[]): number {
 	}
 
 	return nextNumber;
-}
+};
 
 /**
  * Find the next available hex position for a character
@@ -127,7 +144,11 @@ export function findNextCharacterNumber(characters: Character[]): number {
  * @param characters Array of existing characters to check positions against
  * @returns The next available hex coordinates {q, r}
  */
-export function findNextEmptyHexPosition(characters: Character[], startQ: number = 0, startR: number = 0): HexPosition {
+export const findNextEmptyHexPosition = (
+	characters: Character[],
+	startQ: number = 0,
+	startR: number = 0,
+): HexPosition => {
 	// Check if the starting position is empty
 	if (!findCharacterAtPosition(characters, startQ, startR)) {
 		return { q: startQ, r: startR };
@@ -164,20 +185,20 @@ export function findNextEmptyHexPosition(characters: Character[], startQ: number
 
 	// Fallback if no position found
 	return { q: 0, r: 0 };
-}
+};
 
 /**
  * Finds a character at the given hex position
  */
-export function findCharacterAtPosition(characters: Character[], q: number, r: number): Character | undefined {
+export const findCharacterAtPosition = (characters: Character[], q: number, r: number): Character | undefined => {
 	return characters.find(c => c.position?.q === q && c.position?.r === r);
-}
+};
 
 /**
  * Convert axial hex coordinates to pixel coordinates
  */
-export function axialToPixel(q: number, r: number): Point {
+export const axialToPixel = (q: number, r: number): Point => {
 	const x = q * 10 + r * 5;
 	const y = r * 8.66; // sqrt(3) * 5
 	return { x, y };
-}
+};

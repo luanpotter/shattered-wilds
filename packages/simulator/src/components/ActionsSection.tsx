@@ -26,6 +26,7 @@ import { FaShield } from 'react-icons/fa6';
 
 import { useModals } from '../hooks/useModals';
 import { Character, CharacterSheet, Weapon, WeaponMode } from '../types';
+import { numberToOrdinal } from '../utils';
 
 import { ResourceInputComponent } from './ResourceInputComponent';
 import Block from './shared/Block';
@@ -113,6 +114,7 @@ interface CheckParameterProps {
 
 interface TabParameters {
 	selectedWeapon: WeaponModeOption | null;
+	rangeIncrementModifier: CircumstanceModifier | null;
 	selectedDefenseRealm: StatType | null;
 	selectedShield: Shield | null;
 }
@@ -120,9 +122,9 @@ interface TabParameters {
 const checkOptions = (
 	statType: StatType | StandardCheck,
 	tabParameters: TabParameters,
-): [StatType, Bonus] | undefined => {
+): [StatType, Bonus, CircumstanceModifier[]] | undefined => {
 	if (statType instanceof StatType) {
-		return [statType, Bonus.zero()];
+		return [statType, Bonus.zero(), []];
 	}
 
 	const weaponMode = tabParameters.selectedWeapon?.mode;
@@ -130,18 +132,22 @@ const checkOptions = (
 		case StandardCheck.Attack: {
 			const type = weaponMode ? weaponMode.statType : StatType.STR;
 			const bonus = weaponMode ? weaponMode.bonus : Bonus.zero();
-			return [type, bonus];
+
+			const rangeIncrementModifier = tabParameters.rangeIncrementModifier;
+			const modifiers = rangeIncrementModifier ? [rangeIncrementModifier] : [];
+
+			return [type, bonus, modifiers];
 		}
 		case StandardCheck.Defense: {
 			const realm = tabParameters.selectedDefenseRealm ?? StatType.Body;
-			return [realm, Bonus.zero()];
+			return [realm, Bonus.zero(), []];
 		}
 		case StandardCheck.ShieldBlock: {
 			const shield = tabParameters.selectedShield;
 			if (!shield) {
 				return undefined;
 			}
-			return [StatType.Body, shield.bonus];
+			return [StatType.Body, shield.bonus, []];
 		}
 	}
 };
@@ -153,12 +159,13 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, ch
 		return null;
 	}
 
-	const [statType, bonus] = options;
+	const [statType, bonus, cms] = options;
 	const circumstanceModifiers = [
 		parameter.circumstanceModifier ? parameter.circumstanceModifier : undefined,
 		bonus.isNotZero
 			? new CircumstanceModifier({ source: ModifierSource.Equipment, name: 'Weapon Bonus', value: bonus })
 			: undefined,
+		...cms,
 	].filter(Boolean) as CircumstanceModifier[];
 
 	const statModifier = statTree.getModifier(statType, circumstanceModifiers);
@@ -205,6 +212,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 
 	const [selectedWeapon, setSelectedWeapon] = useState<WeaponModeOption | null>(null);
 	const [selectedShield, setSelectedShield] = useState<Shield | null>(null);
+	const [selectedRange, setSelectedRange] = useState<Distance | null>(null);
 	const [selectedDefenseRealm, setSelectedDefenseRealm] = useState<StatType | null>(null);
 
 	const sheet = CharacterSheet.from(character.props);
@@ -219,6 +227,20 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 		],
 		[hasShield, weapons],
 	);
+
+	const rangeIncrementModifier = useMemo(() => {
+		if (!selectedWeapon || !selectedRange || selectedWeapon.mode.rangeType !== Trait.Ranged) {
+			return null;
+		}
+		const weaponRange = selectedWeapon.mode.range;
+		const rangeIncrements = Math.max(0, Math.floor((selectedRange.value - 1) / weaponRange.value));
+
+		return new CircumstanceModifier({
+			source: ModifierSource.Circumstance,
+			name: `${numberToOrdinal(rangeIncrements)} Range Increment Penalty`,
+			value: Bonus.of(rangeIncrements * -3),
+		});
+	}, [selectedWeapon, selectedRange]);
 
 	// Auto-select first weapon if available
 	useEffect(() => {
@@ -298,19 +320,22 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 				const movement = sheet.getStatTree().computeDerivedStat(DerivedStatType.Movement);
 				return {
 					Header: (
-						<LabeledInput
-							label='Movement'
-							tooltip={movement.tooltip}
-							value={movement.value.toString()}
-							disabled={true}
-						/>
+						<div style={{ marginBottom: '12px', display: 'flex', gap: '8px' }}>
+							<LabeledInput
+								label='Movement'
+								tooltip={movement.tooltip}
+								value={movement.value.toString()}
+								disabled={true}
+							/>
+						</div>
 					),
 				};
 			}
 			case ActionType.Attack: {
+				const hasRangedWeaponSelected = selectedWeapon?.mode.rangeType === Trait.Ranged;
 				return {
 					Header: (
-						<div style={{ marginBottom: '12px' }}>
+						<div style={{ marginBottom: '12px', display: 'flex', gap: '8px' }}>
 							<LabeledDropdown
 								label='Weapon'
 								value={selectedWeapon}
@@ -318,6 +343,28 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 								describe={weaponMode => `${weaponMode.weapon.name} - ${weaponMode.mode.description}`}
 								onChange={setSelectedWeapon}
 							/>
+							<LabeledInput
+								label='Range Increment'
+								value={hasRangedWeaponSelected ? selectedWeapon.mode.range.description : '-'}
+								disabled={true}
+							/>
+							{hasRangedWeaponSelected && (
+								<LabeledInput
+									label='Target Range (Hexes)'
+									value={selectedRange?.value.toString() ?? ''}
+									onChange={value => {
+										setSelectedRange(value ? Distance.of(parseInt(value)) : null);
+									}}
+								/>
+							)}
+							{hasRangedWeaponSelected && rangeIncrementModifier && (
+								<LabeledInput
+									label='Range Increment Modifier'
+									disabled={true}
+									tooltip={rangeIncrementModifier.description}
+									value={rangeIncrementModifier.value.description}
+								/>
+							)}
 						</div>
 					),
 					filter: action => {
@@ -458,7 +505,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 												parameter={parameter}
 												statTree={tree}
 												character={character}
-												tabParameters={{ selectedWeapon, selectedDefenseRealm, selectedShield }}
+												tabParameters={{ selectedWeapon, selectedDefenseRealm, selectedShield, rangeIncrementModifier }}
 											/>
 										);
 									}
