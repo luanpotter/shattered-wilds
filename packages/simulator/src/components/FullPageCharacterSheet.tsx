@@ -25,7 +25,35 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 	const characters = useStore(state => state.characters);
 	const character = useMemo(() => characters.find(c => c.id === characterId), [characters, characterId]);
 	if (!character) {
-		return <div>Character {characterId} not found</div>;
+		return (
+			<div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+				<main
+					style={{
+						flex: 1,
+						padding: '2rem',
+						paddingBottom: '3rem',
+						overflow: 'auto',
+						maxWidth: '1400px',
+						margin: '0 auto',
+						width: '100%',
+						boxSizing: 'border-box',
+					}}
+				>
+					<div
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							alignItems: 'center',
+							gap: '1rem',
+							color: 'var(--error-color)',
+						}}
+					>
+						Character {characterId} not found.
+						<Button onClick={onBack} icon={FaArrowLeft} title='Back to List' />
+					</div>
+				</main>
+			</div>
+		);
 	}
 
 	return <FullPageCharacterSheetContent character={character} onBack={onBack} />;
@@ -42,58 +70,13 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 	const modals = useStore(state => state.modals);
 	const { openDiceRollModal, openRaceSetupModal, openClassSetupModal, openFeatsSetupModal } = useModals();
 
-	// Create a reactive sheet that updates when character props change
 	const characterId = character.id;
-	const sheet = useMemo(() => CharacterSheet.from(character.props), [character]);
-	const statTree = useMemo(() => sheet.getStatTree(), [sheet]);
-	const movement = useMemo(() => statTree.getModifier(DerivedStatType.Movement), [statTree]);
-	const initiative = useMemo(() => statTree.getModifier(DerivedStatType.Initiative), [statTree]);
-	const influenceRange = useMemo(() => statTree.getModifier(DerivedStatType.InfluenceRange), [statTree]);
+	const sheet = CharacterSheet.from(character.props);
 
-	// Show error message if character not found
-	if (!character || !sheet) {
-		return (
-			<div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-				<main
-					style={{
-						flex: 1,
-						padding: '2rem',
-						paddingBottom: '3rem',
-						overflow: 'auto',
-						maxWidth: '1400px',
-						margin: '0 auto',
-						width: '100%',
-						boxSizing: 'border-box',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-					}}
-				>
-					<div
-						style={{
-							textAlign: 'center',
-							padding: '2rem',
-							border: '1px solid var(--text)',
-							borderRadius: '8px',
-							backgroundColor: 'var(--background-alt)',
-							maxWidth: '500px',
-						}}
-					>
-						<FaExclamationTriangle size={48} style={{ color: 'orange', marginBottom: '1rem' }} />
-						<h2 style={{ marginBottom: '1rem', color: 'var(--text)' }}>Character Not Found</h2>
-						<p style={{ marginBottom: '2rem', color: 'var(--text)' }}>
-							The character you&apos;re looking for could not be found. It may have been deleted or the link is
-							incorrect.
-						</p>
-						<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-							<Button onClick={onBack} icon={FaArrowLeft} title='Back to Character List' />
-							<Button onClick={() => (window.location.hash = '#/')} icon={FaArrowLeft} title='Back to Simulator' />
-						</div>
-					</div>
-				</main>
-			</div>
-		);
-	}
+	const statTree = sheet.getStatTree();
+	const movement = statTree.getModifier(DerivedStatType.Movement);
+	const initiative = statTree.getModifier(DerivedStatType.Initiative);
+	const influenceRange = statTree.getModifier(DerivedStatType.InfluenceRange);
 
 	const handleRefillPoints = () => {
 		Object.values(Resource).forEach(resource => {

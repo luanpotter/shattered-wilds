@@ -89,7 +89,7 @@ export const ConsumeResourceModal: React.FC<ConsumeResourceModalProps> = ({ char
 								<div
 									style={{
 										fontWeight: 'bold',
-										color: insufficient ? 'var(--error-color, #ff6b6b)' : 'var(--text)',
+										color: insufficient ? 'var(--error-color)' : 'var(--text)',
 									}}
 								>
 									{displayName}
@@ -115,7 +115,7 @@ export const ConsumeResourceModal: React.FC<ConsumeResourceModalProps> = ({ char
 										minWidth: '40px',
 										textAlign: 'center',
 										fontWeight: 'bold',
-										color: insufficient ? 'var(--error-color, #ff6b6b)' : 'var(--text)',
+										color: insufficient ? 'var(--error-color)' : 'var(--text)',
 									}}
 								>
 									{cost.adjustedAmount}

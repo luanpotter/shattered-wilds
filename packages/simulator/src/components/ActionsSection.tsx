@@ -566,7 +566,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 										<div
 											key={e.value}
 											style={{
-												color: e.insufficient ? 'var(--error-color, #ff6b6b)' : 'inherit',
+												color: e.insufficient ? 'var(--error-color)' : 'inherit',
 											}}
 										>
 											{e.value}
