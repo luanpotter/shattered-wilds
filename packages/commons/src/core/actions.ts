@@ -221,6 +221,11 @@ export const ACTIONS = {
 					value: Bonus.of(-3),
 				}),
 			}),
+			new ActionCheckParameter({
+				mode: CheckMode.Static,
+				nature: CheckNature.Resisted,
+				statType: StatType.Stance,
+			}),
 			new ActionValueParameter({
 				name: 'Distance',
 				unit: ActionValueUnit.Hex,
