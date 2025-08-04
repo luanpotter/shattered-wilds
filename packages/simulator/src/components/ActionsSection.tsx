@@ -337,7 +337,6 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 				};
 			}
 			case ActionType.Defense: {
-				const realms = StatType.childrenOf(StatType.Level);
 				const shields = sheet.equipment.items.filter(item => item instanceof Shield) as Shield[];
 				return {
 					Header: (
@@ -345,7 +344,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 							<LabeledDropdown
 								label='Realm'
 								value={selectedDefenseRealm}
-								options={realms}
+								options={StatType.realms}
 								describe={realm => realm.name}
 								onChange={realm => setSelectedDefenseRealm(realm)}
 							/>

@@ -524,4 +524,16 @@ On top of these types of actions, the different Skills can still be used for oth
 	static childrenOf(stat: StatType): StatType[] {
 		return StatType.values.filter(child => child.parent?.name === stat.name);
 	}
+
+	static get realms(): StatType[] {
+		return StatType.values.filter(stat => stat.hierarchy === StatHierarchy.Realm);
+	}
+
+	static get attributes(): StatType[] {
+		return StatType.values.filter(stat => stat.hierarchy === StatHierarchy.Attribute);
+	}
+
+	static get skills(): StatType[] {
+		return StatType.values.filter(stat => stat.hierarchy === StatHierarchy.Skill);
+	}
 }

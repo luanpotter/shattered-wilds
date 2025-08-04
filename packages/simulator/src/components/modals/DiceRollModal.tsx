@@ -5,46 +5,9 @@ import { FaCheck, FaTimes } from 'react-icons/fa';
 
 import { useStore } from '../../store';
 import { CharacterSheet, StatType } from '../../types';
-import DropdownSelect from '../DropdownSelect';
 import { Button } from '../shared/Button';
 import LabeledDropdown from '../shared/LabeledDropdown';
-
-// Define the skills directly from AttributeType
-const SKILL_OPTIONS = {
-	Muscles: StatType.Muscles.name,
-	Stance: StatType.Stance.name,
-	Lift: StatType.Lift.name,
-	Finesse: StatType.Finesse.name,
-	Evasiveness: StatType.Evasiveness.name,
-	Agility: StatType.Agility.name,
-	Toughness: StatType.Toughness.name,
-	Stamina: StatType.Stamina.name,
-	Resilience: StatType.Resilience.name,
-	IQ: StatType.IQ.name,
-	Knowledge: StatType.Knowledge.name,
-	Memory: StatType.Memory.name,
-	Perception: StatType.Perception.name,
-	Awareness: StatType.Awareness.name,
-	Intuition: StatType.Intuition.name,
-	Speechcraft: StatType.Speechcraft.name,
-	Presence: StatType.Presence.name,
-	Empathy: StatType.Empathy.name,
-	Revelation: StatType.Revelation.name,
-	Attunement: StatType.Attunement.name,
-	Devotion: StatType.Devotion.name,
-	Discipline: StatType.Discipline.name,
-	Tenacity: StatType.Tenacity.name,
-	Resolve: StatType.Resolve.name,
-	Karma: StatType.Karma.name,
-	Fortune: StatType.Fortune.name,
-	Serendipity: StatType.Serendipity.name,
-} as const;
-
-type SkillType = keyof typeof SKILL_OPTIONS;
-
-const getAttributeType = (skill: SkillType): StatType => {
-	return StatType[skill];
-};
+import LabeledInput from '../shared/LabeledInput';
 
 export interface DiceRollModalProps {
 	characterId: string;
@@ -128,7 +91,7 @@ const DiceRollModalContent: React.FC<{
 	const [dc, setDc] = useState<number | null>(initialTargetDC ?? null);
 	const [useExtra, setUseExtra] = useState(false);
 	const [useLuck, setUseLuck] = useState(false);
-	const [extraSkill, setExtraSkill] = useState<SkillType>('Muscles');
+	const [extraSkill, setExtraSkill] = useState<StatType>(StatType.STR);
 	const [rollResults, setRollResults] = useState<RollResults | null>(null);
 
 	const updateResults = (newCheckType?: CheckType, newDc?: number | null) => {
@@ -179,8 +142,8 @@ const DiceRollModalContent: React.FC<{
 		updateResults(newType);
 	};
 
-	const handleDcChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const newDc = e.target.value ? parseInt(e.target.value) : null;
+	const handleDcInputChange = (value: string) => {
+		const newDc = value ? parseInt(value) : null;
 		setDc(newDc);
 		updateResults(undefined, newDc);
 	};
@@ -210,15 +173,13 @@ const DiceRollModalContent: React.FC<{
 		// Roll extra die if enabled
 		if (useExtra) {
 			extraResult = rollD12();
-			// Get actual skill value from character sheet
-			const extraSkillValue = tree.valueOf(getAttributeType(extraSkill));
+			const extraSkillValue = tree.valueOf(extraSkill);
 			extraValid = extraResult <= extraSkillValue.value;
 		}
 
 		// Roll luck die if enabled
 		if (useLuck) {
 			luckResult = rollD12();
-			// Get actual Fortune value from character sheet
 			const fortuneValue = tree.valueOf(StatType.Fortune);
 			luckValid = luckResult <= fortuneValue.value;
 		}
@@ -418,23 +379,7 @@ const DiceRollModalContent: React.FC<{
 
 					{showTargetDC(checkType) && (
 						<div style={{ flex: 1 }}>
-							<label htmlFor='dc' style={{ display: 'block', marginBottom: '4px' }}>
-								DC:
-							</label>
-							<input
-								id='dc'
-								type='number'
-								value={dc || ''}
-								onChange={handleDcChange}
-								style={{
-									width: '100%',
-									padding: '4px',
-									border: '1px solid var(--text)',
-									borderRadius: '4px',
-									backgroundColor: 'var(--background)',
-									color: 'var(--text)',
-								}}
-							/>
+							<LabeledInput label='DC' value={dc?.toString() || ''} onChange={handleDcInputChange} />
 						</div>
 					)}
 				</div>
@@ -452,7 +397,7 @@ const DiceRollModalContent: React.FC<{
 								rollResults.extraValid && rollResults.selectedDice.includes(rollResults.extraResult),
 							)}
 							<div style={{ textAlign: 'center', fontSize: '12px', marginTop: '4px' }}>
-								Extra ({tree?.valueOf(getAttributeType(extraSkill))?.value ?? 0})
+								Extra ({tree.valueOf(extraSkill).value})
 							</div>
 						</div>
 					)}
@@ -583,23 +528,7 @@ const DiceRollModalContent: React.FC<{
 
 				{showTargetDC(checkType) && (
 					<div style={{ flex: 1 }}>
-						<label htmlFor='dc' style={{ display: 'block', marginBottom: '4px' }}>
-							DC:
-						</label>
-						<input
-							id='dc'
-							type='number'
-							value={dc || ''}
-							onChange={handleDcChange}
-							style={{
-								width: '100%',
-								padding: '4px',
-								border: '1px solid var(--text)',
-								borderRadius: '4px',
-								backgroundColor: 'var(--background)',
-								color: 'var(--text)',
-							}}
-						/>
+						<LabeledInput label='DC' value={dc?.toString() || ''} onChange={handleDcInputChange} />
 					</div>
 				)}
 			</div>
@@ -640,11 +569,11 @@ const DiceRollModalContent: React.FC<{
 					</label>
 					{useExtra && (
 						<div style={{ marginTop: '4px', marginLeft: '24px' }}>
-							<DropdownSelect
-								id='extra-skill'
-								options={SKILL_OPTIONS}
+							<LabeledDropdown
+								options={StatType.attributes}
+								describe={stat => stat.name}
 								value={extraSkill}
-								onChange={(value: string) => setExtraSkill(value as SkillType)}
+								onChange={(value: StatType) => setExtraSkill(value)}
 								label='Skill'
 							/>
 						</div>
