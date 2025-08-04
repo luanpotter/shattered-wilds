@@ -74,7 +74,7 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({
 						onClick={handleExpandCharacterList}
 						icon={FaExpand}
 						tooltip='Open full character sheets page'
-						type='inline'
+						variant='inline'
 					/>
 				);
 			case 'character-sheet':
@@ -85,13 +85,13 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({
 								onClick={() => handleCopyCharacterSheet(modal.characterId!)}
 								icon={FaCopy}
 								tooltip='Copy character sheet'
-								type='inline'
+								variant='inline'
 							/>
 							<Button
 								onClick={() => handleExpandCharacterSheet(modal.characterId!)}
 								icon={FaExpand}
 								tooltip='Open character sheet full page'
-								type='inline'
+								variant='inline'
 							/>
 						</>
 					);

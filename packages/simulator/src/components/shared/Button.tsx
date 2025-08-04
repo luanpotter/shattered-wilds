@@ -3,7 +3,7 @@ import { IconType } from 'react-icons';
 import { FaExclamationTriangle } from 'react-icons/fa';
 
 interface ButtonProps {
-	type?: 'normal' | 'inline' | 'inline-full';
+	variant?: 'normal' | 'inline' | 'inline-full';
 	icon?: IconType;
 	title?: string;
 	tooltip?: string;
@@ -12,7 +12,15 @@ interface ButtonProps {
 	disabled?: boolean;
 }
 
-export const Button: React.FC<ButtonProps> = ({ type, icon: Icon, title, tooltip, onClick, warning, disabled }) => {
+export const Button: React.FC<ButtonProps> = ({
+	variant: type,
+	icon: Icon,
+	title,
+	tooltip,
+	onClick,
+	warning,
+	disabled,
+}) => {
 	if (!title && !Icon) {
 		throw new Error('Button requires either title or icon prop');
 	}

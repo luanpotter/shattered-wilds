@@ -1,4 +1,4 @@
-import { DerivedStatType, FeatType, Resource } from '@shattered-wilds/commons';
+import { Check, CheckMode, CheckNature, DerivedStatType, FeatType, Resource } from '@shattered-wilds/commons';
 import React, { useMemo } from 'react';
 import { FaArrowLeft, FaBatteryFull, FaCog, FaCopy, FaExclamationTriangle } from 'react-icons/fa';
 
@@ -40,13 +40,14 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 	const editMode = useStore(state => state.editMode);
 
 	const modals = useStore(state => state.modals);
-	const { openRaceSetupModal, openClassSetupModal, openFeatsSetupModal } = useModals();
+	const { openDiceRollModal, openRaceSetupModal, openClassSetupModal, openFeatsSetupModal } = useModals();
 
 	// Create a reactive sheet that updates when character props change
 	const sheet = useMemo(() => CharacterSheet.from(character.props), [character]);
 	const statTree = useMemo(() => sheet.getStatTree(), [sheet]);
-	const movement = useMemo(() => statTree.computeDerivedStat(DerivedStatType.Movement), [statTree]);
-	const initiative = useMemo(() => statTree.computeDerivedStat(DerivedStatType.Initiative), [statTree]);
+	const movement = useMemo(() => statTree.getModifier(DerivedStatType.Movement), [statTree]);
+	const initiative = useMemo(() => statTree.getModifier(DerivedStatType.Initiative), [statTree]);
+	const influenceRange = useMemo(() => statTree.getModifier(DerivedStatType.InfluenceRange), [statTree]);
 
 	// Show error message if character not found
 	if (!character || !sheet) {
@@ -256,6 +257,14 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 		);
 	};
 
+	const Row = ({ children }: { children: React.ReactNode }) => {
+		return <div style={{ display: 'flex' }}>{children}</div>;
+	};
+
+	const Column = ({ children }: { children: React.ReactNode }) => {
+		return <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>{children}</div>;
+	};
+
 	return (
 		<div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 			<main
@@ -290,23 +299,9 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 						<Button onClick={handleCopyCharacterSheet} icon={FaCopy} title='Export' />
 					</div>
 				</div>
-				<div
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						gap: '1rem',
-					}}
-				>
+				<Column>
 					<Block>
-						<div
-							style={{
-								display: 'grid',
-								gridTemplateColumns: '2fr 1fr 1fr',
-								gap: '1rem',
-								alignItems: 'end',
-								marginBottom: '1rem',
-							}}
-						>
+						<Row>
 							<LabeledInput
 								label='Name'
 								value={character.props.name}
@@ -325,31 +320,43 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 								disabled={!editMode}
 								onClick={editMode ? handleOpenClassSetup : undefined}
 							/>
-						</div>
-						<div
-							style={{
-								display: 'grid',
-								gridTemplateColumns: '80px 100px 80px repeat(auto-fit, minmax(80px, 1fr))',
-								gap: '1rem',
-								marginBottom: '1rem',
-							}}
-						>
+						</Row>
+						<Row>
 							{/* Derived Stats */}
 							<LabeledInput label='Size' value={sheet.size} disabled={true} tooltip={sheet.size} />
 							<LabeledInput
 								label='Movement'
-								value={movement.value.toString()}
+								value={movement.value.description}
+								tooltip={movement.description}
 								disabled={true}
-								tooltip={movement.tooltip}
 							/>
 							<LabeledInput
 								label='Initiative'
-								value={initiative.value.toString()}
+								value={initiative.value.description}
+								tooltip={initiative.description}
 								disabled={true}
-								tooltip={initiative.tooltip}
+								onClick={() => {
+									openDiceRollModal({
+										characterId: character.id,
+										check: new Check({
+											mode: CheckMode.Contested,
+											nature: CheckNature.Resisted,
+											statModifier: initiative,
+										}),
+										title: `Roll Initiative Check`,
+									});
+								}}
 							/>
+							<LabeledInput
+								label='Influence Range'
+								value={influenceRange.value.description}
+								tooltip={influenceRange.description}
+								disabled={true}
+							/>
+						</Row>
 
-							{/* Resource Points */}
+						{/* Resource Points */}
+						<Row>
 							{Object.values(Resource).map(resource => (
 								<ResourceInputComponent key={resource} character={character} sheet={sheet} resource={resource} />
 							))}
@@ -357,7 +364,7 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 							<div style={{ display: 'flex', alignItems: 'end', marginBottom: '0.75rem' }}>
 								<Button onClick={handleRefillPoints} icon={FaBatteryFull} title='Refill All' />
 							</div>
-						</div>
+						</Row>
 					</Block>
 
 					<Block>
@@ -376,7 +383,7 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 						editMode={editMode}
 					/>
 					<ActionsSection character={character} />
-				</div>
+				</Column>
 			</main>
 		</div>
 	);

@@ -142,7 +142,7 @@ export const ModalWrapper: React.FC<ModalWrapperProps> = ({ modal, children, onS
 					<span>{modal.title}</span>
 					<div style={{ display: 'flex', gap: '4px' }}>
 						{titleBarButtons}
-						<Button onClick={handleClose} icon={FaTimes} tooltip='Close' type='inline' />
+						<Button onClick={handleClose} icon={FaTimes} tooltip='Close' variant='inline' />
 					</div>
 				</div>
 				<div

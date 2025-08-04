@@ -97,7 +97,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ character, o
 									style={commonInputStyle}
 									placeholder='Item name'
 								/>
-								<Button onClick={() => handleRemoveItem(idx)} icon={FaTrash} tooltip='Remove item' type='inline' />
+								<Button onClick={() => handleRemoveItem(idx)} icon={FaTrash} tooltip='Remove item' variant='inline' />
 							</>
 						) : (
 							<span style={commonLabelStyle}>{item.description}</span>

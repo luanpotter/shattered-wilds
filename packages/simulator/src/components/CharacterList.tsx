@@ -96,7 +96,7 @@ export const CharacterList: React.FC = () => {
 				>
 					<p style={{ margin: '0 0 6px 0' }}>{importError}</p>
 					<div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-						<Button onClick={() => setImportError(null)} title='Dismiss' type='inline' />
+						<Button onClick={() => setImportError(null)} title='Dismiss' variant='inline' />
 					</div>
 				</div>
 			)}
@@ -114,8 +114,8 @@ export const CharacterList: React.FC = () => {
 				>
 					<p style={{ margin: '0 0 6px 0' }}>Delete {characters.find(c => c.id === confirmDelete)?.props.name}?</p>
 					<div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
-						<Button onClick={handleCancelDelete} title='Cancel' type='inline' />
-						<Button onClick={handleConfirmDelete} title='Delete' type='inline' />
+						<Button onClick={handleCancelDelete} title='Cancel' variant='inline' />
+						<Button onClick={handleConfirmDelete} title='Delete' variant='inline' />
 					</div>
 				</div>
 			)}
@@ -124,9 +124,9 @@ export const CharacterList: React.FC = () => {
 					onClick={() => void handleImportFromClipboard()}
 					icon={FaClipboard}
 					title='Import Character'
-					type='inline'
+					variant='inline'
 				/>
-				<Button onClick={handleOpenNewCharacterModal} icon={FaPlus} title='New Character' type='inline' />
+				<Button onClick={handleOpenNewCharacterModal} icon={FaPlus} title='New Character' variant='inline' />
 			</div>
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.9em' }}>
 				{characters.map(character => (
@@ -143,8 +143,13 @@ export const CharacterList: React.FC = () => {
 					>
 						<span>{character.props.name}</span>
 						<div style={{ display: 'flex', gap: '4px' }}>
-							<Button onClick={() => handleOpenCharacterSheet(character)} icon={FaEdit} title='Edit' type='inline' />
-							<Button onClick={() => handleRequestDelete(character.id)} icon={FaTrash} title='Delete' type='inline' />
+							<Button onClick={() => handleOpenCharacterSheet(character)} icon={FaEdit} title='Edit' variant='inline' />
+							<Button
+								onClick={() => handleRequestDelete(character.id)}
+								icon={FaTrash}
+								title='Delete'
+								variant='inline'
+							/>
 						</div>
 					</div>
 				))}

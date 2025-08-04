@@ -16,7 +16,7 @@ describe('StatTree', () => {
 				expect(node.canDeallocatePoint).toBe(false);
 				expect(node.hasUnallocatedPoints).toBe(false);
 
-				const modifier = tree.getModifier(stat);
+				const modifier = tree.getStatTypeModifier(stat);
 				expect(modifier.parentValue.value).toBe(0);
 				expect(modifier.selfValue.value).toBe(0);
 				expect(modifier.baseValue.value).toBe(0);
@@ -40,7 +40,7 @@ describe('StatTree', () => {
 			expect(levelNode.canDeallocatePoint).toBe(true);
 			expect(levelNode.hasUnallocatedPoints).toBe(false);
 
-			const levelModifier = tree.getModifier(StatType.Level);
+			const levelModifier = tree.getStatTypeModifier(StatType.Level);
 			expect(levelModifier.parentValue.value).toBe(0);
 			expect(levelModifier.selfValue.value).toBe(1);
 			expect(levelModifier.baseValue.value).toBe(1);
@@ -57,7 +57,7 @@ describe('StatTree', () => {
 				expect(node.canDeallocatePoint).toBe(false);
 				expect(node.hasUnallocatedPoints).toBe(false);
 
-				const modifier = tree.getModifier(stat);
+				const modifier = tree.getStatTypeModifier(stat);
 				expect(modifier.parentValue.value).toBe(1);
 				expect(modifier.selfValue.value).toBe(0);
 				expect(modifier.baseValue.value).toBe(1);
@@ -112,7 +112,7 @@ describe('StatTree', () => {
 		expect(bodyNode.canDeallocatePoint).toBe(true);
 		expect(bodyNode.hasUnallocatedPoints).toBe(false);
 
-		const bodyModifier = tree.getModifier(StatType.Body);
+		const bodyModifier = tree.getStatTypeModifier(StatType.Body);
 		expect(bodyModifier.parentValue.value).toBe(1);
 		expect(bodyModifier.selfValue.value).toBe(1);
 		expect(bodyModifier.baseValue.value).toBe(2);
@@ -121,7 +121,7 @@ describe('StatTree', () => {
 
 		const strNode = tree.getNode(StatType.STR);
 		expect(strNode.points).toBe(0);
-		const strModifier = tree.getModifier(StatType.STR);
+		const strModifier = tree.getStatTypeModifier(StatType.STR);
 		expect(strModifier.parentValue.value).toBe(2);
 		expect(strModifier.selfValue.value).toBe(0);
 		expect(strModifier.baseValue.value).toBe(2);
@@ -130,7 +130,7 @@ describe('StatTree', () => {
 
 		const mindNode = tree.getNode(StatType.Mind);
 		expect(mindNode.points).toBe(0);
-		const mindModifier = tree.getModifier(StatType.Mind);
+		const mindModifier = tree.getStatTypeModifier(StatType.Mind);
 		expect(mindModifier.parentValue.value).toBe(1);
 		expect(mindModifier.selfValue.value).toBe(0);
 		expect(mindModifier.baseValue.value).toBe(1);
@@ -164,7 +164,7 @@ describe('StatTree', () => {
 		expect(bodyNode.canDeallocatePoint).toBe(true);
 		expect(bodyNode.hasUnallocatedPoints).toBe(false);
 
-		const bodyModifier = tree.getModifier(StatType.Body);
+		const bodyModifier = tree.getStatTypeModifier(StatType.Body);
 		expect(bodyModifier.parentValue.value).toBe(1);
 		expect(bodyModifier.selfValue.value).toBe(1);
 		expect(bodyModifier.baseValue.value).toBe(2);
@@ -187,7 +187,7 @@ describe('StatTree', () => {
 		expect(mindNode.canChildrenAllocatePoint).toBe(false);
 		expect(mindNode.canDeallocatePoint).toBe(true);
 
-		const mindModifier = tree.getModifier(StatType.Mind);
+		const mindModifier = tree.getStatTypeModifier(StatType.Mind);
 		expect(mindModifier.parentValue.value).toBe(1);
 		expect(mindModifier.selfValue.value).toBe(1);
 		expect(mindModifier.baseValue.value).toBe(2);
@@ -211,7 +211,7 @@ describe('StatTree', () => {
 		expect(soulNode.canDeallocatePoint).toBe(false);
 		expect(soulNode.hasUnallocatedPoints).toBe(false);
 
-		const soulModifier = tree.getModifier(StatType.Soul);
+		const soulModifier = tree.getStatTypeModifier(StatType.Soul);
 		expect(soulModifier.parentValue.value).toBe(1);
 		expect(soulModifier.selfValue.value).toBe(0);
 		expect(soulModifier.baseValue.value).toBe(1);
@@ -253,7 +253,7 @@ describe('StatTree', () => {
 		expect(bodyNode.canDeallocatePoint).toBe(false);
 		expect(bodyNode.hasUnallocatedPoints).toBe(false);
 
-		const bodyModifier = tree.getModifier(StatType.Body);
+		const bodyModifier = tree.getStatTypeModifier(StatType.Body);
 		expect(bodyModifier.parentValue.value).toBe(1);
 		expect(bodyModifier.selfValue.value).toBe(1);
 		expect(bodyModifier.baseValue.value).toBe(2);
@@ -262,7 +262,7 @@ describe('StatTree', () => {
 
 		const strNode = tree.getNode(StatType.STR);
 		expect(strNode.points).toBe(0);
-		const strModifier = tree.getModifier(StatType.STR);
+		const strModifier = tree.getStatTypeModifier(StatType.STR);
 		expect(strModifier.parentValue.value).toBe(2);
 		expect(strModifier.selfValue.value).toBe(0);
 		expect(strModifier.baseValue.value).toBe(2);
@@ -279,7 +279,7 @@ describe('StatTree', () => {
 
 		const mindNode = tree.getNode(StatType.Mind);
 		expect(mindNode.points).toBe(0);
-		const mindModifier = tree.getModifier(StatType.Mind);
+		const mindModifier = tree.getStatTypeModifier(StatType.Mind);
 		expect(mindModifier.parentValue.value).toBe(1);
 		expect(mindModifier.selfValue.value).toBe(0);
 		expect(mindModifier.baseValue.value).toBe(1);

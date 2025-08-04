@@ -1,14 +1,15 @@
-import { Check, CheckMode, CheckNature, DerivedStatType, Resource, RESOURCES } from '@shattered-wilds/commons';
+import { DerivedStatType, Resource, RESOURCES } from '@shattered-wilds/commons';
 import React, { useEffect, useMemo } from 'react';
 import { FaBatteryFull, FaCog, FaMinus, FaPlus } from 'react-icons/fa';
 
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
-import { Character, CharacterSheet, CurrentResources, DefenseType, Equipment } from '../types';
+import { Character, CharacterSheet, CurrentResources, Equipment } from '../types';
 import { FeatsSection } from '../types/feats-section';
 
 import { EquipmentSection } from './EquipmentSection';
 import { Button } from './shared/Button';
+import LabeledInput from './shared/LabeledInput';
 import { StatTreeToggleComponent } from './stat-tree/StatTreeToggleComponent';
 
 interface CharacterSheetModalProps {
@@ -21,18 +22,9 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 	const updateCharacterAutomaticMode = useStore(state => state.updateCharacterAutomaticMode);
 	const editMode = useStore(state => state.editMode);
 	const modals = useStore(state => state.modals);
-	const {
-		updateModal,
-		openRaceSetupModal,
-		openClassSetupModal,
-		openFeatsSetupModal,
-		openBasicAttacksModal,
-		openDiceRollModal,
-	} = useModals();
+	const { updateModal, openRaceSetupModal, openClassSetupModal, openFeatsSetupModal } = useModals();
 
-	// Update modal title when character name changes
 	useEffect(() => {
-		// Find the modal for this character
 		const characterModal = modals.find(modal => modal.type === 'character-sheet' && modal.characterId === character.id);
 
 		if (characterModal) {
@@ -65,46 +57,6 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 
 	const handleOpenFeatsSetup = () => {
 		openFeatsSetupModal({ characterId: character.id });
-	};
-
-	const handleOpenBasicAttacks = () => {
-		openBasicAttacksModal({ characterId: character.id });
-	};
-
-	const handleBasicAttackClick = () => {
-		if (editMode) {
-			handleOpenBasicAttacks();
-		} else {
-			// In play mode, behavior depends on number of attacks
-			if (basicAttacks.length === 1) {
-				// Only one attack - roll dice directly
-				const attack = basicAttacks[0];
-				openDiceRollModal({
-					characterId: character.id,
-					check: attack.check,
-					title: `Roll ${attack.name} Attack`,
-				});
-			} else if (basicAttacks.length > 1) {
-				// Multiple attacks - show Basic Attacks modal for selection
-				handleOpenBasicAttacks();
-			}
-			// If no attacks (basicAttacks.length === 0), do nothing
-		}
-	};
-
-	const handleBasicDefenseClick = () => {
-		if (!editMode) {
-			// In play mode, roll a defense check
-			openDiceRollModal({
-				characterId: character.id,
-				check: new Check({
-					mode: CheckMode.Contested,
-					nature: CheckNature.Resisted,
-					statModifier: basicDefense,
-				}),
-				title: `Roll Defense Check`,
-			});
-		}
 	};
 
 	const handlePointChange = (resource: Resource, delta: number) => {
@@ -156,18 +108,14 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 		gap: '4px', // Maintain consistent gap
 	};
 
-	// Create a reactive sheet that updates when character props change
 	const sheet = useMemo(() => CharacterSheet.from(character.props), [character.props]);
 
 	const { hasWarnings } = FeatsSection.create(sheet);
 
-	// Create reactive basic attacks and defense that update when sheet changes
-	const basicAttacks = useMemo(() => sheet.getBasicAttacks(), [sheet]);
-	const basicDefense = useMemo(() => sheet.getBasicDefense(DefenseType.BasicBody), [sheet]);
-
 	const statTree = useMemo(() => sheet.getStatTree(), [sheet]);
 	const movement = useMemo(() => statTree.computeDerivedStat(DerivedStatType.Movement), [statTree]);
 	const initiative = useMemo(() => statTree.computeDerivedStat(DerivedStatType.Initiative), [statTree]);
+	const influenceRange = useMemo(() => statTree.computeDerivedStat(DerivedStatType.InfluenceRange), [statTree]);
 
 	return (
 		<div style={{ margin: 0, padding: 0, width: '100%', height: '100%', overflowY: 'scroll' }}>
@@ -249,7 +197,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 
 						<div style={{ ...halfRowStyle, flex: '0 0 auto', minWidth: '120px' }}>
 							<Button
-								type='inline-full'
+								variant='inline-full'
 								title='Feats'
 								icon={FaCog}
 								onClick={handleOpenFeatsSetup}
@@ -261,137 +209,29 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 
 				{/* Derived Stats Section */}
 				<div style={{ marginTop: '8px' }}>
-					<div style={{ display: 'flex', gap: '8px' }}>
-						{/* Size */}
-						<div style={{ ...halfRowStyle, flex: 1 }}>
-							<label htmlFor='character-size' style={labelStyle}>
-								Size:
-							</label>
-							<div
-								id='character-size'
-								title={sheet.size}
-								style={{
-									...inputStyle,
-									display: 'flex',
-									alignItems: 'center',
-									backgroundColor: 'var(--background)',
-									cursor: 'help',
-								}}
-							>
-								{sheet.size}
-							</div>
-						</div>
-
-						{/* Movement */}
-						<div style={{ ...halfRowStyle, flex: 1 }}>
-							<label htmlFor='character-movement' style={labelStyle}>
-								Movement:
-							</label>
-							<div
-								id='character-movement'
-								title={movement.tooltip}
-								style={{
-									...inputStyle,
-									display: 'flex',
-									alignItems: 'center',
-									backgroundColor: 'var(--background)',
-									cursor: 'help',
-								}}
-							>
-								{movement.value}
-							</div>
-						</div>
-
-						{/* Initiative */}
-						<div style={{ ...halfRowStyle, flex: 1 }}>
-							<label htmlFor='character-initiative' style={labelStyle}>
-								Initiative:
-							</label>
-							<div
-								id='character-initiative'
-								title={initiative.tooltip}
-								style={{
-									...inputStyle,
-									display: 'flex',
-									alignItems: 'center',
-									backgroundColor: 'var(--background)',
-									cursor: 'help',
-								}}
-							>
-								{initiative.value}
-							</div>
-						</div>
-					</div>
-
-					{/* Combat Stats Row */}
-					<div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-						{/* Basic Attacks */}
-						<div style={{ ...halfRowStyle, flex: 1 }}>
-							<label htmlFor='character-attacks' style={labelStyle}>
-								Basic Attacks:
-							</label>
-							<div
-								id='character-attacks'
-								title={basicAttacks.map(attack => attack.description).join(' / ')}
-								onClick={e => {
-									e.preventDefault();
-									handleBasicAttackClick();
-								}}
-								onKeyDown={e => {
-									if (e.key === 'Enter' || e.key === ' ') {
-										handleBasicAttackClick();
-									}
-								}}
-								tabIndex={0}
-								role='button'
-								aria-label={editMode ? 'Show basic attacks details' : 'Roll basic attack'}
-								style={{
-									...inputStyle,
-									display: 'flex',
-									alignItems: 'center',
-									backgroundColor: 'var(--background)',
-									cursor: 'pointer',
-									whiteSpace: 'nowrap',
-									overflow: 'hidden',
-									textOverflow: 'ellipsis',
-								}}
-							>
-								{basicAttacks.map(attack => attack.description).join(' / ')}
-							</div>
-						</div>
-
-						{/* Basic Defense */}
-						<div style={{ ...halfRowStyle, flex: 1 }}>
-							<label htmlFor='character-defense' style={labelStyle}>
-								Basic Defense:
-							</label>
-							<div
-								id='character-defense'
-								title={basicDefense.description}
-								onClick={e => {
-									e.preventDefault();
-									handleBasicDefenseClick();
-								}}
-								onKeyDown={e => {
-									if (e.key === 'Enter' || e.key === ' ') {
-										e.preventDefault();
-										handleBasicDefenseClick();
-									}
-								}}
-								tabIndex={editMode ? -1 : 0}
-								role={editMode ? undefined : 'button'}
-								aria-label={editMode ? undefined : 'Roll defense check'}
-								style={{
-									...inputStyle,
-									display: 'flex',
-									alignItems: 'center',
-									backgroundColor: 'var(--background)',
-									cursor: editMode ? 'help' : 'pointer',
-								}}
-							>
-								{basicDefense.value.description}
-							</div>
-						</div>
+					<div style={{ display: 'flex', gap: '8px', justifyContent: 'stretch' }}>
+						<LabeledInput variant='inline' label='Size' value={sheet.size} disabled />
+						<LabeledInput
+							variant='inline'
+							label='Movement'
+							value={movement.value.toString()}
+							tooltip={movement.tooltip}
+							disabled
+						/>
+						<LabeledInput
+							variant='inline'
+							label='Initiative'
+							value={initiative.value.toString()}
+							tooltip={initiative.tooltip}
+							disabled
+						/>
+						<LabeledInput
+							variant='inline'
+							label='Influence Range'
+							value={influenceRange.value.toString()}
+							tooltip={influenceRange.tooltip}
+							disabled
+						/>
 					</div>
 
 					{/* Points Row */}
@@ -425,19 +265,19 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 											onClick={() => handlePointChange(resource, -1)}
 											icon={FaMinus}
 											tooltip={`Decrease ${displayName}`}
-											type='inline'
+											variant='inline'
 										/>
 										<Button
 											onClick={() => handlePointChange(resource, 1)}
 											icon={FaPlus}
 											tooltip={`Increase ${displayName}`}
-											type='inline'
+											variant='inline'
 										/>
 									</div>
 								</div>
 							);
 						})}
-						<Button type='inline' title='Refill points' icon={FaBatteryFull} onClick={handleRefillPoints} />
+						<Button variant='inline' title='Refill points' icon={FaBatteryFull} onClick={handleRefillPoints} />
 					</div>
 				</div>
 			</div>

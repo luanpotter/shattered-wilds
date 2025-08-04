@@ -105,7 +105,7 @@ export const ConsumeResourceModal: React.FC<ConsumeResourceModalProps> = ({ char
 										onClick={() => adjustCost(index, -1)}
 										icon={FaMinus}
 										tooltip={`Decrease ${displayName} cost`}
-										type='inline'
+										variant='inline'
 										disabled={cost.adjustedAmount <= 0}
 									/>
 								)}
@@ -126,7 +126,7 @@ export const ConsumeResourceModal: React.FC<ConsumeResourceModalProps> = ({ char
 										onClick={() => adjustCost(index, 1)}
 										icon={FaPlus}
 										tooltip={`Increase ${displayName} cost`}
-										type='inline'
+										variant='inline'
 									/>
 								)}
 							</div>
@@ -136,8 +136,8 @@ export const ConsumeResourceModal: React.FC<ConsumeResourceModalProps> = ({ char
 			</div>
 
 			<div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-				<Button onClick={onClose} icon={FaTimes} title='Cancel' type='inline' />
-				<Button onClick={handleConsume} icon={FaCheck} title='Consume' type='inline' disabled={!canAffordCosts()} />
+				<Button onClick={onClose} icon={FaTimes} title='Cancel' variant='inline' />
+				<Button onClick={handleConsume} icon={FaCheck} title='Consume' variant='inline' disabled={!canAffordCosts()} />
 			</div>
 		</div>
 	);

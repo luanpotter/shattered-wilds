@@ -36,7 +36,7 @@ export const ResourceInputComponent: React.FC<ResourceInputComponentProps> = ({ 
 					onClick={() => handlePointChange(resource, -1)}
 					icon={FaMinus}
 					tooltip={`Decrease ${resource}`}
-					type='inline'
+					variant='inline'
 				/>
 			}
 			suffix={
@@ -44,7 +44,7 @@ export const ResourceInputComponent: React.FC<ResourceInputComponentProps> = ({ 
 					onClick={() => handlePointChange(resource, 1)}
 					icon={FaPlus}
 					tooltip={`Increase ${resource}`}
-					type='inline'
+					variant='inline'
 				/>
 			}
 		/>

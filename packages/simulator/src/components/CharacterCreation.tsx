@@ -89,8 +89,8 @@ export const CharacterCreationModal: React.FC<CharacterCreationModalProps> = ({ 
 				/>
 			</div>
 			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px' }}>
-				<Button onClick={handleCancel} title='Cancel' type='inline' />
-				<Button onClick={handleCreateCharacter} title='Create' type='inline' />
+				<Button onClick={handleCancel} title='Cancel' variant='inline' />
+				<Button onClick={handleCreateCharacter} title='Create' variant='inline' />
 			</div>
 		</div>
 	);

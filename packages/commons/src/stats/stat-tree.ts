@@ -120,18 +120,37 @@ export class StatTree {
 		return node;
 	}
 
-	getModifier(stat: StatType, cms: CircumstanceModifier[] = []): StatModifier {
+	getModifier(stat: StatType | DerivedStatType, cms: CircumstanceModifier[] = []): StatModifier {
+		if (stat instanceof StatType) {
+			return this.getStatTypeModifier(stat, cms);
+		}
+		return this.getDerivedStatModifier(stat, cms);
+	}
+
+	getStatTypeModifier(stat: StatType, cms: CircumstanceModifier[] = []): NodeStatModifier {
 		const node = this.getNode(stat);
 		return this.getNodeModifier(node, cms);
 	}
 
-	getNodeModifier(node: StatNode, cms: CircumstanceModifier[] = []): StatModifier {
+	getDerivedStatModifier(stat: DerivedStatType, cms: CircumstanceModifier[] = []): StatModifier {
+		const { value, tooltip } = this.computeDerivedStat(stat);
+		const bonus = Bonus.of(value);
+		return new StatModifier({
+			statType: stat,
+			baseValue: bonus,
+			appliedModifiers: cms,
+			value: Bonus.add([bonus, ...cms.map(mod => mod.value)]),
+			overrideDescription: tooltip,
+		});
+	}
+
+	getNodeModifier(node: StatNode, cms: CircumstanceModifier[] = []): NodeStatModifier {
 		const parentValue = this.getParentModifier(node);
 		const selfValue = this.getSelfModifier(node);
 		const baseValue = Bonus.add([selfValue, parentValue]);
 		const appliedModifiers = [...this.getApplicableModifiers(node.type), ...cms];
 		const value = Bonus.add([baseValue, ...appliedModifiers.map(mod => mod.value)]);
-		return new StatModifier({
+		return new NodeStatModifier({
 			statType: node.type,
 			parentValue,
 			selfValue,
@@ -254,12 +273,70 @@ export class StatNode {
 }
 
 export class StatModifier {
-	statType: StatType;
-	parentValue: Bonus;
-	selfValue: Bonus;
+	statType: StatType | DerivedStatType;
 	baseValue: Bonus;
 	appliedModifiers: CircumstanceModifier[];
 	value: Bonus;
+	overrideDescription: string | undefined;
+
+	constructor({
+		statType,
+		baseValue,
+		appliedModifiers,
+		value,
+		overrideDescription,
+	}: {
+		statType: StatType | DerivedStatType;
+		baseValue: Bonus;
+		appliedModifiers: CircumstanceModifier[];
+		value: Bonus;
+		overrideDescription?: string;
+	}) {
+		this.statType = statType;
+		this.baseValue = baseValue;
+		this.appliedModifiers = appliedModifiers;
+		this.value = value;
+		this.overrideDescription = overrideDescription;
+	}
+
+	get inherentModifier(): Bonus {
+		const inherentModifiers = Bonus.add(
+			this.appliedModifiers.filter(mod => mod instanceof InherentModifier).map(e => e.value),
+		);
+
+		return Bonus.add([this.baseValue, inherentModifiers]);
+	}
+
+	get name(): string {
+		if (this.statType instanceof StatType) {
+			return this.statType.name;
+		}
+		return this.statType;
+	}
+
+	get simpleDescription(): string {
+		return `${this.name} = ${this.value.description}`;
+	}
+
+	get description(): string {
+		if (this.overrideDescription) {
+			return this.overrideDescription;
+		}
+		const breakdown =
+			this.appliedModifiers.length > 0
+				? [
+						`${this.baseValue.description} (${this.statType})`,
+						...this.appliedModifiers.map(mod => `[${mod.description}]`),
+					].join(' + ')
+				: undefined;
+		return `${this.simpleDescription}${breakdown ? ` (${breakdown})` : ''}`;
+	}
+}
+
+export class NodeStatModifier extends StatModifier {
+	override statType: StatType;
+	parentValue: Bonus;
+	selfValue: Bonus;
 
 	constructor({
 		statType,
@@ -276,34 +353,9 @@ export class StatModifier {
 		appliedModifiers: CircumstanceModifier[];
 		value: Bonus;
 	}) {
+		super({ statType, baseValue, appliedModifiers, value });
 		this.statType = statType;
 		this.parentValue = parentValue;
 		this.selfValue = selfValue;
-		this.baseValue = baseValue;
-		this.appliedModifiers = appliedModifiers;
-		this.value = value;
-	}
-
-	get inherentModifier(): Bonus {
-		const inherentModifiers = Bonus.add(
-			this.appliedModifiers.filter(mod => mod instanceof InherentModifier).map(e => e.value),
-		);
-
-		return Bonus.add([this.baseValue, inherentModifiers]);
-	}
-
-	get simpleDescription(): string {
-		return `${this.statType.name} = ${this.value.description}`;
-	}
-
-	get description(): string {
-		const breakdown =
-			this.appliedModifiers.length > 0
-				? [
-						`${this.baseValue.description} (${this.statType})`,
-						...this.appliedModifiers.map(mod => `[${mod.description}]`),
-					].join(' + ')
-				: undefined;
-		return `${this.simpleDescription}${breakdown ? ` (${breakdown})` : ''}`;
 	}
 }
