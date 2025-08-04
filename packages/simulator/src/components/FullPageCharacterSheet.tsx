@@ -1,6 +1,6 @@
-import { DerivedStatType, FeatType, Resource, RESOURCES } from '@shattered-wilds/commons';
+import { DerivedStatType, FeatType, Resource } from '@shattered-wilds/commons';
 import React, { useMemo } from 'react';
-import { FaArrowLeft, FaBatteryFull, FaCog, FaCopy, FaExclamationTriangle, FaMinus, FaPlus } from 'react-icons/fa';
+import { FaArrowLeft, FaBatteryFull, FaCog, FaCopy, FaExclamationTriangle } from 'react-icons/fa';
 
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
@@ -9,6 +9,7 @@ import { FeatsSection } from '../types/feats-section';
 
 import { ActionsSection } from './ActionsSection';
 import { EquipmentSection } from './EquipmentSection';
+import { ResourceInputComponent } from './ResourceInputComponent';
 import Block from './shared/Block';
 import { Button } from './shared/Button';
 import LabeledInput from './shared/LabeledInput';
@@ -91,11 +92,6 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 			</div>
 		);
 	}
-
-	const handlePointChange = (resource: Resource, delta: number) => {
-		const newValue = sheet.updateResource(resource, delta);
-		updateCharacterProp(character, resource, newValue.toString());
-	};
 
 	const handleRefillPoints = () => {
 		Object.values(Resource).forEach(resource => {
@@ -354,35 +350,9 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 							/>
 
 							{/* Resource Points */}
-							{Object.values(Resource).map(resource => {
-								const { max, current } = sheet.getResource(resource);
-								const { name } = RESOURCES[resource];
-
-								return (
-									<LabeledInput
-										key={resource}
-										label={name}
-										value={`${current}/${max}`}
-										disabled={true}
-										prefix={
-											<Button
-												onClick={() => handlePointChange(resource, -1)}
-												icon={FaMinus}
-												tooltip={`Decrease ${resource}`}
-												type='inline'
-											/>
-										}
-										suffix={
-											<Button
-												onClick={() => handlePointChange(resource, 1)}
-												icon={FaPlus}
-												tooltip={`Increase ${resource}`}
-												type='inline'
-											/>
-										}
-									/>
-								);
-							})}
+							{Object.values(Resource).map(resource => (
+								<ResourceInputComponent key={resource} character={character} sheet={sheet} resource={resource} />
+							))}
 
 							<div style={{ display: 'flex', alignItems: 'end', marginBottom: '0.75rem' }}>
 								<Button onClick={handleRefillPoints} icon={FaBatteryFull} title='Refill All' />

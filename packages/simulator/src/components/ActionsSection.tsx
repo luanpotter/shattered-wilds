@@ -18,6 +18,7 @@ import {
 	Shield,
 	ActionDefinition,
 	Trait,
+	Resource,
 } from '@shattered-wilds/commons';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
@@ -26,6 +27,7 @@ import { FaShield } from 'react-icons/fa6';
 import { useModals } from '../hooks/useModals';
 import { Character, CharacterSheet, Weapon, WeaponMode } from '../types';
 
+import { ResourceInputComponent } from './ResourceInputComponent';
 import Block from './shared/Block';
 import LabeledDropdown from './shared/LabeledDropdown';
 import LabeledInput from './shared/LabeledInput';
@@ -112,9 +114,13 @@ interface CheckParameterProps {
 interface TabParameters {
 	selectedWeapon: WeaponModeOption | null;
 	selectedDefenseRealm: StatType | null;
+	selectedShield: Shield | null;
 }
 
-const checkOptions = (statType: StatType | StandardCheck, tabParameters: TabParameters): [StatType, Bonus] => {
+const checkOptions = (
+	statType: StatType | StandardCheck,
+	tabParameters: TabParameters,
+): [StatType, Bonus] | undefined => {
 	if (statType instanceof StatType) {
 		return [statType, Bonus.zero()];
 	}
@@ -130,12 +136,24 @@ const checkOptions = (statType: StatType | StandardCheck, tabParameters: TabPara
 			const realm = tabParameters.selectedDefenseRealm ?? StatType.Body;
 			return [realm, Bonus.zero()];
 		}
+		case StandardCheck.ShieldBlock: {
+			const shield = tabParameters.selectedShield;
+			if (!shield) {
+				return undefined;
+			}
+			return [StatType.Body, shield.bonus];
+		}
 	}
 };
 
 const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, character, tabParameters }) => {
 	const { openDiceRollModal } = useModals();
-	const [statType, bonus] = checkOptions(parameter.statType, tabParameters);
+	const options = checkOptions(parameter.statType, tabParameters);
+	if (!options) {
+		return null;
+	}
+
+	const [statType, bonus] = options;
 	const circumstanceModifiers = [
 		parameter.circumstanceModifier ? parameter.circumstanceModifier : undefined,
 		bonus.isNotZero
@@ -155,6 +173,7 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, ch
 		.join('\n');
 
 	const inherentModifier = statModifier.inherentModifier;
+	const targetDcSuffix = parameter.targetDc ? ` | DC ${parameter.targetDc}` : '';
 	return (
 		<ParameterBox
 			title={`${name} (${inherentModifier.description})`}
@@ -174,16 +193,19 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, ch
 		>
 			{statModifier.value.description}
 			<FaDice size={12} style={{ color: 'var(--text-secondary)' }} />
+			{targetDcSuffix}
 		</ParameterBox>
 	);
 };
 
 export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => {
 	const { openConsumeResourceModal } = useModals();
-	const [selectedWeapon, setSelectedWeapon] = useState<WeaponModeOption | null>(null);
-	const [selectedDefenseRealm, setSelectedDefenseRealm] = useState<StatType | null>(null);
 	const [activeTab, setActiveTab] = useState<ActionType>(ActionType.Movement);
 	const [showAll, setShowAll] = useState(true);
+
+	const [selectedWeapon, setSelectedWeapon] = useState<WeaponModeOption | null>(null);
+	const [selectedShield, setSelectedShield] = useState<Shield | null>(null);
+	const [selectedDefenseRealm, setSelectedDefenseRealm] = useState<StatType | null>(null);
 
 	const sheet = CharacterSheet.from(character.props);
 	const tree = sheet.getStatTree();
@@ -316,18 +338,37 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 			}
 			case ActionType.Defense: {
 				const realms = StatType.childrenOf(StatType.Level);
+				const shields = sheet.equipment.items.filter(item => item instanceof Shield) as Shield[];
 				return {
 					Header: (
-						<LabeledDropdown
-							label='Realm'
-							value={selectedDefenseRealm}
-							options={realms}
-							describe={realm => realm.name}
-							onChange={realm => setSelectedDefenseRealm(realm)}
-						/>
+						<div style={{ marginBottom: '12px', display: 'flex', gap: '8px' }}>
+							<LabeledDropdown
+								label='Realm'
+								value={selectedDefenseRealm}
+								options={realms}
+								describe={realm => realm.name}
+								onChange={realm => setSelectedDefenseRealm(realm)}
+							/>
+							<LabeledDropdown
+								label='Shield'
+								value={selectedShield}
+								options={shields}
+								describe={shield => shield.description}
+								placeholder='Select shield...'
+								onChange={shield => setSelectedShield(shield ?? null)}
+								disabled={!hasShield}
+							/>
+						</div>
 					),
 				};
 			}
+
+			case ActionType.Heroic: {
+				return {
+					Header: <ResourceInputComponent character={character} sheet={sheet} resource={Resource.HeroismPoint} />,
+				};
+			}
+
 			default: {
 				return { Header: undefined };
 			}
@@ -418,7 +459,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 												parameter={parameter}
 												statTree={tree}
 												character={character}
-												tabParameters={{ selectedWeapon, selectedDefenseRealm }}
+												tabParameters={{ selectedWeapon, selectedDefenseRealm, selectedShield }}
 											/>
 										);
 									}

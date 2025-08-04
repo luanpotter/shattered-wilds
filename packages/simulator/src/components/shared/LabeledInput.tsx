@@ -1,13 +1,6 @@
-const LabeledInput = ({
-	label,
-	tooltip,
-	value,
-	disabled = false,
-	onChange,
-	onClick,
-	prefix,
-	suffix,
-}: {
+import React from 'react';
+
+interface LabeledInputProps {
 	label: string;
 	tooltip?: string | undefined;
 	value: string;
@@ -16,6 +9,17 @@ const LabeledInput = ({
 	onClick?: (() => void) | undefined;
 	prefix?: React.ReactNode;
 	suffix?: React.ReactNode;
+}
+
+const LabeledInput: React.FC<LabeledInputProps> = ({
+	label,
+	tooltip,
+	value,
+	disabled = false,
+	onChange,
+	onClick,
+	prefix,
+	suffix,
 }) => {
 	return (
 		<div title={tooltip ?? label}>

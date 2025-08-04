@@ -35,6 +35,7 @@ const LabeledDropdown = <T,>({
 						boxSizing: 'border-box',
 						color: 'var(--text)',
 						fontSize: '0.9em',
+						minWidth: '120px',
 					}}
 					onChange={e => {
 						const value = e.target.value;

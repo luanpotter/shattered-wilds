@@ -412,7 +412,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, () => Item> = {
 		new Shield({
 			name: 'Small Shield',
 			type: ShieldType.SmallShield,
-			bonus: Bonus.of(2),
+			bonus: Bonus.of(3),
 		}),
 	[BasicEquipmentType.LargeShield]: () =>
 		new Shield({

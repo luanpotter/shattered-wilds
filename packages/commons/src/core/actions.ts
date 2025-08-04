@@ -54,6 +54,7 @@ export class ActionValueParameter implements ActionParameter {
 export enum StandardCheck {
 	Attack = 'Attack',
 	Defense = 'Defense',
+	ShieldBlock = 'ShieldBlock',
 }
 
 export class ActionCheckParameter implements ActionParameter {
@@ -496,6 +497,18 @@ export const ACTIONS = {
 		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 	}),
+	[Action.Aim]: new ActionDefinition({
+		key: Action.Aim,
+		type: ActionType.Attack,
+		name: 'Aim',
+		description:
+			'Target a specific enemy that you can see clearly; if your next action this turn is a **Basic Ranged Attack** against that target, you can roll with [[Finesse]] instead reduce the range increment by `1` (min `0`).',
+		traits: [Trait.Concentrate, Trait.Ranged],
+		costs: [
+			new ActionCost({ resource: Resource.ActionPoint, amount: 1 }),
+			new ActionCost({ resource: Resource.FocusPoint, amount: 1 }),
+		],
+	}),
 
 	// Defense
 	[Action.BasicDefense]: new ActionDefinition({
@@ -554,7 +567,13 @@ export const ACTIONS = {
 		description: 'Add **Shield Bonus** to a **Basic Body Defense** contested Check.',
 		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
-		// TODO(luan): model this
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Resisted,
+				statType: StandardCheck.ShieldBlock,
+			}),
+		],
 	}),
 	[Action.Dodge]: new ActionDefinition({
 		key: Action.Dodge,
@@ -577,13 +596,11 @@ export const ACTIONS = {
 			}),
 		],
 	}),
-
-	// Support
 	[Action.Escape]: new ActionDefinition({
 		key: Action.Escape,
-		type: ActionType.Support,
+		type: ActionType.Defense,
 		name: 'Escape',
-		description: 'Contested [[Evasiveness]] check to clear [[Immobilized]] against a grappler.',
+		description: 'Contested [[Evasiveness]] against [[Muscles]] check to clear [[Immobilized]] against a grappler.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		parameters: [
 			new ActionCheckParameter({
@@ -591,8 +608,15 @@ export const ACTIONS = {
 				nature: CheckNature.Resisted,
 				statType: StatType.Evasiveness,
 			}),
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Resisted,
+				statType: StatType.Muscles,
+			}),
 		],
 	}),
+
+	// Support
 	[Action.GetUp]: new ActionDefinition({
 		key: Action.GetUp,
 		type: ActionType.Support,
@@ -619,18 +643,6 @@ export const ACTIONS = {
 				nature: CheckNature.Resisted,
 				statType: StatType.Perception,
 			}),
-		],
-	}),
-	[Action.Aim]: new ActionDefinition({
-		key: Action.Aim,
-		type: ActionType.Support,
-		name: 'Aim',
-		description:
-			'Target a specific enemy that you can see clearly; if your next action this turn is a **Basic Ranged Attack** against that target, you can roll with [[Finesse]] instead reduce the range increment by `1` (min `0`).',
-		traits: [Trait.Concentrate, Trait.Ranged],
-		costs: [
-			new ActionCost({ resource: Resource.ActionPoint, amount: 1 }),
-			new ActionCost({ resource: Resource.FocusPoint, amount: 1 }),
 		],
 	}),
 	[Action.Flank]: new ActionDefinition({
@@ -665,6 +677,11 @@ export const ACTIONS = {
 				mode: CheckMode.Contested,
 				nature: CheckNature.Active,
 				statType: StatType.Presence,
+			}),
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Resisted,
+				statType: StatType.Resolve,
 			}),
 		],
 	}),
