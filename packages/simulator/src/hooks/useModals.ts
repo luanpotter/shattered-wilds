@@ -57,6 +57,7 @@ export function useModals() {
 			type: 'character-sheet',
 			characterId,
 			position: getNextPosition(),
+			width: '750px',
 		});
 	};
 

@@ -8,8 +8,7 @@ interface LabeledInputProps {
 	disabled?: boolean;
 	onChange?: ((value: string) => void) | undefined;
 	onClick?: (() => void) | undefined;
-	prefix?: React.ReactNode;
-	suffix?: React.ReactNode;
+	buttons?: React.ReactNode;
 }
 
 const LabeledInput: React.FC<LabeledInputProps> = ({
@@ -20,8 +19,7 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
 	disabled = false,
 	onChange,
 	onClick,
-	prefix,
-	suffix,
+	buttons,
 }) => {
 	const inlineLabelStyle: React.CSSProperties = {
 		display: 'flex',
@@ -55,8 +53,8 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
 		display: 'flex',
 		alignItems: 'center',
 	};
-	const inlineInnerWrapperStyle: React.CSSProperties = { position: 'relative', flex: 1 };
 	const normalWrapperStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '0.5rem' };
+	const inlineInnerWrapperStyle: React.CSSProperties = { flex: 1, ...normalWrapperStyle };
 	const clickHandlers = onClick
 		? {
 				onClick,
@@ -73,7 +71,6 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
 			<label style={variant === 'inline' ? inlineLabelStyle : normalLabelStyle}>
 				{label}
 				<div style={variant === 'inline' ? inlineInnerWrapperStyle : normalWrapperStyle} {...clickHandlers}>
-					{prefix}
 					<input
 						disabled={disabled && !onClick}
 						readOnly={disabled}
@@ -82,7 +79,7 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
 						onChange={e => onChange?.(e.target.value)}
 						style={variant === 'inline' ? inlineStyle : normalStyle}
 					/>
-					{suffix}
+					{buttons}
 				</div>
 			</label>
 		</div>

@@ -32,6 +32,7 @@ import { numberToOrdinal } from '../utils';
 
 import { ResourceInputComponent } from './ResourceInputComponent';
 import Block from './shared/Block';
+import { LabeledCheckbox } from './shared/LabeledCheckbox';
 import LabeledDropdown from './shared/LabeledDropdown';
 import LabeledInput from './shared/LabeledInput';
 import { RichText } from './shared/RichText';
@@ -355,7 +356,12 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 								value={movement.value.toString()}
 								disabled={true}
 							/>
-							<ResourceInputComponent character={character} sheet={sheet} resource={Resource.ActionPoint} />
+							<ResourceInputComponent
+								variant='normal'
+								character={character}
+								sheet={sheet}
+								resource={Resource.ActionPoint}
+							/>
 						</div>
 					),
 				};
@@ -483,7 +489,13 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 						<div style={headerDivStyle}>
 							{[Resource.ActionPoint, Resource.VitalityPoint, Resource.FocusPoint, Resource.SpiritPoint].map(
 								resource => (
-									<ResourceInputComponent key={resource} character={character} sheet={sheet} resource={resource} />
+									<ResourceInputComponent
+										variant='normal'
+										key={resource}
+										character={character}
+										sheet={sheet}
+										resource={resource}
+									/>
 								),
 							)}
 						</div>
@@ -495,7 +507,12 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 				return {
 					Header: (
 						<div style={headerDivStyle}>
-							<ResourceInputComponent character={character} sheet={sheet} resource={Resource.HeroismPoint} />
+							<ResourceInputComponent
+								variant='normal'
+								character={character}
+								sheet={sheet}
+								resource={Resource.HeroismPoint}
+							/>
 						</div>
 					),
 				};
@@ -617,10 +634,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 		<Block>
 			<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 				<h3 style={{ margin: '0 0 16px 0', fontSize: '1.1em' }}>Actions</h3>
-				<label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-					<input type='checkbox' checked={showAll} onChange={e => setShowAll(e.target.checked)} />
-					Show All
-				</label>
+				<LabeledCheckbox label='Show All' checked={showAll} onChange={setShowAll} />
 			</div>
 
 			{renderTabButtons()}

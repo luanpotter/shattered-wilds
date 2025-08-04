@@ -6,6 +6,7 @@ import { FaCheck, FaTimes } from 'react-icons/fa';
 import { useStore } from '../../store';
 import { CharacterSheet, StatType } from '../../types';
 import { Button } from '../shared/Button';
+import { LabeledCheckbox } from '../shared/LabeledCheckbox';
 import LabeledDropdown from '../shared/LabeledDropdown';
 import LabeledInput from '../shared/LabeledInput';
 
@@ -563,10 +564,7 @@ const DiceRollModalContent: React.FC<{
 			{/* Extra and Luck Options */}
 			<div style={{ marginBottom: '16px' }}>
 				<div style={{ marginBottom: '8px' }}>
-					<label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-						<input type='checkbox' checked={useExtra} onChange={e => setUseExtra(e.target.checked)} />
-						Use Extra
-					</label>
+					<LabeledCheckbox label='Use Extra' checked={useExtra} onChange={setUseExtra} />
 					{useExtra && (
 						<div style={{ marginTop: '4px', marginLeft: '24px' }}>
 							<LabeledDropdown
@@ -581,16 +579,14 @@ const DiceRollModalContent: React.FC<{
 				</div>
 
 				<div>
-					<label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-						<input type='checkbox' checked={useLuck} onChange={e => setUseLuck(e.target.checked)} />
-						Use Luck
-					</label>
+					<LabeledCheckbox label='Use Luck' checked={useLuck} onChange={setUseLuck} />
 				</div>
 			</div>
 
 			<div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
 				<Button onClick={handleCopyToVTT} title='Copy to VTT' />
 				<Button onClick={handleRollDice} title='Roll Dice' />
+				<Button onClick={handleCloseWithCallback} title='Close' />
 			</div>
 		</div>
 	);

@@ -43,6 +43,7 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 	const { openDiceRollModal, openRaceSetupModal, openClassSetupModal, openFeatsSetupModal } = useModals();
 
 	// Create a reactive sheet that updates when character props change
+	const characterId = character.id;
 	const sheet = useMemo(() => CharacterSheet.from(character.props), [character]);
 	const statTree = useMemo(() => sheet.getStatTree(), [sheet]);
 	const movement = useMemo(() => statTree.getModifier(DerivedStatType.Movement), [statTree]);
@@ -105,26 +106,6 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 			.map(([key, value]) => `${key}: ${value}`)
 			.join('\n');
 		void window.navigator.clipboard.writeText(keyValuePairs);
-	};
-
-	const handleOpenRaceSetup = () => {
-		// Check if a race setup modal is already open for this character
-		const raceSetupModal = modals.find(modal => modal.type === 'race-setup' && modal.characterId === character.id);
-
-		// If not, open a new race setup modal
-		if (!raceSetupModal) {
-			openRaceSetupModal({ characterId: character.id });
-		}
-	};
-
-	const handleOpenClassSetup = () => {
-		// Check if a class setup modal is already open for this character
-		const classSetupModal = modals.find(modal => modal.type === 'class-setup' && modal.characterId === character.id);
-
-		// If not, open a new class setup modal
-		if (!classSetupModal) {
-			openClassSetupModal({ characterId: character.id });
-		}
 	};
 
 	const handleOpenFeatsSetup = () => {
@@ -312,13 +293,13 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 								label='Race'
 								value={sheet.race.toString()}
 								disabled={!editMode}
-								onClick={editMode ? handleOpenRaceSetup : undefined}
+								onClick={() => openRaceSetupModal({ characterId })}
 							/>
 							<LabeledInput
 								label='Class'
 								value={sheet.characterClass.characterClass}
 								disabled={!editMode}
-								onClick={editMode ? handleOpenClassSetup : undefined}
+								onClick={() => openClassSetupModal({ characterId })}
 							/>
 						</Row>
 						<Row>
@@ -337,7 +318,7 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 								disabled={true}
 								onClick={() => {
 									openDiceRollModal({
-										characterId: character.id,
+										characterId,
 										check: new Check({
 											mode: CheckMode.Contested,
 											nature: CheckNature.Resisted,
@@ -358,7 +339,13 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 						{/* Resource Points */}
 						<Row>
 							{Object.values(Resource).map(resource => (
-								<ResourceInputComponent key={resource} character={character} sheet={sheet} resource={resource} />
+								<ResourceInputComponent
+									variant='normal'
+									key={resource}
+									character={character}
+									sheet={sheet}
+									resource={resource}
+								/>
 							))}
 
 							<div style={{ display: 'flex', alignItems: 'end', marginBottom: '0.75rem' }}>
@@ -372,7 +359,7 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 							tree={sheet.getStatTree()}
 							onUpdateCharacterProp={(key: string, value: string) => updateCharacterProp(character, key, value)}
 							disabled={!editMode}
-							characterId={character.id}
+							characterId={characterId}
 						/>
 					</Block>
 

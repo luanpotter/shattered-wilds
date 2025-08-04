@@ -3,7 +3,7 @@ import { IconType } from 'react-icons';
 import { FaExclamationTriangle } from 'react-icons/fa';
 
 interface ButtonProps {
-	variant?: 'normal' | 'inline' | 'inline-full';
+	variant?: 'normal' | 'inline';
 	icon?: IconType;
 	title?: string;
 	tooltip?: string;
@@ -28,13 +28,11 @@ export const Button: React.FC<ButtonProps> = ({
 		throw new Error('Button requires either title or tooltip prop');
 	}
 
-	const isInline = type === 'inline' || type === 'inline-full';
 	const style = {
 		display: 'flex',
 		alignItems: 'center',
 		gap: '0.5rem',
-		...(isInline ? { padding: '2px 6px', fontSize: '0.9em' } : {}),
-		...(type === 'inline-full' ? { width: '100%' } : {}),
+		...(type === 'inline' ? { padding: '2px 6px', fontSize: '0.9em' } : {}),
 		...(disabled ? { opacity: 0.5, cursor: 'not-allowed' } : {}),
 	};
 
