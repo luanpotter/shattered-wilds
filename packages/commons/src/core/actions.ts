@@ -552,7 +552,7 @@ export const ACTIONS = {
 		type: ActionType.Defense,
 		name: 'Take Cover',
 		description:
-			'When rolling a **Body Defense** against a **Ranged Basic Attack**, you can roll an [[Agility]] Check with a `+3` [[Circumstance_Modifier | CM]] instead when already benefiting from **Basic Cover**.',
+			'When rolling a **Body Defense** against a **Ranged Basic Attack**, you can roll an [[Agility]] Check with a `+3` [[Circumstance_Modifier | CM]] instead when already benefiting from **Passive Cover**.',
 		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		parameters: [
@@ -768,6 +768,16 @@ export const ACTIONS = {
 				nature: CheckNature.Active,
 				statType: StatType.Empathy,
 				targetDc: 20,
+			}),
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Resisted,
+				statType: StatType.Resolve,
+			}),
+			new ActionValueParameter({
+				name: 'Inspire Bonus',
+				formula: F.constant(3),
+				unit: ActionValueUnit.Modifier,
 			}),
 		],
 	}),

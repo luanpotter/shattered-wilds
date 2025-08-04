@@ -707,7 +707,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassFlavor.Survivalist,
 		level: 4,
 		description:
-			'You can consider **Basic Cover** for your **Ranged Attacks** to be of one degree less than it would otherwise be.',
+			'You can consider **Passive Cover** for your **Ranged Attacks** to be of one degree less than it would otherwise be.',
 	}),
 	// Scoundrel
 	[Feat.FancyFootwork]: new FeatDefinition<void>({
