@@ -1,0 +1,56 @@
+A basic **Check** is performed by rolling `2d12` and applying some modifiers, typically:
+
+> 2d12 + [Stat Modifier] + [Equipment Modifier] + [Circumstance Modifiers]
+
+Then it is either matched against the static **DC (Difficulty Class)** of the task (for a **Static Check**), or matched against a **Check** from an opponent (**Contested Check**).
+
+A **Check** is also either **Active** or **Resisted**. For **Contested Checks**, there is always an active participant, which is the one taking the Action (**Active Contested Check**), and one or more passive recipients of the action (**Resisted Contested Checks**). The exception to this rule is a contest with multiple participants all competing individually; notably the [[Initiative]] Check.
+
+**Success** means having a result greater than the DC (or **Contested Check**); meaning that a _tie_ will typically maintain the status quo (i.e., no change). However, if the **Active** Participant has a **Crit Modifier** (see below), they will win ties.
+
+There is also the possibility of rolling extra D12s, up to two, for two different mechanics, called **Extra Die** and **Luck Die** (see below). Whenever you roll more than 2 dice, you get to pick which 2 to use for the final total, as you can never sum up more than 2 dies (think D&D Advantage). So if you are adding both the **Extra Die** _and_ the **Luck Die** in the same **Check**, you will be able to roll `4d12`, and pick any 2 of your choice. However, the other dice will still count for **Crit Modifiers** and **Auto Fail** (even if they are not valid; see below).
+
+ Note that, unlike other systems, additional dice rolls are not awarded for in-game situational "advantages" or "disadvantages", as these factors are _always_ modelled as [[Circumstance Modifier | Circumstance Modifiers]] to the **Check**.
+
+### Crit Modifiers
+
+Critical Rolls are handled differently in the D12 system. There are two steps to determine criticality; first, you apply Crit Modifiers to your roll:
+
+* +6 to your roll if you have at least one 12
+* +6 to your roll if you have at least a pair
+
+Note that you can get each one of the `+6`'s only once per roll, for a max total of `+12`. That means the maximum natural roll is `36 (2 * 12 + 6 + 6)`, with a probability of `1/144 (0.69%)`.
+
+Note that these criteria are checked against all dice rolled, even the ones that were not valid or picked for the final total.
+
+Crit Modifiers are applied to all types of Checks. However, if you are rolling an **Active Check**, you can also accumulate **Crit Shifts**.
+
+### Crit Shifts
+
+If an **Active Check** succeeds, finally any excesses can be converted back into **Crit Shifts**, even if they didn't originate from a Crit Modifier. The first **Crit Shift** is achieved if the result is `+6` over the target; the second if the result is `+12` over the previous **Crit Shift**, and so on.
+
+So for a few examples, a character attacks the enemy and rolls a 10 and 7, and have a total modifier of +3. That will be a 20 without any Crit Modifier from the roll; however, if the opponent contests rolling a total of 12, since the **Active Check** is at an advantage of 8 points, they get 1 **Crit Shift**.
+
+What does this "Shift" mean? The effect of a **Crit Shift** will depend on the nature of the check. If it is a Basic Body Attack, that means additional damage to the enemy's [[Vitality_Point | Vitality Points]]. If it is some other form of contest, it means an advantage to be determined by the DM. For example, if you are trying to influence an ally to do you a favor, they might not just do it but somehow consider it as you doing them a favor for the honor of asking them. This is similar to how Shifts work on _Core FATE_. If it is a **Static Check**, it is possible that **Crit Shifts** are not applicable, but they could, depending on the context. It is up to the DM to decide the effects of **Crit Shifts** for each interaction.
+
+In essence, the **Crits** are two-folded; if you would otherwise be below target, they can help you get over, and if you are already over, they can give you extra **Crit Shifts**.
+
+### Auto Fail
+
+There is also an **Auto Fail** condition to any **Active Check**; if you roll a pair of 1s, you instantly fail, regardless of anything else. This condition is again checked across all the dice rolled, even ones not picked for the final total.
+
+The probability of an Auto Fail, if rolling two dice, is of 0.69% (though that is bumped to 3.72% if rolling 4 dice). This does not apply to **Resisted Checks**.
+
+### Extra Die
+
+It is possible to roll an additional d12 when doing a **Check** by invoking the [[Extra_Die | Extra Die]] mechanic. You can do that when you are in a situation in which you can leverage a different **Attribute** to perform a **Skill Check**.
+
+For example, imagine you are trying to deceive a guard with a [[Speechcraft]] check, but you have a high [[WIS]]. You can leverage your **Wisdom score** to complement your **Speechcraft Check** by paying 1 [[Heroism_Point | Heroism Point]]. You then roll an extra, visually distinct d12 for the **Check** (check the [[CHA]] attribute for more examples of Extras).
+
+In order for this extra die to be valid, it must be less or equal than the Attribute chosen for the Extra. If it is, that is a valid Extra die that can be picked as one of the two for the final total. Note that, regardless if you pick the extra die or even if it is valid or not, it still counts for **Crit Modifiers** and **Auto Fail** when applicable.
+
+The **Extra Die** (and **Luck Die**) must be invoked before the roll is made.
+
+### Luck Die
+
+Similarly (and potentially additionally) to **Extra Die** mechanic, you can invoke your supernatural [[Fortune]] to aid you in any roll by invoking the [[Luck_Die | Luck Die]] mechanic. You similarly must pay 1 [[Heroism_Point | Heroism Point]], and add one distinct Luck d12 to the pool. The result of it must be below your Fortune score. Exact rules as for the Extra die apply, including the extended chance of **Crit Modifiers** and **Auto Fail**. Pushing your luck goes both ways.

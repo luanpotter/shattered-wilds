@@ -15,6 +15,7 @@ import { classes } from './src/_config/data/classes.js';
 import { traits } from './src/_config/data/traits.js';
 import { parseLexicon } from './src/_config/lexicon.js';
 import { TextProcessor } from './src/_config/TextProcessor.js';
+import { covers } from './src/_config/data/covers.js';
 
 export default function (eleventyConfig) {
 	// NOTE: kept to allow for a different prefix in the future
@@ -36,6 +37,7 @@ export default function (eleventyConfig) {
 	eleventyConfig.addGlobalData('equipment', equipment);
 	eleventyConfig.addGlobalData('classes', classes);
 	eleventyConfig.addGlobalData('traits', traits);
+	eleventyConfig.addGlobalData('covers', covers);
 
 	const wikiPages = [
 		...lexiconFiles,
@@ -47,6 +49,7 @@ export default function (eleventyConfig) {
 		...equipment,
 		...classes,
 		...traits,
+		...covers,
 	]
 		.filter(e => e.slug)
 		.sort((a, b) => {

@@ -10,43 +10,47 @@ export enum PassiveCoverType {
 
 export class PassiveCoverDefinition {
 	type: PassiveCoverType;
-	description: string;
+	examples: string;
 	bonus: Bonus;
 
-	constructor({ type, description, bonus }: { type: PassiveCoverType; description: string; bonus: Bonus }) {
+	constructor({ type, examples, bonus }: { type: PassiveCoverType; examples: string; bonus: Bonus }) {
 		this.type = type;
-		this.description = description;
+		this.examples = examples;
 		this.bonus = bonus;
 	}
 
 	get modifier(): CircumstanceModifier {
 		return new CircumstanceModifier({
 			source: ModifierSource.Circumstance,
-			name: `Passive Cover (${this.description})`,
+			name: `Passive Cover (${this.type})`,
 			value: this.bonus,
 		});
+	}
+
+	get description(): string {
+		return `Passive Cover - ${this.type} (${this.examples})`;
 	}
 }
 
 export const COVER_TYPES: Record<PassiveCoverType, PassiveCoverDefinition> = {
 	[PassiveCoverType.None]: new PassiveCoverDefinition({
 		type: PassiveCoverType.None,
-		description: 'None',
+		examples: 'No obstruction.',
 		bonus: Bonus.zero(),
 	}),
 	[PassiveCoverType.Lesser]: new PassiveCoverDefinition({
 		type: PassiveCoverType.Lesser,
-		description: 'Lesser',
+		examples: 'Creatures on the way, 1m-tall obstacle, etc.',
 		bonus: Bonus.of(-1),
 	}),
 	[PassiveCoverType.Standard]: new PassiveCoverDefinition({
 		type: PassiveCoverType.Standard,
-		description: 'Standard',
+		examples: 'Line of sight is blocked by the corners of obstacles.',
 		bonus: Bonus.of(-3),
 	}),
 	[PassiveCoverType.Greater]: new PassiveCoverDefinition({
 		type: PassiveCoverType.Greater,
-		description: 'Greater',
+		examples: 'Line of sight is almost completely obstructed.',
 		bonus: Bonus.of(-6),
 	}),
 };

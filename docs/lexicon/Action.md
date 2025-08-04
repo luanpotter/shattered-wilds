@@ -55,13 +55,11 @@ When there is not a clear line of sight for a ranged attack, there are enemies o
 
 Passive Cover will grant you a [[Circumstance Modifier | CM]] to your **Basic Body Defense** against **Ranged Attacks**:
 
-* **Lesser**: +1 (creatures on the way, 1m-tall obstacle, etc)
-* **Standard**: +3 (line of sight is blocked by the corners of obstacles)
-* **Greater**: +6 (line of sight is almost completely obstructed)
+{% list "Cover", "order" %}
 
 If the line of sight is completely obstructed, obviously the attack cannot be performed at all (regardless of the [[Disregard Cover]] feat).
 
-Note that on top of the **Passive Cover**, a target might want to react with the [[Take_Cover]] reaction when applicable.
+Note that on top of the **Passive Cover**, a target might want to react with the [[Take Cover]] reaction when applicable.
 
 #### High-Ground Advantage
 
