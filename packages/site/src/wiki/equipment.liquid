@@ -13,6 +13,16 @@
 
 {{ lexicon.content | mdb }}
 
+<p><strong>Type:</strong> {{ lexicon.type }}</p>
+
+{% if lexicon.modes %}
+    <ul>
+        {% for mode in lexicon.modes %}
+            <li>{{ mode.description }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
 {% if lexicon.alternativeNames.length > 0 %}
 <h2>Alternative Names</h2>
 <ul>
