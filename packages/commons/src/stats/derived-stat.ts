@@ -5,14 +5,27 @@ import { StatType } from './stat-type.js';
 export enum DerivedStatType {
 	Movement = 'Movement',
 	Initiative = 'Initiative',
+	InfluenceRange = 'InfluenceRange',
 }
 
 export class DerivedStat {
-	name: DerivedStatType;
+	type: DerivedStatType;
+	name: string;
 	description: string;
 	formula: Formula;
 
-	constructor({ name, description, formula }: { name: DerivedStatType; description: string; formula: Formula }) {
+	constructor({
+		type,
+		name,
+		description,
+		formula,
+	}: {
+		type: DerivedStatType;
+		name: string;
+		description: string;
+		formula: Formula;
+	}) {
+		this.type = type;
 		this.name = name;
 		this.description = description;
 		this.formula = formula;
@@ -25,7 +38,8 @@ export class DerivedStat {
 
 export const DERIVED_STATS: Record<DerivedStatType, DerivedStat> = {
 	[DerivedStatType.Movement]: new DerivedStat({
-		name: DerivedStatType.Movement,
+		type: DerivedStatType.Movement,
+		name: 'Movement',
 		description: `The amount of hexes a character can move using a regular [[Stride]] action.
 
 > Movement = [3 + floor([[Agility]] / 4)] hexes
@@ -38,12 +52,23 @@ Unused movement from the [[Stride]] action can be saved for later.`,
 		formula: F.constant(3).add(F.variable(0.25, StatType.Agility, RoundMode.floor)),
 	}),
 	[DerivedStatType.Initiative]: new DerivedStat({
-		name: DerivedStatType.Initiative,
+		type: DerivedStatType.Initiative,
+		name: 'Initiative',
 		description: `Used to determine order in combat via an Initiative Check.
 
 > Initiative = [[Awareness]] + [[Agility]]
 
 The Initiative Check is a special type of [[Contested Check]] that is fully resisted. As a courtesy to the _Players_, ties are decided in their favor.`,
 		formula: F.variable(1, StatType.Awareness).add(F.variable(1, StatType.Agility)),
+	}),
+	[DerivedStatType.InfluenceRange]: new DerivedStat({
+		type: DerivedStatType.InfluenceRange,
+		name: 'Influence Range',
+		description: `The range increment of your influence; used for the [Arcane](/rules/arcane) and [Divine](/rules/divine) systems.
+
+> Influence Range = [2 + ceil([[Aura]] / 2)] hexes
+
+This determines the first **Range Increment** for your influence.`,
+		formula: F.constant(2).add(F.variable(0.5, StatType.Aura, RoundMode.ceil)),
 	}),
 };

@@ -2,6 +2,6 @@ The character is unable to speak, utter sounds, or execute **Verbal Spell Compon
 
 While Silenced, a character:
 
-- Cannot execute Verbal Spell Components
+- Cannot execute **Verbal Spell Components**
 - Cannot speak or communicate verbally
 - Cannot perform any [[Action | Actions]] that require speech

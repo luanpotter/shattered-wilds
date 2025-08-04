@@ -1,6 +1,6 @@
-The **Arcane** is a science about the laws of physics, the art of controlling the world by recreating shockwaves in reality by precise movements and sounds in order to produce certain effects based on the current state of the world. It requires a strong level of focus and mental acuity to concoct the exact movements for any desired outcome given any current circumstances.
+The **Arcane** is a science about the laws of physics, the art of controlling the world by recreating vibrations or shockwaves in reality by precise movements and sounds in order to produce certain effects based on the current state of the world. It requires a strong level of focus and mental acuity to concoct the exact movements for any desired outcome given any current circumstances.
 
-While creating the necessary movements and sounds can be assisted through the use of mechanical devices or instruments, it appears that their primordial source must be tied to a **Soul**, and thus cannot be completely automated. Some sequences of movements can be combined by crafting mechanical devices (the specialty of the Mechanistic caster), but those must still be executed by the caster. Also since the exact movements depend on the circumstances, it cannot be fully prepared ahead of time, requiring intense focus during the moment of casting.
+While creating the necessary movements and sounds can be assisted through the use of mechanical devices or instruments, it appears that their primordial source must be tied to a **Soul**, and thus cannot be completely automated. In fact, the [[Influence Range]] of your Soul determines the extent to which you can easily affect around you. Some sequences of movements can be combined by crafting mechanical devices (the specialty of the Mechanistic caster), but those must still be executed by the caster. Also since the exact movements depend on the circumstances, it cannot be fully prepared ahead of time, requiring intense focus during the moment of casting.
 
 You can think of Arcane as a spell system where the Player chooses the desired effect, and the DM tells them how hard it will be (as opposed to the [Divine](/rules/divine.md) spell system, where the Player rolls a Check and the DM tells them the effect).
 
@@ -38,30 +38,40 @@ Launching a projectile, be it matter or energy, onto a creature, is considered a
 
 Other effects are typically considered **Special Attacks**, and therefore are contested by specific **Skills**. For example:
 
+* Using **Conjuration** to create a falling boulder to harm a creature: [[Resilience]]
+* Using **Evocation** to create heat or cold energies to harm a creature: [[Resilience]]
 * Using **Telekinesis** to form a gust of wind to push a creature: [[Stance]]
-* Using **Command** to control a creature: [[Resolve]]
-* Using **Transfiguration** to modify a creature's body: [[Resilience]] or [[Toughness]] (depending on the nature of the transformation)
-* Using **Command** to control vines to Grapple a creature: [[Evasiveness]]
+* Using **Command** to control a creature's mind: [[Resolve]]
+* Using **Transfiguration** to modify a creature's body: [[Toughness]]
+* Using **Command** to control vines to [[Grapple]] a creature: [[Evasiveness]] to first avoid, and [[Muscles]] to evade after being trapped.
 
 Note that a creature can choose not to resist; in which case the **Base DC** is used instead.
 
 Narratively, if the Check rolls between the Spell DC using the **Base DC** and the (higher) Spell DC using the **Contested Check**, the spell succeeds but is resisted by the target, while if it fails even the **Base DC**, the spell just fails to produce any effect.
 
+## Influence Range
+
+While the **Arcane** is a science of the [[Mind]], the production of the necessary movements and sounds must be "attached" to a **Soul** for it to have any effect. The strength of one's **Soul** does not impact the power and effect of their **Arcane** spells, but it does impact the range of their influence, through the [[Influence Range]] derived stat:
+
+> Influence Range = [2 + ceil([[Aura]] / 2)] hexes
+
+That does not mean your influence cannot expand further; however it will get harder and harder according to the **Range Increment** system (see **Augmentations > Range** below for details). Also, remember that you can always use **Telekinesis** to impart momentum to nearby objects, which will keep moving in a given direction as an arrow would.
+
 ## Basic Spell Attacks
 
-Regardless of specific narrative flavor (see **Predefined Spells** below for inspiration), a Caster can use a **Basic Arcane Spell** (2 [[Action_Point | AP]], 1 [[Focus_Point | FP]]), with **Spell DC 15** to harm an enemy within 1m as a Basic Attack against a target's Body or Soul. The most typical Augmentations for a Basic Spell Attack are Range, Multi-target, and Casting Time.
+Regardless of specific narrative flavor (see **Predefined Spells** below for inspiration), a **Caster** can use a **Basic Arcane Spell** (2 [[Action_Point | AP]], 1 [[Focus_Point | FP]]), range of 1 **Range Increment**, with **Spell DC 15** to harm an enemy within 1m as a Basic Attack against a target's Body or Soul ([[Vitality_Point | VP]] or [[Spirit_Point | SP]] damage). The most typical **Augmentations** for a Basic Spell Attack are _Range_, _Multi-target_, and _Casting Time_.
 
 ## Shifts
 
-For spells being used as attacks, Shifts deal extra damage as usual. Otherwise, depending on DM, they can be used to increase the potency of the desired effect. However, Spells are all or nothing - if the Check fails, no effect happens. So the caster must chose their essential Augmentations carefully.
+For spells being used as attacks, **Shifts** deal extra damage as usual. Otherwise, depending on DM, they can be used to increase the potency of the desired effect. However, Spells are all or nothing - if the **Check** fails, no effect happens. So the caster must chose their essential Augmentations carefully. This is because it is impossibly unlikely that a randomly incorrect sequence of movements will produce a (different) valid **Arcane Spell**. Think of it as typing in the letters for a poem; while there are infinitely many poems that one could write, depending on their creativity and desired effect, if they mistype one letter from an otherwise valid poem, it is exceedingly unlikely that the result will be a different valid poem with a different effect.
 
-For example, imagine a caster chooses to expand the Area of a Poison Cloud by 1 Hex, bringing the final augmentation modifier from -8 to -12. If they roll a 26 (-12 = 14), the spell fails, and nothing happens. But if they stick to the plan of just a single Hex, and roll a 29 (-8 = 21), they get 1 Shift over the Base DC 15, and the DM might decide that the poison cloud expanded into a random adjacent hex (or some other consequence).
+As a concrete example, imagine a **Caster** chooses to expand the _Area_ of a _Poison Cloud_ by `1` Hex, bringing the final augmentation modifier from `-8` to `-12`. If they roll a `26` (`-12` = `14`), the spell fails, and nothing happens. But if they stick to the plan of just a single Hex, and roll a `29` (`-8` = `21`), they get `1` **Shift** over the **Base DC** `15`, and the DM might decide that the poison cloud ended up being more beneficial than expected in some way.
 
 ## Components
 
-**Spell Components** are the mechanisms used to produce the necessary conditions (vibrations) for the spell to work; they can be in the form of Verbal (sounds), Somatic (movements, typically hand gestures, but can also tool-assisted) or Focal (using an [[Imbued Item]] that uses power from the **Aether** to enact subtle vibrations on the **Material Plane**). Every spell needs at least one **Component** to be cast, regardless of any other conditions.
+**Spell Components** are the mechanisms used to produce the necessary conditions (vibrations or shockwaves) for the spell to work; they can be in the form of **Verbal** (sounds), **Somatic** (movements, typically hand gestures, but can also tool-assisted) or **Focal** (using an [[Imbued Item]] that uses power from the **Aether** to enact subtle vibrations on the **Material Plane**). Every spell needs at least one **Component** to be cast, regardless of any other conditions.
 
-Different **Flavors** of **Casters** have different access to different types of components; the **Arcanists** being the more versatile, being able to use all three, but to a lesser potential than the specialists in each type.
+Different **Flavors** of **Casters** have different access to different types of components; the [[Arcanists]] being the more versatile, being able to use all three, but to a lesser potential than the specialists in each type.
 
 | Components | Arcanist | Mechanistic | Naturalist | Musicist |
 |------------|----------|-------------|------------|----------|
@@ -69,15 +79,15 @@ Different **Flavors** of **Casters** have different access to different types of
 | Somatic    | Y        | YY          |            |          |
 | Focal      | Y        |             | YY         |          |
 
-It is important to note that the difficulty in executing **Spell Components** is due to figuring out what exact movements and sounds are needed to produce the desired effect, rather than the technical difficulty of performing the acts themselves. Therefore, you do not need high [[DEX]] to execute **Somatic** components, or high [[CHA]] for **Verbal** components; however if your hands are restricted, or you are unable to speak, you would not be able to perform the associated components.
+It is important to note that the difficulty in executing **Spell Components** is due to figuring out what exact movements and sounds are needed to produce the desired effect, rather than the technical difficulty of performing the acts themselves. Therefore, you do not need high [[DEX]] to execute **Somatic** components, or high [[CHA]] for **Verbal** components (a **Musicist** leverages their high [[CHA]] to empathize with their own body's (or throat's) natural talent to vibrate in the correct way); however if your hands are restricted, or you are unable to speak, you would not be able to perform the associated components.
 
 ### Verbal
 
 The **Verbal Component** can include shouting, chanting, singing, or music produced by the caster via their body or instruments. Typically, this will be done in the form of incomprehensible shouting and chanting of specific sounds, not matching any specific language. **Musicists** are able to use instruments (often accompanied by singing) to replace their **Verbal Component**.
 
 **Basic Chanting**: +1
-**One-Handed Instrument**: +2 (**Musicists** only)
-**Two-Handed Instrument**: +3 (**Musicists** only)
+**Typical One-Handed Instrument**: +2 (**Musicists** only)
+**Typical Two-Handed Instrument**: +3 (**Musicists** only)
 
 The execution of **Verbal Components** requires a baseline freedom of speech; so they cannot be performed while under the [[Silenced]] condition.
 
@@ -86,22 +96,22 @@ The execution of **Verbal Components** requires a baseline freedom of speech; so
 The **Somatic Component** can include hand gestures, body movements, or tool-assisted movements (for the **Mechanistics**). Typically, this will be done in the form of fast and precise hand gestures. **Mechanistics** are able to concoct and use tools to replace their **Somatic Component**.
 
 * **Basic Gesturing**: +1
-* **One-Handed Tool Use**: +2 (**Mechanistics** only)
-* **Two-Handed Tool Use**: +3 (**Mechanistics** only)
+* **Typical One-Handed Tool Use**: +2 (**Mechanistics** only)
+* **Typical Two-Handed Tool Use**: +3 (**Mechanistics** only)
 
 The execution of Somatic components require a baseline freedom of movement; so they cannot be performed while under the [[Immobilized]] condition.
 
 ### Focal
 
-The **Focal Component** is a [[Imbued Item]] that uses power from the **Aether** to manipulate the vibrations on the **Material Plane** to assist in creating **Arcane Spell Components**. Essentially it is using Divine power to assist on the executing of casting Arcane Spells. **Wands**, **Staves** and other types of **Imbued Items** can be considered **Foci**, with different bonuses (similar to weapon bonuses).
+The **Focal Component** is an [[Imbued Item]] that uses power from the **Aether** to manipulate the vibrations on the **Material Plane** to assist in creating **Arcane Spell Components**. Essentially it is using Divine power to assist on the executing of casting Arcane Spells. **Wands**, **Staves** and other types of [[Imbued Item | Imbued Items]] can be considered **Foci**, with different bonuses (similar to weapon bonuses).
 
-However, as any [[Imbued Item]], using a **Focal Component** requires spending a certain number of [[Spirit_Point | Spirit Points]] to activate (typically 1 [[Spirit_Point | SP]]). Essentially, the **Caster** is connecting (a very weak form of **Channeling**) to the **Focal Component** to activate it in the correct way. That still requires mental concentration, as the **Foci** need to be instructed on the exact nature of the required vibrations, and therefore cannot be used by non-Casters.
+However, as any [[Imbued Item]], using a **Focal Component** requires spending a certain number of [[Spirit_Point | Spirit Points]] to activate (typically 1 [[Spirit_Point | SP]]). Essentially, the **Caster** is connecting (a very weak form of **Channeling**) to the **Focal Component** to activate it in the correct way. That still requires mental concentration, as the **Foci** need to be instructed on the exact nature of the required vibrations, and therefore cannot be used by non-Casters. That also cannot be done while [[Distraught]], as it does require [[Channeling]].
 
-Therefore, the usages of a **Focal Component** require touching, concentrating, and very minor manipulation of the **Imbued Item**; so the [[Disarm]] action can be used to try to remove the **Focal Component** from a **Caster**'s hand.
+Therefore, as with other [[Imbued Item | Imbued Items]], the usages of a **Focal Component** require touching, concentrating, and possibly very minor manipulation of the **Focus**; and the [[Disarm]] action can be used to try to remove the **Focal Component** from a **Caster**'s hand.
 
-* **One-Handed Wand**: +1
-* **Two-Handed Staff**: +2
-* **Custom Focus**: +3 (**Naturalists** only)
+* **Typical One-Handed Wand**: +1
+* **Typical Two-Handed Staff**: +2
+* **Custom Focus**: +4 (**Naturalists** only)
 
 As **Imbued Items**, **Wands** and **Staves**, even the simpler +1/+2 versions are not as trivial to find as **Mundane Items**, but a seasoned **Arcanist** such as a **Hero** can be considered to have found one if desired. **Custom Foci** can only be created by **Naturalists** (using their **Core Minor Feat**, **Focal Connection**), but are personally bound to their creators.
 
@@ -115,42 +125,42 @@ Every spell is essentially a specialization of the **Basic Arcane Spell**, with 
 
 ### Casting Time
 
-The typical casting time of the Basic Arcane Spell is 2AP. The table below shows other options:
+The typical casting time of the Basic Arcane Spell is **2AP**. The table below shows other options, with the associated **Augmentation Modifiers**:
 
-| AP | CM  |
-|----|-----|
-| 1  | -12 |
-| 2  | 0   |
-| 3  | +2  |
-| 4  | +4  |
+| AP | Augmentation Modifier |
+|----|-----------------------|
+| 1  | -12                   |
+| 2  | +0 (Default)          |
+| 3  | +2                    |
+| 4  | +4                    |
 
-Extending the casting time over longer periods has severe diminishing returns, and would be impractical during an Encounter. When casting a Spell with no time sensitivity, the caster can choose to cast as a **Ritual**, taking 15 minutes for a maximum of +6 [[Circumstance_Modifier | CM]].
+Extending the casting time over longer periods has severe diminishing returns, and would be impractical during an **Encounter**. When casting a Spell with no time sensitivity, the caster can choose to cast as a **Ritual**, taking about 15 minutes for a maximum of `+6` [[Circumstance_Modifier | CM]].
+
+That means a Level 1 **Caster**, with typically a `+3` primary attribute bonus, `+3` component bonus and `+6` _Casting Time_ augmentation, can reasonably guarantee (with miniscule chance of failure) the cast of a **Basic Arcane Spell** with no other augmentations through a **Ritual**.
 
 ### Focus Cost
 
-The typical focus cost of the Basic Arcane Spell is 1 [[Focus_Point | FP]]. Each additional [[Focus_Point | FP]] will add a +1 modifier, up to twice the number of [[Action_Point | AP]] used (one can't just cram that much focus into too little time). If the spell is being cast as a Ritual, there is no limit on the amount of [[Focus_Point | FP]] that can be spent.
+The typical focus cost of the Basic Arcane Spell is **1 [[Focus_Point | FP]]**. Each additional [[Focus_Point | FP]] will add a `+2` modifier, up to twice the number of [[Action_Point | AP]] used (one can't just cram that much focus into too little time). If the spell is being cast as a **Ritual**, there is no limit on the amount of [[Focus_Point | FP]] that can be spent.
 
 ### Duration
 
-Depending on the the School, duration of the spell works in different ways:
+Depending on the the **School**, duration of the spell works in different ways:
 
-* Conjuration: Creating matter is always instantaneous and permanent, requires no concentration after the fact. There is no Duration augmentation.
-* Evocation: Creating energy is permanent, but energy naturally dissipates over time, depending on the amount. Concentration can be held to prevent dissipation, and Duration can be augmented to retard the decay. As a rule of thumb, dissipation over a few turns should be negligible; over 15 minutes should be noticeable.
-* Transmutation: Transmuting matter can be either temporary or permanent; if temporary, it can be held with concentration, and extra modifiers can be added for lingering effect. For a +12, the transmutation can be made permanent.
-* Transfiguration: Unlike inanimate matter, the body can never be altered permanently. Any changes are always temporary and require concentration to maintain, but a large modifier can be added to make it linger.
-* Telekinesis/Command: Control spells always last as long as concentrating. There is no Duration augmentation.
+* **Conjuration**: Creating matter is always instantaneous and permanent, requires no **Concentration** after the fact. There is no _Duration_ augmentations.
+* **Evocation**: Creating energy is permanent, but energy naturally dissipates over time, depending on the amount. **Concentration** can be held to prevent dissipation, and _Duration_ can be augmented to retard the decay. As a rule of thumb, dissipation over a few turns should be negligible; over 15 minutes should be noticeable, but stronger energies will have a higher dissipation rate.
+* **Transmutation**: Transmuting matter can be either temporary or permanent; if temporary, it can be held with **Concentration**, and extra modifiers can be added for lingering effect. For a `+12` [[Circumstance_Modifier | CM]], the transmutation can be made permanent, in which case no further **Concentration** is required.
+* **Transfiguration**: Unlike inanimate matter, the body can _never_ be altered permanently. Any changes are always temporary and require **Concentration** to maintain, but a large modifier can be added to make it linger.
+* **Telekinesis**/**Command**: Control spells always last as long as **Concentration**. There is no _Duration_ augmentation.
 
 ### Range
 
-The typical range of the Basic Arcane Spell is 1m (i.e. same hex or adjacent hex). This can be increased according to the following the following table (using Tax Brackets rules)
+The typical range you can influence is determined by your [[Influence Range]]. That does not mean you cannot influence more distant targets; for each additional **Range Increment** you add, the **Caster** will have a `-3` [[Circumstance_Modifier | CM]] to the **Spell Check**. This is equivalent of a **Ranged Weapon Attack** with a weapon with **Range Increment** equal to your [[Influence Range]].
 
-| Distance | Modifier |
-|----------|----------|
-| 2-5m     | -1/m     |
-| 6-12m    | -2/m     |
-| 13-24m   | -4/m     |
+Regardless of range, you must be able to clearly see the target area in order to assess environmental conditions for the Spell. If you are only able to partially see the target area, you will receive a `-6` [[Circumstance_Modifier | CM]] to the **Spell Check**. If you cannot see the area at all, you will need a reasonable justification for knowing the exact conditions (very hard to justify) and will receive at least a `-12` [[Circumstance_Modifier | CM]] to the **Spell Check**.
 
-Larger than 24m ranges are impossibly heroic feats with modifiers to be determined by the DM.
+Note that the range increment penalties are merely a linear approximation for battlefield-relevant ranges, for the benefit of the reader. Unreasonably larger ranges will incur exponential penalties, to the discretion of the DM.
+
+Also remember that the **Caster** can use **Telekinesis** to impulse objects outside of their [[Influence Range]], but control is lost at that point.
 
 ### Area/Volume/Targets
 
@@ -170,50 +180,55 @@ There are endless other factors that would affect the spell's modifiers, such as
 
 Some examples per School type of other Augmentations to consider are:
 
-* Conjuration: the material, complexity and specificity of the matter being created; denser, rarer matter types, mixed with other things, or with specific shapes.
-* Evocation: creating more powerful amounts of energy.
-* Transmutation: the material, complexity and specificity of the matter being transformed; whether the material being transformed is mixed with others.
-* Transfiguration: the complexity and specificity of the change.
-* Telekinesis: speed, weight, and complexity of the movement pattern.
-* Command: the complexity of the command.
+* **Conjuration**: the material, complexity and specificity of the matter being created; denser, rarer matter types, mixed with other things, or with specific shapes.
+* **Evocation**: creating more powerful amounts of energy.
+* **Transmutation**: the material, complexity and specificity of the matter being transformed; whether the material being transformed is mixed with others.
+* **Transfiguration**: the complexity and specificity of the change.
+* **Telekinesis**: speed, weight, and complexity of the movement pattern.
+* **Command**: the complexity of the command.
 
 While the Player can control the exact effect they aim to achieve, the DM has the final word on the modifiers of any given Spell.
 
 ## Predefined Spells
 
-While a Caster can choose any effect within the realms of the Arcane, below is a list of predefined spells with predefined Augmentation Modifiers making it easier for Players and DMs; they can both be used exactly as-is, or used to judge modifiers by comparison.
+While a **Caster** can choose any effect within the realms of the **Arcane**, below is a list of predefined spells with predefined Augmentation Modifiers making it easier for Players and DMs; they can both be used exactly as-is, or used to judge modifiers by comparison.
 
-Across all Schools, the Basic Arcane Spell takes **2 [[Action_Point | AP]]** and **1 [[Focus_Point | FP]]** to cast, with **Base DC 15** (or contested if higher).
+Across all **Schools**, the **Basic Arcane Spell** takes **2 [[Action_Point | AP]]** and **1 [[Focus_Point | FP]]** to cast, with **Base DC 15** (or contested if higher), and range based on your [[Influence Range]].
 
 Some typical Augmentations for each are combined to form the **Minimal Augmentation Modifier**; do note that every single spell can be Augmented by **Range**, which is the most common Augmentation; so that will not be included.
 
 ### Conjuration
 
-The Conjuration Basic Arcane Spell can be used to create between 1-10L of simple, homogeneous, inorganic matter of a simple material (dirt, gravel, sand, weak rocks), within 1m of the Caster, in a space unoccupied (by solid matter or Beings), arranged in a vaguely, imprecise, contiguous spherical blob (or to fill an existing hole). Any fluid matter in the location will be displaced (therefore matter cannot be created in hermetically sealed containers).
+The **Conjuration** Basic Arcane Spell can be used to create between 1-10L of simple, homogeneous, inorganic matter of a simple material (dirt, gravel, sand, weak rocks), within 1m of the Caster, in a space unoccupied (by solid matter or Beings), arranged in a vaguely, imprecise, contiguous, convex spherical blob (or to fill an existing hole). Any fluid matter in the location will be displaced (therefore matter cannot be created in hermetically sealed containers).
 
-The Caster must be familiar with the material being conjured; we can assume all Heroes are familiar with simple materials, water or other common matter. However, certain spell below will require the Caster to have been familiar with the specific matter being created.
+The **Caster** must be familiar with the material being conjured; we can assume all **Heroes** are familiar with simple materials, water or other common matter. However, certain spells below will require the **Caster** to have been familiar with the specific matter being created.
 
 #### Conjure Water
 
 The Caster conjures 1L of pure water in an unoccupied space within 1m of them.
-N.B.: with no other mineral/electrolyte intake, drinking exclusively pure water can start to cause side effects after a few days.
+
+**N.B.**: with no other mineral/electrolyte intake, drinking exclusively pure water can start to cause side effects after a few days.
+
 **Minimal Augmentation**: -3 [Material: Water]
 **Volume Augmentation**:  +2 for each additional 1L of water created, up to 10L.
 
 #### Rock Smash [Special Attack]
 
 The Caster conjures a medium-sized (20L) boulder of weak rock above the target, within 1m, which can resist with an Evasiveness Check to avoid being hit by the falling debris, which causes 1[[Vitality_Point | VP]] of damage.
+
 **Minimal Augmentation**: -3 [Volume: 20L]
 
 #### Conjure Debris
 
-The caster creates loose weak rocks, pebbles and/or gravel over 1 Hex, causing it to count as Difficult Terrain. The debris can be cleared gradually with 4 [[Action_Point | AP]] worth of actions.
+The Caster creates loose weak rocks, pebbles and/or gravel over 1 Hex, causing it to count as Difficult Terrain. The debris can be cleared gradually with 4 [[Action_Point | AP]] worth of actions.
+
 **Minimal Augmentation**: -3 [Volume: 20L]
 
 #### Poison Cloud [Special Attack]
 
 The Caster conjures a 1m radius cloud of Noxious Gas in a Hex within 1m of them. The Hex _can_ be occupied by other creatures or objects, as the gas will be created around them.
 As the gas disperses, it lose its potency after 3 rounds. Creating more gas on the same space will just dislodge the excess poison around.
+
 **Noxious Gas**: A purple-ish toxic gas sometimes found in the Wilds; every creature at the end of turn must make a Resilience Check (DC 15 if passed through; DC 20 if they ended their turn within the cloud) or suffer 1[[Vitality_Point | VP]] of poison damage. If an incapacitated creature fails their check, they start to stack a Poisoned (1) Consequence.
 **Requirements**: Caster must be familiar with Noxious Gas, having experienced it first hand at least once or studied it extensively.
 **Minimal Augmentation**: -8 [Material: Noxious Gas]
@@ -231,8 +246,8 @@ The Caster evokes forth a harmless fist-sized ball of light, which will float in
 #### Blinding Light [Special Attack]
 
 The Caster evokes a momentary flash of bright light within 1m of them, potentially affecting any seeing creatures within a 4m radius.
-The Caster and any creatures that were made aware of what was about to happen can Avert their gaze; other creatures must succeed an Agility Check against the Spell Check to do so.
-Creatures who were unable to Avert their gaze take the [[Blinded]] condition until the end of their next round.
+The Caster and any creatures that were made aware of what was about to happen can avert their gaze; other creatures must succeed an [[Agility]] Check against the Spell DC to do so.
+Creatures who were unable to avert their gaze take the [[Blinded]] condition until the end of their next round.
 **Minimal Augmentation**: -3 [Potency: Greater Intensity]
 **Area Augmentation**: +4 for each additional +1m of radius.
 
@@ -262,12 +277,12 @@ The Telekinesis Basic Arcane Spell can be used to impart motion up to 2kg of mat
 
 #### Mage Hand
 
-While but the most studious Arcanists know why this spell is commonly referred to as "Mage Hand", all do know that this is in fact not any form of spectral hand, but rather a simple application of Telekinesis to manipulate small objects within 10m of the Caster. It can open doors, move items up to 2kg, pet a dog. Anything more dextrous will warrant Augmentations.
-**Minimal Augmentation**: -5 [Range: 10m (discounted)]
+While but the most studious **Arcanists** know why this spell is commonly referred to as _"Mage Hand"_, all do know that this is in fact not any form of spectral hand at all, but rather a simple application of **Telekinesis** to manipulate small objects near the **Caster**. It can be used to open doors, move items up to `2kg`, or pet a dog. Anything more dextrous or heavier will warrant **Augmentations**.
+**Minimal Augmentation**: 0
 
 #### Control Fire [Basic Attack]
 
-The Caster can use Telekinesis to move around flames, potentially extinguishing very small fires, spreading to nearby materials, or propelling them onto a target within range. The basic cast is for 1m range, and can cause a Stun or Feint Basic Attack against the target. For a more forceful push of +6 Augmentation, it can be used as a Strike Basic Strike.
+The Caster can use **Telekinesis** to move around flames, potentially extinguishing very small fires, spreading to nearby materials, or propelling them onto a target within range. The later mode as a basic cast can cause a [[Stun]] or [[Feint]] Basic Body Attack against the target. For a more forceful push of `-6` Augmentation, it can be used as a [[Strike]] Basic Body Attack.
 **Minimal Augmentation**: 0
 
 #### Magic Shove [Special Attack]

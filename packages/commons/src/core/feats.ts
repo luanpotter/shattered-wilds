@@ -324,6 +324,7 @@ export enum Feat {
 	FlurryOfBlows = 'FlurryOfBlows',
 	ChannelingFists = 'ChannelingFists',
 	CallousFists = 'CallousFists',
+	SpiritToFlesh = 'SpiritToFlesh',
 	// Inspired
 	BountifulLuck = 'BountifulLuck',
 	LuckyRelentlessness = 'LuckyRelentlessness',
@@ -843,19 +844,29 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 	[Feat.ChannelingFists]: new FeatDefinition<void>({
 		key: Feat.ChannelingFists,
 		name: 'Channeling Fists',
-		type: FeatType.Minor,
+		type: FeatType.Major,
 		source: ClassRole.Disciple,
 		level: 2,
-		description:
-			'You can spend 1 [[Spirit_Point | SP]] to get a +1 [[Circumstance Modifier | CM]] to an unarmed Attack Check.',
+		description: `You can spend 1 [[Spirit_Point | SP]] to get a +1 [[Circumstance Modifier | CM]] to an unarmed Attack Check.
+			
+			You _can_ stack this effect on the same attack.`,
 	}),
 	[Feat.CallousFists]: new FeatDefinition<void>({
 		key: Feat.CallousFists,
 		name: 'Callous Fists',
-		type: FeatType.Major,
+		type: FeatType.Minor,
 		source: ClassRole.Disciple,
 		level: 2,
 		description: 'You can use [[CON]] instead of [[STR]] to perform unarmed attacks.',
+	}),
+	[Feat.SpiritToFlesh]: new FeatDefinition<void>({
+		key: Feat.SpiritToFlesh,
+		name: 'Spirit to Flesh',
+		type: FeatType.Minor,
+		source: ClassRole.Disciple,
+		level: 3,
+		description:
+			'You can resist the effects of **Transfiguration** spells against your body using your [[FOW]] instead of [[Toughness]].',
 	}),
 	// Inspired
 	[Feat.BountifulLuck]: new FeatDefinition<void>({
