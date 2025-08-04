@@ -547,7 +547,7 @@ export const ACTIONS = {
 		type: ActionType.Defense,
 		name: 'Take Cover',
 		description:
-			'When rolling a **Body Defense** against a **Ranged Basic Attack**, you can roll an [[Agility]] Check with a `+6` [[Circumstance_Modifier | CM]] instead when already benefiting from **Basic Cover**.',
+			'When rolling a **Body Defense** against a **Ranged Basic Attack**, you can roll an [[Agility]] Check with a `+3` [[Circumstance_Modifier | CM]] instead when already benefiting from **Basic Cover**.',
 		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		parameters: [
@@ -555,6 +555,11 @@ export const ACTIONS = {
 				mode: CheckMode.Contested,
 				nature: CheckNature.Resisted,
 				statType: StatType.Agility,
+				circumstanceModifier: new CircumstanceModifier({
+					source: ModifierSource.Circumstance,
+					name: 'Take Cover',
+					value: Bonus.of(3),
+				}),
 			}),
 		],
 	}),
@@ -866,7 +871,7 @@ export const ACTIONS = {
 		type: ActionType.Meta,
 		name: 'Prepare Action',
 		description:
-			'You can prepare a specific Action to be executed during the next round as a reaction. You must pay 1 extra [[Action_Point | AP]] to prepare, plus the AP associated with the Action you are preparing now, and will be **Concentrating** and cannot take any other Action or Reaction until your trigger procs during the next round. You will be Concentrating during this period and therefore can lose the action if you become [[Distracted]]. Depending on the complexity of the trigger, the DM might need to ask for an [[IQ]], [[Perception]], or some other check to determine your ability to properly react to your trigger.',
+			'You can prepare a specific Action to be executed during the next round as a reaction. You must pay 1 extra [[Action_Point | AP]] to prepare, plus the AP associated with the Action you are preparing now, and will be [[Concentrate | Concentrating]] and cannot take any other Action or Reaction until your trigger procs during the next round. You will be Concentrating during this period and therefore can lose the action if you become [[Distracted]]. Depending on the complexity of the trigger, the DM might need to ask for an [[IQ]], [[Perception]], or some other check to determine your ability to properly react to your trigger.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1, variable: true })],
 		traits: [Trait.Concentrate],
 	}),
@@ -875,7 +880,7 @@ export const ACTIONS = {
 		type: ActionType.Meta,
 		name: 'Decrease Initiative',
 		description:
-			'At the start of your turn, you can choose to decrease your Initiative to any value below the current. Your turn then does not start and moves down the turn order. You can never raise your initiative.',
+			'At the start of your turn, you can choose to decrease your [[Initiative]] to any value below the current. Your turn then does not start and moves down the turn order. You can never raise your initiative.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 0 })],
 	}),
 };

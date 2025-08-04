@@ -68,7 +68,7 @@ Since your **AP** is replenished at the end of your turn, you do not need to dec
 		targets: [TraitTarget.Action],
 		key: Trait.Concentrate,
 		name: 'Concentrate',
-		description: `This be performed while [[Distracted]]. Performing this action while in the threat area of an enemy grants them the chance to respond with an [[Opportunity_Attack | Opportunity Attack]] or the [[Feint]] action.`,
+		description: `Cannot be performed while [[Distracted]]. Performing this action while in the threat area of an enemy grants them the chance to respond with an [[Opportunity_Attack | Opportunity Attack]] (which could be the [[Feint]] action). You cannot perform any other [[Concentrate]] actions while concentrating.`,
 	}),
 	[Trait.Channel]: new TraitDefinition({
 		targets: [TraitTarget.Action],
