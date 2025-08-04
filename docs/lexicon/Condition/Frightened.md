@@ -1,0 +1,1 @@
+TODO: Add Frightened condition

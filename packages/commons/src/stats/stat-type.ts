@@ -431,10 +431,11 @@ On top of these types of actions, the different Skills can still be used for oth
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.FOW,
 		name: StatTypeName.Discipline,
-		description: `Ability to resist urges and temptations, vices and instant gratification, self-control and restraint.`,
+		description: `Ability to resist fear, urges and temptations, vices and instant gratification, self-control and restraint.`,
 		exampleUsages: [
 			`A Check can be used to resist a character's [[Vice]].`,
 			`A Check can be used to confront or endure a character's [[Aversion]].`,
+			`A Check can be used to resist fear effects, such as the [[Frightened]] condition, whether from supernatural sources or terrifying situations.`,
 			`A Contested Check can be used to resist addictive substances, compulsive behaviors, or the temptation of a prize.`,
 			`A Contested Check can be used to resist the temptation to act rashly or impulsively in critical situations.`,
 		],
@@ -455,11 +456,10 @@ On top of these types of actions, the different Skills can still be used for oth
 		hierarchy: StatHierarchy.Skill,
 		parent: StatType.FOW,
 		name: StatTypeName.Resolve,
-		description: `Resistance to mind control, social manipulation, deceit, charm, fear, and intimidation; fortitude of the mind and mental resilience.`,
+		description: `Resistance to mind control, social manipulation, deceit, charm, and intimidation; fortitude of the mind and mental resilience.`,
 		exampleUsages: [
-			`A Contested Check can be used to resist Command Arcane Spells that attempt to control your mind.`,
-			`A Contested Check can be used to resist social manipulation, intimidation, or coercion attempts.`,
-			`A Check can be used to resist fear effects, whether from supernatural sources or terrifying situations.`,
+			`A Contested Check can be used to resist **Command** Arcane Spells that attempt to control your mind.`,
+			`A Contested Check can be used to resist social manipulation, intimidation, or coercion attempts (for example to resist [[CHA]]-based checks).`,
 		],
 	});
 	static readonly Fortune = StatType.build({
