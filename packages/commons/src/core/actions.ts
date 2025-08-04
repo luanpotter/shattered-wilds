@@ -153,7 +153,7 @@ export enum Action {
 	Inspire = 'Inspire',
 	Shove = 'Shove',
 	Sneak = 'Sneak',
-	SlipPast = 'SlipPast',
+	PassThrough = 'PassThrough',
 	Swim = 'Swim',
 	TakeCover = 'TakeCover',
 	SideStep = 'SideStep',
@@ -252,10 +252,10 @@ export const ACTIONS = {
 			}),
 		],
 	}),
-	[Action.SlipPast]: new ActionDefinition({
-		key: Action.SlipPast,
+	[Action.PassThrough]: new ActionDefinition({
+		key: Action.PassThrough,
 		type: ActionType.Movement,
-		name: 'Slip Past',
+		name: 'Pass Through',
 		description:
 			"Contested [[Finesse]] check against opponent's [[Stance]]. Move past one enemy to an adjacent hex, as long as your [[Movement]] is 2 or more.",
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],

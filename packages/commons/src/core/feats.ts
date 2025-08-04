@@ -659,7 +659,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassRole.Tank,
 		level: 2,
 		description:
-			'You have a `+6` [[Circumstance Modifier | CM]] to your [[Stance]] Checks to resist opponents of your size or larger attempting to [[Slip Past]] you.',
+			'You have a `+6` [[Circumstance Modifier | CM]] to your [[Stance]] Checks to resist opponents of your size or larger attempting to [[Pass Through]] you.',
 	}),
 	// Martial
 	[Feat.ExertAuthority]: new FeatDefinition<void>({
