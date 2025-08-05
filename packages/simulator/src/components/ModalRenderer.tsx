@@ -12,6 +12,8 @@ import {
 	BasicAttacksModal,
 	MeasureModal,
 	FeatsModal,
+	FeatSelectionModal,
+	FeatParameterSetupModal,
 	DiceRollModal,
 	ClassSetupModal,
 	ConsumeResourceModal,
@@ -201,6 +203,19 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({
 					return renderCharacterNotFound(modal.characterId);
 				}
 				return <ConsumeResourceModal character={character} costs={modal.actionCosts} onClose={onClose} />;
+			}
+			case 'feat-selection': {
+				return <FeatSelectionModal characterId={modal.characterId} slot={modal.slot} onClose={onClose} />;
+			}
+			case 'feat-parameter-setup': {
+				return (
+					<FeatParameterSetupModal
+						characterId={modal.characterId}
+						slot={modal.slot}
+						baseFeat={modal.baseFeat}
+						onClose={onClose}
+					/>
+				);
 			}
 			default:
 				return <div>Unknown modal type</div>;

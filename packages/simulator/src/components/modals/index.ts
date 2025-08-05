@@ -9,5 +9,7 @@ export { ClassSetupModal } from './ClassSetupModal';
 export { ConsumeResourceModal } from './ConsumeResourceModal';
 export { DiceRollModal } from './DiceRollModal';
 export { FeatsModal } from './FeatsModal';
+export { FeatSelectionModal } from './FeatSelectionModal';
+export { FeatParameterSetupModal } from './FeatParameterSetupModal';
 export { MeasureModal } from './MeasureModal';
 export { default as RaceSetupModal } from './RaceSetupModal';

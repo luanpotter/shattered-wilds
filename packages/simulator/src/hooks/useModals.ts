@@ -1,4 +1,4 @@
-import { ActionCost, Check } from '@shattered-wilds/commons';
+import { ActionCost, Check, FeatSlot, FeatDefinition } from '@shattered-wilds/commons';
 
 import { useStore } from '../store';
 import { HexPosition } from '../types';
@@ -248,6 +248,51 @@ export function useModals() {
 		});
 	};
 
+	const openFeatSelectionModal = ({ characterId, slot }: { characterId: string; slot: FeatSlot }) => {
+		const character = characters.find(c => c.id === characterId);
+		if (!character) {
+			console.error('Character not found:', characterId);
+			return;
+		}
+
+		addModal({
+			id: generateModalId(),
+			title: `Select ${slot.type} Feat for Level ${slot.level}`,
+			type: 'feat-selection',
+			characterId,
+			slot,
+			position: getNextPosition(),
+			width: '600px',
+		});
+	};
+
+	const openFeatParameterSetupModal = ({
+		characterId,
+		slot,
+		baseFeat,
+	}: {
+		characterId: string;
+		slot: FeatSlot;
+		baseFeat: FeatDefinition<string | void>;
+	}) => {
+		const character = characters.find(c => c.id === characterId);
+		if (!character) {
+			console.error('Character not found:', characterId);
+			return;
+		}
+
+		addModal({
+			id: generateModalId(),
+			title: `Configure ${baseFeat.name}`,
+			type: 'feat-parameter-setup',
+			characterId,
+			slot,
+			baseFeat,
+			position: getNextPosition(),
+			width: '500px',
+		});
+	};
+
 	const closeModal = (modalId: string) => {
 		removeModal(modalId);
 	};
@@ -270,6 +315,8 @@ export function useModals() {
 		openAttackActionModal,
 		openMeasureModal,
 		openConsumeResourceModal,
+		openFeatSelectionModal,
+		openFeatParameterSetupModal,
 		closeModal,
 		closeAllModals,
 		updateModal,

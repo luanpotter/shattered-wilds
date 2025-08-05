@@ -1,4 +1,4 @@
-import { ActionCost, Check } from '@shattered-wilds/commons';
+import { ActionCost, Check, FeatSlot, FeatDefinition } from '@shattered-wilds/commons';
 
 export interface Point {
 	x: number;
@@ -85,6 +85,17 @@ export type Modal =
 			type: 'consume-resource';
 			characterId: string;
 			actionCosts: ActionCost[];
+	  })
+	| (BaseModal & {
+			type: 'feat-selection';
+			characterId: string;
+			slot: FeatSlot;
+	  })
+	| (BaseModal & {
+			type: 'feat-parameter-setup';
+			characterId: string;
+			slot: FeatSlot;
+			baseFeat: FeatDefinition<string | void>;
 	  });
 
 export interface Character {
