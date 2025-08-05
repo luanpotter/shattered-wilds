@@ -160,10 +160,7 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 									<FeatBox
 										key={featOrSlot.slot?.toProp() ?? featOrSlot.info?.feat.key}
 										featOrSlot={featOrSlot}
-										onSelectSlot={() => {
-											/* TODO select slot */
-										}}
-										onClearSlot={slot => updateCharacterProp(character, slot.toProp(), undefined)}
+										character={character}
 									/>
 								);
 							})}

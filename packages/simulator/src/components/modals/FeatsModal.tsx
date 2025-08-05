@@ -1,9 +1,6 @@
-import { FeatSlot } from '@shattered-wilds/commons';
 import React, { useState } from 'react';
 import { FaChevronDown, FaChevronRight, FaExclamationTriangle } from 'react-icons/fa';
 
-import { useModals } from '../../hooks/useModals';
-import { useStore } from '../../store';
 import { Character, CharacterSheet } from '../../types';
 import { FeatsSection } from '../../types/feats-section';
 import { FeatBox } from '../FeatBox';
@@ -15,9 +12,6 @@ interface FeatsModalProps {
 }
 
 export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) => {
-	const updateCharacterProp = useStore(state => state.updateCharacterProp);
-	const { openFeatSelectionModal } = useModals();
-
 	const sheet = CharacterSheet.from(character.props);
 
 	const featsSection = FeatsSection.create(sheet);
@@ -29,13 +23,6 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 			featsSection.featsOrSlotsByLevel.filter(e => !e.hasWarnings && e.level !== lastLevel).map(e => e.level),
 		);
 	});
-
-	const handleSelectSlot = (slot: FeatSlot) => {
-		openFeatSelectionModal({
-			characterId: character.id,
-			slot,
-		});
-	};
 
 	const toggleLevelCollapse = (level: number) => {
 		const newCollapsedLevels = new Set(collapsedLevels);
@@ -133,8 +120,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 												<FeatBox
 													key={featOrSlot.slot?.toProp() ?? featOrSlot.info?.feat.key}
 													featOrSlot={featOrSlot}
-													onSelectSlot={handleSelectSlot}
-													onClearSlot={slot => updateCharacterProp(character, slot.toProp(), undefined)}
+													character={character}
 												/>
 											);
 										})}
