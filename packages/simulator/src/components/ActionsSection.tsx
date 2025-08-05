@@ -325,6 +325,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 								gap: '4px',
 								padding: '8px 12px',
 								border: 'none',
+								borderRadius: 0,
 								borderBottom: isActive ? '2px solid var(--text)' : '2px solid transparent',
 								backgroundColor: isActive ? 'var(--background-alt)' : 'transparent',
 								color: 'var(--text)',
