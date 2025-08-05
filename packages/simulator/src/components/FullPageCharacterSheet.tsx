@@ -67,7 +67,6 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
 	const editMode = useStore(state => state.editMode);
 
-	const modals = useStore(state => state.modals);
 	const { openDiceRollModal, openRaceSetupModal, openClassSetupModal, openFeatsSetupModal } = useModals();
 
 	const characterId = character.id;
@@ -91,16 +90,6 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 		void window.navigator.clipboard.writeText(keyValuePairs);
 	};
 
-	const handleOpenFeatsSetup = () => {
-		// Check if a feats setup modal is already open for this character
-		const featsSetupModal = modals.find(modal => modal.type === 'feats-setup' && modal.characterId === character.id);
-
-		// If not, open a new feats setup modal
-		if (!featsSetupModal) {
-			openFeatsSetupModal({ characterId: character.id });
-		}
-	};
-
 	const renderFeatsSection = () => {
 		const section = FeatsSection.create(sheet);
 
@@ -109,7 +98,9 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 				<Block>
 					<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 						<h3 style={{ margin: '0 0 8px 0', fontSize: '1.1em' }}>Feats</h3>
-						{editMode && <Button onClick={handleOpenFeatsSetup} title='Manage Feats' icon={FaCog} />}
+						{editMode && (
+							<Button onClick={() => openFeatsSetupModal({ characterId })} title='Manage Feats' icon={FaCog} />
+						)}
 					</div>
 					{children}
 				</Block>
