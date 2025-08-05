@@ -632,7 +632,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassRole.Tank,
 		level: 1,
 		description:
-			'You can spend an additional 1 [[Spirit_Point | SP]] as you perform a [[Taunt]] action to get a +6 [[Circumstance Modifier | CM]] to your [[Intimidation]] Check.',
+			'You can spend an additional 1 [[Spirit_Point | SP]] as you perform a [[Taunt]] action to get a +6 [[Circumstance Modifier | CM]] to your [[Presence]] Check.',
 	}),
 	[Feat.QuickBash]: new FeatDefinition<void>({
 		key: Feat.QuickBash,

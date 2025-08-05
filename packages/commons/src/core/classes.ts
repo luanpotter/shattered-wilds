@@ -119,7 +119,7 @@ export class ClassDefinition {
 	}
 
 	get description(): string {
-		return `${this.role} ${this.flavor}`;
+		return `${this.flavor} ${this.role}`;
 	}
 }
 
