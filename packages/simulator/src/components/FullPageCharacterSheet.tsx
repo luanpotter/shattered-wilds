@@ -1,15 +1,14 @@
 import { Check, CheckMode, CheckNature, DerivedStatType, Resource } from '@shattered-wilds/commons';
 import React, { useMemo } from 'react';
-import { FaArrowLeft, FaBatteryFull, FaCog, FaCopy, FaExclamationTriangle } from 'react-icons/fa';
+import { FaArrowLeft, FaBatteryFull, FaCopy } from 'react-icons/fa';
 
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
 import { Character, CharacterSheet, CurrentResources } from '../types';
-import { FeatsSection } from '../types/feats-section';
 
 import { ActionsSection } from './ActionsSection';
 import { EquipmentSection } from './EquipmentSection';
-import { FeatBox } from './FeatBox';
+import { FeatsSectionComponent } from './FeatsSectionComponent';
 import { ResourceInputComponent } from './ResourceInputComponent';
 import Block from './shared/Block';
 import { Button } from './shared/Button';
@@ -67,7 +66,7 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
 	const editMode = useStore(state => state.editMode);
 
-	const { openDiceRollModal, openRaceSetupModal, openClassSetupModal, openFeatsSetupModal } = useModals();
+	const { openDiceRollModal, openRaceSetupModal, openClassSetupModal } = useModals();
 
 	const characterId = character.id;
 	const sheet = CharacterSheet.from(character.props);
@@ -88,78 +87,6 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 			.map(([key, value]) => `${key}: ${value}`)
 			.join('\n');
 		void window.navigator.clipboard.writeText(keyValuePairs);
-	};
-
-	const renderFeatsSection = () => {
-		const section = FeatsSection.create(sheet);
-
-		const wrap = (children: React.ReactNode) => {
-			return (
-				<Block>
-					<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-						<h3 style={{ margin: '0 0 8px 0', fontSize: '1.1em' }}>Feats</h3>
-						{editMode && (
-							<Button onClick={() => openFeatsSetupModal({ characterId })} title='Manage Feats' icon={FaCog} />
-						)}
-					</div>
-					{children}
-				</Block>
-			);
-		};
-
-		if (section.isEmpty) {
-			return wrap(
-				<>
-					<p>No feats assigned yet.</p>
-					{editMode && <p style={{ fontSize: '0.9em' }}>Click &quot;Manage Feats&quot; above to assign feats.</p>}
-				</>,
-			);
-		}
-
-		const { warnings } = section;
-		return wrap(
-			<>
-				{warnings.length > 0 && (
-					<div
-						style={{
-							padding: '1rem',
-							backgroundColor: 'var(--background)',
-							border: '1px solid orange',
-							borderRadius: '4px',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '0.5rem',
-						}}
-					>
-						<FaExclamationTriangle style={{ color: 'orange' }} />
-						<span style={{ color: 'var(--text)' }}>{warnings.length} warnings</span>
-					</div>
-				)}
-
-				{section.featsOrSlotsByLevel.map(({ level, featsOrSlots }) => (
-					<div key={level}>
-						<h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: 'var(--text)' }}>Level {level}</h3>
-						<div
-							style={{
-								display: 'grid',
-								gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-								gap: '0.5rem',
-							}}
-						>
-							{featsOrSlots.map(featOrSlot => {
-								return (
-									<FeatBox
-										key={featOrSlot.slot?.toProp() ?? featOrSlot.info?.feat.key}
-										featOrSlot={featOrSlot}
-										character={character}
-									/>
-								);
-							})}
-						</div>
-					</div>
-				))}
-			</>,
-		);
 	};
 
 	const Row = ({ children }: { children: React.ReactNode }) => {
@@ -287,7 +214,7 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 						/>
 					</Block>
 
-					{renderFeatsSection()}
+					<FeatsSectionComponent character={character} />
 					<EquipmentSection character={character} />
 					<ActionsSection character={character} />
 				</Column>
