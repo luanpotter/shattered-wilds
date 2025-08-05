@@ -288,11 +288,7 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 					</Block>
 
 					{renderFeatsSection()}
-					<EquipmentSection
-						character={character}
-						onUpdateEquipment={equipment => updateCharacterProp(character, 'equipment', equipment.toProp())}
-						editMode={editMode}
-					/>
+					<EquipmentSection character={character} />
 					<ActionsSection character={character} />
 				</Column>
 			</main>

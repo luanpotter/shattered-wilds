@@ -1,59 +1,37 @@
 import React, { useState } from 'react';
 import { FaTrash } from 'react-icons/fa';
 
+import { useStore } from '../store';
 import { Character, CharacterSheet, Equipment, BASIC_EQUIPMENT, BasicEquipmentType } from '../types';
 
 import Block from './shared/Block';
 import { Button } from './shared/Button';
 import LabeledDropdown from './shared/LabeledDropdown';
+import LabeledInput from './shared/LabeledInput';
 
 interface EquipmentSectionProps {
 	character: Character;
-	onUpdateEquipment: (equipment: Equipment) => void;
-	editMode: boolean;
 }
 
-export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ character, onUpdateEquipment, editMode }) => {
-	const equipment = CharacterSheet.from(character.props);
+export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ character }) => {
+	const editMode = useStore(state => state.editMode);
+	const equipment = CharacterSheet.from(character.props).equipment;
 
-	// State for the dropdown (selected predefined item)
 	const [selectedItem, setSelectedItem] = useState<BasicEquipmentType | null>(null);
+
+	const updateCharacterProp = useStore(state => state.updateCharacterProp);
+	const onUpdateEquipment = (equipment: Equipment) => updateCharacterProp(character, 'equipment', equipment.toProp());
 
 	const handleAddPredefinedItem = (item: BasicEquipmentType) => {
 		const newItem = BASIC_EQUIPMENT[item].generator();
-		equipment.equipment.items.push(newItem);
-		onUpdateEquipment(equipment.equipment);
+		equipment.items.push(newItem);
+		onUpdateEquipment(equipment);
 		setSelectedItem(null);
 	};
 
 	const handleRemoveItem = (idx: number) => {
-		equipment.equipment.items.splice(idx, 1);
-		onUpdateEquipment(equipment.equipment);
-	};
-
-	const commonInputStyle: React.CSSProperties = {
-		flex: 1,
-		boxSizing: 'border-box' as const,
-		fontSize: '0.9em',
-		padding: '2px 4px',
-		margin: 0,
-		height: '24px',
-		width: '100%',
-	};
-
-	const commonLabelStyle: React.CSSProperties = {
-		fontSize: '0.9em',
-		whiteSpace: 'nowrap' as const,
-		flexShrink: 0,
-		paddingRight: '4px',
-	};
-
-	const commonRowStyle: React.CSSProperties = {
-		display: 'flex',
-		alignItems: 'center',
-		marginBottom: '4px',
-		gap: '4px',
-		width: '100%',
+		equipment.items.splice(idx, 1);
+		onUpdateEquipment(equipment);
 	};
 
 	return (
@@ -83,24 +61,28 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ character, o
 					)}
 				</div>
 
-				{equipment.equipment.items.map((item, idx) => (
-					<div key={idx} style={commonRowStyle}>
-						{editMode ? (
-							<>
-								<input
-									type='text'
-									value={item.name}
-									onChange={e => {
-										item.name = e.target.value;
-										onUpdateEquipment(equipment.equipment);
-									}}
-									style={commonInputStyle}
-									placeholder='Item name'
-								/>
-								<Button onClick={() => handleRemoveItem(idx)} icon={FaTrash} tooltip='Remove item' variant='inline' />
-							</>
-						) : (
-							<span style={commonLabelStyle}>{item.description}</span>
+				{equipment.items.map((item, idx) => (
+					<div
+						key={idx}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							marginBottom: '4px',
+							gap: '4px',
+							width: '100%',
+						}}
+					>
+						<LabeledInput
+							variant='inline'
+							value={item.name}
+							onChange={value => {
+								item.name = value;
+								onUpdateEquipment(equipment);
+							}}
+							disabled={!editMode}
+						/>
+						{editMode && (
+							<Button onClick={() => handleRemoveItem(idx)} icon={FaTrash} tooltip='Remove item' variant='inline' />
 						)}
 					</div>
 				))}

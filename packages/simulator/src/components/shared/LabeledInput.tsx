@@ -2,7 +2,7 @@ import React from 'react';
 
 interface LabeledInputProps {
 	variant?: 'normal' | 'inline';
-	label: string;
+	label?: string | undefined;
 	tooltip?: string | undefined;
 	value: string;
 	disabled?: boolean;
@@ -66,21 +66,28 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
 				},
 			}
 		: {};
+	const input = (
+		<div style={variant === 'inline' ? inlineInnerWrapperStyle : normalWrapperStyle} {...clickHandlers}>
+			<input
+				disabled={disabled && !onClick}
+				readOnly={disabled}
+				type='text'
+				value={value}
+				onChange={e => onChange?.(e.target.value)}
+				style={variant === 'inline' ? inlineStyle : normalStyle}
+			/>
+			{buttons}
+		</div>
+	);
+	if (!label) {
+		return input;
+	}
+
 	return (
 		<div title={tooltip ?? label} style={{ flex: 1 }}>
 			<label style={variant === 'inline' ? inlineLabelStyle : normalLabelStyle}>
 				{label}
-				<div style={variant === 'inline' ? inlineInnerWrapperStyle : normalWrapperStyle} {...clickHandlers}>
-					<input
-						disabled={disabled && !onClick}
-						readOnly={disabled}
-						type='text'
-						value={value}
-						onChange={e => onChange?.(e.target.value)}
-						style={variant === 'inline' ? inlineStyle : normalStyle}
-					/>
-					{buttons}
-				</div>
+				{input}
 			</label>
 		</div>
 	);
