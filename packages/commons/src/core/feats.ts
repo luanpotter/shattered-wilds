@@ -787,7 +787,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassFlavor.Naturalist,
 		level: 1,
 		description:
-			'You can create and use a personal **Custom Focus** (`+3`) that is bound to you. You can use this **Custom Focus** to execute the **Focal Component** of any spell, but you cannot use any other type of **Spell Component**.',
+			'You can create and use a personal **Custom Focus** (`+4`) that is bound to you. You can use this **Custom Focus** to execute the **Focal Component** of any spell, but you cannot use any other type of **Spell Component**.',
 	}),
 	// Musicist
 	[Feat.LyricResonance]: new FeatDefinition<void>({

@@ -113,7 +113,7 @@ Therefore, as with other [[Imbued Item | Imbued Items]], the usages of a **Focal
 * **Typical Two-Handed Staff**: +2
 * **Custom Focus**: +4 (**Naturalists** only)
 
-As **Imbued Items**, **Wands** and **Staves**, even the simpler +1/+2 versions are not as trivial to find as **Mundane Items**, but a seasoned **Arcanist** such as a **Hero** can be considered to have found one if desired. **Custom Foci** can only be created by **Naturalists** (using their **Core Minor Feat**, **Focal Connection**), but are personally bound to their creators.
+As **Imbued Items**, **Wands** and **Staves**, even the simpler +1/+2 versions are not as trivial to find as **Mundane Items**, but a seasoned **Arcanist** such as a **Hero** can be considered to have found one if desired. **Custom Foci** can only be created by **Naturalists** (using their **Core Minor Feat**, [[Focal Connection]]), but are personally bound to their creators.
 
 ### Scrolls
 
