@@ -81,6 +81,7 @@ export const FeatParameterSetupModal: React.FC<FeatParameterSetupModalProps> = (
 					options={param.values || []}
 					describe={option => option}
 					onChange={handleParameterChange}
+					placeholder='Select parameter'
 				/>
 				{hasError && (
 					<div
