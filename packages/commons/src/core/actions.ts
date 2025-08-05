@@ -321,6 +321,22 @@ export const ACTIONS = {
 			}),
 		],
 	}),
+	[Action.Charge]: new ActionDefinition({
+		key: Action.Charge,
+		type: ActionType.Movement,
+		name: 'Charge',
+		description:
+			'Move `Movement + 1` hexes in a straight line, followed by Melee Attack with [[Muscles]] instead of [[STR]] (you still pay the [[Action Point | AP]] cost for that action). This can be used for a "tackle" if the [[Shove]] Attack Action is chosen, in which case a `+3` [[Circumstance Modifier | CM]] is granted to the attacker.',
+		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 2 })],
+		traits: [Trait.Melee],
+		parameters: [
+			new ActionValueParameter({
+				name: 'Distance',
+				unit: ActionValueUnit.Hex,
+				formula: F.variable(1, DerivedStatType.Movement).add(F.constant(1)),
+			}),
+		],
+	}),
 
 	// Attack
 	[Action.Stun]: new ActionDefinition({
@@ -442,27 +458,12 @@ export const ACTIONS = {
 			}),
 		],
 	}),
-	[Action.Charge]: new ActionDefinition({
-		key: Action.Charge,
-		type: ActionType.Attack,
-		name: 'Charge',
-		description:
-			'Move `Movement + 1` hexes in a straight line, followed by Melee Attack with [[Muscles]] instead of [[STR]]. This can be used for a "tackle" if the [[Shove]] Attack Action is chosen, in which case a `+3` [[Circumstance Modifier | CM]] is granted to the attacker.',
-		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 2 })],
-		traits: [Trait.Melee],
-		parameters: [
-			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Active,
-				statType: StandardCheck.Attack,
-			}),
-		],
-	}),
 	[Action.Shove]: new ActionDefinition({
 		key: Action.Shove,
 		type: ActionType.Attack,
 		name: 'Shove',
-		description: 'Special Attack against [[Stance]]. Shoves opponent to the next hex in the incoming direction.',
+		description:
+			'Special Attack against [[Stance]]. Shoves opponent to the next hex in the incoming direction. A Shift can be used to apply the [[Prone]] condition.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		traits: [Trait.Melee],
 		parameters: [
@@ -493,7 +494,7 @@ export const ACTIONS = {
 		type: ActionType.Attack,
 		name: 'Demoralize',
 		description:
-			"Special Attack using [[Speechcraft]] against target's [[Resolve]]: target becomes [[Distraught]]. **Crit Shifts** deal [[Spirit_Point | SP]] damage.",
+			"Special Attack using [[Speechcraft]] against target's [[Resolve]]: target becomes [[Distraught]]. **Shifts** deal [[Spirit_Point | SP]] damage.",
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		parameters: [
 			new ActionCheckParameter({
@@ -802,7 +803,7 @@ export const ACTIONS = {
 		type: ActionType.Heroic,
 		name: 'Karmic Resistance',
 		description:
-			'The **Karmic Resistance** is a special mechanic that allows you to spend 1 [[Heroism Point | Heroism Point]] to resist an effect that requires a **Contested Check** by calling upon your [[Karma]] skill instead. You cannot use [[Luck_Die | Luck Die]] or [[Extra_Die | Extra Die]] on this roll.',
+			'The **Karmic Resistance** is a special mechanic that allows you to spend 1 [[Heroism Point | Heroism Point]] to resist an effect that requires a **Contested Check** by calling upon your [[Karma]] skill with a `+3` [[Circumstance Modifier | CM]] instead. You cannot use [[Luck Die | Luck]] or [[Extra Die]] on this roll.',
 		costs: [
 			new ActionCost({ resource: Resource.ActionPoint, amount: 0 }),
 			new ActionCost({ resource: Resource.HeroismPoint, amount: 1 }),
@@ -812,6 +813,11 @@ export const ACTIONS = {
 				mode: CheckMode.Contested,
 				nature: CheckNature.Active,
 				statType: StatType.Karma,
+				circumstanceModifier: new CircumstanceModifier({
+					source: ModifierSource.Circumstance,
+					name: 'Karmic Resistance',
+					value: Bonus.of(3),
+				}),
 			}),
 		],
 		traits: [Trait.Channel],
@@ -821,7 +827,7 @@ export const ACTIONS = {
 		type: ActionType.Heroic,
 		name: 'Write History',
 		description:
-			"**Write History** allows you to spend [[Heroism Point | Heroism Points]] to influence the narrative and create fortunate coincidences in the world around you.\n\nWhen you use Write History, you spend 1+ [[Heroism_Point | HP]] and propose to the DM that a fact about the world is true. It can be about history, about the existence of some item or person in the current city, about the geography and map and lore about the nearby map.\n\nAnything can be proposed, but there are a few rules:\n\n* It must not contradict anything that was already established to the players\n* It must not contradict or interact with any key plans the DM has that have not yet been established to the player\n\nThat means the DM can deny any request w/o any further comments. If the change is acceptable, though, the DM will accept the proposal and counter-offer it with a [[Serendipity]] Check DC, depending on:\n\n* how close to true the fact already is\n* how convenient it would be if it were true\n* how absurd it would be for it to be true\n\nThe player can then accept the offer or offer a counter-counter proposal, by suggesting:\n\n* a slightly more reasonable version of the request\n* a different skill/check to be used\n* a different DC\n\nWith supporting arguments/evidence. This can go back and forth until the DM has the final say on the DC. The Player must make this roll without using any [[Luck_Die | Luck Die]] or [[Extra_Die | Extra Die]] on this roll.\n\nDepending on the level of success or failure (eg how close to the DC it was), the DM will decide:\n\n* complete failure, nothing happens\n* partial failure, the DM picks a weaker/monkey-pawed version of the fact\n* success, the player gets the exact fact as agreed\n* complete success, the player might get a perk on top of the fact\n\nThe DM doesn't necessarily need to tell the player immediately which level of success was obtained.",
+			"**Write History** allows you to spend [[Heroism Point | Heroism Points]] to influence the narrative and create fortunate coincidences in the world around you.\n\nWhen you use Write History, you spend 1+ [[Heroism_Point | HP]] and propose to the DM that a fact about the world is true. It can be about history, about the existence of some item or person in the current city, about the geography and map and lore about the nearby map.\n\nAnything can be proposed, but there are a few rules:\n\n* It must not contradict anything that was already established to the players\n* It must not contradict or interact with any key plans the DM has that have not yet been established to the player\n\nThat means the DM can deny any request w/o any further comments. If the change is acceptable, though, the DM will accept the proposal and counter-offer it with a [[Serendipity]] Check DC, depending on:\n\n* how close to true the fact already is\n* how convenient it would be if it were true\n* how absurd it would be for it to be true\n\nThe player can then accept the offer or offer a counter-counter proposal, by suggesting a more reasonable version of the request.\n\nThis can go back and forth until the DM has the final say on the DC. The Player must make this roll without using any [[Luck Die | Luck]] or [[Extra Die]].\n\nDepending on the level of success or failure (i.e. how close to the DC it was), the DM will decide:\n\n* complete failure, nothing happens\n* partial failure, the DM picks a weaker/monkey-pawed version of the fact\n* success, the player gets the exact fact as agreed\n* complete success, the player might get a perk on top of the fact\n\nThe DM doesn't necessarily need to tell the player immediately which level of success was obtained.",
 		costs: [
 			new ActionCost({ resource: Resource.ActionPoint, amount: 0 }),
 			new ActionCost({ resource: Resource.HeroismPoint, amount: 1, variable: true }),
@@ -872,7 +878,7 @@ export const ACTIONS = {
 		type: ActionType.Heroic,
 		name: 'Extra Die',
 		description:
-			'The **Extra Die** is a special mechanic that allows you to enhance your **Active Skill Checks** by leveraging a different **Attribute** alongside your main **Skill**.\n\nFor example, imagine you are trying to deceive a guard with a [[Speechcraft]] check, but you have a high [[WIS]]. You can leverage your **Wisdom score** to complement your **Speechcraft Check** by paying 1 [[Heroism_Point | Heroism Point]]. You then roll an extra, visually distinct `d12` for the **Check** (check the [[CHA]] attribute for more examples of Extras).\n\nIn order for this extra die to be valid, it must be less or equal than the Attribute chosen as the **Extra**. If it is, that is a valid ***Extra Die** that can be picked as one of the two for the final total. Note that, regardless if you pick the extra die or even if it is valid or not, it still counts for **Crit Modifiers** and **Auto Fail** when applicable.\n\nThe **Extra Die** must be invoked before the roll is made.',
+			'The **Extra Die** is a special mechanic that allows you to enhance your **Active Skill Checks** by leveraging a different **Attribute** alongside your main **Skill**.\n\nFor example, imagine you are trying to deceive a guard with a [[Speechcraft]] check, but you have a high [[WIS]]. You can leverage your **Wisdom score** to complement your **Speechcraft Check** by paying 1 [[Heroism_Point | Heroism Point]]. You then roll an extra, visually distinct `d12` for the **Check** (check the [[CHA]] attribute for more examples of Extras).\n\nIn order for this extra die to be valid, it must be less or equal than the Attribute chosen as the **Extra**. If it is, that is a valid **Extra Die** that can be picked as one of the two for the final total. Note that, regardless if you pick the extra die or even if it is valid or not, it still counts for **Crit Modifiers** and **Auto Fail** when applicable.\n\nThe **Extra Die** must be invoked before the roll is made.',
 		costs: [
 			new ActionCost({ resource: Resource.ActionPoint, amount: 0 }),
 			new ActionCost({ resource: Resource.HeroismPoint, amount: 1 }),
@@ -886,7 +892,7 @@ export const ACTIONS = {
 		type: ActionType.Meta,
 		name: 'Prepare Action',
 		description:
-			'You can prepare a specific Action to be executed during the next round as a reaction. You must pay 1 extra [[Action_Point | AP]] to prepare, plus the AP associated with the Action you are preparing now, and will be [[Concentrate | Concentrating]] and cannot take any other Action or Reaction until your trigger procs during the next round. You will be Concentrating during this period and therefore can lose the action if you become [[Distracted]]. Depending on the complexity of the trigger, the DM might need to ask for an [[IQ]], [[Perception]], or some other check to determine your ability to properly react to your trigger.',
+			'You can prepare a specific [[Action]] to be executed until your next turn as a reaction. You must pay 1 extra [[Action_Point | AP]] to prepare, plus the AP associated with the Action you are preparing now, and will be [[Concentrate | Concentrating]] and cannot take any other Action costing `1` AP or more (including Reactions) until your trigger procs. If your concentration is disrupted due to becoming [[Distracted]], you lose the action (and the AP invested). Depending on the complexity of the trigger, the DM might need to ask for an [[IQ]], [[Perception]], or some other check to determine your ability to properly react to your trigger.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1, variable: true })],
 		traits: [Trait.Concentrate],
 	}),
