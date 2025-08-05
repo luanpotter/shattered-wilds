@@ -3,6 +3,7 @@ import { FaCopy, FaExpand } from 'react-icons/fa';
 
 import { useStore } from '../store';
 import { Modal as ModalType, CharacterSheet } from '../types';
+import { copyCharacterDataToClipboard } from '../utils/clipboard';
 
 import { CharacterList } from './CharacterList';
 import { CharacterSheetModal } from './CharacterSheet';
@@ -21,8 +22,6 @@ import {
 	AttackActionModal,
 } from './modals';
 import { Button } from './shared/Button';
-
-const navigator = window.navigator;
 
 interface ModalRendererProps {
 	modal: ModalType;
@@ -44,10 +43,7 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({
 	const handleCopyCharacterSheet = (characterId: string) => {
 		const character = characters.find(c => c.id === characterId);
 		if (!character) return;
-		const keyValuePairs = Object.entries(character.props)
-			.map(([key, value]) => `${key}: ${value}`)
-			.join('\n');
-		void navigator.clipboard.writeText(keyValuePairs);
+		copyCharacterDataToClipboard(character);
 	};
 
 	const handleExpandCharacterList = () => {
@@ -80,29 +76,25 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({
 					/>
 				);
 			case 'character-sheet':
-				if (modal.characterId) {
-					return (
-						<>
-							<Button
-								onClick={() => handleCopyCharacterSheet(modal.characterId!)}
-								icon={FaCopy}
-								tooltip='Copy character sheet'
-								variant='inline'
-							/>
-							<Button
-								onClick={() => handleExpandCharacterSheet(modal.characterId!)}
-								icon={FaExpand}
-								tooltip='Open character sheet full page'
-								variant='inline'
-							/>
-						</>
-					);
-				}
-				break;
+				return (
+					<>
+						<Button
+							onClick={() => handleCopyCharacterSheet(modal.characterId)}
+							icon={FaCopy}
+							tooltip='Copy character sheet'
+							variant='inline'
+						/>
+						<Button
+							onClick={() => handleExpandCharacterSheet(modal.characterId)}
+							icon={FaExpand}
+							tooltip='Open character sheet full page'
+							variant='inline'
+						/>
+					</>
+				);
 			default:
 				return null;
 		}
-		return null;
 	};
 
 	const renderCharacterNotFound = (characterId: string) => {

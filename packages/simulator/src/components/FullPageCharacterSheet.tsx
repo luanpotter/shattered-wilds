@@ -5,6 +5,7 @@ import { FaArrowLeft, FaBatteryFull, FaCopy } from 'react-icons/fa';
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
 import { Character, CharacterSheet, CurrentResources } from '../types';
+import { copyCharacterDataToClipboard } from '../utils/clipboard';
 
 import { ActionsSection } from './ActionsSection';
 import { EquipmentSection } from './EquipmentSection';
@@ -82,13 +83,6 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 		});
 	};
 
-	const handleCopyCharacterSheet = () => {
-		const keyValuePairs = Object.entries(character.props)
-			.map(([key, value]) => `${key}: ${value}`)
-			.join('\n');
-		void window.navigator.clipboard.writeText(keyValuePairs);
-	};
-
 	const Row = ({ children }: { children: React.ReactNode }) => {
 		return <div style={{ display: 'flex' }}>{children}</div>;
 	};
@@ -128,7 +122,7 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 						<h2 style={{ margin: 0, fontSize: '1.5rem' }}>{character.props.name}&apos;s Character Sheet</h2>
 					</div>
 					<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-						<Button onClick={handleCopyCharacterSheet} icon={FaCopy} title='Export' />
+						<Button onClick={() => copyCharacterDataToClipboard(character)} icon={FaCopy} title='Export' />
 					</div>
 				</div>
 				<Column>

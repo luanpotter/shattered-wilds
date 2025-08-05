@@ -5,6 +5,7 @@ import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
 import { Character } from '../types';
 import { findNextEmptyHexPosition } from '../utils';
+import { importCharacterDataFromClipboard } from '../utils/clipboard';
 
 import { Button } from './shared/Button';
 
@@ -23,41 +24,12 @@ export const CharacterList: React.FC = () => {
 	};
 
 	const handleImportFromClipboard = async () => {
-		try {
-			const clipboardText = await window.navigator.clipboard.readText();
-			if (!clipboardText.trim()) {
-				setImportError('Clipboard is empty');
-				return;
-			}
-
-			const props: Record<string, string> = {};
-			const lines = clipboardText.split('\n');
-
-			for (const line of lines) {
-				const trimmedLine = line.trim();
-				if (!trimmedLine) continue;
-
-				const colonIndex = trimmedLine.indexOf(':');
-				if (colonIndex === -1) continue;
-
-				const key = trimmedLine.substring(0, colonIndex).trim();
-				const value = trimmedLine.substring(colonIndex + 1).trim();
-
-				props[key] = value;
-			}
-
-			const position = findNextEmptyHexPosition(characters);
-			const newCharacter: Character = {
-				id: window.crypto.randomUUID(),
-				props: props as { name: string } & Record<string, string>,
-				position: position,
-				automaticMode: false,
-			};
-
-			addCharacter(newCharacter);
+		const result = await importCharacterDataFromClipboard(characters);
+		if (typeof result === 'string') {
+			setImportError(result);
+		} else {
+			addCharacter(result);
 			setImportError(null);
-		} catch {
-			setImportError('Failed to import from clipboard. Make sure you have clipboard permissions.');
 		}
 	};
 

@@ -5,6 +5,7 @@ import { FaCheck, FaTimes } from 'react-icons/fa';
 
 import { useStore } from '../../store';
 import { CharacterSheet, StatType } from '../../types';
+import { exportDataToClipboard } from '../../utils/clipboard';
 import { Button } from '../shared/Button';
 import { LabeledCheckbox } from '../shared/LabeledCheckbox';
 import LabeledDropdown from '../shared/LabeledDropdown';
@@ -154,9 +155,7 @@ const DiceRollModalContent: React.FC<{
 		const luckPart = useLuck ? ' luck' : '';
 		const dcPart = dc !== null ? ` dc ${dc}` : '';
 		const modifier = check.modifierValue;
-		void window.navigator.clipboard.writeText(`/r d12 + ${modifier}${extraPart}${luckPart}${dcPart}`).catch(() => {
-			// Ignore clipboard errors
-		});
+		exportDataToClipboard(`/r d12 + ${modifier}${extraPart}${luckPart}${dcPart}`);
 	};
 
 	const rollD12 = () => {
@@ -498,14 +497,7 @@ const DiceRollModalContent: React.FC<{
 
 				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
 					<Button onClick={() => setRollResults(null)} title='Roll Again' />
-					<Button
-						onClick={() => {
-							void window.navigator.clipboard.writeText(rollResults.total.toString()).catch(() => {
-								// Ignore clipboard errors
-							});
-						}}
-						title='Copy Result'
-					/>
+					<Button onClick={() => exportDataToClipboard(rollResults.total.toString())} title='Copy Result' />
 					<Button onClick={handleCloseWithCallback} title='Close' />
 				</div>
 			</div>
