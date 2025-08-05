@@ -72,7 +72,7 @@ This character grew up in very small settlement embedded deep within the woods. 
 
 * {% item "Light_Feet" "source" %}
 * Typical choices for **Upbringing Modifiers**: + [[WIS]]/[[DIV]]/[[FOW]], - [[INT]]/[[CHA]]/[[LCK]]
-* Typical applications of **[[Specialized_Knowledge | Specialized Knowledge (Sylvan)]]**: recall fauna and flora lore,
+* Typical applications of **[[Specialized_Knowledge | Specialized Knowledge (Sylvan)]]**: recall fauna and flora lore, details about biomes, including forests and woods, etc.
 
 ### Telluric
 

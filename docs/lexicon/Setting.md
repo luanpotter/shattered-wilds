@@ -8,15 +8,15 @@ Smaller villages often house a majority of one or two races, but the others are 
 
 ## The Aether & Proteans
 
-{% text "Setting/Aether" %}
+{% text "Aether" %}
 
 ## Arcane & Divine
 
-{% text "Setting/Arcane_&_Divine" %}
+{% text "Arcane_&_Divine" %}
 
 ## The Hollow
 
-{% text "Setting/Hollow" %}
+{% text "Hollow" %}
 
 ## Known Tropes
 

@@ -21,19 +21,9 @@
         <a href="https://forms.gle/1PCtbxHwLPZvY4vo8">Contact</a>
     </header>
     <main>
-        {% if previous or next %}
-        <div class="pagination">
-            {% if previous %}
-            <p><a href="{{previous.url}}">{{previous.text}} &lt;</a></p>
-            {% else %}
-            <p></p>
-            {% endif %}
-            {% if next %}
-            <p><a href="{{next.url}}">&gt; {{next.text}}</a></p>
-            {% endif %}
-        </div>
-        {% endif %}
+        {% include "pagination-bar.liquid" %}
         {{ content }}
+        {% include "pagination-bar.liquid" %}
     </main>
     <footer>
         <p>&copy; 2025 Shattered Wilds - Luan Nico</p>
