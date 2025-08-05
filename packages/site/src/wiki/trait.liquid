@@ -13,7 +13,7 @@
 
 {{ lexicon.content | mdb }}
 
-<h3>{{ lexicon.target }} with {{ lexicon.title }}</h3>
+<h3>{{ lexicon.target }}s with the {{ lexicon.title }} Trait</h3>
 <ul>
     {% for item in wiki.byGroupByTrait[lexicon.target][lexicon.slug] %}
         <li>{% item item.slug %}</li>
