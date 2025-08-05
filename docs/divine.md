@@ -10,7 +10,8 @@ The possible realm of effects of **Divine Channeling** specifically includes:
 
 * Direct Healing & Harming
 * Buffs & Debuffs
-* Illusions
+* Divination
+* Illusions, including Invisibility
 
 Note that the nature of the specific **Protean** can also influence which types of effects are likely to be granted.
 
@@ -18,7 +19,7 @@ However, there is no pre-defined spell list; the **Mystic** can choose to cast a
 
 ### Heal
 
-A plea to heal you or your allies of some [[Vitality_Point | VP]], [[Focus_Point | FP]], or [[Spirit_Point | SP]]. Specifiers can include what type of resource to heal, the target and how much.
+A plea to heal you or your allies of some [[Vitality_Point | VP]] or [[Focus_Point | FP]]. Specifiers can include what type of resource to heal, the target and how much.
 
 ### Harm
 
