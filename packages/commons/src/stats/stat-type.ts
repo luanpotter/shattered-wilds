@@ -201,7 +201,7 @@ On top of these types of actions, the different Skills can still be used for oth
 			`Can be used instead of [[STR]] to perform an attack with the [[Charge]] action.`,
 			`A Contested Check can be used to resist certain Transfiguration Arcane Spells.`,
 			`A Contested Check can be used to resist a [[Disarm]] Special Attack.`,
-			`A Contested Check can be used to resist a [[Action_Drag_Grappler | Drag Grappler]] Special Attack.`,
+			`A Contested Check can be used to resist a [[Drag_Grappler | Drag Grappler]] Special Attack.`,
 		],
 	});
 	static readonly Stance = StatType.build({

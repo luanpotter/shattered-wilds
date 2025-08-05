@@ -578,7 +578,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassRole.Melee,
 		level: 2,
 		description:
-			'You can spend `1` [[Spirit_Point | SP]] to reduce by `1` (min `1`) the amount of [[Action_Point | AP]] you would spend to perform the [[Action_Opportunity_Attack | Opportunity Attack]] reaction.',
+			'You can spend `1` [[Spirit_Point | SP]] to reduce by `1` (min `1`) the amount of [[Action_Point | AP]] you would spend to perform the [[Opportunity_Attack | Opportunity Attack]] reaction.',
 	}),
 	[Feat.SpinAttack]: new FeatDefinition<void>({
 		key: Feat.SpinAttack,
