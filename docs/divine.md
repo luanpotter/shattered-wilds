@@ -4,13 +4,14 @@ Unlike the **Arcane**, the **Divine** is a much softer magical system, by which 
 
 All divine spells are pleas to the forces of the beyond to grant a desired effect. The vaguer the request, the more likely it is for it to succeed in some form or another. While very specific spell effects (akin to the **Arcane** casting) are not possible, it is possible to at least specify the general nature of the desired effect.
 
-In a similar vein, effect types that are covered by the **Arcane** are not achievable through **Channeling**. Effects such as **Conjuration**, **Telekinesis**, and any of the **Arcane Schools** are beyond the realm of the **Divine**.
+In a similar vein, effect types that are covered by the **Arcane** are not achievable through **Channeling**. Effects such as **Conjuration**, **Telekinesis**, and any of the **Arcane Schools** are beyond the domain of the **Divine**.
 
-The possible realm of effects of **Divine Channeling** specifically includes:
+The possible domain of effects of **Divine Channeling** specifically includes:
 
 * Direct Healing & Harming
 * Buffs & Debuffs
 * Divination
+* Fear
 * Illusions, including Invisibility
 
 Note that the nature of the specific **Protean** can also influence which types of effects are likely to be granted.

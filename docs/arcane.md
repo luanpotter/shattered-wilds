@@ -12,13 +12,13 @@ Arcane spells are first and foremost a specific combination of a **Verb** and a 
 | **Transform**   | Transmutation | -           | Transfiguration |
 | **Control**     | -             | Telekinesis | Command         |
 
-From the point of view of the Arcane, the bodies of **Beings** are not just material; as they are tied to their Spark (or Soul). Think of Beings having an impenetrable aura that prevents Matter and Energy manipulation inside. However, the Being can still be manipulated directly, via Transfiguration or Command. While Telekinesis cannot be used directly on beings, the air around them can be controlled in the form of gusts of wind for pushes and pulls.
+Within the domain of the **Arcane**, the bodies of **Beings** are not just material; as they are tied to their Spark (or Soul). Think of Beings having an impenetrable aura that prevents Matter and Energy manipulation inside. However, the Being can still be manipulated directly, via **Transfiguration** or **Command**. While **Telekinesis** cannot be used directly on beings, the air around them can be controlled in the form of gusts of wind for pushes and pulls.
 
 Casting a spell typically will require (see **Basic Arcane Spell** below):
 
 * a certain amount of **AP** ([[Action_Point | Action Points]]) and **FP** ([[Focus_Point | Focus Points]]) to be spent;
-* executing some non-zero amount of Spell Components;
-* rolling a Check using the Spellcaster's Base Attribute:
+* executing some non-zero amount of **Spell Components**;
+* rolling a [[Check]] using the Spellcaster's Base Attribute:
 
 > Roll Base Spellcasting Attribute + Component Modifiers + Augmentation Modifiers [+ Other Circumstance Modifiers]
 
@@ -191,7 +191,7 @@ While the Player can control the exact effect they aim to achieve, the DM has th
 
 ## Predefined Spells
 
-While a **Caster** can choose any effect within the realms of the **Arcane**, below is a list of predefined spells with predefined Augmentation Modifiers making it easier for Players and DMs; they can both be used exactly as-is, or used to judge modifiers by comparison.
+While a **Caster** can choose any effect within the domains of the **Arcane**, below is a list of predefined spells with predefined Augmentation Modifiers making it easier for Players and DMs; they can both be used exactly as-is, or used to judge modifiers by comparison.
 
 Across all **Schools**, the **Basic Arcane Spell** takes **2 [[Action_Point | AP]]** and **1 [[Focus_Point | FP]]** to cast, with **Base DC 15** (or contested if higher), and range based on your [[Influence Range]].
 
