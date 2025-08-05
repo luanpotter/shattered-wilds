@@ -163,7 +163,7 @@ describe('StatTree', () => {
 			);
 		});
 
-		it('level 4 - STR specialized', () => {
+		it('level 4 - STR over-specialized - level cap', () => {
 			const values = new Map<StatType, number>([
 				[StatType.Level, 4],
 				[StatType.Body, 3],
@@ -175,10 +175,10 @@ describe('StatTree', () => {
 				map,
 				[StatType.Level, 1],
 				[StatType.Body, 3],
-				[StatType.STR, 5],
-				[StatType.Muscles, 6],
-				[StatType.Stance, 5],
-				[StatType.Lift, 5],
+				[StatType.STR, 4], // should be 5 - level capped to 4
+				[StatType.Muscles, 5],
+				[StatType.Stance, 4],
+				[StatType.Lift, 4],
 				...andBelow(StatType.DEX, 3),
 				...andBelow(StatType.CON, 3),
 				...andBelow(StatType.Mind, 1),

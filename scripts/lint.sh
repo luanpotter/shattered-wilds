@@ -69,9 +69,9 @@ run_project_checks() {
     local project_name=$1
     local project_path=$2
     local status_var_name=$3
-    
+
     print_status "34" "📦 Linting $project_name project..."
-    
+
     cd "$project_path"
 
     # Run build
@@ -83,6 +83,19 @@ run_project_checks() {
         print_status "31" "❌ $project_name build failed" 1
         echo "$BUILD_OUTPUT"
         eval "$status_var_name=true"
+    fi
+
+    # Run tests for commons package
+    if [ "$project_name" = "commons" ]; then
+        print_status "36" "🧪 Running tests..." 1
+        TEST_OUTPUT=$(bun run test 2>&1)
+        if [ $? -eq 0 ]; then
+            print_status "32" "✅ $project_name tests passed" 1
+        else
+            print_status "31" "❌ $project_name tests failed" 1
+            echo "$TEST_OUTPUT"
+            eval "$status_var_name=true"
+        fi
     fi
 
     # Run check or check:fix based on mode
@@ -107,7 +120,7 @@ run_project_checks() {
             eval "$status_var_name=true"
         fi
     fi
-    
+
     cd ../..
 }
 
@@ -189,17 +202,17 @@ if [ "$MARKDOWNLINT_AVAILABLE" = true ]; then
     else
         print_status "36" "🔧 Running markdownlint..." 1
     fi
-    
+
     # Find all markdown files in the project
     MARKDOWN_FILES=$(find . -name "*.md" -not -path "./node_modules/*" -not -path "./packages/*/node_modules/*" -not -path "./packages/*/dist/*" -not -path "./packages/*/_site/*")
-    
+
     if [ -n "$MARKDOWN_FILES" ]; then
         if [ "$FIX_MODE" = true ]; then
             MARKDOWNLINT_OUTPUT=$(markdownlint --fix $MARKDOWN_FILES 2>&1)
         else
             MARKDOWNLINT_OUTPUT=$(markdownlint $MARKDOWN_FILES 2>&1)
         fi
-        
+
         if [ $? -eq 0 ]; then
             if [ "$FIX_MODE" = true ]; then
                 print_status "32" "✅ Markdown linting and fixing passed" 1

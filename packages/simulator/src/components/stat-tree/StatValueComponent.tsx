@@ -1,6 +1,6 @@
 import { Check, CheckMode, CheckNature } from '@shattered-wilds/commons';
 import React from 'react';
-import { FaInfoCircle } from 'react-icons/fa';
+import { FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
 
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
@@ -70,7 +70,13 @@ export const StatValueComponent: React.FC<StatValueComponentProps> = ({
 		}
 	};
 
-	const tooltip = modifier.appliedModifiers.map(mod => mod.description).join('\n');
+	const tooltip = modifier.appliedModifiers.map(mod => mod.description);
+	const hasWarning = modifier.wasLevelCapped;
+	if (hasWarning) {
+		tooltip.push(
+			`This stat was capped from ${modifier.baseValuePreCap.description} to ${modifier.baseValue.description}.`,
+		);
+	}
 	const hasTooltip = tooltip.length > 0;
 
 	const commonClickProps = !editMode
@@ -114,6 +120,16 @@ export const StatValueComponent: React.FC<StatValueComponentProps> = ({
 		</div>
 	);
 
+	const iconStyle: React.CSSProperties = {
+		position: 'absolute',
+		top: '-4px',
+		right: '-4px',
+		width: '10px',
+		height: '10px',
+		color: 'var(--text)',
+		cursor: 'help',
+	};
+
 	const valueElement =
 		variant === 'text-only' ? (
 			<span
@@ -122,7 +138,7 @@ export const StatValueComponent: React.FC<StatValueComponentProps> = ({
 					fontWeight: 'bold',
 					cursor: !editMode ? 'pointer' : 'default',
 				}}
-				title={tooltip}
+				title={tooltip.join('\n')}
 				{...commonClickProps}
 			>
 				{value.description}
@@ -153,23 +169,12 @@ export const StatValueComponent: React.FC<StatValueComponentProps> = ({
 					position: 'relative',
 					cursor: !editMode ? 'pointer' : 'default',
 				}}
-				title={tooltip}
+				title={tooltip.join('\n')}
 				{...commonClickProps}
 			>
 				{value.description}
-				{hasTooltip && (
-					<FaInfoCircle
-						style={{
-							position: 'absolute',
-							top: '-4px',
-							right: '-4px',
-							width: '10px',
-							height: '10px',
-							color: 'var(--text)',
-							cursor: 'help',
-						}}
-					/>
-				)}
+				{hasWarning && <FaExclamationTriangle style={{ ...iconStyle, color: 'orange' }} />}
+				{!hasWarning && hasTooltip && <FaInfoCircle style={iconStyle} />}
 			</div>
 		);
 

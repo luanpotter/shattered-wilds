@@ -1,7 +1,7 @@
 import { DERIVED_STATS, DerivedStatType } from './derived-stat.js';
 import { FormulaResult } from './formula.js';
 import { Resource, RESOURCES } from './resources.js';
-import { StatHierarchyProperties, StatType } from './stat-type.js';
+import { StatHierarchy, StatHierarchyProperties, StatType } from './stat-type.js';
 import { Bonus } from './value.js';
 
 export enum ModifierSource {
@@ -94,15 +94,21 @@ export class StatTree {
 	};
 
 	private getApplicableModifiers(stat: StatType): InherentModifier[] {
-		return this.modifiers.filter(mod => mod.statType === stat);
+		const doesModifierApplyToStat = (modifier: StatType, stat: StatType | undefined): boolean => {
+			if (!stat) {
+				return false;
+			}
+			return modifier == stat || doesModifierApplyToStat(modifier, stat.parent);
+		};
+		return this.modifiers.filter(modifier => doesModifierApplyToStat(modifier.statType, stat));
 	}
 
-	private getParentModifier(node: StatNode): Bonus {
+	private getParentBaseModifier(node: StatNode): Bonus {
 		const parent = node.parent;
 		if (!parent) {
 			return Bonus.zero();
 		}
-		return this.getModifier(parent.type).value;
+		return this.getStatTypeModifier(parent.type).baseValue;
 	}
 
 	private getSelfModifier(node: StatNode): Bonus {
@@ -145,15 +151,19 @@ export class StatTree {
 	}
 
 	getNodeModifier(node: StatNode, cms: CircumstanceModifier[] = []): NodeStatModifier {
-		const parentValue = this.getParentModifier(node);
+		const parentValue = this.getParentBaseModifier(node);
 		const selfValue = this.getSelfModifier(node);
-		const baseValue = Bonus.add([selfValue, parentValue]);
+		const baseValuePreCap = Bonus.add([selfValue, parentValue]);
+		const wasLevelCapped = node.type.hierarchy !== StatHierarchy.Skill && baseValuePreCap.value > this.level;
+		const baseValue = Bonus.of(wasLevelCapped ? this.level : baseValuePreCap.value);
 		const appliedModifiers = [...this.getApplicableModifiers(node.type), ...cms];
 		const value = Bonus.add([baseValue, ...appliedModifiers.map(mod => mod.value)]);
 		return new NodeStatModifier({
 			statType: node.type,
 			parentValue,
 			selfValue,
+			baseValuePreCap,
+			wasLevelCapped,
 			baseValue,
 			appliedModifiers,
 			value,
@@ -337,11 +347,15 @@ export class NodeStatModifier extends StatModifier {
 	override statType: StatType;
 	parentValue: Bonus;
 	selfValue: Bonus;
+	baseValuePreCap: Bonus;
+	wasLevelCapped: boolean;
 
 	constructor({
 		statType,
 		parentValue,
 		selfValue,
+		baseValuePreCap,
+		wasLevelCapped,
 		baseValue,
 		appliedModifiers,
 		value,
@@ -349,6 +363,8 @@ export class NodeStatModifier extends StatModifier {
 		statType: StatType;
 		parentValue: Bonus;
 		selfValue: Bonus;
+		baseValuePreCap: Bonus;
+		wasLevelCapped: boolean;
 		baseValue: Bonus;
 		appliedModifiers: CircumstanceModifier[];
 		value: Bonus;
@@ -357,5 +373,7 @@ export class NodeStatModifier extends StatModifier {
 		this.statType = statType;
 		this.parentValue = parentValue;
 		this.selfValue = selfValue;
+		this.baseValuePreCap = baseValuePreCap;
+		this.wasLevelCapped = wasLevelCapped;
 	}
 }
