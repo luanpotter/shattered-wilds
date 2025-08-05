@@ -412,7 +412,6 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 									label='Passive Cover'
 									value={selectedPassiveCover}
 									options={Object.values(PassiveCoverType) as PassiveCoverType[]}
-									describe={cover => cover}
 									onChange={cover => setSelectedPassiveCover(cover)}
 								/>
 							)}

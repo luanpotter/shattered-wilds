@@ -1,7 +1,7 @@
 import { CLASS_ROLE_PRIMARY_ATTRIBUTE, ClassDefinition, ClassFlavor, ClassRealm, ClassRole } from './classes.js';
 import { Race, RACE_DEFINITIONS, RacialStatModifier, Upbringing } from './races.js';
 import { InherentModifier, ModifierSource } from '../stats/stat-tree.js';
-import { StatType, StatTypeName } from '../stats/stat-type.js';
+import { StatType } from '../stats/stat-type.js';
 import { Bonus } from '../stats/value.js';
 
 export enum FeatType {
@@ -253,11 +253,8 @@ export class FeatInfo<T extends string | void> {
 	};
 }
 
-const mindAttributes = [StatTypeName.INT, StatTypeName.WIS, StatTypeName.CHA];
-type MindAttributes = (typeof mindAttributes)[number];
-const soulAttributes = [StatTypeName.DIV, StatTypeName.FOW, StatTypeName.LCK];
-const mindOrSoulAttributes = [...mindAttributes, ...soulAttributes];
-type MindOrSoulAttributes = (typeof mindOrSoulAttributes)[number];
+type MindAttributes = (typeof StatType.mindAttributes)[number];
+type MindOrSoulAttributes = (typeof StatType.mindOrSoulAttributes)[number];
 
 export enum Feat {
 	// General
@@ -476,7 +473,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		parameter: {
 			id: 'upbringing-favored-modifier',
 			name: 'Upbringing Favored Modifier',
-			values: mindOrSoulAttributes,
+			values: StatType.mindOrSoulAttributes,
 		},
 		fullDescription: info => {
 			const statName = info.parameter;
@@ -497,7 +494,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		parameter: {
 			id: 'upbringing-disfavored-modifier',
 			name: 'Upbringing Disfavored Modifier',
-			values: mindOrSoulAttributes,
+			values: StatType.mindOrSoulAttributes,
 		},
 		fullDescription: info => {
 			const statName = info.parameter;
@@ -758,7 +755,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		parameter: {
 			id: 'stat',
 			name: 'Stat',
-			values: mindAttributes,
+			values: StatType.mindAttributes,
 		},
 	}),
 	// Arcanist

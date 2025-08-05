@@ -527,6 +527,10 @@ On top of these types of actions, the different Skills can still be used for oth
 		return StatType.values.filter(child => child.parent?.name === stat.name);
 	}
 
+	static mindAttributes = [StatTypeName.INT, StatTypeName.WIS, StatTypeName.CHA];
+	static soulAttributes = [StatTypeName.DIV, StatTypeName.FOW, StatTypeName.LCK];
+	static mindOrSoulAttributes = [...StatType.mindAttributes, ...StatType.soulAttributes];
+
 	static get realms(): StatType[] {
 		return StatType.values.filter(stat => stat.hierarchy === StatHierarchy.Realm);
 	}

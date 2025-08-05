@@ -2,9 +2,11 @@ import React from 'react';
 
 import { useStore } from '../../store';
 import { CharacterSheet, StatType, Race, Upbringing } from '../../types';
-import DropdownSelect from '../DropdownSelect';
+import { FeatOrSlot } from '../../types/feats-section';
+import { FeatBox } from '../FeatBox';
 import { Button } from '../shared/Button';
-import { RichText } from '../shared/RichText';
+import { LabeledCheckbox } from '../shared/LabeledCheckbox';
+import LabeledDropdown from '../shared/LabeledDropdown';
 
 interface RaceSetupModalProps {
 	characterId: string;
@@ -86,44 +88,26 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 			<h3 style={{ margin: '0 0 15px 0' }}>Race Setup</h3>
 
 			{/* Race Selection - First Row */}
-			<div style={{ marginBottom: '15px', display: 'flex', gap: '8px' }}>
-				{/* Primary Race - 50% width */}
+			<div style={{ display: 'flex', gap: '8px' }}>
 				<div style={{ flex: 1 }}>
-					<DropdownSelect
-						id='primary-race'
-						options={Race}
+					<LabeledDropdown
+						variant='normal'
+						label='Primary Race'
+						options={Object.values(Race)}
 						value={currentRace.primaryRace}
 						onChange={handlePrimaryRaceChange}
-						label='Primary Race'
 					/>
 				</div>
-
-				{/* Half Breed section - 50% width */}
-				<div style={{ flex: 1 }}>
-					<div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
-						<input
-							type='checkbox'
-							id='half-race-toggle'
-							checked={currentRace.halfRace !== null}
-							onChange={() => handleHalfRaceToggle(currentRace.halfRace === null)}
-							style={{ marginRight: '5px' }}
-						/>
-						<label htmlFor='half-race-toggle'>Half Breed</label>
-					</div>
-
+				<div style={{ flex: 1, display: 'flex', alignItems: 'start', flexDirection: 'column' }}>
+					<LabeledCheckbox
+						label='Half Breed'
+						checked={currentRace.halfRace !== null}
+						onChange={() => handleHalfRaceToggle(currentRace.halfRace === null)}
+					/>
 					{currentRace.halfRace !== null && (
-						<DropdownSelect
-							id='half-race'
-							options={Object.entries(Race).reduce(
-								(filtered, [key, value]) => {
-									// Filter out the primary race from options
-									if (value !== currentRace.primaryRace) {
-										filtered[key] = value;
-									}
-									return filtered;
-								},
-								{} as Record<string, Race>,
-							)}
+						<LabeledDropdown
+							variant='normal'
+							options={Object.values(Race).filter(r => r !== currentRace.primaryRace)}
 							value={currentRace.halfRace}
 							onChange={handleHalfRaceChange}
 						/>
@@ -133,66 +117,39 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 
 			{/* Combine racial stats toggle */}
 			{currentRace.halfRace !== null && (
-				<div style={{ marginBottom: '15px' }}>
-					<label
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							cursor: 'pointer',
-							userSelect: 'none',
-						}}
-					>
-						<input
-							type='checkbox'
-							checked={currentRace.combineHalfRaceStats}
-							onChange={() => handleCombineStatsChange(!currentRace.combineHalfRaceStats)}
-							style={{ marginRight: '6px' }}
-						/>
-						Combine racial attribute bonuses from both races
-					</label>
-				</div>
+				<LabeledCheckbox
+					label='Combine racial attribute bonuses from both races'
+					checked={currentRace.combineHalfRaceStats}
+					onChange={() => handleCombineStatsChange(!currentRace.combineHalfRaceStats)}
+				/>
 			)}
 
 			{/* Upbringing Selection - Second Row */}
 			<div style={{ marginBottom: '15px' }}>
-				<DropdownSelect
-					id='upbringing'
-					options={Upbringing}
+				<LabeledDropdown
+					variant='normal'
+					label='Upbringing'
+					options={Object.values(Upbringing)}
 					value={currentRace.upbringing}
 					onChange={handleUpbringingChange}
-					label='Upbringing'
 				/>
 			</div>
 
 			{/* Upbringing Modifiers - Third Row */}
 			<div style={{ marginBottom: '15px', display: 'flex', gap: '8px' }}>
 				<div style={{ flex: 1 }}>
-					<DropdownSelect
-						id='upbringing-plus'
-						options={{
-							INT: 'INT',
-							WIS: 'WIS',
-							CHA: 'CHA',
-							DIV: 'DIV',
-							FOW: 'FOW',
-							LCK: 'LCK',
-						}}
+					<LabeledDropdown
+						variant='normal'
+						options={StatType.mindOrSoulAttributes}
 						value={currentRace.upbringingPlusModifier.name}
 						onChange={handleUpbringingPlusChange}
 						label='Upbringing +1 Modifier'
 					/>
 				</div>
 				<div style={{ flex: 1 }}>
-					<DropdownSelect
-						id='upbringing-minus'
-						options={{
-							INT: 'INT',
-							WIS: 'WIS',
-							CHA: 'CHA',
-							DIV: 'DIV',
-							FOW: 'FOW',
-							LCK: 'LCK',
-						}}
+					<LabeledDropdown
+						variant='normal'
+						options={StatType.mindOrSoulAttributes}
 						value={currentRace.upbringingMinusModifier.name}
 						onChange={handleUpbringingMinusChange}
 						label='Upbringing -1 Modifier'
@@ -232,24 +189,10 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 					borderRadius: '4px',
 				}}
 			>
-				<h3 style={{ margin: '0 0 8px 0', fontSize: '1em' }}>Core Feats (Level 0)</h3>
-				<div style={{ maxHeight: '200px', overflowY: 'auto' }}>
-					{coreFeats.map((feat, index) => (
-						<div
-							key={index}
-							style={{
-								marginBottom: '8px',
-								padding: '6px',
-								backgroundColor: 'var(--background)',
-								borderRadius: '4px',
-								border: '1px solid var(--text)',
-							}}
-						>
-							<div style={{ fontWeight: 'bold', marginBottom: '2px', fontSize: '0.9em' }}>{feat.feat.name}</div>
-							<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>
-								<RichText>{feat.feat.description}</RichText>
-							</div>
-						</div>
+				<h3 style={{ margin: '0 0 8px 0', fontSize: '1em' }}>Core Feats (Level 0) [{coreFeats.length} feats]</h3>
+				<div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+					{coreFeats.map(feat => (
+						<FeatBox key={feat.name} featOrSlot={new FeatOrSlot({ info: feat })} character={character} />
 					))}
 				</div>
 			</div>

@@ -53,7 +53,6 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ character })
 								label='Add Equipment'
 								value={selectedItem}
 								options={Object.values(BasicEquipmentType)}
-								describe={item => item}
 								placeholder='Select equipment to add...'
 								onChange={handleAddPredefinedItem}
 							/>
