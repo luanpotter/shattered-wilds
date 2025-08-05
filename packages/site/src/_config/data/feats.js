@@ -38,5 +38,7 @@ export const feats = Object.values(FEATS).map(feat => {
 		source: feat.source,
 		level: feat.level,
 		description: feat.description,
+		isCore: feat.isCore,
+		isNotCore: !feat.isCore,
 	};
 });

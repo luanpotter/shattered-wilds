@@ -327,7 +327,7 @@ export enum Feat {
 	LuckyRelentlessness = 'LuckyRelentlessness',
 	FavorableMovement = 'FavorableMovement',
 	// Devout
-	EffortlessImbuedItemChanneling = 'EffortlessImbuedItemChanneling',
+	EffortlessAttuning = 'EffortlessAttuning',
 	FocusedChanneling = 'FocusedChanneling',
 	// Crusader
 	DivineSmite = 'DivineSmite',
@@ -893,14 +893,14 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 			'You can spend 1 [[Focus_Point | FP]] to ignore the **Difficult Terrain** trait of a hex while moving through it.',
 	}),
 	// Devout
-	[Feat.EffortlessImbuedItemChanneling]: new FeatDefinition<void>({
-		key: Feat.EffortlessImbuedItemChanneling,
-		name: 'Effortless Imbued Item Channeling',
+	[Feat.EffortlessAttuning]: new FeatDefinition<void>({
+		key: Feat.EffortlessAttuning,
+		name: 'Effortless Attuning',
 		type: FeatType.Core,
 		source: ClassFlavor.Devout,
 		level: 1,
 		description:
-			'Whenever you would spend [[Spirit_Point | Spirit Points]] to use an **Imbued Item** that would otherwise not require a [[Channeling]] Check, you can make a [[Channeling]] Check DC 15 to spend one less [[Spirit_Point | SP]].',
+			'Whenever you would spend [[Spirit_Point | Spirit Points]] to use an **Imbued Item** that would otherwise not require an [[Attunement]] Check, you can make an [[Attunement]] Check DC 15 to spend one less [[Spirit_Point | SP]].',
 	}),
 	[Feat.FocusedChanneling]: new FeatDefinition<void>({
 		key: Feat.FocusedChanneling,

@@ -5,12 +5,31 @@ export const classes = Object.values(CLASS_DEFINITIONS).map(def => {
 	const slug = slugify(def.name);
 	return {
 		// wiki parameters
-		group: 'Class',
+		group: 'Classes',
 		slug,
 		title: `${def.name}`,
 		url: `/wiki/${slug}/`,
 		content: def.description,
-		metadata: [],
+		metadata: [
+			{
+				key: 'realm',
+				title: 'Realm',
+				value: `${def.realm} (${def.primaryAttribute.parent})`,
+				cssClass: 'metadata-type',
+			},
+			{
+				key: 'role',
+				title: 'Role',
+				value: `${def.role} (${def.primaryAttribute})`,
+				cssClass: 'metadata-source',
+			},
+			{
+				key: 'flavor',
+				title: 'Flavor',
+				value: def.flavor,
+				cssClass: 'metadata-source',
+			},
+		],
 
 		// other parameters
 		name: def.name,

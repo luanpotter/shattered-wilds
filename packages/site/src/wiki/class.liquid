@@ -11,9 +11,6 @@
 
 {% include 'wiki-header.liquid' %}
 
-<div>
-    <p><strong>Realm</strong>: {{ lexicon.realm }}</p>
-    <p><strong>Primary Attribute</strong>: {{ lexicon.primaryAttribute }}</p>
-    <p><strong>Role</strong>: {{ lexicon.role }}</p>
-    <p><strong>Flavor</strong>: {{ lexicon.flavor }}</p>
-</div>
+<h3>Feats</h3>
+
+{% list_feats_for_class lexicon.slug %}

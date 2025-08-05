@@ -117,6 +117,10 @@ export class ClassDefinition {
 	get primaryAttribute(): StatType {
 		return CLASS_ROLE_PRIMARY_ATTRIBUTE[this.role];
 	}
+
+	get description(): string {
+		return `${this.role} ${this.flavor}`;
+	}
 }
 
 export const CLASS_DEFINITIONS: Record<CharacterClass, ClassDefinition> = {

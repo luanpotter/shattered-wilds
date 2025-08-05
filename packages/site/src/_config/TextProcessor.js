@@ -1,4 +1,4 @@
-import { map, asc } from 'type-comparator';
+import { queue, map, asc } from 'type-comparator';
 
 export class TextProcessor {
 	constructor(wiki) {
@@ -23,6 +23,16 @@ export class TextProcessor {
 				);
 				return this.renderList(group, sortKey, filterPairs);
 			},
+			listFeatsForClass: classSlug => {
+				const classEntry = this.wiki[classSlug];
+				if (!classEntry) {
+					throw new Error(`Missing class entry: ${classSlug}`);
+				}
+				const filter = e =>
+					e.source === classEntry.role || e.source === classEntry.flavor || e.source === classEntry.name;
+				const order = ['level', 'isNotCore'];
+				return this.renderListWithSortAndFilter('Feat', order, filter, []);
+			},
 			TODO: value => {
 				const addMark = value => `<mark class="todo">${value}</mark>`;
 				return addMark(value ? `TODO: ${value}` : 'TODO');
@@ -32,9 +42,15 @@ export class TextProcessor {
 
 	renderList = (group, sortKey, filterPairs) => {
 		const excludedTags = filterPairs.map(([key]) => key);
+		const filter = e => filterPairs.every(([key, value]) => e[key] === value);
+		return this.renderListWithSortAndFilter(group, [sortKey], filter, excludedTags);
+	};
+
+	renderListWithSortAndFilter = (group, sortKeys, filter, excludedTags) => {
 		const items = Object.values(this.wiki)
-			.filter(e => filterPairs.every(([key, value]) => e[key] === value))
-			.sort(map(e => e[sortKey], asc))
+			.filter(e => e.group === group)
+			.filter(filter)
+			.sort(queue(sortKeys.map(sortKey => map(e => e[sortKey], asc))))
 			.map(e => this.renderEntry('item', e, excludedTags));
 		return `<ul>${items.map(e => `<li>${e}</li>`).join('')}</ul>`;
 	};
@@ -54,6 +70,9 @@ export class TextProcessor {
 			return this.processMarkdown(desc, { inline: false });
 		} else if (type === 'item') {
 			const metaHtml = this.renderMetadata(entry, excludeTagsArray);
+			if (!entry.content) {
+				console.error(`Missing content for entry: ${entry.title}`);
+			}
 			const descFirstParagraph = entry.content.split(/\n\n/)[0].trim();
 			const markdown = this.processMarkdown(descFirstParagraph, { inline: true });
 			return `<strong><a href="${entry.url}">${entry.title}</a></strong>: ${metaHtml}${markdown}`;
