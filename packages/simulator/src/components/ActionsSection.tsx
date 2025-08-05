@@ -22,6 +22,7 @@ import {
 	PassiveCoverType,
 	COVER_TYPES,
 	Armor,
+	IncludeEquipmentModifier,
 } from '@shattered-wilds/commons';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
@@ -126,52 +127,55 @@ interface TabParameters {
 	selectedArmor: Armor | null;
 }
 
-const checkOptions = (
-	statType: StatType | StandardCheck,
+const computeIncludedModifiers = (
+	includeModifierFor: IncludeEquipmentModifier,
 	tabParameters: TabParameters,
-): [StatType, CircumstanceModifier[]] | undefined => {
-	if (statType instanceof StatType) {
-		return [statType, []];
-	}
-
-	const weaponMode = tabParameters.selectedWeapon;
-	switch (statType) {
-		case StandardCheck.Attack: {
-			const type = weaponMode ? weaponMode.mode.statType : StatType.STR;
+): CircumstanceModifier[] => {
+	switch (includeModifierFor) {
+		case IncludeEquipmentModifier.Weapon: {
+			const weaponMode = tabParameters.selectedWeapon;
 			const weaponModifier = weaponMode ? weaponMode.weapon.getEquipmentModifier(weaponMode.mode) : null;
-
-			const modifiers = [
+			return [
 				weaponModifier,
 				tabParameters.rangeIncrementModifier,
 				tabParameters.passiveCoverModifier,
 				tabParameters.heightIncrementsModifier,
 			].filter(e => e !== null);
+		}
+		case IncludeEquipmentModifier.Armor: {
+			const armor = tabParameters.selectedArmor;
+			return armor ? [armor.getEquipmentModifier()] : [];
+		}
+		case IncludeEquipmentModifier.Shield: {
+			const shield = tabParameters.selectedShield;
+			return shield ? [shield.getEquipmentModifier()] : [];
+		}
+	}
+};
 
-			return [type, modifiers];
+const computeStatType = (statType: StatType | StandardCheck, tabParameters: TabParameters): StatType => {
+	if (statType instanceof StatType) {
+		return statType;
+	}
+
+	const weaponMode = tabParameters.selectedWeapon;
+	switch (statType) {
+		case StandardCheck.Attack: {
+			return weaponMode ? weaponMode.mode.statType : StatType.STR;
 		}
 		case StandardCheck.Defense: {
-			const realm = tabParameters.selectedDefenseRealm;
-			const armor = tabParameters.selectedArmor;
-			return [realm, armor ? [armor.getEquipmentModifier()] : []];
-		}
-		case StandardCheck.ShieldBlock: {
-			const shield = tabParameters.selectedShield;
-			if (!shield) {
-				return undefined;
-			}
-			return [StatType.Body, [shield.getEquipmentModifier()]];
+			return tabParameters.selectedDefenseRealm;
 		}
 	}
 };
 
 const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, character, tabParameters }) => {
 	const { openDiceRollModal } = useModals();
-	const options = checkOptions(parameter.statType, tabParameters);
-	if (!options) {
-		return null;
-	}
 
-	const [statType, cms] = options;
+	const statType = computeStatType(parameter.statType, tabParameters);
+	const cms = parameter.includeEquipmentModifiers.flatMap(includeModifierFor =>
+		computeIncludedModifiers(includeModifierFor, tabParameters),
+	);
 	const circumstanceModifiers = [parameter.circumstanceModifier, ...cms].filter(e => e !== undefined);
 
 	const statModifier = statTree.getModifier(statType, circumstanceModifiers);
@@ -270,10 +274,17 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 		});
 	}, [heightIncrements]);
 
+	const updateSelectedWeapon = (weapon: WeaponModeOption) => {
+		setSelectedWeapon(weapon);
+		setSelectedRange(null);
+		setSelectedPassiveCover(PassiveCoverType.None);
+		setHeightIncrements('');
+	};
+
 	// Auto-select first weapon and armor if available
 	useEffect(() => {
 		if (weaponModes.length > 0 && !selectedWeapon) {
-			setSelectedWeapon(weaponModes[0]);
+			updateSelectedWeapon(weaponModes[0]);
 		}
 	}, [weaponModes, selectedWeapon]);
 	useEffect(() => {
@@ -382,7 +393,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 								value={selectedWeapon}
 								options={weaponModes}
 								describe={weaponMode => `${weaponMode.weapon.name} - ${weaponMode.mode.description}`}
-								onChange={setSelectedWeapon}
+								onChange={updateSelectedWeapon}
 							/>
 							{hasRangedWeaponSelected && (
 								<LabeledInput

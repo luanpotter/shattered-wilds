@@ -52,15 +52,23 @@ export class ActionValueParameter implements ActionParameter {
 }
 
 export enum StandardCheck {
+	/** Will use STR or DEX depending on the selected Weapon. */
 	Attack = 'Attack',
+	/** Will use Body, Mind or Soul depending on the selected Defense Realm. */
 	Defense = 'Defense',
-	ShieldBlock = 'ShieldBlock',
+}
+
+export enum IncludeEquipmentModifier {
+	Weapon = 'Weapon',
+	Armor = 'Armor',
+	Shield = 'Shield',
 }
 
 export class ActionCheckParameter implements ActionParameter {
 	mode: CheckMode;
 	nature: CheckNature;
 	statType: StatType | StandardCheck;
+	includeEquipmentModifiers: IncludeEquipmentModifier[];
 	circumstanceModifier: CircumstanceModifier | undefined;
 	targetDc: number | undefined;
 
@@ -68,20 +76,59 @@ export class ActionCheckParameter implements ActionParameter {
 		mode,
 		nature,
 		statType,
+		includeEquipmentModifiers,
 		circumstanceModifier,
 		targetDc,
 	}: {
 		mode: CheckMode;
 		nature: CheckNature;
 		statType: StatType | StandardCheck;
-		circumstanceModifier?: CircumstanceModifier;
-		targetDc?: number;
+		includeEquipmentModifiers?: IncludeEquipmentModifier[];
+		circumstanceModifier?: CircumstanceModifier | undefined;
+		targetDc?: number | undefined;
 	}) {
 		this.mode = mode;
 		this.nature = nature;
 		this.statType = statType;
+		this.includeEquipmentModifiers = includeEquipmentModifiers ?? [];
 		this.circumstanceModifier = circumstanceModifier ?? undefined;
 		this.targetDc = targetDc ?? undefined;
+	}
+
+	static bodyAttack({
+		statType = StandardCheck.Attack,
+		includeEquipmentModifiers = [IncludeEquipmentModifier.Weapon],
+		circumstanceModifier,
+	}: {
+		statType?: StatType | StandardCheck;
+		includeEquipmentModifiers?: IncludeEquipmentModifier[];
+		circumstanceModifier?: CircumstanceModifier;
+	} = {}): ActionCheckParameter {
+		return new ActionCheckParameter({
+			mode: CheckMode.Contested,
+			nature: CheckNature.Active,
+			statType,
+			includeEquipmentModifiers,
+			circumstanceModifier,
+		});
+	}
+
+	static bodyDefense({
+		statType = StandardCheck.Defense,
+		includeEquipmentModifiers = [IncludeEquipmentModifier.Armor],
+		circumstanceModifier,
+	}: {
+		statType?: StatType | StandardCheck;
+		includeEquipmentModifiers?: IncludeEquipmentModifier[];
+		circumstanceModifier?: CircumstanceModifier;
+	} = {}): ActionCheckParameter {
+		return new ActionCheckParameter({
+			mode: CheckMode.Contested,
+			nature: CheckNature.Resisted,
+			statType,
+			includeEquipmentModifiers,
+			circumstanceModifier,
+		});
 	}
 }
 
@@ -344,44 +391,33 @@ export const ACTIONS = {
 		type: ActionType.Attack,
 		name: 'Stun',
 		description:
-			'Special Attack against Body Defense. Causes [[Off_Guard | Off-Guard]]. **Crit Shifts** deal [[Vitality_Point | VP]] damage.',
+			'**Basic Body Attack** against **Body Defense**. Causes [[Off_Guard | Off-Guard]]. **Crit Shifts** deal [[Vitality_Point | VP]] damage.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		traits: [Trait.Melee],
-		parameters: [
-			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Active,
-				statType: StandardCheck.Attack,
-			}),
-		],
+		parameters: [ActionCheckParameter.bodyAttack()],
 	}),
 	[Action.Strike]: new ActionDefinition({
 		key: Action.Strike,
 		type: ActionType.Attack,
 		name: 'Strike',
 		description:
-			"Basic Body Attack against target's Body Defense. Deals [[Vitality_Point | VP]] damage. **Crit Shifts** deal extra [[Vitality_Point | VP]] damage.",
+			'**Basic Body Attack** against **Body Defense**. Deals [[Vitality_Point | VP]] damage. **Crit Shifts** deal extra [[Vitality_Point | VP]] damage.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 2 })],
-		parameters: [
-			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Active,
-				statType: StandardCheck.Attack,
-			}),
-		],
+		parameters: [ActionCheckParameter.bodyAttack()],
 	}),
 	[Action.Feint]: new ActionDefinition({
 		key: Action.Feint,
 		type: ActionType.Attack,
 		name: 'Feint',
 		description:
-			'Special Attack against [[Tenacity]]. Causes [[Distracted]]. **Crit Shifts** deal [[Focus_Point | FP]] damage.',
+			'**Special Attack** against [[Tenacity]]. Causes [[Distracted]]. **Crit Shifts** deal [[Focus_Point | FP]] damage.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		parameters: [
+			ActionCheckParameter.bodyAttack(),
 			new ActionCheckParameter({
 				mode: CheckMode.Contested,
-				nature: CheckNature.Active,
-				statType: StandardCheck.Attack,
+				nature: CheckNature.Resisted,
+				statType: StatType.Tenacity,
 			}),
 		],
 	}),
@@ -389,17 +425,15 @@ export const ACTIONS = {
 		key: Action.FocusedStrike,
 		type: ActionType.Attack,
 		name: 'Focused Strike',
-		description: 'Pay 1 [[Focus_Point | FP]]; Basic Attack with a +3 [[Circumstance Modifier | CM]].',
+		description:
+			'Pay 1 [[Focus_Point | FP]]; perform a **Basic Body Attack** with a +3 [[Circumstance Modifier | CM]].',
 		costs: [
 			new ActionCost({ resource: Resource.ActionPoint, amount: 3 }),
 			new ActionCost({ resource: Resource.FocusPoint, amount: 1 }),
 		],
 		traits: [Trait.Concentrate, Trait.Melee],
 		parameters: [
-			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Active,
-				statType: StandardCheck.Attack,
+			ActionCheckParameter.bodyAttack({
 				circumstanceModifier: new CircumstanceModifier({
 					source: ModifierSource.Circumstance,
 					name: 'Focused Strike',
@@ -413,16 +447,14 @@ export const ACTIONS = {
 		type: ActionType.Attack,
 		name: 'Aim',
 		description:
-			'Target a specific enemy that you can see clearly; if your next action this turn is a **Basic Ranged Attack** against that target, you can roll with [[Finesse]] instead reduce the range increment by `1` (min `0`).',
+			'Target a specific enemy that you can see clearly; if your next action this turn is a **Basic Body Ranged Attack** against that target, you can roll with [[Finesse]] instead reduce the range increment by `1` (min `0`).',
 		traits: [Trait.Concentrate, Trait.Ranged],
 		costs: [
 			new ActionCost({ resource: Resource.ActionPoint, amount: 1 }),
 			new ActionCost({ resource: Resource.FocusPoint, amount: 1 }),
 		],
 		parameters: [
-			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Active,
+			ActionCheckParameter.bodyAttack({
 				statType: StatType.Finesse,
 			}),
 		],
@@ -436,10 +468,9 @@ export const ACTIONS = {
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		traits: [Trait.Melee],
 		parameters: [
-			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Active,
-				statType: StandardCheck.Attack,
+			ActionCheckParameter.bodyAttack(),
+			ActionCheckParameter.bodyDefense({
+				statType: StatType.Stance,
 			}),
 		],
 	}),
@@ -451,10 +482,9 @@ export const ACTIONS = {
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		traits: [Trait.Melee],
 		parameters: [
-			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Active,
-				statType: StandardCheck.Attack,
+			ActionCheckParameter.bodyAttack(),
+			ActionCheckParameter.bodyDefense({
+				statType: StatType.Evasiveness,
 			}),
 		],
 	}),
@@ -463,14 +493,13 @@ export const ACTIONS = {
 		type: ActionType.Attack,
 		name: 'Shove',
 		description:
-			'Special Attack against [[Stance]]. Shoves opponent to the next hex in the incoming direction. A Shift can be used to apply the [[Prone]] condition.',
+			'**Special Attack** against [[Stance]]. Shoves opponent to the next hex in the incoming direction. A Shift can be used to apply the [[Prone]] condition.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		traits: [Trait.Melee],
 		parameters: [
-			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Active,
-				statType: StandardCheck.Attack,
+			ActionCheckParameter.bodyAttack(),
+			ActionCheckParameter.bodyDefense({
+				statType: StatType.Stance,
 			}),
 		],
 	}),
@@ -478,14 +507,16 @@ export const ACTIONS = {
 		key: Action.Disarm,
 		type: ActionType.Attack,
 		name: 'Disarm',
-		description: 'Special Attack against [[Muscles]] or [[Finesse]]. Requires at least one **Shift** to succeed.',
+		description: '**Special Attack** against [[Muscles]] or [[Finesse]]. Requires at least one **Shift** to succeed.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 2 })],
 		traits: [Trait.Melee, Trait.Concentrate],
 		parameters: [
-			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Active,
-				statType: StandardCheck.Attack,
+			ActionCheckParameter.bodyAttack(),
+			ActionCheckParameter.bodyDefense({
+				statType: StatType.Muscles,
+			}),
+			ActionCheckParameter.bodyDefense({
+				statType: StatType.Finesse,
 			}),
 		],
 	}),
@@ -494,13 +525,18 @@ export const ACTIONS = {
 		type: ActionType.Attack,
 		name: 'Demoralize',
 		description:
-			"Special Attack using [[Speechcraft]] against target's [[Resolve]]: target becomes [[Distraught]]. **Shifts** deal [[Spirit_Point | SP]] damage.",
+			"**Special Attack** using [[Speechcraft]] against target's [[Resolve]]: target becomes [[Distraught]]. **Shifts** deal [[Spirit_Point | SP]] damage.",
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		parameters: [
 			new ActionCheckParameter({
 				mode: CheckMode.Contested,
 				nature: CheckNature.Active,
 				statType: StatType.Speechcraft,
+			}),
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Resisted,
+				statType: StatType.Resolve,
 			}),
 		],
 	}),
@@ -520,16 +556,10 @@ export const ACTIONS = {
 		type: ActionType.Defense,
 		name: 'Basic Defense',
 		description:
-			'Most Basic Defense against any form of Basic Attack - contest with either [[Body]], [[Mind]] or [[Soul]] against the Attack. This does not cost any [[Action_Point | AP]] and thus can always be responded with.',
+			'The **Basic Defense** against any form of **Basic Attack** - contest with either [[Body]], [[Mind]] or [[Soul]] against the Attack. This does not cost any [[Action_Point | AP]] and thus can always be responded with.',
 		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 0 })],
-		parameters: [
-			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Resisted,
-				statType: StandardCheck.Defense,
-			}),
-		],
+		parameters: [ActionCheckParameter.bodyDefense()],
 	}),
 	[Action.ShrugOff]: new ActionDefinition({
 		key: Action.ShrugOff,
@@ -557,9 +587,7 @@ export const ACTIONS = {
 		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		parameters: [
-			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Resisted,
+			ActionCheckParameter.bodyDefense({
 				statType: StatType.Agility,
 				circumstanceModifier: new CircumstanceModifier({
 					source: ModifierSource.Circumstance,
@@ -577,10 +605,8 @@ export const ACTIONS = {
 		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		parameters: [
-			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Resisted,
-				statType: StandardCheck.ShieldBlock,
+			ActionCheckParameter.bodyDefense({
+				includeEquipmentModifiers: [IncludeEquipmentModifier.Armor, IncludeEquipmentModifier.Shield],
 			}),
 		],
 	}),
@@ -593,9 +619,7 @@ export const ACTIONS = {
 		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		parameters: [
-			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Resisted,
+			ActionCheckParameter.bodyDefense({
 				statType: StatType.Evasiveness,
 				circumstanceModifier: new CircumstanceModifier({
 					source: ModifierSource.Circumstance,
@@ -614,7 +638,7 @@ export const ACTIONS = {
 		parameters: [
 			new ActionCheckParameter({
 				mode: CheckMode.Contested,
-				nature: CheckNature.Resisted,
+				nature: CheckNature.Active,
 				statType: StatType.Evasiveness,
 			}),
 			new ActionCheckParameter({
@@ -707,8 +731,8 @@ export const ACTIONS = {
 		],
 		parameters: [
 			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Active,
+				mode: CheckMode.Static,
+				nature: CheckNature.Resisted,
 				statType: StatType.Stamina,
 				targetDc: 20,
 			}),
@@ -726,8 +750,8 @@ export const ACTIONS = {
 		],
 		parameters: [
 			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Active,
+				mode: CheckMode.Static,
+				nature: CheckNature.Resisted,
 				statType: StatType.Resolve,
 				targetDc: 20,
 			}),
@@ -745,8 +769,8 @@ export const ACTIONS = {
 		],
 		parameters: [
 			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Active,
+				mode: CheckMode.Static,
+				nature: CheckNature.Resisted,
 				statType: StatType.Tenacity,
 				targetDc: 20,
 			}),
@@ -803,7 +827,7 @@ export const ACTIONS = {
 		type: ActionType.Heroic,
 		name: 'Karmic Resistance',
 		description:
-			'The **Karmic Resistance** is a special mechanic that allows you to spend 1 [[Heroism Point | Heroism Point]] to resist an effect that requires a **Contested Check** by calling upon your [[Karma]] skill with a `+3` [[Circumstance Modifier | CM]] instead. You cannot use [[Luck Die | Luck]] or [[Extra Die]] on this roll.',
+			'When you fail a **Contested Resisted Check**; pay 1 [[Heroism Point | Heroism Point]] to try to resist the same target again by with [[Karma]] instead. You cannot use [[Luck Die | Luck]] or [[Extra Die]] on this roll, or use [[Karmic Resistance]] more than once against the same [[Check]].',
 		costs: [
 			new ActionCost({ resource: Resource.ActionPoint, amount: 0 }),
 			new ActionCost({ resource: Resource.HeroismPoint, amount: 1 }),
@@ -811,23 +835,18 @@ export const ACTIONS = {
 		parameters: [
 			new ActionCheckParameter({
 				mode: CheckMode.Contested,
-				nature: CheckNature.Active,
+				nature: CheckNature.Resisted,
 				statType: StatType.Karma,
-				circumstanceModifier: new CircumstanceModifier({
-					source: ModifierSource.Circumstance,
-					name: 'Karmic Resistance',
-					value: Bonus.of(3),
-				}),
 			}),
 		],
-		traits: [Trait.Channel],
+		traits: [Trait.Reaction, Trait.Channel],
 	}),
 	[Action.WriteHistory]: new ActionDefinition({
 		key: Action.WriteHistory,
 		type: ActionType.Heroic,
 		name: 'Write History',
 		description:
-			"**Write History** allows you to spend [[Heroism Point | Heroism Points]] to influence the narrative and create fortunate coincidences in the world around you.\n\nWhen you use Write History, you spend 1+ [[Heroism_Point | HP]] and propose to the DM that a fact about the world is true. It can be about history, about the existence of some item or person in the current city, about the geography and map and lore about the nearby map.\n\nAnything can be proposed, but there are a few rules:\n\n* It must not contradict anything that was already established to the players\n* It must not contradict or interact with any key plans the DM has that have not yet been established to the player\n\nThat means the DM can deny any request w/o any further comments. If the change is acceptable, though, the DM will accept the proposal and counter-offer it with a [[Serendipity]] Check DC, depending on:\n\n* how close to true the fact already is\n* how convenient it would be if it were true\n* how absurd it would be for it to be true\n\nThe player can then accept the offer or offer a counter-counter proposal, by suggesting a more reasonable version of the request.\n\nThis can go back and forth until the DM has the final say on the DC. The Player must make this roll without using any [[Luck Die | Luck]] or [[Extra Die]].\n\nDepending on the level of success or failure (i.e. how close to the DC it was), the DM will decide:\n\n* complete failure, nothing happens\n* partial failure, the DM picks a weaker/monkey-pawed version of the fact\n* success, the player gets the exact fact as agreed\n* complete success, the player might get a perk on top of the fact\n\nThe DM doesn't necessarily need to tell the player immediately which level of success was obtained.",
+			"Pay `1+` [[Heroism Point | Heroism Points]] to influence the narrative and create fortunate coincidences in the world around you.\n\nWhen you use Write History, you spend 1+ [[Heroism_Point | HP]] and propose to the DM that a fact about the world is true. It can be about history, about the existence of some item or person in the current city, about the geography and map and lore about the nearby map.\n\nAnything can be proposed, but there are a few rules:\n\n* It must not contradict anything that was already established to the players\n* It must not contradict or interact with any key plans the DM has that have not yet been established to the player\n\nThat means the DM can deny any request w/o any further comments. If the change is acceptable, though, the DM will accept the proposal and counter-offer it with a [[Serendipity]] Check DC, depending on:\n\n* how close to true the fact already is\n* how convenient it would be if it were true\n* how absurd it would be for it to be true\n\nThe player can then accept the offer or offer a counter-counter proposal, by suggesting a more reasonable version of the request.\n\nThis can go back and forth until the DM has the final say on the DC. The Player must make this roll without using any [[Luck Die | Luck]] or [[Extra Die]].\n\nDepending on the level of success or failure (i.e. how close to the DC it was), the DM will decide:\n\n* complete failure, nothing happens\n* partial failure, the DM picks a weaker/monkey-pawed version of the fact\n* success, the player gets the exact fact as agreed\n* complete success, the player might get a perk on top of the fact\n\nThe DM doesn't necessarily need to tell the player immediately which level of success was obtained.",
 		costs: [
 			new ActionCost({ resource: Resource.ActionPoint, amount: 0 }),
 			new ActionCost({ resource: Resource.HeroismPoint, amount: 1, variable: true }),
@@ -839,14 +858,14 @@ export const ACTIONS = {
 				statType: StatType.Serendipity,
 			}),
 		],
-		traits: [Trait.Channel],
+		traits: [Trait.Channel, Trait.Concentrate],
 	}),
 	[Action.HeroicRelentlessness]: new ActionDefinition({
 		key: Action.HeroicRelentlessness,
 		type: ActionType.Heroic,
 		name: 'Heroic Relentlessness',
 		description:
-			'A special Action you can take as a full-round-action when you are [[Incapacitated]] by paying a [[Heroism_Point | Heroism Point]] to make a [[FOW]] Check DC 20 (Medium). Restore your [[Vitality_Point | Vitality]], [[Focus_Point | Focus]] and [[Spirit_Point | Spirit]] Points to at least 1 each, thus clearing [[Incapacitated]] (you get a level of [[Exhaustion]] as usual).',
+			'A full-round-action that can only be taken when you are [[Incapacitated]], by paying a [[Heroism_Point | Heroism Point]] to make a [[FOW]] Check DC 20 (Medium). Restore your [[Vitality_Point | Vitality]], [[Focus_Point | Focus]] and [[Spirit_Point | Spirit]] Points to at least 1 each, thus clearing [[Incapacitated]] (you get a rank of [[Exhaustion]] as usual).',
 		costs: [
 			new ActionCost({ resource: Resource.ActionPoint, amount: 4 }),
 			new ActionCost({ resource: Resource.HeroismPoint, amount: 1 }),
