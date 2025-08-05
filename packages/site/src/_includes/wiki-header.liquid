@@ -16,7 +16,7 @@
 
 		{% if lexicon.group %}
 			<div class='breadcrumb'>
-				<a href='/wiki/{{ lexicon.group }}/'>← Back to {{ lexicon.group }}</a>
+				<a href='/wiki/{{ lexicon.group }}/'>← Back to {{ lexicon.group | replace: '_', ' ' }}</a>
 			</div>
 		{% endif %}
 	</div>
