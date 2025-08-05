@@ -1,10 +1,11 @@
-import { FeatDefinition, FeatInfo, FeatParameter, FeatSlot, FeatType } from '@shattered-wilds/commons';
+import { FeatDefinition, FeatInfo, FeatParameter, FeatSlot } from '@shattered-wilds/commons';
 import React, { useState } from 'react';
 import { FaChevronDown, FaChevronRight, FaExclamationTriangle } from 'react-icons/fa';
 
 import { useStore } from '../../store';
 import { Character, CharacterSheet } from '../../types';
 import { FeatsSection } from '../../types/feats-section';
+import { FeatBox } from '../FeatBox';
 import { Button } from '../shared/Button';
 import LabeledDropdown from '../shared/LabeledDropdown';
 import { RichText } from '../shared/RichText';
@@ -220,104 +221,13 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 										}}
 									>
 										{featsOrSlots.map(featOrSlot => {
-											const slot = featOrSlot.slot ?? featOrSlot.info?.slot;
-											const info = featOrSlot.info;
-
-											const slotType = slot?.type ?? info?.feat?.type;
-											const isCore = slotType === FeatType.Core;
-
-											const isEmpty = featOrSlot.isEmpty;
-											const warning = featOrSlot.warning;
-											const isClickable = !isCore;
-
-											const key = slot?.toProp() || info?.feat?.key;
-
-											const handleOpen = () => {
-												if (!isClickable) {
-													return;
-												}
-												if (featOrSlot.slot) {
-													setSelectedSlot(featOrSlot.slot);
-												} else {
-													const currentSlotKey = featOrSlot.info?.slot?.toProp();
-													if (currentSlotKey) {
-														updateCharacterProp(character, currentSlotKey, undefined);
-													}
-												}
-											};
-
 											return (
-												<div
-													key={key}
-													style={{
-														padding: '8px',
-														border: `1px solid ${isEmpty ? 'orange' : 'var(--text)'}`,
-														borderRadius: '4px',
-														backgroundColor: isClickable ? 'var(--background-alt)' : 'var(--background)',
-														cursor: isClickable ? 'pointer' : 'default',
-														minHeight: '80px',
-														display: 'flex',
-														flexDirection: 'column',
-														boxSizing: 'border-box',
-													}}
-													onClick={handleOpen}
-													onKeyDown={e => {
-														if (e.key === 'Enter' || e.key === ' ') {
-															handleOpen();
-														}
-													}}
-													tabIndex={isClickable ? 0 : -1}
-													role={isClickable ? 'button' : undefined}
-													aria-label={isClickable ? 'Select feat slot' : undefined}
-												>
-													<div
-														style={{
-															display: 'flex',
-															alignItems: 'center',
-															justifyContent: 'space-between',
-															marginBottom: '4px',
-														}}
-													>
-														<div style={{ fontSize: '0.75em', color: 'var(--text-secondary)' }}>
-															{slot?.name ?? `Core ${info?.feat?.category} Feat`}
-														</div>
-														{warning && <FaExclamationTriangle size={10} style={{ color: 'orange' }} title={warning} />}
-													</div>
-
-													{info ? (
-														<div style={{ flex: 1 }}>
-															<div
-																style={{
-																	fontWeight: 'bold',
-																	marginBottom: '3px',
-																	fontSize: '0.9em',
-																	lineHeight: '1.2',
-																}}
-															>
-																{info.name}
-															</div>
-															<div
-																style={{
-																	fontSize: '0.8em',
-																	color: 'var(--text-secondary)',
-																	lineHeight: '1.3',
-																}}
-															>
-																<RichText>{info.description}</RichText>
-															</div>
-														</div>
-													) : (
-														<div
-															style={{
-																fontStyle: 'italic',
-																color: 'var(--text-secondary)',
-																fontSize: '0.8em',
-															}}
-														>
-															Click to assign feat
-														</div>
-													)}
-												</div>
+												<FeatBox
+													key={featOrSlot.slot?.toProp() ?? featOrSlot.info?.feat.key}
+													featOrSlot={featOrSlot}
+													onSelectSlot={setSelectedSlot}
+													onClearSlot={slot => updateCharacterProp(character, slot.toProp(), undefined)}
+												/>
 											);
 										})}
 									</div>

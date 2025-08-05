@@ -1,4 +1,4 @@
-import { Check, CheckMode, CheckNature, DerivedStatType, FeatType, Resource } from '@shattered-wilds/commons';
+import { Check, CheckMode, CheckNature, DerivedStatType, Resource } from '@shattered-wilds/commons';
 import React, { useMemo } from 'react';
 import { FaArrowLeft, FaBatteryFull, FaCog, FaCopy, FaExclamationTriangle } from 'react-icons/fa';
 
@@ -9,11 +9,11 @@ import { FeatsSection } from '../types/feats-section';
 
 import { ActionsSection } from './ActionsSection';
 import { EquipmentSection } from './EquipmentSection';
+import { FeatBox } from './FeatBox';
 import { ResourceInputComponent } from './ResourceInputComponent';
 import Block from './shared/Block';
 import { Button } from './shared/Button';
 import LabeledInput from './shared/LabeledInput';
-import { RichText } from './shared/RichText';
 import { StatTreeGridComponent } from './stat-tree/StatTreeGridComponent';
 
 interface FullPageCharacterSheetProps {
@@ -156,62 +156,15 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 							}}
 						>
 							{featsOrSlots.map(featOrSlot => {
-								const key = featOrSlot.slot?.toProp() ?? featOrSlot.info?.feat.key;
-								const feat = featOrSlot.info?.feat;
-								const description = feat?.description;
-
-								const type = feat?.type || featOrSlot.slot?.type;
-								const isCore = type === FeatType.Core;
-
 								return (
-									<div
-										key={key}
-										style={{
-											padding: '0.75rem',
-											border: '1px solid var(--text)',
-											borderRadius: '4px',
-											backgroundColor: isCore ? 'var(--background)' : 'var(--background-alt)',
+									<FeatBox
+										key={featOrSlot.slot?.toProp() ?? featOrSlot.info?.feat.key}
+										featOrSlot={featOrSlot}
+										onSelectSlot={() => {
+											/* TODO select slot */
 										}}
-									>
-										<div
-											style={{
-												display: 'flex',
-												justifyContent: 'space-between',
-												alignItems: 'start',
-												marginBottom: '0.25rem',
-											}}
-										>
-											<div
-												style={{
-													fontWeight: 'bold',
-													fontSize: '0.9rem',
-													color: 'var(--text)',
-												}}
-											>
-												{feat?.name ?? `Empty ${featOrSlot.slot?.name}`}
-											</div>
-											<div
-												style={{
-													fontSize: '0.7rem',
-													color: 'var(--text-secondary)',
-													textTransform: 'capitalize',
-												}}
-											>
-												{type}
-											</div>
-										</div>
-										{description && (
-											<div
-												style={{
-													fontSize: '0.8rem',
-													color: 'var(--text-secondary)',
-													lineHeight: '1.3',
-												}}
-											>
-												<RichText>{description}</RichText>
-											</div>
-										)}
-									</div>
+										onClearSlot={slot => updateCharacterProp(character, slot.toProp(), undefined)}
+									/>
 								);
 							})}
 						</div>
