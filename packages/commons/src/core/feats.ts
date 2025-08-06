@@ -732,7 +732,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassFlavor.Scoundrel,
 		level: 2,
 		description:
-			'If you would inflict additional damage through a **Basic Strike** to an enemy via **Crit Shifts**, you can instead spend any number of [[Spirit_Point | SP]] (up to your level) to inflict that many additional [[Vitality_Point | VP]] of damage.',
+			'If you would inflict additional damage through a **Basic Strike** to an enemy via **Crit Shifts**, you can instead spend any number of [[Spirit_Point | SP]] (up to your level) to inflict that many additional [[Vitality_Point | VP]] of damage. So for example if you get 2 **Shifts** for an attack (normal damage of 3), you can spend 2 [[Spirit_Point | SP]] to inflict 2 additional [[Vitality_Point | VP]] of damage (total damage of 5).',
 	}),
 	[Feat.BeginnersLuck]: new FeatDefinition<void>({
 		key: Feat.BeginnersLuck,
