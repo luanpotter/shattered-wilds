@@ -4,6 +4,7 @@ import { FaCopy, FaExpand } from 'react-icons/fa';
 import { useStore } from '../store';
 import { Modal as ModalType, CharacterSheet } from '../types';
 import { copyCharacterDataToClipboard } from '../utils/clipboard';
+import { Navigator } from '../utils/routes';
 
 import { CharacterList } from './CharacterList';
 import { CharacterSheetModal } from './CharacterSheet';
@@ -26,16 +27,9 @@ import { Button } from './shared/Button';
 interface ModalRendererProps {
 	modal: ModalType;
 	onStartDrag: (e: React.MouseEvent) => void;
-	onNavigateToCharacterSheets?: () => void;
-	onNavigateToCharacterSheet?: (characterId: string) => void;
 }
 
-export const ModalRenderer: React.FC<ModalRendererProps> = ({
-	modal,
-	onStartDrag,
-	onNavigateToCharacterSheets,
-	onNavigateToCharacterSheet,
-}) => {
+export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag }) => {
 	const characters = useStore(state => state.characters);
 	const removeModal = useStore(state => state.removeModal);
 	const updateCharacterPos = useStore(state => state.updateCharacterPos);
@@ -50,18 +44,14 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({
 		// Close the character list modal
 		removeModal(modal.id);
 		// Navigate to the full character sheets page
-		if (onNavigateToCharacterSheets) {
-			onNavigateToCharacterSheets();
-		}
+		Navigator.toCharacterSheets();
 	};
 
 	const handleExpandCharacterSheet = (characterId: string) => {
 		// Close the character sheet modal
 		removeModal(modal.id);
 		// Navigate to the specific character sheet page
-		if (onNavigateToCharacterSheet) {
-			onNavigateToCharacterSheet(characterId);
-		}
+		Navigator.toCharacterSheet(characterId);
 	};
 
 	const generateTitleBarButtons = () => {

@@ -6,6 +6,7 @@ import { useStore } from '../store';
 import { Character } from '../types';
 import { findNextEmptyHexPosition } from '../utils';
 import { importCharacterDataFromClipboard } from '../utils/clipboard';
+import { Navigator } from '../utils/routes';
 
 import { FullPageCharacterSheet } from './FullPageCharacterSheet';
 import { Button } from './shared/Button';
@@ -27,6 +28,11 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 	const addCharacter = useStore(state => state.addCharacter);
 	const { openCharacterCreationModal } = useModals();
 	const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(initialCharacterId);
+
+	// Update selectedCharacterId when initialCharacterId changes (for URL navigation)
+	useEffect(() => {
+		setSelectedCharacterId(initialCharacterId);
+	}, [initialCharacterId]);
 	const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 	const [importError, setImportError] = useState<string | null>(null);
 	const [showCreateDropdown, setShowCreateDropdown] = useState<boolean>(false);
@@ -57,7 +63,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 	};
 
 	const handleBackToList = () => {
-		// Navigate back to character list using hash routing
+		// Navigate back to character list using centralized routing
 		window.location.hash = '#/characters';
 		setSelectedCharacterId(null);
 	};
@@ -181,7 +187,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-						<Button onClick={() => (window.location.hash = '#/')} icon={FaArrowLeft} title='Back to Simulator' />
+						<Button onClick={Navigator.toSimulator} icon={FaArrowLeft} title='Back to Simulator' />
 						<h2 style={{ margin: 0 }}>Character Sheets</h2>
 					</div>
 					<div style={{ display: 'flex', gap: '1rem' }}>

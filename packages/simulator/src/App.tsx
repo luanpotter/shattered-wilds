@@ -9,29 +9,13 @@ import { Button } from './components/shared/Button';
 import { useModals } from './hooks/useModals';
 import { useStore } from './store';
 import { Point, Character, DragState } from './types';
-
-type ViewType = 'simulator' | 'character-sheets' | 'onboarding';
-
-const getInitialView = (): ViewType => {
-	const hash = window.location.hash.slice(1); // Remove the # prefix
-	if (hash === '/characters' || hash.startsWith('/characters/')) {
-		return 'character-sheets';
-	}
-	if (hash === '/onboarding') {
-		return 'onboarding';
-	}
-	return 'simulator';
-};
-
-const getInitialCharacterId = (): string | null => {
-	const hash = window.location.hash.slice(1); // Remove the # prefix
-	const match = hash.match(/^\/characters\/(.+)$/);
-	return match ? match[1] : null;
-};
+import { Navigator, type ViewType } from './utils/routes';
 
 const App = (): React.ReactElement => {
-	const [currentView, setCurrentView] = useState<ViewType>(getInitialView());
-	const [initialCharacterId, setInitialCharacterId] = useState<string | null>(getInitialCharacterId());
+	const [currentView, setCurrentView] = useState<ViewType>(() => Navigator.parseRoute().view);
+	const [initialCharacterId, setInitialCharacterId] = useState<string | null>(
+		() => Navigator.parseRoute().characterId || null,
+	);
 	const [dragState, setDragState] = useState<DragState>({ type: 'none' });
 
 	const characters = useStore(state => state.characters);
@@ -44,35 +28,17 @@ const App = (): React.ReactElement => {
 	const { openCharacterListModal, closeAllModals, updateModal } = useModals();
 
 	// Handle browser navigation (back/forward buttons)
+	// This is the KEY FIX: only respond to hashchange events, don't manually update state
 	useEffect(() => {
 		const handleHashChange = () => {
-			setCurrentView(getInitialView());
-			setInitialCharacterId(getInitialCharacterId());
+			const route = Navigator.parseRoute();
+			setCurrentView(route.view);
+			setInitialCharacterId(route.characterId || null);
 		};
 
 		window.addEventListener('hashchange', handleHashChange);
 		return () => window.removeEventListener('hashchange', handleHashChange);
 	}, []);
-
-	// Navigation functions with URL updates
-
-	const navigateToCharacterSheets = () => {
-		window.location.hash = '#/characters';
-		setCurrentView('character-sheets');
-		setInitialCharacterId(null);
-	};
-
-	const navigateToCharacterSheet = (characterId: string) => {
-		window.location.hash = `#/characters/${characterId}`;
-		setCurrentView('character-sheets');
-		setInitialCharacterId(characterId);
-	};
-
-	const navigateToOnboarding = () => {
-		window.location.hash = '#/onboarding';
-		setCurrentView('onboarding');
-		setInitialCharacterId(null);
-	};
 
 	useEffect(() => {
 		const handleMouseMove = (e: MouseEvent) => {
@@ -264,12 +230,12 @@ const App = (): React.ReactElement => {
 					)}
 					{currentView === 'character-sheets' && (
 						<CharacterSheetsPage
-							onNavigateToCharacterSheet={navigateToCharacterSheet}
-							onNavigateToOnboarding={navigateToOnboarding}
+							onNavigateToCharacterSheet={Navigator.toCharacterSheet}
+							onNavigateToOnboarding={Navigator.toOnboarding}
 							initialCharacterId={initialCharacterId}
 						/>
 					)}
-					{currentView === 'onboarding' && <OnboardingPage onNavigateToCharacterSheets={navigateToCharacterSheets} />}
+					{currentView === 'onboarding' && <OnboardingPage onNavigateToCharacterSheets={Navigator.toCharacterSheets} />}
 				</div>
 			</main>
 			{currentView !== 'onboarding' && (
@@ -304,8 +270,6 @@ const App = (): React.ReactElement => {
 							},
 						});
 					}}
-					onNavigateToCharacterSheets={navigateToCharacterSheets}
-					onNavigateToCharacterSheet={navigateToCharacterSheet}
 				/>
 			))}
 		</div>

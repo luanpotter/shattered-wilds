@@ -6,6 +6,7 @@ import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
 import { Character, CharacterSheet, CurrentResources } from '../types';
 import { copyCharacterDataToClipboard } from '../utils/clipboard';
+import { Navigator } from '../utils/routes';
 
 import { ActionsSection } from './ActionsSection';
 import { EquipmentSection } from './EquipmentSection';
@@ -117,7 +118,7 @@ const FullPageCharacterSheetContent: React.FC<{ character: Character; onBack: ()
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-						<Button onClick={() => (window.location.hash = '#/')} icon={FaArrowLeft} title='Back to Simulator' />
+						<Button onClick={Navigator.toSimulator} icon={FaArrowLeft} title='Back to Simulator' />
 						<Button onClick={onBack} icon={FaArrowLeft} title='Back to List' />
 						<h2 style={{ margin: 0, fontSize: '1.5rem' }}>{character.props.name}&apos;s Character Sheet</h2>
 					</div>
