@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface LabeledInputProps {
 	variant?: 'normal' | 'inline';
@@ -7,6 +7,7 @@ interface LabeledInputProps {
 	value: string;
 	disabled?: boolean;
 	onChange?: ((value: string) => void) | undefined;
+	onBlur?: ((value: string) => void) | undefined;
 	onClick?: (() => void) | undefined;
 	buttons?: React.ReactNode;
 }
@@ -18,9 +19,25 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
 	value,
 	disabled = false,
 	onChange,
+	onBlur,
 	onClick,
 	buttons,
 }) => {
+	const useLocalState = Boolean(onBlur && !onChange);
+	const [localValue, setLocalValue] = useState(value);
+
+	// Sync local value when prop changes (e.g., switching characters)
+	useEffect(() => {
+		if (useLocalState) {
+			setLocalValue(value);
+		}
+	}, [value, useLocalState]);
+
+	const displayValue = useLocalState ? localValue : value;
+	const handleChange = useLocalState ? setLocalValue : onChange;
+	const handleBlur = useLocalState
+		? () => onBlur?.(localValue)
+		: (e: React.FocusEvent<HTMLInputElement>) => onBlur?.(e.target.value);
 	const inlineLabelStyle: React.CSSProperties = {
 		display: 'flex',
 		fontSize: '0.9em',
@@ -72,8 +89,9 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
 				disabled={disabled && !onClick}
 				readOnly={disabled}
 				type='text'
-				value={value}
-				onChange={e => onChange?.(e.target.value)}
+				value={displayValue}
+				onChange={e => handleChange?.(e.target.value)}
+				onBlur={handleBlur}
 				style={variant === 'inline' ? inlineStyle : normalStyle}
 			/>
 			{buttons}

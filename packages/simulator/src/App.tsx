@@ -28,7 +28,6 @@ const App = (): React.ReactElement => {
 	const { openCharacterListModal, closeAllModals, updateModal } = useModals();
 
 	// Handle browser navigation (back/forward buttons)
-	// This is the KEY FIX: only respond to hashchange events, don't manually update state
 	useEffect(() => {
 		const handleHashChange = () => {
 			const route = Navigator.parseRoute();

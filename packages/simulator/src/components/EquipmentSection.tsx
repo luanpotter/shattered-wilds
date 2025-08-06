@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FaTrash } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { Character, CharacterSheet, Equipment, BASIC_EQUIPMENT, BasicEquipmentType } from '../types';
+import { CharacterSheet, Equipment, BASIC_EQUIPMENT, BasicEquipmentType } from '../types';
 
 import Block from './shared/Block';
 import { Button } from './shared/Button';
@@ -10,11 +10,13 @@ import LabeledDropdown from './shared/LabeledDropdown';
 import LabeledInput from './shared/LabeledInput';
 
 interface EquipmentSectionProps {
-	character: Character;
+	characterId: string;
 }
 
-export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ character }) => {
+export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ characterId }) => {
 	const editMode = useStore(state => state.editMode);
+
+	const character = useStore(state => state.characters.find(c => c.id === characterId))!;
 	const equipment = CharacterSheet.from(character.props).equipment;
 
 	const [selectedItem, setSelectedItem] = useState<BasicEquipmentType | null>(null);
@@ -74,7 +76,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ character })
 						<LabeledInput
 							variant='inline'
 							value={item.name}
-							onChange={value => {
+							onBlur={value => {
 								item.name = value;
 								onUpdateEquipment(equipment);
 							}}

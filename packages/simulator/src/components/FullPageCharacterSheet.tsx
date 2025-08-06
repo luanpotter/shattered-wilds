@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { FaArrowLeft, FaCopy } from 'react-icons/fa';
 
 import { useModals } from '../hooks/useModals';
@@ -43,16 +43,16 @@ export const FullPageCharacterSheet: React.FC<FullPageCharacterSheetProps> = ({ 
 };
 
 const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ characterId, onBack }) => {
-	const characters = useStore(state => state.characters);
-	const character = useMemo(() => characters.find(c => c.id === characterId), [characters, characterId]);
-
+	const character = useStore(state => state.characters.find(c => c.id === characterId));
 	const updateCharacterName = useStore(state => state.updateCharacterName);
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
 	const editMode = useStore(state => state.editMode);
 
 	const { openRaceSetupModal, openClassSetupModal } = useModals();
 
-	if (!character) {
+	const sheet = character?.props ? CharacterSheet.from(character.props) : null;
+
+	if (!character || !sheet) {
 		return (
 			<div
 				style={{
@@ -69,8 +69,6 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 			</div>
 		);
 	}
-
-	const sheet = CharacterSheet.from(character.props);
 
 	const Row = ({ children }: { children: React.ReactNode }) => {
 		return <div style={{ display: 'flex' }}>{children}</div>;
@@ -104,7 +102,7 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 						<LabeledInput
 							label='Name'
 							value={character.props.name}
-							onChange={value => updateCharacterName(character, value)}
+							onBlur={value => updateCharacterName(character, value)}
 							disabled={!editMode}
 						/>
 						<LabeledInput
@@ -138,9 +136,9 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 					/>
 				</Block>
 
-				<FeatsSectionComponent character={character} />
-				<EquipmentSection character={character} />
-				<ActionsSection character={character} />
+				<FeatsSectionComponent characterId={characterId} />
+				<EquipmentSection characterId={characterId} />
+				<ActionsSection characterId={characterId} />
 			</Column>
 		</>
 	);

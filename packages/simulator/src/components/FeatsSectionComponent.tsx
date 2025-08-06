@@ -3,18 +3,18 @@ import { FaCog, FaExclamationTriangle } from 'react-icons/fa';
 
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
-import { Character, CharacterSheet } from '../types';
+import { CharacterSheet } from '../types';
 import { FeatsSection } from '../types/feats-section';
 
 import { FeatBox } from './FeatBox';
 import Block from './shared/Block';
 import { Button } from './shared/Button';
 
-export const FeatsSectionComponent: React.FC<{ character: Character }> = ({ character }) => {
+export const FeatsSectionComponent: React.FC<{ characterId: string }> = ({ characterId }) => {
 	const { openFeatsSetupModal } = useModals();
 	const editMode = useStore(state => state.editMode);
 
-	const characterId = character.id;
+	const character = useStore(state => state.characters.find(c => c.id === characterId))!;
 	const sheet = CharacterSheet.from(character.props);
 	const section = FeatsSection.create(sheet);
 

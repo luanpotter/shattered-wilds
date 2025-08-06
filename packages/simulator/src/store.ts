@@ -20,6 +20,7 @@ interface AppState {
 	characters: Character[];
 	gridState: GridState;
 	editMode: boolean;
+	uiState: Record<string, unknown>; // Store component UI state by component key
 	addCharacter: AddCharacter;
 	updateCharacterName: UpdateCharacterName;
 	updateCharacterProp: UpdateCharacterProp;
@@ -31,6 +32,7 @@ interface AppState {
 	removeModal: RemoveModal;
 	updateGridState: UpdateGridState;
 	toggleEditMode: ToggleEditMode;
+	setUIState: (key: string, value: unknown) => void;
 }
 
 export const useStore = create<AppState>()(
@@ -43,6 +45,7 @@ export const useStore = create<AppState>()(
 				offset: { x: 0, y: 0 },
 			},
 			editMode: true,
+			uiState: {},
 			addCharacter: character =>
 				set(state => ({
 					characters: [...state.characters, character],
@@ -102,6 +105,7 @@ export const useStore = create<AppState>()(
 				set(state => ({
 					editMode: !state.editMode,
 				})),
+			setUIState: (key: string, value: unknown) => set(state => ({ uiState: { ...state.uiState, [key]: value } })),
 		}),
 		{
 			name: 'd12-simulator-storage',

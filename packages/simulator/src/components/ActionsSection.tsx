@@ -24,11 +24,13 @@ import {
 	Armor,
 	IncludeEquipmentModifier,
 } from '@shattered-wilds/commons';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
 import { FaShield } from 'react-icons/fa6';
 
 import { useModals } from '../hooks/useModals';
+import { useUIStateFactory } from '../hooks/useUIState';
+import { useStore } from '../store';
 import { Character, CharacterSheet, Weapon, WeaponMode } from '../types';
 import { numberToOrdinal } from '../utils';
 
@@ -40,7 +42,12 @@ import LabeledInput from './shared/LabeledInput';
 import { RichText } from './shared/RichText';
 
 interface ActionsSectionProps {
-	character: Character;
+	characterId: string;
+}
+
+interface ActionsSectionInnerProps {
+	characterId: string;
+	sheet: CharacterSheet;
 }
 
 const ParameterBox: React.FC<{
@@ -215,20 +222,18 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, ch
 	);
 };
 
-export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => {
+const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, sheet }) => {
 	const { openConsumeResourceModal } = useModals();
-	const [activeTab, setActiveTab] = useState<ActionType>(ActionType.Movement);
-	const [showAll, setShowAll] = useState(true);
 
-	const [selectedWeapon, setSelectedWeapon] = useState<WeaponModeOption | null>(null);
-	const [selectedRange, setSelectedRange] = useState<Distance | null>(null);
-	const [selectedDefenseRealm, setSelectedDefenseRealm] = useState<StatType>(StatType.Body);
-	const [selectedArmor, setSelectedArmor] = useState<Armor | null>(null);
-	const [selectedShield, setSelectedShield] = useState<Shield | null>(null);
-	const [selectedPassiveCover, setSelectedPassiveCover] = useState<PassiveCoverType>(PassiveCoverType.None);
-	const [heightIncrements, setHeightIncrements] = useState<string>('');
+	const { useState, useStateArrayItem } = useUIStateFactory(`actions-${characterId}`);
+	const [activeTab, setActiveTab] = useState('activeTab', ActionType.Movement);
+	const [showAll, setShowAll] = useState('showAll', true);
+	const [selectedRange, setSelectedRange] = useState<Distance | null>('selectedRange', null);
+	const [selectedDefenseRealm, setSelectedDefenseRealm] = useState('selectedDefenseRealm', StatType.Body);
+	const [selectedPassiveCover, setSelectedPassiveCover] = useState('selectedPassiveCover', PassiveCoverType.None);
+	const [heightIncrements, setHeightIncrements] = useState('heightIncrements', '');
 
-	const sheet = CharacterSheet.from(character.props);
+	const character = useStore(state => state.characters.find(c => c.id === characterId))!;
 	const tree = sheet.getStatTree();
 	const hasShield = sheet.equipment.items.some(item => item instanceof Shield);
 	const weapons = sheet.equipment.items.filter(item => item instanceof Weapon) as Weapon[];
@@ -240,7 +245,13 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 		],
 		[hasShield, weapons],
 	);
+
 	const armors = sheet.equipment.items.filter(item => item instanceof Armor) as Armor[];
+	const shields = sheet.equipment.items.filter(item => item instanceof Shield) as Shield[];
+
+	const [selectedWeapon, setSelectedWeapon] = useStateArrayItem('selectedWeapon', weaponModes, null);
+	const [selectedArmor, setSelectedArmor] = useStateArrayItem('selectedArmor', armors, null);
+	const [selectedShield, setSelectedShield] = useStateArrayItem('selectedShield', shields, null);
 
 	const rangeIncrementModifier = useMemo(() => {
 		if (!selectedWeapon || !selectedRange || selectedWeapon.mode.rangeType !== Trait.Ranged) {
@@ -274,24 +285,26 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 		});
 	}, [heightIncrements]);
 
-	const updateSelectedWeapon = (weapon: WeaponModeOption) => {
-		setSelectedWeapon(weapon);
-		setSelectedRange(null);
-		setSelectedPassiveCover(PassiveCoverType.None);
-		setHeightIncrements('');
-	};
+	const updateSelectedWeapon = useCallback(
+		(weapon: WeaponModeOption) => {
+			setSelectedWeapon(weapon);
+			setSelectedRange(null);
+			setSelectedPassiveCover(PassiveCoverType.None);
+			setHeightIncrements('');
+		},
+		[setSelectedWeapon, setSelectedRange, setSelectedPassiveCover, setHeightIncrements],
+	);
 
-	// Auto-select first weapon and armor if available
 	useEffect(() => {
 		if (weaponModes.length > 0 && !selectedWeapon) {
 			updateSelectedWeapon(weaponModes[0]);
 		}
-	}, [weaponModes, selectedWeapon]);
+	}, [weaponModes, selectedWeapon, updateSelectedWeapon]);
 	useEffect(() => {
 		if (armors.length > 0 && !selectedArmor) {
 			setSelectedArmor(armors[0]);
 		}
-	}, [armors, selectedArmor]);
+	}, [armors, selectedArmor, setSelectedArmor]);
 
 	const getTypeIcon = (type: ActionType) => {
 		switch (type) {
@@ -492,7 +505,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 									value={selectedArmor}
 									options={armors}
 									describe={armor => armor.displayText}
-									onChange={armor => setSelectedArmor(armor)}
+									onChange={setSelectedArmor}
 								/>
 							)}
 							{isBody && shields.length > 0 && (
@@ -502,7 +515,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 									options={shields}
 									describe={shield => shield.displayText}
 									placeholder='Select shield...'
-									onChange={shield => setSelectedShield(shield ?? null)}
+									onChange={setSelectedShield}
 									disabled={!hasShield}
 								/>
 							)}
@@ -670,4 +683,11 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({ character }) => 
 			{renderActionsByType(activeTab)}
 		</Block>
 	);
+};
+
+export const ActionsSection: React.FC<ActionsSectionProps> = ({ characterId }) => {
+	const character = useStore(state => state.characters.find(c => c.id === characterId))!;
+	const sheet = CharacterSheet.from(character.props);
+
+	return <ActionsSectionInner characterId={characterId} sheet={sheet} />;
 };

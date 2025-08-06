@@ -14,13 +14,13 @@ export const DerivedStatsRowComponent: React.FC<{ variant: 'normal' | 'inline'; 
 }) => {
 	const { openDiceRollModal } = useModals();
 
-	const character = useStore(state => state.characters).find(c => c.id === characterId)!;
-	const sheet = CharacterSheet.from(character.props);
-	const statTree = sheet.getStatTree();
+	const character = useStore(state => state.characters.find(c => c.id === characterId))!;
 
-	const movement = statTree.getModifier(DerivedStatType.Movement);
-	const initiative = statTree.getModifier(DerivedStatType.Initiative);
-	const influenceRange = statTree.getModifier(DerivedStatType.InfluenceRange);
+	const sheet = CharacterSheet.from(character.props);
+	const tree = sheet.getStatTree();
+	const movement = tree.getModifier(DerivedStatType.Movement);
+	const initiative = tree.getModifier(DerivedStatType.Initiative);
+	const influenceRange = tree.getModifier(DerivedStatType.InfluenceRange);
 
 	return (
 		<>

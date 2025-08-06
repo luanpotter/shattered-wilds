@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { FaCog } from 'react-icons/fa';
 
 import { useModals } from '../hooks/useModals';
@@ -61,7 +61,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 		);
 	};
 
-	const sheet = useMemo(() => CharacterSheet.from(character.props), [character.props]);
+	const sheet = CharacterSheet.from(character.props);
 	const { hasWarnings } = FeatsSection.create(sheet);
 
 	return (
@@ -72,7 +72,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 						variant='inline'
 						label='Name'
 						value={character.props.name}
-						onChange={value => updateCharacterName(character, value)}
+						onBlur={value => updateCharacterName(character, value)}
 						disabled={!editMode}
 					/>
 
