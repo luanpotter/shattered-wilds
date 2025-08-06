@@ -41,16 +41,16 @@ export const ResourceInputComponent: React.FC<ResourceInputComponentProps> = ({
 			buttons={
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginRight: '12px' }}>
 					<Button
+						variant='inline'
 						onClick={() => handlePointChange(resource, -1)}
 						icon={FaMinus}
 						tooltip={`Decrease ${resource}`}
-						variant='inline'
 					/>
 					<Button
+						variant='inline'
 						onClick={() => handlePointChange(resource, 1)}
 						icon={FaPlus}
 						tooltip={`Increase ${resource}`}
-						variant='inline'
 					/>
 				</div>
 			}

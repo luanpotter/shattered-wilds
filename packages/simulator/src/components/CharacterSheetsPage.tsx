@@ -63,8 +63,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 	};
 
 	const handleBackToList = () => {
-		// Navigate back to character list using centralized routing
-		window.location.hash = '#/characters';
+		Navigator.toSimulator();
 		setSelectedCharacterId(null);
 	};
 
@@ -115,10 +114,9 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 			<main
 				style={{
 					flex: 1,
-					padding: '2rem',
-					paddingBottom: '3rem',
+					padding: '1rem',
 					overflow: 'auto',
-					maxWidth: '1400px',
+					maxWidth: '1250px',
 					margin: '0 auto',
 					width: '100%',
 					boxSizing: 'border-box',
