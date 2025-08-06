@@ -827,7 +827,7 @@ export const ACTIONS = {
 		type: ActionType.Heroic,
 		name: 'Karmic Resistance',
 		description:
-			'When you fail a **Contested Resisted Check**; pay 1 [[Heroism Point | Heroism Point]] to try to resist the same target again by with [[Karma]] instead. You cannot use [[Luck Die | Luck]] or [[Extra Die]] on this roll, or use [[Karmic Resistance]] more than once against the same [[Check]].',
+			'When you fail a **Contested Resisted Check**; pay 1 [[Heroism Point | Heroism Point]] to try to resist the same target again by using [[Karma]] instead. You cannot use [[Luck Die | Luck]] or [[Extra Die]] on this roll, or use [[Karmic Resistance]] more than once against the same [[Check]].',
 		costs: [
 			new ActionCost({ resource: Resource.ActionPoint, amount: 0 }),
 			new ActionCost({ resource: Resource.HeroismPoint, amount: 1 }),
