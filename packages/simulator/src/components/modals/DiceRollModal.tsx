@@ -1,6 +1,5 @@
 import { Check, CheckType, CHECK_TYPES, StatTree } from '@shattered-wilds/commons';
-import React from 'react';
-import { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 
 import { useStore } from '../../store';
@@ -19,38 +18,119 @@ export interface DiceRollModalProps {
 	initialTargetDC?: number;
 }
 
+interface DieResult {
+	value: number;
+	valid?: boolean;
+	type: 'base' | 'extra' | 'luck';
+}
+
 interface RollResults {
-	dice: number[];
-	extraResult: number | undefined;
-	luckResult: number | undefined;
-	extraValid: boolean | undefined;
-	luckValid: boolean | undefined;
+	dice: DieResult[];
+	selectedIndices: number[];
 	autoFail: boolean;
 	total: number;
 	critModifiers: number;
 	critShifts: number;
 	success: boolean | undefined;
-	selectedDice: number[];
 }
+
+const rollD12 = () => Math.floor(Math.random() * 12) + 1;
 
 const calculateShifts = (excess: number): number => {
 	if (excess < 6) return 0;
-
 	let shifts = 0;
 	let threshold = 6;
 	let gap = 6;
-
 	while (excess >= threshold) {
 		shifts++;
 		threshold += gap;
 		gap += 6;
 	}
-
 	return shifts;
 };
 
-const showTargetDC = (checkType: CheckType) => {
-	return checkType === 'Static-Active' || checkType === 'Static-Resisted' || checkType === 'Contested-Active';
+const showTargetDC = (checkType: CheckType) =>
+	['Static-Active', 'Static-Resisted', 'Contested-Active'].includes(checkType);
+
+const isContestedActive = (checkType: CheckType) => checkType === 'Contested-Active';
+const canAutoFail = (checkType: CheckType) => checkType !== 'Contested-Resisted';
+
+// Core rolling logic
+const performRoll = (tree: StatTree, useExtra: boolean, useLuck: boolean, extraSkill: StatType): DieResult[] => {
+	const dice: DieResult[] = [
+		{ value: rollD12(), type: 'base' },
+		{ value: rollD12(), type: 'base' },
+	];
+
+	if (useExtra) {
+		const extraValue = tree.valueOf(extraSkill).value;
+		const extraRoll = rollD12();
+		dice.push({
+			value: extraRoll,
+			valid: extraRoll <= extraValue,
+			type: 'extra',
+		});
+	}
+
+	if (useLuck) {
+		const fortuneValue = tree.valueOf(StatType.Fortune).value;
+		const luckRoll = rollD12();
+		dice.push({
+			value: luckRoll,
+			valid: luckRoll <= fortuneValue,
+			type: 'luck',
+		});
+	}
+
+	return dice;
+};
+
+// Calculate results from dice and settings
+const calculateResults = (
+	dice: DieResult[],
+	selectedIndices: number[],
+	checkType: CheckType,
+	dc: number | null,
+	modifierValue: number,
+): Omit<RollResults, 'dice' | 'selectedIndices'> => {
+	const validDice = dice.filter(die => die.type === 'base' || die.valid);
+	const allValues = validDice.map(die => die.value);
+
+	// Auto-fail check
+	const hasPairOfOnes = allValues.filter(v => v === 1).length >= 2;
+	const autoFail = hasPairOfOnes && canAutoFail(checkType);
+
+	// Calculate crit modifiers
+	let critModifiers = 0;
+	if (allValues.includes(12)) critModifiers += 6;
+	const pairs = allValues.reduce(
+		(acc, val, i, arr) => acc + (arr.indexOf(val) !== i && arr.filter(x => x === val).length >= 2 ? 1 : 0),
+		0,
+	);
+	if (pairs > 0) critModifiers += 6;
+
+	// Get selected dice values
+	const selectedValues = selectedIndices.map(i => validDice[i]?.value || 0);
+	const baseTotal = selectedValues.reduce((sum, val) => sum + val, 0) + modifierValue;
+	const total = baseTotal + critModifiers;
+
+	// Calculate success and shifts
+	let success: boolean | undefined;
+	let critShifts = 0;
+
+	if (!autoFail && dc !== null) {
+		if (isContestedActive(checkType)) {
+			success = total > dc || (total === dc && critModifiers > 0);
+		} else {
+			success = total >= dc;
+		}
+
+		if (success) {
+			critShifts = calculateShifts(total - dc);
+		}
+	}
+
+	return { autoFail, total, critModifiers, critShifts, success };
 };
 
 export const DiceRollModal: React.FC<DiceRollModalProps> = ({
@@ -60,14 +140,18 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 	onDiceRollComplete,
 	initialTargetDC,
 }) => {
-	const characters = useStore(state => state.characters);
+	const character = useStore(state => state.characters.find(c => c.id === characterId));
 
-	const character = characters.find(c => c.id === characterId)!;
-	const characterSheet = CharacterSheet.from(character.props);
-	const tree = characterSheet.getStatTree();
+	if (!character) {
+		return <div>Character {characterId} not found</div>;
+	}
 
-	if (!character || !tree) {
-		return <div>Character ${characterId} not found</div>;
+	const tree = CharacterSheet.from(character.props).getStatTree();
+
+	// Check should now be automatically rehydrated by the store
+	if (!check.modifierValue) {
+		onClose();
+		return <div>Corrupted dice roll modal state</div>;
 	}
 
 	return (
@@ -81,6 +165,80 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 	);
 };
 
+// Pentagon die component using CSS polygon border
+const PentagonDie: React.FC<{
+	value: number;
+	isSelected: boolean;
+	isValid?: boolean;
+	label?: string;
+	onClick: () => void;
+}> = ({ value, isSelected, isValid, label, onClick }) => (
+	<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+		<div
+			onClick={onClick}
+			onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && onClick()}
+			role='button'
+			tabIndex={0}
+			style={{
+				position: 'relative',
+				width: '60px',
+				height: '60px',
+				display: 'flex',
+				justifyContent: 'center',
+				alignItems: 'center',
+				cursor: 'pointer',
+			}}
+		>
+			{/* Pentagon background and border using SVG */}
+			<svg
+				style={{
+					position: 'absolute',
+					width: '100%',
+					height: '100%',
+					top: 0,
+					left: 0,
+				}}
+				viewBox='0 0 60 60'
+			>
+				<polygon
+					points='30,2 58,22 47,56 13,56 2,22'
+					fill={isSelected ? 'var(--success)' : 'var(--background-alt)'}
+					stroke='var(--text)'
+					strokeWidth='2'
+				/>
+			</svg>
+
+			{/* Content layer */}
+			<div
+				style={{
+					position: 'relative',
+					zIndex: 1,
+					fontSize: '24px',
+					fontWeight: 'bold',
+					color: 'var(--text)',
+				}}
+			>
+				{value}
+			</div>
+
+			{isValid !== undefined && (
+				<div
+					style={{
+						position: 'absolute',
+						bottom: '8px',
+						right: '8px',
+						fontSize: '12px',
+						zIndex: 2,
+					}}
+				>
+					{isValid ? <FaCheck style={{ color: 'green' }} /> : <FaTimes style={{ color: 'red' }} />}
+				</div>
+			)}
+		</div>
+		{label && <div style={{ fontSize: '12px', textAlign: 'center' }}>{label}</div>}
+	</div>
+);
+
 const DiceRollModalContent: React.FC<{
 	tree: StatTree;
 	check: Check;
@@ -88,7 +246,6 @@ const DiceRollModalContent: React.FC<{
 	onDiceRollComplete: ((result: { total: number; shifts: number }) => void) | undefined;
 	initialTargetDC?: number;
 }> = ({ tree, check, onClose, onDiceRollComplete, initialTargetDC }) => {
-	const [circumstantialModifier, setCircumstantialModifier] = useState(0);
 	const [checkType, setCheckType] = useState<CheckType>(check.type);
 	const [dc, setDc] = useState<number | null>(initialTargetDC ?? null);
 	const [useExtra, setUseExtra] = useState(false);
@@ -96,276 +253,115 @@ const DiceRollModalContent: React.FC<{
 	const [extraSkill, setExtraSkill] = useState<StatType>(StatType.STR);
 	const [rollResults, setRollResults] = useState<RollResults | null>(null);
 
-	const updateResults = (newCheckType?: CheckType, newDc?: number | null) => {
-		if (!rollResults) return;
+	// Memoized calculations that update when dependencies change
+	const results = useMemo(() => {
+		if (!rollResults) return null;
+		const calculatedResults = calculateResults(
+			rollResults.dice,
+			rollResults.selectedIndices,
+			checkType,
+			dc,
+			check.modifierValue.value,
+		);
+		return { ...rollResults, ...calculatedResults };
+	}, [rollResults, checkType, dc, check.modifierValue.value]);
 
-		const currentType = newCheckType ?? checkType;
-		const currentDc = newDc ?? dc;
+	const validDice = useMemo(
+		() => rollResults?.dice.filter(die => die.type === 'base' || die.valid) || [],
+		[rollResults?.dice],
+	);
 
-		// Recalculate auto-fail status based on roll type
-		const allDice = [
-			...rollResults.dice,
-			...(rollResults.extraResult && rollResults.extraValid ? [rollResults.extraResult] : []),
-			...(rollResults.luckResult && rollResults.luckValid ? [rollResults.luckResult] : []),
-		];
-		const hasPairOfOnes = allDice.filter(n => n === 1).length >= 2;
-		const isContestedActive = currentType === 'Contested-Active';
-		const isStatic = currentType === 'Static-Active' || currentType === 'Static-Resisted';
-		const autoFail = hasPairOfOnes && isContestedActive;
-
-		let success = false;
-		let critShifts = 0;
-
-		if (!autoFail && currentDc !== null) {
-			// For Active rolls, ties are losses unless there's a crit modifier
-			if (isContestedActive) {
-				success = rollResults.total > currentDc || (rollResults.total === currentDc && rollResults.critModifiers > 0);
-				if (success) {
-					critShifts = calculateShifts(rollResults.total - currentDc);
-				}
-			} else {
-				success = rollResults.total >= currentDc;
-				if (success && isStatic) {
-					critShifts = calculateShifts(rollResults.total - currentDc);
-				}
-			}
-		}
-
-		setRollResults({
-			...rollResults,
-			autoFail,
-			success,
-			critShifts,
-		});
-	};
-
-	const handleCheckTypeChange = (newType: CheckType) => {
-		setCheckType(newType);
-		updateResults(newType);
-	};
-
-	const handleDcInputChange = (value: string) => {
-		const newDc = value ? parseInt(value) : null;
-		setDc(newDc);
-		updateResults(undefined, newDc);
-	};
+	const handleCheckTypeChange = (newType: CheckType) => setCheckType(newType);
+	const handleDcInputChange = (value: string) => setDc(value ? parseInt(value) : null);
 
 	const handleCopyToVTT = () => {
-		const extraPart = useExtra ? ' extra' : '';
-		const luckPart = useLuck ? ' luck' : '';
-		const dcPart = dc !== null ? ` dc ${dc}` : '';
-		const modifier = check.modifierValue;
-		exportDataToClipboard(`/r d12 + ${modifier}${extraPart}${luckPart}${dcPart}`);
-	};
-
-	const rollD12 = () => {
-		return Math.floor(Math.random() * 12) + 1;
+		const parts = [
+			`/r d12 + ${check.modifierValue.value}`,
+			useExtra && 'extra',
+			useLuck && 'luck',
+			dc !== null && `dc ${dc}`,
+		].filter(Boolean);
+		exportDataToClipboard(parts.join(' '));
 	};
 
 	const handleRollDice = () => {
-		// Roll base dice
-		const dice = [rollD12(), rollD12()];
-		let extraResult: number | undefined;
-		let luckResult: number | undefined;
-		let extraValid: boolean | undefined;
-		let luckValid: boolean | undefined;
+		const dice = performRoll(tree, useExtra, useLuck, extraSkill);
+		const validDice = dice.filter(die => die.type === 'base' || die.valid);
 
-		// Roll extra die if enabled
-		if (useExtra) {
-			extraResult = rollD12();
-			const extraSkillValue = tree.valueOf(extraSkill);
-			extraValid = extraResult <= extraSkillValue.value;
-		}
+		// Auto-select best two dice
+		const sorted = validDice
+			.map((die, index) => ({ die, index }))
+			.sort((a, b) => {
+				// Prioritize 12s for crits, then highest values
+				if (a.die.value === 12 && b.die.value !== 12) return -1;
+				if (b.die.value === 12 && a.die.value !== 12) return 1;
+				return b.die.value - a.die.value;
+			});
 
-		// Roll luck die if enabled
-		if (useLuck) {
-			luckResult = rollD12();
-			const fortuneValue = tree.valueOf(StatType.Fortune);
-			luckValid = luckResult <= fortuneValue.value;
-		}
+		const selectedIndices = sorted.slice(0, 2).map(({ index }) => index);
 
-		// Check for auto fail (any pair of 1s) - but contested resisted rolls cannot auto fail
-		const allDice = [...dice];
-		if (extraResult && extraValid) allDice.push(extraResult);
-		if (luckResult && luckValid) allDice.push(luckResult);
-		const hasPairOfOnes = allDice.filter(n => n === 1).length >= 2;
-		const isContestedResisted = checkType === 'Contested-Resisted';
-		const autoFail = hasPairOfOnes && !isContestedResisted;
-
-		// Calculate crit modifiers
-		let critModifiers = 0;
-		if (allDice.includes(12)) critModifiers += 6;
-		const pairs = allDice.reduce(
-			(acc, n, i, arr) => acc + (arr.indexOf(n) !== i && arr.filter(x => x === n).length >= 2 ? 1 : 0),
-			0,
-		);
-		if (pairs > 0) critModifiers += 6;
-
-		// Pick best two dice (considering crit potential)
-		const sorted = [...allDice].sort((a, b) => b - a);
-		let selectedDice: number[];
-
-		// If we have a 12, prioritize it for crit
-		if (sorted.includes(12)) {
-			const twelve = sorted.findIndex(n => n === 12);
-			const otherDice = sorted.filter((_, i) => i !== twelve);
-			selectedDice = [12, otherDice[0]];
-		} else {
-			selectedDice = [sorted[0], sorted[1]];
-		}
-
-		const baseTotal = selectedDice[0] + selectedDice[1] + check.modifierValue.value;
-
-		// Calculate final total
-		const total = baseTotal + critModifiers;
-
-		let success = false;
-		let critShifts = 0;
-
-		const isContestedActive = checkType === 'Contested-Active';
-		const isStatic = checkType === 'Static-Active' || checkType === 'Static-Resisted';
-
-		if (!autoFail && dc !== null) {
-			// For Active rolls, ties are losses unless there's a crit modifier
-			if (isContestedActive) {
-				success = total > dc || (total === dc && critModifiers > 0);
-				if (success) {
-					critShifts = calculateShifts(total - dc);
-				}
-			} else {
-				success = total >= dc;
-				if (success && isStatic) {
-					critShifts = calculateShifts(total - dc);
-				}
-			}
-		}
-
-		const results: RollResults = {
-			dice,
-			extraResult,
-			luckResult,
-			extraValid,
-			luckValid,
-			autoFail,
-			total,
-			critModifiers,
-			critShifts,
-			success,
-			selectedDice,
-		};
-
-		setRollResults(results);
-	};
-
-	const handleDiceClick = (value: number) => {
-		if (!rollResults) return;
-
-		const allDice = [
-			...rollResults.dice,
-			...(rollResults.extraResult && rollResults.extraValid ? [rollResults.extraResult] : []),
-			...(rollResults.luckResult && rollResults.luckValid ? [rollResults.luckResult] : []),
-		];
-
-		// If the clicked die is already selected, deselect it
-		if (rollResults.selectedDice.includes(value)) {
-			const newSelected = rollResults.selectedDice.filter(d => d !== value);
-			// If we're down to one die, we need to pick another one
-			if (newSelected.length === 1) {
-				const available = allDice.filter(d => !newSelected.includes(d));
-				newSelected.push(available[0]);
-			}
-			setRollResults({ ...rollResults, selectedDice: newSelected });
-			return;
-		}
-
-		// If we already have two dice selected, replace the lower one
-		if (rollResults.selectedDice.length === 2) {
-			const newSelected = [...rollResults.selectedDice];
-			const lowerIndex = newSelected[0] < newSelected[1] ? 0 : 1;
-			newSelected[lowerIndex] = value;
-			setRollResults({ ...rollResults, selectedDice: newSelected });
-			return;
-		}
-
-		// Otherwise, add the die to selection
 		setRollResults({
-			...rollResults,
-			selectedDice: [...rollResults.selectedDice, value],
+			dice,
+			selectedIndices,
+			autoFail: false, // Will be calculated in useMemo
+			total: 0, // Will be calculated in useMemo
+			critModifiers: 0, // Will be calculated in useMemo
+			critShifts: 0, // Will be calculated in useMemo
+			success: undefined, // Will be calculated in useMemo
 		});
 	};
 
-	const renderDiceResult = (value: number, isValid?: boolean, isSelected?: boolean) => {
-		return (
-			<div
-				onClick={() => handleDiceClick(value)}
-				onKeyDown={e => {
-					if (e.key === 'Enter' || e.key === ' ') {
-						handleDiceClick(value);
-					}
-				}}
-				role='button'
-				tabIndex={0}
-				style={{
-					position: 'relative',
-					width: '60px',
-					height: '60px',
-					display: 'flex',
-					justifyContent: 'center',
-					alignItems: 'center',
-					backgroundColor: isSelected ? 'var(--success)' : 'var(--background-alt)',
-					border: '2px solid var(--text)',
-					borderRadius: '8px',
-					fontSize: '24px',
-					fontWeight: 'bold',
-					cursor: 'pointer',
-					clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)',
-					WebkitClipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)',
-				}}
-			>
-				<div
-					style={{
-						position: 'absolute',
-						inset: '-2px',
-						border: '2px solid var(--text)',
-						borderRadius: '8px',
-						clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)',
-						WebkitClipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)',
-						pointerEvents: 'none',
-					}}
-				/>
-				{value}
-				{isValid !== undefined && (
-					<div
-						style={{
-							position: 'absolute',
-							bottom: '2px',
-							right: '2px',
-							fontSize: '12px',
-						}}
-					>
-						{isValid ? <FaCheck style={{ color: 'green' }} /> : <FaTimes style={{ color: 'red' }} />}
-					</div>
-				)}
-			</div>
-		);
+	const handleDiceClick = (dieIndex: number) => {
+		if (!rollResults) return;
+
+		const { selectedIndices } = rollResults;
+		const isSelected = selectedIndices.includes(dieIndex);
+
+		let newIndices: number[];
+		if (isSelected) {
+			// Deselect and ensure we still have 2 dice selected
+			newIndices = selectedIndices.filter(i => i !== dieIndex);
+			if (newIndices.length === 1) {
+				// Find another available die
+				const available = validDice.findIndex((_, i) => !newIndices.includes(i));
+				if (available !== -1) newIndices.push(available);
+			}
+		} else if (selectedIndices.length < 2) {
+			// Add to selection
+			newIndices = [...selectedIndices, dieIndex];
+		} else {
+			// Replace the lower-value die
+			const currentValues = selectedIndices.map(i => validDice[i]?.value || 0);
+			const replaceIndex = currentValues[0] < currentValues[1] ? 0 : 1;
+			newIndices = [...selectedIndices];
+			newIndices[replaceIndex] = dieIndex;
+		}
+
+		setRollResults({ ...rollResults, selectedIndices: newIndices });
 	};
 
 	const handleCloseWithCallback = () => {
-		// If we have roll results and a callback, pass the results back
-		if (rollResults && onDiceRollComplete) {
+		if (results && onDiceRollComplete) {
 			onDiceRollComplete({
-				total: rollResults.total,
-				shifts: rollResults.critShifts,
+				total: results.total,
+				shifts: results.critShifts,
 			});
 		}
 		onClose();
 	};
 
-	if (rollResults) {
+	// Render results view
+	if (results) {
+		const { selectedIndices, autoFail, total, critModifiers, success, critShifts } = results;
+		const selectedValues = selectedIndices.map(i => validDice[i]?.value || 0);
+		const allValidValues = validDice.map(die => die.value);
+		const hasPairOfOnes = allValidValues.filter(v => v === 1).length >= 2;
+
 		return (
 			<div style={{ padding: '16px' }}>
 				<h3 style={{ margin: '0 0 16px 0' }}>Roll Results</h3>
 
+				{/* Settings */}
 				<div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
 					<div style={{ flex: 1 }}>
 						<LabeledDropdown
@@ -376,7 +372,6 @@ const DiceRollModalContent: React.FC<{
 							onChange={handleCheckTypeChange}
 						/>
 					</div>
-
 					{showTargetDC(checkType) && (
 						<div style={{ flex: 1 }}>
 							<LabeledInput label='DC' value={dc?.toString() || ''} onChange={handleDcInputChange} />
@@ -384,130 +379,88 @@ const DiceRollModalContent: React.FC<{
 					)}
 				</div>
 
-				{/* Dice Results */}
+				{/* Dice Display */}
 				<div style={{ display: 'flex', gap: '8px', marginBottom: '16px', justifyContent: 'center' }}>
-					{rollResults.dice.map((value, index) => (
-						<div key={index}>{renderDiceResult(value, undefined, rollResults.selectedDice.includes(value))}</div>
-					))}
-					{rollResults.extraResult !== undefined && (
-						<div>
-							{renderDiceResult(
-								rollResults.extraResult,
-								rollResults.extraValid,
-								rollResults.extraValid && rollResults.selectedDice.includes(rollResults.extraResult),
-							)}
-							<div style={{ textAlign: 'center', fontSize: '12px', marginTop: '4px' }}>
-								Extra ({tree.valueOf(extraSkill).value})
-							</div>
-						</div>
-					)}
-					{rollResults.luckResult !== undefined && (
-						<div>
-							{renderDiceResult(
-								rollResults.luckResult,
-								rollResults.luckValid,
-								rollResults.luckValid && rollResults.selectedDice.includes(rollResults.luckResult),
-							)}
-							<div style={{ textAlign: 'center', fontSize: '12px', marginTop: '4px' }}>
-								Luck ({tree?.valueOf(StatType.Fortune)?.value ?? 0})
-							</div>
-						</div>
-					)}
+					{validDice.map((die, index) => {
+						const label =
+							die.type === 'extra'
+								? `Extra (${tree.valueOf(extraSkill).value})`
+								: die.type === 'luck'
+									? `Luck (${tree.valueOf(StatType.Fortune).value})`
+									: undefined;
+						return (
+							<PentagonDie
+								key={index}
+								value={die.value}
+								isSelected={selectedIndices.includes(index)}
+								{...(die.valid !== undefined && { isValid: die.valid })}
+								{...(label && { label })}
+								onClick={() => handleDiceClick(index)}
+							/>
+						);
+					})}
 				</div>
 
-				{/* Auto Fail */}
-				{rollResults.autoFail && (
+				{/* Status Messages */}
+				{autoFail && (
 					<div
-						style={{
-							textAlign: 'center',
-							marginBottom: '16px',
-							color: 'red',
-							fontSize: '24px',
-							fontWeight: 'bold',
-						}}
+						style={{ textAlign: 'center', marginBottom: '16px', color: 'red', fontSize: '24px', fontWeight: 'bold' }}
 					>
 						Auto Fail
-						<div style={{ fontSize: '14px', color: 'var(--text)' }}>
-							Rolled pair of 1s (Contested Resisted rolls cannot auto-fail)
-						</div>
+						<div style={{ fontSize: '14px', color: 'var(--text)' }}>Rolled pair of 1s</div>
 					</div>
 				)}
 
-				{/* Pair of 1s on Contested Resisted (no auto-fail) */}
-				{!rollResults.autoFail &&
-					checkType === 'Contested-Resisted' &&
-					(() => {
-						const allDice = [
-							...rollResults.dice,
-							...(rollResults.extraResult && rollResults.extraValid ? [rollResults.extraResult] : []),
-							...(rollResults.luckResult && rollResults.luckValid ? [rollResults.luckResult] : []),
-						];
-						const hasPairOfOnes = allDice.filter(n => n === 1).length >= 2;
-						return hasPairOfOnes;
-					})() && (
-						<div
-							style={{
-								textAlign: 'center',
-								marginBottom: '16px',
-								color: 'orange',
-								fontSize: '16px',
-								fontWeight: 'bold',
-							}}
-						>
-							Pair of 1s Rolled
-							<div style={{ fontSize: '14px', color: 'var(--text)' }}>No auto-fail on Contested Resisted rolls</div>
-						</div>
-					)}
+				{!autoFail && hasPairOfOnes && checkType === 'Contested-Resisted' && (
+					<div
+						style={{ textAlign: 'center', marginBottom: '16px', color: 'orange', fontSize: '16px', fontWeight: 'bold' }}
+					>
+						Pair of 1s Rolled
+						<div style={{ fontSize: '14px', color: 'var(--text)' }}>No auto-fail on Contested Resisted rolls</div>
+					</div>
+				)}
 
 				{/* Results */}
-				{!rollResults.autoFail && (
+				{!autoFail && (
 					<div style={{ marginBottom: '16px' }}>
 						<div style={{ marginBottom: '8px' }}>
-							<span>
-								[{rollResults.selectedDice.join(' + ')}
-								{rollResults.critModifiers > 0 && ` + ${rollResults.critModifiers} (Crit)`}] + [
-								{check.modifierValue.description} (Modifier)] = {rollResults.total}
-							</span>
+							[{selectedValues.join(' + ')}
+							{critModifiers > 0 && ` + ${critModifiers} (Crit)`}] + [{check.modifierValue.description}] = {total}
 						</div>
 
-						{rollResults.success !== undefined && dc !== null && (
+						{success !== undefined && dc !== null && (
 							<div
 								style={{
 									fontSize: '20px',
 									fontWeight: 'bold',
-									color: rollResults.success ? 'green' : 'red',
+									color: success ? 'green' : 'red',
 									marginBottom: '8px',
 								}}
 							>
-								{rollResults.success ? 'Success!' : 'Failure'}
-								{dc !== null && (
-									<span style={{ fontSize: '16px', color: 'var(--text)' }}>
-										{' '}
-										({rollResults.total} vs DC {dc})
-									</span>
-								)}
+								{success ? 'Success!' : 'Failure'} ({total} vs DC {dc})
 							</div>
 						)}
 
-						{rollResults.critShifts > 0 && (
-							<div style={{ color: 'var(--success)', fontWeight: 'bold' }}>Shifts: {rollResults.critShifts}</div>
-						)}
+						{critShifts > 0 && <div style={{ color: 'var(--success)', fontWeight: 'bold' }}>Shifts: {critShifts}</div>}
 					</div>
 				)}
 
+				{/* Actions */}
 				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
 					<Button onClick={() => setRollResults(null)} title='Roll Again' />
-					<Button onClick={() => exportDataToClipboard(rollResults.total.toString())} title='Copy Result' />
+					<Button onClick={() => exportDataToClipboard(total.toString())} title='Copy Result' />
 					<Button onClick={handleCloseWithCallback} title='Close' />
 				</div>
 			</div>
 		);
 	}
 
+	// Render setup form
 	return (
 		<div style={{ padding: '16px' }}>
 			<h3 style={{ margin: '0 0 16px 0' }}>Roll Check</h3>
 
+			{/* Settings */}
 			<div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
 				<div style={{ flex: 1 }}>
 					<LabeledDropdown
@@ -518,7 +471,6 @@ const DiceRollModalContent: React.FC<{
 						onChange={handleCheckTypeChange}
 					/>
 				</div>
-
 				{showTargetDC(checkType) && (
 					<div style={{ flex: 1 }}>
 						<LabeledInput label='DC' value={dc?.toString() || ''} onChange={handleDcInputChange} />
@@ -526,55 +478,32 @@ const DiceRollModalContent: React.FC<{
 				)}
 			</div>
 
-			{/* Modifiers */}
+			{/* Base Modifier Info */}
 			<div style={{ marginBottom: '16px' }}>
-				<div style={{ marginBottom: '8px' }}>
-					<span title={check.statModifier.description}>Base Modifier: {check.statModifier.simpleDescription}</span>
-				</div>
-
-				<div style={{ marginBottom: '8px' }}>
-					<label htmlFor='circumstantial' style={{ display: 'block', marginBottom: '4px' }}>
-						Circumstantial Modifier:
-					</label>
-					<input
-						id='circumstantial'
-						type='number'
-						value={circumstantialModifier}
-						onChange={e => setCircumstantialModifier(parseInt(e.target.value) || 0)}
-						style={{
-							width: '100%',
-							padding: '4px',
-							border: '1px solid var(--text)',
-							borderRadius: '4px',
-							backgroundColor: 'var(--background)',
-							color: 'var(--text)',
-						}}
-					/>
-				</div>
+				<span title={check.statModifier.description}>Base Modifier: {check.statModifier.simpleDescription}</span>
 			</div>
 
 			{/* Extra and Luck Options */}
 			<div style={{ marginBottom: '16px' }}>
-				<div style={{ marginBottom: '8px' }}>
-					<LabeledCheckbox label='Use Extra' checked={useExtra} onChange={setUseExtra} />
-					{useExtra && (
-						<div style={{ marginTop: '4px', marginLeft: '24px' }}>
-							<LabeledDropdown
-								options={StatType.attributes}
-								describe={stat => stat.name}
-								value={extraSkill}
-								onChange={(value: StatType) => setExtraSkill(value)}
-								label='Skill'
-							/>
-						</div>
-					)}
-				</div>
+				<LabeledCheckbox label='Use Extra' checked={useExtra} onChange={setUseExtra} />
+				{useExtra && (
+					<div style={{ marginTop: '4px', marginLeft: '24px' }}>
+						<LabeledDropdown
+							options={StatType.attributes}
+							describe={stat => stat.name}
+							value={extraSkill}
+							onChange={setExtraSkill}
+							label='Skill'
+						/>
+					</div>
+				)}
 
-				<div>
+				<div style={{ marginTop: '8px' }}>
 					<LabeledCheckbox label='Use Luck' checked={useLuck} onChange={setUseLuck} />
 				</div>
 			</div>
 
+			{/* Actions */}
 			<div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
 				<Button onClick={handleCopyToVTT} title='Copy to VTT' />
 				<Button onClick={handleRollDice} title='Roll Dice' />

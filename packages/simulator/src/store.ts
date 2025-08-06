@@ -1,3 +1,4 @@
+import { Check } from '@shattered-wilds/commons';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -34,6 +35,41 @@ interface AppState {
 	toggleEditMode: ToggleEditMode;
 	setUIState: (key: string, value: unknown) => void;
 }
+
+// Rehydrator to reconstruct class instances after JSON deserialization
+const rehydrateState = (persistedState: unknown): AppState | undefined => {
+	if (!persistedState || typeof persistedState !== 'object') {
+		return undefined;
+	}
+
+	const state = persistedState as AppState;
+
+	// Reconstruct Check objects in modals
+	if (state.modals) {
+		state.modals = state.modals.map(modal => {
+			if (modal.type === 'dice-roll' && modal.check && !(modal.check instanceof Check)) {
+				// Reconstruct Check object from plain object
+				const checkData = modal.check as {
+					mode: unknown;
+					nature: unknown;
+					statModifier: unknown;
+				};
+				return {
+					...modal,
+					check: new Check({
+						mode: checkData.mode,
+						nature: checkData.nature,
+						statModifier: checkData.statModifier,
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					} as any),
+				};
+			}
+			return modal;
+		});
+	}
+
+	return state;
+};
 
 export const useStore = create<AppState>()(
 	persist(
@@ -110,6 +146,14 @@ export const useStore = create<AppState>()(
 		{
 			name: 'd12-simulator-storage',
 			version: 1,
+			onRehydrateStorage: () => state => {
+				if (state) {
+					const rehydrated = rehydrateState(state);
+					if (rehydrated) {
+						Object.assign(state, rehydrated);
+					}
+				}
+			},
 		},
 	),
 );
