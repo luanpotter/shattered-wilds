@@ -1,11 +1,13 @@
 import {
 	ARCANE_SPELL_COMPONENTS,
 	ArcaneSpellComponentType,
+	ArcaneSpellDefinition,
 	Bonus,
 	CircumstanceModifier,
 	DerivedStatType,
 	Distance,
 	ModifierSource,
+	PREDEFINED_ARCANE_SPELLS,
 	StatTree,
 	StatType,
 } from '@shattered-wilds/commons';
@@ -19,6 +21,7 @@ import { numberToOrdinal } from '../utils';
 import Block from './shared/Block';
 import LabeledDropdown from './shared/LabeledDropdown';
 import LabeledInput from './shared/LabeledInput';
+import { RichText } from './shared/RichText';
 
 interface ArcaneSectionProps {
 	characterId: string;
@@ -160,7 +163,39 @@ const ArcaneSectionInner: React.FC<{
 				/>
 			</div>
 			<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '0 0 12px 0', opacity: 0.3 }} />
-			<p>TODO</p>
+			<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+				{Object.values(PREDEFINED_ARCANE_SPELLS).map(spell => {
+					return <SpellBox key={spell.name} spell={spell} />;
+				})}
+			</div>
 		</Block>
+	);
+};
+
+const SpellBox: React.FC<{
+	spell: ArcaneSpellDefinition;
+}> = ({ spell }) => {
+	return (
+		<div style={{ display: 'flex', gap: '2px' }}>
+			<div
+				style={{
+					flex: 1,
+					padding: '12px',
+					border: '1px solid var(--text)',
+					borderRadius: '4px',
+					backgroundColor: 'var(--background-alt)',
+				}}
+			>
+				<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+					<div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+						<span style={{ fontWeight: 'bold' }}>{spell.name}</span>
+						<span className='trait'>{spell.school}</span>
+					</div>
+				</div>
+				<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)' }}>
+					<RichText>{spell.description}</RichText>
+				</div>
+			</div>
+		</div>
 	);
 };

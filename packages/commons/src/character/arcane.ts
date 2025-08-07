@@ -64,7 +64,7 @@ const allCasters = [ClassFlavor.Arcanist, ClassFlavor.Mechanist, ClassFlavor.Mus
 export const ARCANE_SPELL_COMPONENTS: ArcaneSpellComponentDefinition[] = [
 	new ArcaneSpellComponentDefinition({
 		type: ArcaneSpellComponentType.Somatic,
-		name: 'No Gesturing',
+		name: 'No Somatic Component',
 		flavors: allCasters,
 		bonus: Bonus.of(0),
 	}),
@@ -88,7 +88,7 @@ export const ARCANE_SPELL_COMPONENTS: ArcaneSpellComponentDefinition[] = [
 	}),
 	new ArcaneSpellComponentDefinition({
 		type: ArcaneSpellComponentType.Verbal,
-		name: 'No Chanting',
+		name: 'No Verbal Component',
 		flavors: allCasters,
 		bonus: Bonus.of(0),
 	}),
@@ -112,7 +112,7 @@ export const ARCANE_SPELL_COMPONENTS: ArcaneSpellComponentDefinition[] = [
 	}),
 	new ArcaneSpellComponentDefinition({
 		type: ArcaneSpellComponentType.Focal,
-		name: 'No Focus',
+		name: 'No Focal Component',
 		flavors: allCasters,
 		bonus: Bonus.of(0),
 	}),
