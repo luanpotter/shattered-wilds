@@ -3,16 +3,22 @@ import {
 	ArcaneSpellComponentType,
 	ArcaneSpellDefinition,
 	Bonus,
+	Check,
+	CheckMode,
+	CheckNature,
 	CircumstanceModifier,
 	DerivedStatType,
 	Distance,
 	ModifierSource,
 	PREDEFINED_ARCANE_SPELLS,
+	StatModifier,
 	StatTree,
 	StatType,
 } from '@shattered-wilds/commons';
 import React, { useMemo } from 'react';
+import { FaDice } from 'react-icons/fa';
 
+import { useModals } from '../hooks/useModals';
 import { useUIStateFactory } from '../hooks/useUIState';
 import { useStore } from '../store';
 import { Character, CharacterSheet } from '../types';
@@ -21,6 +27,7 @@ import { numberToOrdinal } from '../utils';
 import Block from './shared/Block';
 import LabeledDropdown from './shared/LabeledDropdown';
 import LabeledInput from './shared/LabeledInput';
+import { ParameterBoxComponent } from './shared/ParameterBoxComponent';
 import { RichText } from './shared/RichText';
 
 interface ArcaneSectionProps {
@@ -165,16 +172,46 @@ const ArcaneSectionInner: React.FC<{
 			<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '0 0 12px 0', opacity: 0.3 }} />
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 				{Object.values(PREDEFINED_ARCANE_SPELLS).map(spell => {
-					return <SpellBox key={spell.name} spell={spell} />;
+					return <SpellBox key={spell.name} character={character} spell={spell} combinedModifier={combinedModifier} />;
 				})}
 			</div>
 		</Block>
 	);
 };
 
+const SpellCheckBox: React.FC<{
+	character: Character;
+	combinedModifier: StatModifier;
+}> = ({ character, combinedModifier }) => {
+	const { openDiceRollModal } = useModals();
+
+	return (
+		<ParameterBoxComponent
+			title={`${combinedModifier.name} (${combinedModifier.value.description})`}
+			tooltip={combinedModifier.description}
+			onClick={() => {
+				openDiceRollModal({
+					characterId: character.id,
+					check: new Check({
+						mode: CheckMode.Contested,
+						nature: CheckNature.Active,
+						statModifier: combinedModifier,
+					}),
+					title: `Roll ${combinedModifier.name} Check`,
+				});
+			}}
+		>
+			{combinedModifier.value.description}
+			<FaDice size={12} style={{ color: 'var(--text-secondary)' }} />
+		</ParameterBoxComponent>
+	);
+};
+
 const SpellBox: React.FC<{
+	character: Character;
 	spell: ArcaneSpellDefinition;
-}> = ({ spell }) => {
+	combinedModifier: StatModifier;
+}> = ({ character, spell, combinedModifier }) => {
 	return (
 		<div style={{ display: 'flex', gap: '2px' }}>
 			<div
@@ -196,6 +233,7 @@ const SpellBox: React.FC<{
 					<RichText>{spell.description}</RichText>
 				</div>
 			</div>
+			<SpellCheckBox character={character} combinedModifier={combinedModifier} />
 		</div>
 	);
 };
