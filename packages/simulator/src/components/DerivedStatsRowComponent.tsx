@@ -18,7 +18,7 @@ export const DerivedStatsRowComponent: React.FC<{ variant: 'normal' | 'inline'; 
 
 	const sheet = CharacterSheet.from(character.props);
 	const tree = sheet.getStatTree();
-	const movement = tree.getModifier(DerivedStatType.Movement);
+	const movement = tree.getDistance(DerivedStatType.Movement);
 	const initiative = tree.getModifier(DerivedStatType.Initiative);
 	const influenceRange = tree.getModifier(DerivedStatType.InfluenceRange);
 

@@ -71,7 +71,7 @@ export class TextProcessor {
 		} else if (type === 'item') {
 			const metaHtml = this.renderMetadata(entry, excludeTagsArray);
 			if (!entry.content) {
-				console.error(`Missing content for entry: ${entry.title}`);
+				console.error(`Missing content for entry: ${entry.title}`, entry);
 			}
 			const descFirstParagraph = entry.content.split(/\n\n/)[0].trim();
 			const markdown = this.processMarkdown(descFirstParagraph, { inline: true });

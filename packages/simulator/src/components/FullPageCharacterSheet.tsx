@@ -8,6 +8,7 @@ import { copyCharacterDataToClipboard } from '../utils/clipboard';
 import { Navigator } from '../utils/routes';
 
 import { ActionsSection } from './ActionsSection';
+import { ArcaneSection } from './ArcaneSection';
 import { DerivedStatsRowComponent } from './DerivedStatsRowComponent';
 import { EquipmentSection } from './EquipmentSection';
 import { FeatsSectionComponent } from './FeatsSectionComponent';
@@ -139,6 +140,7 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 				<FeatsSectionComponent characterId={characterId} />
 				<EquipmentSection characterId={characterId} />
 				<ActionsSection characterId={characterId} />
+				<ArcaneSection characterId={characterId} />
 			</Column>
 		</>
 	);

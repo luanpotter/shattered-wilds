@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./_site",
-    "lib": ["ES2020", "DOM"],
+    "lib": ["ES2024", "DOM"],
     "noEmit": true,
 
   },

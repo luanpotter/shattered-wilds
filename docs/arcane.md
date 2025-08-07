@@ -205,7 +205,7 @@ The **Caster** must be familiar with the material being conjured; we can assume 
 
 #### Conjure Water
 
-The Caster conjures 1L of pure water in an unoccupied space within 1m of them.
+The Caster conjures 1L of pure water in an unoccupied space.
 
 **N.B.**: with no other mineral/electrolyte intake, drinking exclusively pure water can start to cause side effects after a few days.
 
@@ -253,7 +253,7 @@ Creatures who were unable to avert their gaze take the [[Blinded]] condition unt
 
 #### Evoke Fire [Basic Attack]
 
-The Caster evokes a small flame, which can be used to ignite flammable objects, lasting for 1 turn, within 1m of them. While energy cannot be evoked within the same space as solid matter, it can be done so adjacently as to cause it to ignite. This can also be done offensively as a Stun or Feint Basic Body Attack as the enemy must avoid the small flame.
+The Caster evokes a small flame, which can be used to ignite flammable objects, lasting for 1 turn. While energy cannot be evoked within the same space as solid matter, it can be done so adjacently as to cause it to ignite. This can also be done offensively as a Stun or Feint Basic Body Attack as the enemy must avoid the small flame.
 **Minimal Augmentation**: 0
 **Potency Augmentation**: +3 to produce a more intense flame, which can be used as a Strike Basic Body Attack.
 

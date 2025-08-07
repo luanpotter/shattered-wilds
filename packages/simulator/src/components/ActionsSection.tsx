@@ -376,14 +376,14 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 		const headerDivStyle = { marginBottom: '12px', display: 'flex', gap: '8px' };
 		switch (type) {
 			case ActionType.Movement: {
-				const movement = sheet.getStatTree().computeDerivedStat(DerivedStatType.Movement);
+				const movement = sheet.getStatTree().getDistance(DerivedStatType.Movement);
 				return {
 					Header: (
 						<div style={headerDivStyle}>
 							<LabeledInput
 								label='Movement'
-								tooltip={movement.tooltip}
-								value={movement.value.toString()}
+								tooltip={movement.description}
+								value={movement.value.description}
 								disabled={true}
 							/>
 							<ResourceInputComponent

@@ -496,7 +496,7 @@ On top of these types of actions, the different Skills can still be used for oth
 	private constructor(
 		public readonly hierarchy: StatHierarchy,
 		public readonly parent: StatType | undefined,
-		public readonly name: string,
+		public readonly name: StatTypeName,
 		public readonly description: string,
 		public readonly longDescription: string | undefined,
 		public readonly exampleUsages: string[],
@@ -506,7 +506,7 @@ On top of these types of actions, the different Skills can still be used for oth
 		return this.name;
 	}
 
-	static readonly values: StatType[] = Object.values(StatType).filter(stat => stat.name);
+	static readonly values: StatType[] = Object.values(StatType).filter(stat => stat.description);
 
 	static fromString(name: string | undefined, fallback: StatType): StatType {
 		if (!name) {

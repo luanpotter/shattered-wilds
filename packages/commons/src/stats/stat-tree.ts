@@ -2,12 +2,12 @@ import { DERIVED_STATS, DerivedStatType } from './derived-stat.js';
 import { FormulaResult } from './formula.js';
 import { Resource, RESOURCES } from './resources.js';
 import { StatHierarchy, StatHierarchyProperties, StatType } from './stat-type.js';
-import { Bonus } from './value.js';
+import { Bonus, Distance } from './value.js';
 
 export enum ModifierSource {
 	Feat = 'Feat',
 	Equipment = 'Equipment',
-	Size = 'Size',
+	Component = 'Component',
 	Circumstance = 'Circumstance',
 }
 
@@ -124,6 +124,15 @@ export class StatTree {
 			throw new Error(`Stat type ${stat.name} not found in tree`);
 		}
 		return node;
+	}
+
+	getDistance(stat: DerivedStatType.InfluenceRange | DerivedStatType.Movement): {
+		value: Distance;
+		description: string;
+	} {
+		const modifier = this.getModifier(stat);
+		const value = Distance.of(modifier.value.value);
+		return { value, description: modifier.description };
 	}
 
 	getModifier(stat: StatType | DerivedStatType, cms: CircumstanceModifier[] = []): StatModifier {
