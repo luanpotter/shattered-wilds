@@ -259,7 +259,12 @@ const SpellBox: React.FC<{
 				<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
 					<div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
 						<span style={{ fontWeight: 'bold' }}>{spell.name}</span>
-						<span className='trait'>{spell.school}</span>
+						<span className='school'>{spell.school}</span>
+						{spell.traits.map(trait => (
+							<span className='trait' key={trait}>
+								{trait}
+							</span>
+						))}
 					</div>
 				</div>
 				<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)' }}>

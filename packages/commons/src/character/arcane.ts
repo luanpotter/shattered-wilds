@@ -1,4 +1,5 @@
 import { ClassFlavor } from '../core/classes.js';
+import { Trait } from '../core/traits.js';
 import { CircumstanceModifier, ModifierSource } from '../stats/stat-tree.js';
 import { Bonus } from '../stats/value.js';
 
@@ -193,22 +194,26 @@ export class ArcaneSpellDefinition {
 	school: ArcaneSpellSchool;
 	description: string;
 	augmentations: ArcaneSpellAugmentation[];
+	traits: Trait[];
 
 	constructor({
 		name,
 		school,
 		description,
 		augmentations = [],
+		traits = [],
 	}: {
 		name: string;
 		school: ArcaneSpellSchool;
 		description: string;
 		augmentations?: ArcaneSpellAugmentation[];
+		traits?: Trait[];
 	}) {
 		this.name = name;
 		this.school = school;
 		this.description = description;
 		this.augmentations = augmentations;
+		this.traits = traits;
 	}
 }
 
@@ -298,5 +303,6 @@ export const PREDEFINED_ARCANE_SPELLS: Record<PredefinedArcaneSpell, ArcaneSpell
 				bonus: Bonus.of(-3),
 			}),
 		],
+		traits: [Trait.SpecialAttack],
 	}),
 };

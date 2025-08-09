@@ -342,6 +342,11 @@ div.pagination p {
 	color: #6bff6b;
 }
 
+.metadata-school,
+.metadata-school a {
+	color: #f06292;
+}
+
 .metadata-category,
 .metadata-source {
 	color: #abad30;

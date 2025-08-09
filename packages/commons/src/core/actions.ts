@@ -53,7 +53,7 @@ export class ActionValueParameter implements ActionParameter {
 
 export enum StandardCheck {
 	/** Will use STR or DEX depending on the selected Weapon. */
-	Attack = 'Attack',
+	BodyAttack = 'BodyAttack',
 	/** Will use Body, Mind or Soul depending on the selected Defense Realm. */
 	Defense = 'Defense',
 }
@@ -96,14 +96,28 @@ export class ActionCheckParameter implements ActionParameter {
 	}
 
 	static bodyAttack({
-		statType = StandardCheck.Attack,
-		includeEquipmentModifiers = [IncludeEquipmentModifier.Weapon],
+		statType = StandardCheck.BodyAttack,
 		circumstanceModifier,
 	}: {
 		statType?: StatType | StandardCheck;
-		includeEquipmentModifiers?: IncludeEquipmentModifier[];
 		circumstanceModifier?: CircumstanceModifier;
 	} = {}): ActionCheckParameter {
+		return this.attack({
+			statType,
+			includeEquipmentModifiers: [IncludeEquipmentModifier.Weapon],
+			circumstanceModifier,
+		});
+	}
+
+	static attack({
+		statType,
+		includeEquipmentModifiers = [],
+		circumstanceModifier,
+	}: {
+		statType: StatType | StandardCheck;
+		includeEquipmentModifiers?: IncludeEquipmentModifier[];
+		circumstanceModifier?: CircumstanceModifier | undefined;
+	}): ActionCheckParameter {
 		return new ActionCheckParameter({
 			mode: CheckMode.Contested,
 			nature: CheckNature.Active,
@@ -120,8 +134,24 @@ export class ActionCheckParameter implements ActionParameter {
 	}: {
 		statType?: StatType | StandardCheck;
 		includeEquipmentModifiers?: IncludeEquipmentModifier[];
-		circumstanceModifier?: CircumstanceModifier;
+		circumstanceModifier?: CircumstanceModifier | undefined;
 	} = {}): ActionCheckParameter {
+		return this.defense({
+			statType,
+			includeEquipmentModifiers,
+			circumstanceModifier,
+		});
+	}
+
+	static defense({
+		statType,
+		includeEquipmentModifiers = [],
+		circumstanceModifier,
+	}: {
+		statType: StatType | StandardCheck;
+		includeEquipmentModifiers?: IncludeEquipmentModifier[];
+		circumstanceModifier?: CircumstanceModifier | undefined;
+	}): ActionCheckParameter {
 		return new ActionCheckParameter({
 			mode: CheckMode.Contested,
 			nature: CheckNature.Resisted,
@@ -203,6 +233,7 @@ export enum Action {
 	PassThrough = 'PassThrough',
 	Swim = 'Swim',
 	TakeCover = 'TakeCover',
+	SteelConviction = 'SteelConviction',
 	SideStep = 'SideStep',
 	ShieldBlock = 'ShieldBlock',
 	SheatheUnsheathe = 'SheatheUnsheathe',
@@ -373,9 +404,9 @@ export const ACTIONS = {
 		type: ActionType.Movement,
 		name: 'Charge',
 		description:
-			'Move `Movement + 1` hexes in a straight line, followed by Melee Attack with [[Muscles]] instead of [[STR]] (you still pay the [[Action Point | AP]] cost for that action). This can be used for a "tackle" if the [[Shove]] Attack Action is chosen, in which case a `+3` [[Circumstance Modifier | CM]] is granted to the attacker.',
+			'Move `Movement + 1` hexes in a straight line, followed by a Melee **Body Attack** with [[Muscles]] instead (you still pay the [[Action Point | AP]] cost for that action). This can be used for a "tackle" if the [[Shove]] Attack Action is chosen, in which case a `+3` [[Circumstance Modifier | CM]] is granted to the attacker.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 2 })],
-		traits: [Trait.Melee],
+		traits: [Trait.BodyAttack, Trait.Melee],
 		parameters: [
 			new ActionValueParameter({
 				name: 'Distance',
@@ -386,52 +417,46 @@ export const ACTIONS = {
 	}),
 
 	// Attack
-	[Action.Stun]: new ActionDefinition({
-		key: Action.Stun,
-		type: ActionType.Attack,
-		name: 'Stun',
-		description:
-			'**Basic Body Attack** against **Body Defense**. Causes [[Off_Guard | Off-Guard]]. **Crit Shifts** deal [[Vitality_Point | VP]] damage.',
-		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
-		traits: [Trait.Melee],
-		parameters: [ActionCheckParameter.bodyAttack()],
-	}),
 	[Action.Strike]: new ActionDefinition({
 		key: Action.Strike,
 		type: ActionType.Attack,
 		name: 'Strike',
 		description:
-			'**Basic Body Attack** against **Body Defense**. Deals [[Vitality_Point | VP]] damage. **Crit Shifts** deal extra [[Vitality_Point | VP]] damage.',
+			'**Body Attack** against **Body Defense**. Deals [[Vitality_Point | VP]] damage. **Crit Shifts** deal extra [[Vitality_Point | VP]] damage.',
+		traits: [Trait.BodyAttack],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 2 })],
-		parameters: [ActionCheckParameter.bodyAttack()],
+		parameters: [ActionCheckParameter.bodyAttack(), ActionCheckParameter.bodyDefense()],
+	}),
+	[Action.Stun]: new ActionDefinition({
+		key: Action.Stun,
+		type: ActionType.Attack,
+		name: 'Stun',
+		description:
+			'**Body Attack** against **Body Defense**. Causes [[Off_Guard | Off-Guard]]. **Crit Shifts** deal [[Vitality_Point | VP]] damage.',
+		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
+		traits: [Trait.BodyAttack, Trait.Melee],
+		parameters: [ActionCheckParameter.bodyAttack(), ActionCheckParameter.bodyDefense()],
 	}),
 	[Action.Feint]: new ActionDefinition({
 		key: Action.Feint,
 		type: ActionType.Attack,
 		name: 'Feint',
 		description:
-			'**Special Attack** against [[Tenacity]]. Causes [[Distracted]]. **Crit Shifts** deal [[Focus_Point | FP]] damage.',
+			'**Body Attack** against [[Tenacity]]. Causes [[Distracted]]. **Crit Shifts** deal [[Focus_Point | FP]] damage.',
+		traits: [Trait.BodyAttack],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
-		parameters: [
-			ActionCheckParameter.bodyAttack(),
-			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Resisted,
-				statType: StatType.Tenacity,
-			}),
-		],
+		parameters: [ActionCheckParameter.bodyAttack(), ActionCheckParameter.defense({ statType: StatType.Tenacity })],
 	}),
 	[Action.FocusedStrike]: new ActionDefinition({
 		key: Action.FocusedStrike,
 		type: ActionType.Attack,
 		name: 'Focused Strike',
-		description:
-			'Pay 1 [[Focus_Point | FP]]; perform a **Basic Body Attack** with a +3 [[Circumstance Modifier | CM]].',
+		description: 'Spend 1 [[Focus_Point | FP]] to perform a [[Strike]] with a +3 [[Circumstance Modifier | CM]].',
 		costs: [
 			new ActionCost({ resource: Resource.ActionPoint, amount: 3 }),
 			new ActionCost({ resource: Resource.FocusPoint, amount: 1 }),
 		],
-		traits: [Trait.Concentrate, Trait.Melee],
+		traits: [Trait.BodyAttack, Trait.Concentrate, Trait.Melee],
 		parameters: [
 			ActionCheckParameter.bodyAttack({
 				circumstanceModifier: new CircumstanceModifier({
@@ -440,6 +465,7 @@ export const ACTIONS = {
 					value: Bonus.of(3),
 				}),
 			}),
+			ActionCheckParameter.bodyDefense(),
 		],
 	}),
 	[Action.Aim]: new ActionDefinition({
@@ -447,77 +473,54 @@ export const ACTIONS = {
 		type: ActionType.Attack,
 		name: 'Aim',
 		description:
-			'Target a specific enemy that you can see clearly; if your next action this turn is a **Basic Body Ranged Attack** against that target, you can roll with [[Finesse]] instead reduce the range increment by `1` (min `0`).',
-		traits: [Trait.Concentrate, Trait.Ranged],
+			'Target a specific enemy that you can see clearly; if your next action this turn is a **Body Ranged Attack** against that target, you can roll with [[Finesse]] instead reduce the range increment by `1` (min `0`).',
+		traits: [Trait.BodyAttack, Trait.Concentrate, Trait.Ranged],
 		costs: [
 			new ActionCost({ resource: Resource.ActionPoint, amount: 1 }),
 			new ActionCost({ resource: Resource.FocusPoint, amount: 1 }),
 		],
-		parameters: [
-			ActionCheckParameter.bodyAttack({
-				statType: StatType.Finesse,
-			}),
-		],
+		parameters: [ActionCheckParameter.bodyAttack({ statType: StatType.Finesse }), ActionCheckParameter.bodyDefense()],
 	}),
 	[Action.Trip]: new ActionDefinition({
 		key: Action.Trip,
 		type: ActionType.Attack,
 		name: 'Trip',
 		description:
-			'**Special Attack** against [[Stance]]. Causes opponent to be [[Prone]]. Shifts deal [[Vitality_Point | VP]] damage.',
+			'**Body Attack** against [[Stance]]. Causes opponent to be [[Prone]]. Shifts deal [[Vitality_Point | VP]] damage.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
-		traits: [Trait.Melee],
-		parameters: [
-			ActionCheckParameter.bodyAttack(),
-			ActionCheckParameter.bodyDefense({
-				statType: StatType.Stance,
-			}),
-		],
+		traits: [Trait.BodyAttack, Trait.Melee],
+		parameters: [ActionCheckParameter.bodyAttack(), ActionCheckParameter.defense({ statType: StatType.Stance })],
 	}),
 	[Action.Grapple]: new ActionDefinition({
 		key: Action.Grapple,
 		type: ActionType.Attack,
 		name: 'Grapple',
-		description: '**Special Attack** against [[Evasiveness]]. Causes target to become [[Immobilized]].',
+		description: '**Body Attack** against [[Evasiveness]]. Causes target to become [[Immobilized]].',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
-		traits: [Trait.Melee],
-		parameters: [
-			ActionCheckParameter.bodyAttack(),
-			ActionCheckParameter.bodyDefense({
-				statType: StatType.Evasiveness,
-			}),
-		],
+		traits: [Trait.BodyAttack, Trait.Melee],
+		parameters: [ActionCheckParameter.bodyAttack(), ActionCheckParameter.defense({ statType: StatType.Evasiveness })],
 	}),
 	[Action.Shove]: new ActionDefinition({
 		key: Action.Shove,
 		type: ActionType.Attack,
 		name: 'Shove',
 		description:
-			'**Special Attack** against [[Stance]]. Shoves opponent to the next hex in the incoming direction. A Shift can be used to apply the [[Prone]] condition.',
+			'**Body Attack** against [[Stance]]. Shoves opponent to the next hex in the incoming direction. A Shift can be used to apply the [[Prone]] condition.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
-		traits: [Trait.Melee],
-		parameters: [
-			ActionCheckParameter.bodyAttack(),
-			ActionCheckParameter.bodyDefense({
-				statType: StatType.Stance,
-			}),
-		],
+		traits: [Trait.BodyAttack, Trait.Melee],
+		parameters: [ActionCheckParameter.bodyAttack(), ActionCheckParameter.defense({ statType: StatType.Stance })],
 	}),
 	[Action.Disarm]: new ActionDefinition({
 		key: Action.Disarm,
 		type: ActionType.Attack,
 		name: 'Disarm',
-		description: '**Special Attack** against [[Muscles]] or [[Finesse]]. Requires at least one **Shift** to succeed.',
+		description: '**Body Attack** against [[Muscles]] or [[Finesse]]. Requires at least one **Shift** to succeed.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 2 })],
-		traits: [Trait.Melee, Trait.Concentrate],
+		traits: [Trait.BodyAttack, Trait.Melee, Trait.Concentrate],
 		parameters: [
 			ActionCheckParameter.bodyAttack(),
-			ActionCheckParameter.bodyDefense({
-				statType: StatType.Muscles,
-			}),
-			ActionCheckParameter.bodyDefense({
-				statType: StatType.Finesse,
-			}),
+			ActionCheckParameter.defense({ statType: StatType.Muscles }),
+			ActionCheckParameter.defense({ statType: StatType.Finesse }),
 		],
 	}),
 	[Action.Demoralize]: new ActionDefinition({
@@ -527,17 +530,10 @@ export const ACTIONS = {
 		description:
 			"**Special Attack** using [[Speechcraft]] against target's [[Resolve]]: target becomes [[Distraught]]. **Shifts** deal [[Spirit_Point | SP]] damage.",
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
+		traits: [Trait.SpecialAttack],
 		parameters: [
-			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Active,
-				statType: StatType.Speechcraft,
-			}),
-			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Resisted,
-				statType: StatType.Resolve,
-			}),
+			ActionCheckParameter.attack({ statType: StatType.Speechcraft }),
+			ActionCheckParameter.defense({ statType: StatType.Resolve }),
 		],
 	}),
 	[Action.OpportunityAttack]: new ActionDefinition({
@@ -556,52 +552,16 @@ export const ACTIONS = {
 		type: ActionType.Defense,
 		name: 'Basic Defense',
 		description:
-			'The **Basic Defense** against any form of **Basic Attack** - contest with either [[Body]], [[Mind]] or [[Soul]] against the Attack. This does not cost any [[Action_Point | AP]] and thus can always be responded with.',
+			'A **Basic Defense** that can be used against any form of **Basic Attack** - contest with either [[Body]], [[Mind]] or [[Soul]] depending on the realm of the **Attack**. This does not cost any [[Action_Point | AP]] and thus can always be responded with.',
 		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 0 })],
 		parameters: [ActionCheckParameter.bodyDefense()],
-	}),
-	[Action.ShrugOff]: new ActionDefinition({
-		key: Action.ShrugOff,
-		type: ActionType.Defense,
-		name: 'Shrug Off',
-		description:
-			'Immediately as taking >1 [[Vitality_Point | VP]] damage, you can attempt a [[Toughness]] Check (DC 20) to reduce the damage by 1 (+ **Crit Shifts**).',
-		traits: [Trait.Reaction],
-		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
-		parameters: [
-			new ActionCheckParameter({
-				mode: CheckMode.Static,
-				nature: CheckNature.Resisted,
-				statType: StatType.Toughness,
-				targetDc: 20,
-			}),
-		],
-	}),
-	[Action.TakeCover]: new ActionDefinition({
-		key: Action.TakeCover,
-		type: ActionType.Defense,
-		name: 'Take Cover',
-		description:
-			'When rolling a **Body Defense** against a **Ranged Basic Attack**, you can roll an [[Agility]] Check with a `+3` [[Circumstance_Modifier | CM]] instead when already benefiting from **Passive Cover**.',
-		traits: [Trait.Reaction],
-		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
-		parameters: [
-			ActionCheckParameter.bodyDefense({
-				statType: StatType.Agility,
-				circumstanceModifier: new CircumstanceModifier({
-					source: ModifierSource.Circumstance,
-					name: 'Take Cover',
-					value: Bonus.of(3),
-				}),
-			}),
-		],
 	}),
 	[Action.ShieldBlock]: new ActionDefinition({
 		key: Action.ShieldBlock,
 		type: ActionType.Defense,
 		name: 'Shield Block',
-		description: 'Add **Shield Bonus** to a **Basic Body Defense** contested Check.',
+		description: 'Perform a **Body Defense** adding a **Shield Bonus** modifier (must be equipped with the shield).',
 		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		parameters: [
@@ -615,7 +575,7 @@ export const ACTIONS = {
 		type: ActionType.Defense,
 		name: 'Dodge',
 		description:
-			'Defend Body against a Basic Attack with an [[Evasiveness]] Check and a `+3` [[Circumstance Modifier | CM]] instead.',
+			'Perform a **Body Defense** with an [[Evasiveness]] Check and a `+3` [[Circumstance Modifier | CM]] instead.',
 		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		parameters: [
@@ -629,22 +589,41 @@ export const ACTIONS = {
 			}),
 		],
 	}),
-	[Action.Escape]: new ActionDefinition({
-		key: Action.Escape,
+	[Action.TakeCover]: new ActionDefinition({
+		key: Action.TakeCover,
 		type: ActionType.Defense,
-		name: 'Escape',
-		description: 'Contested [[Evasiveness]] against [[Muscles]] check to clear [[Immobilized]] against a grappler.',
+		name: 'Take Cover',
+		description:
+			'Perform a **Body Defense** against a **Ranged Body Attack** with an [[Agility]] Check and a `+6` [[Circumstance_Modifier | CM]] instead (when already benefiting from **Passive Cover**).',
+		traits: [Trait.Reaction],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		parameters: [
-			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Active,
-				statType: StatType.Evasiveness,
+			ActionCheckParameter.bodyDefense({
+				statType: StatType.Agility,
+				circumstanceModifier: new CircumstanceModifier({
+					source: ModifierSource.Circumstance,
+					name: 'Take Cover',
+					value: Bonus.of(3),
+				}),
 			}),
-			new ActionCheckParameter({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Resisted,
-				statType: StatType.Muscles,
+		],
+	}),
+	[Action.SteelConviction]: new ActionDefinition({
+		key: Action.SteelConviction,
+		type: ActionType.Defense,
+		name: 'Steel Conviction',
+		description:
+			'Perform a **Mind** or **Soul Defense** with a [[Resolve]] Check and a `+3` [[Circumstance_Modifier | CM]] instead.',
+		traits: [Trait.Reaction, Trait.Concentrate],
+		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
+		parameters: [
+			ActionCheckParameter.defense({
+				statType: StatType.Soul,
+				circumstanceModifier: new CircumstanceModifier({
+					source: ModifierSource.Circumstance,
+					name: 'Steel Conviction',
+					value: Bonus.of(3),
+				}),
 			}),
 		],
 	}),
@@ -678,6 +657,43 @@ export const ACTIONS = {
 			}),
 		],
 	}),
+	[Action.ShrugOff]: new ActionDefinition({
+		key: Action.ShrugOff,
+		type: ActionType.Support,
+		name: 'Shrug Off',
+		description:
+			'Immediately as taking >1 [[Vitality_Point | VP]] damage, you can attempt a [[Toughness]] Check (DC 20) to reduce the damage by 1 (+ **Crit Shifts**).',
+		traits: [Trait.Reaction],
+		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Static,
+				nature: CheckNature.Resisted,
+				statType: StatType.Toughness,
+				targetDc: 20,
+			}),
+		],
+	}),
+	[Action.Escape]: new ActionDefinition({
+		key: Action.Escape,
+		type: ActionType.Support,
+		name: 'Escape',
+		description: 'Contested [[Evasiveness]] against [[Muscles]] check to clear [[Immobilized]] against a grappler.',
+		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
+		parameters: [
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statType: StatType.Evasiveness,
+			}),
+			new ActionCheckParameter({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Resisted,
+				statType: StatType.Muscles,
+			}),
+		],
+	}),
+
 	[Action.Flank]: new ActionDefinition({
 		key: Action.Flank,
 		type: ActionType.Support,

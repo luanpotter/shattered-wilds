@@ -86,6 +86,7 @@ interface CheckParameterProps {
 	statTree: StatTree;
 	character: Character;
 	tabParameters: TabParameters;
+	requireTrait?: Trait.Melee | Trait.Ranged;
 }
 
 interface TabParameters {
@@ -114,6 +115,9 @@ const computeIncludedModifiers = (
 			].filter(e => e !== null);
 		}
 		case IncludeEquipmentModifier.Armor: {
+			if (tabParameters.selectedDefenseRealm !== StatType.Body) {
+				return [];
+			}
 			const armor = tabParameters.selectedArmor;
 			return armor ? [armor.getEquipmentModifier()] : [];
 		}
@@ -131,7 +135,7 @@ const computeStatType = (statType: StatType | StandardCheck, tabParameters: TabP
 
 	const weaponMode = tabParameters.selectedWeapon;
 	switch (statType) {
-		case StandardCheck.Attack: {
+		case StandardCheck.BodyAttack: {
 			return weaponMode ? weaponMode.mode.statType : StatType.STR;
 		}
 		case StandardCheck.Defense: {
@@ -140,8 +144,28 @@ const computeStatType = (statType: StatType | StandardCheck, tabParameters: TabP
 	}
 };
 
-const CheckParameter: React.FC<CheckParameterProps> = ({ parameter, statTree, character, tabParameters }) => {
+const CheckParameter: React.FC<CheckParameterProps> = ({
+	parameter,
+	statTree,
+	character,
+	tabParameters,
+	requireTrait,
+}) => {
 	const { openDiceRollModal } = useModals();
+
+	if (requireTrait && parameter.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Weapon)) {
+		const currentWeaponRangeTrait = tabParameters.selectedWeapon?.mode.rangeType ?? Trait.Melee;
+		if (currentWeaponRangeTrait !== requireTrait) {
+			return (
+				<ParameterBoxComponent
+					title='Invalid Weapon'
+					tooltip={`This action requires a weapon with the ${requireTrait} trait.`}
+				>
+					<div style={{ color: 'var(--error-color)' }}>{`${requireTrait} Required`}</div>
+				</ParameterBoxComponent>
+			);
+		}
+	}
 
 	const statType = computeStatType(parameter.statType, tabParameters);
 	const cms = parameter.includeEquipmentModifiers.flatMap(includeModifierFor =>
@@ -193,7 +217,11 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 	const [activeTab, setActiveTab] = useState('activeTab', ActionType.Movement);
 	const [showAll, setShowAll] = useState('showAll', true);
 	const [selectedRange, setSelectedRange] = useState<Distance | null>('selectedRange', null);
-	const [selectedDefenseRealm, setSelectedDefenseRealm] = useState('selectedDefenseRealm', StatType.Body);
+	const [selectedDefenseRealm, setSelectedDefenseRealm] = useStateArrayItem(
+		'selectedDefenseRealm',
+		StatType.realms,
+		StatType.Body,
+	);
 	const [selectedPassiveCover, setSelectedPassiveCover] = useState('selectedPassiveCover', PassiveCoverType.None);
 	const [heightIncrements, setHeightIncrements] = useState('heightIncrements', '');
 
@@ -466,6 +494,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 							{isBody && selectedArmor && (
 								<LabeledDropdown
 									label='Armor'
+									tooltip='Armor is applied to the any **Body Defense** check.'
 									value={selectedArmor}
 									options={armors}
 									describe={armor => armor.displayText}
@@ -623,6 +652,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 													passiveCoverModifier,
 													heightIncrementsModifier,
 												}}
+												requireTrait={action.traits.filter(trait => trait === Trait.Melee || trait === Trait.Ranged)[0]}
 											/>
 										);
 									}

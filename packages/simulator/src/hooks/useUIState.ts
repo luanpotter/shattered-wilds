@@ -46,11 +46,7 @@ export function useUIStateFactory(baseKey: string) {
 		return useUIState(fullKey, defaultValue);
 	};
 
-	const useStateArrayItem = function <T>(
-		key: string,
-		array: T[],
-		defaultValue: T | null = null,
-	): [T | null, (value: T | null) => void] {
+	const useStateArrayItem = function <T>(key: string, array: T[], defaultValue: T): [T, (value: T) => void] {
 		const fullKey = `${baseKey}-${key}`;
 		const [selectedIndex, setSelectedIndex] = useUIState<number | null>(fullKey, null);
 

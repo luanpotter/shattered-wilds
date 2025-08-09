@@ -10,6 +10,10 @@ export enum Trait {
 	Ranged = 'Ranged',
 	Concentrate = 'Concentrate',
 	Channel = 'Channel',
+	BodyAttack = 'Body Attack',
+	MindAttack = 'Mind Attack',
+	SoulAttack = 'Soul Attack',
+	SpecialAttack = 'Special Attack',
 
 	// Equipment Traits
 	Concealable = 'Concealable',
@@ -75,6 +79,30 @@ Since your **AP** is replenished at the end of your turn, you do not need to dec
 		key: Trait.Channel,
 		name: 'Channel',
 		description: `Cannot be performed while [[Distraught]].`,
+	}),
+	[Trait.BodyAttack]: new TraitDefinition({
+		target: TraitTarget.Action,
+		key: Trait.BodyAttack,
+		name: 'Body Attack',
+		description: `This action is considered a **Body Attack**; it can be performed with an appropriate weapon using either [[STR]] or [[DEX]].\n\nTypically **Body Attacks** are resisted with a **Body Defense** Check.`,
+	}),
+	[Trait.MindAttack]: new TraitDefinition({
+		target: TraitTarget.Action,
+		key: Trait.MindAttack,
+		name: 'Mind Attack',
+		description: `This action is considered a **Mind Attack**; it can be performed with the Caster's primary [[Mind]] attribute ([[INT]], [[WIS]], or [[CHA]]).`,
+	}),
+	[Trait.SoulAttack]: new TraitDefinition({
+		target: TraitTarget.Action,
+		key: Trait.SoulAttack,
+		name: 'Soul Attack',
+		description: `This action is considered a **Soul Attack**.`,
+	}),
+	[Trait.SpecialAttack]: new TraitDefinition({
+		target: TraitTarget.Action,
+		key: Trait.SpecialAttack,
+		name: 'Special Attack',
+		description: `This action is considered a **Special Attack**, meaning it is a contested Skill Check (the action will specify which Skills are involved).`,
 	}),
 
 	// Weapon Traits

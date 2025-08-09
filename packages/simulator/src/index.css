@@ -68,6 +68,15 @@ button:hover {
 	background-color: var(--background-alt);
 }
 
+.school {
+	color: #f06292;
+	font-size: 0.8em;
+	padding: 0.1rem 0.3rem;
+	border-radius: 3px;
+	border: 1px solid var(--text);
+	background-color: var(--background-alt);
+}
+
 input {
 	padding: 0.5rem;
 	border: 1px solid var(--text);
