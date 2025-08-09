@@ -5,10 +5,13 @@ import { Bonus } from '../stats/value.js';
 export enum PredefinedArcaneSpell {
 	ConjureWater = 'Conjure Water',
 	RockSmash = 'Rock Smash',
+	ConjureDebris = 'Conjure Debris',
+	PoisonCloud = 'Poison Cloud',
 }
 
 export enum ArcaneSpellAugmentationType {
 	Material = 'Material',
+	Area = 'Area',
 	Volume = 'Volume',
 }
 
@@ -140,19 +143,54 @@ export class ArcaneSpellAugmentation {
 	type: ArcaneSpellAugmentationType;
 	value: string;
 	bonus: Bonus;
+	variable: boolean;
 
-	constructor({ type, value, bonus }: { type: ArcaneSpellAugmentationType; value: string; bonus: Bonus }) {
+	constructor({
+		type,
+		value,
+		bonus,
+		variable = false,
+	}: {
+		type: ArcaneSpellAugmentationType;
+		value: string;
+		bonus: Bonus;
+		variable?: boolean;
+	}) {
 		this.type = type;
 		this.value = value;
 		this.bonus = bonus;
+		this.variable = variable;
 	}
 
-	get shortDescription() {
-		return `${this.type}: ${this.value}`;
+	get key(): string {
+		return `${this.type}-${this.value}`;
 	}
 
-	get description() {
-		return `${this.shortDescription} (${this.bonus.description})`;
+	get shortDescription(): string {
+		if (this.variable) {
+			return `${this.bonus.description} per ${this.value}`;
+		}
+		return `${this.value}`;
+	}
+
+	computeBonus(multiplier: number | undefined): number {
+		if (this.variable) {
+			if (multiplier === undefined) {
+				throw new Error('Multiplier is required for variable augmentations');
+			}
+			return this.bonus.value * multiplier;
+		}
+		if (multiplier !== undefined && multiplier !== 1) {
+			throw new Error('Multiplier is not allowed for non-variable augmentations');
+		}
+		return this.bonus.value;
+	}
+
+	getTooltip(multiplier: number | undefined): string {
+		if (this.variable) {
+			return `${this.bonus.description} per ${this.value} (${multiplier} x ${this.bonus.description} = ${this.computeBonus(multiplier)})`;
+		}
+		return `${this.bonus.description}`;
 	}
 }
 
@@ -189,7 +227,7 @@ export const PREDEFINED_ARCANE_SPELLS: Record<PredefinedArcaneSpell, ArcaneSpell
 			new ArcaneSpellAugmentation({
 				type: ArcaneSpellAugmentationType.Material,
 				value: 'Water',
-				bonus: Bonus.of(-3),
+				bonus: Bonus.of(-1),
 			}),
 		],
 	}),
@@ -203,6 +241,39 @@ export const PREDEFINED_ARCANE_SPELLS: Record<PredefinedArcaneSpell, ArcaneSpell
 				type: ArcaneSpellAugmentationType.Volume,
 				value: 'Medium',
 				bonus: Bonus.of(-3),
+			}),
+		],
+	}),
+	[PredefinedArcaneSpell.ConjureDebris]: new ArcaneSpellDefinition({
+		name: PredefinedArcaneSpell.ConjureDebris,
+		school: ArcaneSpellSchool.Conjuration,
+		description:
+			'Conjures loose weak rocks, pebbles and/or gravel over an area, causing it to count as **Difficult Terrain**. Each Hex of debris can be cleared gradually with 4 [[Action_Point | AP]] worth of actions.',
+		augmentations: [
+			new ArcaneSpellAugmentation({
+				type: ArcaneSpellAugmentationType.Area,
+				value: 'Hex',
+				bonus: Bonus.of(-2),
+				variable: true,
+			}),
+		],
+	}),
+	[PredefinedArcaneSpell.PoisonCloud]: new ArcaneSpellDefinition({
+		name: PredefinedArcaneSpell.PoisonCloud,
+		school: ArcaneSpellSchool.Conjuration,
+		description:
+			'Conjures a 1m radius cloud of **Noxious Gas**. The Hex _can_ be occupied by other creatures or objects, as the gas will be created around them. As the gas disperses, it lose its potency after 3 rounds. Creating more gas on the same space will just dislodge the excess poison around.',
+		augmentations: [
+			new ArcaneSpellAugmentation({
+				type: ArcaneSpellAugmentationType.Area,
+				value: 'Hex',
+				bonus: Bonus.of(-3),
+				variable: true,
+			}),
+			new ArcaneSpellAugmentation({
+				type: ArcaneSpellAugmentationType.Material,
+				value: 'Noxious Gas',
+				bonus: Bonus.of(-6),
 			}),
 		],
 	}),

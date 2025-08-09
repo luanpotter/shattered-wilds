@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { Dispatch, SetStateAction, useMemo } from 'react';
 
 import { useStore } from '../store';
 
@@ -10,11 +10,20 @@ import { useStore } from '../store';
  * @param defaultValue - Default value if no state exists
  * @returns [value, setValue] tuple just like useState
  */
-export function useUIState<T>(key: string, defaultValue: T): [T, (value: T) => void] {
+export function useUIState<T>(key: string, defaultValue: T): [T, Dispatch<SetStateAction<T>>] {
 	const value = useStore<T>(state => (state.uiState[key] as T) ?? defaultValue);
 	const setValue = useStore(state => state.setUIState);
 
-	return [value, (newValue: T) => setValue(key, newValue)];
+	return [
+		value,
+		(newValue: SetStateAction<T>) => {
+			if (typeof newValue === 'function') {
+				setValue<T>(key, (prev: T) => (newValue as (prev: T) => T)(prev));
+			} else {
+				setValue<T>(key, newValue);
+			}
+		},
+	];
 }
 
 /**
@@ -32,7 +41,7 @@ export function useUIState<T>(key: string, defaultValue: T): [T, (value: T) => v
  * ```
  */
 export function useUIStateFactory(baseKey: string) {
-	const useState = function <T>(key: string, defaultValue: T): [T, (value: T) => void] {
+	const useState = function <T>(key: string, defaultValue: T): [T, Dispatch<SetStateAction<T>>] {
 		const fullKey = `${baseKey}-${key}`;
 		return useUIState(fullKey, defaultValue);
 	};

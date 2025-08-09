@@ -55,6 +55,7 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
 	const baseStyle: React.CSSProperties = {
 		cursor: onClick ? 'pointer' : tooltip ? 'help' : 'default',
 		backgroundColor: 'var(--background-alt)',
+		border: '1px solid var(--text)',
 		width: '100%',
 	};
 	const normalStyle: React.CSSProperties = {

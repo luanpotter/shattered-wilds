@@ -172,18 +172,16 @@ const ArcaneSectionInner: React.FC<{
 			<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '0 0 12px 0', opacity: 0.3 }} />
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 				{Object.values(PREDEFINED_ARCANE_SPELLS).map(spell => {
-					const finalModifiers = [
-						...combinedModifiers,
-						...spell.augmentations.map(augmentation => {
-							return new CircumstanceModifier({
-								source: ModifierSource.Augmentation,
-								name: augmentation.description,
-								value: augmentation.bonus,
-							});
-						}),
-					];
-					const finalModifier = tree.getModifier(primaryAttribute, finalModifiers);
-					return <SpellBox key={spell.name} character={character} spell={spell} finalModifier={finalModifier} />;
+					return (
+						<SpellBox
+							key={spell.name}
+							character={character}
+							tree={tree}
+							primaryAttribute={primaryAttribute}
+							spell={spell}
+							combinedModifiers={combinedModifiers}
+						/>
+					);
 				})}
 			</div>
 		</Block>
@@ -220,9 +218,33 @@ const SpellCheckBox: React.FC<{
 
 const SpellBox: React.FC<{
 	character: Character;
+	tree: StatTree;
+	primaryAttribute: StatType;
 	spell: ArcaneSpellDefinition;
-	finalModifier: StatModifier;
-}> = ({ character, spell, finalModifier }) => {
+	combinedModifiers: CircumstanceModifier[];
+}> = ({ character, tree, primaryAttribute, spell, combinedModifiers }) => {
+	const { useState } = useUIStateFactory(`actions-${character.id}-spell-${spell.name}`);
+	const [augmentationValues, setAugmentationValues] = useState(`augmentationValues`, {} as Record<string, number>);
+	const getAugmentationValue = (key: string) => {
+		return augmentationValues[key] ?? 1;
+	};
+	const setAugmentationValue = (key: string, value: number) => {
+		setAugmentationValues(prev => ({ ...prev, [key]: value }));
+	};
+
+	const finalModifiers = [
+		...combinedModifiers,
+		...spell.augmentations.map(augmentation => {
+			const value = getAugmentationValue(augmentation.key);
+			return new CircumstanceModifier({
+				source: ModifierSource.Augmentation,
+				name: augmentation.getTooltip(value),
+				value: Bonus.of(augmentation.computeBonus(value)),
+			});
+		}),
+	];
+	const finalModifier = tree.getModifier(primaryAttribute, finalModifiers);
+
 	return (
 		<div style={{ display: 'flex', gap: '2px' }}>
 			<div
@@ -245,13 +267,39 @@ const SpellBox: React.FC<{
 				</div>
 			</div>
 			{spell.augmentations.map(augmentation => {
+				const value = getAugmentationValue(augmentation.key);
 				return (
 					<ParameterBoxComponent
-						key={augmentation.description}
-						title={augmentation.shortDescription}
-						tooltip={augmentation.description}
+						key={augmentation.key}
+						title={
+							<div style={{ display: 'flex', flexDirection: 'column' }}>
+								<span>{`${augmentation.type}:`}</span>
+								<span>{augmentation.shortDescription}</span>
+							</div>
+						}
+						tooltip={augmentation.getTooltip(value)}
 					>
-						{augmentation.bonus.description}
+						{augmentation.variable ? (
+							<div style={{ display: 'flex', gap: '4px' }}>
+								<LabeledInput
+									variant='inline'
+									value={`${value}`}
+									onBlur={value => {
+										const parsedValue = (() => {
+											const parsedValue = parseInt(value);
+											if (isNaN(parsedValue) || parsedValue < 0) {
+												return 1;
+											}
+											return parsedValue;
+										})();
+										setAugmentationValue(augmentation.key, parsedValue);
+									}}
+								/>
+								<span> = {augmentation.computeBonus(value)}</span>
+							</div>
+						) : (
+							<span>{augmentation.bonus.description}</span>
+						)}
 					</ParameterBoxComponent>
 				);
 			})}

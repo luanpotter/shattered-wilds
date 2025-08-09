@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const ParameterBoxComponent: React.FC<{
-	title: string;
+	title: React.ReactNode | string;
 	tooltip: string;
 	children: React.ReactNode;
 	onClick?: () => void;

@@ -33,7 +33,7 @@ interface AppState {
 	removeModal: RemoveModal;
 	updateGridState: UpdateGridState;
 	toggleEditMode: ToggleEditMode;
-	setUIState: (key: string, value: unknown) => void;
+	setUIState: <T>(key: string, value: T | ((prev: T) => T)) => void;
 }
 
 // Rehydrator to reconstruct class instances after JSON deserialization
@@ -141,7 +141,13 @@ export const useStore = create<AppState>()(
 				set(state => ({
 					editMode: !state.editMode,
 				})),
-			setUIState: (key: string, value: unknown) => set(state => ({ uiState: { ...state.uiState, [key]: value } })),
+			setUIState: <T>(key: string, valueOrUpdater: T | ((prev: T) => T)) =>
+				set(state => {
+					const prev = state.uiState[key] as T;
+					const next =
+						typeof valueOrUpdater === 'function' ? (valueOrUpdater as (prev: T) => T)(prev) : (valueOrUpdater as T);
+					return { uiState: { ...state.uiState, [key]: next } };
+				}),
 		}),
 		{
 			name: 'd12-simulator-storage',
