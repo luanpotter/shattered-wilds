@@ -5,7 +5,6 @@ import {
 	ActionCheckParameter,
 	StatTree,
 	DerivedStatType,
-	RESOURCES,
 	Check,
 	StatType,
 	StandardCheck,
@@ -34,12 +33,13 @@ import { useStore } from '../store';
 import { Character, CharacterSheet, Weapon, WeaponMode } from '../types';
 import { numberToOrdinal } from '../utils';
 
+import { CostBoxComponent } from './CostBoxComponent';
+import { ParameterBoxComponent } from './ParameterBoxComponent';
 import { ResourceInputComponent } from './ResourceInputComponent';
 import Block from './shared/Block';
 import { LabeledCheckbox } from './shared/LabeledCheckbox';
 import LabeledDropdown from './shared/LabeledDropdown';
 import LabeledInput from './shared/LabeledInput';
-import { ParameterBoxComponent } from './shared/ParameterBoxComponent';
 import { RichText } from './shared/RichText';
 
 interface ActionsSectionProps {
@@ -211,8 +211,6 @@ const CheckParameter: React.FC<CheckParameterProps> = ({
 };
 
 const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, sheet }) => {
-	const { openConsumeResourceModal } = useModals();
-
 	const { useState, useStateArrayItem } = useUIStateFactory(`actions-${characterId}`);
 	const [activeTab, setActiveTab] = useState('activeTab', ActionType.Movement);
 	const [showAll, setShowAll] = useState('showAll', true);
@@ -574,39 +572,14 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 					{actions.map(action => {
-						const costs = action.costs.map(cost => {
-							const resource = RESOURCES[cost.resource];
-							const value = `${cost.amount}${cost.variable ? '+' : ''} ${resource.shortName}`;
-							const tooltip = `${cost.amount}${cost.variable ? '+' : ''} ${resource.name}`;
-							const current = sheet.getResource(cost.resource).current;
-							const insufficient = current < cost.amount;
-							return { value, tooltip, insufficient };
-						});
-
 						return (
 							<div key={action.key} style={{ display: 'flex', gap: '2px' }}>
-								<ParameterBoxComponent
-									title='COST'
-									tooltip={costs.map(e => e.tooltip).join('\n')}
-									onClick={() => {
-										openConsumeResourceModal({
-											characterId: character.id,
-											actionCosts: action.costs,
-											title: `Consume Resources - ${action.name}`,
-										});
-									}}
-								>
-									{costs.map(e => (
-										<div
-											key={e.value}
-											style={{
-												color: e.insufficient ? 'var(--error-color)' : 'inherit',
-											}}
-										>
-											{e.value}
-										</div>
-									))}
-								</ParameterBoxComponent>
+								<CostBoxComponent
+									characterId={character.id}
+									sheet={sheet}
+									name={action.name}
+									actionCosts={action.costs}
+								/>
 
 								<div
 									style={{

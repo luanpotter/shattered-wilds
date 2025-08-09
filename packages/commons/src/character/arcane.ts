@@ -289,7 +289,7 @@ export const PREDEFINED_ARCANE_SPELLS: Record<PredefinedArcaneSpell, ArcaneSpell
 		name: PredefinedArcaneSpell.EvokeLight,
 		school: ArcaneSpellSchool.Evocation,
 		description:
-			'Evokes a harmless fist-sized ball of light, which will float in the air illuminating a 12m radius around it, lasting for at least 1 hour (as it fades). The Light is ethereal, and cannot be manipulated by physical means, though passing your hand through it will result in a slightly warm sensation. The Light can be moved and control with **Telekinesis**.',
+			'Evokes a harmless fist-sized ball of light, which will float in the air illuminating a **9 Hexes** radius around it, lasting for around **1 hour** (as it slowly fades). The Light is ethereal, and cannot be manipulated by physical means, though passing your hand through it will result in a slightly warm sensation. The Light can be moved and control with **Telekinesis**.',
 	}),
 	[PredefinedArcaneSpell.BlindingLight]: new ArcaneSpellDefinition({
 		name: PredefinedArcaneSpell.BlindingLight,

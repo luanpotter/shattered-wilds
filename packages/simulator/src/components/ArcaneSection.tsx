@@ -1,4 +1,5 @@
 import {
+	ActionCost,
 	ARCANE_SPELL_COMPONENTS,
 	ArcaneSpellComponentType,
 	ArcaneSpellDefinition,
@@ -11,6 +12,7 @@ import {
 	Distance,
 	ModifierSource,
 	PREDEFINED_ARCANE_SPELLS,
+	Resource,
 	StatModifier,
 	StatTree,
 	StatType,
@@ -24,10 +26,11 @@ import { useStore } from '../store';
 import { Character, CharacterSheet } from '../types';
 import { numberToOrdinal } from '../utils';
 
+import { CostBoxComponent } from './CostBoxComponent';
+import { ParameterBoxComponent } from './ParameterBoxComponent';
 import Block from './shared/Block';
 import LabeledDropdown from './shared/LabeledDropdown';
 import LabeledInput from './shared/LabeledInput';
-import { ParameterBoxComponent } from './shared/ParameterBoxComponent';
 import { RichText } from './shared/RichText';
 
 interface ArcaneSectionProps {
@@ -117,6 +120,12 @@ const ArcaneSectionInner: React.FC<{
 		},
 	];
 
+	// TODO: make variable
+	const costs = [
+		new ActionCost({ resource: Resource.ActionPoint, amount: 2 }),
+		new ActionCost({ resource: Resource.FocusPoint, amount: 1 }),
+	];
+
 	return (
 		<Block>
 			<h3 style={{ margin: '0 0 16px 0', fontSize: '1.1em' }}>Arcane</h3>
@@ -170,6 +179,28 @@ const ArcaneSectionInner: React.FC<{
 				/>
 			</div>
 			<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '0 0 12px 0', opacity: 0.3 }} />
+			<div style={{ display: 'flex', gap: '2px' }}>
+				<CostBoxComponent characterId={character.id} sheet={sheet} name='Arcane Spell' actionCosts={costs} />
+				<div
+					style={{
+						flex: 1,
+						padding: '12px',
+						border: '1px solid var(--text)',
+						borderRadius: '4px',
+						backgroundColor: 'var(--background-alt)',
+					}}
+				>
+					<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+						<div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+							<span style={{ fontWeight: 'bold' }}>Fundamental Arcane Spell</span>
+						</div>
+					</div>
+					<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)' }}>
+						<RichText>TODO: choose AP, FP, filter school</RichText>
+					</div>
+				</div>
+			</div>
+			<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '12px 0 12px 0', opacity: 0.3 }} />
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 				{Object.values(PREDEFINED_ARCANE_SPELLS).map(spell => {
 					return (

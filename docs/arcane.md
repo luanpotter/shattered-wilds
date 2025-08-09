@@ -14,7 +14,7 @@ Arcane spells are first and foremost a specific combination of a **Verb** and a 
 
 Within the domain of the **Arcane**, the bodies of **Beings** are not just material; as they are tied to their Spark (or Soul). Think of Beings having an impenetrable aura that prevents Matter and Energy manipulation inside. However, the Being can still be manipulated directly, via **Transfiguration** or **Command**. While **Telekinesis** cannot be used directly on beings, the air around them can be controlled in the form of gusts of wind for pushes and pulls.
 
-Casting a spell typically will require (see **Basic Arcane Spell** below):
+Casting a spell typically will require (see **Fundamental Arcane Spell** below):
 
 * a certain amount of **AP** ([[Action_Point | Action Points]]) and **FP** ([[Focus_Point | Focus Points]]) to be spent;
 * executing some non-zero amount of **Spell Components**;
@@ -22,7 +22,7 @@ Casting a spell typically will require (see **Basic Arcane Spell** below):
 
 > Roll Base Spellcasting Attribute + Component Modifiers + Augmentation Modifiers [+ Other Circumstance Modifiers]
 
-The Base DC for an uncontested Basic Arcane Spell is 15. That is the minimum DC for any Arcane Spell, but it can be higher if contested. Spells directly targeting a creature will require a Contested Check instead (see Contested Checks below).
+The Base DC for an uncontested Fundamental Arcane Spell is 15. That is the minimum DC for any Arcane Spell, but it can be higher if contested. Spells directly targeting a creature will require a Contested Check instead (see Contested Checks below).
 
 ## Concentration
 
@@ -59,7 +59,7 @@ That does not mean your influence cannot expand further; however it will get har
 
 ## Basic Spell Attacks
 
-Regardless of specific narrative flavor (see **Predefined Spells** below for inspiration), a **Caster** can use a **Basic Arcane Spell** (2 [[Action_Point | AP]], 1 [[Focus_Point | FP]]), range of 1 **Range Increment**, with **Spell DC 15** to harm an enemy within 1m as a Basic Attack against a target's Body or Soul ([[Vitality_Point | VP]] or [[Spirit_Point | SP]] damage). The most typical **Augmentations** for a Basic Spell Attack are _Range_, _Multi-target_, and _Casting Time_.
+Regardless of specific narrative flavor (see **Predefined Spells** below for inspiration), a **Caster** can use a **Fundamental Arcane Spell** (2 [[Action_Point | AP]], 1 [[Focus_Point | FP]]), range of 1 **Range Increment**, with **Spell DC 15** to harm an enemy within 1m as a Basic Attack against a target's Body or Soul ([[Vitality_Point | VP]] or [[Spirit_Point | SP]] damage). The most typical **Augmentations** for a Basic Spell Attack are _Range_, _Multi-target_, and _Casting Time_.
 
 ## Shifts
 
@@ -121,11 +121,11 @@ While not exactly a Component per se, **Scrolls** can be crafted by really power
 
 ## Augmentations
 
-Every spell is essentially a specialization of the **Basic Arcane Spell**, with a specific choice of **School** (**Verb** + **Noun**) and a set of **Augmentations** depending on the desired effect. Each **Augmentation** will add either a positive or a negative modifier to the Check, to the discretion of the DM. Below some traditional augmentations are listed, but circumstances might require additional ones.
+Every spell is essentially a specialization of the **Fundamental Arcane Spell**, with a specific choice of **School** (**Verb** + **Noun**) and a set of **Augmentations** depending on the desired effect. Each **Augmentation** will add either a positive or a negative modifier to the Check, to the discretion of the DM. Below some traditional augmentations are listed, but circumstances might require additional ones.
 
 ### Casting Time
 
-The typical casting time of the Basic Arcane Spell is **2AP**. The table below shows other options, with the associated **Augmentation Modifiers**:
+The typical casting time of the Fundamental Arcane Spell is **2AP**. The table below shows other options, with the associated **Augmentation Modifiers**:
 
 | AP | Augmentation Modifier |
 |----|-----------------------|
@@ -136,11 +136,11 @@ The typical casting time of the Basic Arcane Spell is **2AP**. The table below s
 
 Extending the casting time over longer periods has severe diminishing returns, and would be impractical during an **Encounter**. When casting a Spell with no time sensitivity, the caster can choose to cast as a **Ritual**, taking about 15 minutes for a maximum of `+6` [[Circumstance_Modifier | CM]].
 
-That means a Level 1 **Caster**, with typically a `+3` primary attribute bonus, `+3` component bonus and `+6` _Casting Time_ augmentation, can reasonably guarantee (with miniscule chance of failure) the cast of a **Basic Arcane Spell** with no other augmentations through a **Ritual**.
+That means a Level 1 **Caster**, with typically a `+3` primary attribute bonus, `+3` component bonus and `+6` _Casting Time_ augmentation, can reasonably guarantee (with miniscule chance of failure) the cast of a **Fundamental Arcane Spell** with no other augmentations through a **Ritual**.
 
 ### Focus Cost
 
-The typical focus cost of the Basic Arcane Spell is **1 [[Focus_Point | FP]]**. Each additional [[Focus_Point | FP]] will add a `+2` modifier, up to twice the number of [[Action_Point | AP]] used (one can't just cram that much focus into too little time). If the spell is being cast as a **Ritual**, there is no limit on the amount of [[Focus_Point | FP]] that can be spent.
+The typical focus cost of the Fundamental Arcane Spell is **1 [[Focus_Point | FP]]**. Each additional [[Focus_Point | FP]] will add a `+2` modifier, up to twice the number of [[Action_Point | AP]] used (one can't just cram that much focus into too little time). If the spell is being cast as a **Ritual**, there is no limit on the amount of [[Focus_Point | FP]] that can be spent.
 
 ### Duration
 
@@ -164,7 +164,7 @@ Also remember that the **Caster** can use **Telekinesis** to impulse objects out
 
 ### Area/Volume/Targets
 
-Depending on the nature of the Spell, it might affect a certain area, volume or amount of beings (targets). The table below breaks down the typical effects of a Basic Arcane Spell and the augmentation costs:
+Depending on the nature of the Spell, it might affect a certain area, volume or amount of beings (targets). The table below breaks down the typical effects of a Fundamental Arcane Spell and the augmentation costs:
 
 | Effect Type | Basic Effect | Increment Cost |
 |-------------|--------------|----------------|
@@ -193,13 +193,13 @@ While the Player can control the exact effect they aim to achieve, the DM has th
 
 While a **Caster** can choose any effect within the domains of the **Arcane**, below is a list of predefined spells with predefined Augmentation Modifiers making it easier for Players and DMs; they can both be used exactly as-is, or used to judge modifiers by comparison.
 
-Across all **Schools**, the **Basic Arcane Spell** takes **2 [[Action_Point | AP]]** and **1 [[Focus_Point | FP]]** to cast, with **Base DC 15** (or contested if higher), and range based on your [[Influence Range]].
+Across all **Schools**, the **Fundamental Arcane Spell** takes **2 [[Action_Point | AP]]** and **1 [[Focus_Point | FP]]** to cast, with **Base DC 15** (or contested if higher), and range based on your [[Influence Range]].
 
 Some typical Augmentations for each are combined to form the **Minimal Augmentation Modifier**; do note that every single spell can be Augmented by **Range**, which is the most common Augmentation; so that will not be included.
 
 ### Conjuration
 
-The **Conjuration** Basic Arcane Spell can be used to create between 1-10L of simple, homogeneous, inorganic matter of a simple material (dirt, gravel, sand, weak rocks), within 1m of the Caster, in a space unoccupied (by solid matter or Beings), arranged in a vaguely, imprecise, contiguous, convex spherical blob (or to fill an existing hole). Any fluid matter in the location will be displaced (therefore matter cannot be created in hermetically sealed containers).
+The **Conjuration** Fundamental Arcane Spell can be used to create between 1-10L of simple, homogeneous, inorganic matter of a simple material (dirt, gravel, sand, weak rocks), within 1m of the Caster, in a space unoccupied (by solid matter or Beings), arranged in a vaguely, imprecise, contiguous, convex spherical blob (or to fill an existing hole). Any fluid matter in the location will be displaced (therefore matter cannot be created in hermetically sealed containers).
 
 The **Caster** must be familiar with the material being conjured; we can assume all **Heroes** are familiar with simple materials, water or other common matter. However, certain spells below will require the **Caster** to have been familiar with the specific matter being created.
 
@@ -236,7 +236,7 @@ As the gas disperses, it lose its potency after 3 rounds. Creating more gas on t
 
 ### Evocation
 
-The Evocation Basic Arcane Spell can be used to create a small amount of energy of a simple type (light, fire), in a space unoccupied (by solid matter or Beings; though it can be adjacent to inanimate objects, for example, it can set fire to a torch), within 1m of the Caster. The energy will dissipate over time (depending on the type of energy), and will spread/behave in its natural way (e.g. fire will spread to adjacent flammable objects, light will illuminate the area, etc.), but not otherwise move.
+The Evocation Fundamental Arcane Spell can be used to create a small amount of energy of a simple type (light, fire), in a space unoccupied (by solid matter or Beings; though it can be adjacent to inanimate objects, for example, it can set fire to a torch), within 1m of the Caster. The energy will dissipate over time (depending on the type of energy), and will spread/behave in its natural way (e.g. fire will spread to adjacent flammable objects, light will illuminate the area, etc.), but not otherwise move.
 
 #### Evoke Light
 
@@ -259,7 +259,7 @@ The Caster evokes a small flame, which can be used to ignite flammable objects, 
 
 ### Transmutation
 
-The Transmutation Basic Arcane Spell can be used to change the state of a small amount of matter, between 1-10L, within 1m of the Caster. The matter can be changed from one simple material to another (e.g. dirt to sand, gravel to pebbles), or be modified in its change or properties. Changing the physical state (solid, liquid, gas) is a more complex proposition. Other augmentations can be at play if trying to change specific parts, detailed aspects, or complex materials.
+The Transmutation Fundamental Arcane Spell can be used to change the state of a small amount of matter, between 1-10L, within 1m of the Caster. The matter can be changed from one simple material to another (e.g. dirt to sand, gravel to pebbles), or be modified in its change or properties. Changing the physical state (solid, liquid, gas) is a more complex proposition. Other augmentations can be at play if trying to change specific parts, detailed aspects, or complex materials.
 
 #### Mud Feet [Special Attack]
 
@@ -273,7 +273,7 @@ The Caster can use Transmutation to mend a small tear in a simple solid object m
 
 ### Telekinesis
 
-The Telekinesis Basic Arcane Spell can be used to impart motion up to 2kg of matter consistently but at moderate speeds, within the selected range (the object can be thrown outside the range but control is lost at that point). Telekinesis can be used to manipulate objects, such as doors or levers, but the required level of dexterity will add some Augmentation. While Beings cannot be directly imparted energy, the Caster can control the air around them to push or shove, in a however less effective and precise manner.
+The Telekinesis Fundamental Arcane Spell can be used to impart motion up to 2kg of matter consistently but at moderate speeds, within the selected range (the object can be thrown outside the range but control is lost at that point). Telekinesis can be used to manipulate objects, such as doors or levers, but the required level of dexterity will add some Augmentation. While Beings cannot be directly imparted energy, the Caster can control the air around them to push or shove, in a however less effective and precise manner.
 
 #### Mage Hand
 
@@ -292,7 +292,7 @@ The Caster uses Telekinesis to control a gust of wind towards a target, shoving 
 
 ### Transfiguration
 
-The Transfiguration Basic Arcane Spell can be used to change the body of a Being, within 1m of the Caster. The basic spell can cause superficial changes (e.g. changing hair color, creating calluses, deformities, or other minor changes), and anything more complex changes will require Augmentations. The changes are always temporary, and require Concentration to maintain. The target can choose wether to resist or not as they feel an external force molding their body.
+The Transfiguration Fundamental Arcane Spell can be used to change the body of a Being, within 1m of the Caster. The basic spell can cause superficial changes (e.g. changing hair color, creating calluses, deformities, or other minor changes), and anything more complex changes will require Augmentations. The changes are always temporary, and require Concentration to maintain. The target can choose wether to resist or not as they feel an external force molding their body.
 
 #### Harden Fists
 
@@ -316,7 +316,7 @@ The Caster transfigures a desired surface-level aspect of a target's appearance 
 
 ### Command
 
-The Command Basic Arcane Spell can be used to mentally tax a sentient Being's willpower, causing them to lose 1SP unless resist; or try to control simple beasts and plants. More Augmented casts can try to issue specific commands, and forcing them to do something fundamentally against their nature will require a very high DC.
+The Command Fundamental Arcane Spell can be used to mentally tax a sentient Being's willpower, causing them to lose 1SP unless resist; or try to control simple beasts and plants. More Augmented casts can try to issue specific commands, and forcing them to do something fundamentally against their nature will require a very high DC.
 
 #### Confuse Mind [Special Attack]
 
@@ -346,7 +346,7 @@ The Caster gives a simple single word command to a sentient Being (within 1m). T
 
 ### Combined Spells
 
-These spells are actually a combination of two Basic Arcane Spell casts, and therefore by default require 4[[Action_Point | AP]] (a whole turn) and 2[[Focus_Point | FP]] to cast. Since they are cast together, for simplicity, the Caster can roll a single Spell Check against the hardest modifier between the two spells.
+These spells are actually a combination of two Fundamental Arcane Spell casts, and therefore by default require 4[[Action_Point | AP]] (a whole turn) and 2[[Focus_Point | FP]] to cast. Since they are cast together, for simplicity, the Caster can roll a single Spell Check against the hardest modifier between the two spells.
 
 #### Hurl Spikes [Special Attack]
 
