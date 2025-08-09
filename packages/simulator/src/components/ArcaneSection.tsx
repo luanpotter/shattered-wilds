@@ -172,7 +172,18 @@ const ArcaneSectionInner: React.FC<{
 			<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '0 0 12px 0', opacity: 0.3 }} />
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 				{Object.values(PREDEFINED_ARCANE_SPELLS).map(spell => {
-					return <SpellBox key={spell.name} character={character} spell={spell} combinedModifier={combinedModifier} />;
+					const finalModifiers = [
+						...combinedModifiers,
+						...spell.augmentations.map(augmentation => {
+							return new CircumstanceModifier({
+								source: ModifierSource.Augmentation,
+								name: augmentation.description,
+								value: augmentation.bonus,
+							});
+						}),
+					];
+					const finalModifier = tree.getModifier(primaryAttribute, finalModifiers);
+					return <SpellBox key={spell.name} character={character} spell={spell} finalModifier={finalModifier} />;
 				})}
 			</div>
 		</Block>
@@ -181,27 +192,27 @@ const ArcaneSectionInner: React.FC<{
 
 const SpellCheckBox: React.FC<{
 	character: Character;
-	combinedModifier: StatModifier;
-}> = ({ character, combinedModifier }) => {
+	finalModifier: StatModifier;
+}> = ({ character, finalModifier }) => {
 	const { openDiceRollModal } = useModals();
 
 	return (
 		<ParameterBoxComponent
-			title={`${combinedModifier.name} (${combinedModifier.value.description})`}
-			tooltip={combinedModifier.description}
+			title={`${finalModifier.name} (${finalModifier.value.description})`}
+			tooltip={finalModifier.description}
 			onClick={() => {
 				openDiceRollModal({
 					characterId: character.id,
 					check: new Check({
 						mode: CheckMode.Contested,
 						nature: CheckNature.Active,
-						statModifier: combinedModifier,
+						statModifier: finalModifier,
 					}),
-					title: `Roll ${combinedModifier.name} Check`,
+					title: `Roll ${finalModifier.name} Check`,
 				});
 			}}
 		>
-			{combinedModifier.value.description}
+			{finalModifier.value.description}
 			<FaDice size={12} style={{ color: 'var(--text-secondary)' }} />
 		</ParameterBoxComponent>
 	);
@@ -210,8 +221,8 @@ const SpellCheckBox: React.FC<{
 const SpellBox: React.FC<{
 	character: Character;
 	spell: ArcaneSpellDefinition;
-	combinedModifier: StatModifier;
-}> = ({ character, spell, combinedModifier }) => {
+	finalModifier: StatModifier;
+}> = ({ character, spell, finalModifier }) => {
 	return (
 		<div style={{ display: 'flex', gap: '2px' }}>
 			<div
@@ -233,7 +244,18 @@ const SpellBox: React.FC<{
 					<RichText>{spell.description}</RichText>
 				</div>
 			</div>
-			<SpellCheckBox character={character} combinedModifier={combinedModifier} />
+			{spell.augmentations.map(augmentation => {
+				return (
+					<ParameterBoxComponent
+						key={augmentation.description}
+						title={augmentation.shortDescription}
+						tooltip={augmentation.description}
+					>
+						{augmentation.bonus.description}
+					</ParameterBoxComponent>
+				);
+			})}
+			<SpellCheckBox character={character} finalModifier={finalModifier} />
 		</div>
 	);
 };

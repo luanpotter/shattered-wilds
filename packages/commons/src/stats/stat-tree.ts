@@ -8,6 +8,7 @@ export enum ModifierSource {
 	Feat = 'Feat',
 	Equipment = 'Equipment',
 	Component = 'Component',
+	Augmentation = 'Augmentation',
 	Circumstance = 'Circumstance',
 }
 

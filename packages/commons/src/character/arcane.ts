@@ -147,8 +147,12 @@ export class ArcaneSpellAugmentation {
 		this.bonus = bonus;
 	}
 
+	get shortDescription() {
+		return `${this.type}: ${this.value}`;
+	}
+
 	get description() {
-		return `${this.type}: ${this.value} (${this.bonus.description})`;
+		return `${this.shortDescription} (${this.bonus.description})`;
 	}
 }
 
@@ -197,7 +201,7 @@ export const PREDEFINED_ARCANE_SPELLS: Record<PredefinedArcaneSpell, ArcaneSpell
 		augmentations: [
 			new ArcaneSpellAugmentation({
 				type: ArcaneSpellAugmentationType.Volume,
-				value: 'Medium-sized',
+				value: 'Medium',
 				bonus: Bonus.of(-3),
 			}),
 		],
