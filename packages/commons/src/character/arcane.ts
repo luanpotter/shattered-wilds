@@ -2,15 +2,9 @@ import { ClassFlavor } from '../core/classes.js';
 import { CircumstanceModifier, ModifierSource } from '../stats/stat-tree.js';
 import { Bonus } from '../stats/value.js';
 
-export enum PredefinedArcaneSpell {
-	ConjureWater = 'Conjure Water',
-	RockSmash = 'Rock Smash',
-	ConjureDebris = 'Conjure Debris',
-	PoisonCloud = 'Poison Cloud',
-}
-
 export enum ArcaneSpellAugmentationType {
 	Material = 'Material',
+	Intensity = 'Intensity',
 	Area = 'Area',
 	Volume = 'Volume',
 }
@@ -218,6 +212,15 @@ export class ArcaneSpellDefinition {
 	}
 }
 
+export enum PredefinedArcaneSpell {
+	ConjureWater = 'Conjure Water',
+	RockSmash = 'Rock Smash',
+	ConjureDebris = 'Conjure Debris',
+	PoisonCloud = 'Poison Cloud',
+	EvokeLight = 'Evoke Light',
+	BlindingLight = 'Blinding Light',
+}
+
 export const PREDEFINED_ARCANE_SPELLS: Record<PredefinedArcaneSpell, ArcaneSpellDefinition> = {
 	[PredefinedArcaneSpell.ConjureWater]: new ArcaneSpellDefinition({
 		name: PredefinedArcaneSpell.ConjureWater,
@@ -262,7 +265,7 @@ export const PREDEFINED_ARCANE_SPELLS: Record<PredefinedArcaneSpell, ArcaneSpell
 		name: PredefinedArcaneSpell.PoisonCloud,
 		school: ArcaneSpellSchool.Conjuration,
 		description:
-			'Conjures a 1m radius cloud of **Noxious Gas**. The Hex _can_ be occupied by other creatures or objects, as the gas will be created around them. As the gas disperses, it lose its potency after 3 rounds. Creating more gas on the same space will just dislodge the excess poison around.',
+			'Conjures a cloud of **Noxious Gas** over an area. The area _can_ be occupied by other creatures or objects, as the gas will be created around them. As the gas disperses, it lose its potency after 3 rounds. Creating more gas on the same space will just dislodge the excess poison around.',
 		augmentations: [
 			new ArcaneSpellAugmentation({
 				type: ArcaneSpellAugmentationType.Area,
@@ -274,6 +277,25 @@ export const PREDEFINED_ARCANE_SPELLS: Record<PredefinedArcaneSpell, ArcaneSpell
 				type: ArcaneSpellAugmentationType.Material,
 				value: 'Noxious Gas',
 				bonus: Bonus.of(-6),
+			}),
+		],
+	}),
+	[PredefinedArcaneSpell.EvokeLight]: new ArcaneSpellDefinition({
+		name: PredefinedArcaneSpell.EvokeLight,
+		school: ArcaneSpellSchool.Evocation,
+		description:
+			'Evokes a harmless fist-sized ball of light, which will float in the air illuminating a 12m radius around it, lasting for at least 1 hour (as it fades). The Light is ethereal, and cannot be manipulated by physical means, though passing your hand through it will result in a slightly warm sensation. The Light can be moved and control with **Telekinesis**.',
+	}),
+	[PredefinedArcaneSpell.BlindingLight]: new ArcaneSpellDefinition({
+		name: PredefinedArcaneSpell.BlindingLight,
+		school: ArcaneSpellSchool.Evocation,
+		description:
+			'Evokes a momentary flash of bright light at a point, potentially affecting any seeing creatures within a 6m radius. The Caster and any creatures that were made aware of what was about to happen can avert their gaze; other creatures must succeed an [[Agility]] Check against the Spell DC to do so. Creatures who were unable to avert their gaze take the [[Blinded]] condition until the end of their next turn.',
+		augmentations: [
+			new ArcaneSpellAugmentation({
+				type: ArcaneSpellAugmentationType.Intensity,
+				value: 'Harmful',
+				bonus: Bonus.of(-3),
 			}),
 		],
 	}),
