@@ -3,6 +3,10 @@ import { slugify } from '../utils.js';
 
 export const predefinedArcaneSpells = Object.values(PREDEFINED_ARCANE_SPELLS).map((def, idx) => {
 	const slug = `${slugify(def.name)}`;
+
+	const combinedModifier = def.augmentations.reduce((acc, augmentation) => acc + augmentation.bonus.value, 0);
+	const hasVariableModifier = def.augmentations.some(augmentation => augmentation.variable);
+
 	return {
 		// wiki parameters
 		group: 'Predefined_Arcane_Spells',
@@ -17,6 +21,12 @@ export const predefinedArcaneSpells = Object.values(PREDEFINED_ARCANE_SPELLS).ma
 				title: 'School',
 				value: def.school,
 				cssClass: 'metadata-school',
+			},
+			{
+				key: 'modifier',
+				title: 'CM',
+				value: `${-combinedModifier}${hasVariableModifier ? '+' : ''}`,
+				cssClass: 'metadata-cost',
 			},
 			...def.traits.map(trait => ({
 				key: trait.replace(' ', '_'),

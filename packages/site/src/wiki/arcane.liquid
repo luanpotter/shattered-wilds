@@ -13,9 +13,11 @@
 
 {{ lexicon.content | mdb }}
 
+{% if lexicon.augmentations.size > 0 %}
 <h3>Augmentations</h3>
 <ul>
     {% for augmentation in lexicon.augmentations %}
         <li>{{ augmentation.description }}</li>
     {% endfor %}
 </ul>
+{% endif %}

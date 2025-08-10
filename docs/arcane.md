@@ -4,36 +4,14 @@ While creating the necessary movements and sounds can be assisted through the us
 
 You can think of Arcane as a spell system where the Player chooses the desired effect, and the DM tells them how hard it will be (as opposed to the [Divine](/rules/divine.md) spell system, where the Player rolls a Check and the DM tells them the effect).
 
-Arcane spells are first and foremost a specific combination of a **Verb** and a **Noun**, which together define the spell's **School**.
-
-| Verb / Noun     | Matter        | Energy      | Being           |
-|-----------------|---------------|-------------|-----------------|
-| **Create**      | Conjuration   | Evocation   | -               |
-| **Transform**   | Transmutation | -           | Transfiguration |
-| **Control**     | -             | Telekinesis | Command         |
+{% include "docs/lexicon/Arcane_Schools.md" %}
 
 Within the domain of the **Arcane**, the bodies of **Beings** are not just material; as they are tied to their Spark (or Soul). Think of Beings having an impenetrable aura that prevents Matter and Energy manipulation inside. However, the Being can still be manipulated directly, via **Transfiguration** or **Command**. While **Telekinesis** cannot be used directly on beings, the air around them can be controlled in the form of gusts of wind for pushes and pulls.
 
 Casting a spell typically will require (see **Fundamental Arcane Spell** below):
 
 * a certain amount of **AP** ([[Action_Point | Action Points]]) and **FP** ([[Focus_Point | Focus Points]]) to be spent;
-* executing some non-zero amount of **Spell Components**;
-* rolling a [[Check]] using the Spellcaster's Base Attribute:
-
-> Roll Base Spellcasting Attribute + Component Modifiers + Augmentation Modifiers [+ Other Circumstance Modifiers]
-
-The Base DC for an uncontested Fundamental Arcane Spell is 15. That is the minimum DC for any Arcane Spell, but it can be higher if contested. Spells directly targeting a creature will require a Contested Check instead (see Contested Checks below).
-
-## Concentration
-
-Casting a spell has the [[Concentrate]] trait (even if instantaneous). Depending on the chosen School and desired effect, spells can be instantaneous, meaning they are done after the Casting Time over which the Components are executed; or they can be held in Concentration. While Concentrating, the Caster cannot take other [[Concentrate]] actions (such as other Spells). A Caster can always just drop Concentration at will. See more details about which types of effects can be instantaneous or not under **Augmentations > Duration** below.
-
-As with any other Concentrate Action, if the Caster is disrupted during concentration (or during the Spell Casting) via the [[Feint]] action, they must roll a [[Tenacity]] check to sustain Concentration or finalize the cast.
-
-## Contested Checks
-
-When directly trying to affect a creature with a spell, the Base DC is replaced with a Contested Check (but the Base DC is still the minimum). Which Check to be used depends on the nature of the spell being cast.
-
+* executing some non-zero amoe familiar with the material being c
 Launching a projectile, be it matter or energy, onto a creature, is considered a **Basic Body Attack**, and therefore is contested with a **Basic Body Defense** Check.
 
 Other effects are typically considered **Special Attacks**, and therefore are contested by specific **Skills**. For example:
@@ -191,4 +169,4 @@ While the Player can control the exact effect they aim to achieve, the DM has th
 
 ## Predefined Spells
 
-{% include "docs/lexicon/Predefined_Arcane_Spells.md" %}
+The [[Predefined_Arcane_Spells | Predefined Arcane Spells]] page contains a list of suggested spells for each **School**.

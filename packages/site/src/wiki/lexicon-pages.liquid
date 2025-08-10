@@ -16,9 +16,9 @@
 
 {% if wiki.byGroup[lexicon.slug] and wiki.byGroup[lexicon.slug].length > 0 %}
 	<h2>{{ lexicon.title }} List</h2>
-	<ul class='category-list'>
+	<ul class='group-list'>
 		{% for item in wiki.byGroup[lexicon.slug] %}
-			<li class='category-list-item'>{% item item.slug %}</li>
+			<li class='group-list-item'>{% item item.slug %}</li>
 		{% endfor %}
 	</ul>
 {% endif %}
