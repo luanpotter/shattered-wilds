@@ -259,10 +259,12 @@ type MindOrSoulAttributes = (typeof StatType.mindOrSoulAttributes)[number];
 export enum Feat {
 	// General
 	TradeSpecialization = 'TradeSpecialization',
+	ToolProficiency = 'ToolProficiency',
 	LipReading = 'LipReading',
 	AnimalMimicry = 'AnimalMimicry',
+	Numberphile = 'Numberphile',
+	UnreliableMemory = 'UnreliableMemory',
 	GirthCompensation = 'GirthCompensation',
-	QuickDraw = 'QuickDraw',
 	BlindSense = 'BlindSense',
 	// Class
 	ClassSpecialization = 'ClassSpecialization',
@@ -284,6 +286,7 @@ export enum Feat {
 	RefinedAiming = 'TakeAim',
 	RapidFire = 'RapidFire',
 	PinningShot = 'PinningShot',
+	QuickDraw = 'QuickDraw',
 	DoubleShot = 'DoubleShot',
 	// Tank
 	ImprovedTaunt = 'ImprovedTaunt',
@@ -293,10 +296,12 @@ export enum Feat {
 	// Martial
 	ExertAuthority = 'ExertAuthority',
 	DistributedShifts = 'DistributedShifts',
+	WeaponHoning = 'WeaponHoning',
 	// Survivalist
 	Rage = 'Rage',
 	InstinctiveTracking = 'InstinctiveTracking',
 	DisregardCover = 'DisregardCover',
+	Potioneer = 'Potioneer',
 	// Scoundrel
 	FancyFootwork = 'FancyFootwork',
 	ThievesFingers = 'ThievesFingers',
@@ -345,7 +350,6 @@ export enum Trade {
 	Farmer = 'Farmer',
 	Fisher = 'Fisher',
 	Fletcher = 'Fletcher',
-	Herbalist = 'Herbalist',
 	Jeweler = 'Jeweler',
 	Locksmith = 'Locksmith',
 	Mason = 'Mason',
@@ -354,6 +358,15 @@ export enum Trade {
 	Tanner = 'Tanner',
 	Weaver = 'Weaver',
 	Woodcutter = 'Woodcutter',
+	Other = 'Other',
+}
+
+export enum Tool {
+	ThievesTools = 'Thieves Tools',
+	ClimbingGear = 'Climbing Gear',
+	DisguiseKit = 'Disguise Kit',
+	MusicalInstrument = 'Musical Instrument',
+	Other = 'Other',
 }
 
 export const FEATS: Record<Feat, FeatDefinition<any>> = {
@@ -372,6 +385,21 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		},
 		fullDescription: info => `Trade Specialization (${info.parameter})`,
 	}),
+	[Feat.ToolProficiency]: new FeatDefinition<Tool>({
+		key: Feat.ToolProficiency,
+		name: 'Tool Proficiency',
+		type: FeatType.Minor,
+		source: StaticFeatSource.General,
+		level: 1,
+		description:
+			'You are proficient with a specific tool, granting you a `+3` [[Circumstance Modifier | CM]] when performing appropriate tasks using it. You can pick this Feat multiple times for different tools.',
+		parameter: {
+			id: 'tool',
+			name: 'Tool',
+			values: Object.values(Tool),
+		},
+		fullDescription: info => `Tool Proficiency (${info.parameter})`,
+	}),
 	[Feat.LipReading]: new FeatDefinition<void>({
 		key: Feat.LipReading,
 		name: 'Lip Reading',
@@ -389,6 +417,24 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		description:
 			'You have an uncanny knack for mimicking animal sounds. If you are familiar with it, and a humanoid could conceivably reproduce it, you can make a good-enough impression that an untrained ear could not distinguish it. An expert (such as someone with the Sylvan Upbringing) could run an [[Intuition]] Check (or [[Knowledge]] if they have reason to suspect) to try to assess the veracity of the sound.',
 	}),
+	[Feat.Numberphile]: new FeatDefinition<void>({
+		key: Feat.Numberphile,
+		name: 'Numberphile',
+		type: FeatType.Minor,
+		source: StaticFeatSource.General,
+		level: 1,
+		description:
+			'You are particularly good at double-digit basic arithmetic in your head, and you can quickly estimate the number of items in a group with relative accuracy at only a glance.',
+	}),
+	[Feat.UnreliableMemory]: new FeatDefinition<void>({
+		key: Feat.UnreliableMemory,
+		name: 'Unreliable Memory',
+		type: FeatType.Minor,
+		source: StaticFeatSource.General,
+		level: 1,
+		description:
+			'You gain a `+6` [[Circumstance Modifier | CM]] to all [[Memory]] Checks attempting to recall information; however, your rolls will be done in secret by the DM, and if you fail, you will confidently remember incorrect (or half-correct) versions of the truth.',
+	}),
 	[Feat.GirthCompensation]: new FeatDefinition<void>({
 		key: Feat.GirthCompensation,
 		name: 'Girth Compensation',
@@ -397,23 +443,14 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		level: 1,
 		description: 'You can use [[STR]] as the **Primary Attribute** for **Light Melee** weapons.',
 	}),
-	[Feat.QuickDraw]: new FeatDefinition<void>({
-		key: Feat.QuickDraw,
-		name: 'Quick Draw',
-		type: FeatType.Major,
-		source: StaticFeatSource.General,
-		level: 2,
-		description:
-			'If you have at least one hand free, you can spend 1 [[Focus_Point | FP]] to draw a Light Melee Weapon without spending an action.',
-	}),
 	[Feat.BlindSense]: new FeatDefinition<void>({
 		key: Feat.BlindSense,
 		name: 'Blind Sense',
 		type: FeatType.Major,
 		source: StaticFeatSource.General,
-		level: 3,
+		level: 2,
 		description:
-			'Your strong connection to your Soul Realm allows you to expand your sense of hearing and smell. You can spend 1 [[Action_Point | AP]] and 2 [[Spirit_Point | SP]] to know the positions of any creature you are aware of within `6m` as well as if you could see them clearly. If they are explicitly trying to sneak, you get a +6 in your [[Perception]] Check.',
+			'Your strong connection to your Soul Realm allows you to expand your sense of hearing and smell. You can spend 1 [[Action_Point | AP]] and 2 [[Spirit_Point | SP]] to know the positions of any creature you are aware of within `6 Hexes` as well as if you could see them clearly. If they are explicitly trying to sneak, you get a +6 in your [[Perception]] Check.',
 	}),
 	// Class
 	[Feat.ClassSpecialization]: new FeatDefinition<ClassRole>({
@@ -583,10 +620,11 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 	[Feat.SpinAttack]: new FeatDefinition<void>({
 		key: Feat.SpinAttack,
 		name: 'Spin Attack',
-		type: FeatType.Major,
+		type: FeatType.Minor,
 		source: ClassRole.Melee,
 		level: 3,
-		description: 'Upgrade the **Sweep Attack** to target any number of adjacent creatures.',
+		description:
+			'Upgrade the **Sweep Attack** to target any number of creatures; they no longer need to be adjacent to each other.',
 	}),
 	// Ranged
 	[Feat.RefinedAiming]: new FeatDefinition<void>({
@@ -603,7 +641,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		name: 'Rapid Fire',
 		type: FeatType.Major,
 		source: ClassRole.Ranged,
-		level: 2,
+		level: 3,
 		description:
 			'Spend 2 [[Spirit_Points | SP]] (and the [[Action_Point | AP]] that it would cost) to use a [[Strike]] action for **Basic Ranged Attack** as a reaction; it loses the [[Concentrate]] trait.',
 	}),
@@ -614,6 +652,15 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassRole.Ranged,
 		level: 2,
 		description: 'You can perform the [[Stun]] action with **Ranged Attacks**.',
+	}),
+	[Feat.QuickDraw]: new FeatDefinition<void>({
+		key: Feat.QuickDraw,
+		name: 'Quick Draw',
+		type: FeatType.Minor,
+		source: StaticFeatSource.General,
+		level: 3,
+		description:
+			'If you have at least one hand free, you can spend 1 [[Focus_Point | FP]] to draw a Light Melee Weapon without spending an action.',
 	}),
 	[Feat.DoubleShot]: new FeatDefinition<void>({
 		key: Feat.DoubleShot,
@@ -653,7 +700,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 	[Feat.BulkyFrame]: new FeatDefinition<void>({
 		key: Feat.BulkyFrame,
 		name: 'Bulky Frame',
-		type: FeatType.Minor,
+		type: FeatType.Major,
 		source: ClassRole.Tank,
 		level: 2,
 		description:
@@ -676,7 +723,16 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		source: ClassFlavor.Martial,
 		level: 2,
 		description:
-			'When you would inflict additional damage through a **Basic Melee Strike** to an enemy via **Crit Shifts**, you can instead attempt to distribute that additional Shift damage to any other adjacent creatures that would have been valid targets for this attack; they can resist with a [[Evasiveness]], [[Toughness]] or [[Karma]] Check.',
+			'When you would inflict additional damage through a **Basic Melee Strike** to an enemy via **Crit Shifts**, you can instead attempt to distribute that additional Shift damage to any other adjacent creatures that would have been valid targets for this attack; they have to resist as if they were the target of the attack, but **Shifts** are not considered for this second roll.',
+	}),
+	[Feat.WeaponHoning]: new FeatDefinition<void>({
+		key: Feat.WeaponHoning,
+		name: 'Weapon Honing',
+		type: FeatType.Minor,
+		source: ClassFlavor.Martial,
+		level: 3,
+		description:
+			'You can spend a few hours and 1 [[Spirit_Point | SP]] to hone and carefully refine your weapon to your personal style, preferences and needs, creating a unique connection between you and it. This connection will last until the end of the day, as it fades away in your memory, but while it lasts, the weapon will concede an additional `+1` Equipment Modifier bonus to your [[Strike]] actions.',
 	}),
 	// Survivalist
 	[Feat.Rage]: new FeatDefinition<void>({
@@ -702,9 +758,18 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		name: 'Disregard Cover',
 		type: FeatType.Major,
 		source: ClassFlavor.Survivalist,
-		level: 4,
+		level: 2,
 		description:
 			'You can consider **Passive Cover** for your **Ranged Attacks** to be of one degree less than it would otherwise be.',
+	}),
+	[Feat.Potioneer]: new FeatDefinition<void>({
+		key: Feat.Potioneer,
+		name: 'Potioneer',
+		type: FeatType.Minor,
+		source: ClassFlavor.Survivalist,
+		level: 3,
+		description:
+			'You can spend a few hours to forage for ingredients on the appropriate environment with an [[Intuition]] Check. You can also spend a few hours and 1 [[Spirit_Point | SP]] to brew a salve that can be used to heal an amount of points (determined by a [[Knowledge]] Check) of either [[Vitality_Point | VP]], [[Focus_Point | FP]] or [[Spirit_Point | SP]] (your choice). The salve will lose potency and expire after a few days to a week.',
 	}),
 	// Scoundrel
 	[Feat.FancyFootwork]: new FeatDefinition<void>({
@@ -728,7 +793,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 	[Feat.Leverage]: new FeatDefinition<void>({
 		key: Feat.Leverage,
 		name: 'Leverage',
-		type: FeatType.Minor,
+		type: FeatType.Major,
 		source: ClassFlavor.Scoundrel,
 		level: 2,
 		description:
@@ -739,7 +804,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		name: 'Beginners Luck',
 		type: FeatType.Minor,
 		source: ClassFlavor.Scoundrel,
-		level: 2,
+		level: 3,
 		description:
 			'You can use a [[Focus_Point | FP]] to pay for a [[Luck_Die | Luck Die]] for a Check of a Skill you do not have any points invested in.',
 	}),
