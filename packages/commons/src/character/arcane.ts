@@ -53,7 +53,7 @@ The **Caster** must be familiar with the material being conjured; we can assume 
 	},
 	[ArcaneSpellSchool.Telekinesis]: {
 		name: 'Telekinesis',
-		description: `The **Telekinesis** Fundamental Arcane Spell can be used to impart motion up to 2kg of matter consistently but at moderate speeds, within the selected range (the object can be thrown outside the range but control is lost at that point). Telekinesis can be used to manipulate objects, such as doors or levers, but the required level of dexterity will add some Augmentation. While Beings cannot be directly imparted energy, the Caster can control the air around them to push or shove, in a however less effective and precise manner.`,
+		description: `The **Telekinesis** Fundamental Arcane Spell can be used to impart motion up to 2kg of matter consistently but at moderate speeds, within the selected range (the object can be thrown outside the range but control is lost at that point). Telekinesis can be used to manipulate objects, such as doors or levers, but the required level of dexterity will add some Augmentation.\n\nWhile Beings cannot be directly imparted energy, the **Caster** can control the air around them to push or shove, in a however less effective and precise manner.`,
 	},
 };
 

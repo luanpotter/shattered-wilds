@@ -112,7 +112,7 @@ The typical casting time of the Fundamental Arcane Spell is **2AP**. The table b
 | 3  | +2                    |
 | 4  | +4                    |
 
-Extending the casting time over longer periods has severe diminishing returns, and would be impractical during an **Encounter**. When casting a Spell with no time sensitivity, the caster can choose to cast as a **Ritual**, taking about 15 minutes for a maximum of `+6` [[Circumstance_Modifier | CM]].
+Extending the casting time over longer periods has severe diminishing returns, and would be impractical during an **Encounter**. When casting a Spell with no time sensitivity, the **Caster** can choose to cast as a **Ritual**, taking about 15 minutes for a maximum of `+6` [[Circumstance_Modifier | CM]].
 
 That means a Level 1 **Caster**, with typically a `+3` primary attribute bonus, `+3` component bonus and `+6` _Casting Time_ augmentation, can reasonably guarantee (with miniscule chance of failure) the cast of a **Fundamental Arcane Spell** with no other augmentations through a **Ritual**.
 
