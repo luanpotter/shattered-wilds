@@ -85,7 +85,7 @@ export const FeatSelectionModal: React.FC<FeatSelectionModalProps> = ({ characte
 						<div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
 							<span style={{ fontWeight: 'bold' }}>{feat.name}</span>
 							<span style={{ fontStyle: 'italic' }}>
-								{feat.type} Level {feat.level} {feat.source} Feat
+								{feat.type} Level {feat.level} {sheet.applicableSource(feat)} Feat
 							</span>
 						</div>
 						<div style={{ fontSize: '0.9em' }}>

@@ -1,5 +1,5 @@
 import { CharacterClass, CLASS_DEFINITIONS, ClassDefinition } from '../core/classes.js';
-import { FeatInfo, FeatSource, FeatType, StaticFeatSource, FEATS, FeatCategory } from '../core/feats.js';
+import { FeatInfo, FEATS, FeatType } from '../core/feats.js';
 
 export class ClassInfo {
 	characterClass: CharacterClass;
@@ -14,21 +14,14 @@ export class ClassInfo {
 		return new ClassInfo(characterClass);
 	}
 
-	private getClassFeatSources(): FeatSource[] {
-		const classDefinition = CLASS_DEFINITIONS[this.characterClass];
-		return [StaticFeatSource.ClassRole, classDefinition.realm, classDefinition.role, classDefinition.flavor];
-	}
-
 	get definition(): ClassDefinition {
 		return CLASS_DEFINITIONS[this.characterClass];
 	}
 
 	getCoreFeats(): FeatInfo<string | void>[] {
-		const classFeatCategories = [FeatCategory.ClassFlavor, FeatCategory.ClassRole];
-		const classFeatSources = this.getClassFeatSources();
 		const classFeats = Object.values(FEATS)
-			.filter(feat => feat.type === FeatType.Core && classFeatCategories.includes(feat.category))
-			.filter(feat => classFeatSources.includes(feat.source));
+			.filter(feat => feat.fitsClass(this.definition))
+			.filter(feat => feat.type === FeatType.Core);
 
 		const classDefinition = CLASS_DEFINITIONS[this.characterClass];
 		const parameters = {

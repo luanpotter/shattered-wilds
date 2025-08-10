@@ -1,4 +1,4 @@
-import { FeatCategory, FeatInfo, FEATS, FeatSource, FeatType, StaticFeatSource } from '../core/feats.js';
+import { FeatInfo, FEATS, FeatType } from '../core/feats.js';
 import { Race, RACE_DEFINITIONS, Upbringing } from '../core/races.js';
 import { Size } from '../core/size.js';
 import { StatType } from '../stats/stat-type.js';
@@ -49,17 +49,11 @@ export class RaceInfo {
 		);
 	}
 
-	private getRacialFeatSources(): FeatSource[] {
-		return [StaticFeatSource.Race, StaticFeatSource.Upbringing, this.primaryRace, this.upbringing];
-	}
-
 	// Get the core feats that should be assigned to this race/upbringing combination
 	getCoreFeats(): FeatInfo<string | void>[] {
-		const racialFeatCategories = [FeatCategory.Racial, FeatCategory.Upbringing];
-		const racialFeatSources = this.getRacialFeatSources();
 		const racialFeats = Object.values(FEATS)
-			.filter(feat => feat.type === FeatType.Core && racialFeatCategories.includes(feat.category))
-			.filter(feat => racialFeatSources.includes(feat.source));
+			.filter(feat => feat.fitsRace(this.primaryRace, this.upbringing))
+			.filter(feat => feat.type === FeatType.Core);
 
 		const parameters = {
 			race: this.primaryRace,

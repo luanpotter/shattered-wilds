@@ -1,4 +1,4 @@
-import { FeatCategory, FeatDefinition, FeatInfo, FEATS, FeatSlot, FeatType } from '@shattered-wilds/commons';
+import { FeatDefinition, FeatInfo, FEATS, FeatSlot, FeatType } from '@shattered-wilds/commons';
 import * as TypeComparator from 'type-comparator';
 
 import { CharacterSheet } from './character-sheet';
@@ -48,8 +48,10 @@ export enum FeatSlotWarning {
 	Empty = 'Empty',
 	// an extra slot from Specialized Training that is filled while the character does not have the Specialized Training feat
 	InvalidExtra = 'InvalidExtra',
-	// a feat that does not fit the slot or does not belong to the character's class
-	InvalidUnfit = 'InvalidUnfit',
+	// a feat that does not fit the slot or character
+	InvalidFeatUnfit = 'InvalidFeatUnfit',
+	// a slot that does not exist for the character
+	InvalidSlotUnfit = 'InvalidSlotUnfit',
 }
 
 export class FeatsLevelSection {
@@ -99,17 +101,14 @@ export class FeatsSection {
 		const comparator = TypeComparator.queue([
 			TypeComparator.map((x: FeatDefinition<string | void>) => x.level, TypeComparator.desc),
 			TypeComparator.map((x: FeatDefinition<string | void>) => x.type === FeatType.Major, TypeComparator.desc),
-			TypeComparator.map(
-				(x: FeatDefinition<string | void>) => (x.category === FeatCategory.General ? 1 : 0),
-				TypeComparator.asc,
-			),
+			TypeComparator.map((x: FeatDefinition<string | void>) => (x.isGeneral ? 1 : 0), TypeComparator.asc),
 		]);
 		return (
 			Object.values(FEATS)
 				// fits the slot
 				.filter(feat => feat.fitsSlot(slot))
 				// fits the character sheet
-				.filter(feat => feat.fitsClass(sheet.characterClass.definition))
+				.filter(feat => sheet.fitsFeat(feat))
 				// not already slotted
 				.filter(feat => feat.parameter || !this.hasFeat(feat))
 				.sort(comparator)
@@ -158,10 +157,10 @@ export class FeatsSection {
 		sheet: CharacterSheet,
 	): FeatSlotWarning | undefined => {
 		if (!slot || !feat.feat.fitsSlot(slot)) {
-			return FeatSlotWarning.InvalidUnfit;
+			return FeatSlotWarning.InvalidSlotUnfit;
 		}
-		if (!feat.feat.fitsClass(sheet.characterClass.definition)) {
-			return FeatSlotWarning.InvalidUnfit;
+		if (!sheet.fitsFeat(feat.feat)) {
+			return FeatSlotWarning.InvalidFeatUnfit;
 		}
 		if (slot.isExtra && !sheet.feats.hasSpecializedTraining) {
 			return FeatSlotWarning.InvalidExtra;

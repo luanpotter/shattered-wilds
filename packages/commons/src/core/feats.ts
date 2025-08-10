@@ -52,7 +52,7 @@ export class FeatDefinition<T extends string | void> {
 	key: Feat;
 	name: string;
 	type: FeatType;
-	source: FeatSource;
+	sources: FeatSource[];
 	level: number;
 	description: string;
 	parameter: FeatParameter<T> | undefined;
@@ -63,7 +63,7 @@ export class FeatDefinition<T extends string | void> {
 		key,
 		name,
 		type,
-		source,
+		sources,
 		level,
 		description,
 		parameter,
@@ -73,7 +73,7 @@ export class FeatDefinition<T extends string | void> {
 		key: Feat;
 		name: string;
 		type: FeatType;
-		source: FeatSource;
+		sources: FeatSource[];
 		level: number;
 		description: string;
 		parameter?: FeatParameter<T>;
@@ -83,7 +83,7 @@ export class FeatDefinition<T extends string | void> {
 		this.key = key;
 		this.name = name;
 		this.type = type;
-		this.source = source;
+		this.sources = sources;
 		this.level = level;
 		this.description = description;
 		this.parameter = parameter ?? undefined;
@@ -100,8 +100,16 @@ export class FeatDefinition<T extends string | void> {
 		return this.effects?.(info) ?? [];
 	}
 
-	get category(): FeatCategory {
-		switch (this.source) {
+	get categories(): FeatCategory[] {
+		return this.sources.map(FeatDefinition.categoryFromSource);
+	}
+
+	get isGeneral(): boolean {
+		return this.sources.includes(StaticFeatSource.General);
+	}
+
+	static categoryFromSource(source: FeatSource): FeatCategory {
+		switch (source) {
 			case StaticFeatSource.General:
 				return FeatCategory.General;
 			case StaticFeatSource.ClassRole:
@@ -113,23 +121,23 @@ export class FeatDefinition<T extends string | void> {
 		}
 
 		// Handle enum instances
-		if (Object.values(Race).includes(this.source as Race)) {
+		if (Object.values(Race).includes(source as Race)) {
 			return FeatCategory.Racial;
 		}
-		if (Object.values(Upbringing).includes(this.source as Upbringing)) {
+		if (Object.values(Upbringing).includes(source as Upbringing)) {
 			return FeatCategory.Upbringing;
 		}
-		if (Object.values(ClassRole).includes(this.source as ClassRole)) {
+		if (Object.values(ClassRole).includes(source as ClassRole)) {
 			return FeatCategory.ClassRole;
 		}
-		if (Object.values(ClassFlavor).includes(this.source as ClassFlavor)) {
+		if (Object.values(ClassFlavor).includes(source as ClassFlavor)) {
 			return FeatCategory.ClassFlavor;
 		}
-		if (Object.values(ClassRealm).includes(this.source as ClassRealm)) {
-			return FeatCategory.ClassRole; // Based on your usage in FEATS
+		if (Object.values(ClassRealm).includes(source as ClassRealm)) {
+			return FeatCategory.ClassRole;
 		}
 
-		throw new Error(`Unknown feat source: ${this.source}`);
+		throw new Error(`Unknown feat source: ${source}`);
 	}
 
 	fitsSlot(slot: FeatSlot): boolean {
@@ -152,13 +160,49 @@ export class FeatDefinition<T extends string | void> {
 	}
 
 	fitsClass(classDef: ClassDefinition): boolean {
-		switch (this.category) {
-			case FeatCategory.General:
-				return true;
+		return this.sources.some(source => FeatDefinition.doesSourceFitClass(source, classDef));
+	}
+
+	fitsRace(race: Race, upbringing: Upbringing): boolean {
+		return this.sources.some(source => FeatDefinition.doesSourceFitRace(source, race, upbringing));
+	}
+
+	fitsCharacter(classDef: ClassDefinition, race: Race, upbringing: Upbringing): boolean {
+		return this.sources.some(source => FeatDefinition.doesSourceFitCharacter(source, classDef, race, upbringing));
+	}
+
+	static doesSourceFitCharacter(
+		source: FeatSource,
+		classDef: ClassDefinition,
+		raceDef: Race,
+		upbringingDef: Upbringing,
+	): boolean {
+		return (
+			source === StaticFeatSource.General ||
+			FeatDefinition.doesSourceFitClass(source, classDef) ||
+			FeatDefinition.doesSourceFitRace(source, raceDef, upbringingDef)
+		);
+	}
+
+	private static doesSourceFitClass(source: FeatSource, classDef: ClassDefinition): boolean {
+		const category = FeatDefinition.categoryFromSource(source);
+		switch (category) {
 			case FeatCategory.ClassRole:
-				return classDef.role === this.source;
+				return classDef.role === source || source === StaticFeatSource.ClassRole;
 			case FeatCategory.ClassFlavor:
-				return classDef.flavor === this.source;
+				return classDef.flavor === source;
+			default:
+				return false;
+		}
+	}
+
+	private static doesSourceFitRace(source: FeatSource, race: Race, upbringing: Upbringing): boolean {
+		const category = FeatDefinition.categoryFromSource(source);
+		switch (category) {
+			case FeatCategory.Racial:
+				return source === race || source === StaticFeatSource.Race;
+			case FeatCategory.Upbringing:
+				return source === upbringing || source === StaticFeatSource.Upbringing;
 			default:
 				return false;
 		}
@@ -374,7 +418,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.TradeSpecialization,
 		name: 'Trade Specialization',
 		type: FeatType.Minor,
-		source: StaticFeatSource.General,
+		sources: [StaticFeatSource.General],
 		level: 1,
 		description:
 			'You are acquainted with a specific trade, allowing you to perform basic tasks associated with it, such as a Blacksmith, Bookbinder, Carpenter, Cartographer, Chandler, Clothier, Cook, Farmer, Fisher, Fletcher, Herbalist, Jeweler, Locksmith, Mason, Miner, Potter, Tanner, Weaver, Weaver, Woodcutter, etc. You can pick this Feat multiple times for different trades.',
@@ -389,7 +433,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.ToolProficiency,
 		name: 'Tool Proficiency',
 		type: FeatType.Minor,
-		source: StaticFeatSource.General,
+		sources: [StaticFeatSource.General],
 		level: 1,
 		description:
 			'You are proficient with a specific tool, granting you a `+3` [[Circumstance Modifier | CM]] when performing appropriate tasks using it. You can pick this Feat multiple times for different tools.',
@@ -404,7 +448,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.LipReading,
 		name: 'Lip Reading',
 		type: FeatType.Minor,
-		source: StaticFeatSource.General,
+		sources: [StaticFeatSource.General],
 		level: 1,
 		description: 'You can read lips to understand what people are saying when you can see them clearly.',
 	}),
@@ -412,7 +456,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.AnimalMimicry,
 		name: 'Animal Mimicry',
 		type: FeatType.Minor,
-		source: StaticFeatSource.General,
+		sources: [StaticFeatSource.General],
 		level: 1,
 		description:
 			'You have an uncanny knack for mimicking animal sounds. If you are familiar with it, and a humanoid could conceivably reproduce it, you can make a good-enough impression that an untrained ear could not distinguish it. An expert (such as someone with the Sylvan Upbringing) could run an [[Intuition]] Check (or [[Knowledge]] if they have reason to suspect) to try to assess the veracity of the sound.',
@@ -421,7 +465,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.Numberphile,
 		name: 'Numberphile',
 		type: FeatType.Minor,
-		source: StaticFeatSource.General,
+		sources: [StaticFeatSource.General],
 		level: 1,
 		description:
 			'You are particularly good at double-digit basic arithmetic in your head, and you can quickly estimate the number of items in a group with relative accuracy at only a glance.',
@@ -430,7 +474,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.UnreliableMemory,
 		name: 'Unreliable Memory',
 		type: FeatType.Minor,
-		source: StaticFeatSource.General,
+		sources: [StaticFeatSource.General],
 		level: 1,
 		description:
 			'You gain a `+6` [[Circumstance Modifier | CM]] to all [[Memory]] Checks attempting to recall information; however, your rolls will be done in secret by the DM, and if you fail, you will confidently remember incorrect (or half-correct) versions of the truth.',
@@ -439,7 +483,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.GirthCompensation,
 		name: 'Girth Compensation',
 		type: FeatType.Major,
-		source: StaticFeatSource.General,
+		sources: [StaticFeatSource.General],
 		level: 1,
 		description: 'You can use [[STR]] as the **Primary Attribute** for **Light Melee** weapons.',
 	}),
@@ -447,7 +491,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.BlindSense,
 		name: 'Blind Sense',
 		type: FeatType.Major,
-		source: StaticFeatSource.General,
+		sources: [StaticFeatSource.General],
 		level: 2,
 		description:
 			'Your strong connection to your Soul Realm allows you to expand your sense of hearing and smell. You can spend 1 [[Action_Point | AP]] and 2 [[Spirit_Point | SP]] to know the positions of any creature you are aware of within `6 Hexes` as well as if you could see them clearly. If they are explicitly trying to sneak, you get a +6 in your [[Perception]] Check.',
@@ -457,7 +501,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.ClassSpecialization,
 		name: 'Class Specialization',
 		type: FeatType.Core,
-		source: StaticFeatSource.ClassRole,
+		sources: [StaticFeatSource.ClassRole],
 		level: 1,
 		description: `+1 Attribute Modifier to the class's primary attribute`,
 		parameter: {
@@ -479,7 +523,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.RacialModifier,
 		name: 'Racial Modifier',
 		type: FeatType.Core,
-		source: StaticFeatSource.Race,
+		sources: [StaticFeatSource.Race],
 		level: 0,
 		description: '+1/-1 Racial Modifiers',
 		parameter: {
@@ -504,7 +548,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.UpbringingFavoredModifier,
 		name: 'Upbringing Favored Modifier',
 		type: FeatType.Core,
-		source: StaticFeatSource.Upbringing,
+		sources: [StaticFeatSource.Upbringing],
 		level: 0,
 		description: '+1 Upbringing Modifier',
 		parameter: {
@@ -525,7 +569,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.UpbringingDisfavoredModifier,
 		name: 'Upbringing Disfavored Modifier',
 		type: FeatType.Core,
-		source: StaticFeatSource.Upbringing,
+		sources: [StaticFeatSource.Upbringing],
 		level: 0,
 		description: '-1 Upbringing Modifier',
 		parameter: {
@@ -546,7 +590,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.SpecializedKnowledge,
 		name: 'Specialized Knowledge',
 		type: FeatType.Core,
-		source: StaticFeatSource.Upbringing,
+		sources: [StaticFeatSource.Upbringing],
 		level: 0,
 		description:
 			'You have `+3` to [[Knowledge]] or [[Intuition]] Checks about aspects related to a specific area of expertise.',
@@ -560,7 +604,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.SpecializedTraining,
 		name: 'Specialized Training',
 		type: FeatType.Core,
-		source: Upbringing.Urban,
+		sources: [Upbringing.Urban],
 		level: 0,
 		description: 'You gain two additional **Minor Feat** slots at Level 1.',
 	}),
@@ -568,7 +612,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.NomadicAlertness,
 		name: 'Nomadic Alertness',
 		type: FeatType.Core,
-		source: Upbringing.Nomadic,
+		sources: [Upbringing.Nomadic],
 		level: 0,
 		description:
 			'Can make [[Awareness]] Checks to spot danger while sleeping in the Wilds with no [[Circumstance Modifier | CM]] penalty.',
@@ -577,7 +621,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.TribalEndurance,
 		name: 'Tribal Endurance',
 		type: FeatType.Core,
-		source: Upbringing.Tribal,
+		sources: [Upbringing.Tribal],
 		level: 0,
 		description:
 			'Pay 1 [[Heroism_Point | Heroism Point]] to reduce your [[Exhaustion]] Level by 1 if you can directly tie a current task to your personal sense of duty to your tribe.',
@@ -586,7 +630,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.LightFeet,
 		name: 'Light Feet',
 		type: FeatType.Core,
-		source: Upbringing.Sylvan,
+		sources: [Upbringing.Sylvan],
 		level: 0,
 		description: 'Ignore **Difficult Terrain** due to natural vegetation, forest growth, etc.',
 	}),
@@ -594,7 +638,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.DarkVision,
 		name: 'Dark Vision',
 		type: FeatType.Core,
-		source: Upbringing.Telluric,
+		sources: [Upbringing.Telluric],
 		level: 0,
 		description: 'See black-and-white in the dark.',
 	}),
@@ -603,7 +647,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.SweepAttack,
 		name: 'Sweep Attack',
 		type: FeatType.Core,
-		source: ClassRole.Melee,
+		sources: [ClassRole.Melee],
 		level: 1,
 		description:
 			'You can spend `3` [[Action_Points | AP]] and `1` [[Focus_Points | FP]] to perform an advanced **Melee Strike** against up to three adjacent enemies within your reach. You roll once for all targets, but they resist separately.',
@@ -612,7 +656,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.OpportunityWindow,
 		name: 'Opportunity Window',
 		type: FeatType.Major,
-		source: ClassRole.Melee,
+		sources: [ClassRole.Melee],
 		level: 2,
 		description:
 			'You can spend `1` [[Spirit_Point | SP]] to reduce by `1` (min `1`) the amount of [[Action_Point | AP]] you would spend to perform the [[Opportunity_Attack | Opportunity Attack]] reaction.',
@@ -621,7 +665,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.SpinAttack,
 		name: 'Spin Attack',
 		type: FeatType.Minor,
-		source: ClassRole.Melee,
+		sources: [ClassRole.Melee],
 		level: 3,
 		description:
 			'Upgrade the **Sweep Attack** to target any number of creatures; they no longer need to be adjacent to each other.',
@@ -631,7 +675,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.RefinedAiming,
 		name: 'Refined Aiming',
 		type: FeatType.Core,
-		source: ClassRole.Ranged,
+		sources: [ClassRole.Ranged],
 		level: 1,
 		description:
 			'When using the [[Aim]] action, you can increase the base range of your Ranged Weapon by your [[Finesse]] modifier.',
@@ -640,7 +684,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.RapidFire,
 		name: 'Rapid Fire',
 		type: FeatType.Major,
-		source: ClassRole.Ranged,
+		sources: [ClassRole.Ranged],
 		level: 3,
 		description:
 			'Spend 2 [[Spirit_Points | SP]] (and the [[Action_Point | AP]] that it would cost) to use a [[Strike]] action for **Basic Ranged Attack** as a reaction; it loses the [[Concentrate]] trait.',
@@ -649,7 +693,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.PinningShot,
 		name: 'Pinning Shot',
 		type: FeatType.Major,
-		source: ClassRole.Ranged,
+		sources: [ClassRole.Ranged],
 		level: 2,
 		description: 'You can perform the [[Stun]] action with **Ranged Attacks**.',
 	}),
@@ -657,7 +701,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.QuickDraw,
 		name: 'Quick Draw',
 		type: FeatType.Minor,
-		source: StaticFeatSource.General,
+		sources: [ClassRole.Ranged],
 		level: 3,
 		description:
 			'If you have at least one hand free, you can spend 1 [[Focus_Point | FP]] to draw a Light Melee Weapon without spending an action.',
@@ -666,7 +710,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.DoubleShot,
 		name: 'Double Shot',
 		type: FeatType.Major,
-		source: ClassRole.Ranged,
+		sources: [ClassRole.Ranged],
 		level: 4,
 		description:
 			'You can spend 3 [[Spirit_Points | SP]] to shoot two projectiles with a single [[Strike]] action. Roll for each separately, one after the other.',
@@ -676,7 +720,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.ImprovedTaunt,
 		name: 'Improved Taunt',
 		type: FeatType.Core,
-		source: ClassRole.Tank,
+		sources: [ClassRole.Tank],
 		level: 1,
 		description:
 			'You can spend an additional 1 [[Spirit_Point | SP]] as you perform a [[Taunt]] action to get a +6 [[Circumstance Modifier | CM]] to your [[Presence]] Check.',
@@ -685,7 +729,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.QuickBash,
 		name: 'Quick Bash',
 		type: FeatType.Major,
-		source: ClassRole.Tank,
+		sources: [ClassRole.Tank],
 		level: 2,
 		description: 'You only need to spend 1 [[Action_Point | AP]] to perform a **Shield Bash** .',
 	}),
@@ -693,7 +737,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.ArmorFamiliarity,
 		name: 'Armor Familiarity',
 		type: FeatType.Minor,
-		source: ClassRole.Tank,
+		sources: [ClassRole.Tank],
 		level: 3,
 		description: 'You reduce your [[DEX]] penalty from wearing Armor by `1` (min `0`).',
 	}),
@@ -701,7 +745,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.BulkyFrame,
 		name: 'Bulky Frame',
 		type: FeatType.Major,
-		source: ClassRole.Tank,
+		sources: [ClassRole.Tank],
 		level: 2,
 		description:
 			'You have a `+6` [[Circumstance Modifier | CM]] to your [[Stance]] Checks to resist opponents of your size or larger attempting to [[Pass Through]] you.',
@@ -711,7 +755,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.ExertAuthority,
 		name: 'Exert Authority',
 		type: FeatType.Core,
-		source: ClassFlavor.Martial,
+		sources: [ClassFlavor.Martial],
 		level: 1,
 		description:
 			'Spend 1 [[Action_Point | AP]] and 1 [[Spirit_Point | SP]] to authoritatively command an ally that can see and hear you clearly to perform a specific 1 [[Action_Point | AP]] action of your choice. The ally can choose to perform the action immediately without spending any AP if they wish.',
@@ -720,7 +764,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.DistributedShifts,
 		name: 'Distributed Shifts',
 		type: FeatType.Major,
-		source: ClassFlavor.Martial,
+		sources: [ClassFlavor.Martial],
 		level: 2,
 		description:
 			'When you would inflict additional damage through a **Basic Melee Strike** to an enemy via **Crit Shifts**, you can instead attempt to distribute that additional Shift damage to any other adjacent creatures that would have been valid targets for this attack; they have to resist as if they were the target of the attack, but **Shifts** are not considered for this second roll.',
@@ -729,7 +773,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.WeaponHoning,
 		name: 'Weapon Honing',
 		type: FeatType.Minor,
-		source: ClassFlavor.Martial,
+		sources: [ClassFlavor.Martial],
 		level: 3,
 		description:
 			'You can spend a few hours and 1 [[Spirit_Point | SP]] to hone and carefully refine your weapon to your personal style, preferences and needs, creating a unique connection between you and it. This connection will last until the end of the day, as it fades away in your memory, but while it lasts, the weapon will concede an additional `+1` Equipment Modifier bonus to your [[Strike]] actions.',
@@ -739,7 +783,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.Rage,
 		name: 'Rage',
 		type: FeatType.Core,
-		source: ClassFlavor.Survivalist,
+		sources: [ClassFlavor.Survivalist],
 		level: 1,
 		description:
 			'You can spend 1 [[Action_Point | AP]] and 2 [[Spirit_Point | SP]] to become **Enraged**: reduce your [[Focus_Points | Focus Points]] to `1`, and it cannot be further reduced while you are **Enraged**; you cannot [[Concentrate]] while **Enraged**; and you gain a [[Circumstance Modifier | CM]] to your next **Basic Attacks** while **Enraged** that starts with `+6` and is reduced by `1` each time it is used. When the bonus reaches `0`, or you fail to perform at least on **Basic Attack** in your turn, you are no longer **Enraged**.',
@@ -748,7 +792,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.InstinctiveTracking,
 		name: 'Instinctive Tracking',
 		type: FeatType.Minor,
-		source: ClassFlavor.Survivalist,
+		sources: [ClassFlavor.Survivalist],
 		level: 2,
 		description:
 			'You get a `+3` [[Circumstance Modifier | CM]] to Checks you make related to tracking creatures (following footprints, etc).',
@@ -757,7 +801,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.DisregardCover,
 		name: 'Disregard Cover',
 		type: FeatType.Major,
-		source: ClassFlavor.Survivalist,
+		sources: [ClassFlavor.Survivalist],
 		level: 2,
 		description:
 			'You can consider **Passive Cover** for your **Ranged Attacks** to be of one degree less than it would otherwise be.',
@@ -766,7 +810,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.Potioneer,
 		name: 'Potioneer',
 		type: FeatType.Minor,
-		source: ClassFlavor.Survivalist,
+		sources: [ClassFlavor.Survivalist],
 		level: 3,
 		description:
 			'You can spend a few hours to forage for ingredients on the appropriate environment with an [[Intuition]] Check. You can also spend a few hours and 1 [[Spirit_Point | SP]] to brew a salve that can be used to heal an amount of points (determined by a [[Knowledge]] Check) of either [[Vitality_Point | VP]], [[Focus_Point | FP]] or [[Spirit_Point | SP]] (your choice). The salve will lose potency and expire after a few days to a week.',
@@ -776,7 +820,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.FancyFootwork,
 		name: 'Fancy Footwork',
 		type: FeatType.Core,
-		source: ClassFlavor.Scoundrel,
+		sources: [ClassFlavor.Scoundrel],
 		level: 1,
 		description:
 			'If you make a **Melee Basic Attack** against a target, you do not provoke [[Opportunity_Attack | Opportunity Attacks]] from that target until the end of the turn.',
@@ -785,7 +829,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.ThievesFingers,
 		name: 'Thieves Fingers',
 		type: FeatType.Minor,
-		source: ClassFlavor.Scoundrel,
+		sources: [ClassFlavor.Scoundrel],
 		level: 2,
 		description:
 			'You get a `+3` [[Circumstance Modifier | CM]] to any Checks you perform associated with lock picking or trap disarming. You can spend 1 [[Focus_Point | FP]] to get an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).',
@@ -794,7 +838,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.Leverage,
 		name: 'Leverage',
 		type: FeatType.Major,
-		source: ClassFlavor.Scoundrel,
+		sources: [ClassFlavor.Scoundrel],
 		level: 2,
 		description:
 			'If you would inflict additional damage through a **Basic Strike** to an enemy via **Crit Shifts**, you can instead spend any number of [[Spirit_Point | SP]] (up to your level) to inflict that many additional [[Vitality_Point | VP]] of damage. So for example if you get 2 **Shifts** for an attack (normal damage of 3), you can spend 2 [[Spirit_Point | SP]] to inflict 2 additional [[Vitality_Point | VP]] of damage (total damage of 5).',
@@ -803,7 +847,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.BeginnersLuck,
 		name: 'Beginners Luck',
 		type: FeatType.Minor,
-		source: ClassFlavor.Scoundrel,
+		sources: [ClassFlavor.Scoundrel],
 		level: 3,
 		description:
 			'You can use a [[Focus_Point | FP]] to pay for a [[Luck_Die | Luck Die]] for a Check of a Skill you do not have any points invested in.',
@@ -813,7 +857,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.ArcaneCasting,
 		name: 'Arcane Casting',
 		type: FeatType.Core,
-		source: ClassRealm.Caster,
+		sources: [ClassRealm.Caster],
 		level: 1,
 		description:
 			'Unlocks Arcane Casting. See [Arcane Spellcasting](/rules/arcane) for details on how the **Arcane** magic system works.',
@@ -829,7 +873,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.SignatureSpell,
 		name: 'Signature Spell',
 		type: FeatType.Core,
-		source: ClassFlavor.Arcanist,
+		sources: [ClassFlavor.Arcanist],
 		level: 1,
 		description:
 			'You can spend 1 [[Action_Point | AP]] and 1 [[Focus_Point | FP]] to cast a spell of your choice as a reaction.',
@@ -839,7 +883,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.ToolAssistedCasting,
 		name: 'Tool-Assisted Casting',
 		type: FeatType.Core,
-		source: ClassFlavor.Mechanist,
+		sources: [ClassFlavor.Mechanist],
 		level: 1,
 		description:
 			'You can create and use **One-Handed** (`+2`) and **Two-Handed** (`+3`) tools, crazy mechanical contraptions to assist you with the execution of **Somatic Spell Components**. You can use these tools to execute a **Somatic Component** of any spell, but you cannot use any other type of **Spell Component**.',
@@ -849,7 +893,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.FocalConnection,
 		name: 'Focal Connection',
 		type: FeatType.Core,
-		source: ClassFlavor.Naturalist,
+		sources: [ClassFlavor.Naturalist],
 		level: 1,
 		description:
 			'You can create and use a personal **Custom Focus** (`+4`) that is bound to you. You can use this **Custom Focus** to execute the **Focal Component** of any spell, but you cannot use any other type of **Spell Component**.',
@@ -859,7 +903,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.LyricResonance,
 		name: 'Lyric Resonance',
 		type: FeatType.Core,
-		source: ClassFlavor.Musicist,
+		sources: [ClassFlavor.Musicist],
 		level: 1,
 		description:
 			'You can use **One-Handed** (`+2`) and **Two-Handed** (`+3`) instruments to assist you with the execution of **Verbal Spell Components**. You can use these instruments to execute a **Verbal Component** of any spell, but you cannot use any other type of **Spell Component**.',
@@ -868,7 +912,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.TheresMoreToThisSong,
 		name: "There's More to This Song",
 		type: FeatType.Major,
-		source: ClassFlavor.Musicist,
+		sources: [ClassFlavor.Musicist],
 		level: 2,
 		description:
 			'You can attempt to hide a message in a song you are singing, only to be perceived by certain listeners. Roll a [[Speechcraft]] Check with `+6` [[Circumstance Modifier | CM]]; all listeners then contest with an [[IQ]] Check. The targets you wanted to understand get a `+3` [[Circumstance Modifier | CM]] to their Check, or a `+6` if they are aware that you are trying to hide a message.',
@@ -878,7 +922,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.DivineChanneling,
 		name: 'Divine Channeling',
 		type: FeatType.Core,
-		source: ClassRealm.Mystic,
+		sources: [ClassRealm.Mystic],
 		level: 1,
 		description:
 			'Unlocks Divine Channeling. See [Divine Channeling](/rules/divine) for details on how the **Divine** magic system works.',
@@ -888,7 +932,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.SacredCalm,
 		name: 'Sacred Calm',
 		type: FeatType.Core,
-		source: ClassRole.Adept,
+		sources: [ClassRole.Adept],
 		level: 1,
 		description:
 			'You can perform the [[Calm]] action on an ally that you can touch. You can spend an additional 1 [[Focus_Point | FP]] to get a +3 [[Circumstance Modifier | CM]] when performing the [[Calm]] action.',
@@ -898,7 +942,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.FlurryOfBlows,
 		name: 'Flurry of Blows',
 		type: FeatType.Core,
-		source: ClassRole.Disciple,
+		sources: [ClassRole.Disciple],
 		level: 1,
 		description:
 			'You can spend 1 [[Spirit_Point | SP]] to make an unarmed [[Strike]] cost only 1 [[Action_Point | AP]].',
@@ -907,7 +951,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.ChannelingFists,
 		name: 'Channeling Fists',
 		type: FeatType.Major,
-		source: ClassRole.Disciple,
+		sources: [ClassRole.Disciple],
 		level: 2,
 		description: `You can spend 1 [[Spirit_Point | SP]] to get a +1 [[Circumstance Modifier | CM]] to an unarmed Attack Check.
 			
@@ -917,7 +961,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.CallousFists,
 		name: 'Callous Fists',
 		type: FeatType.Minor,
-		source: ClassRole.Disciple,
+		sources: [ClassRole.Disciple],
 		level: 2,
 		description: 'You can use [[CON]] instead of [[STR]] to perform unarmed attacks.',
 	}),
@@ -925,7 +969,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.SpiritToFlesh,
 		name: 'Spirit to Flesh',
 		type: FeatType.Minor,
-		source: ClassRole.Disciple,
+		sources: [ClassRole.Disciple],
 		level: 3,
 		description:
 			'You can resist the effects of **Transfiguration** spells against your body using your [[FOW]] instead of [[Toughness]].',
@@ -935,7 +979,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.BountifulLuck,
 		name: 'Bountiful Luck',
 		type: FeatType.Core,
-		source: ClassRole.Inspired,
+		sources: [ClassRole.Inspired],
 		level: 1,
 		description:
 			'You can spend [[Spirit_Points | SP]] instead of [[Heroism_Points | Heroism Points]] to use the [[Karmic_Resistance | Karmic Resistance]], [[Write_History | Write History]] and [[Luck_Die | Luck Die]] actions.',
@@ -944,7 +988,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.LuckyRelentlessness,
 		name: 'Lucky Relentlessness',
 		type: FeatType.Minor,
-		source: ClassRole.Inspired,
+		sources: [ClassRole.Inspired],
 		level: 2,
 		description: 'Your DC for the [[Heroic_Relentlessness | Heroic Relentlessness]] action is `15`.',
 	}),
@@ -952,7 +996,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.FavorableMovement,
 		name: 'Favorable Movement',
 		type: FeatType.Major,
-		source: ClassRole.Inspired,
+		sources: [ClassRole.Inspired],
 		level: 3,
 		description:
 			'You can spend 1 [[Focus_Point | FP]] to ignore the **Difficult Terrain** trait of a hex while moving through it.',
@@ -962,7 +1006,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.EffortlessAttuning,
 		name: 'Effortless Attuning',
 		type: FeatType.Core,
-		source: ClassFlavor.Devout,
+		sources: [ClassFlavor.Devout],
 		level: 1,
 		description:
 			'Whenever you would spend [[Spirit_Point | Spirit Points]] to use an **Imbued Item** that would otherwise not require an [[Attunement]] Check, you can make an [[Attunement]] Check DC 15 to spend one less [[Spirit_Point | SP]].',
@@ -971,7 +1015,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.FocusedChanneling,
 		name: 'Focused Channeling',
 		type: FeatType.Minor,
-		source: ClassFlavor.Devout,
+		sources: [ClassFlavor.Devout],
 		level: 3,
 		description:
 			"You can spend 2 [[Focus_Points | FP]] (and add the [[Concentrate]] trait, if it didn't have it already) when doing an action with the [[Channeling]] trait to get a +3 [[Circumstance Modifier | CM]].",
@@ -982,7 +1026,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.DivineSmite,
 		name: 'Divine Smite',
 		type: FeatType.Core,
-		source: ClassFlavor.Crusader,
+		sources: [ClassFlavor.Crusader],
 		level: 1,
 		description:
 			'You can spend 2 [[Spirit_Point | SP]] when striking with a weapon to get a +3 [[Circumstance Modifier | CM]] as you channel raw power into it, making it acquire a distinct glow as you lift it to strike.',
@@ -991,7 +1035,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.SpiritualArmor,
 		name: 'Spiritual Armor',
 		type: FeatType.Minor,
-		source: ClassFlavor.Crusader,
+		sources: [ClassFlavor.Crusader],
 		level: 2,
 		description:
 			'You can roll the [[Shrug_Off | Shrug Off]] action using your **Primary Attribute** instead of [[Toughness]].',

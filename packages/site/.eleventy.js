@@ -143,7 +143,8 @@ export default function (eleventyConfig) {
 	eleventyConfig.addShortcode('item', processor.shortcodes.item);
 	eleventyConfig.addShortcode('text', processor.shortcodes.text);
 	eleventyConfig.addShortcode('list', processor.shortcodes.list);
-	eleventyConfig.addShortcode('list_feats_for_class', processor.shortcodes.listFeatsForClass);
+	eleventyConfig.addShortcode('list_feats_for_class', processor.shortcodes.list_feats_for_class);
+	eleventyConfig.addShortcode('list_feats_for_source', processor.shortcodes.list_feats_for_source);
 	eleventyConfig.addShortcode('TODO', processor.shortcodes.TODO);
 
 	return {

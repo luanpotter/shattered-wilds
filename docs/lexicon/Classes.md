@@ -28,7 +28,7 @@ Melee Warriors focus on Strength, and thus are favored to use **Heavy Melee** or
 
 <details>
   <summary>Melee Warriors Feats</summary>
-  {% list "Feat", "level", "source" "Melee" %}
+  {% list_feats_for_source "Melee" %}
 </details>
 
 ### Ranged Warriors
@@ -37,7 +37,7 @@ Ranged Warriors focus on Dexterity, and thus are favored to use **Light Melee** 
 
 <details>
   <summary>Ranged Warriors Feats</summary>
-  {% list "Feat", "level", "source" "Ranged" %}
+  {% list_feats_for_source "Ranged" %}
 </details>
 
 ### Tank Warriors
@@ -46,28 +46,28 @@ Tank Warriors focus on Constitution, and thus are focused on defense and therefo
 
 <details>
   <summary>Tank Warriors Feats</summary>
-  {% list "Feat", "level", "source" "Tank" %}
+  {% list_feats_for_source "Tank" %}
 </details>
 
 ### Martial Warriors
 
 <details>
   <summary>Martial Warriors Feats</summary>
-  {% list "Feat", "level", "source" "Martial" %}
+  {% list_feats_for_source "Martial" %}
 </details>
 
 ### Survivalist Warriors
 
 <details>
   <summary>Survivalist Warriors Feats</summary>
-  {% list "Feat", "level", "source" "Survivalist" %}
+  {% list_feats_for_source "Survivalist" %}
 </details>
 
 ### Scoundrel Warriors
 
 <details>
   <summary>Scoundrel Warriors Feats</summary>
-  {% list "Feat", "level", "source" "Scoundrel" %}
+  {% list_feats_for_source "Scoundrel" %}
 </details>
 
 ## Casters
@@ -92,7 +92,7 @@ The Arcanist is the generalist **Caster**; they are able to use all types of **S
 
 <details>
   <summary>Arcanist Feats</summary>
-  {% list "Feat", "level", "source" "Arcanist" %}
+  {% list_feats_for_source "Arcanist" %}
 </details>
 
 ### The Mechanist
@@ -101,7 +101,7 @@ The Mechanist is able to use tools and devices that they can devise to assist wi
 
 <details>
   <summary>Mechanist Feats</summary>
-  {% list "Feat", "level", "source" "Mechanist" %}
+  {% list_feats_for_source "Mechanist" %}
 </details>
 
 ### The Naturalist
@@ -110,7 +110,7 @@ The Naturalist is able to use the natural world around them to assist with the e
 
 <details>
   <summary>Naturalist Feats</summary>
-  {% list "Feat", "level", "source" "Naturalist" %}
+  {% list_feats_for_source "Naturalist" %}
 </details>
 
 ### The Musicist
@@ -119,7 +119,7 @@ The Musicist is able to use music and instruments to assist with the execution o
 
 <details>
   <summary>Musicist Feats</summary>
-  {% list "Feat", "level", "source" "Musicist" %}
+  {% list_feats_for_source "Musicist" %}
 </details>
 
 ## Mystics
@@ -169,7 +169,7 @@ A character can attempt to **Pray** on any longer moments of peace and quiet (li
 
 <details>
   <summary>Adept Feats</summary>
-  {% list "Feat", "level", "source" "Adept" %}
+  {% list_feats_for_source "Adept" %}
 </details>
 
 ## The Disciple
@@ -178,7 +178,7 @@ The **Disciple** is a **Mystic** who is able to channel the power within their *
 
 <details>
   <summary>Disciple Feats</summary>
-  {% list "Feat", "level", "source" "Disciple" %}
+  {% list_feats_for_source "Disciple" %}
 </details>
 
 ## The Inspired
@@ -187,7 +187,7 @@ The **Inspired** is a **Mystic** who is able to receive their [[LCK]] through an
 
 <details>
   <summary>Inspired Feats</summary>
-  {% list "Feat", "level", "source" "Inspired" %}
+  {% list_feats_for_source "Inspired" %}
 </details>
 
 ## Flavor: Devout
@@ -196,7 +196,7 @@ The **Devout** will be completely focused on their channeling, instead of diverg
 
 <details>
   <summary>Devout Feats</summary>
-  {% list "Feat", "level", "source" "Devout" %}
+  {% list_feats_for_source "Devout" %}
 </details>
 
 ## Flavor: Mixed
@@ -211,7 +211,7 @@ Of the three **Flavors**, the **Crusader** will have the most focus on martial e
 
 <details>
   <summary>Crusader Feats</summary>
-  {% list "Feat", "level", "source" "Crusader" %}
+  {% list_feats_for_source "Crusader" %}
 </details>
 
 ## Archetypes

@@ -24,6 +24,8 @@ import {
 	Weapon,
 	Shield,
 	Armor,
+	FeatDefinition,
+	FeatSource,
 } from '@shattered-wilds/commons';
 
 import { BasicAttack, DefenseType, DEFENSE_TYPE_PROPERTIES } from './core';
@@ -172,6 +174,21 @@ export class CharacterSheet {
 
 	get level(): number {
 		return this.getStatTree().root.points;
+	}
+
+	fitsFeat(feat: FeatDefinition<string | void>): boolean {
+		return feat.fitsCharacter(this.characterClass.definition, this.race.primaryRace, this.race.upbringing);
+	}
+
+	applicableSource(feat: FeatDefinition<string | void>): FeatSource | undefined {
+		return feat.sources.find(source =>
+			FeatDefinition.doesSourceFitCharacter(
+				source,
+				this.characterClass.definition,
+				this.race.primaryRace,
+				this.race.upbringing,
+			),
+		);
 	}
 
 	getResource(resource: Resource): ResourceValue {

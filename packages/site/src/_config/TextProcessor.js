@@ -23,15 +23,21 @@ export class TextProcessor {
 				);
 				return this.renderList(group, sortKey, filterPairs);
 			},
-			listFeatsForClass: classSlug => {
+			list_feats_for_class: classSlug => {
 				const classEntry = this.wiki[classSlug];
 				if (!classEntry) {
 					throw new Error(`Missing class entry: ${classSlug}`);
 				}
-				const filter = e =>
-					e.source === classEntry.role || e.source === classEntry.flavor || e.source === classEntry.name;
+				const filterSource = source =>
+					source === classEntry.role || source === classEntry.flavor || source === classEntry.name;
+				const filterFeat = feat => feat.sources.some(filterSource);
 				const order = ['level', 'isNotCore'];
-				return this.renderListWithSortAndFilter('Feat', order, filter, []);
+				return this.renderListWithSortAndFilter('Feat', order, filterFeat, []);
+			},
+			list_feats_for_source: source => {
+				const filterFeat = feat => feat.sources.includes(source);
+				const order = ['level', 'isNotCore'];
+				return this.renderListWithSortAndFilter('Feat', order, filterFeat, ['source']);
 			},
 			TODO: value => {
 				const addMark = value => `<mark class="todo">${value}</mark>`;
