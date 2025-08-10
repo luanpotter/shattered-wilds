@@ -21,7 +21,14 @@ export enum ArcaneSpellSchool {
 	Telekinesis = 'Telekinesis',
 }
 
-export const ARCANE_SCHOOLS: Record<ArcaneSpellSchool, { name: string; description: string }> = {
+export type ArcaneSpellSchoolDefinition = {
+	name: string;
+	description: string;
+};
+
+export const FUNDAMENTAL_ARCANE_SPELL_DESCRIPTION = `The **Fundamental Arcane Spell** is the basic spell that all other spells are based on. In the most broad form, it can be used as a **Mind Attack** against **Body** ([[Rock Smash]]), **Mind** ([[Confuse Mind]]) or **Soul Defenses** ([[Erode Will]]).\n\nSelecting a specific **School** will provide more details about the **Fundamental Arcane Spell** tailored to that school.`;
+
+export const ARCANE_SCHOOLS: Record<ArcaneSpellSchool, ArcaneSpellSchoolDefinition> = {
 	[ArcaneSpellSchool.Conjuration]: {
 		name: 'Conjuration',
 		description: `The **Conjuration** Fundamental Arcane Spell can be used to create between 1-10L of simple, homogeneous, inorganic matter of a simple material (dirt, gravel, sand, weak rocks), in a space unoccupied (by solid matter or Beings), arranged in a vaguely, imprecise, contiguous, convex spherical blob (or to fill an existing hole). Any fluid matter in the location will be displaced (therefore matter cannot be created in hermetically sealed containers).

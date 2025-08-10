@@ -1,5 +1,6 @@
 import {
 	ActionCost,
+	ARCANE_SCHOOLS,
 	ARCANE_SPELL_COMPONENTS,
 	ArcaneSpellComponentType,
 	ArcaneSpellDefinition,
@@ -11,6 +12,7 @@ import {
 	CircumstanceModifier,
 	DerivedStatType,
 	Distance,
+	FUNDAMENTAL_ARCANE_SPELL_DESCRIPTION,
 	ModifierSource,
 	PREDEFINED_ARCANE_SPELLS,
 	Resource,
@@ -61,8 +63,11 @@ const ArcaneSectionInner: React.FC<{
 	const { useState, useStateArrayItem } = useUIStateFactory(`actions-${character.id}`);
 	const [selectedRange, setSelectedRange] = useState<Distance>('selectedRange', Distance.of(0));
 
-	const schoolOptions = ['All Schools', ...Object.values(ArcaneSpellSchool)];
-	const [selectedSchool, setSelectedSchool] = useStateArrayItem<(typeof schoolOptions)[number]>(
+	const schoolOptions = [
+		'All Schools' as const,
+		...(Object.values(ArcaneSpellSchool) as ArcaneSpellSchool[]),
+	] as readonly ('All Schools' | ArcaneSpellSchool)[];
+	const [selectedSchool, setSelectedSchool] = useStateArrayItem<'All Schools' | ArcaneSpellSchool>(
 		'selectedSchool',
 		schoolOptions,
 		'All Schools',
@@ -73,6 +78,37 @@ const ArcaneSectionInner: React.FC<{
 		'selectedAttackOption',
 		attackOptions,
 		'All Spells',
+	);
+
+	const castingTimeOptions = [
+		{ name: '1 AP', value: 1, modifier: Bonus.of(-12), maxFocusCost: 1 },
+		{ name: '2 AP', value: 2, modifier: Bonus.zero(), maxFocusCost: 2 },
+		{ name: '3 AP', value: 3, modifier: Bonus.of(2), maxFocusCost: 3 },
+		{ name: '4 AP', value: 4, modifier: Bonus.of(4), maxFocusCost: 4 },
+		{ name: 'Ritual', value: 0, modifier: Bonus.of(6) },
+	];
+	const [selectedCastingTime, setSelectedCastingTimeState] = useStateArrayItem(
+		'selectedCastingTime',
+		castingTimeOptions,
+		castingTimeOptions[1],
+	);
+	const setSelectedCastingTime = (option: (typeof castingTimeOptions)[number]) => {
+		setSelectedCastingTimeState(option);
+		if (option.maxFocusCost && selectedFocusCost.value > option.maxFocusCost) {
+			setSelectedFocusCost(focusCostOptions[0]);
+		}
+	};
+
+	const focusCostOptions = [
+		{ name: '1 FP', value: 1, modifier: Bonus.zero() },
+		{ name: '2 FP', value: 2, modifier: Bonus.of(1) },
+		{ name: '3 FP', value: 3, modifier: Bonus.of(2) },
+		{ name: '4 FP', value: 4, modifier: Bonus.of(3) },
+	].filter(option => !selectedCastingTime.maxFocusCost || selectedCastingTime.maxFocusCost >= option.value);
+	const [selectedFocusCost, setSelectedFocusCost] = useStateArrayItem(
+		'selectedFocusCost',
+		focusCostOptions,
+		focusCostOptions[0],
 	);
 
 	const components = Object.groupBy(
@@ -112,8 +148,27 @@ const ArcaneSectionInner: React.FC<{
 		selectedVerbalComponent?.toComponentModifier(),
 		selectedFocalComponent?.toComponentModifier(),
 	].filter(e => e !== undefined);
+	const fundamentalModifiers = [
+		...combinedModifiers,
+		selectedCastingTime.modifier.value !== 0
+			? new CircumstanceModifier({
+					source: ModifierSource.Augmentation,
+					name: `Casting Time: ${selectedCastingTime.name}`,
+					value: selectedCastingTime.modifier,
+				})
+			: undefined,
+		selectedFocusCost.modifier.value !== 0
+			? new CircumstanceModifier({
+					source: ModifierSource.Augmentation,
+					name: `Focus Cost: ${selectedFocusCost.name}`,
+					value: selectedFocusCost.modifier,
+				})
+			: undefined,
+	].filter(e => e !== undefined);
+
 	const baseModifier = tree.getModifier(primaryAttribute);
 	const combinedModifier = tree.getModifier(primaryAttribute, combinedModifiers);
+	const fundamentalModifier = tree.getModifier(primaryAttribute, fundamentalModifiers);
 
 	const componentsWithState = [
 		{
@@ -136,10 +191,9 @@ const ArcaneSectionInner: React.FC<{
 		},
 	];
 
-	// TODO: make variable
 	const costs = [
-		new ActionCost({ resource: Resource.ActionPoint, amount: 2 }),
-		new ActionCost({ resource: Resource.FocusPoint, amount: 1 }),
+		new ActionCost({ resource: Resource.ActionPoint, amount: selectedCastingTime.value }),
+		new ActionCost({ resource: Resource.FocusPoint, amount: selectedFocusCost.value }),
 	];
 
 	return (
@@ -212,23 +266,72 @@ const ArcaneSectionInner: React.FC<{
 						</div>
 					</div>
 					<div style={{ fontSize: '0.9em' }}>
-						<div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-							<LabeledDropdown
-								label='Filter by School'
-								value={selectedSchool}
-								options={schoolOptions}
-								onChange={setSelectedSchool}
-							/>
-							<LabeledDropdown
-								label='Filter Attacks'
-								value={selectedAttackOption}
-								options={attackOptions}
-								onChange={setSelectedAttackOption}
-							/>
-						</div>
-						<RichText>TODO: choose AP, FP, filter school</RichText>
+						{(() => {
+							const school = selectedSchool === 'All Schools' ? null : selectedSchool;
+							return (
+								<RichText>
+									{school ? ARCANE_SCHOOLS[school].description : FUNDAMENTAL_ARCANE_SPELL_DESCRIPTION}
+								</RichText>
+							);
+						})()}
 					</div>
 				</div>
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
+						justifyContent: 'center',
+						padding: '8px',
+						border: '1px solid var(--text)',
+						borderRadius: '4px',
+						backgroundColor: 'var(--background-alt)',
+						textAlign: 'center',
+					}}
+				>
+					<LabeledDropdown
+						label='Casting Time'
+						value={selectedCastingTime}
+						options={castingTimeOptions}
+						describe={option => `${option.name} (${option.modifier.description})`}
+						onChange={setSelectedCastingTime}
+					/>
+					<LabeledDropdown
+						label='Focus Cost'
+						tooltip='Note: You can only spend up to the number of AP used for the spell.'
+						value={selectedFocusCost}
+						options={focusCostOptions}
+						describe={option => `${option.name} (${option.modifier.description})`}
+						onChange={setSelectedFocusCost}
+					/>
+				</div>
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
+						justifyContent: 'center',
+						padding: '8px',
+						border: '1px solid var(--text)',
+						borderRadius: '4px',
+						backgroundColor: 'var(--background-alt)',
+						textAlign: 'center',
+					}}
+				>
+					<LabeledDropdown
+						label='Filter by School'
+						value={selectedSchool}
+						options={schoolOptions}
+						onChange={setSelectedSchool}
+					/>
+					<LabeledDropdown
+						label='Filter Attacks'
+						value={selectedAttackOption}
+						options={attackOptions}
+						onChange={setSelectedAttackOption}
+					/>
+				</div>
+				<SpellCheckBox character={character} finalModifier={fundamentalModifier} />
 			</div>
 			<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '12px 0 12px 0', opacity: 0.3 }} />
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -260,7 +363,7 @@ const ArcaneSectionInner: React.FC<{
 								tree={tree}
 								primaryAttribute={primaryAttribute}
 								spell={spell}
-								combinedModifiers={combinedModifiers}
+								fundamentalModifiers={fundamentalModifiers}
 							/>
 						);
 					})}
@@ -302,8 +405,8 @@ const SpellBox: React.FC<{
 	tree: StatTree;
 	primaryAttribute: StatType;
 	spell: ArcaneSpellDefinition;
-	combinedModifiers: CircumstanceModifier[];
-}> = ({ character, tree, primaryAttribute, spell, combinedModifiers }) => {
+	fundamentalModifiers: CircumstanceModifier[];
+}> = ({ character, tree, primaryAttribute, spell, fundamentalModifiers }) => {
 	const { useState } = useUIStateFactory(`actions-${character.id}-spell-${spell.name}`);
 	const [augmentationValues, setAugmentationValues] = useState(`augmentationValues`, {} as Record<string, number>);
 	const getAugmentationValue = (key: string) => {
@@ -314,7 +417,7 @@ const SpellBox: React.FC<{
 	};
 
 	const finalModifiers = [
-		...combinedModifiers,
+		...fundamentalModifiers,
 		...spell.augmentations.map(augmentation => {
 			const value = getAugmentationValue(augmentation.key);
 			return new CircumstanceModifier({
