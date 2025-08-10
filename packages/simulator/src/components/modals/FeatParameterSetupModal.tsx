@@ -100,9 +100,7 @@ export const FeatParameterSetupModal: React.FC<FeatParameterSetupModalProps> = (
 
 	return (
 		<div>
-			<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)', marginBottom: '12px' }}>
-				{baseFeat.description}
-			</div>
+			<div style={{ fontSize: '0.9em', marginBottom: '12px' }}>{baseFeat.description}</div>
 
 			{renderFeatParameterPicker()}
 

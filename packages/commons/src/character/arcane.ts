@@ -170,6 +170,10 @@ export class ArcaneSpellAugmentation {
 		return `${this.value}`;
 	}
 
+	get description(): string {
+		return `${this.type}: ${this.shortDescription}${this.variable ? '' : ` (${this.bonus.description})`}`;
+	}
+
 	computeBonus(multiplier: number | undefined): number {
 		if (this.variable) {
 			if (multiplier === undefined) {
@@ -239,6 +243,7 @@ export enum PredefinedArcaneSpell {
 	ConfuseMind = 'Confuse Mind',
 	ErodeWill = 'Erode Will',
 	MessageBeing = 'Message Being',
+	CommandCreature = 'Command Creature',
 	CommandBeing = 'Command Being',
 }
 
@@ -456,6 +461,18 @@ export const PREDEFINED_ARCANE_SPELLS: Record<PredefinedArcaneSpell, ArcaneSpell
 			}),
 		],
 	}),
+	[PredefinedArcaneSpell.CommandCreature]: new ArcaneSpellDefinition({
+		name: PredefinedArcaneSpell.CommandCreature,
+		school: ArcaneSpellSchool.Command,
+		description: `Nudge a non-sentient creature (plant, fungus, or animal) to do something within their nature. The target can resist with a [[Resolve]] Check. Non-sentient creatures cannot use language, do any information processing, or do actions not within their nature. The command will be infused as ideas in their mind, and not as words. As a rule of thumb, you can call out primal emotions such as hunger, anger, or fear.`,
+		augmentations: [
+			new ArcaneSpellAugmentation({
+				type: ArcaneSpellAugmentationType.Intensity,
+				value: 'Major',
+				bonus: Bonus.of(-6),
+			}),
+		],
+	}),
 	[PredefinedArcaneSpell.CommandBeing]: new ArcaneSpellDefinition({
 		name: PredefinedArcaneSpell.CommandBeing,
 		school: ArcaneSpellSchool.Command,
@@ -464,7 +481,7 @@ export const PREDEFINED_ARCANE_SPELLS: Record<PredefinedArcaneSpell, ArcaneSpell
 			new ArcaneSpellAugmentation({
 				type: ArcaneSpellAugmentationType.Intensity,
 				value: 'Greater',
-				bonus: Bonus.of(-6),
+				bonus: Bonus.of(-12),
 			}),
 			new ArcaneSpellAugmentation({
 				type: ArcaneSpellAugmentationType.Specificity,

@@ -75,7 +75,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 									display: 'flex',
 									alignItems: 'center',
 									justifyContent: 'space-between',
-									borderBottom: isCollapsed ? 'none' : '1px solid var(--text-secondary)',
+									borderBottom: isCollapsed ? 'none' : '1px solid var(--text)',
 								}}
 								onClick={() => toggleLevelCollapse(level)}
 								onKeyDown={e => {
@@ -98,7 +98,7 @@ export const FeatsModal: React.FC<FeatsModalProps> = ({ character, onClose }) =>
 										/>
 									)}
 								</div>
-								<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>
+								<div style={{ fontSize: '0.8em' }}>
 									{featsOrSlots.length} feat{featsOrSlots.length !== 1 ? 's' : ''}
 								</div>
 							</div>

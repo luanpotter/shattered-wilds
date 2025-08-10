@@ -204,7 +204,7 @@ const CheckParameter: React.FC<CheckParameterProps> = ({
 			}}
 		>
 			{statModifier.value.description}
-			<FaDice size={12} style={{ color: 'var(--text-secondary)' }} />
+			<FaDice size={12} />
 			{targetDcSuffix}
 		</ParameterBoxComponent>
 	);
@@ -600,7 +600,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 											))}
 										</div>
 									</div>
-									<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)' }}>
+									<div style={{ fontSize: '0.9em' }}>
 										<RichText>{action.description}</RichText>
 									</div>
 								</div>

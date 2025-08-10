@@ -114,7 +114,6 @@ export const FeatBox: React.FC<{
 				<div
 					style={{
 						fontStyle: 'italic',
-						color: 'var(--text-secondary)',
 						fontSize: '0.8em',
 					}}
 				>

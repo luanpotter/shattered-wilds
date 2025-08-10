@@ -13,7 +13,7 @@ const LabeledDropdown = <T,>({
 	label?: string;
 	tooltip?: string;
 	value: T | null;
-	options: T[];
+	options: readonly T[];
 	describe?: (option: T) => string;
 	disabled?: boolean;
 	placeholder?: string;

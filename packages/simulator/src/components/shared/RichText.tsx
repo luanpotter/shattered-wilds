@@ -23,7 +23,7 @@ export const RichText: React.FC<RichTextProps> = ({ children }) => {
 	return (
 		<ReactMarkdown
 			components={{
-				p: ({ children }) => <span>{children}</span>,
+				p: ({ children }) => <p style={{ margin: 0 }}>{children}</p>,
 			}}
 		>
 			{preProcessed}

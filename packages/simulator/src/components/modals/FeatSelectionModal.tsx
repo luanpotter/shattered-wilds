@@ -88,7 +88,7 @@ export const FeatSelectionModal: React.FC<FeatSelectionModalProps> = ({ characte
 								{feat.type} Level {feat.level} {feat.source} Feat
 							</span>
 						</div>
-						<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)' }}>
+						<div style={{ fontSize: '0.9em' }}>
 							<RichText>{feat.description}</RichText>
 						</div>
 					</div>

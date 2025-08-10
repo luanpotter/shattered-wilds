@@ -1,0 +1,21 @@
+---js
+{
+    permalink: "/{{ pagination.items[0].url }}/index.html",
+    pagination: {
+        data: "predefinedArcaneSpells",
+        alias: "lexicon",
+        size: 1,
+    }
+}
+---
+
+{% include 'wiki-header.liquid' %}
+
+{{ lexicon.content | mdb }}
+
+<h3>Augmentations</h3>
+<ul>
+    {% for augmentation in lexicon.augmentations %}
+        <li>{{ augmentation.description }}</li>
+    {% endfor %}
+</ul>

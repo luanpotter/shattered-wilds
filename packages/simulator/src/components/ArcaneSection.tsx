@@ -3,6 +3,7 @@ import {
 	ARCANE_SPELL_COMPONENTS,
 	ArcaneSpellComponentType,
 	ArcaneSpellDefinition,
+	ArcaneSpellSchool,
 	Bonus,
 	Check,
 	CheckMode,
@@ -16,6 +17,7 @@ import {
 	StatModifier,
 	StatTree,
 	StatType,
+	Trait,
 } from '@shattered-wilds/commons';
 import React, { useMemo } from 'react';
 import { FaDice } from 'react-icons/fa';
@@ -58,6 +60,20 @@ const ArcaneSectionInner: React.FC<{
 }> = ({ character, sheet, tree, primaryAttribute }) => {
 	const { useState, useStateArrayItem } = useUIStateFactory(`actions-${character.id}`);
 	const [selectedRange, setSelectedRange] = useState<Distance>('selectedRange', Distance.of(0));
+
+	const schoolOptions = ['All Schools', ...Object.values(ArcaneSpellSchool)];
+	const [selectedSchool, setSelectedSchool] = useStateArrayItem<(typeof schoolOptions)[number]>(
+		'selectedSchool',
+		schoolOptions,
+		'All Schools',
+	);
+
+	const attackOptions = ['All Spells', 'Only Attacks', 'Only Utility'] as const;
+	const [selectedAttackOption, setSelectedAttackOption] = useStateArrayItem<(typeof attackOptions)[number]>(
+		'selectedAttackOption',
+		attackOptions,
+		'All Spells',
+	);
 
 	const components = Object.groupBy(
 		ARCANE_SPELL_COMPONENTS.filter(component => component.flavors.includes(sheet.characterClass.definition.flavor)),
@@ -195,25 +211,59 @@ const ArcaneSectionInner: React.FC<{
 							<span style={{ fontWeight: 'bold' }}>Fundamental Arcane Spell</span>
 						</div>
 					</div>
-					<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)' }}>
+					<div style={{ fontSize: '0.9em' }}>
+						<div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+							<LabeledDropdown
+								label='Filter by School'
+								value={selectedSchool}
+								options={schoolOptions}
+								onChange={setSelectedSchool}
+							/>
+							<LabeledDropdown
+								label='Filter Attacks'
+								value={selectedAttackOption}
+								options={attackOptions}
+								onChange={setSelectedAttackOption}
+							/>
+						</div>
 						<RichText>TODO: choose AP, FP, filter school</RichText>
 					</div>
 				</div>
 			</div>
 			<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '12px 0 12px 0', opacity: 0.3 }} />
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-				{Object.values(PREDEFINED_ARCANE_SPELLS).map(spell => {
-					return (
-						<SpellBox
-							key={spell.name}
-							character={character}
-							tree={tree}
-							primaryAttribute={primaryAttribute}
-							spell={spell}
-							combinedModifiers={combinedModifiers}
-						/>
-					);
-				})}
+				{Object.values(PREDEFINED_ARCANE_SPELLS)
+					.filter(spell => {
+						if (selectedSchool === 'All Schools') {
+							return true;
+						}
+						return spell.school === selectedSchool;
+					})
+					.filter(spell => {
+						const attackTraits = [Trait.BodyAttack, Trait.MindAttack, Trait.SoulAttack, Trait.SpecialAttack];
+						switch (selectedAttackOption) {
+							case 'All Spells':
+								return true;
+							case 'Only Attacks':
+								return spell.traits.some(trait => attackTraits.includes(trait));
+							case 'Only Utility':
+								return spell.traits.every(trait => !attackTraits.includes(trait));
+							default:
+								throw selectedAttackOption satisfies never;
+						}
+					})
+					.map(spell => {
+						return (
+							<SpellBox
+								key={spell.name}
+								character={character}
+								tree={tree}
+								primaryAttribute={primaryAttribute}
+								spell={spell}
+								combinedModifiers={combinedModifiers}
+							/>
+						);
+					})}
 			</div>
 		</Block>
 	);
@@ -242,7 +292,7 @@ const SpellCheckBox: React.FC<{
 			}}
 		>
 			{finalModifier.value.description}
-			<FaDice size={12} style={{ color: 'var(--text-secondary)' }} />
+			<FaDice size={12} />
 		</ParameterBoxComponent>
 	);
 };

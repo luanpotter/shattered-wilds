@@ -16,6 +16,7 @@ import { traits } from './src/_config/data/traits.js';
 import { parseLexicon } from './src/_config/lexicon.js';
 import { TextProcessor } from './src/_config/TextProcessor.js';
 import { covers } from './src/_config/data/covers.js';
+import { predefinedArcaneSpells } from './src/_config/data/arcane.js';
 
 export default function (eleventyConfig) {
 	// NOTE: kept to allow for a different prefix in the future
@@ -38,6 +39,7 @@ export default function (eleventyConfig) {
 	eleventyConfig.addGlobalData('classes', classes);
 	eleventyConfig.addGlobalData('traits', traits);
 	eleventyConfig.addGlobalData('covers', covers);
+	eleventyConfig.addGlobalData('predefinedArcaneSpells', predefinedArcaneSpells);
 
 	const wikiPages = [
 		...lexiconFiles,
@@ -50,6 +52,7 @@ export default function (eleventyConfig) {
 		...classes,
 		...traits,
 		...covers,
+		...predefinedArcaneSpells,
 	]
 		.filter(e => e.slug)
 		.sort((a, b) => {
@@ -74,7 +77,8 @@ export default function (eleventyConfig) {
 	const wikiByGroupByTrait = {};
 	for (const [group, pages] of Object.entries(wikiByGroup)) {
 		for (const trait of allTraits) {
-			const filtered = pages.filter(e => (e.traits ?? []).includes(trait));
+			const traitKey = trait.replace('_', ' ');
+			const filtered = pages.filter(e => (e.traits ?? []).includes(traitKey));
 			if (filtered.length > 0) {
 				(wikiByGroupByTrait[group] ??= {})[trait] = filtered;
 			}

@@ -260,7 +260,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 											}}
 										>
 											<div style={{ fontWeight: 'bold', marginBottom: '2px', fontSize: '0.9em' }}>{feat.name}</div>
-											<div style={{ fontSize: '0.8em', color: 'var(--text-secondary)' }}>
+											<div style={{ fontSize: '0.8em' }}>
 												<RichText>{feat.description}</RichText>
 											</div>
 										</div>

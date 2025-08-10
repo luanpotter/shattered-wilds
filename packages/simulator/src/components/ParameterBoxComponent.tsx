@@ -29,9 +29,7 @@ export const ParameterBoxComponent: React.FC<{
 				}
 			}}
 		>
-			<div style={{ fontSize: '0.8em', fontWeight: 'bold', color: 'var(--text-secondary)', marginBottom: '2px' }}>
-				{title}
-			</div>
+			<div style={{ fontSize: '0.8em', fontWeight: 'bold', marginBottom: '2px' }}>{title}</div>
 			<div style={{ fontSize: '1.1em', fontWeight: 'bold' }}>{children}</div>
 		</div>
 	);
