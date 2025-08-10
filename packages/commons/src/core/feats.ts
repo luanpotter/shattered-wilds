@@ -343,9 +343,9 @@ export enum Feat {
 	WeaponHoning = 'WeaponHoning',
 	// Survivalist
 	Rage = 'Rage',
-	InstinctiveTracking = 'InstinctiveTracking',
+	InstinctiveTracking = 'InstinctiveTracking', // shared with Naturalist
 	DisregardCover = 'DisregardCover',
-	Potioneer = 'Potioneer',
+	Potioneer = 'Potioneer', // shared with Naturalist
 	// Scoundrel
 	FancyFootwork = 'FancyFootwork',
 	ThievesFingers = 'ThievesFingers',
@@ -786,13 +786,13 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassFlavor.Survivalist],
 		level: 1,
 		description:
-			'You can spend 1 [[Action_Point | AP]] and 2 [[Spirit_Point | SP]] to become **Enraged**: reduce your [[Focus_Points | Focus Points]] to `1`, and it cannot be further reduced while you are **Enraged**; you cannot [[Concentrate]] while **Enraged**; and you gain a [[Circumstance Modifier | CM]] to your next **Basic Attacks** while **Enraged** that starts with `+6` and is reduced by `1` each time it is used. When the bonus reaches `0`, or you fail to perform at least on **Basic Attack** in your turn, you are no longer **Enraged**.',
+			'You can spend 1 [[Action_Point | AP]] and 1 [[Spirit_Point | SP]] to become **Enraged**: reduce your [[Focus_Point | Focus Points]] to `1`, and it cannot be further reduced while you are **Enraged**; you cannot [[Concentrate]] while **Enraged**; and you gain a [[Circumstance Modifier | CM]] to your **Body Attacks** while **Enraged** that starts with `+6` and is reduced by `1` each time it is used. When the bonus reaches `0`, or you fail to perform at least on **Basic Attack** in your turn, you are no longer **Enraged**.',
 	}),
 	[Feat.InstinctiveTracking]: new FeatDefinition<void>({
 		key: Feat.InstinctiveTracking,
 		name: 'Instinctive Tracking',
 		type: FeatType.Minor,
-		sources: [ClassFlavor.Survivalist],
+		sources: [ClassFlavor.Survivalist, ClassFlavor.Naturalist],
 		level: 2,
 		description:
 			'You get a `+3` [[Circumstance Modifier | CM]] to Checks you make related to tracking creatures (following footprints, etc).',
@@ -810,7 +810,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.Potioneer,
 		name: 'Potioneer',
 		type: FeatType.Minor,
-		sources: [ClassFlavor.Survivalist],
+		sources: [ClassFlavor.Survivalist, ClassFlavor.Naturalist],
 		level: 3,
 		description:
 			'You can spend a few hours to forage for ingredients on the appropriate environment with an [[Intuition]] Check. You can also spend a few hours and 1 [[Spirit_Point | SP]] to brew a salve that can be used to heal an amount of points (determined by a [[Knowledge]] Check) of either [[Vitality_Point | VP]], [[Focus_Point | FP]] or [[Spirit_Point | SP]] (your choice). The salve will lose potency and expire after a few days to a week.',

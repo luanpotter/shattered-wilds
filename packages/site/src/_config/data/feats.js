@@ -17,18 +17,18 @@ export const feats = Object.values(FEATS).map(feat => {
 				value: feat.type,
 				cssClass: 'metadata-type',
 			},
-			...feat.sources.map(source => ({
-				key: 'source',
-				title: 'Source',
-				value: source,
-				cssClass: 'metadata-source',
-			})),
 			{
 				key: 'level',
 				title: 'Level',
 				value: feat.level,
 				cssClass: 'metadata-level',
 			},
+			...feat.sources.map(source => ({
+				key: 'source',
+				title: 'Source',
+				value: source,
+				cssClass: 'metadata-source',
+			})),
 		],
 
 		// other parameters
@@ -38,7 +38,11 @@ export const feats = Object.values(FEATS).map(feat => {
 		sources: feat.sources,
 		level: feat.level,
 		description: feat.description,
-		isCore: feat.isCore,
-		isNotCore: !feat.isCore,
+		isCore: feat.type === 'Core',
+		isMajor: feat.type === 'Major',
+		isMinor: feat.type === 'Minor',
+		isNotCore: feat.type !== 'Core',
+		isNotMajor: feat.type !== 'Major',
+		isNotMinor: feat.type !== 'Minor',
 	};
 });

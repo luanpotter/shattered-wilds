@@ -14,11 +14,11 @@ Finally, **Mystics** are the equivalent of the divine spellcasters in D&D, and t
 
 There are 9 Warrior classes, which are divided in a `3x3` matrix of **Roles** and **Flavors**. Each **Role** will define a **Core Major Feat** while each **Flavor** will define a **Core Minor Feat**. On top of that, they will each define their own track of future **Feats** to be picked from. Starting at Level 2, a character's **Class Feats** list will include all options from both their **Role** or **Flavor** tracks.
 
-| Role / Flavor | Martial | Survivalist | Scoundrel    |
-|---------------|---------|-------------|--------------|
-| Melee (STR)   | Fighter | Berserker   | Swashbuckler |
-| Ranged (DEX)  | Marksman| Hunter      | Rogue        |
-| Tank (CON)    | Guardian| Barbarian   | Scout        |
+| Role / Flavor | Martial     | Survivalist     | Scoundrel        |
+|---------------|-------------|-----------------|------------------|
+| Melee (STR)   | [[Fighter]] | [[Berserker]]   | [[Swashbuckler]] |
+| Ranged (DEX)  | [[Marksman]]| [[Hunter]]      | [[Rogue]]        |
+| Tank (CON)    | [[Guardian]]| [[Barbarian]]   | [[Scout]]        |
 
 The **Role** will also define your **Primary Attribute** (STR, DEX or CON) for the **Core Class Modifier**.
 

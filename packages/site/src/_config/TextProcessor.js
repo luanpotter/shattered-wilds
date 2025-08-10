@@ -12,15 +12,7 @@ export class TextProcessor {
 				return this.renderPath('text', path);
 			},
 			list: (group, sortKey, ...filters) => {
-				const filterPairs = filters.reduce(
-					(result, _, index, array) => {
-						if (index % 2 === 0) {
-							result.push(array.slice(index, index + 2));
-						}
-						return result;
-					},
-					[['group', group]],
-				);
+				const filterPairs = this.parseFilterPairs(group, filters);
 				return this.renderList(group, sortKey, filterPairs);
 			},
 			list_feats_for_class: classSlug => {
@@ -31,11 +23,13 @@ export class TextProcessor {
 				const filterSource = source =>
 					source === classEntry.role || source === classEntry.flavor || source === classEntry.name;
 				const filterFeat = feat => feat.sources.some(filterSource);
-				const order = ['level', 'isNotCore'];
+				const order = ['level', 'isMinor'];
 				return this.renderListWithSortAndFilter('Feat', order, filterFeat, []);
 			},
-			list_feats_for_source: source => {
-				const filterFeat = feat => feat.sources.includes(source);
+			list_feats_for_source: (source, ...filters) => {
+				const filterPairs = this.parseFilterPairs('Feat', filters);
+				const filterFeat = feat =>
+					feat.sources.includes(source) && filterPairs.every(([key, value]) => feat[key] === value);
 				const order = ['level', 'isNotCore'];
 				return this.renderListWithSortAndFilter('Feat', order, filterFeat, ['source']);
 			},
@@ -45,6 +39,17 @@ export class TextProcessor {
 			},
 		};
 	}
+
+	parseFilterPairs = (group, filters) =>
+		filters.reduce(
+			(result, _, index, array) => {
+				if (index % 2 === 0) {
+					result.push(array.slice(index, index + 2));
+				}
+				return result;
+			},
+			[['group', group]],
+		);
 
 	renderList = (group, sortKey, filterPairs) => {
 		const excludedTags = filterPairs.map(([key]) => key);
