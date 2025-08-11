@@ -279,7 +279,7 @@ export enum PredefinedArcaneSpell {
 	ConfuseMind = 'Confuse Mind',
 	ErodeWill = 'Erode Will',
 	MessageBeing = 'Message Being',
-	CommandCreature = 'Command Creature',
+	GuideAnimal = 'Guide Animal',
 	CommandBeing = 'Command Being',
 }
 
@@ -497,10 +497,10 @@ export const PREDEFINED_ARCANE_SPELLS: Record<PredefinedArcaneSpell, ArcaneSpell
 			}),
 		],
 	}),
-	[PredefinedArcaneSpell.CommandCreature]: new ArcaneSpellDefinition({
-		name: PredefinedArcaneSpell.CommandCreature,
+	[PredefinedArcaneSpell.GuideAnimal]: new ArcaneSpellDefinition({
+		name: PredefinedArcaneSpell.GuideAnimal,
 		school: ArcaneSpellSchool.Command,
-		description: `Nudge a non-sentient creature (plant, fungus, or animal) to do something within their nature. The target can resist with a [[Resolve]] Check. Non-sentient creatures cannot use language, do any information processing, or do actions not within their nature. The command will be infused as ideas in their mind, and not as words. As a rule of thumb, you can call out primal emotions such as hunger, anger, or fear.`,
+		description: `Nudge a non-sentient animal or beast to do something within their nature. The target can resist with a [[Resolve]] Check. Non-sentient creatures cannot use language, do any information processing, or do actions not within their nature. The command will be infused as ideas in their mind, and not as words. As a rule of thumb, you can call out primal emotions such as hunger, anger, calm, or fear.`,
 		augmentations: [
 			new ArcaneSpellAugmentation({
 				type: ArcaneSpellAugmentationType.Intensity,

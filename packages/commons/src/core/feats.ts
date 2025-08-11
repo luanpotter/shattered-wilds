@@ -355,18 +355,25 @@ export enum Feat {
 	ArcaneCasting = 'ArcaneCasting',
 	// Arcanist
 	SignatureSpell = 'SignatureSpell',
+	ReactiveCasting = 'ReactiveCasting',
+	CantripCasting = 'CantripCasting',
 	// Mechanist
 	ToolAssistedCasting = 'ToolAssistedCasting',
+	MechanisticAffinity = 'MechanisticAffinity',
+	EyeForContraptions = 'EyeForContraptions',
 	// Naturalist
 	FocalConnection = 'FocalConnection',
+	NaturalAffinity = 'NaturalAffinity',
 	// Musicist
 	LyricResonance = 'LyricResonance',
+	InspiringPerformance = 'InspiringPerformance',
 	TheresMoreToThisSong = 'TheresMoreToThisSong',
-	// Mystic
-	DivineChanneling = 'DivineChanneling',
-	// Adept
-	SacredCalm = 'SacredCalm',
 	// Disciple
+	DivineChanneling = 'DivineChanneling',
+	SacredCalm = 'SacredCalm',
+	FocusedReach = 'FocusedReach',
+	ReligiousRites = 'ReligiousRites',
+	// Adept
 	FlurryOfBlows = 'FlurryOfBlows',
 	ChannelingFists = 'ChannelingFists',
 	CallousFists = 'CallousFists',
@@ -376,11 +383,13 @@ export enum Feat {
 	LuckyRelentlessness = 'LuckyRelentlessness',
 	FavorableMovement = 'FavorableMovement',
 	// Devout
+	LesserDivineChanneling = 'LesserDivineChanneling',
 	EffortlessAttuning = 'EffortlessAttuning',
 	FocusedChanneling = 'FocusedChanneling',
 	// Crusader
 	DivineSmite = 'DivineSmite',
 	SpiritualArmor = 'SpiritualArmor',
+	MoralAuthority = 'MoralAuthority',
 }
 
 export enum Trade {
@@ -860,7 +869,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassRealm.Caster],
 		level: 1,
 		description:
-			'Unlocks Arcane Casting. See [Arcane Spellcasting](/rules/arcane) for details on how the **Arcane** magic system works.',
+			'Unlocks Arcane Casting. See [Rules: Arcane](/rules/arcane) for details on how the **Arcane** magic system works.',
 		parameter: {
 			id: 'stat',
 			name: 'Stat',
@@ -876,7 +885,25 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassFlavor.Arcanist],
 		level: 1,
 		description:
-			'You can spend 1 [[Action_Point | AP]] and 1 [[Focus_Point | FP]] to cast a spell of your choice as a reaction.',
+			'You have fully committed all the details of a specific form of the Fundamental Arcane Spell (such as from the [[Predefined_Arcane_Spells | Predefined Spells]] list); you have a `+3` to cast that exact spell.',
+	}),
+	[Feat.ReactiveCasting]: new FeatDefinition<void>({
+		key: Feat.ReactiveCasting,
+		name: 'Reactive Casting',
+		type: FeatType.Major,
+		sources: [ClassFlavor.Arcanist],
+		level: 2,
+		description:
+			'You can spend 1 [[Heroism Point]] to cast a standard 2 [[Action_Point | AP]] / 1 [[Focus_Point | FP]] spell as a reaction.',
+	}),
+	[Feat.CantripCasting]: new FeatDefinition<void>({
+		key: Feat.CantripCasting,
+		name: 'Cantrip Casting',
+		type: FeatType.Minor,
+		sources: [ClassFlavor.Arcanist],
+		level: 3,
+		description:
+			'When not in the pressure of an **Encounter**, you can spend a few minutes to cast a standard 2 [[Action_Point | AP]] / 1 [[Focus_Point | FP]] spell without spending a [[Focus Point]].',
 	}),
 	// Mechanist
 	[Feat.ToolAssistedCasting]: new FeatDefinition<void>({
@@ -888,6 +915,24 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		description:
 			'You can create and use **One-Handed** (`+2`) and **Two-Handed** (`+3`) tools, crazy mechanical contraptions to assist you with the execution of **Somatic Spell Components**. You can use these tools to execute a **Somatic Component** of any spell, but you cannot use any other type of **Spell Component**.',
 	}),
+	[Feat.MechanisticAffinity]: new FeatDefinition<void>({
+		key: Feat.MechanisticAffinity,
+		name: 'Mechanistic Affinity',
+		type: FeatType.Major,
+		sources: [ClassFlavor.Mechanist],
+		level: 2,
+		description:
+			'You can spend a few hours and 1+ [[Focus_Point | FP]] to attempt to concoct a mechanical contraption to achieve any specific simple goal (use a Check of your primary attribute). Think gears, belts, pulleys, etc in a small pocket sized creation. As an example, you could craft a music box, a clock, a small mechanical hinge to open a door. The DM will adjudicate the complexity and feasibility of the project.',
+	}),
+	[Feat.EyeForContraptions]: new FeatDefinition<void>({
+		key: Feat.EyeForContraptions,
+		name: 'Eye for Contraptions',
+		type: FeatType.Minor,
+		sources: [ClassFlavor.Mechanist],
+		level: 3,
+		description:
+			'You are particularly good at analyzing and assessing the functionality of mechanical contraptions, such as mechanical devices, locks, and traps. You have a `+3` [[Circumstance Modifier | CM]] to [[IQ]] Checks to discern information from such contraptions, and can spend `1` [[Focus_Point | FP]] to get an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).',
+	}),
 	// Naturalist
 	[Feat.FocalConnection]: new FeatDefinition<void>({
 		key: Feat.FocalConnection,
@@ -897,6 +942,15 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		level: 1,
 		description:
 			'You can create and use a personal **Custom Focus** (`+4`) that is bound to you. You can use this **Custom Focus** to execute the **Focal Component** of any spell, but you cannot use any other type of **Spell Component**.',
+	}),
+	[Feat.NaturalAffinity]: new FeatDefinition<void>({
+		key: Feat.NaturalAffinity,
+		name: 'Natural Affinity',
+		type: FeatType.Major,
+		sources: [ClassFlavor.Naturalist],
+		level: 2,
+		description:
+			'You can use [[Command]] Spells with a `+3` [[Circumstance Modifier | CM]] to control plants, encouraging super-accelerated growth, redirection, flowers to blooms, etc. The difficult and augmentations are similar to the [[Guide Animal]] spell.',
 	}),
 	// Musicist
 	[Feat.LyricResonance]: new FeatDefinition<void>({
@@ -908,41 +962,67 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		description:
 			'You can use **One-Handed** (`+2`) and **Two-Handed** (`+3`) instruments to assist you with the execution of **Verbal Spell Components**. You can use these instruments to execute a **Verbal Component** of any spell, but you cannot use any other type of **Spell Component**.',
 	}),
-	[Feat.TheresMoreToThisSong]: new FeatDefinition<void>({
-		key: Feat.TheresMoreToThisSong,
-		name: "There's More to This Song",
+	[Feat.InspiringPerformance]: new FeatDefinition<void>({
+		key: Feat.InspiringPerformance,
+		name: 'Inspiring Performance',
 		type: FeatType.Major,
 		sources: [ClassFlavor.Musicist],
 		level: 2,
 		description:
+			'As a reaction to an ally performing an action, you can spend a [[Spirit_Point | SP]] to give them a +1 [[Circumstance Modifier | CM]] to a Check associated with their action. You can only do this once per action, the action must not be a reaction, and you cannot do this to yourself.',
+	}),
+	[Feat.TheresMoreToThisSong]: new FeatDefinition<void>({
+		key: Feat.TheresMoreToThisSong,
+		name: "There's More to This Song",
+		type: FeatType.Minor,
+		sources: [ClassFlavor.Musicist],
+		level: 3,
+		description:
 			'You can attempt to hide a message in a song you are singing, only to be perceived by certain listeners. Roll a [[Speechcraft]] Check with `+6` [[Circumstance Modifier | CM]]; all listeners then contest with an [[IQ]] Check. The targets you wanted to understand get a `+3` [[Circumstance Modifier | CM]] to their Check, or a `+6` if they are aware that you are trying to hide a message.',
 	}),
-	// Mystic
+	//Disciple
 	[Feat.DivineChanneling]: new FeatDefinition<void>({
 		key: Feat.DivineChanneling,
 		name: 'Divine Channeling',
 		type: FeatType.Core,
-		sources: [ClassRealm.Mystic],
+		sources: [ClassRole.Disciple],
 		level: 1,
 		description:
-			'Unlocks Divine Channeling. See [Divine Channeling](/rules/divine) for details on how the **Divine** magic system works.',
+			'Unlocks Divine Channeling. See [Rules: Divine](/rules/divine) for details on how the **Divine** magic system works.',
 	}),
-	// Adept
 	[Feat.SacredCalm]: new FeatDefinition<void>({
 		key: Feat.SacredCalm,
 		name: 'Sacred Calm',
-		type: FeatType.Core,
-		sources: [ClassRole.Adept],
-		level: 1,
+		type: FeatType.Major,
+		sources: [ClassRole.Disciple],
+		level: 2,
 		description:
-			'You can perform the [[Calm]] action on an ally that you can touch. You can spend an additional 1 [[Focus_Point | FP]] to get a +3 [[Circumstance Modifier | CM]] when performing the [[Calm]] action.',
+			'You can perform the [[Calm]] action on an ally that you can touch. You can spend an additional 1 [[Focus_Point | FP]] to get a `+6` [[Circumstance Modifier | CM]] when performing the [[Calm]] action.',
 	}),
-	// Disciple
+	[Feat.FocusedReach]: new FeatDefinition<void>({
+		key: Feat.FocusedReach,
+		name: 'Focused Reach',
+		type: FeatType.Major,
+		sources: [ClassRole.Disciple],
+		level: 2,
+		description:
+			'You can spend 1 [[Action_Point | AP]] and 1 [[Focus_Point | FP]] to double your [[Influence Range]] until the start of your next turn.',
+	}),
+	[Feat.ReligiousRites]: new FeatDefinition<void>({
+		key: Feat.ReligiousRites,
+		name: 'Religious Rites',
+		type: FeatType.Minor,
+		sources: [ClassRole.Disciple],
+		level: 3,
+		description:
+			'You are particularly knowledgeable about the specific rites, rituals, the nature of your contract, or whatever are the details of your connection with your Protean. You get a `+3` to [[Knowledge]] Checks related to these topics, and can spend `1` [[Focus_Point | FP]] to get an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).',
+	}),
+	//Adept
 	[Feat.FlurryOfBlows]: new FeatDefinition<void>({
 		key: Feat.FlurryOfBlows,
 		name: 'Flurry of Blows',
 		type: FeatType.Core,
-		sources: [ClassRole.Disciple],
+		sources: [ClassRole.Adept],
 		level: 1,
 		description:
 			'You can spend 1 [[Spirit_Point | SP]] to make an unarmed [[Strike]] cost only 1 [[Action_Point | AP]].',
@@ -951,25 +1031,23 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.ChannelingFists,
 		name: 'Channeling Fists',
 		type: FeatType.Major,
-		sources: [ClassRole.Disciple],
+		sources: [ClassRole.Adept],
 		level: 2,
-		description: `You can spend 1 [[Spirit_Point | SP]] to get a +1 [[Circumstance Modifier | CM]] to an unarmed Attack Check.
-			
-			You _can_ stack this effect on the same attack.`,
+		description: `You can spend 1 [[Spirit_Point | SP]] to get a +1 [[Circumstance Modifier | CM]] to an unarmed Attack Check. You _can_ stack this effect on the same attack.`,
 	}),
 	[Feat.CallousFists]: new FeatDefinition<void>({
 		key: Feat.CallousFists,
 		name: 'Callous Fists',
 		type: FeatType.Minor,
-		sources: [ClassRole.Disciple],
-		level: 2,
+		sources: [ClassRole.Adept],
+		level: 1,
 		description: 'You can use [[CON]] instead of [[STR]] to perform unarmed attacks.',
 	}),
 	[Feat.SpiritToFlesh]: new FeatDefinition<void>({
 		key: Feat.SpiritToFlesh,
 		name: 'Spirit to Flesh',
 		type: FeatType.Minor,
-		sources: [ClassRole.Disciple],
+		sources: [ClassRole.Adept],
 		level: 3,
 		description:
 			'You can resist the effects of **Transfiguration** spells against your body using your [[FOW]] instead of [[Toughness]].',
@@ -989,19 +1067,28 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		name: 'Lucky Relentlessness',
 		type: FeatType.Minor,
 		sources: [ClassRole.Inspired],
-		level: 2,
-		description: 'Your DC for the [[Heroic_Relentlessness | Heroic Relentlessness]] action is `15`.',
+		level: 3,
+		description: 'Your DC for the [[Heroic_Relentlessness | Heroic Relentlessness]] action is `10`.',
 	}),
 	[Feat.FavorableMovement]: new FeatDefinition<void>({
 		key: Feat.FavorableMovement,
 		name: 'Favorable Movement',
 		type: FeatType.Major,
 		sources: [ClassRole.Inspired],
-		level: 3,
+		level: 2,
 		description:
-			'You can spend 1 [[Focus_Point | FP]] to ignore the **Difficult Terrain** trait of a hex while moving through it.',
+			'You can spend 1 [[Focus_Point | FP]] as you take a **Movement Action** to ignore **Difficult Terrain** for this movement.',
 	}),
 	// Devout
+	[Feat.LesserDivineChanneling]: new FeatDefinition<void>({
+		key: Feat.LesserDivineChanneling,
+		name: 'Lesser Divine Channeling',
+		type: FeatType.Major,
+		sources: [ClassFlavor.Devout],
+		level: 2,
+		description:
+			'Unlocks Divine Channeling for non-Adepts; this probably represent a much more indirect connection to some higher (possibly unknown) force. See [Rules: Divine](/rules/divine) for details on how the **Divine** magic system works.',
+	}),
 	[Feat.EffortlessAttuning]: new FeatDefinition<void>({
 		key: Feat.EffortlessAttuning,
 		name: 'Effortless Attuning',
@@ -1009,16 +1096,16 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassFlavor.Devout],
 		level: 1,
 		description:
-			'Whenever you would spend [[Spirit_Point | Spirit Points]] to use an **Imbued Item** that would otherwise not require an [[Attunement]] Check, you can make an [[Attunement]] Check DC 15 to spend one less [[Spirit_Point | SP]].',
+			'Whenever you would spend [[Spirit_Point | Spirit Points]] to use an **Imbued Item** that would otherwise not require an [[Attunement]] Check, you can make an [[Attunement]] Check DC 15 to spend one less [[Spirit_Point | SP]] (min 0).',
 	}),
 	[Feat.FocusedChanneling]: new FeatDefinition<void>({
 		key: Feat.FocusedChanneling,
 		name: 'Focused Channeling',
-		type: FeatType.Minor,
+		type: FeatType.Major,
 		sources: [ClassFlavor.Devout],
-		level: 3,
+		level: 2,
 		description:
-			"You can spend 2 [[Focus_Points | FP]] (and add the [[Concentrate]] trait, if it didn't have it already) when doing an action with the [[Channeling]] trait to get a +3 [[Circumstance Modifier | CM]].",
+			"You can spend 1 [[Focus_Points | FP]] (and add the [[Concentrate]] trait, if it didn't have it already) when doing an action with the [[Channeling]] trait to get a +3 [[Circumstance Modifier | CM]].",
 	}),
 	// Mixed
 	// Crusader
@@ -1034,11 +1121,20 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 	[Feat.SpiritualArmor]: new FeatDefinition<void>({
 		key: Feat.SpiritualArmor,
 		name: 'Spiritual Armor',
-		type: FeatType.Minor,
+		type: FeatType.Major,
 		sources: [ClassFlavor.Crusader],
 		level: 2,
 		description:
 			'You can roll the [[Shrug_Off | Shrug Off]] action using your **Primary Attribute** instead of [[Toughness]].',
+	}),
+	[Feat.MoralAuthority]: new FeatDefinition<void>({
+		key: Feat.MoralAuthority,
+		name: 'Moral Authority',
+		type: FeatType.Minor,
+		sources: [ClassFlavor.Crusader],
+		level: 3,
+		description:
+			"If you witness someone performing an action that directly contradicts your (or your Protean's) moral code, you get a `+6` to any [[CHA]]-based Checks attempting to stop or dissuade this behavior (such as intimidation, persuasion, deception, etc).",
 	}),
 };
 

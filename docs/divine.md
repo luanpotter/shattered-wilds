@@ -1,6 +1,6 @@
 Unlike the **Arcane**, the **Divine** is a much softer magical system, by which characters outsource the power through the **Aether** (be it from Proteans, their own Soul, or an unexplainable connection to Luck itself). **Divine** is definitely _not_ a science, and it is _not_ predictable. Instead of describing exact desired effects as the **Arcanists** do, **Mystics** have vague desires and roll a Check, letting the DM decide the effect.
 
-**Mystics** with the **Divine Channeling** **Feat** can spend 1 [[Action_Point | AP]] and any number (at least 1, at most your [[Level]]) of [[Spirit_Point | SP]] to perform a specific **Divine Channeling** action (with the [Channeling] trait) to basically cast a "divine spell". Roll a [[DIV]] Check (regardless of your **Class**) and the DM will determine the effect based on the result.
+**Mystics** with the [[Divine Channeling]] **Feat** can spend 1 [[Action_Point | AP]] and any number (at least 1, at most your [[Level]]) of [[Spirit_Point | SP]] to perform a specific **Divine Channeling** action (with the [Channeling] trait) to basically cast a "divine spell". Roll a [[DIV]] Check (regardless of your **Class**) and the DM will determine the effect based on the result.
 
 All divine spells are pleas to the forces of the beyond to grant a desired effect. The vaguer the request, the more likely it is for it to succeed in some form or another. While very specific spell effects (akin to the **Arcane** casting) are not possible, it is possible to at least specify the general nature of the desired effect.
 

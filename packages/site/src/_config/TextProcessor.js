@@ -21,7 +21,7 @@ export class TextProcessor {
 					throw new Error(`Missing class entry: ${classSlug}`);
 				}
 				const filterSource = source =>
-					source === classEntry.role || source === classEntry.flavor || source === classEntry.name;
+					source === classEntry.role || source === classEntry.flavor || source === classEntry.realm;
 				const filterFeat = feat => feat.sources.some(filterSource);
 				const order = ['level', 'isMinor'];
 				return this.renderListWithSortAndFilter('Feat', order, filterFeat, []);

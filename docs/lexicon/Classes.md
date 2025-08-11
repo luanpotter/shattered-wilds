@@ -74,11 +74,11 @@ Tank Warriors focus on Constitution, and thus are focused on defense and therefo
 
 There are a total of 12 **Caster** classes, which are divided in a 3x4 matrix depending on their **Role** (**Primary Attribute** and source of their powers) and **Flavor** (manifestation of that power).
 
-| Role / Flavor  | Arcanist | Mechanist | Naturalist | Musicist    |
-|----------------|----------|-----------|------------|-------------|
-| Erudite (INT)  | Wizard   | Engineer  | Alchemist  | Storyteller |
-| Intuitive (WIS)| Mage     | Artificer | Druid      | Minstrel    |
-| Innate (CHA)   | Sorcerer | Machinist | Shaman     | Bard        |
+| Role / Flavor  | Arcanist     | Mechanist     | Naturalist     | Musicist        |
+|----------------|--------------|---------------|----------------|-----------------|
+| Erudite (INT)  | [[Wizard]]   | [[Engineer]]  | [[Alchemist]]  | [[Storyteller]] |
+| Intuitive (WIS)| [[Mage]]     | [[Artificer]] | [[Druid]]      | [[Minstrel]]    |
+| Innate (CHA)   | [[Sorcerer]] | [[Machinist]] | [[Shaman]]     | [[Bard]]        |
 
 The **Core Major Feat** for all **Casters** is:
 
@@ -128,11 +128,11 @@ Unlike the **Arcane**, the **Divine** is a much softer magical system, by which 
 
 There are a total of 9 **Mystic** classes, which are divided in a 3x3 matrix depending on their **Role** (which determines their **Primary Attribute**) and **Flavor** (wether they purely dedicate to their channeling or have some mixed martial characteristics).
 
-| Role / Flavor | Devout   | Mixed     | Crusader  |
-|---------------|----------|-----------|-----------|
-| Adept (DIV)   | Cleric   | Warlock   | Paladin   |
-| Disciple (FOW)| Sage     | Monk      | Ranger    |
-| Inspired (LCK)| Wanderer | Wayfarer  | Warden    |
+| Role / Flavor | Devout       | Mixed         | Crusader    |
+|---------------|--------------|---------------|-------------|
+| Disciple (DIV)| [[Cleric]]   | [[Warlock]]   | [[Paladin]] |
+| Adept (FOW)   | [[Sage]]     | [[Monk]]      | [[Ranger]]  |
+| Inspired (LCK)| [[Wanderer]] | [[Wayfarer]]  | [[Warden]]  |
 
 The realm of the **Divine** can produce effects much different than that of the **Arcane**, such as:
 
@@ -144,9 +144,9 @@ The realm of the **Divine** can produce effects much different than that of the 
 
 However, differently from the **Casters** table, this matrix is a bit more diverse; each **Role** will have access to different tools and abilities (though some form of **Channeling** will always connect all **Mystics**):
 
-* **The Adept**: Employ their [[DIV]] to submit to a specific Protean and channel their power.
-* **The Disciple**: Leverage their [[FOW]] and self-control to connect to the Aether and channel the true power of their own Soul.
-* **The Inspired**: Receive their [[LCK]] through a literally unexplainable connection to the Aether (and maybe even beyond).
+* **The Adept**: Employ their [[DIV]] to submit to a specific **Protean** and channel their power.
+* **The Disciple**: Leverage their [[FOW]] and self-control to connect to the **Aether** and channel the true power of their own Soul.
+* **The Inspired**: Receive their [[LCK]] through a literally unexplainable connection to beyond the **Aether**.
 
 Therefore, much like it is for the **Warriors**, your **Role** will define your **Core Major Feat**, while your **Flavor** will define your **Core Minor Feat**.
 
@@ -157,7 +157,7 @@ The nature of their connection can be varied, from an abstract concept and blind
 
 Regardless of the nature of their connection, the **Adept** can:
 
-* Actively **Channel** powers from the **Aether** into the material world (i.e. Divine Channeling), using a [[DIV]] Check;
+* Actively **Channel** powers from the **Aether** into the material world (i.e. [[Divine Channeling]]), using a [[DIV]] Check;
 * Actively [[Pray]] as a one-way communication with their **Protean** to inform their desires, needs, concerns and requests, typically done once a day after a [[Long Rest]], using a [[Devotion]] Check;
 * Passively receive messages, guidance, or visions from their **Protean**, at the discretion of the DM.
 
@@ -193,6 +193,8 @@ The **Inspired** is a **Mystic** who is able to receive their [[LCK]] through an
 ## Flavor: Devout
 
 The **Devout** will be completely focused on their channeling, instead of diverging into more martial-focused faculties.
+
+If they are not already an **Adept**, they will be able to pick the [[Lesser Divine Channeling]] feat at Level 2 to unlock the [Divine](/rules/divine) (creating some justification with the DM).
 
 <details>
   <summary>Devout Feats</summary>

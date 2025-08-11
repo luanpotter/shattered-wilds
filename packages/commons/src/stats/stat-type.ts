@@ -190,7 +190,7 @@ On top of these types of actions, the different Skills can still be used for oth
 		hierarchy: StatHierarchy.Attribute,
 		parent: StatType.Soul,
 		name: StatTypeName.LCK,
-		description: `**Luck** is a measure of the [[Soul]]'s connection with forces even beyond the Aether, measuring a character's unexplainable connection with Luck as a concept that appears to escape the realm of reality itself.`,
+		description: `**Luck** is a measure of the [[Soul]]'s connection with forces even beyond the **Aether**, measuring a character's unexplainable connection with Luck as a concept that appears to escape the realm of reality itself.`,
 	});
 	static readonly Muscles = StatType.build({
 		hierarchy: StatHierarchy.Skill,
