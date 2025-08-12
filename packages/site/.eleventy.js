@@ -18,6 +18,7 @@ import { TextProcessor } from './src/_config/TextProcessor.js';
 import { covers } from './src/_config/data/covers.js';
 import { predefinedArcaneSpells } from './src/_config/data/arcane.js';
 import { schools } from './src/_config/data/schools.js';
+import { conditions } from './src/_config/data/conditions.js';
 
 export default function (eleventyConfig) {
 	// NOTE: kept to allow for a different prefix in the future
@@ -42,6 +43,7 @@ export default function (eleventyConfig) {
 	eleventyConfig.addGlobalData('covers', covers);
 	eleventyConfig.addGlobalData('predefinedArcaneSpells', predefinedArcaneSpells);
 	eleventyConfig.addGlobalData('schools', schools);
+	eleventyConfig.addGlobalData('conditions', conditions);
 
 	const wikiPages = [
 		...lexiconFiles,
@@ -56,6 +58,7 @@ export default function (eleventyConfig) {
 		...covers,
 		...predefinedArcaneSpells,
 		...schools,
+		...conditions,
 	]
 		.filter(e => e.slug)
 		.sort((a, b) => {

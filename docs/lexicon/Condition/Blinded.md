@@ -1,1 +1,0 @@
-The character is unable to see. Add a `-6` [[Circumstance Modifier | CM]] to all [[Action | Actions]] that require sight (including _Attack Actions_), and a `-3` [[Circumstance Modifier | CM]] to [[Body]] Defense Checks.
