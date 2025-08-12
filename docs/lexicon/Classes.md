@@ -153,7 +153,7 @@ Therefore, much like it is for the **Warriors**, your **Role** will define your 
 ## The Adept
 
 The **Adept** is a **Mystic** who either has (1) submitted, (2) a contract, or (3) a bond with a specific higher power in the **Aether** - i.e., a **Protean**.
-The nature of their connection can be varied, from an abstract concept and blind devotion to a more personal touch towards an Avatar (see the **Archetypes** section below for more details).
+The nature of their connection can be varied, from an abstract concept and blind devotion to a more personal touch towards an Avatar (see the **Archetypes** section in [Divine](/rules/divine)).
 
 Regardless of the nature of their connection, the **Adept** can:
 
@@ -215,7 +215,3 @@ Of the three **Flavors**, the **Crusader** will have the most focus on martial e
   <summary>Crusader Feats</summary>
   {% list_feats_for_source "Crusader" %}
 </details>
-
-## Archetypes
-
-> <mark>WIP</mark> The **Mystic Archetypes** are still being developed and are not available as an option yet.

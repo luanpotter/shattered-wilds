@@ -1107,7 +1107,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		description:
 			"You can spend 1 [[Focus_Points | FP]] (and add the [[Concentrate]] trait, if it didn't have it already) when doing an action with the [[Channeling]] trait to get a +3 [[Circumstance Modifier | CM]].",
 	}),
-	// Mixed
+	// Mixed - WIP
 	// Crusader
 	[Feat.DivineSmite]: new FeatDefinition<void>({
 		key: Feat.DivineSmite,

@@ -11,7 +11,23 @@ Within the domain of the **Arcane**, the bodies of **Beings** are not just mater
 Casting a spell typically will require (see **Fundamental Arcane Spell** below):
 
 * a certain amount of **AP** ([[Action_Point | Action Points]]) and **FP** ([[Focus_Point | Focus Points]]) to be spent;
-* executing some non-zero amoe familiar with the material being c
+* executing some non-zero amount of **Spell Components**;
+* rolling a [[Check]] using the Spellcaster's Base Attribute:
+
+> Roll Base Spellcasting Attribute + Component Modifiers + Augmentation Modifiers [+ Other Circumstance Modifiers]
+
+The Base DC for an uncontested Fundamental Arcane Spell is 15. That is the minimum DC for any Arcane Spell, but it can be higher if contested. Spells directly targeting a creature will require a Contested Check instead (see Contested Checks below).
+
+## Concentration
+
+Casting a spell has the [[Concentrate]] trait (even if instantaneous). Depending on the chosen School and desired effect, spells can be instantaneous, meaning they are done after the Casting Time over which the Components are executed; or they can be held in Concentration. While Concentrating, the Caster cannot take other [[Concentrate]] actions (such as other Spells). A Caster can always just drop Concentration at will. See more details about which types of effects can be instantaneous or not under **Augmentations > Duration** below.
+
+As with any other Concentrate Action, if the Caster is disrupted during concentration (or during the Spell Casting) via the [[Feint]] action, they must roll a [[Tenacity]] check to sustain Concentration or finalize the cast.
+
+## Contested Checks
+
+When directly trying to affect a creature with a spell, the Base DC is replaced with a Contested Check (but the Base DC is still the minimum). Which Check to be used depends on the nature of the spell being cast.
+
 Launching a projectile, be it matter or energy, onto a creature, is considered a **Basic Body Attack**, and therefore is contested with a **Basic Body Defense** Check.
 
 Other effects are typically considered **Special Attacks**, and therefore are contested by specific **Skills**. For example:
