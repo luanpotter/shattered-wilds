@@ -63,7 +63,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 	};
 
 	const handleBackToList = () => {
-		Navigator.toSimulator();
+		Navigator.toCharacterSheets();
 		setSelectedCharacterId(null);
 	};
 
