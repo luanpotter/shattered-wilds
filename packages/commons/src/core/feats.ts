@@ -419,6 +419,7 @@ export enum Tool {
 	ClimbingGear = 'Climbing Gear',
 	DisguiseKit = 'Disguise Kit',
 	MusicalInstrument = 'Musical Instrument',
+	HealersKit = "Healer's Kit",
 	Other = 'Other',
 }
 

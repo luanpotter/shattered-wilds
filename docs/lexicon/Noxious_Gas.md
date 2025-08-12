@@ -1,0 +1,1 @@
+A purple-ish toxic gas sometimes found in the Wilds; every creature at the end of turn must make a [[Resilience]] Check (DC 15 if passed through; DC 20 if they ended their turn within the gas cloud) or suffer 1 [[Vitality_Point | VP]] of damage from the poison. If an incapacitated creature fails their check, they start to stack a [[Poisoned]] [[Consequence]].

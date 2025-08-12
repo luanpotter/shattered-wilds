@@ -1,4 +1,5 @@
 export enum Condition {
+	Blessed = 'Blessed',
 	Blinded = 'Blinded',
 	Distracted = 'Distracted',
 	Distraught = 'Distraught',
@@ -22,6 +23,13 @@ export class ConditionDefinition {
 }
 
 export const CONDITIONS: Record<Condition, ConditionDefinition> = {
+	[Condition.Blessed]: new ConditionDefinition({
+		name: Condition.Blessed,
+		description: `The character feels blessed and inspired, to an extent that can actually affects their actions, for a given amount of turns (the **Blessed** _rank_). While **Blessed**, a character can use their [[Luck Die]] for free. At the end of their turn, decrease the **Blessed** _rank_ by 1.
+
+A character cannot become **Frightened** if they are **Blessed**.
+`,
+	}),
 	[Condition.Blinded]: new ConditionDefinition({
 		name: Condition.Blinded,
 		description: `The character is unable to see. Add a \`-6\` [[Circumstance Modifier | CM]] to all [[Action | Actions]] that require sight (including _Attack Actions_), and a \`-3\` [[Circumstance Modifier | CM]] to [[Body]] Defense Checks.`,
@@ -40,7 +48,19 @@ This can be inflicted by the [[Demoralize]] action, and cleared using the [[Calm
 	}),
 	[Condition.Frightened]: new ConditionDefinition({
 		name: Condition.Frightened,
-		description: `TODO: Add Frightened condition`,
+		description: `The character is terrified by a specific source for a given amount of turns (the **Frightened** _rank_). While **Frightened**, a character:
+
+- Suffers a \`-2\` [[Circumstance Modifier | CM]] to any Active [[Check | Checks]].
+- Cannot willingly move closer to the source of their fear (i.e. distance between the Hexes cannot decrease due to movement).
+
+The condition is considered **Active** if the character can see the source of fear _or_ if they have reason to believe that the source of fear can see them.
+
+The character can attempt to dispel the fear by using 1 [[Action_Point | AP]] and 1 [[Focus_Point | FP]] to roll a (Passive) Contested [[Discipline]] Check against the original DC + the current **Frightened** _rank_. If the Fear is not active, they get a \`+3\` [[Circumstance Modifier | CM]] to the Check.
+
+If the Fear is not active, at the end of the turn, decrease the **Frightened** _rank_ by 1.
+
+A character cannot become **Blessed** if they are **Frightened**.
+`,
 	}),
 	[Condition.Immobilized]: new ConditionDefinition({
 		name: Condition.Immobilized,
@@ -55,7 +75,7 @@ While **Immobilized**, a character:
 	}),
 	[Condition.Incapacitated]: new ConditionDefinition({
 		name: Condition.Incapacitated,
-		description: `The character is severely incapacitated when their [[Vitality_Point | VP]], [[Focus_Point | FP]] or [[Spirit_Point | SP]] reaches 0.
+		description: `The character is severely incapacitated when their [[Vitality_Point | VP]], [[Focus_Point | FP]] or [[Spirit_Point | SP]] reaches \`0\`.
 
 When Incapacitated, a character is:
 
@@ -63,7 +83,7 @@ When Incapacitated, a character is:
 - Unable to take [[Action | Actions]] (except [[Heroic_Relentlessness | Heroic Relentlessness]]).
 - Helpless and vulnerable to further harm.
 
-When a character recovers from Incapacitated (by any means), they gain one level of [[Exhaustion]]. This represents the physical and mental toll of being pushed to the brink of consciousness.
+When a character recovers from Incapacitated (by any means), they gain one _rank_ of [[Exhaustion]]. This represents the physical and mental toll of being pushed to the brink of consciousness.
 
 Incapacitated characters are vulnerable to taking further Consequences.`,
 	}),

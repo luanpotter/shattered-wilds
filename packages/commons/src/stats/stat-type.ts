@@ -199,7 +199,7 @@ On top of these types of actions, the different Skills can still be used for oth
 		description: `Raw power that can be impacted in a short burst, e.g. pulling a stuck lever, breaking down an inanimate object, smashing a mug on one's hands.`,
 		exampleUsages: [
 			`Can be used instead of [[STR]] to perform an attack with the [[Charge]] action.`,
-			`A Contested Check can be used to resist certain Transfiguration Arcane Spells.`,
+			`A Contested Check can be used to resist certain [[Transfiguration]] Arcane Spells.`,
 			`A Contested Check can be used to resist a [[Disarm]] Special Attack.`,
 			`A Contested Check can be used to resist a [[Drag_Grappler | Drag Grappler]] Special Attack.`,
 		],
