@@ -10,6 +10,7 @@ import { Navigator } from '../utils/routes';
 import { ActionsSection } from './ActionsSection';
 import { ArcaneSection } from './ArcaneSection';
 import { DerivedStatsRowComponent } from './DerivedStatsRowComponent';
+import { DivineSection } from './DivineSection';
 import { EquipmentSection } from './EquipmentSection';
 import { FeatsSectionComponent } from './FeatsSectionComponent';
 import { ResourcesRowComponent } from './ResourcesRowComponent';
@@ -141,6 +142,7 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 				<EquipmentSection characterId={characterId} />
 				<ActionsSection characterId={characterId} />
 				<ArcaneSection characterId={characterId} />
+				<DivineSection characterId={characterId} />
 			</Column>
 		</>
 	);

@@ -4,7 +4,7 @@ _This is the choice for players who want a more loosey-goosey, less mechanical m
 
 The domain of the **Divine** also includes [[Imbued Item | Imbued Items]], as they work by leveraging powers from the **Aether**.
 
-**Mystics** with the [[Divine Channeling]] **Feat** can spend 2 [[Action_Point | AP]] and any number (at least 1, at most your [[Level]]) of [[Spirit_Point | SP]] to perform a specific **Divine Channeling** action (with the [Channeling] trait) to essentially "cast a divine spell". Roll a [[DIV]] Check (regardless of **Class**) and the DM will determine the effect based on the result.
+**Mystics** with the [[Divine Channeling]] **Feat** can spend 2 [[Action_Point | AP]] and 1 [[Spirit_Point | SP]] to perform a specific **Divine Channeling** action (with the [Channeling] trait) to essentially "cast a divine spell". Roll a [[DIV]] Check (regardless of **Class**) and the DM will determine the effect based on the result.
 
 ## Domains
 
