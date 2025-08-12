@@ -1,7 +1,9 @@
+import { StatType } from '@shattered-wilds/commons';
 import React from 'react';
-import { FaArrowLeft, FaCopy } from 'react-icons/fa';
+import { FaArrowLeft, FaBolt, FaCopy, FaMagic, FaShieldAlt, FaSitemap, FaStar, FaSun, FaThLarge } from 'react-icons/fa';
 
 import { useModals } from '../hooks/useModals';
+import { useUIStateFactory } from '../hooks/useUIState';
 import { useStore } from '../store';
 import { CharacterSheet } from '../types';
 import { copyCharacterDataToClipboard } from '../utils/clipboard';
@@ -53,6 +55,26 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 	const { openRaceSetupModal, openClassSetupModal } = useModals();
 
 	const sheet = character?.props ? CharacterSheet.from(character.props) : null;
+
+	const { useState } = useUIStateFactory(`full-page-sheet-${characterId}`);
+	type TabKey = 'all' | 'stats' | 'feats' | 'equipment' | 'actions' | 'arcane' | 'divine';
+	const [activeTab, setActiveTab] = useState<TabKey>('activeTab', 'all');
+
+	const primaryAttrName = sheet?.characterClass.definition.primaryAttribute.name;
+	const hasArcane = primaryAttrName ? StatType.mindAttributes.includes(primaryAttrName) : false;
+	const hasDivine = primaryAttrName ? StatType.soulAttributes.includes(primaryAttrName) : false;
+
+	const tabs: { key: TabKey; icon: React.ComponentType; tooltip: string }[] = [
+		{ key: 'all', icon: FaThLarge, tooltip: 'All' },
+		{ key: 'stats', icon: FaSitemap, tooltip: 'Stats' },
+		{ key: 'feats', icon: FaStar, tooltip: 'Feats' },
+		{ key: 'equipment', icon: FaShieldAlt, tooltip: 'Equipment' },
+		{ key: 'actions', icon: FaBolt, tooltip: 'Actions' },
+		...(hasArcane ? ([{ key: 'arcane', icon: FaMagic, tooltip: 'Arcane' }] as const) : ([] as const)),
+		...(hasDivine ? ([{ key: 'divine', icon: FaSun, tooltip: 'Divine' }] as const) : ([] as const)),
+	];
+	const availableKeys = tabs.map(t => t.key);
+	const resolvedTab: TabKey = (availableKeys.includes(activeTab) ? activeTab : 'all') as TabKey;
 
 	if (!character || !sheet) {
 		return (
@@ -129,20 +151,63 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 					</Row>
 				</Block>
 
-				<Block>
-					<StatTreeGridComponent
-						tree={sheet.getStatTree()}
-						onUpdateCharacterProp={(key: string, value: string) => updateCharacterProp(character, key, value)}
-						disabled={!editMode}
-						characterId={characterId}
-					/>
-				</Block>
+				{/* Tab Selector */}
+				<div style={{ display: 'flex', justifyContent: 'center', margin: '0.5rem 0 0.75rem' }}>
+					<div
+						style={{
+							display: 'flex',
+							gap: '0.5rem',
+							padding: '4px',
+							borderRadius: '6px',
+							background: 'var(--panel-bg, rgba(0,0,0,0.05))',
+							boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.1)',
+						}}
+					>
+						{tabs.map(t => {
+							const Icon = t.icon as React.ComponentType<{ size?: number }>;
+							const isActive = resolvedTab === t.key;
+							return (
+								<button
+									key={t.key}
+									title={t.tooltip}
+									aria-label={t.tooltip}
+									onClick={() => setActiveTab(t.key)}
+									className='icon-button'
+									style={{
+										width: '34px',
+										height: '30px',
+										borderRadius: '4px',
+										background: isActive ? 'var(--primary-ghost, rgba(0,0,0,0.12))' : 'transparent',
+										boxShadow: isActive ? 'inset 0 0 0 1px rgba(0,0,0,0.2)' : 'none',
+									}}
+								>
+									<Icon size={16} />
+								</button>
+							);
+						})}
+					</div>
+				</div>
 
-				<FeatsSectionComponent characterId={characterId} />
-				<EquipmentSection characterId={characterId} />
-				<ActionsSection characterId={characterId} />
-				<ArcaneSection characterId={characterId} />
-				<DivineSection characterId={characterId} />
+				{(resolvedTab === 'all' || resolvedTab === 'stats') && (
+					<Block>
+						<StatTreeGridComponent
+							tree={sheet.getStatTree()}
+							onUpdateCharacterProp={(key: string, value: string) => updateCharacterProp(character, key, value)}
+							disabled={!editMode}
+							characterId={characterId}
+						/>
+					</Block>
+				)}
+
+				{(resolvedTab === 'all' || resolvedTab === 'feats') && <FeatsSectionComponent characterId={characterId} />}
+				{(resolvedTab === 'all' || resolvedTab === 'equipment') && <EquipmentSection characterId={characterId} />}
+				{(resolvedTab === 'all' || resolvedTab === 'actions') && <ActionsSection characterId={characterId} />}
+				{(resolvedTab === 'all' || resolvedTab === 'arcane') && hasArcane && (
+					<ArcaneSection characterId={characterId} />
+				)}
+				{(resolvedTab === 'all' || resolvedTab === 'divine') && hasDivine && (
+					<DivineSection characterId={characterId} />
+				)}
 			</Column>
 		</>
 	);
