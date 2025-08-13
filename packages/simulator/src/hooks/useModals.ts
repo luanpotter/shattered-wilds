@@ -297,8 +297,19 @@ export function useModals() {
 		addModal({
 			id: generateModalId(),
 			title: 'Add Item',
-			type: 'add-item',
+			type: 'item',
 			characterId,
+			position: getNextPosition(),
+		});
+	};
+
+	const openViewItemModal = ({ characterId, itemIndex }: { characterId: string; itemIndex: number }) => {
+		addModal({
+			id: generateModalId(),
+			title: 'View Item',
+			type: 'item',
+			characterId,
+			itemIndex,
 			position: getNextPosition(),
 		});
 	};
@@ -328,6 +339,7 @@ export function useModals() {
 		openFeatSelectionModal,
 		openFeatParameterSetupModal,
 		openAddItemModal,
+		openViewItemModal,
 		closeModal,
 		closeAllModals,
 		updateModal,

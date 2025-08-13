@@ -98,8 +98,9 @@ export type Modal =
 			baseFeat: FeatDefinition<string | void>;
 	  })
 	| (BaseModal & {
-			type: 'add-item';
+			type: 'item';
 			characterId: string;
+			itemIndex?: number; // if provided, edit/view existing; else create new
 	  });
 
 export interface Character {

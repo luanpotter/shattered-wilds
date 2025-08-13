@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaPlus, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
@@ -14,7 +14,7 @@ interface EquipmentSectionProps {
 }
 
 export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ characterId }) => {
-	const { openAddItemModal } = useModals();
+	const { openAddItemModal, openViewItemModal } = useModals();
 	const editMode = useStore(state => state.editMode);
 
 	const character = useStore(state => state.characters.find(c => c.id === characterId))!;
@@ -53,10 +53,19 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ characterId 
 							item.name = value;
 							onUpdateEquipment(equipment);
 						}}
+						onClick={!editMode ? () => openViewItemModal({ characterId, itemIndex: idx }) : undefined}
 						disabled={!editMode}
 					/>
 					{editMode && (
-						<Button onClick={() => handleRemoveItem(idx)} icon={FaTrash} tooltip='Remove item' variant='inline' />
+						<>
+							<Button
+								onClick={() => openViewItemModal({ characterId, itemIndex: idx })}
+								icon={FaEdit}
+								tooltip='Edit item'
+								variant='inline'
+							/>
+							<Button onClick={() => handleRemoveItem(idx)} icon={FaTrash} tooltip='Remove item' variant='inline' />
+						</>
 					)}
 				</div>
 			))}

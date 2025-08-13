@@ -9,7 +9,7 @@ import {
 	ShieldType,
 	Trait,
 } from '@shattered-wilds/commons';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useStore } from '../../store';
 import { CharacterSheet, Equipment, BASIC_EQUIPMENT, BasicEquipmentType, Weapon, WeaponMode } from '../../types';
@@ -22,39 +22,63 @@ type ItemKind = 'weapon' | 'armor' | 'shield' | 'other';
 
 interface AddItemModalProps {
 	characterId: string;
+	itemIndex: number | undefined;
 	onClose: () => void;
 }
 
-export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, onClose }) => {
+export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemIndex, onClose }) => {
 	const characters = useStore(state => state.characters);
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
+	const editMode = useStore(state => state.editMode);
 
 	const character = characters.find(c => c.id === characterId);
 	const sheet = character ? CharacterSheet.from(character.props) : null;
 	const equipment: Equipment = sheet?.equipment ?? new Equipment();
 
-	const [kind, setKind] = useState<ItemKind>('weapon');
+	// Editing/viewing existing item? Derive initial values from it once
+	const existing = typeof itemIndex === 'number' ? equipment.items[itemIndex] : undefined;
+
+	const [kind, setKind] = useState<ItemKind>(() => {
+		if (existing instanceof Weapon) return 'weapon';
+		if (existing instanceof Armor) return 'armor';
+		if (existing instanceof Shield) return 'shield';
+		if (existing instanceof OtherItem) return 'other';
+		return 'weapon';
+	});
 	const [template, setTemplate] = useState<BasicEquipmentType | null>(null);
-	const [name, setName] = useState<string>('');
-	const [traits, setTraits] = useState<Trait[]>([]);
+	const [name, setName] = useState<string>(() => (existing ? existing.name : ''));
+	const [traits, setTraits] = useState<Trait[]>(() =>
+		existing && !(existing instanceof OtherItem) ? existing.traits : [],
+	);
 
 	// Weapon
 	const emptyMode = () => ({ type: PrimaryWeaponType.LightMelee as PrimaryWeaponType, bonus: 0, range: 1 });
-	const [weaponModes, setWeaponModes] = useState<Array<{ type: PrimaryWeaponType; bonus: number; range: number }>>([
-		emptyMode(),
-	]);
+	const [weaponModes, setWeaponModes] = useState<Array<{ type: PrimaryWeaponType; bonus: number; range: number }>>(
+		() =>
+			existing instanceof Weapon
+				? existing.modes.map(m => ({ type: m.type, bonus: m.bonus.value, range: m.range.value }))
+				: [emptyMode()],
+	);
 
 	// Armor
-	const [armorType, setArmorType] = useState<ArmorType>(ArmorType.LightArmor);
-	const [armorBonus, setArmorBonus] = useState<number>(0);
-	const [armorDexPenalty, setArmorDexPenalty] = useState<number>(0);
+	const [armorType, setArmorType] = useState<ArmorType>(
+		existing instanceof Armor ? existing.type : ArmorType.LightArmor,
+	);
+	const [armorBonus, setArmorBonus] = useState<number>(existing instanceof Armor ? existing.bonus.value : 0);
+	const [armorDexPenalty, setArmorDexPenalty] = useState<number>(
+		existing instanceof Armor ? existing.dexPenalty.value : 0,
+	);
 
 	// Shield
-	const [shieldType, setShieldType] = useState<ShieldType>(ShieldType.SmallShield);
-	const [shieldBonus, setShieldBonus] = useState<number>(0);
+	const [shieldType, setShieldType] = useState<ShieldType>(
+		existing instanceof Shield ? existing.type : ShieldType.SmallShield,
+	);
+	const [shieldBonus, setShieldBonus] = useState<number>(existing instanceof Shield ? existing.bonus.value : 0);
 
 	// Other
-	const [otherDetails, setOtherDetails] = useState<string>('');
+	const [otherDetails, setOtherDetails] = useState<string>(
+		existing instanceof OtherItem ? (existing.details ?? '') : '',
+	);
 
 	// Traits
 	const equipmentTraits: Trait[] = [Trait.Concealable, Trait.Reloadable, Trait.TwoHanded, Trait.Polearm];
@@ -84,12 +108,9 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, onClose
 		setOtherDetails('');
 	}, []);
 
-	// When kind or template changes, seed form values from template
-	React.useEffect(() => {
-		if (!template) {
-			clearFields();
-			return;
-		}
+	useEffect(() => {
+		if (typeof itemIndex === 'number') return;
+		if (!template) return;
 
 		const item = BASIC_EQUIPMENT[template].generator(); // fresh instance to avoid mutating templates
 		if (item instanceof Weapon) {
@@ -111,7 +132,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, onClose
 			setShieldType(item.type);
 			setShieldBonus(item.bonus.value);
 		}
-	}, [template, clearFields]);
+	}, [template, itemIndex]);
 
 	const handleSetKind = (newKind: ItemKind) => {
 		setKind(newKind);
@@ -120,7 +141,42 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, onClose
 	};
 
 	const addMode = () => setWeaponModes(prev => [...prev, emptyMode()]);
+	const didResetOnViewRef = useRef(false);
 	const removeMode = (index: number) => setWeaponModes(prev => prev.filter((_, i) => i !== index));
+
+	// If switching to view mode mid-edit, reset fields to last saved data (only once per switch)
+	useEffect(() => {
+		if (editMode) {
+			didResetOnViewRef.current = false;
+			return;
+		}
+		if (typeof itemIndex !== 'number') return;
+		if (didResetOnViewRef.current) return;
+		const current = equipment.items[itemIndex];
+		if (!current) return;
+		// Reset to persisted item values
+		setName(current.name);
+		if (current instanceof Weapon) {
+			setKind('weapon');
+			setTraits(current.traits);
+			setWeaponModes(current.modes.map(m => ({ type: m.type, bonus: m.bonus.value, range: m.range.value })));
+		} else if (current instanceof Armor) {
+			setKind('armor');
+			setTraits(current.traits);
+			setArmorType(current.type);
+			setArmorBonus(current.bonus.value);
+			setArmorDexPenalty(current.dexPenalty.value);
+		} else if (current instanceof Shield) {
+			setKind('shield');
+			setTraits(current.traits);
+			setShieldType(current.type);
+			setShieldBonus(current.bonus.value);
+		} else if (current instanceof OtherItem) {
+			setKind('other');
+			setOtherDetails(current.details ?? '');
+		}
+		didResetOnViewRef.current = true;
+	}, [editMode, itemIndex, equipment.items]);
 
 	const buildItem = () => {
 		if (kind === 'weapon') {
@@ -152,7 +208,11 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, onClose
 
 	const handleConfirm = () => {
 		const item = buildItem();
-		equipment.items.push(item);
+		if (typeof itemIndex === 'number') {
+			equipment.items[itemIndex] = item;
+		} else {
+			equipment.items.push(item);
+		}
 		if (character) {
 			updateCharacterProp(character, 'equipment', equipment.toProp());
 		}
@@ -171,9 +231,10 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, onClose
 					value={kind}
 					options={['weapon', 'armor', 'shield', 'other'] as const}
 					describe={k => ({ weapon: 'Weapon', armor: 'Armor', shield: 'Shield', other: 'Other' })[k]}
+					disabled={!editMode}
 					onChange={value => handleSetKind(value as ItemKind)}
 				/>
-				{kind !== 'other' && (
+				{kind !== 'other' && typeof itemIndex !== 'number' && (
 					<LabeledDropdown
 						label='Template (optional)'
 						value={template}
@@ -185,10 +246,24 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, onClose
 				)}
 			</div>
 
-			<LabeledInput label='Name' value={name} onBlur={setName} />
+			<LabeledInput label='Name' value={name} onBlur={setName} disabled={!editMode} />
 
 			{kind === 'weapon' && (
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+					{/* Traits above modes */}
+					<div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+						<span style={{ fontWeight: 'bold', marginRight: '4px' }}>Traits:</span>
+						{equipmentTraits.map(t => (
+							<LabeledCheckbox
+								key={t}
+								label={String(t)}
+								checked={traits.includes(t)}
+								disabled={!editMode}
+								onChange={() => toggleTrait(t)}
+							/>
+						))}
+					</div>
+
 					{weaponModes.map((mode, idx) => (
 						<div key={idx} style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
 							<LabeledDropdown
@@ -196,6 +271,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, onClose
 								label={`Mode ${idx + 1}`}
 								value={mode.type}
 								options={Object.values(PrimaryWeaponType)}
+								disabled={!editMode}
 								onChange={val =>
 									setWeaponModes(prev => prev.map((m, i) => (i === idx ? { ...m, type: val as PrimaryWeaponType } : m)))
 								}
@@ -204,6 +280,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, onClose
 								variant='inline'
 								label='Bonus'
 								value={`${mode.bonus}`}
+								disabled={!editMode}
 								onBlur={val =>
 									setWeaponModes(prev => prev.map((m, i) => (i === idx ? { ...m, bonus: parseInt(val) || 0 } : m)))
 								}
@@ -212,22 +289,16 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, onClose
 								variant='inline'
 								label='Range'
 								value={`${mode.range}`}
+								disabled={!editMode}
 								onBlur={val =>
 									setWeaponModes(prev => prev.map((m, i) => (i === idx ? { ...m, range: parseInt(val) || 1 } : m)))
 								}
 							/>
-							<Button variant='inline' title='Remove' onClick={() => removeMode(idx)} />
+							<Button variant='inline' title='Remove' onClick={() => removeMode(idx)} disabled={!editMode} />
 						</div>
 					))}
-					<div style={{ display: 'flex' }}>
-						<Button variant='inline' title='Add Mode' onClick={addMode} />
-					</div>
-
-					<div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-						<span style={{ fontWeight: 'bold', marginRight: '4px' }}>Traits:</span>
-						{equipmentTraits.map(t => (
-							<LabeledCheckbox key={t} label={t} checked={traits.includes(t)} onChange={() => toggleTrait(t)} />
-						))}
+					<div style={{ display: 'flex', justifyContent: 'center' }}>
+						<Button variant='inline' title='Add Mode' onClick={addMode} disabled={!editMode} />
 					</div>
 				</div>
 			)}
@@ -239,19 +310,32 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, onClose
 							label='Armor Type'
 							value={armorType}
 							options={Object.values(ArmorType)}
+							disabled={!editMode}
 							onChange={val => setArmorType(val as ArmorType)}
 						/>
-						<LabeledInput label='Armor Bonus' value={`${armorBonus}`} onBlur={v => setArmorBonus(parseInt(v) || 0)} />
+						<LabeledInput
+							label='Armor Bonus'
+							value={`${armorBonus}`}
+							onBlur={v => setArmorBonus(parseInt(v) || 0)}
+							disabled={!editMode}
+						/>
 						<LabeledInput
 							label='Dex Penalty'
 							value={`${armorDexPenalty}`}
 							onBlur={v => setArmorDexPenalty(parseInt(v) || 0)}
+							disabled={!editMode}
 						/>
 					</div>
 					<div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
 						<span style={{ fontWeight: 'bold', marginRight: '4px' }}>Traits:</span>
 						{equipmentTraits.map(t => (
-							<LabeledCheckbox key={t} label={t} checked={traits.includes(t)} onChange={() => toggleTrait(t)} />
+							<LabeledCheckbox
+								key={t}
+								label={String(t)}
+								checked={traits.includes(t)}
+								disabled={!editMode}
+								onChange={() => toggleTrait(t)}
+							/>
 						))}
 					</div>
 				</div>
@@ -263,23 +347,43 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, onClose
 						label='Shield Type'
 						value={shieldType}
 						options={Object.values(ShieldType)}
+						disabled={!editMode}
 						onChange={val => setShieldType(val as ShieldType)}
 					/>
-					<LabeledInput label='Shield Bonus' value={`${shieldBonus}`} onBlur={v => setShieldBonus(parseInt(v) || 0)} />
+					<LabeledInput
+						label='Shield Bonus'
+						value={`${shieldBonus}`}
+						onBlur={v => setShieldBonus(parseInt(v) || 0)}
+						disabled={!editMode}
+					/>
 					<div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
 						<span style={{ fontWeight: 'bold', marginRight: '4px' }}>Traits:</span>
 						{equipmentTraits.map(t => (
-							<LabeledCheckbox key={t} label={t} checked={traits.includes(t)} onChange={() => toggleTrait(t)} />
+							<LabeledCheckbox
+								key={t}
+								label={String(t)}
+								checked={traits.includes(t)}
+								disabled={!editMode}
+								onChange={() => toggleTrait(t)}
+							/>
 						))}
 					</div>
 				</div>
 			)}
 
-			{kind === 'other' && <LabeledInput label='Details' value={otherDetails} onBlur={setOtherDetails} />}
+			{kind === 'other' && (
+				<LabeledInput label='Details' value={otherDetails} onBlur={setOtherDetails} disabled={!editMode} />
+			)}
 
 			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '8px' }}>
-				<Button onClick={handleCancel} title='Cancel' />
-				<Button onClick={handleConfirm} title='Confirm' disabled={!isValid} />
+				{editMode ? (
+					<>
+						<Button onClick={handleCancel} title='Cancel' />
+						<Button onClick={handleConfirm} title='Confirm' disabled={!isValid} />
+					</>
+				) : (
+					<Button onClick={handleCancel} title='Close' />
+				)}
 			</div>
 		</div>
 	);
