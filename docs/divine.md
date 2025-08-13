@@ -52,4 +52,4 @@ Feel free to mix and match or come up with any archetype that fits your characte
 * What are the rules that you must follow, either positive or negative rules, are they specific or vague, how do you know them, how flexible are they?
 * What **Aspects** does your **Protean** represent, and which ones do they frown upon? Usually it is recommended for a **Protean** to represent 2-3 **Aspects** and to frown upon one other, ideally tied to their rules.
 
-An important topic to keep in mind is how your **Protean's** rules and **Aspects** align with your character's [Personality](/rules/personality), specifically with their [[Vice | Vices]] and [[Aversion | Aversions]] (they might or might not align, but bear in mind the consequences of these choices for roleplay).
+An important topic to keep in mind is how your **Protean's** rules and **Aspects** align with your character's [Personality](/rules/personality), specifically with their [[Vice | Vices]], [[Aversion | Aversions]] and [[Tenet | Tenets]] (they might or might not align, but bear in mind the consequences of these choices for roleplay).
