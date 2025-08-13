@@ -1,6 +1,18 @@
 import { StatType } from '@shattered-wilds/commons';
 import React from 'react';
-import { FaArrowLeft, FaBolt, FaCopy, FaMagic, FaShieldAlt, FaSitemap, FaStar, FaSun, FaThLarge } from 'react-icons/fa';
+import {
+	FaArrowLeft,
+	FaBolt,
+	FaBook,
+	FaCopy,
+	FaMagic,
+	FaPen,
+	FaShieldAlt,
+	FaSitemap,
+	FaStar,
+	FaSun,
+	FaThLarge,
+} from 'react-icons/fa';
 
 import { useModals } from '../hooks/useModals';
 import { useUIStateFactory } from '../hooks/useUIState';
@@ -15,6 +27,8 @@ import { DerivedStatsRowComponent } from './DerivedStatsRowComponent';
 import { DivineSection } from './DivineSection';
 import { EquipmentSection } from './EquipmentSection';
 import { FeatsSectionComponent } from './FeatsSectionComponent';
+import { MiscSection } from './MiscSection';
+import { PersonalitySection } from './PersonalitySection';
 import { ResourcesRowComponent } from './ResourcesRowComponent';
 import Block from './shared/Block';
 import { Button } from './shared/Button';
@@ -57,7 +71,7 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 	const sheet = character?.props ? CharacterSheet.from(character.props) : null;
 
 	const { useState } = useUIStateFactory(`full-page-sheet-${characterId}`);
-	type TabKey = 'all' | 'stats' | 'feats' | 'equipment' | 'actions' | 'arcane' | 'divine';
+	type TabKey = 'all' | 'stats' | 'feats' | 'equipment' | 'actions' | 'arcane' | 'divine' | 'personality' | 'misc';
 	const [activeTab, setActiveTab] = useState<TabKey>('activeTab', 'all');
 
 	const primaryAttrName = sheet?.characterClass.definition.primaryAttribute.name;
@@ -72,6 +86,8 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 		{ key: 'actions', icon: FaBolt, tooltip: 'Actions' },
 		...(hasArcane ? ([{ key: 'arcane', icon: FaMagic, tooltip: 'Arcane' }] as const) : ([] as const)),
 		...(hasDivine ? ([{ key: 'divine', icon: FaSun, tooltip: 'Divine' }] as const) : ([] as const)),
+		{ key: 'personality', icon: FaBook, tooltip: 'Personality' },
+		{ key: 'misc', icon: FaPen, tooltip: 'Misc' },
 	];
 	const availableKeys = tabs.map(t => t.key);
 	const resolvedTab: TabKey = (availableKeys.includes(activeTab) ? activeTab : 'all') as TabKey;
@@ -208,6 +224,8 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 				{(resolvedTab === 'all' || resolvedTab === 'divine') && hasDivine && (
 					<DivineSection characterId={characterId} />
 				)}
+				{(resolvedTab === 'all' || resolvedTab === 'personality') && <PersonalitySection characterId={characterId} />}
+				{(resolvedTab === 'all' || resolvedTab === 'misc') && <MiscSection characterId={characterId} />}
 			</Column>
 		</>
 	);
