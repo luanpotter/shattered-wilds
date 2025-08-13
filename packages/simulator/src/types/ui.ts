@@ -96,6 +96,10 @@ export type Modal =
 			characterId: string;
 			slot: FeatSlot;
 			baseFeat: FeatDefinition<string | void>;
+	  })
+	| (BaseModal & {
+			type: 'add-item';
+			characterId: string;
 	  });
 
 export interface Character {

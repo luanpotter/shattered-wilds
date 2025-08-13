@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { FaTrash } from 'react-icons/fa';
+import React from 'react';
+import { FaPlus, FaTrash } from 'react-icons/fa';
 
+import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
-import { CharacterSheet, Equipment, BASIC_EQUIPMENT, BasicEquipmentType } from '../types';
+import { CharacterSheet, Equipment } from '../types';
 
 import Block from './shared/Block';
 import { Button } from './shared/Button';
-import LabeledDropdown from './shared/LabeledDropdown';
 import LabeledInput from './shared/LabeledInput';
 
 interface EquipmentSectionProps {
@@ -14,22 +14,14 @@ interface EquipmentSectionProps {
 }
 
 export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ characterId }) => {
+	const { openAddItemModal } = useModals();
 	const editMode = useStore(state => state.editMode);
 
 	const character = useStore(state => state.characters.find(c => c.id === characterId))!;
 	const equipment = CharacterSheet.from(character.props).equipment;
 
-	const [selectedItem, setSelectedItem] = useState<BasicEquipmentType | null>(null);
-
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
 	const onUpdateEquipment = (equipment: Equipment) => updateCharacterProp(character, 'equipment', equipment.toProp());
-
-	const handleAddPredefinedItem = (item: BasicEquipmentType) => {
-		const newItem = BASIC_EQUIPMENT[item].generator();
-		equipment.items.push(newItem);
-		onUpdateEquipment(equipment);
-		setSelectedItem(null);
-	};
 
 	const handleRemoveItem = (idx: number) => {
 		equipment.items.splice(idx, 1);
@@ -38,56 +30,36 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ characterId 
 
 	return (
 		<Block>
-			<h3 style={{ margin: '0 0 8px 0', fontSize: '1.1em' }}>Equipment</h3>
+			<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+				<h3 style={{ margin: '0 0 8px 0', fontSize: '1.1em' }}>Equipment</h3>
+				{editMode && <Button onClick={() => openAddItemModal({ characterId })} title='Add Item' icon={FaPlus} />}
+			</div>
 
-			<div>
+			{equipment.items.map((item, idx) => (
 				<div
+					key={idx}
 					style={{
 						display: 'flex',
-						justifyContent: 'space-between',
 						alignItems: 'center',
 						marginBottom: '4px',
+						gap: '4px',
+						width: '100%',
 					}}
 				>
+					<LabeledInput
+						variant='inline'
+						value={item.name}
+						onBlur={value => {
+							item.name = value;
+							onUpdateEquipment(equipment);
+						}}
+						disabled={!editMode}
+					/>
 					{editMode && (
-						<div>
-							<LabeledDropdown
-								label='Add Equipment'
-								value={selectedItem}
-								options={Object.values(BasicEquipmentType)}
-								placeholder='Select equipment to add...'
-								onChange={handleAddPredefinedItem}
-							/>
-						</div>
+						<Button onClick={() => handleRemoveItem(idx)} icon={FaTrash} tooltip='Remove item' variant='inline' />
 					)}
 				</div>
-
-				{equipment.items.map((item, idx) => (
-					<div
-						key={idx}
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							marginBottom: '4px',
-							gap: '4px',
-							width: '100%',
-						}}
-					>
-						<LabeledInput
-							variant='inline'
-							value={item.name}
-							onBlur={value => {
-								item.name = value;
-								onUpdateEquipment(equipment);
-							}}
-							disabled={!editMode}
-						/>
-						{editMode && (
-							<Button onClick={() => handleRemoveItem(idx)} icon={FaTrash} tooltip='Remove item' variant='inline' />
-						)}
-					</div>
-				))}
-			</div>
+			))}
 		</Block>
 	);
 };

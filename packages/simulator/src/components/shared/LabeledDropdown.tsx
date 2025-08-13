@@ -22,7 +22,7 @@ const LabeledDropdown = <T,>({
 	const findItem = (value: string): T | undefined => options.find(option => describe(option) === value);
 
 	const inlineLabelStyle: React.CSSProperties = {
-		display: 'block',
+		display: 'flex',
 		fontSize: '0.9em',
 		whiteSpace: 'nowrap',
 		flexShrink: 0,
@@ -36,21 +36,32 @@ const LabeledDropdown = <T,>({
 		fontWeight: 'bold',
 	};
 
+	const baseSelectStyle: React.CSSProperties = {
+		width: '100%',
+		border: '1px solid var(--text)',
+		borderRadius: '4px',
+		backgroundColor: disabled ? 'var(--background)' : 'var(--background-alt)',
+		boxSizing: 'border-box',
+		color: 'var(--text)',
+		fontSize: '0.9em',
+		minWidth: '120px',
+	};
+	const normalSelectStyle: React.CSSProperties = {
+		...baseSelectStyle,
+		padding: '0.5rem',
+	};
+	const inlineSelectStyle: React.CSSProperties = {
+		...baseSelectStyle,
+		padding: '2px 4px',
+		height: '24px',
+		margin: 0,
+	};
+
 	const select = (
 		<select
 			value={value ? describe(value) : ''}
 			disabled={disabled}
-			style={{
-				width: '100%',
-				padding: '0.5rem',
-				border: '1px solid var(--text)',
-				borderRadius: '4px',
-				backgroundColor: disabled ? 'var(--background)' : 'var(--background-alt)',
-				boxSizing: 'border-box',
-				color: 'var(--text)',
-				fontSize: '0.9em',
-				minWidth: '120px',
-			}}
+			style={variant === 'inline' ? inlineSelectStyle : normalSelectStyle}
 			onChange={e => {
 				const value = e.target.value;
 				if (value === '' && placeholder) {
@@ -83,7 +94,7 @@ const LabeledDropdown = <T,>({
 	}
 
 	return (
-		<div title={tooltip ?? label}>
+		<div title={tooltip ?? label} style={{ flex: 1 }}>
 			<label style={variant === 'inline' ? inlineLabelStyle : normalLabelStyle}>
 				{label}
 				{select}

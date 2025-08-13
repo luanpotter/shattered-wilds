@@ -293,6 +293,16 @@ export function useModals() {
 		});
 	};
 
+	const openAddItemModal = ({ characterId }: { characterId: string }) => {
+		addModal({
+			id: generateModalId(),
+			title: 'Add Item',
+			type: 'add-item',
+			characterId,
+			position: getNextPosition(),
+		});
+	};
+
 	const closeModal = (modalId: string) => {
 		removeModal(modalId);
 	};
@@ -317,6 +327,7 @@ export function useModals() {
 		openConsumeResourceModal,
 		openFeatSelectionModal,
 		openFeatParameterSetupModal,
+		openAddItemModal,
 		closeModal,
 		closeAllModals,
 		updateModal,

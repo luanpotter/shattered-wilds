@@ -21,6 +21,7 @@ import {
 	ConsumeResourceModal,
 	RaceSetupModal,
 	AttackActionModal,
+	AddItemModal,
 } from './modals';
 import { Button } from './shared/Button';
 
@@ -198,6 +199,9 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 						onClose={onClose}
 					/>
 				);
+			}
+			case 'add-item': {
+				return <AddItemModal characterId={modal.characterId} onClose={onClose} />;
 			}
 			default:
 				return <div>Unknown modal type</div>;

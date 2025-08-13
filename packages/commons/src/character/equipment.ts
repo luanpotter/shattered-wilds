@@ -212,6 +212,31 @@ export class Shield implements Item {
 	}
 }
 
+export class OtherItem implements Item {
+	name: string;
+	details: string | undefined;
+
+	constructor({ name, details }: { name: string; details?: string | undefined }) {
+		this.name = name;
+		this.details = details;
+	}
+
+	get description(): string {
+		if (this.details) {
+			return `${this.name} (${this.details})`;
+		}
+		return this.name;
+	}
+
+	get displayText(): string {
+		return this.description;
+	}
+
+	get traits(): Trait[] {
+		return [];
+	}
+}
+
 export class Equipment {
 	items: Item[];
 
@@ -225,8 +250,9 @@ export class Equipment {
 		}
 
 		const itemData = JSON.parse(prop) as Array<{
-			itemType: 'weapon' | 'armor' | 'shield';
+			itemType: 'weapon' | 'armor' | 'shield' | 'other';
 			name: string;
+			details?: string;
 			modes?: Array<{
 				type: string;
 				bonus: number;
@@ -275,6 +301,12 @@ export class Equipment {
 						traits,
 					});
 				}
+				case 'other': {
+					return new OtherItem({
+						name: data.name,
+						details: data.details,
+					});
+				}
 				default:
 					throw new Error(`Unknown item type: ${(data as any).itemType}`);
 			}
@@ -312,6 +344,12 @@ export class Equipment {
 					type: item.type,
 					bonus: item.bonus.value,
 					traits: item.traits,
+				};
+			} else if (item instanceof OtherItem) {
+				return {
+					itemType: 'other' as const,
+					name: item.name,
+					details: item.details,
 				};
 			} else {
 				throw new Error(`Unknown item type: ${item.constructor.name}`);
