@@ -381,24 +381,34 @@ const DiceRollModalContent: React.FC<{
 
 				{/* Dice Display */}
 				<div style={{ display: 'flex', gap: '8px', marginBottom: '16px', justifyContent: 'center' }}>
-					{validDice.map((die, index) => {
-						const label =
-							die.type === 'extra'
-								? `Extra (${tree.valueOf(extraSkill).value})`
-								: die.type === 'luck'
-									? `Luck (${tree.valueOf(StatType.Fortune).value})`
-									: undefined;
-						return (
-							<PentagonDie
-								key={index}
-								value={die.value}
-								isSelected={selectedIndices.includes(index)}
-								{...(die.valid !== undefined && { isValid: die.valid })}
-								{...(label && { label })}
-								onClick={() => handleDiceClick(index)}
-							/>
-						);
-					})}
+					{(() => {
+						if (!rollResults) return null;
+						let currentValidIdx = 0;
+						return rollResults.dice.map((die, displayIdx) => {
+							const isValidDie = die.type === 'base' || die.valid;
+							const validIdx = isValidDie ? currentValidIdx++ : -1;
+							const label =
+								die.type === 'extra'
+									? `Extra (${tree.valueOf(extraSkill).value})`
+									: die.type === 'luck'
+										? `Luck (${tree.valueOf(StatType.Fortune).value})`
+										: undefined;
+							const isSelected = validIdx >= 0 && selectedIndices.includes(validIdx);
+							const handleClick = () => {
+								if (validIdx >= 0) handleDiceClick(validIdx);
+							};
+							return (
+								<PentagonDie
+									key={displayIdx}
+									value={die.value}
+									isSelected={isSelected}
+									{...(die.valid !== undefined && { isValid: die.valid })}
+									{...(label && { label })}
+									onClick={handleClick}
+								/>
+							);
+						});
+					})()}
 				</div>
 
 				{/* Status Messages */}
