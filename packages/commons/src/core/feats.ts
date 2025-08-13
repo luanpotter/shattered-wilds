@@ -634,7 +634,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [Upbringing.Tribal],
 		level: 0,
 		description:
-			'Pay 1 [[Heroism_Point | Heroism Point]] to reduce your [[Exhaustion]] Level by 1 if you can directly tie a current task to your personal sense of duty to your tribe.',
+			'Pay 1 [[Heroism_Point | Heroism Point]] to reduce your [[Exhaustion]] _rank_ by 1 if you can directly tie a current task to your personal sense of duty to your tribe.',
 	}),
 	[Feat.LightFeet]: new FeatDefinition<void>({
 		key: Feat.LightFeet,
