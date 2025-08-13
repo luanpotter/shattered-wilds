@@ -1135,7 +1135,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassFlavor.Crusader],
 		level: 3,
 		description:
-			"If you witness someone performing an action that directly contradicts your (or your Protean's) moral code, you get a `+6` to any [[CHA]]-based Checks attempting to stop or dissuade this behavior (such as intimidation, persuasion, deception, etc).",
+			"If you witness someone performing an action that directly contradicts your (or your Protean's) **Tenets**, you get a `+6` to any [[CHA]]-based Checks attempting to stop or dissuade this behavior (such as intimidation, persuasion, deception, etc).",
 	}),
 };
 

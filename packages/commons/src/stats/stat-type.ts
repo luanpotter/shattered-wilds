@@ -286,7 +286,7 @@ On top of these types of actions, the different Skills can still be used for oth
 		name: StatTypeName.Resilience,
 		description: `Resistance to heat, cold, sickness, poison and disease.`,
 		exampleUsages: [
-			`A Contested Check can be used to resist the effects of **Noxious Gas** or other poisons.`,
+			`A Contested Check can be used to resist the effects of [[Noxious Gas]] or other poisons.`,
 			`A Check can be used to resist the effects of heat, cold or extreme weather.`,
 		],
 	});
