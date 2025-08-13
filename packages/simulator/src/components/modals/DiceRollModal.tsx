@@ -1,4 +1,4 @@
-import { Check, CheckType, CHECK_TYPES, StatTree } from '@shattered-wilds/commons';
+import { Check, CheckNature, CheckType, CHECK_TYPES, StatTree } from '@shattered-wilds/commons';
 import React, { useMemo, useState } from 'react';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 
@@ -53,8 +53,8 @@ const calculateShifts = (excess: number): number => {
 const showTargetDC = (checkType: CheckType) =>
 	['Static-Active', 'Static-Resisted', 'Contested-Active'].includes(checkType);
 
-const isContestedActive = (checkType: CheckType) => checkType === 'Contested-Active';
-const canAutoFail = (checkType: CheckType) => checkType !== 'Contested-Resisted';
+const isActiveCheck = (checkType: CheckType) => checkType.endsWith(`-${CheckNature.Active}`);
+const canAutoFail = (checkType: CheckType) => checkType.endsWith(`-${CheckNature.Active}`);
 
 // Core rolling logic
 const performRoll = (tree: StatTree, useExtra: boolean, useLuck: boolean, extraSkill: StatType): DieResult[] => {
@@ -121,7 +121,7 @@ const calculateResults = (
 	let critShifts = 0;
 
 	if (!autoFail && dc !== null) {
-		if (isContestedActive(checkType)) {
+		if (isActiveCheck(checkType)) {
 			success = total > dc || (total === dc && critModifiers > 0);
 		} else {
 			success = total >= dc;
@@ -391,9 +391,9 @@ const DiceRollModalContent: React.FC<{
 							const validIdx = isValidDie ? currentValidIdx++ : -1;
 							const label =
 								die.type === 'extra'
-									? `Extra (${tree.valueOf(extraSkill).value})`
+									? `${extraSkill.name} (${tree.valueOf(extraSkill).value})`
 									: die.type === 'luck'
-										? `Luck (${tree.valueOf(StatType.Fortune).value})`
+										? `LCK (${tree.valueOf(StatType.Fortune).value})`
 										: undefined;
 							const isSelected = validIdx >= 0 && selectedIndices.includes(validIdx);
 							const handleClick = () => {
@@ -451,13 +451,18 @@ const DiceRollModalContent: React.FC<{
 									fontWeight: 'bold',
 									color: success ? 'green' : 'red',
 									marginBottom: '8px',
+									textAlign: 'center',
 								}}
 							>
 								{success ? 'Success!' : 'Failure'} ({total} vs DC {dc})
 							</div>
 						)}
 
-						{critShifts > 0 && <div style={{ color: 'var(--success)', fontWeight: 'bold' }}>Shifts: {critShifts}</div>}
+						{critShifts > 0 && (
+							<div style={{ color: 'var(--success)', fontWeight: 'bold', textAlign: 'center' }}>
+								Shifts: {critShifts}
+							</div>
+						)}
 					</div>
 				)}
 
@@ -505,7 +510,9 @@ const DiceRollModalContent: React.FC<{
 				{useExtra && (
 					<div style={{ marginTop: '4px', marginLeft: '24px' }}>
 						<LabeledDropdown
-							options={StatType.attributes}
+							options={StatType.attributes.filter(
+								attr => attr !== check.statModifier.statType && attr !== StatType.LCK,
+							)}
 							describe={stat => stat.name}
 							value={extraSkill}
 							onChange={setExtraSkill}
@@ -515,7 +522,9 @@ const DiceRollModalContent: React.FC<{
 				)}
 
 				<div style={{ marginTop: '8px' }}>
-					<LabeledCheckbox label='Use Luck' checked={useLuck} onChange={setUseLuck} />
+					{checkType.endsWith(`-${CheckNature.Active}`) ? (
+						<LabeledCheckbox label='Use Luck' checked={useLuck} onChange={setUseLuck} />
+					) : null}
 				</div>
 			</div>
 
