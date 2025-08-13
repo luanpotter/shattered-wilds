@@ -37,14 +37,15 @@ interface RollResults {
 const rollD12 = () => Math.floor(Math.random() * 12) + 1;
 
 const calculateShifts = (excess: number): number => {
+	// Shifting window: +6, then +12, then +18, ...
 	if (excess < 6) return 0;
 	let shifts = 0;
-	let threshold = 6;
-	let gap = 6;
-	while (excess >= threshold) {
+	let next = 6;
+	let add = 6;
+	while (excess >= next) {
 		shifts++;
-		threshold += gap;
-		gap += 6;
+		add += 6;
+		next += add; // 6, 18, 36, ...
 	}
 	return shifts;
 };
@@ -93,8 +94,9 @@ const calculateResults = (
 	dc: number | null,
 	modifierValue: number,
 ): Omit<RollResults, 'dice' | 'selectedIndices'> => {
+	// For crits and auto-fail we must use ALL dice, even invalid ones
+	const allValues = dice.map(die => die.value);
 	const validDice = dice.filter(die => die.type === 'base' || die.valid);
-	const allValues = validDice.map(die => die.value);
 
 	// Auto-fail check
 	const hasPairOfOnes = allValues.filter(v => v === 1).length >= 2;
@@ -110,7 +112,7 @@ const calculateResults = (
 	if (pairs > 0) critModifiers += 6;
 
 	// Get selected dice values
-	const selectedValues = selectedIndices.map(i => validDice[i]?.value || 0);
+	const selectedValues = selectedIndices.map(i => validDice[i]?.value ?? 0);
 	const baseTotal = selectedValues.reduce((sum, val) => sum + val, 0) + modifierValue;
 	const total = baseTotal + critModifiers;
 
@@ -433,9 +435,13 @@ const DiceRollModalContent: React.FC<{
 				{/* Results */}
 				{!autoFail && (
 					<div style={{ marginBottom: '16px' }}>
-						<div style={{ marginBottom: '8px' }}>
-							[{selectedValues.join(' + ')}
-							{critModifiers > 0 && ` + ${critModifiers} (Crit)`}] + [{check.modifierValue.description}] = {total}
+						<div style={{ marginBottom: '8px', textAlign: 'center' }}>
+							{(() => {
+								const selectedText = selectedValues.length > 0 ? selectedValues.join(' + ') : '0';
+								const critText = critModifiers > 0 ? ` + ${critModifiers} (Crit)` : '';
+								const modifierText = check.modifierValue?.description ?? `${check.modifierValue?.value ?? 0}`;
+								return `[${selectedText}]${critText} + [${modifierText}] = ${total}`;
+							})()}
 						</div>
 
 						{success !== undefined && dc !== null && (
