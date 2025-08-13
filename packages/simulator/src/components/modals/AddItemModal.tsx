@@ -342,20 +342,22 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 			)}
 
 			{kind === 'shield' && (
-				<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-					<LabeledDropdown
-						label='Shield Type'
-						value={shieldType}
-						options={Object.values(ShieldType)}
-						disabled={!editMode}
-						onChange={val => setShieldType(val as ShieldType)}
-					/>
-					<LabeledInput
-						label='Shield Bonus'
-						value={`${shieldBonus}`}
-						onBlur={v => setShieldBonus(parseInt(v) || 0)}
-						disabled={!editMode}
-					/>
+				<div>
+					<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+						<LabeledDropdown
+							label='Shield Type'
+							value={shieldType}
+							options={Object.values(ShieldType)}
+							disabled={!editMode}
+							onChange={val => setShieldType(val as ShieldType)}
+						/>
+						<LabeledInput
+							label='Shield Bonus'
+							value={`${shieldBonus}`}
+							onBlur={v => setShieldBonus(parseInt(v) || 0)}
+							disabled={!editMode}
+						/>
+					</div>
 					<div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
 						<span style={{ fontWeight: 'bold', marginRight: '4px' }}>Traits:</span>
 						{equipmentTraits.map(t => (
