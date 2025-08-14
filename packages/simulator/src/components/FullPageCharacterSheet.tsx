@@ -5,6 +5,7 @@ import {
 	FaBolt,
 	FaBook,
 	FaCopy,
+	FaExclamationTriangle,
 	FaMagic,
 	FaPen,
 	FaShieldAlt,
@@ -18,6 +19,7 @@ import { useModals } from '../hooks/useModals';
 import { useUIStateFactory } from '../hooks/useUIState';
 import { useStore } from '../store';
 import { CharacterSheet } from '../types';
+import { FeatsSection } from '../types/feats-section';
 import { copyCharacterDataToClipboard } from '../utils/clipboard';
 import { Navigator } from '../utils/routes';
 
@@ -110,6 +112,9 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 		);
 	}
 
+	const statTreeHasWarnings = sheet.getStatTree().root.childrenHaveUnallocatedPoints;
+	const featsHasWarnings = FeatsSection.create(sheet).hasWarnings;
+
 	const Row = ({ children }: { children: React.ReactNode }) => {
 		return <div style={{ display: 'flex' }}>{children}</div>;
 	};
@@ -195,9 +200,17 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 										borderRadius: '4px',
 										background: isActive ? 'var(--primary-ghost, rgba(0,0,0,0.12))' : 'transparent',
 										boxShadow: isActive ? 'inset 0 0 0 1px rgba(0,0,0,0.2)' : 'none',
+										position: 'relative',
 									}}
 								>
 									<Icon size={16} />
+									{(t.key === 'stats' && statTreeHasWarnings) || (t.key === 'feats' && featsHasWarnings) ? (
+										<FaExclamationTriangle
+											size={10}
+											style={{ position: 'absolute', top: 2, right: 2, color: 'var(--accent)' }}
+											title={t.key === 'stats' ? 'Unallocated Stat Points' : 'Feats have warnings'}
+										/>
+									) : null}
 								</button>
 							);
 						})}
