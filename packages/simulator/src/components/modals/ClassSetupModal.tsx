@@ -35,9 +35,20 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 		return currentClassInfo.characterClass === characterClass;
 	};
 
-	const renderWarriorClasses = () => {
-		const roles = [ClassRole.Melee, ClassRole.Ranged, ClassRole.Tank];
-		const flavors = [ClassFlavor.Martial, ClassFlavor.Survivalist, ClassFlavor.Scoundrel];
+	const renderRealmTable = (realm: ClassRealm) => {
+		const rolesByRealm: Record<ClassRealm, ClassRole[]> = {
+			[ClassRealm.Warrior]: [ClassRole.Melee, ClassRole.Ranged, ClassRole.Tank],
+			[ClassRealm.Caster]: [ClassRole.Erudite, ClassRole.Intuitive, ClassRole.Innate],
+			[ClassRealm.Mystic]: [ClassRole.Disciple, ClassRole.Adept, ClassRole.Inspired],
+		};
+		const flavorsByRealm: Record<ClassRealm, ClassFlavor[]> = {
+			[ClassRealm.Warrior]: [ClassFlavor.Martial, ClassFlavor.Survivalist, ClassFlavor.Scoundrel],
+			[ClassRealm.Caster]: [ClassFlavor.Arcanist, ClassFlavor.Mechanist, ClassFlavor.Naturalist, ClassFlavor.Musicist],
+			[ClassRealm.Mystic]: [ClassFlavor.Devout, ClassFlavor.Mixed, ClassFlavor.Crusader],
+		};
+
+		const roles = rolesByRealm[realm];
+		const flavors = flavorsByRealm[realm];
 
 		return (
 			<div>
@@ -61,7 +72,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 								{flavors.map(flavor => {
 									const classForCell = Object.values(CharacterClass).find(cls => {
 										const def = CLASS_DEFINITIONS[cls];
-										return def.realm === ClassRealm.Warrior && def.role === role && def.flavor === flavor;
+										return def.realm === realm && def.role === role && def.flavor === flavor;
 									});
 									return (
 										<td key={flavor} style={{ border: '1px solid var(--text)', padding: '8px' }}>
@@ -97,129 +108,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 		);
 	};
 
-	const renderCasterClasses = () => {
-		const roles = [ClassRole.Erudite, ClassRole.Intuitive, ClassRole.Innate];
-		const flavors = [ClassFlavor.Arcanist, ClassFlavor.Mechanist, ClassFlavor.Naturalist, ClassFlavor.Musicist];
-
-		return (
-			<div>
-				<table style={{ width: '100%', borderCollapse: 'collapse' }}>
-					<thead>
-						<tr>
-							<th style={{ border: '1px solid var(--text)', padding: '8px' }}>Role / Flavor</th>
-							{flavors.map(flavor => (
-								<th key={flavor} style={{ border: '1px solid var(--text)', padding: '8px' }}>
-									{flavor}
-								</th>
-							))}
-						</tr>
-					</thead>
-					<tbody>
-						{roles.map(role => (
-							<tr key={role}>
-								<td style={{ border: '1px solid var(--text)', padding: '8px', fontWeight: 'bold' }}>
-									{role} ({CLASS_ROLE_PRIMARY_ATTRIBUTE[role].name})
-								</td>
-								{flavors.map(flavor => {
-									const classForCell = Object.values(CharacterClass).find(cls => {
-										const def = CLASS_DEFINITIONS[cls];
-										return def.realm === ClassRealm.Caster && def.role === role && def.flavor === flavor;
-									});
-									return (
-										<td key={flavor} style={{ border: '1px solid var(--text)', padding: '8px' }}>
-											{classForCell ? (
-												<button
-													onClick={() => handleClassSelect(classForCell)}
-													style={{
-														width: '100%',
-														padding: '8px',
-														backgroundColor: isSelected(classForCell) ? '#4CAF50' : 'var(--background-alt)',
-														border: isSelected(classForCell) ? '2px solid #2E7D32' : '1px solid var(--text)',
-														borderRadius: '4px',
-														color: isSelected(classForCell) ? 'white' : 'var(--text)',
-														cursor: 'pointer',
-														fontWeight: isSelected(classForCell) ? 'bold' : 'normal',
-														fontSize: isSelected(classForCell) ? '0.95em' : '0.9em',
-														boxShadow: isSelected(classForCell) ? '0 2px 4px rgba(76, 175, 80, 0.3)' : 'none',
-													}}
-												>
-													{classForCell}
-												</button>
-											) : (
-												<div style={{ fontSize: '0.8em', color: 'gray', padding: '8px' }}>No class</div>
-											)}
-										</td>
-									);
-								})}
-							</tr>
-						))}
-					</tbody>
-				</table>
-			</div>
-		);
-	};
-
-	const renderMysticClasses = () => {
-		const roles = [ClassRole.Disciple, ClassRole.Adept, ClassRole.Inspired];
-		const flavors = [ClassFlavor.Devout, ClassFlavor.Mixed, ClassFlavor.Crusader];
-
-		return (
-			<div>
-				<table style={{ width: '100%', borderCollapse: 'collapse' }}>
-					<thead>
-						<tr>
-							<th style={{ border: '1px solid var(--text)', padding: '8px' }}>Role / Flavor</th>
-							{flavors.map(flavor => (
-								<th key={flavor} style={{ border: '1px solid var(--text)', padding: '8px' }}>
-									{flavor}
-								</th>
-							))}
-						</tr>
-					</thead>
-					<tbody>
-						{roles.map(role => (
-							<tr key={role}>
-								<td style={{ border: '1px solid var(--text)', padding: '8px', fontWeight: 'bold' }}>
-									{role} ({CLASS_ROLE_PRIMARY_ATTRIBUTE[role].name})
-								</td>
-								{flavors.map(flavor => {
-									const classForCell = Object.values(CharacterClass).find(cls => {
-										const def = CLASS_DEFINITIONS[cls];
-										return def.realm === ClassRealm.Mystic && def.role === role && def.flavor === flavor;
-									});
-									return (
-										<td key={flavor} style={{ border: '1px solid var(--text)', padding: '8px' }}>
-											{classForCell ? (
-												<button
-													onClick={() => handleClassSelect(classForCell)}
-													style={{
-														width: '100%',
-														padding: '8px',
-														backgroundColor: isSelected(classForCell) ? '#4CAF50' : 'var(--background-alt)',
-														border: isSelected(classForCell) ? '2px solid #2E7D32' : '1px solid var(--text)',
-														borderRadius: '4px',
-														color: isSelected(classForCell) ? 'white' : 'var(--text)',
-														cursor: 'pointer',
-														fontWeight: isSelected(classForCell) ? 'bold' : 'normal',
-														fontSize: isSelected(classForCell) ? '0.95em' : '0.9em',
-														boxShadow: isSelected(classForCell) ? '0 2px 4px rgba(76, 175, 80, 0.3)' : 'none',
-													}}
-												>
-													{classForCell}
-												</button>
-											) : (
-												<div style={{ fontSize: '0.8em', color: 'gray', padding: '8px' }}>No class</div>
-											)}
-										</td>
-									);
-								})}
-							</tr>
-						))}
-					</tbody>
-				</table>
-			</div>
-		);
-	};
+	// (Removed old per-realm renderers; unified into renderRealmTable)
 
 	const renderSelectedClassInfo = () => {
 		const definition = currentClassInfo.characterClass ? CLASS_DEFINITIONS[currentClassInfo.characterClass] : null;
@@ -294,9 +183,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 				onChange={setSelectedTab}
 			/>
 
-			{selectedTab === 'Warrior' && renderWarriorClasses()}
-			{selectedTab === 'Caster' && renderCasterClasses()}
-			{selectedTab === 'Mystic' && renderMysticClasses()}
+			{renderRealmTable(selectedTab)}
 
 			{renderSelectedClassInfo()}
 
