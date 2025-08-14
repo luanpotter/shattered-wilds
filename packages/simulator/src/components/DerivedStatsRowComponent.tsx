@@ -20,7 +20,7 @@ export const DerivedStatsRowComponent: React.FC<{ variant: 'normal' | 'inline'; 
 	const tree = sheet.getStatTree();
 	const movement = tree.getDistance(DerivedStatType.Movement);
 	const initiative = tree.getModifier(DerivedStatType.Initiative);
-	const influenceRange = tree.getModifier(DerivedStatType.InfluenceRange);
+	const influenceRange = tree.getDistance(DerivedStatType.InfluenceRange);
 
 	return (
 		<>
@@ -30,6 +30,13 @@ export const DerivedStatsRowComponent: React.FC<{ variant: 'normal' | 'inline'; 
 				label='Movement'
 				value={movement.value.description}
 				tooltip={movement.description}
+				disabled
+			/>
+			<LabeledInput
+				variant={variant}
+				label='Influence Range'
+				value={influenceRange.value.description}
+				tooltip={influenceRange.description}
 				disabled
 			/>
 			<LabeledInput
@@ -49,13 +56,6 @@ export const DerivedStatsRowComponent: React.FC<{ variant: 'normal' | 'inline'; 
 						title: `Roll Initiative Check`,
 					});
 				}}
-			/>
-			<LabeledInput
-				variant={variant}
-				label='Influence Range'
-				value={influenceRange.value.description}
-				tooltip={influenceRange.description}
-				disabled
 			/>
 		</>
 	);
