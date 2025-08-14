@@ -90,22 +90,18 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 									const classForCell = Object.values(CharacterClass).find(cls => {
 										const def = CLASS_DEFINITIONS[cls];
 										return def.realm === realm && def.role === role && def.flavor === flavor;
-									});
+									})!;
 									return (
 										<td key={flavor} style={{ border: '1px solid var(--text)', padding: '8px', width: otherColWidth }}>
-											{classForCell ? (
-												<button
-													onClick={() => handleClassSelect(classForCell)}
-													style={{
-														...baseButtonStyle,
-														...(isSelected(classForCell) ? selectedButtonStyle : unselectedButtonStyle),
-													}}
-												>
-													{classForCell}
-												</button>
-											) : (
-												<div style={{ fontSize: '0.8em', color: 'gray', padding: '8px' }}>No class</div>
-											)}
+											<button
+												onClick={() => handleClassSelect(classForCell)}
+												style={{
+													...baseButtonStyle,
+													...(isSelected(classForCell) ? selectedButtonStyle : unselectedButtonStyle),
+												}}
+											>
+												{classForCell}
+											</button>
 										</td>
 									);
 								})}
