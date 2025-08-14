@@ -3,9 +3,9 @@ import React from 'react';
 import {
 	FaArrowLeft,
 	FaBolt,
-	FaBook,
 	FaCopy,
 	FaExclamationTriangle,
+	FaBrain,
 	FaMagic,
 	FaPen,
 	FaShieldAlt,
@@ -88,7 +88,7 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 		{ key: 'actions', icon: FaBolt, tooltip: 'Actions' },
 		...(hasArcane ? ([{ key: 'arcane', icon: FaMagic, tooltip: 'Arcane' }] as const) : ([] as const)),
 		...(hasDivine ? ([{ key: 'divine', icon: FaSun, tooltip: 'Divine' }] as const) : ([] as const)),
-		{ key: 'personality', icon: FaBook, tooltip: 'Personality' },
+		{ key: 'personality', icon: FaBrain, tooltip: 'Personality' },
 		{ key: 'misc', icon: FaPen, tooltip: 'Misc' },
 	];
 	const availableKeys = tabs.map(t => t.key);
