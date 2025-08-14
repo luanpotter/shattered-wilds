@@ -188,9 +188,9 @@ export class FeatDefinition<T extends string | void> {
 		const category = FeatDefinition.categoryFromSource(source);
 		switch (category) {
 			case FeatCategory.ClassRole:
-				return classDef.role === source || source === StaticFeatSource.ClassRole;
+				return source === classDef.role || source === classDef.realm || source === StaticFeatSource.ClassRole;
 			case FeatCategory.ClassFlavor:
-				return classDef.flavor === source;
+				return source === classDef.flavor;
 			default:
 				return false;
 		}
