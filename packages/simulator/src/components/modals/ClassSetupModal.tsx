@@ -115,7 +115,23 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 
 	const renderSelectedClassInfo = () => {
 		const definition = currentClassInfo.characterClass ? CLASS_DEFINITIONS[currentClassInfo.characterClass] : null;
+
+		if (!definition) {
+			return (
+				<div style={{ color: 'gray', fontStyle: 'italic' }}>
+					No class selected yet. Choose a class from the tabs above.
+				</div>
+			);
+		}
+
 		const coreFeats = currentClassInfo.getCoreFeats();
+
+		const description = [
+			['Realm', definition.realm],
+			['Role', definition.role],
+			['Flavor', definition.flavor],
+			['Primary Attribute', definition.primaryAttribute.name],
+		];
 
 		return (
 			<div
@@ -130,9 +146,12 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 				{definition ? (
 					<>
 						<h4 style={{ margin: '0 0 8px 0' }}>Selected: {currentClassInfo.characterClass}</h4>
-						<p style={{ margin: '0 0 8px 0', fontSize: '0.9em' }}>
-							<strong>Realm:</strong> {definition.realm} |<strong> Primary Attribute:</strong>{' '}
-							{definition.primaryAttribute.name}
+						<p className='desc-line' style={{ fontSize: '0.9em' }}>
+							{description.map(([label, value]) => (
+								<span key={label}>
+									<strong>{label}:</strong> {value}
+								</span>
+							))}
 						</p>
 						<div style={{ marginTop: '8px' }}>
 							<strong>Core Class Feats (Level 1):</strong>

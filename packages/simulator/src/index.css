@@ -60,6 +60,11 @@ button:hover {
 	color: var(--primary);
 }
 
+.desc-line > span:not(:last-child)::after {
+	content: ' | ';
+	margin: 0 4px;
+}
+
 .trait {
 	color: #6bff6b;
 	font-size: 0.8em;
