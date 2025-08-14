@@ -72,7 +72,7 @@ describe('StatTree', () => {
 			expect(tree.points).toBe(0);
 
 			// Check that all children also start with 0
-			const checkAllNodes = (node: any): void => {
+			const checkAllNodes = (node: StatNode): void => {
 				expect(node.points).toBe(0);
 				node.children.forEach(checkAllNodes);
 			};

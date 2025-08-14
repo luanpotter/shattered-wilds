@@ -3,12 +3,7 @@ import ReactMarkdown from 'react-markdown';
 
 const wikiLinks = (value: string) => {
 	return value.replace(/\[\[([^\]]*)\]\]/g, (_, r) => {
-		var link, text;
-		if (r.includes(' | ')) {
-			[link, text] = r.split(' | ');
-		} else {
-			link = text = r;
-		}
+		const [link, text] = r.includes(' | ') ? r.split(' | ') : [r, r];
 		const url = `/wiki/${link.replace(' ', '_')}`;
 		return `[${text}](${url})`;
 	});

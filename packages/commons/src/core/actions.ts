@@ -33,9 +33,9 @@ export enum ActionValueUnit {
 	Modifier = 'Modifier',
 }
 
-export interface ActionParameter {}
+export type ActionParameter = ActionValueParameter | ActionCheckParameter;
 
-export class ActionValueParameter implements ActionParameter {
+export class ActionValueParameter {
 	name: string;
 	unit: ActionValueUnit;
 	formula: Formula;
@@ -64,7 +64,7 @@ export enum IncludeEquipmentModifier {
 	Shield = 'Shield',
 }
 
-export class ActionCheckParameter implements ActionParameter {
+export class ActionCheckParameter {
 	mode: CheckMode;
 	nature: CheckNature;
 	statType: StatType | StandardCheck;

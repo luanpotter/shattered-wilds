@@ -27,8 +27,9 @@ export enum StaticFeatSource {
 
 export type FeatSource = StaticFeatSource | Race | Upbringing | ClassRealm | ClassRole | ClassFlavor;
 
-export interface FeatEffect {}
-export class FeatStatModifier implements FeatEffect {
+export type FeatEffect = FeatStatModifier;
+
+export class FeatStatModifier {
 	constructor(
 		public statType: StatType,
 		public value: Bonus,
@@ -423,6 +424,8 @@ export enum Tool {
 	Other = 'Other',
 }
 
+// TODO(luan): figure out how to make typescript behave
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const FEATS: Record<Feat, FeatDefinition<any>> = {
 	[Feat.TradeSpecialization]: new FeatDefinition<Trade>({
 		key: Feat.TradeSpecialization,

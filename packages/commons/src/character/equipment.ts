@@ -308,7 +308,7 @@ export class Equipment {
 					});
 				}
 				default:
-					throw new Error(`Unknown item type: ${(data as any).itemType}`);
+					throw new Error(`Unknown item type: ${data.itemType}`);
 			}
 		});
 
