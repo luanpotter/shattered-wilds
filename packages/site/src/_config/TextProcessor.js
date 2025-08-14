@@ -33,10 +33,6 @@ export class TextProcessor {
 				const order = ['level', 'isNotCore'];
 				return this.renderListWithSortAndFilter('Feat', order, filterFeat, ['source']);
 			},
-			TODO: value => {
-				const addMark = value => `<mark class="todo">${value}</mark>`;
-				return addMark(value ? `TODO: ${value}` : 'TODO');
-			},
 		};
 	}
 
