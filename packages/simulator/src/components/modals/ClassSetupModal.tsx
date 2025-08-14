@@ -13,19 +13,19 @@ import {
 } from '../../types';
 import { Button } from '../shared/Button';
 import { RichText } from '../shared/RichText';
+import { Tabs } from '../shared/Tabs';
 
 interface ClassSetupModalProps {
 	character: Character;
 	onClose?: () => void;
 }
 
-type ArchetypeTab = 'Warrior' | 'Caster' | 'Mystic';
-
 export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onClose }) => {
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
-	const [selectedTab, setSelectedTab] = useState<ArchetypeTab>('Warrior');
 
 	const currentClassInfo = ClassInfo.from(character.props);
+	const currentClassRealm = currentClassInfo.definition.realm;
+	const [selectedTab, setSelectedTab] = useState<ClassRealm>(currentClassRealm);
 
 	const handleClassSelect = (characterClass: CharacterClass) => {
 		updateCharacterProp(character, 'class', characterClass);
@@ -288,50 +288,18 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 		>
 			<h3 style={{ margin: '0 0 16px 0' }}>Choose Class for {character.props.name}</h3>
 
-			{/* Tab Navigation */}
-			<div style={{ display: 'flex', marginBottom: '16px' }}>
-				{(['Warrior', 'Caster', 'Mystic'] as ArchetypeTab[]).map(tab => (
-					<button
-						key={tab}
-						onClick={() => setSelectedTab(tab)}
-						style={{
-							padding: '8px 16px',
-							backgroundColor: selectedTab === tab ? '#2196F3' : 'var(--background-alt)',
-							border: selectedTab === tab ? '2px solid #1976D2' : '1px solid var(--text)',
-							borderRadius: selectedTab === tab ? '4px 4px 0 0' : '4px',
-							color: selectedTab === tab ? 'white' : 'var(--text)',
-							cursor: 'pointer',
-							marginRight: '4px',
-							fontWeight: selectedTab === tab ? 'bold' : 'normal',
-							fontSize: selectedTab === tab ? '1em' : '0.9em',
-							boxShadow: selectedTab === tab ? '0 2px 4px rgba(33, 150, 243, 0.3)' : 'none',
-							transform: selectedTab === tab ? 'translateY(-2px)' : 'none',
-						}}
-					>
-						{tab}s
-					</button>
-				))}
-			</div>
+			<Tabs
+				tabs={Object.values(ClassRealm).map(realm => ({ key: realm, label: `${realm}s` }))}
+				activeKey={selectedTab}
+				onChange={setSelectedTab}
+			/>
 
-			{/* Tab Content */}
-			<div
-				style={{
-					border: '1px solid var(--text)',
-					borderRadius: '0 4px 4px 4px',
-					padding: '16px',
-					backgroundColor: 'var(--background)',
-					minHeight: '200px',
-				}}
-			>
-				{selectedTab === 'Warrior' && renderWarriorClasses()}
-				{selectedTab === 'Caster' && renderCasterClasses()}
-				{selectedTab === 'Mystic' && renderMysticClasses()}
-			</div>
+			{selectedTab === 'Warrior' && renderWarriorClasses()}
+			{selectedTab === 'Caster' && renderCasterClasses()}
+			{selectedTab === 'Mystic' && renderMysticClasses()}
 
-			{/* Selected Class Info */}
 			{renderSelectedClassInfo()}
 
-			{/* Action Buttons */}
 			{onClose && (
 				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '16px' }}>
 					<Button onClick={onClose} title='Close' />

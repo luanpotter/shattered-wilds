@@ -41,6 +41,7 @@ import { LabeledCheckbox } from './shared/LabeledCheckbox';
 import LabeledDropdown from './shared/LabeledDropdown';
 import LabeledInput from './shared/LabeledInput';
 import { RichText } from './shared/RichText';
+import { Tabs, TabItem } from './shared/Tabs';
 
 interface ActionsSectionProps {
 	characterId: string;
@@ -315,46 +316,12 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 
 	const renderTabButtons = () => {
 		const availableTabs = [...new Set(Object.values(ACTIONS).map(action => action.type))];
-
-		return (
-			<div
-				style={{
-					display: 'flex',
-					borderBottom: '1px solid var(--text)',
-					marginBottom: '16px',
-					gap: '2px',
-				}}
-			>
-				{availableTabs.map(tab => {
-					const Icon = getTypeIcon(tab);
-					const isActive = activeTab === tab;
-
-					return (
-						<button
-							key={tab}
-							onClick={() => setActiveTab(tab)}
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '4px',
-								padding: '8px 12px',
-								border: 'none',
-								borderRadius: 0,
-								borderBottom: isActive ? '2px solid var(--text)' : '2px solid transparent',
-								backgroundColor: isActive ? 'var(--background-alt)' : 'transparent',
-								color: 'var(--text)',
-								cursor: 'pointer',
-								fontSize: '0.9em',
-								fontWeight: isActive ? 'bold' : 'normal',
-							}}
-						>
-							<Icon size={14} />
-							{tab}
-						</button>
-					);
-				})}
-			</div>
-		);
+		const tabItems: TabItem<ActionType>[] = availableTabs.map(tab => ({
+			key: tab,
+			label: tab,
+			icon: getTypeIcon(tab),
+		}));
+		return <Tabs tabs={tabItems} activeKey={activeTab} onChange={setActiveTab} iconSize={14} />;
 	};
 
 	const getHeaderForTab = (
