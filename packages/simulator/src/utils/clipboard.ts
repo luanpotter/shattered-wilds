@@ -1,11 +1,17 @@
-import { Character } from '../types';
+import { RESOURCES } from '@shattered-wilds/commons';
+
+import { Character, StatType } from '../types';
 import { findNextEmptyHexPosition } from '../utils';
 
 export const copyCharacterDataToClipboard = (character: Character) => {
 	const keyValuePairs = Object.entries(character.props)
+		.filter(([key, value]) => !StatType.values.some(stat => stat.name === key) || value !== '0')
+		.filter(([key, value]) => !Object.keys(RESOURCES).some(resource => resource === key) || value !== '-1')
+		.filter(([, value]) => value !== '')
 		.map(([key, value]) => `${key}: ${value}`)
 		.join('\n');
-	exportDataToClipboard(keyValuePairs);
+	const base64 = btoa(keyValuePairs);
+	exportDataToClipboard(base64);
 };
 
 export const importCharacterDataFromClipboard = async (characters: Character[]): Promise<Character | string> => {
@@ -16,7 +22,7 @@ export const importCharacterDataFromClipboard = async (characters: Character[]):
 		}
 
 		const props: Record<string, string> = {};
-		const lines = clipboardText.split('\n');
+		const lines = atob(clipboardText).split('\n');
 
 		for (const line of lines) {
 			const trimmedLine = line.trim();
