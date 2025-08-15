@@ -1,7 +1,9 @@
+import { CharacterSheet } from '@shattered-wilds/commons';
 import React from 'react';
-import { FaUser, FaFistRaised, FaRuler } from 'react-icons/fa';
+import { FaFistRaised, FaRuler, FaUser } from 'react-icons/fa';
 
-import { Character, CharacterSheet, getBasicAttacksFor } from '../types';
+import { getBasicAttacksFor } from '../types/grid-actions';
+import { Character } from '../types/ui';
 
 interface TokenContextMenuProps {
 	character: Character;

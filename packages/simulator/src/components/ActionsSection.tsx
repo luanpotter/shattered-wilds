@@ -22,7 +22,9 @@ import {
 	COVER_TYPES,
 	Armor,
 	IncludeEquipmentModifier,
+	CharacterSheet,
 } from '@shattered-wilds/commons';
+import { Weapon, WeaponMode } from '@shattered-wilds/commons';
 import React, { useEffect, useCallback, useMemo } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
 import { FaShield } from 'react-icons/fa6';
@@ -30,7 +32,7 @@ import { FaShield } from 'react-icons/fa6';
 import { useModals } from '../hooks/useModals';
 import { useUIStateFactory } from '../hooks/useUIState';
 import { useStore } from '../store';
-import { Character, CharacterSheet, Weapon, WeaponMode } from '../types';
+import { Character } from '../types/ui';
 import { numberToOrdinal } from '../utils';
 
 import { CostBoxComponent } from './CostBoxComponent';

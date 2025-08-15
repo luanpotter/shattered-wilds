@@ -2,7 +2,7 @@ import { Check } from '@shattered-wilds/commons';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { Character, Modal, GridState, HexPosition } from './types';
+import { Character, Modal, GridState, HexPosition } from './types/ui';
 
 type AddCharacter = (character: Character) => void;
 type UpdateCharacterName = (character: Character, newName: string) => void;

@@ -1,9 +1,10 @@
-import { DerivedStatType, Distance } from '@shattered-wilds/commons';
+import { CharacterSheet, DerivedStatType, Distance } from '@shattered-wilds/commons';
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
-import { CharacterSheet, DragState, Point, Character, HexPosition, getBasicAttacksFor } from '../types';
+import { getBasicAttacksFor } from '../types/grid-actions';
+import { DragState, Point, Character, HexPosition } from '../types/ui';
 import { findCharacterAtPosition, axialToPixel } from '../utils';
 
 import { CharacterToken } from './CharacterToken';

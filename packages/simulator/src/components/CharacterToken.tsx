@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Character, getCharacterInitials } from '../types';
+import { Character, getCharacterInitials } from '../types/ui';
 
 export interface CharacterTokenProps {
 	character: Character;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaTimes } from 'react-icons/fa';
 
 import { useModals } from '../../hooks/useModals';
-import { Modal as ModalType } from '../../types';
+import { Modal as ModalType } from '../../types/ui';
 import { Button } from '../shared/Button';
 
 interface ModalWrapperProps {

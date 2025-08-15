@@ -1,5 +1,6 @@
+import { StatNode, StatType } from '@shattered-wilds/commons';
+
 import { useStore } from '../../store';
-import { StatNode, StatType } from '../../types';
 
 export const useHandleAllocatePoint = (
 	onUpdateCharacterProp: (key: string, value: string) => void,

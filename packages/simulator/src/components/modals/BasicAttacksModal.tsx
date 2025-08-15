@@ -1,8 +1,9 @@
+import { CharacterSheet } from '@shattered-wilds/commons';
 import React from 'react';
 
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
-import { BasicAttack, CharacterSheet } from '../../types';
+import { BasicAttack } from '../../types/grid-actions';
 import { Button } from '../shared/Button';
 import { FormRow, ReadOnlyInput } from '../shared/FormComponents';
 

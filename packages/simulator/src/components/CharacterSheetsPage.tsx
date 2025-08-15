@@ -3,7 +3,7 @@ import { FaPlus, FaEye, FaTrash, FaArrowLeft, FaClipboard, FaChevronDown } from 
 
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
-import { Character } from '../types';
+import { Character } from '../types/ui';
 import { findNextEmptyHexPosition } from '../utils';
 import { importCharacterDataFromClipboard } from '../utils/clipboard';
 import { Navigator } from '../utils/routes';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaRuler } from 'react-icons/fa';
 
-import { Character, HexPosition } from '../../types';
+import { Character, HexPosition } from '../../types/ui';
 import { Button } from '../shared/Button';
 
 interface MeasureModalProps {

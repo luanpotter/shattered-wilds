@@ -1,9 +1,9 @@
-import { Resource, RESOURCES } from '@shattered-wilds/commons';
+import { CharacterSheet, Resource, RESOURCES } from '@shattered-wilds/commons';
 import React from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { Character, CharacterSheet } from '../types';
+import { Character } from '../types/ui';
 
 import { Button } from './shared/Button';
 import LabeledInput from './shared/LabeledInput';

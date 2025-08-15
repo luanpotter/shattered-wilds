@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { useStore } from '../../store';
-import { HexPosition } from '../../types';
+import { HexPosition } from '../../types/ui';
 import { findNextCharacterNumber } from '../../utils';
 import { Button } from '../shared/Button';
 

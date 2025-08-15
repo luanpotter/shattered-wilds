@@ -1,6 +1,7 @@
 import {
 	Armor,
 	Bonus,
+	CharacterSheet,
 	Check,
 	CheckMode,
 	CheckNature,
@@ -12,8 +13,6 @@ import {
 	StatType,
 	Weapon,
 } from '@shattered-wilds/commons';
-
-import { CharacterSheet } from './character-sheet';
 
 export interface BasicAttack {
 	name: string;

@@ -1,7 +1,8 @@
+import { CharacterSheet } from '@shattered-wilds/commons';
+import { StatType, Race, Upbringing } from '@shattered-wilds/commons';
 import React from 'react';
 
 import { useStore } from '../../store';
-import { CharacterSheet, StatType, Race, Upbringing } from '../../types';
 import { FeatOrSlot } from '../../types/feats-section';
 import { FeatBox } from '../FeatBox';
 import { Button } from '../shared/Button';

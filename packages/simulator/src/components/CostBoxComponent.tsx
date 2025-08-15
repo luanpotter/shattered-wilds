@@ -1,8 +1,7 @@
-import { ActionCost, RESOURCES } from '@shattered-wilds/commons';
+import { ActionCost, CharacterSheet, RESOURCES } from '@shattered-wilds/commons';
 import React from 'react';
 
 import { useModals } from '../hooks/useModals';
-import { CharacterSheet } from '../types';
 
 import { ParameterBoxComponent } from './ParameterBoxComponent';
 

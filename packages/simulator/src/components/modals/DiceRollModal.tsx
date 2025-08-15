@@ -1,9 +1,16 @@
-import { Check, CheckNature, CheckType, CHECK_TYPES, StatTree } from '@shattered-wilds/commons';
+import {
+	Check,
+	CheckNature,
+	CheckType,
+	CHECK_TYPES,
+	StatTree,
+	CharacterSheet,
+	StatType,
+} from '@shattered-wilds/commons';
 import React, { useMemo, useState } from 'react';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 
 import { useStore } from '../../store';
-import { CharacterSheet, StatType } from '../../types';
 import { exportDataToClipboard } from '../../utils/clipboard';
 import { Button } from '../shared/Button';
 import { LabeledCheckbox } from '../shared/LabeledCheckbox';

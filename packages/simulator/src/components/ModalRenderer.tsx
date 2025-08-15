@@ -1,27 +1,29 @@
+import { CharacterSheet } from '@shattered-wilds/commons';
 import React from 'react';
 import { FaCopy, FaExpand } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { Modal as ModalType, CharacterSheet, getBasicAttacksFor } from '../types';
+import { getBasicAttacksFor } from '../types/grid-actions';
+import { Modal as ModalType } from '../types/ui';
 import { copyCharacterDataToClipboard } from '../utils/clipboard';
 import { Navigator } from '../utils/routes';
 
 import { CharacterList } from './CharacterList';
 import { CharacterSheetModal } from './CharacterSheet';
 import {
-	ModalWrapper,
-	CharacterCreationModal,
+	AttackActionModal,
 	BasicAttacksModal,
-	MeasureModal,
-	FeatsModal,
-	FeatSelectionModal,
-	FeatParameterSetupModal,
-	DiceRollModal,
+	CharacterCreationModal,
 	ClassSetupModal,
 	ConsumeResourceModal,
-	RaceSetupModal,
-	AttackActionModal,
+	DiceRollModal,
+	FeatParameterSetupModal,
+	FeatSelectionModal,
+	FeatsModal,
 	ItemModal,
+	MeasureModal,
+	ModalWrapper,
+	RaceSetupModal,
 } from './modals';
 import { Button } from './shared/Button';
 

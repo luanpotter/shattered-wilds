@@ -1,8 +1,8 @@
+import { StatTree } from '@shattered-wilds/commons';
 import React from 'react';
 import { FaUndo } from 'react-icons/fa';
 
 import { useStore } from '../../store';
-import { StatTree } from '../../types';
 import { Button } from '../shared/Button';
 
 import { PointAllocationWarning } from './PointAllocationWarning';

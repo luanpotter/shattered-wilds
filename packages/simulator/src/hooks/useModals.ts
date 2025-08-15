@@ -1,7 +1,7 @@
 import { ActionCost, Check, FeatSlot, FeatDefinition } from '@shattered-wilds/commons';
 
 import { useStore } from '../store';
-import { HexPosition } from '../types';
+import { HexPosition } from '../types/ui';
 import { findNextWindowPosition } from '../utils';
 
 interface CharacterCreationModalParams {

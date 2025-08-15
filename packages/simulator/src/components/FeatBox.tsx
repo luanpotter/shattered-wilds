@@ -4,8 +4,8 @@ import { FaExclamationTriangle } from 'react-icons/fa';
 
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
-import { Character } from '../types';
 import { FeatOrSlot } from '../types/feats-section';
+import { Character } from '../types/ui';
 
 import { RichText } from './shared/RichText';
 

@@ -1,9 +1,10 @@
+import { CharacterSheet } from '@shattered-wilds/commons';
+import { Equipment } from '@shattered-wilds/commons';
 import React from 'react';
 import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
-import { CharacterSheet, Equipment } from '../types';
 
 import Block from './shared/Block';
 import { Button } from './shared/Button';

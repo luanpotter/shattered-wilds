@@ -1,6 +1,5 @@
+import { StatNode, StatTree, StatType } from '@shattered-wilds/commons';
 import React from 'react';
-
-import { StatNode, StatTree, StatType } from '../../types';
 
 import { LevelSection } from './LevelSection';
 import { PointAllocationWarning } from './PointAllocationWarning';

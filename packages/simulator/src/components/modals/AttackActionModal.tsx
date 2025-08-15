@@ -1,10 +1,11 @@
-import { Bonus, Check, CheckMode, CheckNature, Resource } from '@shattered-wilds/commons';
+import { Bonus, CharacterSheet, Check, CheckMode, CheckNature, Resource } from '@shattered-wilds/commons';
+import { Shield } from '@shattered-wilds/commons';
 import React, { useState, useEffect } from 'react';
 import { FaDice, FaFistRaised, FaUserShield } from 'react-icons/fa';
 
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
-import { CharacterSheet, Shield, DefenseType, getBasicDefenseFor, getBasicAttacksFor } from '../../types';
+import { DefenseType, getBasicDefenseFor, getBasicAttacksFor } from '../../types/grid-actions';
 import { Button } from '../shared/Button';
 
 interface AttackActionModalProps {

@@ -1,4 +1,4 @@
-import { Character, Point, Modal, HexPosition } from './types';
+import { Character, Point, Modal, HexPosition } from './types/ui';
 
 // Constants for modal positioning
 const INITIAL_POSITION: Point = { x: 20, y: 20 };

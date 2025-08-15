@@ -1,10 +1,10 @@
 import { Check, CheckMode, CheckNature } from '@shattered-wilds/commons';
+import { StatNode, StatTree } from '@shattered-wilds/commons';
 import React from 'react';
 import { FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
 
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
-import { StatNode, StatTree } from '../../types';
 
 import { useHandleAllocatePoint, useHandleDeallocatePoint } from './shared-logic';
 

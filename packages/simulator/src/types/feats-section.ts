@@ -1,7 +1,5 @@
-import { FeatDefinition, FeatInfo, FEATS, FeatSlot, FeatType } from '@shattered-wilds/commons';
+import { CharacterSheet, FeatDefinition, FeatInfo, FEATS, FeatSlot, FeatType } from '@shattered-wilds/commons';
 import * as TypeComparator from 'type-comparator';
-
-import { CharacterSheet } from './character-sheet';
 
 // each "card" we want to show in the feats section; either:
 // - a core (non-slotted) feat

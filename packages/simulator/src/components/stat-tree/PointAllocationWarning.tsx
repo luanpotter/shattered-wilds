@@ -1,8 +1,8 @@
+import { StatNode } from '@shattered-wilds/commons';
 import React from 'react';
 import { FaExclamationTriangle } from 'react-icons/fa';
 
 import { useStore } from '../../store';
-import { StatNode } from '../../types';
 
 interface PointAllocationWarningProps {
 	node: StatNode;

@@ -1,7 +1,7 @@
+import { StatHierarchy, StatNode, StatTree, StatType } from '@shattered-wilds/commons';
 import React, { ReactNode, useState } from 'react';
 import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
 
-import { StatHierarchy, StatNode, StatTree, StatType } from '../../types';
 import { RichText } from '../shared/RichText';
 
 import { LevelSection } from './LevelSection';

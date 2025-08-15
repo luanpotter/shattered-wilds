@@ -2,6 +2,7 @@ import {
 	Armor,
 	ArmorType,
 	Bonus,
+	CharacterSheet,
 	Distance,
 	OtherItem,
 	PrimaryWeaponType,
@@ -9,10 +10,10 @@ import {
 	ShieldType,
 	Trait,
 } from '@shattered-wilds/commons';
+import { Equipment, BASIC_EQUIPMENT, BasicEquipmentType, Weapon, WeaponMode } from '@shattered-wilds/commons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useStore } from '../../store';
-import { CharacterSheet, Equipment, BASIC_EQUIPMENT, BasicEquipmentType, Weapon, WeaponMode } from '../../types';
 import { Button } from '../shared/Button';
 import { LabeledCheckbox } from '../shared/LabeledCheckbox';
 import LabeledDropdown from '../shared/LabeledDropdown';

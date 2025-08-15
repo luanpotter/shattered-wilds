@@ -1,4 +1,6 @@
-import { Character, CharacterSheet } from '../types';
+import { CharacterSheet } from '@shattered-wilds/commons';
+
+import { Character } from '../types/ui';
 import { findNextEmptyHexPosition } from '../utils';
 
 export const copyCharacterDataToClipboard = (character: Character) => {

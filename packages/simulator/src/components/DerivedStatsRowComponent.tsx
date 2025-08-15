@@ -1,10 +1,9 @@
-import { DerivedStatType } from '@shattered-wilds/commons';
+import { CharacterSheet, DerivedStatType } from '@shattered-wilds/commons';
 import React from 'react';
 
 import { Check, CheckMode, CheckNature } from '../../../commons/dist/stats/check';
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
-import { CharacterSheet } from '../types';
 
 import LabeledInput from './shared/LabeledInput';
 

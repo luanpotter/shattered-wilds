@@ -1,9 +1,9 @@
+import { CharacterSheet } from '@shattered-wilds/commons';
 import React from 'react';
 import { FaCog, FaExclamationTriangle } from 'react-icons/fa';
 
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
-import { CharacterSheet } from '../types';
 import { FeatsSection } from '../types/feats-section';
 
 import { FeatBox } from './FeatBox';

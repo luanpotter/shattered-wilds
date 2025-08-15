@@ -1,8 +1,9 @@
+import { CharacterSheet } from '@shattered-wilds/commons';
 import React, { useState } from 'react';
 import { FaChevronDown, FaChevronRight, FaExclamationTriangle } from 'react-icons/fa';
 
-import { Character, CharacterSheet } from '../../types';
 import { FeatsSection } from '../../types/feats-section';
+import { Character } from '../../types/ui';
 import { FeatBox } from '../FeatBox';
 import { Button } from '../shared/Button';
 

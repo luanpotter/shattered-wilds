@@ -8,7 +8,7 @@ import { OnboardingPage } from './components/OnboardingPage';
 import { Button } from './components/shared/Button';
 import { useModals } from './hooks/useModals';
 import { useStore } from './store';
-import { Point, Character, DragState } from './types';
+import { Point, Character, DragState } from './types/ui';
 import { Navigator, type ViewType } from './utils/routes';
 
 const App = (): React.ReactElement => {

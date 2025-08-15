@@ -244,7 +244,7 @@ export class Equipment {
 		this.items = items;
 	}
 
-	static from(prop: string): Equipment {
+	static from(prop: string | undefined): Equipment {
 		if (!prop) {
 			return new Equipment();
 		}

@@ -1,9 +1,8 @@
-import { Resource } from '@shattered-wilds/commons';
+import { CharacterSheet, CurrentResources, Resource } from '@shattered-wilds/commons';
 import React from 'react';
 import { FaBatteryFull } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { CharacterSheet, CurrentResources } from '../types';
 
 import { ResourceInputComponent } from './ResourceInputComponent';
 import { Button } from './shared/Button';

@@ -1,25 +1,11 @@
-import {
-	Armor,
-	ClassInfo,
-	Equipment,
-	Feat,
-	FeatDefinition,
-	FeatInfo,
-	FeatSlot,
-	FeatSource,
-	FeatStatModifier,
-	FeatType,
-	InherentModifier,
-	ModifierSource,
-	RaceInfo,
-	Resource,
-	RESOURCES,
-	ResourceValue,
-	Size,
-	StatNode,
-	StatTree,
-	StatType,
-} from '@shattered-wilds/commons';
+import { Feat, FeatDefinition, FeatInfo, FeatSlot, FeatSource, FeatStatModifier, FeatType } from '../core/feats.js';
+import { Size } from '../core/size.js';
+import { Resource, RESOURCES, ResourceValue } from '../stats/resources.js';
+import { InherentModifier, ModifierSource, StatNode, StatTree } from '../stats/stat-tree.js';
+import { StatType } from '../stats/stat-type.js';
+import { ClassInfo } from './class-info.js';
+import { Armor, Equipment } from './equipment.js';
+import { RaceInfo } from './race-info.js';
 
 export class CurrentResources {
 	currentResources: Record<Resource, number>;

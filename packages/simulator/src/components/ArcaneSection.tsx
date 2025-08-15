@@ -13,6 +13,7 @@ import {
 	DerivedStatType,
 	Distance,
 	FUNDAMENTAL_ARCANE_SPELL_DESCRIPTION,
+	CharacterSheet,
 	ModifierSource,
 	PREDEFINED_ARCANE_SPELLS,
 	Resource,
@@ -27,7 +28,7 @@ import { FaDice } from 'react-icons/fa';
 import { useModals } from '../hooks/useModals';
 import { useUIStateFactory } from '../hooks/useUIState';
 import { useStore } from '../store';
-import { Character, CharacterSheet } from '../types';
+import { Character } from '../types/ui';
 import { numberToOrdinal } from '../utils';
 
 import { CostBoxComponent } from './CostBoxComponent';

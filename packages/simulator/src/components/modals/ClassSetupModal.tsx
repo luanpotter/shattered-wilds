@@ -1,16 +1,16 @@
 import { ClassInfo } from '@shattered-wilds/commons';
-import React, { useState } from 'react';
-
-import { useStore } from '../../store';
 import {
-	Character,
 	CharacterClass,
 	CLASS_DEFINITIONS,
 	ClassRealm,
 	ClassRole,
 	ClassFlavor,
 	CLASS_ROLE_PRIMARY_ATTRIBUTE,
-} from '../../types';
+} from '@shattered-wilds/commons';
+import React, { useState } from 'react';
+
+import { useStore } from '../../store';
+import { Character } from '../../types/ui';
 import { Button } from '../shared/Button';
 import { RichText } from '../shared/RichText';
 import { Tabs } from '../shared/Tabs';

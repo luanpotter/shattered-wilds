@@ -1,5 +1,6 @@
 import {
 	ActionCost,
+	CharacterSheet,
 	Check,
 	CheckMode,
 	CheckNature,
@@ -14,7 +15,7 @@ import { FaDice } from 'react-icons/fa';
 
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
-import { Character, CharacterSheet } from '../types';
+import { Character } from '../types/ui';
 
 import { CostBoxComponent } from './CostBoxComponent';
 import { ParameterBoxComponent } from './ParameterBoxComponent';
