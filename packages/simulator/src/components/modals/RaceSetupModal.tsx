@@ -1,5 +1,4 @@
-import { CharacterSheet } from '@shattered-wilds/commons';
-import { StatType, Race, Upbringing } from '@shattered-wilds/commons';
+import { CharacterSheet, Race, StatType, Upbringing } from '@shattered-wilds/commons';
 import React from 'react';
 
 import { useStore } from '../../store';

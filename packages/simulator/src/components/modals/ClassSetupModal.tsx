@@ -1,5 +1,5 @@
-import { ClassInfo } from '@shattered-wilds/commons';
 import {
+	ClassInfo,
 	CharacterClass,
 	CLASS_DEFINITIONS,
 	ClassRealm,

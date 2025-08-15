@@ -1,5 +1,4 @@
-import { CharacterSheet } from '@shattered-wilds/commons';
-import { Equipment } from '@shattered-wilds/commons';
+import { CharacterSheet, Equipment } from '@shattered-wilds/commons';
 import React from 'react';
 import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 

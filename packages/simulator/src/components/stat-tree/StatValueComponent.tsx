@@ -1,5 +1,4 @@
-import { Check, CheckMode, CheckNature } from '@shattered-wilds/commons';
-import { StatNode, StatTree } from '@shattered-wilds/commons';
+import { Check, CheckMode, CheckNature, StatNode, StatTree } from '@shattered-wilds/commons';
 import React from 'react';
 import { FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
 

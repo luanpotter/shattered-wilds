@@ -67,6 +67,7 @@ export default tseslint.config(
 					alphabetize: { order: 'asc', caseInsensitive: true },
 				},
 			],
+			'import/no-duplicates': ['error', { considerQueryString: true }],
 			'jsx-a11y/no-static-element-interactions': 'off',
 		},
 	},

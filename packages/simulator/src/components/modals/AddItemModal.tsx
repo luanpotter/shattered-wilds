@@ -1,16 +1,20 @@
 import {
 	Armor,
 	ArmorType,
+	BASIC_EQUIPMENT,
+	BasicEquipmentType,
 	Bonus,
 	CharacterSheet,
 	Distance,
+	Equipment,
 	OtherItem,
 	PrimaryWeaponType,
 	Shield,
 	ShieldType,
 	Trait,
+	Weapon,
+	WeaponMode,
 } from '@shattered-wilds/commons';
-import { Equipment, BASIC_EQUIPMENT, BasicEquipmentType, Weapon, WeaponMode } from '@shattered-wilds/commons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useStore } from '../../store';
