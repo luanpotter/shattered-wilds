@@ -1,0 +1,27 @@
+{
+	"name": "@shattered-wilds/vtt",
+	"private": true,
+	"version": "0.0.1",
+	"description": "Shattered Wilds Foundry VTT v13 system",
+	"type": "module",
+	"scripts": {
+		"build": "bun run clean && tsc && bun run build:pack",
+		"build:pack": "bun scripts/build.ts",
+		"lint": "eslint . --ext .ts,.tsx,.js,.cjs --config eslint.config.ts",
+		"lint:fix": "eslint . --ext .ts,.tsx,.js,.cjs --fix --config eslint.config.ts",
+		"type-check": "tsc --noEmit --incremental false --project tsconfig.json",
+		"prettier:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,css,html}\" --ignore-path .gitignore",
+		"prettier:fix": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,html}\" --ignore-path .gitignore",
+		"check": "bun run lint && bun run type-check && bun run prettier:check",
+		"check:fix": "bun run lint:fix && bun run type-check && bun run prettier:fix",
+		"clean": "rm -rf build/ dist/ node_modules/"
+	},
+	"dependencies": {
+		"@shattered-wilds/commons": "workspace:*"
+	},
+	"devDependencies": {
+		"typescript": "~5.7.2"
+	}
+}
+
+

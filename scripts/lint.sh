@@ -14,13 +14,13 @@ while [[ $# -gt 0 ]]; do
             FIX_MODE=true
             shift
             ;;
-        simulator|site|commons)
+        simulator|site|commons|vtt)
             PROJECTS_TO_RUN+=("$1")
             shift
             ;;
         *)
-            echo "❌ Error: Unknown argument '$1'. Valid arguments are: --fix, simulator, site, commons"
-            echo "Usage: $0 [--fix] [simulator|site|commons...]"
+            echo "❌ Error: Unknown argument '$1'. Valid arguments are: --fix, simulator, site, commons, vtt"
+            echo "Usage: $0 [--fix] [simulator|site|commons|vtt...]"
             exit 1
             ;;
     esac
@@ -28,7 +28,7 @@ done
 
 # If no projects specified, run all
 if [ ${#PROJECTS_TO_RUN[@]} -eq 0 ]; then
-    PROJECTS_TO_RUN=("simulator" "site" "commons")
+    PROJECTS_TO_RUN=("simulator" "site" "commons" "vtt")
 fi
 
 echo "🔍 Linting projects: ${PROJECTS_TO_RUN[*]}..."
@@ -172,6 +172,7 @@ fi
 SIMULATOR_FAILED=false
 SITE_FAILED=false
 COMMONS_FAILED=false
+VTT_FAILED=false
 
 # Run checks for each project
 if should_run_project "commons"; then
@@ -190,6 +191,12 @@ if should_run_project "simulator"; then
     run_project_checks "simulator" "packages/simulator" "SIMULATOR_FAILED"
 else
     print_status "33" "⏭️  Skipping simulator project"
+fi
+
+if should_run_project "vtt"; then
+    run_project_checks "vtt" "packages/vtt" "VTT_FAILED"
+else
+    print_status "33" "⏭️  Skipping vtt project"
 fi
 
 # Run markdown linting on everything
@@ -269,6 +276,16 @@ else
     print_status "33" "⏭️  Commons: Skipped"
 fi
 
+if should_run_project "vtt"; then
+    if [ "$VTT_FAILED" = true ]; then
+        print_status "31" "❌ VTT: Failed"
+    else
+        print_status "32" "✅ VTT: Passed"
+    fi
+else
+    print_status "33" "⏭️  VTT: Skipped"
+fi
+
 if [ "$MARKDOWN_FAILED" = true ]; then
     print_status "31" "❌ Markdown: Failed"
 else
@@ -276,7 +293,7 @@ else
 fi
 
 # Exit with error if any project failed
-if [ "$SIMULATOR_FAILED" = true ] || [ "$SITE_FAILED" = true ] || [ "$COMMONS_FAILED" = true ] || [ "$MARKDOWN_FAILED" = true ]; then
+if [ "$SIMULATOR_FAILED" = true ] || [ "$SITE_FAILED" = true ] || [ "$COMMONS_FAILED" = true ] || [ "$VTT_FAILED" = true ] || [ "$MARKDOWN_FAILED" = true ]; then
     echo ""
     print_status "31" "❌ Linting failed! Please fix the issues above."
     exit 1

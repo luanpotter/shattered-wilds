@@ -24,6 +24,7 @@ function build_project() {
 build_project "commons"
 build_project "site"
 build_project "simulator"
+build_project "vtt"
 
 # Copy site output to build/
 cp -r packages/site/_site/* build/
@@ -31,5 +32,9 @@ cp -r packages/site/_site/* build/
 # Copy simulator output to build/simulator/
 mkdir -p build/simulator
 cp -r packages/simulator/dist/* build/simulator/
+
+# Copy vtt output to build/vtt/
+mkdir -p build/vtt
+cp -r packages/vtt/dist/* build/vtt/
 
 echo "Build complete!"

@@ -1,0 +1,36 @@
+{
+	"id": "shattered-wilds",
+	"title": "Shattered Wilds",
+	"description": "Shattered Wilds game system for Foundry VTT v13",
+	"version": "0.0.1",
+	"compatibility": {
+		"minimum": "13",
+		"verified": "13"
+	},
+	"authors": [
+		{ "name": "Luan Nico" }
+	],
+	"url": "https://github.com/luan/shattered-wilds",
+	"license": "MIT",
+	"manifest": "https://example.com/shattered-wilds/system.json",
+	"download": "https://example.com/shattered-wilds/shattered-wilds.zip",
+	"esmodules": [
+		"system.js"
+	],
+	"documentTypes": {
+		"Actor": { "character": {}, "npc": {} },
+		"Item": {}
+	},
+	"languages": [
+		{ "lang": "en", "name": "English", "path": "lang/en.json" }
+	],
+	"grid": {
+		"distance": 1,
+		"units": "m"
+	},
+	"primaryTokenAttribute": null,
+	"packs": [],
+	"socket": true
+}
+
+

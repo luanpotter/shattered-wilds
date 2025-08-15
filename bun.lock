@@ -73,6 +73,16 @@
         "typescript": "^5.7.2",
       },
     },
+    "packages/vtt": {
+      "name": "@shattered-wilds/vtt",
+      "version": "0.0.1",
+      "dependencies": {
+        "@shattered-wilds/commons": "workspace:*",
+      },
+      "devDependencies": {
+        "typescript": "~5.7.2",
+      },
+    },
   },
   "trustedDependencies": [
     "reurl",
@@ -277,6 +287,8 @@
     "@shattered-wilds/simulator": ["@shattered-wilds/simulator@workspace:packages/simulator"],
 
     "@shattered-wilds/site": ["@shattered-wilds/site@workspace:packages/site"],
+
+    "@shattered-wilds/vtt": ["@shattered-wilds/vtt@workspace:packages/vtt"],
 
     "@sindresorhus/slugify": ["@sindresorhus/slugify@2.2.1", "", { "dependencies": { "@sindresorhus/transliterate": "^1.0.0", "escape-string-regexp": "^5.0.0" } }, "sha512-MkngSCRZ8JdSOCHRaYd+D01XhvU3Hjy6MGl06zhOk614hp9EOAp5gIkBeQg7wtmxpitU6eAL4kdiRMcJa2dlrw=="],
 
@@ -1281,6 +1293,8 @@
     "@humanfs/node/@humanwhocodes/retry": ["@humanwhocodes/retry@0.3.1", "", {}, "sha512-JBxkERygn7Bv/GbN5Rv8Ul6LVknS+5Bp6RgDC/O8gEBU/yeH5Ui5C/OlWrTb6qct7LjjfT6Re2NxB0ln0yYybA=="],
 
     "@shattered-wilds/simulator/typescript": ["typescript@5.7.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-84MVSjMEHP+FQRPy3pX9sTVV/INIex71s9TL2Gm5FG/WG1SqXeKyZ0k7/blY/4FdOzI12CBy1vGc4og/eus0fw=="],
+
+    "@shattered-wilds/vtt/typescript": ["typescript@5.7.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-84MVSjMEHP+FQRPy3pX9sTVV/INIex71s9TL2Gm5FG/WG1SqXeKyZ0k7/blY/4FdOzI12CBy1vGc4og/eus0fw=="],
 
     "@sindresorhus/slugify/escape-string-regexp": ["escape-string-regexp@5.0.0", "", {}, "sha512-/veY75JbMK4j1yjvuUxuVsiS/hr/4iHs9FTT6cgTexxdE0Ly/glccBAkloH/DofkjRbZU3bnoj38mOmhkZ0lHw=="],
 

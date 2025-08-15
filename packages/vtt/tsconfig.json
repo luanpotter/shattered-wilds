@@ -1,0 +1,23 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"outDir": "./dist",
+		"rootDir": "./src",
+		"declaration": true,
+		"declarationMap": true,
+		"sourceMap": true,
+		"noEmit": false,
+		"allowImportingTsExtensions": false,
+		"moduleResolution": "bundler",
+		"module": "ESNext",
+		"verbatimModuleSyntax": false,
+		"moduleDetection": "force",
+		"isolatedModules": true,
+		"lib": ["ES2024", "DOM", "DOM.Iterable"],
+		"types": []
+	},
+	"include": ["src/**/*", "system.json"],
+	"exclude": ["dist", "node_modules"]
+}
+
+
