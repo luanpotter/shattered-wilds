@@ -1,15 +1,5 @@
 import { Bonus, Check, Distance, StatType } from '@shattered-wilds/commons';
 
-export class DerivedStat<T> {
-	value: T;
-	description: string;
-
-	constructor(value: T, description: string) {
-		this.value = value;
-		this.description = description;
-	}
-}
-
 export interface BasicAttack {
 	name: string;
 	description: string;
