@@ -26,6 +26,7 @@ import {
 	Armor,
 	FeatDefinition,
 	FeatSource,
+	RESOURCES,
 } from '@shattered-wilds/commons';
 
 import { BasicAttack, DefenseType, DEFENSE_TYPE_PROPERTIES } from './core';
@@ -358,5 +359,35 @@ export class CharacterSheet {
 			equipment: Equipment.from(props['equipment']),
 			currentResources: CurrentResources.from(props),
 		});
+	}
+
+	static parsePropsFromShareString(shareString: string): Record<string, string> {
+		const props: Record<string, string> = {};
+		const lines = atob(shareString).split('\n');
+
+		for (const line of lines) {
+			const trimmedLine = line.trim();
+			if (!trimmedLine) continue;
+
+			const colonIndex = trimmedLine.indexOf(':');
+			if (colonIndex === -1) continue;
+
+			const key = trimmedLine.substring(0, colonIndex).trim();
+			const value = trimmedLine.substring(colonIndex + 1).trim();
+
+			props[key] = value;
+		}
+
+		return props;
+	}
+
+	static toShareString(props: Record<string, string>): string {
+		const keyValuePairs = Object.entries(props)
+			.filter(([key, value]) => !StatType.values.some(stat => stat.name === key) || value !== '0')
+			.filter(([key, value]) => !Object.keys(RESOURCES).some(resource => resource === key) || value !== '-1')
+			.filter(([, value]) => value !== '')
+			.map(([key, value]) => `${key}: ${value}`)
+			.join('\n');
+		return btoa(keyValuePairs);
 	}
 }
