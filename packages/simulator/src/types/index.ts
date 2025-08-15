@@ -25,5 +25,5 @@ export {
 export type { StatModifier, InherentModifier as Modifier } from '@shattered-wilds/commons';
 
 export * from './ui';
-export * from './core';
+export * from './grid-actions';
 export * from './character-sheet';

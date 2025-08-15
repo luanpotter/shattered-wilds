@@ -2,7 +2,7 @@ import React from 'react';
 import { FaCopy, FaExpand } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { Modal as ModalType, CharacterSheet } from '../types';
+import { Modal as ModalType, CharacterSheet, getBasicAttacksFor } from '../types';
 import { copyCharacterDataToClipboard } from '../utils/clipboard';
 import { Navigator } from '../utils/routes';
 
@@ -136,7 +136,7 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 				const characterSheet = CharacterSheet.from(character.props);
 				return (
 					<BasicAttacksModal
-						attacks={characterSheet.getBasicAttacks()}
+						attacks={getBasicAttacksFor(characterSheet)}
 						characterSheet={characterSheet}
 						onClose={onClose}
 					/>

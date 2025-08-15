@@ -4,7 +4,7 @@ import { FaDice, FaFistRaised, FaUserShield } from 'react-icons/fa';
 
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
-import { CharacterSheet, Shield, DefenseType } from '../../types';
+import { CharacterSheet, Shield, DefenseType, getBasicDefenseFor, getBasicAttacksFor } from '../../types';
 import { Button } from '../shared/Button';
 
 interface AttackActionModalProps {
@@ -53,8 +53,8 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		if (attacker && defender) {
 			const attackerSheet = CharacterSheet.from(attacker.props);
 			const defenderSheet = CharacterSheet.from(defender.props);
-			const attack = attackerSheet.getBasicAttacks()[attackIndex];
-			const defense = defenderSheet.getBasicDefense(DefenseType.BasicBody);
+			const attack = getBasicAttacksFor(attackerSheet)[attackIndex];
+			const defense = getBasicDefenseFor(defenderSheet, DefenseType.BasicBody);
 
 			if (attack && defender.automaticMode) {
 				const autoResult = getAutomaticResult(defense.value);
@@ -73,11 +73,11 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 
 	const attackerSheet = CharacterSheet.from(attacker.props);
 	const defenderSheet = CharacterSheet.from(defender.props);
-	const attack = attackerSheet.getBasicAttacks()[attackIndex];
+	const attack = getBasicAttacksFor(attackerSheet)[attackIndex];
 
-	const basicDefense = defenderSheet.getBasicDefense(DefenseType.BasicBody);
-	const dodgeDefense = defenderSheet.getBasicDefense(DefenseType.Dodge);
-	const shieldDefense = defenderSheet.getBasicDefense(DefenseType.ShieldBlock);
+	const basicDefense = getBasicDefenseFor(defenderSheet, DefenseType.BasicBody);
+	const dodgeDefense = getBasicDefenseFor(defenderSheet, DefenseType.Dodge);
+	const shieldDefense = getBasicDefenseFor(defenderSheet, DefenseType.ShieldBlock);
 
 	// Check if defender has a shield and calculate shield block value
 	const hasShield = defenderSheet.equipment.items.some(item => item instanceof Shield);

@@ -1,36 +1,25 @@
 import {
-	StatTree,
-	StatNode,
+	Armor,
+	ClassInfo,
+	Equipment,
+	Feat,
+	FeatDefinition,
+	FeatInfo,
+	FeatSlot,
+	FeatSource,
+	FeatStatModifier,
+	FeatType,
 	InherentModifier,
 	ModifierSource,
-	StatType,
-	FeatInfo,
-	FeatType,
-	FeatStatModifier,
-	FeatSlot,
-	Feat,
-	StatModifier,
-	Check,
-	CheckNature,
-	CheckMode,
-	CircumstanceModifier,
 	RaceInfo,
-	ClassInfo,
 	Resource,
-	Size,
-	Bonus,
-	Distance,
-	Equipment,
-	Weapon,
-	Shield,
-	Armor,
-	FeatDefinition,
-	FeatSource,
 	RESOURCES,
 	ResourceValue,
+	Size,
+	StatNode,
+	StatTree,
+	StatType,
 } from '@shattered-wilds/commons';
-
-import { BasicAttack, DefenseType, DEFENSE_TYPE_PROPERTIES } from './core';
 
 export class CurrentResources {
 	currentResources: Record<Resource, number>;
@@ -232,114 +221,6 @@ export class CharacterSheet {
 			});
 
 		return modifiers;
-	}
-
-	getBasicAttacks(): BasicAttack[] {
-		const tree = this.getStatTree();
-		const attacks: BasicAttack[] = [];
-
-		// Add weapon attacks
-		this.equipment.items
-			.filter(item => item instanceof Weapon)
-			.forEach(item => {
-				const weapon = item as Weapon;
-				weapon.modes.forEach(mode => {
-					const name = weapon.name;
-					const weaponModifier = <CircumstanceModifier>{
-						source: ModifierSource.Equipment,
-						name: `${name} (${mode.type})`,
-						description: `Weapon bonus from ${name} (${mode.type})`,
-						value: mode.bonus,
-					};
-					attacks.push({
-						name: name,
-						description: `${name} ${mode.type} (${mode.bonus.description})`,
-						check: new Check({
-							mode: CheckMode.Static,
-							nature: CheckNature.Active,
-							statModifier: tree.getModifier(mode.statType, [weaponModifier]),
-						}),
-						range: mode.range,
-					});
-				});
-			});
-
-		// Add Shield Bash if a shield is equipped
-		const shield = this.equipment.items.find(item => item instanceof Shield);
-		if (shield) {
-			const shieldModifier = <CircumstanceModifier>{
-				source: ModifierSource.Equipment,
-				name: 'Shield Bash',
-				description: `Shield Bash bonus from ${shield.name}`,
-				value: Bonus.of(1),
-			};
-			attacks.push({
-				name: 'Shield Bash',
-				description: 'Shield Bash',
-				check: new Check({
-					mode: CheckMode.Static,
-					nature: CheckNature.Active,
-					statModifier: tree.getModifier(StatType.STR, [shieldModifier]),
-				}),
-				range: Distance.melee(),
-			});
-		}
-
-		// Add Unarmed attack (always available)
-		attacks.push({
-			name: 'Unarmed',
-			description: 'Unarmed',
-			check: new Check({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Active,
-				statModifier: tree.getModifier(StatType.STR),
-			}),
-			range: Distance.melee(),
-		});
-
-		return attacks;
-	}
-
-	getBasicDefense(type: DefenseType): StatModifier {
-		const { stat, cm } = DEFENSE_TYPE_PROPERTIES[type];
-
-		const cms: CircumstanceModifier[] = [];
-
-		const armor = this.equipment.items.find(item => item instanceof Armor);
-		if (armor) {
-			const armorModifier = <CircumstanceModifier>{
-				source: ModifierSource.Equipment,
-				name: 'Armor',
-				description: `Armor bonus from ${armor.name}`,
-				value: armor.bonus,
-			};
-			cms.push(armorModifier);
-		}
-
-		if (type === DefenseType.ShieldBlock) {
-			const shield = this.equipment.items.find(item => item instanceof Shield);
-			if (shield) {
-				const shieldModifier = <CircumstanceModifier>{
-					source: ModifierSource.Equipment,
-					name: 'Shield Block',
-					description: `Shield Block bonus from ${shield.name}`,
-					value: shield.bonus,
-				};
-				cms.push(shieldModifier);
-			}
-		}
-
-		if (cm.isNotZero) {
-			cms.push(
-				new CircumstanceModifier({
-					source: ModifierSource.Circumstance,
-					name: type,
-					value: cm,
-				}),
-			);
-		}
-
-		return this.getStatTree().getModifier(stat, cms);
 	}
 
 	static from(props: Record<string, string>): CharacterSheet {

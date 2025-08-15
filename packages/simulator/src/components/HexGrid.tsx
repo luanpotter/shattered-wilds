@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
-import { CharacterSheet, DragState, Point, Character, HexPosition } from '../types';
+import { CharacterSheet, DragState, Point, Character, HexPosition, getBasicAttacksFor } from '../types';
 import { findCharacterAtPosition, axialToPixel } from '../utils';
 
 import { CharacterToken } from './CharacterToken';
@@ -167,7 +167,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 
 	const getAttackRange = (attacker: Character, attackIndex: number): Distance => {
 		const sheet = CharacterSheet.from(attacker.props);
-		const attacks = sheet.getBasicAttacks();
+		const attacks = getBasicAttacksFor(sheet);
 		const attack = attacks[attackIndex];
 
 		if (!attack) {

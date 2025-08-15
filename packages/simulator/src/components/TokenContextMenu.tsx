@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaUser, FaFistRaised, FaRuler } from 'react-icons/fa';
 
-import { Character, CharacterSheet } from '../types';
+import { Character, CharacterSheet, getBasicAttacksFor } from '../types';
 
 interface TokenContextMenuProps {
 	character: Character;
@@ -21,7 +21,7 @@ export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
 	onMeasureAction,
 }) => {
 	const sheet = CharacterSheet.from(character.props);
-	const basicAttacks = sheet.getBasicAttacks();
+	const basicAttacks = getBasicAttacksFor(sheet);
 
 	const menuStyle: React.CSSProperties = {
 		position: 'fixed',
