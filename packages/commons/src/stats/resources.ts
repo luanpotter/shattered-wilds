@@ -37,6 +37,12 @@ export class ResourceDefinition {
 	}
 }
 
+export interface ResourceValue {
+	resource: Resource;
+	current: number;
+	max: number;
+}
+
 export const RESOURCES: Record<Resource, ResourceDefinition> = {
 	[Resource.HeroismPoint]: new ResourceDefinition({
 		key: Resource.HeroismPoint,

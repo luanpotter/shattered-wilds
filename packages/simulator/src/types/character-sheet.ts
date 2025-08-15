@@ -27,15 +27,10 @@ import {
 	FeatDefinition,
 	FeatSource,
 	RESOURCES,
+	ResourceValue,
 } from '@shattered-wilds/commons';
 
 import { BasicAttack, DefenseType, DEFENSE_TYPE_PROPERTIES } from './core';
-
-export interface ResourceValue {
-	resource: Resource;
-	current: number;
-	max: number;
-}
 
 export class CurrentResources {
 	currentResources: Record<Resource, number>;
