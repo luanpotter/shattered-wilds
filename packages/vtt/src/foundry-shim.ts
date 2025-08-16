@@ -87,3 +87,38 @@ export async function createTokenInScene(scene: SceneLike, tokenData: Record<str
 	const docs = await (scene as any).createEmbeddedDocuments?.('Token', [tokenData]);
 	return docs?.[0];
 }
+
+export async function promptText({ title, label }: { title: string; label: string }): Promise<string | null> {
+	return new Promise(resolve => {
+		const DialogCtor = (globalThis as any).foundry?.applications?.api?.DialogV2 || (globalThis as any).Dialog;
+		if (!DialogCtor) {
+			resolve(null);
+			return;
+		}
+		const content = `<form><div class="form-group"><label>${label}</label><input type="text" name="text" autofocus /></div></form>`;
+		const dialog = new DialogCtor(
+			{
+				title,
+				content,
+				buttons: {
+					ok: {
+						label: 'OK',
+						callback: (html: any) => {
+							try {
+								const value: string | undefined =
+									(html?.find?.('input[name="text"]').val?.() as string | undefined) ?? undefined;
+								resolve(value && value.trim() ? value.trim() : null);
+							} catch {
+								resolve(null);
+							}
+						},
+					},
+					cancel: { label: 'Cancel', callback: () => resolve(null) },
+				},
+				default: 'ok',
+			},
+			{ jQuery: true },
+		);
+		dialog.render(true);
+	});
+}
