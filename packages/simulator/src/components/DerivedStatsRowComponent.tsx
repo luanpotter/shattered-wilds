@@ -1,7 +1,6 @@
-import { CharacterSheet, DerivedStatType } from '@shattered-wilds/commons';
+import { CharacterSheet, Check, CheckMode, CheckNature, DerivedStatType } from '@shattered-wilds/commons';
 import React from 'react';
 
-import { Check, CheckMode, CheckNature } from '../../../commons/dist/stats/check';
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
 

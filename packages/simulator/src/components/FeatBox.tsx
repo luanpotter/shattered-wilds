@@ -1,10 +1,9 @@
-import { FeatType } from '@shattered-wilds/commons';
+import { FeatOrSlot, FeatType } from '@shattered-wilds/commons';
 import React from 'react';
 import { FaExclamationTriangle } from 'react-icons/fa';
 
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
-import { FeatOrSlot } from '../types/feats-section';
 import { Character } from '../types/ui';
 
 import { RichText } from './shared/RichText';

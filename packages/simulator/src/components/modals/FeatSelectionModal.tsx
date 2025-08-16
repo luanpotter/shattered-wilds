@@ -1,9 +1,8 @@
-import { FeatDefinition, FeatSlot, FeatInfo, CharacterSheet } from '@shattered-wilds/commons';
+import { FeatDefinition, FeatSlot, FeatInfo, CharacterSheet, FeatsSection } from '@shattered-wilds/commons';
 import React from 'react';
 
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
-import { FeatsSection } from '../../types/feats-section';
 import Block from '../shared/Block';
 import { Button } from '../shared/Button';
 import { RichText } from '../shared/RichText';

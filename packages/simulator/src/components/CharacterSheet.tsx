@@ -1,10 +1,9 @@
-import { CharacterSheet } from '@shattered-wilds/commons';
+import { CharacterSheet, FeatsSection } from '@shattered-wilds/commons';
 import React, { useEffect } from 'react';
 import { FaCog } from 'react-icons/fa';
 
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
-import { FeatsSection } from '../types/feats-section';
 import { Character } from '../types/ui';
 
 import { DerivedStatsRowComponent } from './DerivedStatsRowComponent';

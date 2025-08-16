@@ -1,4 +1,4 @@
-import { CharacterSheet, StatType } from '@shattered-wilds/commons';
+import { CharacterSheet, FeatsSection, StatType } from '@shattered-wilds/commons';
 import React from 'react';
 import {
 	FaArrowLeft,
@@ -18,7 +18,6 @@ import {
 import { useModals } from '../hooks/useModals';
 import { useUIStateFactory } from '../hooks/useUIState';
 import { useStore } from '../store';
-import { FeatsSection } from '../types/feats-section';
 import { copyCharacterDataToClipboard } from '../utils/clipboard';
 import { Navigator } from '../utils/routes';
 

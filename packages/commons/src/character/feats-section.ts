@@ -1,5 +1,6 @@
-import { CharacterSheet, FeatDefinition, FeatInfo, FEATS, FeatSlot, FeatType } from '@shattered-wilds/commons';
 import * as TypeComparator from 'type-comparator';
+import { FeatDefinition, FeatInfo, FEATS, FeatSlot, FeatType } from '../core/feats.js';
+import { CharacterSheet } from './character-sheet.js';
 
 // each "card" we want to show in the feats section; either:
 // - a core (non-slotted) feat
