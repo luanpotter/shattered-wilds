@@ -80,10 +80,8 @@
 	padding: 8px 4px;
 	border: 1px solid #999;
 	border-radius: 6px;
-	min-height: 140px;
+	min-height: 120px;
 	text-align: center;
-	writing-mode: vertical-lr;
-	text-orientation: mixed;
 }
 
 .realm-label.Body {
@@ -100,9 +98,11 @@
 
 .realm-name {
 	font-weight: bold;
-	font-size: 1.1em;
-	writing-mode: vertical-lr;
-	text-orientation: mixed;
+	font-size: 1.75em;
+	text-orientation: sideways;
+	writing-mode: vertical-rl;
+	transform: rotate(-180deg);
+	text-transform: uppercase;
 }
 
 /* Attributes Grid */
@@ -121,7 +121,7 @@
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
-	min-height: 140px;
+	min-height: 120px;
 }
 
 .attribute-header {
@@ -143,7 +143,8 @@
 	padding: 4px;
 	display: flex;
 	flex-direction: column;
-	gap: 2px;
+	gap: 1px;
+	justify-content: flex-start;
 }
 
 .skill-row {
