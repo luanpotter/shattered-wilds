@@ -668,7 +668,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 			step={step}
 			totalSteps={steps.length}
 			onQuit={onNavigateToCharacterSheets}
-			onBack={() => (step > 0 ? setStep(step - 1) : undefined)}
+			onBack={() => (step > 1 ? setStep(step - 1) : undefined)}
 		>
 			{steps[step - 1]}
 		</StepWrapper>
