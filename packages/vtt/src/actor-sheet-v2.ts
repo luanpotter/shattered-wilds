@@ -19,6 +19,7 @@ import {
 	StatNode,
 	NodeStatModifier,
 	CircumstanceModifier,
+	FeatsSection,
 } from '@shattered-wilds/commons';
 
 const V2Base = getActorSheetV2();
@@ -147,6 +148,21 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			console.warn('Failed to create CharacterSheet from props:', err);
 		}
 
+		// Prepare feats data
+		let featsData = null;
+		if (characterSheet) {
+			try {
+				const featsSection = FeatsSection.create(characterSheet);
+				featsData = {
+					isEmpty: featsSection.isEmpty,
+					warnings: featsSection.warnings,
+					featsOrSlotsByLevel: featsSection.featsOrSlotsByLevel,
+				};
+			} catch (err) {
+				console.warn('Failed to create feats section:', err);
+			}
+		}
+
 		return {
 			actor,
 			flags: actor.flags ?? {},
@@ -155,8 +171,10 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			resources,
 			resourcesArray,
 			statTreeData,
+			featsData,
 			activeTab: this.#activeTab,
 			isStatsTabActive: this.#activeTab === 'stats',
+			isFeatsTabActive: this.#activeTab === 'feats',
 			isDebugTabActive: this.#activeTab === 'debug',
 		};
 	}

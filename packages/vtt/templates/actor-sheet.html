@@ -43,6 +43,9 @@
 						<button type="button" class="tab-button {{#if isStatsTabActive}}active{{/if}}" data-tab="stats">
 							<i class="fas fa-sitemap"></i> Stats
 						</button>
+						<button type="button" class="tab-button {{#if isFeatsTabActive}}active{{/if}}" data-tab="feats">
+							<i class="fas fa-star"></i> Feats
+						</button>
 						<button type="button" class="tab-button {{#if isDebugTabActive}}active{{/if}}" data-tab="debug">
 							<i class="fas fa-bug"></i> Debug
 						</button>
@@ -151,6 +154,49 @@
 											{{/each}}
 										</div>
 									</div>
+								</div>
+							{{/if}}
+						</div>
+
+						<!-- Feats Tab -->
+						<div class="tab-panel {{#if isFeatsTabActive}}active{{/if}}" data-tab-panel="feats">
+							{{#if featsData}}
+								{{#if featsData.isEmpty}}
+									<div class="feats-empty">
+										<p>No feats assigned yet.</p>
+									</div>
+								{{else}}
+									{{#if featsData.warnings.length}}
+										<div class="feats-warnings">
+											<i class="fas fa-exclamation-triangle"></i>
+											<span>{{featsData.warnings.length}} warnings</span>
+										</div>
+									{{/if}}
+
+									{{#each featsData.featsOrSlotsByLevel}}
+										<div class="feat-level">
+											<h3 class="feat-level-title">Level {{level}}</h3>
+											<div class="feats-grid">
+												{{#each featsOrSlots}}
+													<div class="feat-box {{#if warning}}warning{{/if}} {{#if isEmpty}}empty{{/if}}">
+														<div class="feat-header">
+															<span class="feat-name">{{#if info}}{{info.name}}{{else}}Empty {{slot.name}}{{/if}}</span>
+															{{#if warning}}
+																<i class="fas fa-exclamation-triangle feat-warning-icon" title="{{warning}}"></i>
+															{{/if}}
+														</div>
+														{{#if info.feat.description}}
+															<div class="feat-description">{{info.feat.description}}</div>
+														{{/if}}
+													</div>
+												{{/each}}
+											</div>
+										</div>
+									{{/each}}
+								{{/if}}
+							{{else}}
+								<div class="feats-loading">
+									<p>Loading feats...</p>
 								</div>
 							{{/if}}
 						</div>

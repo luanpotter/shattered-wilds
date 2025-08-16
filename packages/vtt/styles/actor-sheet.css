@@ -275,6 +275,91 @@
 	opacity: 1;
 }
 
+/* Feats Tab Styles */
+.feats-empty {
+	padding: 20px;
+	text-align: center;
+	color: #666;
+	font-style: italic;
+}
+
+.feats-warnings {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px;
+	margin-bottom: 16px;
+	background: rgba(255, 165, 0, 0.1);
+	border: 1px solid orange;
+	border-radius: 4px;
+	color: orange;
+}
+
+.feat-level {
+	margin-bottom: 24px;
+}
+
+.feat-level-title {
+	margin: 0 0 12px 0;
+	font-size: 1.1rem;
+	color: var(--text-color, #ddd);
+	border-bottom: 1px solid #444;
+	padding-bottom: 4px;
+}
+
+.feats-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+}
+
+.feat-box {
+	padding: 10px;
+	border: 1px solid #666;
+	border-radius: 6px;
+	background: rgba(255, 255, 255, 0.05);
+}
+
+.feat-box.warning {
+	border-color: orange;
+	background: rgba(255, 165, 0, 0.1);
+}
+
+.feat-box.empty {
+	border-style: dashed;
+	background: rgba(255, 255, 255, 0.02);
+	color: #888;
+}
+
+.feat-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 8px;
+}
+
+.feat-name {
+	font-weight: bold;
+	font-size: 0.95em;
+}
+
+.feat-warning-icon {
+	color: orange;
+	font-size: 0.9em;
+}
+
+.feat-description {
+	font-size: 0.85em;
+	line-height: 1.4;
+	color: #bbb;
+}
+
+.feats-loading {
+	padding: 20px;
+	text-align: center;
+	color: #666;
+}
+
 .skill-name {
 	flex: 1;
 	text-align: left;
