@@ -71,17 +71,21 @@ async function executeShatteredWildsRoll(options: RollOptions): Promise<void> {
 		const roll = await getRollCtor().create(formula);
 		await roll.evaluate();
 
-		// Simulate extra and luck dice if requested
+		// Roll extra and luck dice if requested
 		const extraDice: number[] = [];
 
 		if (useExtra) {
-			const extraRoll = Math.floor(Math.random() * 12) + 1;
-			extraDice.push(extraRoll);
+			const extraRoll = await getRollCtor().create('1d12');
+			await extraRoll.evaluate();
+			await extraRoll.toMessage({ flavor: '<strong>Extra Die</strong>' });
+			extraDice.push(extraRoll.total);
 		}
 
 		if (useLuck) {
-			const luckRoll = Math.floor(Math.random() * 12) + 1;
-			extraDice.push(luckRoll);
+			const luckRoll = await getRollCtor().create('1d12');
+			await luckRoll.evaluate();
+			await luckRoll.toMessage({ flavor: '<strong>Luck Die</strong>' });
+			extraDice.push(luckRoll.total);
 		}
 
 		// Process Shattered Wilds mechanics

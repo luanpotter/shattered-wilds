@@ -33,16 +33,18 @@
 			{{/if}}
 
 			<!-- Luck Die Section -->
-			<div class="option-group">
-				<label class="checkbox-container">
-					<input type="checkbox" name="useLuck">
-					<span class="checkmark"></span>
-					Use Luck Die
-				</label>
-				<div class="sub-option">
-					<small class="help-text">Luck die must roll ≤ Fortune ({{fortuneValue}})</small>
+			{{#if canUseLuck}}
+				<div class="option-group">
+					<label class="checkbox-container">
+						<input type="checkbox" name="useLuck">
+						<span class="checkmark"></span>
+						Use Luck Die
+					</label>
+					<div class="sub-option">
+						<small class="help-text">Luck die must roll ≤ Fortune ({{fortuneValue}})</small>
+					</div>
 				</div>
-			</div>
+			{{/if}}
 
 			<!-- Circumstance Modifier Section -->
 			<div class="option-group">

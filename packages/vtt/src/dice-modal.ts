@@ -84,6 +84,7 @@ if (AppV2 && HbsMixin) {
 			let characterSheet: CharacterSheet | undefined;
 			let attributeOptions: Array<{ key: string; name: string; value: number }> = [];
 			let canUseExtra = false;
+			let canUseLuck = true;
 
 			try {
 				if (Object.keys(props).length > 0) {
@@ -94,11 +95,23 @@ if (AppV2 && HbsMixin) {
 					const isSkillRoll = this.isSkillRoll(statType);
 					canUseExtra = isSkillRoll;
 
+					// Disable luck die for LCK attribute or LCK skills
+					canUseLuck = !this.isLuckBasedRoll(statType);
+
 					if (isSkillRoll) {
 						const parentAttribute = this.getParentAttribute(statType);
 
 						// Get all attributes except the parent attribute of this skill
-						attributeOptions = [StatType.STR, StatType.DEX, StatType.CON, StatType.INT, StatType.WIS, StatType.CHA]
+						attributeOptions = [
+							StatType.STR,
+							StatType.DEX,
+							StatType.CON,
+							StatType.INT,
+							StatType.WIS,
+							StatType.CHA,
+							StatType.DIV,
+							StatType.FOW,
+						]
 							.filter(statType => statType.name !== parentAttribute)
 							.map(statType => {
 								const modifier = statTree.getNodeModifier(statTree.getNode(statType));
@@ -126,6 +139,7 @@ if (AppV2 && HbsMixin) {
 				attributeOptions,
 				fortuneValue,
 				canUseExtra,
+				canUseLuck,
 			};
 		}
 
@@ -161,6 +175,12 @@ if (AppV2 && HbsMixin) {
 				'Serendipity',
 			];
 			return skills.includes(statType);
+		}
+
+		private isLuckBasedRoll(statType: string): boolean {
+			// LCK attribute and LCK skills should not allow luck die
+			const luckStats = ['LCK', 'Karma', 'Fortune', 'Serendipity'];
+			return luckStats.includes(statType);
 		}
 
 		private getParentAttribute(skillType: string): string {

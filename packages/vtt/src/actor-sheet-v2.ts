@@ -427,23 +427,39 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			const extraDice: { type: string; value: number; valid?: boolean; label?: string }[] = [];
 
 			if (useExtra && extraAttribute) {
-				const extraRoll = Math.floor(Math.random() * 12) + 1;
+				const extraRoll = await getRollCtor().create('1d12');
+				await extraRoll.evaluate();
+				const extraRollValue = extraRoll.total;
 				const extraValue = await this.getAttributeValue(extraAttribute);
+
+				// Show the extra die roll with Dice So Nice
+				await extraRoll.toMessage({
+					flavor: `<strong>Extra Die</strong> (${extraAttribute}: ${extraValue})`,
+				});
+
 				extraDice.push({
 					type: 'extra',
-					value: extraRoll,
-					valid: extraRoll <= extraValue,
+					value: extraRollValue,
+					valid: extraRollValue <= extraValue,
 					label: `${extraAttribute} (${extraValue})`,
 				});
 			}
 
 			if (useLuck) {
-				const luckRoll = Math.floor(Math.random() * 12) + 1;
+				const luckRoll = await getRollCtor().create('1d12');
+				await luckRoll.evaluate();
+				const luckRollValue = luckRoll.total;
 				const fortuneValue = await this.getAttributeValue('Fortune');
+
+				// Show the luck die roll with Dice So Nice
+				await luckRoll.toMessage({
+					flavor: `<strong>Luck Die</strong> (Fortune: ${fortuneValue})`,
+				});
+
 				extraDice.push({
 					type: 'luck',
-					value: luckRoll,
-					valid: luckRoll <= fortuneValue,
+					value: luckRollValue,
+					valid: luckRollValue <= fortuneValue,
 					label: `Luck (${fortuneValue})`,
 				});
 			}
