@@ -1,6 +1,6 @@
 // Dice roll modal for Shattered Wilds system
 import { getApplicationV2Ctor, getHandlebarsApplicationMixin, getActorById } from './foundry-shim.js';
-import { CharacterSheet, StatType } from '@shattered-wilds/commons';
+import { CharacterSheet, StatType, StatHierarchy } from '@shattered-wilds/commons';
 
 export interface DiceRollOptions {
 	statType: string;
@@ -102,16 +102,8 @@ if (AppV2 && HbsMixin) {
 						const parentAttribute = this.getParentAttribute(statType);
 
 						// Get all attributes except the parent attribute of this skill
-						attributeOptions = [
-							StatType.STR,
-							StatType.DEX,
-							StatType.CON,
-							StatType.INT,
-							StatType.WIS,
-							StatType.CHA,
-							StatType.DIV,
-							StatType.FOW,
-						]
+						attributeOptions = StatType.values
+							.filter(statType => statType.hierarchy === StatHierarchy.Attribute)
 							.filter(statType => statType.name !== parentAttribute)
 							.map(statType => {
 								const modifier = statTree.getNodeModifier(statTree.getNode(statType));
@@ -143,78 +135,33 @@ if (AppV2 && HbsMixin) {
 			};
 		}
 
-		private isSkillRoll(statType: string): boolean {
-			// List of all skill names (not attributes or realms)
-			const skills = [
-				'Muscles',
-				'Stance',
-				'Lift',
-				'Finesse',
-				'Evasiveness',
-				'Agility',
-				'Toughness',
-				'Stamina',
-				'Resilience',
-				'IQ',
-				'Knowledge',
-				'Memory',
-				'Perception',
-				'Awareness',
-				'Intuition',
-				'Speechcraft',
-				'Presence',
-				'Empathy',
-				'Devotion',
-				'Aura',
-				'Attunement',
-				'Discipline',
-				'Tenacity',
-				'Resolve',
-				'Karma',
-				'Fortune',
-				'Serendipity',
-			];
-			return skills.includes(statType);
+		private isSkillRoll(statTypeName: string): boolean {
+			try {
+				const statType = StatType.fromString(statTypeName, StatType.Level);
+				return statType.hierarchy === StatHierarchy.Skill;
+			} catch {
+				return false;
+			}
 		}
 
-		private isLuckBasedRoll(statType: string): boolean {
-			// LCK attribute and LCK skills should not allow luck die
-			const luckStats = ['LCK', 'Karma', 'Fortune', 'Serendipity'];
-			return luckStats.includes(statType);
+		private isLuckBasedRoll(statTypeName: string): boolean {
+			try {
+				const statType = StatType.fromString(statTypeName, StatType.Level);
+				// LCK attribute or any skill that has LCK as parent
+				return statType === StatType.LCK || statType.parent === StatType.LCK;
+			} catch {
+				return false;
+			}
 		}
 
-		private getParentAttribute(skillType: string): string {
-			// Map skills to their parent attributes
-			const skillToAttribute: Record<string, string> = {
-				Muscles: 'STR',
-				Stance: 'STR',
-				Lift: 'STR',
-				Finesse: 'DEX',
-				Evasiveness: 'DEX',
-				Agility: 'DEX',
-				Toughness: 'CON',
-				Stamina: 'CON',
-				Resilience: 'CON',
-				IQ: 'INT',
-				Knowledge: 'INT',
-				Memory: 'INT',
-				Perception: 'WIS',
-				Awareness: 'WIS',
-				Intuition: 'WIS',
-				Speechcraft: 'CHA',
-				Presence: 'CHA',
-				Empathy: 'CHA',
-				Devotion: 'DIV',
-				Aura: 'DIV',
-				Attunement: 'DIV',
-				Discipline: 'FOW',
-				Tenacity: 'FOW',
-				Resolve: 'FOW',
-				Karma: 'LCK',
-				Fortune: 'LCK',
-				Serendipity: 'LCK',
-			};
-			return skillToAttribute[skillType] || '';
+		private getParentAttribute(skillTypeName: string): string {
+			try {
+				const statType = StatType.fromString(skillTypeName, StatType.Level);
+				// For skills, return the parent attribute name
+				return statType.parent?.name || '';
+			} catch {
+				return '';
+			}
 		}
 
 		async _onRender(): Promise<void> {

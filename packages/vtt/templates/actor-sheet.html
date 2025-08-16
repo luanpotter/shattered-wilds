@@ -58,7 +58,7 @@
 									<div class="level-section">
 																	<div class="level-display">
 								<span class="level-label">Level:</span>
-								<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="Level" data-modifier="{{statTreeData.level.modifier.value.value}}" title="Click to roll Level check • Shift+Click for advanced options">
+								<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="Level" data-modifier="{{statTreeData.level.modifier.value.value}}" title="Click for advanced options • Shift+Click for quick roll">
 									<span class="points-circle" title="{{statTreeData.level.tooltip}}">{{statTreeData.level.points}}</span>
 									<span class="modifier-value" title="{{statTreeData.level.tooltip}}">
 										{{statTreeData.level.modifier.value.description}}
@@ -82,7 +82,7 @@
 																					{{#each statTreeData.realms}}
 											<div class="realm-label {{type.name}}">
 												<div class="realm-name">{{type.name}}</div>
-												<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="{{type.name}}" data-modifier="{{modifier.value.value}}" title="Click to roll {{type.name}} check • Shift+Click for advanced options">
+												<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="{{type.name}}" data-modifier="{{modifier.value.value}}" title="Click for advanced options • Shift+Click for quick {{type.name}} roll">
 													<span class="points-circle" title="{{tooltip}}">{{points}}</span>
 													<span class="modifier-value" title="{{tooltip}}">
 														{{modifier.value.description}}
@@ -108,7 +108,7 @@
 														<!-- Attribute Header -->
 														<div class="attribute-header">
 															<span class="attribute-name">{{type.name}}</span>
-															<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="{{type.name}}" data-modifier="{{modifier.value.value}}" title="Click to roll {{type.name}} check • Shift+Click for advanced options">
+															<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="{{type.name}}" data-modifier="{{modifier.value.value}}" title="Click for advanced options • Shift+Click for quick {{type.name}} roll">
 																<span class="points-circle" title="{{tooltip}}">{{points}}</span>
 																<span class="modifier-value" title="{{tooltip}}">
 																	{{modifier.value.description}}
@@ -129,7 +129,7 @@
 															{{#each skills}}
 																<div class="skill-row">
 																														<span class="skill-name">{{type.name}}</span>
-													<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="{{type.name}}" data-modifier="{{modifier.value.value}}" title="Click to roll {{type.name}} check • Shift+Click for advanced options">
+													<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="{{type.name}}" data-modifier="{{modifier.value.value}}" title="Click for advanced options • Shift+Click for quick {{type.name}} roll">
 														<span class="points-circle" title="{{tooltip}}">{{points}}</span>
 														<span class="modifier-value" title="{{tooltip}}">
 															{{modifier.value.description}}

@@ -15,6 +15,8 @@ export type GameLike = {
 	actors?: {
 		get(id: string): { id?: string; name?: string; flags?: Record<string, unknown> } | undefined;
 	};
+	user?: any;
+	dice3d?: any;
 };
 
 export type ActorsManagerLike = {
@@ -313,4 +315,9 @@ export function getTokenObjectCtor(): { prototype: TokenLike & { _onClickLeft2: 
 		| undefined;
 	if (!ctor) throw new Error('Token class not found at foundry.canvas.placeables.Token');
 	return ctor;
+}
+
+export function getDice3D(): any {
+	const game = getGame();
+	return game?.dice3d;
 }

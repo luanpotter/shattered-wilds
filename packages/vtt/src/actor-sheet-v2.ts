@@ -225,11 +225,11 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				const modifier = parseInt(btn.dataset.modifier || '0');
 				if (statType) {
 					if (event.shiftKey) {
-						// Shift+click opens the dice modal
-						await this.handleStatRollModal(statType, modifier);
-					} else {
-						// Normal click does a quick roll
+						// Shift+click does a quick roll
 						await this.handleStatRoll(statType, modifier);
+					} else {
+						// Normal click opens the dice modal
+						await this.handleStatRollModal(statType, modifier);
 					}
 				}
 			});
@@ -432,7 +432,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				const extraRollValue = extraRoll.total;
 				const extraValue = await this.getAttributeValue(extraAttribute);
 
-				// Show the extra die roll with Dice So Nice
+				// Send the chat message for the extra die
 				await extraRoll.toMessage({
 					flavor: `<strong>Extra Die</strong> (${extraAttribute}: ${extraValue})`,
 				});
@@ -451,7 +451,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				const luckRollValue = luckRoll.total;
 				const fortuneValue = await this.getAttributeValue('Fortune');
 
-				// Show the luck die roll with Dice So Nice
+				// Send the chat message for the luck die
 				await luckRoll.toMessage({
 					flavor: `<strong>Luck Die</strong> (Fortune: ${fortuneValue})`,
 				});
