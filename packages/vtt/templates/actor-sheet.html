@@ -19,12 +19,22 @@
 					<p><strong>Class:</strong> {{characterSheet.characterClass.characterClass}} (Level {{characterSheet.level}})</p>
 					
 					<h4>Resources</h4>
-					<ul>
-						<li><strong>Heroism Points:</strong> {{resources.HeroismPoint.current}} / {{resources.HeroismPoint.max}}</li>
-						<li><strong>Vitality Points:</strong> {{resources.VitalityPoint.current}} / {{resources.VitalityPoint.max}}</li>
-						<li><strong>Focus Points:</strong> {{resources.FocusPoint.current}} / {{resources.FocusPoint.max}}</li>
-						<li><strong>Spirit Points:</strong> {{resources.SpiritPoint.current}} / {{resources.SpiritPoint.max}}</li>
-					</ul>
+					<div class="resources-row">
+						{{#each resourcesArray}}
+							<div class="resource-control">
+								<span class="resource-label">{{shortName}}</span>
+								<div class="resource-buttons">
+									<button type="button" class="resource-btn minus" data-action="resource-change" data-resource="{{key}}" data-delta="-1">
+										<i class="fas fa-minus"></i>
+									</button>
+									<span class="resource-value">{{current}}/{{max}}</span>
+									<button type="button" class="resource-btn plus" data-action="resource-change" data-resource="{{key}}" data-delta="1">
+										<i class="fas fa-plus"></i>
+									</button>
+								</div>
+							</div>
+						{{/each}}
+					</div>
 					
 									<h4>Stats</h4>
 				{{#if statTreeData}}

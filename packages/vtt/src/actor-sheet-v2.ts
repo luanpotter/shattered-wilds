@@ -3,6 +3,7 @@ import { exportActorPropsToShareString, importActorPropsFromShareString } from '
 import {
 	CharacterSheet,
 	Resource,
+	RESOURCES,
 	StatType,
 	StatNode,
 	NodeStatModifier,
@@ -46,6 +47,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		// Use CharacterSheet.from to get computed character data
 		let characterSheet: CharacterSheet | undefined;
 		const resources: Record<string, { current: number; max: number }> = {};
+		let resourcesArray: Array<{ key: string; shortName: string; current: number; max: number }> = [];
 		let statTreeData: unknown = null;
 
 		try {
@@ -55,6 +57,18 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				// Prepare resources data for template
 				Object.values(Resource).forEach(resource => {
 					resources[resource] = characterSheet!.getResource(resource);
+				});
+
+				// Prepare resources array for compact display
+				resourcesArray = Object.values(Resource).map(resource => {
+					const resourceData = characterSheet!.getResource(resource);
+					const definition = RESOURCES[resource];
+					return {
+						key: resource,
+						shortName: definition.shortName,
+						current: resourceData.current,
+						max: resourceData.max,
+					};
 				});
 
 				// Prepare stat tree data for template
@@ -126,6 +140,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			props,
 			characterSheet,
 			resources,
+			resourcesArray,
 			statTreeData,
 		};
 	}
@@ -154,6 +169,49 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				await navigator.clipboard.writeText(share);
 				getUI().notifications?.info('Share string copied to clipboard');
 			});
+		}
+
+		// Add resource change handlers
+		const resourceBtns = root.querySelectorAll('[data-action="resource-change"]') as NodeListOf<HTMLButtonElement>;
+		resourceBtns.forEach(btn => {
+			btn.addEventListener('click', async () => {
+				const resource = btn.dataset.resource as Resource;
+				const delta = parseInt(btn.dataset.delta || '0');
+				if (!resource || delta === 0) return;
+
+				await this.handleResourceChange(resource, delta);
+			});
+		});
+	}
+
+	private async handleResourceChange(resource: Resource, delta: number): Promise<void> {
+		const actor = getActorById(this.#actorId!) as unknown as {
+			flags?: Record<string, unknown>;
+			setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
+		};
+		if (!actor?.setFlag) return getUI().notifications?.warn('Actor not found');
+
+		// Get current props
+		const flags = actor.flags as Record<string, unknown> | undefined;
+		const swFlags = (flags?.['shattered-wilds'] as { props?: Record<string, string> } | undefined) ?? undefined;
+		const props = swFlags?.props ?? {};
+
+		try {
+			// Create character sheet to use updateResource method
+			const characterSheet = CharacterSheet.from(props);
+			const newValue = characterSheet.updateResource(resource, delta);
+
+			// Update the actor's props with the new resource value
+			const updatedProps = { ...props, [resource]: newValue.toString() };
+			await actor.setFlag('shattered-wilds', 'props', updatedProps);
+
+			// Re-render the sheet
+			(this as unknown as { render: (force?: boolean) => void }).render(false);
+
+			getUI().notifications?.info(`${RESOURCES[resource].shortName} updated`);
+		} catch (err) {
+			console.error('Failed to update resource:', err);
+			getUI().notifications?.error('Failed to update resource');
 		}
 	}
 }

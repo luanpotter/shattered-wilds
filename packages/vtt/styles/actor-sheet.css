@@ -187,20 +187,81 @@
 }
 
 /* Resources styling */
-.resources ul {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 4px;
-	list-style: none;
-	padding: 0;
+.resources-row {
+	display: flex;
+	gap: 12px;
+	align-items: center;
 	margin: 8px 0;
+	flex-wrap: wrap;
 }
 
-.resources li {
-	padding: 4px 8px;
+.resource-control {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	padding: 6px 8px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 6px;
+	background: rgba(0, 0, 0, 0.1);
+	min-width: 80px;
+}
+
+.resource-label {
+	font-weight: bold;
+	font-size: 0.85em;
+	text-transform: uppercase;
+	color: rgba(255, 255, 255, 0.9);
+}
+
+.resource-buttons {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.resource-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	border-radius: 3px;
 	background: rgba(255, 255, 255, 0.1);
-	border-radius: 4px;
-	font-size: 0.9em;
+	color: white;
+	cursor: pointer;
+	font-size: 10px;
+	padding: 0;
+}
+
+.resource-btn:hover {
+	background: rgba(255, 255, 255, 0.2);
+	border-color: rgba(255, 255, 255, 0.5);
+}
+
+.resource-btn:active {
+	background: rgba(255, 255, 255, 0.3);
+}
+
+.resource-btn.minus:hover {
+	background: rgba(255, 100, 100, 0.2);
+	border-color: rgba(255, 100, 100, 0.5);
+}
+
+.resource-btn.plus:hover {
+	background: rgba(100, 255, 100, 0.2);
+	border-color: rgba(100, 255, 100, 0.5);
+}
+
+.resource-value {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 32px;
+	font-size: 0.85em;
+	font-weight: bold;
+	color: white;
 }
 
 /* Controls styling */
