@@ -106,7 +106,7 @@
 														<!-- Attribute Header -->
 														<div class="attribute-header">
 															<span class="attribute-name">{{type.name}}</span>
-															<div class="stat-value">
+															<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="{{type.name}}" data-modifier="{{modifier.value.value}}" title="Click to roll {{type.name}} check • Shift+Click for advanced options">
 																<span class="points-circle" title="{{tooltip}}">{{points}}</span>
 																<span class="modifier-value" title="{{tooltip}}">
 																	{{modifier.value.description}}
@@ -118,6 +118,7 @@
 																		{{/if}}
 																	{{/if}}
 																</span>
+																<i class="fas fa-dice-d12 dice-icon"></i>
 															</div>
 														</div>
 
@@ -125,20 +126,21 @@
 														<div class="skills-list">
 															{{#each skills}}
 																<div class="skill-row">
-																	<span class="skill-name">{{type.name}}</span>
-																	<div class="stat-value">
-																		<span class="points-circle" title="{{tooltip}}">{{points}}</span>
-																		<span class="modifier-value" title="{{tooltip}}">
-																			{{modifier.value.description}}
-																			{{#if hasWarning}}
-																				<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
-																			{{else}}
-																				{{#if hasTooltip}}
-																					<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
-																				{{/if}}
-																			{{/if}}
-																		</span>
-																	</div>
+																														<span class="skill-name">{{type.name}}</span>
+													<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="{{type.name}}" data-modifier="{{modifier.value.value}}" title="Click to roll {{type.name}} check • Shift+Click for advanced options">
+														<span class="points-circle" title="{{tooltip}}">{{points}}</span>
+														<span class="modifier-value" title="{{tooltip}}">
+															{{modifier.value.description}}
+															{{#if hasWarning}}
+																<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
+															{{else}}
+																{{#if hasTooltip}}
+																	<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
+																{{/if}}
+															{{/if}}
+														</span>
+														<i class="fas fa-dice-d12 dice-icon"></i>
+													</div>
 																</div>
 															{{/each}}
 														</div>

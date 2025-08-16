@@ -1,0 +1,214 @@
+/* Dice Roll Modal Styling */
+.dice-roll-modal {
+	font-family: 'Arial', sans-serif;
+	color: #dcdcdc;
+	background-color: #2a2a2a;
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.dice-roll-form {
+	padding: 16px;
+}
+
+/* Header Section */
+.roll-header {
+	text-align: center;
+	margin-bottom: 20px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.roll-header h3 {
+	margin: 0 0 8px 0;
+	color: #ffb300;
+	font-size: 1.3em;
+	font-weight: bold;
+}
+
+.roll-header p {
+	margin: 0;
+	color: #bbb;
+	font-size: 0.95em;
+}
+
+/* Options Section */
+.roll-options {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	margin-bottom: 20px;
+}
+
+.option-group {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+/* Custom Checkbox Styling */
+.checkbox-container {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	font-weight: bold;
+	user-select: none;
+	gap: 8px;
+}
+
+.checkbox-container input[type="checkbox"] {
+	display: none;
+}
+
+.checkmark {
+	width: 18px;
+	height: 18px;
+	background-color: #444;
+	border: 2px solid #666;
+	border-radius: 3px;
+	position: relative;
+	transition: all 0.2s ease;
+}
+
+.checkbox-container:hover .checkmark {
+	border-color: #ffb300;
+}
+
+.checkbox-container input[type="checkbox"]:checked + .checkmark {
+	background-color: #ffb300;
+	border-color: #ffb300;
+}
+
+.checkbox-container input[type="checkbox"]:checked + .checkmark::after {
+	content: '';
+	position: absolute;
+	left: 5px;
+	top: 2px;
+	width: 4px;
+	height: 8px;
+	border: solid #2a2a2a;
+	border-width: 0 2px 2px 0;
+	transform: rotate(45deg);
+}
+
+/* Sub-options */
+.sub-option {
+	margin-left: 26px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.sub-option label {
+	font-size: 0.9em;
+	font-weight: bold;
+	margin-bottom: 4px;
+}
+
+/* Form Controls */
+.option-group > label {
+	font-weight: bold;
+	margin-bottom: 4px;
+	color: #ddd;
+}
+
+input[type="number"], select {
+	background-color: #333;
+	border: 1px solid #555;
+	border-radius: 4px;
+	color: #ddd;
+	padding: 8px 10px;
+	font-size: 0.9em;
+	transition: border-color 0.2s ease;
+}
+
+input[type="number"]:focus, select:focus {
+	outline: none;
+	border-color: #ffb300;
+	box-shadow: 0 0 0 2px rgba(255, 179, 0, 0.2);
+}
+
+input[type="number"]:disabled, select:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+select {
+	cursor: pointer;
+}
+
+select option {
+	background-color: #333;
+	color: #ddd;
+}
+
+/* Help Text */
+.help-text {
+	color: #999;
+	font-size: 0.8em;
+	font-style: italic;
+	margin-top: 2px;
+}
+
+/* Action Buttons */
+.modal-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	margin-top: 20px;
+	padding-top: 16px;
+	border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 10px 16px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 0.9em;
+	font-weight: bold;
+	transition: all 0.2s ease;
+	text-decoration: none;
+}
+
+.btn-secondary {
+	background-color: #555;
+	color: #ddd;
+}
+
+.btn-secondary:hover {
+	background-color: #666;
+}
+
+.btn-primary {
+	background-color: #4a90e2;
+	color: white;
+}
+
+.btn-primary:hover {
+	background-color: #3a7bd5;
+	transform: translateY(-1px);
+	box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+}
+
+.btn:active {
+	transform: translateY(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+	.dice-roll-form {
+		padding: 12px;
+	}
+	
+	.modal-actions {
+		flex-direction: column;
+	}
+	
+	.btn {
+		justify-content: center;
+	}
+}

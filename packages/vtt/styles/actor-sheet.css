@@ -243,6 +243,38 @@
 	display: block;
 }
 
+/* Clickable Stats Styling */
+.stat-clickable {
+	cursor: pointer;
+	transition: all 0.2s ease;
+	position: relative;
+	border-radius: 4px;
+	padding: 2px 4px;
+}
+
+.stat-clickable:hover {
+	background-color: rgba(255, 179, 0, 0.1);
+	transform: scale(1.02);
+}
+
+.stat-clickable:active {
+	transform: scale(0.98);
+}
+
+.dice-icon {
+	position: absolute;
+	top: -4px;
+	right: -4px;
+	font-size: 8px;
+	color: #ffb300;
+	opacity: 0;
+	transition: opacity 0.2s ease;
+}
+
+.stat-clickable:hover .dice-icon {
+	opacity: 1;
+}
+
 .skill-name {
 	flex: 1;
 	text-align: left;

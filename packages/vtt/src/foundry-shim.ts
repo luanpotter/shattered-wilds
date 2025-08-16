@@ -104,12 +104,68 @@ export async function createTokenInScene(scene: SceneLike, tokenData: Record<str
 	return docs?.[0];
 }
 
-export function getDialogV2Ctor(): any {
-	return (globalThis as any).foundry?.applications?.api?.DialogV2;
+export interface DialogV2Ctor {
+	new (options: {
+		window: { title: string };
+		content: string;
+		buttons: Array<{
+			label: string;
+			action: string;
+			default?: boolean;
+			callback?: (...args: unknown[]) => void;
+		}>;
+	}): { render: (force: boolean) => void };
 }
 
-export function getDialogCtor(): any {
-	return (globalThis as any).Dialog;
+export interface DialogCtor {
+	new (
+		options: {
+			title: string;
+			content: string;
+			buttons: Record<
+				string,
+				{
+					label: string;
+					callback?: (...args: unknown[]) => void;
+				}
+			>;
+			default?: string;
+		},
+		config?: { jQuery: boolean },
+	): { render: (force: boolean) => void };
+}
+
+export function getDialogV2Ctor(): DialogV2Ctor | undefined {
+	return (globalThis as { foundry?: { applications?: { api?: { DialogV2?: DialogV2Ctor } } } }).foundry?.applications
+		?.api?.DialogV2;
+}
+
+export function getDialogCtor(): DialogCtor | undefined {
+	return (globalThis as { Dialog?: DialogCtor }).Dialog;
+}
+
+export interface FoundryRoll {
+	evaluate(): Promise<void>;
+	toMessage(options: { speaker?: { alias?: string }; flavor?: string }): Promise<void>;
+	total: number;
+	terms: Array<{ results?: Array<{ result: number }> }>;
+	formula: string;
+}
+
+export interface FoundryRollCtor {
+	create(formula: string): Promise<FoundryRoll>;
+}
+
+export interface FoundryChatMessage {
+	create(data: { content: string; speaker?: { alias?: string } }): Promise<unknown>;
+}
+
+export function getRollCtor(): FoundryRollCtor {
+	return (globalThis as unknown as { Roll: FoundryRollCtor }).Roll;
+}
+
+export function getChatMessage(): FoundryChatMessage {
+	return (globalThis as unknown as { ChatMessage: FoundryChatMessage }).ChatMessage;
 }
 
 export async function confirmAction({ title, message }: { title: string; message: string }): Promise<boolean> {

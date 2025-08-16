@@ -3,6 +3,7 @@ import { getGame, getHooks, getTokenObjectCtor, getDocumentSheetConfig } from '.
 import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
 import { SWCharacterApp, newSWCharacterApp } from './character-app.js';
 import { SWActorSheetV2 } from './actor-sheet-v2.js';
+import { registerChatCommands } from './chat-commands.js';
 
 getHooks().once('init', () => {
 	// Register V2 ActorSheet with HandlebarsApplicationMixin
@@ -12,6 +13,9 @@ getHooks().once('init', () => {
 		types: ['character'],
 		makeDefault: true,
 	});
+
+	// Register chat commands for dice rolling
+	registerChatCommands();
 });
 
 getHooks().once('ready', () => {
