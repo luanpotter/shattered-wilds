@@ -1,15 +1,23 @@
-import { getActorSheetV2, getActorById, getUI } from './foundry-shim.js';
+import { getActorSheetV2, getActorById, getUI, getHandlebarsApplicationMixin } from './foundry-shim.js';
 import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
 
-const V2Base = getActorSheetV2() as unknown as (new (...args: unknown[]) => object) & {
+const V2Base = getActorSheetV2();
+const HbsMixin = getHandlebarsApplicationMixin();
+
+if (!V2Base || !HbsMixin) {
+	throw new Error('V2 ActorSheet or HandlebarsApplicationMixin not available');
+}
+
+// Create the mixed base class using HandlebarsApplicationMixin
+const MixedBase = HbsMixin(V2Base) as unknown as (new (...args: unknown[]) => object) & {
 	DEFAULT_OPTIONS?: Record<string, unknown>;
 };
 
-export class SWActorSheetV2 extends (V2Base as new (...args: unknown[]) => object) {
+export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => object) {
 	#actorId: string | undefined;
 
 	static get DEFAULT_OPTIONS() {
-		const base = (V2Base as { DEFAULT_OPTIONS?: Record<string, unknown> }).DEFAULT_OPTIONS ?? {};
+		const base = (MixedBase as { DEFAULT_OPTIONS?: Record<string, unknown> }).DEFAULT_OPTIONS ?? {};
 		return { ...base, window: { title: 'Shattered Wilds' } } as Record<string, unknown>;
 	}
 
@@ -31,9 +39,9 @@ export class SWActorSheetV2 extends (V2Base as new (...args: unknown[]) => objec
 		if (importBtn) {
 			importBtn.addEventListener('click', async () => {
 				const actor = getActorById(this.#actorId!) as unknown as {
-					update: (d: Record<string, unknown>) => Promise<unknown>;
+					setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
 				};
-				if (!actor?.update) return getUI().notifications?.warn('Actor not found');
+				if (!actor?.setFlag) return getUI().notifications?.warn('Actor not found');
 				await importActorPropsFromShareString(actor);
 			});
 		}

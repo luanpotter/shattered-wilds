@@ -11,13 +11,21 @@ export function exportActorPropsToShareString(actor: {
 }
 
 export async function importActorPropsFromShareString(actor: {
-	update: (data: Record<string, unknown>) => Promise<unknown>;
+	setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
 }) {
 	const shareString = await promptText({ title: 'Import Character', label: 'Share String' });
 	if (!shareString) return;
 	try {
 		const props = CharacterSheet.parsePropsFromShareString(shareString);
-		await actor.update({ 'flags.shattered-wilds.props': props });
+		console.log('Parsed props:', props);
+		// Sanitize the props to ensure no path expansion issues
+		const sanitizedProps = Object.fromEntries(
+			Object.entries(props).map(([key, value]) => [
+				key.replace(/[^a-zA-Z0-9\-_]/g, '_'), // Replace special chars with underscore
+				value,
+			]),
+		);
+		await actor.setFlag('shattered-wilds', 'props', sanitizedProps);
 		getUI().notifications?.info('Character imported');
 	} catch (err) {
 		console.error('Failed to import character', err);

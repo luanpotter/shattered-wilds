@@ -19,14 +19,18 @@ let SWCharacterAppImpl: unknown;
 
 if (AppV2 && HbsMixin) {
 	type DefaultOptions = Record<string, unknown>;
-	type Ctor<T> = new (options?: DefaultOptions) => T;
+	type HandlebarsBase = new (options?: DefaultOptions) => {
+		// Methods provided by the mixin contract
+		render: (force?: boolean) => unknown;
+		_preloadTemplates?: () => Promise<unknown>;
+	};
 	interface BaseWithDefaults {
 		DEFAULT_OPTIONS?: DefaultOptions;
 	}
 
-	const Mixed = HbsMixin(AppV2) as unknown as Ctor<unknown> & BaseWithDefaults;
+	const Mixed = HbsMixin(AppV2) as unknown as HandlebarsBase & BaseWithDefaults;
 
-	class Impl extends (Mixed as unknown as Ctor<object>) {
+	class Impl extends (Mixed as unknown as new (options?: DefaultOptions) => InstanceType<typeof Mixed>) {
 		#actorId: string;
 
 		constructor(options: SWCharacterAppOptions) {
@@ -55,9 +59,9 @@ if (AppV2 && HbsMixin) {
 			if (importBtn) {
 				importBtn.addEventListener('click', async () => {
 					const actor = getActorById(this.#actorId) as unknown as {
-						update: (d: Record<string, unknown>) => Promise<unknown>;
+						setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
 					};
-					if (!actor?.update) return getUI().notifications?.warn('Actor not found');
+					if (!actor?.setFlag) return getUI().notifications?.warn('Actor not found');
 					await importActorPropsFromShareString(actor);
 				});
 			}

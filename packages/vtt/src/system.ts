@@ -5,7 +5,7 @@ import { SWCharacterApp, newSWCharacterApp } from './character-app.js';
 import { SWActorSheetV2 } from './actor-sheet-v2.js';
 
 getHooks().once('init', () => {
-	// Register V2 sheet as default for our Actor type
+	// Register V2 ActorSheet with HandlebarsApplicationMixin
 	const ActorCtor = (globalThis as unknown as { Actor: unknown }).Actor;
 	getDocumentSheetConfig().registerSheet(ActorCtor, 'shattered-wilds', SWActorSheetV2, {
 		label: 'Shattered Wilds Actor Sheet',
