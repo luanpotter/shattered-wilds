@@ -8,17 +8,35 @@
 			<button type="button" data-action="sw-export"><i class="fas fa-download"></i> Export</button>
 		</div>
 		<div class="resources">
-			<h3>Resources</h3>
+			{{#if characterSheet}}
+				<h3>Character: {{characterSheet.name}}</h3>
+				<p><strong>Race:</strong> {{characterSheet.race.primaryRace}}{{#if characterSheet.race.halfRace}} / {{characterSheet.race.halfRace}}{{/if}}</p>
+				<p><strong>Class:</strong> {{characterSheet.characterClass.characterClass}} (Level {{characterSheet.level}})</p>
+				
+				<h4>Resources</h4>
+				<ul>
+					<li><strong>Heroism Points:</strong> {{resources.HeroismPoint.current}} / {{resources.HeroismPoint.max}}</li>
+					<li><strong>Vitality Points:</strong> {{resources.VitalityPoint.current}} / {{resources.VitalityPoint.max}}</li>
+					<li><strong>Focus Points:</strong> {{resources.FocusPoint.current}} / {{resources.FocusPoint.max}}</li>
+					<li><strong>Spirit Points:</strong> {{resources.SpiritPoint.current}} / {{resources.SpiritPoint.max}}</li>
+				</ul>
+				
+				<h4>Stats</h4>
+				<ul>
+					<li><strong>STR:</strong> {{stats.STR}}</li>
+					<li><strong>DEX:</strong> {{stats.DEX}}</li>
+					<li><strong>BODY:</strong> {{stats.BODY}}</li>
+					<li><strong>INT:</strong> {{stats.INT}}</li>
+					<li><strong>MIND:</strong> {{stats.MIND}}</li>
+					<li><strong>CHA:</strong> {{stats.CHA}}</li>
+				</ul>
+			{{else}}
+				<p>No character data imported yet. Use the Import button to load a character.</p>
+			{{/if}}
+			
+			<h4>Raw Properties (Debug)</h4>
 			<ul>
-				{{#each flags.shattered-wilds.props as |value key|}}
-					{{#if (or (eq key "HeroismPoint") (eq key "VitalityPoint") (eq key "FocusPoint") (eq key "SpiritPoint"))}}
-						<li><strong>{{key}}:</strong> {{value}}</li>
-					{{/if}}
-				{{/each}}
-			</ul>
-			<h4>All Properties (Debug)</h4>
-			<ul>
-				{{#each flags.shattered-wilds.props as |value key|}}
+				{{#each props as |value key|}}
 					<li><code>{{key}}</code>: {{value}}</li>
 				{{/each}}
 			</ul>

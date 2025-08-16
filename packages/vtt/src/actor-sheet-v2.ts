@@ -1,5 +1,6 @@
 import { getActorSheetV2, getActorById, getUI, getHandlebarsApplicationMixin } from './foundry-shim.js';
 import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
+import { CharacterSheet, Resource, StatType } from '@shattered-wilds/commons';
 
 const V2Base = getActorSheetV2();
 const HbsMixin = getHandlebarsApplicationMixin();
@@ -29,7 +30,45 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		const actorLike = (this as unknown as { actor?: { id?: string } }).actor;
 		this.#actorId = actorLike?.id;
 		const actor = (this.#actorId && getActorById(this.#actorId)) || { id: this.#actorId, name: 'Unknown', flags: {} };
-		return { actor, flags: actor.flags ?? {} };
+
+		// Get the raw props from flags
+		const flags = actor.flags as Record<string, unknown> | undefined;
+		const swFlags = (flags?.['shattered-wilds'] as { props?: Record<string, string> } | undefined) ?? undefined;
+		const props = swFlags?.props ?? {};
+
+		// Use CharacterSheet.from to get computed character data
+		let characterSheet: CharacterSheet | undefined;
+		const resources: Record<string, { current: number; max: number }> = {};
+		const stats: Record<string, number> = {};
+
+		try {
+			if (Object.keys(props).length > 0) {
+				characterSheet = CharacterSheet.from(props);
+
+				// Prepare resources data for template
+				Object.values(Resource).forEach(resource => {
+					resources[resource] = characterSheet!.getResource(resource);
+				});
+
+				// Prepare stats data for template
+				const statTree = characterSheet.getStatTree();
+				Object.values(StatType).forEach(statType => {
+					const computed = statTree.getModifier(statType);
+					stats[statType.name] = computed.value.value;
+				});
+			}
+		} catch (err) {
+			console.warn('Failed to create CharacterSheet from props:', err);
+		}
+
+		return {
+			actor,
+			flags: actor.flags ?? {},
+			props,
+			characterSheet,
+			resources,
+			stats,
+		};
 	}
 
 	async _onRender(): Promise<void> {
