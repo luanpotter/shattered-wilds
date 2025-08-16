@@ -1,9 +1,10 @@
 import { createHexScene, createCharacterWithToken } from './vtt-api.js';
 import { getGame, getHooks, getTokenObjectCtor, getDocumentSheetConfig } from './foundry-shim.js';
 import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
-import { SWCharacterApp, newSWCharacterApp } from './character-app.js';
+import { newSWCharacterApp } from './character-app.js';
 import { SWActorSheetV2 } from './actor-sheet-v2.js';
 import { registerChatCommands } from './chat-commands.js';
+import { configureDefaultTokenBars } from './token-bars.js';
 
 getHooks().once('init', () => {
 	// Register V2 ActorSheet with HandlebarsApplicationMixin
@@ -18,6 +19,57 @@ getHooks().once('init', () => {
 	registerChatCommands();
 });
 
+// Hook for when actors are created to set up default token bars
+const hooks = getHooks();
+if (hooks?.on) {
+	hooks.on('createActor', async (actor: unknown) => {
+		try {
+			const actorData = actor as { type?: string };
+			if (actorData.type === 'character') {
+				// Small delay to ensure actor is fully created
+				setTimeout(async () => {
+					await configureDefaultTokenBars(actor);
+				}, 100);
+			}
+		} catch (err) {
+			console.debug('Failed to configure default token bars for new actor:', err);
+		}
+	});
+
+	// Hook for when tokens are created to ensure actor data persistence
+	hooks.on('createToken', async (tokenDoc: unknown) => {
+		try {
+			const token = tokenDoc as { actor?: unknown; actorId?: string; name?: string };
+			console.error('TOKEN CREATED:', {
+				tokenName: token.name,
+				actorId: token.actorId,
+				hasActor: !!token.actor,
+				actorData: token.actor,
+			});
+
+			if (token.actor) {
+				const actorData = token.actor as { type?: string; id?: string; name?: string; flags?: Record<string, unknown> };
+				console.error('TOKEN ACTOR:', {
+					actorId: actorData.id,
+					actorName: actorData.name,
+					actorType: actorData.type,
+					hasFlags: !!actorData.flags,
+					hasSWFlags: !!actorData.flags?.['shattered-wilds'],
+				});
+
+				if (actorData.type === 'character') {
+					// Ensure the actor has proper token bar configuration
+					setTimeout(async () => {
+						await configureDefaultTokenBars(token.actor);
+					}, 100);
+				}
+			}
+		} catch (err) {
+			console.debug('Failed to configure token bars for new token:', err);
+		}
+	});
+}
+
 getHooks().once('ready', () => {
 	(getGame() as { shatteredWilds?: unknown }).shatteredWilds = {
 		createHexScene,
@@ -28,24 +80,47 @@ getHooks().once('ready', () => {
 		},
 		exportActor: exportActorPropsToShareString,
 		importActor: importActorPropsFromShareString,
+		configureAllCharacterTokenBars: async () => {
+			const game = getGame();
+			const actors = (game as { actors?: { contents?: unknown[] } }).actors?.contents || [];
+			let configured = 0;
+			for (const actor of actors) {
+				const actorData = actor as { type?: string };
+				if (actorData.type === 'character') {
+					await configureDefaultTokenBars(actor);
+					configured++;
+				}
+			}
+			console.log(`Configured token bars for ${configured} character actors`);
+		},
 	};
 
-	// Patch Token double-click to open our V2 character app
+	// Patch Token double-click to open our V2 character sheet (the proper one with data handling)
 	const TokenCtor = getTokenObjectCtor();
 	const original = TokenCtor.prototype._onClickLeft2.bind(TokenCtor.prototype);
 	TokenCtor.prototype._onClickLeft2 = function patched(event: unknown) {
 		try {
 			const actorId: string | undefined = this.document?.actorId ?? this.actor?.id;
-			if (actorId && SWCharacterApp.isSupported()) {
-				const app = newSWCharacterApp({ actorId });
-				(app as { render: (force?: boolean) => unknown }).render(true);
-				return; // do not call legacy sheet
+			if (actorId) {
+				console.warn('Token double-clicked, opening V2 sheet for actor:', actorId);
+				// Get the actor and open its default sheet (which should be our V2 sheet)
+				const game = getGame();
+				const actors = (game as { actors?: { get?: (id: string) => unknown } }).actors;
+				const actor = actors?.get?.(actorId) as { sheet?: { render?: (force?: boolean) => unknown } };
+
+				if (actor?.sheet?.render) {
+					actor.sheet.render(true);
+					return; // do not call legacy sheet
+				}
 			}
-		} catch {
-			// fall back
+		} catch (err) {
+			console.warn('Failed to open V2 sheet, falling back:', err);
 		}
 		return original(event);
 	};
 
 	console.log('Shattered Wilds system ready (V3)');
+	console.log(
+		'To configure token bars for all existing characters, run: game.shatteredWilds.configureAllCharacterTokenBars()',
+	);
 });

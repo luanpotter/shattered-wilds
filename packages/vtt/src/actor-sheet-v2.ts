@@ -10,6 +10,8 @@ import {
 } from './foundry-shim.js';
 import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
 import { DiceRollModal, type DiceRollData } from './dice-modal.js';
+import { configureDefaultTokenBars } from './token-bars.js';
+import { getActorData, getCharacterProps, ensureActorDataPersistence, type ActorLike } from './actor-data-manager.js';
 import {
 	CharacterSheet,
 	Resource,
@@ -21,6 +23,55 @@ import {
 	CircumstanceModifier,
 	FeatsSection,
 } from '@shattered-wilds/commons';
+
+// Helper function to sync resources to actor system data for token bars
+async function syncResourcesToSystemData(actor: unknown, characterSheet: CharacterSheet): Promise<void> {
+	try {
+		const resourceData: Record<string, { value: number; max: number }> = {};
+
+		// Map our resources to the system data structure
+		const resourceMapping = {
+			hp: Resource.HeroismPoint,
+			vp: Resource.VitalityPoint,
+			fp: Resource.FocusPoint,
+			sp: Resource.SpiritPoint,
+			ap: Resource.ActionPoint,
+		};
+
+		// Get current resource values from character sheet
+		for (const [systemKey, resourceEnum] of Object.entries(resourceMapping)) {
+			const resourceInfo = characterSheet.getResource(resourceEnum);
+			resourceData[systemKey] = {
+				value: resourceInfo.current,
+				max: resourceInfo.max,
+			};
+		}
+
+		// Type check and update actor system data if it has changed
+		const actorWithSystem = actor as {
+			system?: { resources?: Record<string, { value: number; max: number }> };
+			update?: (data: Record<string, unknown>) => Promise<unknown>;
+		};
+		const currentSystemData = actorWithSystem.system?.resources || {};
+		let needsUpdate = false;
+
+		for (const [key, data] of Object.entries(resourceData)) {
+			const current = currentSystemData[key];
+			if (!current || current.value !== data.value || current.max !== data.max) {
+				needsUpdate = true;
+				break;
+			}
+		}
+
+		if (needsUpdate && actorWithSystem.update) {
+			await actorWithSystem.update({
+				'system.resources': resourceData,
+			});
+		}
+	} catch (err) {
+		console.warn('Failed to sync resources to system data:', err);
+	}
+}
 
 const V2Base = getActorSheetV2();
 const HbsMixin = getHandlebarsApplicationMixin();
@@ -77,8 +128,18 @@ const MixedBase = HbsMixin(V2Base) as unknown as (new (...args: unknown[]) => ob
 };
 
 export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => object) {
-	#actorId: string | undefined;
+	// Remove cached actor ID - always get from context to prevent cross-contamination
 	#activeTab: string = 'stats'; // Store the current active tab
+
+	// Helper to get current actor from context (never cache!)
+	private getCurrentActor(): { id?: string; name?: string; flags?: Record<string, unknown> } | null {
+		const actorLike = (this as unknown as { actor?: ActorLike }).actor;
+		return actorLike || null;
+	}
+
+	private getCurrentActorId(): string | undefined {
+		return this.getCurrentActor()?.id;
+	}
 
 	constructor(...args: unknown[]) {
 		super(...args);
@@ -108,14 +169,65 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 	};
 
 	async _prepareContext(): Promise<Record<string, unknown>> {
-		const actorLike = (this as unknown as { actor?: { id?: string } }).actor;
-		this.#actorId = actorLike?.id;
-		const actor = (this.#actorId && getActorById(this.#actorId)) || { id: this.#actorId, name: 'Unknown', flags: {} };
+		// Get the sheet instance ID for debugging
+		const sheetInstance = `Sheet-${Math.random().toString(36).substr(2, 9)}`;
 
-		// Get the raw props from flags
-		const flags = actor.flags as Record<string, unknown> | undefined;
-		const swFlags = (flags?.['shattered-wilds'] as { props?: Record<string, string> } | undefined) ?? undefined;
-		const rawProps = swFlags?.props ?? {};
+		const actorLike = (this as unknown as { actor?: ActorLike }).actor;
+		const currentActorId = actorLike?.id;
+
+		console.warn(`[${sheetInstance}] _prepareContext called for actor ${currentActorId} (${actorLike?.name})`);
+		console.warn(`[${sheetInstance}] Actor flags:`, actorLike?.flags);
+		console.warn(`[${sheetInstance}] Actor has SW flags:`, !!actorLike?.flags?.['shattered-wilds']);
+
+		// NEVER cache actor ID - always use from context to prevent cross-contamination
+
+		// CRITICAL: Always prefer the actor from context to prevent cross-contamination
+		let actor: ActorLike | null = actorLike || null;
+
+		// Only try game lookup if we don't have an actor from context
+		if (!actor) {
+			actor = getActorData(currentActorId);
+		}
+
+		// Last resort fallback
+		if (!actor) {
+			actor = { id: currentActorId || 'unknown', name: 'Unknown', flags: {} };
+		}
+
+		// Get character props using robust method with multiple fallbacks
+		const rawProps = getCharacterProps(actor);
+
+		console.warn(
+			`[${sheetInstance}] Got ${Object.keys(rawProps).length} props for actor ${actor?.id} (${actor?.name})`,
+		);
+		if (Object.keys(rawProps).length > 0) {
+			console.warn(`[${sheetInstance}] Sample props:`, Object.keys(rawProps).slice(0, 3));
+		}
+
+		// Ensure actor data persistence for future token creation
+		if (actor && Object.keys(rawProps).length > 0) {
+			await ensureActorDataPersistence(actor);
+		}
+
+		// Critical sanity check - ensure we're using the right actor
+		if (actor?.id && currentActorId && actor.id !== currentActorId) {
+			console.error('CRITICAL: Actor ID mismatch!', {
+				expectedId: currentActorId,
+				actualId: actor.id,
+				actorName: actor.name,
+			});
+		}
+
+		// Debug logging to help diagnose the issue
+		console.debug('Actor retrieval debug:', {
+			expectedActorId: currentActorId,
+			actualActorId: actor?.id,
+			actorName: actor?.name,
+			usedContext: !!actorLike,
+			propsCount: Object.keys(rawProps).length,
+			hasCharacterData: Object.keys(rawProps).length > 0,
+			propsPreview: Object.keys(rawProps).slice(0, 5),
+		});
 
 		// Transform feat props back to expected format (dots instead of underscores)
 		// During import, dots were sanitized to underscores, but CharacterSheet expects dots
@@ -139,6 +251,12 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		try {
 			if (Object.keys(props).length > 0) {
 				characterSheet = CharacterSheet.from(props);
+
+				// Configure default token bars (one-time setup)
+				await configureDefaultTokenBars(actor);
+
+				// Sync resources to actor system data for token bars
+				await syncResourcesToSystemData(actor, characterSheet);
 
 				// Prepare resources data for template
 				Object.values(Resource).forEach(resource => {
@@ -221,51 +339,15 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			console.warn('Failed to create CharacterSheet from props:', err);
 		}
 
-		// Prepare feats data
-		let featsData = null;
-		if (characterSheet) {
-			try {
-				// Debug the character feats before creating FeatsSection
-				console.log('Character feats debug:', {
-					slottedFeats: characterSheet.feats.getSlottedFeats().map(feat => ({
-						featKey: feat.feat.key,
-						featName: feat.feat.name,
-						slotProp: feat.slot?.toProp(),
-						parameter: feat.parameter,
-					})),
-					coreFeats: characterSheet.feats.getCoreFeats().map(feat => ({
-						featKey: feat.feat.key,
-						featName: feat.feat.name,
-					})),
-					featSlots: characterSheet.getFeatSlots().map(slot => ({
-						slotProp: slot.toProp(),
-						slotName: slot.name,
-						level: slot.level,
-						type: slot.type,
-					})),
-					rawProps: Object.entries(props).filter(([key]) => key.startsWith('feat')),
-				});
-
-				const featsSection = FeatsSection.create(characterSheet);
-				featsData = {
-					isEmpty: featsSection.isEmpty,
-					warnings: featsSection.warnings,
-					featsOrSlotsByLevel: featsSection.featsOrSlotsByLevel,
-				};
-			} catch (err) {
-				console.warn('Failed to create feats section:', err);
-			}
-		}
-
 		return {
 			actor,
-			flags: actor.flags ?? {},
+			flags: actor?.flags ?? {},
 			props,
 			characterSheet,
 			resources,
 			resourcesArray,
 			statTreeData,
-			featsData,
+			featsData: this.prepareFeatsData(characterSheet),
 			activeTab: this.#activeTab,
 			isStatsTabActive: this.#activeTab === 'stats',
 			isFeatsTabActive: this.#activeTab === 'feats',
@@ -273,16 +355,34 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		};
 	}
 
+	prepareFeatsData(characterSheet: CharacterSheet | undefined): Record<string, unknown> | null {
+		if (!characterSheet) {
+			return null;
+		}
+		try {
+			const featsSection = FeatsSection.create(characterSheet);
+			return {
+				isEmpty: featsSection.isEmpty,
+				warnings: featsSection.warnings,
+				featsOrSlotsByLevel: featsSection.featsOrSlotsByLevel,
+			};
+		} catch (err) {
+			console.warn('Failed to create feats section:', err);
+			return null;
+		}
+	}
+
 	async _onRender(): Promise<void> {
 		const root = (this as unknown as { element?: HTMLElement }).element ?? undefined;
-		if (!root || !this.#actorId) return;
+		const currentActorId = this.getCurrentActorId();
+		if (!root || !currentActorId) return;
 
 		// Restore tab state after re-render
 		this.restoreTabState(root);
 		const importBtn = root.querySelector('[data-action="sw-import"]') as HTMLButtonElement | null;
 		if (importBtn) {
 			importBtn.addEventListener('click', async () => {
-				const actor = getActorById(this.#actorId!) as unknown as {
+				const actor = getActorById(currentActorId!) as unknown as {
 					setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
 				};
 				if (!actor?.setFlag) return getUI().notifications?.warn('Actor not found');
@@ -294,7 +394,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		const exportBtn = root.querySelector('[data-action="sw-export"]') as HTMLButtonElement | null;
 		if (exportBtn) {
 			exportBtn.addEventListener('click', async () => {
-				const actor = getActorById(this.#actorId!) as unknown as { flags?: Record<string, unknown> };
+				const actor = getActorById(currentActorId!) as unknown as { flags?: Record<string, unknown> };
 				if (!actor) return getUI().notifications?.warn('Actor not found');
 				const share = exportActorPropsToShareString(actor as { flags?: Record<string, unknown> });
 				await navigator.clipboard.writeText(share);
@@ -398,7 +498,8 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 	}
 
 	private async handleResourceChange(resource: Resource, delta: number): Promise<void> {
-		const actor = getActorById(this.#actorId!) as unknown as {
+		const currentActorId = this.getCurrentActorId();
+		const actor = getActorById(currentActorId!) as unknown as {
 			flags?: Record<string, unknown>;
 			setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
 		};
@@ -438,6 +539,10 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			const updatedProps = { ...props, [resource]: newValue.toString() };
 			await actor.setFlag('shattered-wilds', 'props', updatedProps);
 
+			// Sync updated resources to system data for token bars
+			const updatedCharacterSheet = CharacterSheet.from(updatedProps);
+			await syncResourcesToSystemData(actor, updatedCharacterSheet);
+
 			// DO NOT call render() here - we've already updated the DOM directly
 			// getUI().notifications?.info(`${RESOURCES[resource].shortName} updated`);
 		} catch (err) {
@@ -447,7 +552,8 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 	}
 
 	private async handleRefillAllResources(): Promise<void> {
-		const actor = getActorById(this.#actorId!) as unknown as {
+		const currentActorId = this.getCurrentActorId();
+		const actor = getActorById(currentActorId!) as unknown as {
 			flags?: Record<string, unknown>;
 			setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
 		};
@@ -481,6 +587,10 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 			await actor.setFlag('shattered-wilds', 'props', updatedProps);
 
+			// Sync updated resources to system data for token bars
+			const characterSheet = CharacterSheet.from(updatedProps);
+			await syncResourcesToSystemData(actor, characterSheet);
+
 			// DO NOT call render() here - we've already updated the DOM directly
 			getUI().notifications?.info('All resources refilled to maximum');
 		} catch (err) {
@@ -513,7 +623,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		await DiceRollModal.open({
 			statType,
 			modifier,
-			actorId: this.#actorId!,
+			actorId: this.getCurrentActorId()!,
 			onRoll: async (rollData: DiceRollData) => {
 				await this.executeEnhancedRoll(rollData);
 			},
@@ -605,7 +715,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 	}
 
 	private async getAttributeValue(attributeName: string): Promise<number> {
-		const actor = getActorById(this.#actorId!);
+		const actor = getActorById(this.getCurrentActorId()!);
 		const flags = actor?.flags as Record<string, unknown> | undefined;
 		const swFlags = (flags?.['shattered-wilds'] as { props?: Record<string, string> } | undefined) ?? undefined;
 		const props = swFlags?.props ?? {};
@@ -763,7 +873,12 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		statTypeName: string,
 	): { baseValue: number; modifiers: Array<{ source: string; value: number }>; total: number } | null {
 		try {
-			const actor = (this.#actorId && getActorById(this.#actorId)) || { id: this.#actorId, name: 'Unknown', flags: {} };
+			const currentActorId = this.getCurrentActorId();
+			const actor = (currentActorId && getActorById(currentActorId)) || {
+				id: currentActorId,
+				name: 'Unknown',
+				flags: {},
+			};
 
 			// Get the raw props from flags
 			const flags = actor.flags as Record<string, unknown> | undefined;

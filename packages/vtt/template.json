@@ -1,0 +1,41 @@
+{
+  "Actor": {
+    "types": ["character", "npc"],
+    "templates": {
+      "base": {
+        "resources": {
+          "hp": {
+            "value": 0,
+            "max": 0
+          },
+          "vp": {
+            "value": 0,
+            "max": 0
+          },
+          "fp": {
+            "value": 0,
+            "max": 0
+          },
+          "sp": {
+            "value": 0,
+            "max": 0
+          },
+          "ap": {
+            "value": 0,
+            "max": 0
+          }
+        }
+      }
+    },
+    "character": {
+      "templates": ["base"]
+    },
+    "npc": {
+      "templates": ["base"]
+    }
+  },
+  "Item": {
+    "types": ["equipment"],
+    "equipment": {}
+  }
+}

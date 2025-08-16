@@ -19,8 +19,9 @@
 	],
 	"documentTypes": {
 		"Actor": { "character": {}, "npc": {} },
-		"Item": {}
+		"Item": { "equipment": {} }
 	},
+	"template": "template.json",
 	"languages": [
 		{ "lang": "en", "name": "English", "path": "lang/en.json" }
 	],
@@ -28,7 +29,8 @@
 		"distance": 1,
 		"units": "m"
 	},
-	"primaryTokenAttribute": null,
+	"primaryTokenAttribute": "system.resources.vp",
+	"secondaryTokenAttribute": "system.resources.fp",
 	"packs": [],
 	"socket": true
 }
