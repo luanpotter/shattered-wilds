@@ -12,6 +12,9 @@ export type GameLike = {
 		active?: SceneLike;
 		contents?: SceneLike[];
 	};
+	actors?: {
+		get(id: string): { id?: string; name?: string; flags?: Record<string, unknown> } | undefined;
+	};
 };
 
 export type ActorsManagerLike = {
@@ -26,7 +29,10 @@ export type ActorSheetBaseCtor = {
 	defaultOptions: unknown;
 };
 
-export function getHooks(): { once(event: 'init' | 'ready', fn: () => void): void } {
+export function getHooks(): {
+	once(event: 'init' | 'ready', fn: () => void): void;
+	on?(event: string, fn: (...args: any[]) => void): void;
+} {
 	return (globalThis as any).Hooks;
 }
 
@@ -40,7 +46,9 @@ export function getActorSheetBase(): ActorSheetBaseCtor {
 }
 
 export function getActorSheetV2(): ActorSheetBaseCtor | undefined {
-	return (globalThis as any).foundry?.applications?.api?.ActorSheetV2 as ActorSheetBaseCtor | undefined;
+	// Prefer v2 sheets namespace if available
+	const v2 = (globalThis as any).foundry?.applications?.sheets?.ActorSheet;
+	return (v2 as ActorSheetBaseCtor | undefined) ?? undefined;
 }
 
 export function getGame(): GameLike {
@@ -53,6 +61,10 @@ export function getUI(): {
 	return (globalThis as any).ui as {
 		notifications?: { info: (m: string) => void; warn: (m: string) => void; error: (m: string) => void };
 	};
+}
+
+export function getActorById(id: string): { id?: string; name?: string; flags?: Record<string, unknown> } | undefined {
+	return (globalThis as any).game?.actors?.get?.(id);
 }
 
 export function getActorCtor(): {
@@ -165,4 +177,26 @@ export async function promptText({ title, label }: { title: string; label: strin
 		}
 		resolve(null);
 	});
+}
+
+export function getApplicationV2Ctor(): unknown {
+	return (globalThis as any).foundry?.applications?.api?.ApplicationV2;
+}
+
+export function getHandlebarsApplicationMixin(): ((base: unknown) => unknown) | undefined {
+	const mixin = (globalThis as any).foundry?.applications?.api?.HandlebarsApplicationMixin;
+	return (typeof mixin === 'function' ? mixin : undefined) as ((base: unknown) => unknown) | undefined;
+}
+
+export type TokenLike = {
+	document?: { actorId?: string };
+	actor?: { id?: string };
+};
+
+export function getTokenObjectCtor(): { prototype: TokenLike & { _onClickLeft2: (event: unknown) => void } } {
+	const ctor = (globalThis as any).foundry?.canvas?.placeables?.Token as
+		| { prototype: TokenLike & { _onClickLeft2: (event: unknown) => void } }
+		| undefined;
+	if (!ctor) throw new Error('Token class not found at foundry.canvas.placeables.Token');
+	return ctor;
 }

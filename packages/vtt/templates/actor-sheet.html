@@ -2,6 +2,22 @@
 	<header class="sheet-header">
 		<h1 class="charname">{{actor.name}}</h1>
 	</header>
+	<section class="sheet-body">
+		<div class="controls" style="display:flex; gap:8px; margin-bottom:8px;">
+			<button type="button" data-action="sw-import"><i class="fas fa-upload"></i> Import</button>
+			<button type="button" data-action="sw-export"><i class="fas fa-download"></i> Export</button>
+		</div>
+		<div class="resources">
+			<h3>Resources</h3>
+			<ul>
+				{{#each flags.shattered-wilds.props as |value key|}}
+					{{#if (or (eq key "HeroismPoint") (eq key "VitalityPoint") (eq key "FocusPoint") (eq key "SpiritPoint"))}}
+						<li><strong>{{key}}:</strong> {{value}}</li>
+					{{/if}}
+				{{/each}}
+			</ul>
+		</div>
+	</section>
 </form>
 
 
