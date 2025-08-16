@@ -59,7 +59,7 @@ if (AppV2 && HbsMixin) {
 			// Use CharacterSheet.from to get computed character data
 			let characterSheet: CharacterSheet | undefined;
 			const resources: Record<string, { current: number; max: number }> = {};
-			const stats: Record<string, number> = {};
+			let statTreeData: unknown = null;
 
 			try {
 				if (Object.keys(props).length > 0) {
@@ -70,12 +70,36 @@ if (AppV2 && HbsMixin) {
 						resources[resource] = characterSheet!.getResource(resource);
 					});
 
-					// Prepare stats data for template
+					// Prepare stat tree data for template
 					const statTree = characterSheet.getStatTree();
-					StatType.values.forEach(statType => {
-						const computed = statTree.getModifier(statType);
-						stats[statType.name] = computed.value.value;
-					});
+					statTreeData = {
+						level: {
+							node: statTree.root,
+							modifier: statTree.getNodeModifier(statTree.root),
+							points: statTree.root.points,
+						},
+						realms: [StatType.Body, StatType.Mind, StatType.Soul].map(realmType => {
+							const realmNode = statTree.getNode(realmType);
+							return {
+								type: realmType,
+								node: realmNode,
+								modifier: statTree.getNodeModifier(realmNode),
+								points: realmNode.points,
+								attributes: realmNode.children.map(attrNode => ({
+									type: attrNode.type,
+									node: attrNode,
+									modifier: statTree.getNodeModifier(attrNode),
+									points: attrNode.points,
+									skills: attrNode.children.map(skillNode => ({
+										type: skillNode.type,
+										node: skillNode,
+										modifier: statTree.getNodeModifier(skillNode),
+										points: skillNode.points,
+									})),
+								})),
+							};
+						}),
+					};
 				}
 			} catch (err) {
 				console.warn('Failed to create CharacterSheet from props:', err);
@@ -87,7 +111,7 @@ if (AppV2 && HbsMixin) {
 				props,
 				characterSheet,
 				resources,
-				stats,
+				statTreeData,
 			};
 		}
 
