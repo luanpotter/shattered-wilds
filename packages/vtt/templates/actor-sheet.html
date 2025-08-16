@@ -180,13 +180,27 @@
 												{{#each featsOrSlots}}
 													<div class="feat-box {{#if warning}}warning{{/if}} {{#if isEmpty}}empty{{/if}}">
 														<div class="feat-header">
-															<span class="feat-name">{{#if info}}{{info.name}}{{else}}Empty {{slot.name}}{{/if}}</span>
+															<span class="feat-name">
+																{{#if info}}
+																	{{info.name}}
+																{{else}}
+																	{{#if slot}}
+																		Empty {{slot.name}}
+																	{{else}}
+																		Unknown Feat
+																	{{/if}}
+																{{/if}}
+															</span>
 															{{#if warning}}
 																<i class="fas fa-exclamation-triangle feat-warning-icon" title="{{warning}}"></i>
 															{{/if}}
 														</div>
-														{{#if info.feat.description}}
-															<div class="feat-description">{{info.feat.description}}</div>
+														{{#if info}}
+															{{#if info.feat}}
+																{{#if info.feat.description}}
+																	<div class="feat-description">{{info.feat.description}}</div>
+																{{/if}}
+															{{/if}}
 														{{/if}}
 													</div>
 												{{/each}}

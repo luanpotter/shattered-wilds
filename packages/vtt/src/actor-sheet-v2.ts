@@ -55,7 +55,20 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		// Get the raw props from flags
 		const flags = actor.flags as Record<string, unknown> | undefined;
 		const swFlags = (flags?.['shattered-wilds'] as { props?: Record<string, string> } | undefined) ?? undefined;
-		const props = swFlags?.props ?? {};
+		const rawProps = swFlags?.props ?? {};
+
+		// Transform feat props back to expected format (dots instead of underscores)
+		// During import, dots were sanitized to underscores, but CharacterSheet expects dots
+		const props = Object.fromEntries(
+			Object.entries(rawProps).map(([key, value]) => {
+				if (key.startsWith('feat_')) {
+					// Convert feat_1_Minor_0 back to feat.1.Minor.0
+					const transformedKey = key.replace(/^feat_(\d+)_(\w+)_(\d+)$/, 'feat.$1.$2.$3');
+					return [transformedKey, value];
+				}
+				return [key, value];
+			}),
+		);
 
 		// Use CharacterSheet.from to get computed character data
 		let characterSheet: CharacterSheet | undefined;
@@ -152,6 +165,27 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		let featsData = null;
 		if (characterSheet) {
 			try {
+				// Debug the character feats before creating FeatsSection
+				console.log('Character feats debug:', {
+					slottedFeats: characterSheet.feats.getSlottedFeats().map(feat => ({
+						featKey: feat.feat.key,
+						featName: feat.feat.name,
+						slotProp: feat.slot?.toProp(),
+						parameter: feat.parameter,
+					})),
+					coreFeats: characterSheet.feats.getCoreFeats().map(feat => ({
+						featKey: feat.feat.key,
+						featName: feat.feat.name,
+					})),
+					featSlots: characterSheet.getFeatSlots().map(slot => ({
+						slotProp: slot.toProp(),
+						slotName: slot.name,
+						level: slot.level,
+						type: slot.type,
+					})),
+					rawProps: Object.entries(props).filter(([key]) => key.startsWith('feat')),
+				});
+
 				const featsSection = FeatsSection.create(characterSheet);
 				featsData = {
 					isEmpty: featsSection.isEmpty,
