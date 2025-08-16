@@ -72,7 +72,7 @@ if (AppV2 && HbsMixin) {
 
 					// Prepare stats data for template
 					const statTree = characterSheet.getStatTree();
-					Object.values(StatType).forEach(statType => {
+					StatType.values.forEach(statType => {
 						const computed = statTree.getModifier(statType);
 						stats[statType.name] = computed.value.value;
 					});

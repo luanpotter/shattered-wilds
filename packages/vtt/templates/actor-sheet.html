@@ -1,47 +1,113 @@
-<form class="actor-sheet">
-	<header class="sheet-header">
-		<h1 class="charname">{{actor.name}}</h1>
-	</header>
-	<section class="sheet-body">
-		<div class="controls" style="display:flex; gap:8px; margin-bottom:8px;">
-			<button type="button" data-action="sw-import"><i class="fas fa-upload"></i> Import</button>
-			<button type="button" data-action="sw-export"><i class="fas fa-download"></i> Export</button>
-		</div>
-		<div class="resources">
-			{{#if characterSheet}}
-				<h3>Character: {{characterSheet.name}}</h3>
-				<p><strong>Race:</strong> {{characterSheet.race.primaryRace}}{{#if characterSheet.race.halfRace}} / {{characterSheet.race.halfRace}}{{/if}}</p>
-				<p><strong>Class:</strong> {{characterSheet.characterClass.characterClass}} (Level {{characterSheet.level}})</p>
+<div class="shattered-wilds-sheet">
+	<style>
+		@import url("systems/shattered-wilds/styles/actor-sheet.css");
+	</style>
+	
+	<form class="actor-sheet">
+		<header class="sheet-header">
+			<h1 class="charname">{{actor.name}}</h1>
+		</header>
+		<section class="sheet-body">
+			<div class="controls" style="display:flex; gap:8px; margin-bottom:8px;">
+				<button type="button" data-action="sw-import"><i class="fas fa-upload"></i> Import</button>
+				<button type="button" data-action="sw-export"><i class="fas fa-download"></i> Export</button>
+			</div>
+			<div class="resources">
+				{{#if characterSheet}}
+					<h3>Character: {{characterSheet.name}}</h3>
+					<p><strong>Race:</strong> {{characterSheet.race.primaryRace}}{{#if characterSheet.race.halfRace}} / {{characterSheet.race.halfRace}}{{/if}}</p>
+					<p><strong>Class:</strong> {{characterSheet.characterClass.characterClass}} (Level {{characterSheet.level}})</p>
+					
+					<h4>Resources</h4>
+					<ul>
+						<li><strong>Heroism Points:</strong> {{resources.HeroismPoint.current}} / {{resources.HeroismPoint.max}}</li>
+						<li><strong>Vitality Points:</strong> {{resources.VitalityPoint.current}} / {{resources.VitalityPoint.max}}</li>
+						<li><strong>Focus Points:</strong> {{resources.FocusPoint.current}} / {{resources.FocusPoint.max}}</li>
+						<li><strong>Spirit Points:</strong> {{resources.SpiritPoint.current}} / {{resources.SpiritPoint.max}}</li>
+					</ul>
+					
+					<h4>Stats</h4>
+					<div class="stat-tree-compact">
+						<!-- Level Section -->
+						<div class="level-section">
+							<div class="level-label">Level: {{characterSheet.level}}</div>
+						</div>
+						
+						<!-- Stat Grid -->
+						<div class="stat-grid">
+							<!-- Body Realm -->
+							<div class="realm-section body-realm">
+								<div class="realm-header">BODY ({{stats.BODY}})</div>
+								<div class="attribute-row">
+									<div class="attribute-box">
+										<div class="attr-name">STR</div>
+										<div class="attr-value">{{stats.STR}}</div>
+									</div>
+									<div class="attribute-box">
+										<div class="attr-name">DEX</div>
+										<div class="attr-value">{{stats.DEX}}</div>
+									</div>
+									<div class="attribute-box">
+										<div class="attr-name">CON</div>
+										<div class="attr-value">{{stats.CON}}</div>
+									</div>
+								</div>
+							</div>
+							
+							<!-- Mind Realm -->
+							<div class="realm-section mind-realm">
+								<div class="realm-header">MIND ({{stats.MIND}})</div>
+								<div class="attribute-row">
+									<div class="attribute-box">
+										<div class="attr-name">INT</div>
+										<div class="attr-value">{{stats.INT}}</div>
+									</div>
+									<div class="attribute-box">
+										<div class="attr-name">WIS</div>
+										<div class="attr-value">{{stats.WIS}}</div>
+									</div>
+									<div class="attribute-box">
+										<div class="attr-name">CHA</div>
+										<div class="attr-value">{{stats.CHA}}</div>
+									</div>
+								</div>
+							</div>
+							
+							<!-- Soul Realm -->
+							<div class="realm-section soul-realm">
+								<div class="realm-header">SOUL ({{stats.SOUL}})</div>
+								<div class="attribute-row">
+									<div class="attribute-box">
+										<div class="attr-name">DIV</div>
+										<div class="attr-value">{{stats.DIV}}</div>
+									</div>
+									<div class="attribute-box">
+										<div class="attr-name">FOW</div>
+										<div class="attr-value">{{stats.FOW}}</div>
+									</div>
+									<div class="attribute-box">
+										<div class="attr-name">LCK</div>
+										<div class="attr-value">{{stats.LCK}}</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				{{else}}
+					<p>No character data imported yet. Use the Import button to load a character.</p>
+				{{/if}}
 				
-				<h4>Resources</h4>
-				<ul>
-					<li><strong>Heroism Points:</strong> {{resources.HeroismPoint.current}} / {{resources.HeroismPoint.max}}</li>
-					<li><strong>Vitality Points:</strong> {{resources.VitalityPoint.current}} / {{resources.VitalityPoint.max}}</li>
-					<li><strong>Focus Points:</strong> {{resources.FocusPoint.current}} / {{resources.FocusPoint.max}}</li>
-					<li><strong>Spirit Points:</strong> {{resources.SpiritPoint.current}} / {{resources.SpiritPoint.max}}</li>
-				</ul>
-				
-				<h4>Stats</h4>
-				<ul>
-					<li><strong>STR:</strong> {{stats.STR}}</li>
-					<li><strong>DEX:</strong> {{stats.DEX}}</li>
-					<li><strong>BODY:</strong> {{stats.BODY}}</li>
-					<li><strong>INT:</strong> {{stats.INT}}</li>
-					<li><strong>MIND:</strong> {{stats.MIND}}</li>
-					<li><strong>CHA:</strong> {{stats.CHA}}</li>
-				</ul>
-			{{else}}
-				<p>No character data imported yet. Use the Import button to load a character.</p>
-			{{/if}}
-			
-			<h4>Raw Properties (Debug)</h4>
-			<ul>
-				{{#each props as |value key|}}
-					<li><code>{{key}}</code>: {{value}}</li>
-				{{/each}}
-			</ul>
-		</div>
-	</section>
-</form>
+				<div class="debug-section">
+					<h4>Raw Properties (Debug)</h4>
+					<ul>
+						{{#each props as |value key|}}
+							<li><code>{{key}}</code>: {{value}}</li>
+						{{/each}}
+					</ul>
+				</div>
+			</div>
+		</section>
+	</form>
+</div>
 
 

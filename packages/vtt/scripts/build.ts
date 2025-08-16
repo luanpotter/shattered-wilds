@@ -44,6 +44,10 @@ function main() {
 	safeMkdir(join(systemOut, 'templates'));
 	cpSync(join(root, 'templates'), join(systemOut, 'templates'), { recursive: true });
 
+	// Copy styles
+	safeMkdir(join(systemOut, 'styles'));
+	cpSync(join(root, 'styles'), join(systemOut, 'styles'), { recursive: true });
+
 	// Copy basic assets (reuse root assets)
 	safeMkdir(join(systemOut, 'assets'));
 	const repoRoot = join(root, '..', '..', '..');
