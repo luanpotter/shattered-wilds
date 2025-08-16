@@ -22,6 +22,7 @@ import {
 	NodeStatModifier,
 	CircumstanceModifier,
 	FeatsSection,
+	DerivedStatType,
 } from '@shattered-wilds/commons';
 
 // Helper function to sync resources to actor system data for token bars
@@ -141,6 +142,32 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		return this.getCurrentActor()?.id;
 	}
 
+	private getCharacterSheet(): CharacterSheet | undefined {
+		const actor = this.getCurrentActor();
+		if (!actor) return undefined;
+
+		const rawProps = getCharacterProps(actor);
+		const props = Object.fromEntries(
+			Object.entries(rawProps).map(([key, value]) => {
+				if (key.startsWith('feat_')) {
+					// Convert feat_1_Minor_0 back to feat.1.Minor.0
+					const transformedKey = key.replace(/^feat_(\d+)_(\w+)_(\d+)$/, 'feat.$1.$2.$3');
+					return [transformedKey, value];
+				}
+				return [key, value];
+			}),
+		);
+
+		try {
+			if (Object.keys(props).length > 0) {
+				return CharacterSheet.from(props);
+			}
+		} catch (err) {
+			console.warn('Failed to create CharacterSheet:', err);
+		}
+		return undefined;
+	}
+
 	constructor(...args: unknown[]) {
 		super(...args);
 		// Register Handlebars helpers
@@ -179,17 +206,10 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		console.warn(`[${sheetInstance}] Actor flags:`, actorLike?.flags);
 		console.warn(`[${sheetInstance}] Actor has SW flags:`, !!actorLike?.flags?.['shattered-wilds']);
 
-		// NEVER cache actor ID - always use from context to prevent cross-contamination
-
-		// CRITICAL: Always prefer the actor from context to prevent cross-contamination
 		let actor: ActorLike | null = actorLike || null;
-
-		// Only try game lookup if we don't have an actor from context
 		if (!actor) {
 			actor = getActorData(currentActorId);
 		}
-
-		// Last resort fallback
 		if (!actor) {
 			actor = { id: currentActorId || 'unknown', name: 'Unknown', flags: {} };
 		}
@@ -197,37 +217,10 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		// Get character props using robust method with multiple fallbacks
 		const rawProps = getCharacterProps(actor);
 
-		console.warn(
-			`[${sheetInstance}] Got ${Object.keys(rawProps).length} props for actor ${actor?.id} (${actor?.name})`,
-		);
-		if (Object.keys(rawProps).length > 0) {
-			console.warn(`[${sheetInstance}] Sample props:`, Object.keys(rawProps).slice(0, 3));
-		}
-
 		// Ensure actor data persistence for future token creation
 		if (actor && Object.keys(rawProps).length > 0) {
 			await ensureActorDataPersistence(actor);
 		}
-
-		// Critical sanity check - ensure we're using the right actor
-		if (actor?.id && currentActorId && actor.id !== currentActorId) {
-			console.error('CRITICAL: Actor ID mismatch!', {
-				expectedId: currentActorId,
-				actualId: actor.id,
-				actorName: actor.name,
-			});
-		}
-
-		// Debug logging to help diagnose the issue
-		console.debug('Actor retrieval debug:', {
-			expectedActorId: currentActorId,
-			actualActorId: actor?.id,
-			actorName: actor?.name,
-			usedContext: !!actorLike,
-			propsCount: Object.keys(rawProps).length,
-			hasCharacterData: Object.keys(rawProps).length > 0,
-			propsPreview: Object.keys(rawProps).slice(0, 5),
-		});
 
 		// Transform feat props back to expected format (dots instead of underscores)
 		// During import, dots were sanitized to underscores, but CharacterSheet expects dots
@@ -339,6 +332,57 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			console.warn('Failed to create CharacterSheet from props:', err);
 		}
 
+		// Prepare derived stats data for template
+		const derivedStatsData: Array<{
+			key: string;
+			name: string;
+			value: string;
+			description: string;
+			clickable: boolean;
+		}> = [];
+		if (characterSheet) {
+			const statTree = characterSheet.getStatTree();
+
+			// Size (from character sheet)
+			derivedStatsData.push({
+				key: 'size',
+				name: 'Size',
+				value: characterSheet.size,
+				description: `Character size: ${characterSheet.size}`,
+				clickable: false,
+			});
+
+			// Movement (computed)
+			const movement = statTree.getDistance(DerivedStatType.Movement);
+			derivedStatsData.push({
+				key: 'movement',
+				name: 'Movement',
+				value: movement.value.description,
+				description: movement.description,
+				clickable: false,
+			});
+
+			// Influence Range (computed)
+			const influenceRange = statTree.getDistance(DerivedStatType.InfluenceRange);
+			derivedStatsData.push({
+				key: 'influenceRange',
+				name: 'Influence Range',
+				value: influenceRange.value.description,
+				description: influenceRange.description,
+				clickable: false,
+			});
+
+			// Initiative (computed and clickable)
+			const initiative = statTree.getModifier(DerivedStatType.Initiative);
+			derivedStatsData.push({
+				key: 'initiative',
+				name: 'Initiative',
+				value: initiative.value.description,
+				description: initiative.description,
+				clickable: true,
+			});
+		}
+
 		return {
 			actor,
 			flags: actor?.flags ?? {},
@@ -346,6 +390,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			characterSheet,
 			resources,
 			resourcesArray,
+			derivedStatsData,
 			statTreeData,
 			featsData: this.prepareFeatsData(characterSheet),
 			activeTab: this.#activeTab,
@@ -442,6 +487,28 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					} else {
 						// Normal click opens the dice modal
 						await this.handleStatRollModal(statType, modifier);
+					}
+				}
+			});
+		});
+
+		// Add derived stat roll handlers (for initiative)
+		const derivedStatButtons = root.querySelectorAll('[data-action="roll-derived-stat"]') as NodeListOf<HTMLElement>;
+		derivedStatButtons.forEach(btn => {
+			btn.addEventListener('click', async event => {
+				const derivedStatKey = btn.dataset.derivedStat;
+				if (derivedStatKey === 'initiative') {
+					// Initiative rolls use the initiative modifier
+					const characterSheet = this.getCharacterSheet();
+					if (characterSheet) {
+						const initiative = characterSheet.getStatTree().getModifier(DerivedStatType.Initiative);
+						if (event.shiftKey) {
+							// Shift+click does a quick roll
+							await this.handleStatRoll('initiative', initiative.value.value);
+						} else {
+							// Normal click opens the dice modal
+							await this.handleStatRollModal('initiative', initiative.value.value);
+						}
 					}
 				}
 			});
@@ -900,6 +967,31 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 			const characterSheet = CharacterSheet.from(props);
 			const statTree = characterSheet.getStatTree();
+
+			// Special handling for derived stats like initiative
+			if (statTypeName === 'initiative') {
+				const initiativeModifier = statTree.getModifier(DerivedStatType.Initiative);
+				const awarenessNode = statTree.getNode(StatType.Awareness);
+				const awarenessModifier = statTree.getNodeModifier(awarenessNode);
+				const agilityNode = statTree.getNode(StatType.Agility);
+				const agilityModifier = statTree.getNodeModifier(agilityNode);
+
+				return {
+					baseValue: 0, // Initiative has no base value, it's purely derived
+					modifiers: [
+						{
+							source: 'Awareness',
+							value: awarenessModifier.value.value,
+						},
+						{
+							source: 'Agility',
+							value: agilityModifier.value.value,
+						},
+					],
+					total: initiativeModifier.value.value,
+				};
+			}
+
 			const statType = StatType.values.find(st => st.name === statTypeName);
 
 			if (!statType) return null;

@@ -191,6 +191,58 @@
 	font-size: 0.9em;
 }
 
+/* Derived Stats Row */
+.derived-stats-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin: 8px 0;
+}
+
+.derived-stat-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
+	min-width: 80px;
+}
+
+.derived-stat-label {
+	font-size: 0.75em;
+	font-weight: bold;
+	text-transform: uppercase;
+	color: white;
+	text-align: center;
+}
+
+.derived-stat-value {
+	font-size: 0.85em;
+	font-weight: bold;
+	text-align: center;
+	position: relative;
+	color: white;
+}
+
+.derived-stat-value.clickable {
+	cursor: pointer;
+	color: #66b3ff;
+	text-decoration: underline;
+	border-radius: 3px;
+	transition: background-color 0.2s;
+}
+
+.derived-stat-value.clickable:hover {
+	background: rgba(102, 179, 255, 0.2);
+}
+
+.derived-stat-value .dice-icon {
+	position: absolute;
+	bottom: -2px;
+	right: -2px;
+	font-size: 0.6em;
+	color: rgba(255, 255, 255, 0.6);
+}
+
 /* Tab System Styling */
 .tabs-container {
 	margin-top: 15px;

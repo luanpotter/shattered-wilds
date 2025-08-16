@@ -14,6 +14,25 @@
 				<div class="character-info">
 					<p><strong>{{characterSheet.name}}</strong> - {{characterSheet.race.primaryRace}}{{#if characterSheet.race.halfRace}} / {{characterSheet.race.halfRace}}{{/if}} {{characterSheet.characterClass.characterClass}} (Level {{characterSheet.level}})</p>
 					
+					<!-- Derived Stats Row -->
+					{{#if derivedStatsData}}
+						<div class="derived-stats-row">
+							{{#each derivedStatsData}}
+								<div class="derived-stat-item">
+									<span class="derived-stat-label">{{name}}</span>
+									{{#if clickable}}
+										<div class="derived-stat-value clickable" data-action="roll-derived-stat" data-derived-stat="{{key}}" title="{{description}} • Click for advanced options • Shift+Click for quick roll">
+											{{value}}
+											<i class="fas fa-dice-d12 dice-icon"></i>
+										</div>
+									{{else}}
+										<span class="derived-stat-value" title="{{description}}">{{value}}</span>
+									{{/if}}
+								</div>
+							{{/each}}
+						</div>
+					{{/if}}
+					
 					<div class="resources-row">
 						{{#each resourcesArray}}
 							<div class="resource-control">
