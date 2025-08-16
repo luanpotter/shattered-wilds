@@ -83,41 +83,118 @@ if (AppV2 && HbsMixin) {
 
 			let characterSheet: CharacterSheet | undefined;
 			let attributeOptions: Array<{ key: string; name: string; value: number }> = [];
+			let canUseExtra = false;
 
 			try {
 				if (Object.keys(props).length > 0) {
 					characterSheet = CharacterSheet.from(props);
 					const statTree = characterSheet.getStatTree();
 
-					// Get all attributes for extra die selection
-					attributeOptions = [
-						StatType.STR,
-						StatType.DEX,
-						StatType.CON,
-						StatType.INT,
-						StatType.WIS,
-						StatType.CHA,
-						StatType.Fortune, // For luck die comparison
-					].map(statType => {
-						const modifier = statTree.getNodeModifier(statTree.getNode(statType));
-						return {
-							key: statType.name,
-							name: statType.name,
-							value: modifier.value.value,
-						};
-					});
+					// Determine if this is a skill roll and which attribute to exclude
+					const isSkillRoll = this.isSkillRoll(statType);
+					canUseExtra = isSkillRoll;
+
+					if (isSkillRoll) {
+						const parentAttribute = this.getParentAttribute(statType);
+
+						// Get all attributes except the parent attribute of this skill
+						attributeOptions = [StatType.STR, StatType.DEX, StatType.CON, StatType.INT, StatType.WIS, StatType.CHA]
+							.filter(statType => statType.name !== parentAttribute)
+							.map(statType => {
+								const modifier = statTree.getNodeModifier(statTree.getNode(statType));
+								return {
+									key: statType.name,
+									name: statType.name,
+									value: modifier.value.value,
+								};
+							});
+					}
 				}
 			} catch (err) {
 				console.warn('Failed to create CharacterSheet from props:', err);
 			}
+
+			const fortuneValue = characterSheet
+				? characterSheet.getStatTree().getNodeModifier(characterSheet.getStatTree().getNode(StatType.Fortune)).value
+						.value
+				: 0;
 
 			return {
 				statType,
 				modifier,
 				actorId,
 				attributeOptions,
-				fortuneValue: attributeOptions.find(attr => attr.key === 'Fortune')?.value || 0,
+				fortuneValue,
+				canUseExtra,
 			};
+		}
+
+		private isSkillRoll(statType: string): boolean {
+			// List of all skill names (not attributes or realms)
+			const skills = [
+				'Muscles',
+				'Stance',
+				'Lift',
+				'Finesse',
+				'Evasiveness',
+				'Agility',
+				'Toughness',
+				'Stamina',
+				'Resilience',
+				'IQ',
+				'Knowledge',
+				'Memory',
+				'Perception',
+				'Awareness',
+				'Intuition',
+				'Speechcraft',
+				'Presence',
+				'Empathy',
+				'Devotion',
+				'Aura',
+				'Attunement',
+				'Discipline',
+				'Tenacity',
+				'Resolve',
+				'Karma',
+				'Fortune',
+				'Serendipity',
+			];
+			return skills.includes(statType);
+		}
+
+		private getParentAttribute(skillType: string): string {
+			// Map skills to their parent attributes
+			const skillToAttribute: Record<string, string> = {
+				Muscles: 'STR',
+				Stance: 'STR',
+				Lift: 'STR',
+				Finesse: 'DEX',
+				Evasiveness: 'DEX',
+				Agility: 'DEX',
+				Toughness: 'CON',
+				Stamina: 'CON',
+				Resilience: 'CON',
+				IQ: 'INT',
+				Knowledge: 'INT',
+				Memory: 'INT',
+				Perception: 'WIS',
+				Awareness: 'WIS',
+				Intuition: 'WIS',
+				Speechcraft: 'CHA',
+				Presence: 'CHA',
+				Empathy: 'CHA',
+				Devotion: 'DIV',
+				Aura: 'DIV',
+				Attunement: 'DIV',
+				Discipline: 'FOW',
+				Tenacity: 'FOW',
+				Resolve: 'FOW',
+				Karma: 'LCK',
+				Fortune: 'LCK',
+				Serendipity: 'LCK',
+			};
+			return skillToAttribute[skillType] || '';
 		}
 
 		async _onRender(): Promise<void> {

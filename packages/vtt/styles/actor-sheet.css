@@ -101,7 +101,7 @@
 	padding: 8px 4px;
 	border: 1px solid #999;
 	border-radius: 6px;
-	min-height: 120px;
+	min-height: 140px; /* Increased to match attribute panels */
 	text-align: center;
 }
 
@@ -142,7 +142,7 @@
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
-	min-height: 120px;
+	min-height: 140px;
 }
 
 .attribute-header {
@@ -263,8 +263,8 @@
 
 .dice-icon {
 	position: absolute;
-	top: -4px;
-	right: -4px;
+	bottom: -2px;
+	right: -2px;
 	font-size: 8px;
 	color: #ffb300;
 	opacity: 0;

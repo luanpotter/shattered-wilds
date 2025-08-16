@@ -12,25 +12,25 @@
 
 		<!-- Main Options Section -->
 		<div class="roll-options">
-			<!-- Extra Die Section -->
-			<div class="option-group">
-				<label class="checkbox-container">
-					<input type="checkbox" name="useExtra">
-					<span class="checkmark"></span>
-					Use Extra Die
-				</label>
-				<div class="sub-option">
-					<label for="extraAttribute">Attribute:</label>
-					<select name="extraAttribute" disabled>
-						{{#each attributeOptions}}
-							{{#unless (eq key "Fortune")}}
+			<!-- Extra Die Section (only for skills) -->
+			{{#if canUseExtra}}
+				<div class="option-group">
+					<label class="checkbox-container">
+						<input type="checkbox" name="useExtra">
+						<span class="checkmark"></span>
+						Use Extra Die
+					</label>
+					<div class="sub-option">
+						<label for="extraAttribute">Attribute:</label>
+						<select name="extraAttribute" disabled>
+							{{#each attributeOptions}}
 								<option value="{{key}}">{{name}} ({{value}})</option>
-							{{/unless}}
-						{{/each}}
-					</select>
-					<small class="help-text">Extra die must roll ≤ selected attribute</small>
+							{{/each}}
+						</select>
+						<small class="help-text">Extra die must roll ≤ selected attribute</small>
+					</div>
 				</div>
-			</div>
+			{{/if}}
 
 			<!-- Luck Die Section -->
 			<div class="option-group">

@@ -56,46 +56,48 @@
 								<div class="stat-tree-grid">
 									<!-- Level Section -->
 									<div class="level-section">
-										<div class="level-display">
-											<span class="level-label">Level:</span>
-											<div class="stat-value">
-												<span class="points-circle" title="{{statTreeData.level.tooltip}}">{{statTreeData.level.points}}</span>
-												<span class="modifier-value" title="{{statTreeData.level.tooltip}}">
-													{{statTreeData.level.modifier.value.description}}
-													{{#if statTreeData.level.hasWarning}}
-														<i class="stat-icon warning fas fa-exclamation-triangle" title="{{statTreeData.level.tooltip}}"></i>
-													{{else}}
-														{{#if statTreeData.level.hasTooltip}}
-															<i class="stat-icon info fas fa-info-circle" title="{{statTreeData.level.tooltip}}"></i>
-														{{/if}}
-													{{/if}}
-												</span>
-											</div>
-										</div>
+																	<div class="level-display">
+								<span class="level-label">Level:</span>
+								<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="Level" data-modifier="{{statTreeData.level.modifier.value.value}}" title="Click to roll Level check • Shift+Click for advanced options">
+									<span class="points-circle" title="{{statTreeData.level.tooltip}}">{{statTreeData.level.points}}</span>
+									<span class="modifier-value" title="{{statTreeData.level.tooltip}}">
+										{{statTreeData.level.modifier.value.description}}
+										{{#if statTreeData.level.hasWarning}}
+											<i class="stat-icon warning fas fa-exclamation-triangle" title="{{statTreeData.level.tooltip}}"></i>
+										{{else}}
+											{{#if statTreeData.level.hasTooltip}}
+												<i class="stat-icon info fas fa-info-circle" title="{{statTreeData.level.tooltip}}"></i>
+											{{/if}}
+										{{/if}}
+									</span>
+									<i class="fas fa-dice-d12 dice-icon"></i>
+								</div>
+							</div>
 									</div>
 
 									<!-- Main Grid Layout -->
 									<div class="stat-grid-container">
 										<!-- Vertical Realm Labels -->
 										<div class="realm-labels">
-											{{#each statTreeData.realms}}
-												<div class="realm-label {{type.name}}">
-													<div class="realm-name">{{type.name}}</div>
-													<div class="stat-value">
-														<span class="points-circle" title="{{tooltip}}">{{points}}</span>
-														<span class="modifier-value" title="{{tooltip}}">
-															{{modifier.value.description}}
-															{{#if hasWarning}}
-																<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
-															{{else}}
-																{{#if hasTooltip}}
-																	<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
-																{{/if}}
+																					{{#each statTreeData.realms}}
+											<div class="realm-label {{type.name}}">
+												<div class="realm-name">{{type.name}}</div>
+												<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="{{type.name}}" data-modifier="{{modifier.value.value}}" title="Click to roll {{type.name}} check • Shift+Click for advanced options">
+													<span class="points-circle" title="{{tooltip}}">{{points}}</span>
+													<span class="modifier-value" title="{{tooltip}}">
+														{{modifier.value.description}}
+														{{#if hasWarning}}
+															<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
+														{{else}}
+															{{#if hasTooltip}}
+																<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
 															{{/if}}
-														</span>
-													</div>
+														{{/if}}
+													</span>
+													<i class="fas fa-dice-d12 dice-icon"></i>
 												</div>
-											{{/each}}
+											</div>
+										{{/each}}
 										</div>
 
 										<!-- 3x3 Attribute Grid -->
