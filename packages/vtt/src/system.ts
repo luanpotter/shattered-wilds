@@ -1,6 +1,7 @@
 import { createHexScene, createCharacterWithToken } from './vtt-api.js';
 import {
 	getActorSheetBase,
+	getActorSheetV2,
 	getGame,
 	getHooks,
 	ActorSheetBaseCtor,
@@ -12,7 +13,10 @@ import { exportActorPropsToShareString, importActorPropsFromShareString } from '
 // CONFIG not used yet
 
 const ActorSheetBase = getActorSheetBase() as ActorSheetBaseCtor;
-class ShatteredWildsActorSheet extends ActorSheetBase {
+const V2ActorSheet = getActorSheetV2();
+const BaseSheet = (V2ActorSheet ?? ActorSheetBase) as ActorSheetBaseCtor;
+
+class ShatteredWildsActorSheet extends BaseSheet {
 	static override get defaultOptions() {
 		const options = super.defaultOptions as Record<string, unknown>;
 		(options as { classes: string[] }).classes = ['shattered-wilds', 'sheet', 'actor'];

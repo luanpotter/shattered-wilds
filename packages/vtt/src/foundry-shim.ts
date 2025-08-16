@@ -39,6 +39,10 @@ export function getActorSheetBase(): ActorSheetBaseCtor {
 	return (ns || (globalThis as any).ActorSheet) as ActorSheetBaseCtor;
 }
 
+export function getActorSheetV2(): ActorSheetBaseCtor | undefined {
+	return (globalThis as any).foundry?.applications?.api?.ActorSheetV2 as ActorSheetBaseCtor | undefined;
+}
+
 export function getGame(): GameLike {
 	return (globalThis as any).game as GameLike;
 }
@@ -88,37 +92,77 @@ export async function createTokenInScene(scene: SceneLike, tokenData: Record<str
 	return docs?.[0];
 }
 
+export function getDialogV2Ctor(): any {
+	return (globalThis as any).foundry?.applications?.api?.DialogV2;
+}
+
+export function getDialogCtor(): any {
+	return (globalThis as any).Dialog;
+}
+
 export async function promptText({ title, label }: { title: string; label: string }): Promise<string | null> {
 	return new Promise(resolve => {
-		const DialogCtor = (globalThis as any).foundry?.applications?.api?.DialogV2 || (globalThis as any).Dialog;
-		if (!DialogCtor) {
-			resolve(null);
+		const DialogV2 = getDialogV2Ctor();
+		if (DialogV2) {
+			try {
+				const content = `<form><div class="form-group"><label>${label}</label><input type="text" name="text" autofocus /></div></form>`;
+				const dialog = new DialogV2({
+					window: { title },
+					content,
+					buttons: [
+						{
+							label: 'OK',
+							action: 'ok',
+							default: true,
+							callback: (_ev: unknown, _button: unknown, instance: any) => {
+								try {
+									const input: HTMLInputElement | null =
+										instance?.element?.querySelector?.('input[name="text"]') ?? null;
+									const value = input?.value ?? '';
+									resolve(value.trim() ? value.trim() : null);
+								} catch {
+									resolve(null);
+								}
+							},
+						},
+						{ label: 'Cancel', action: 'cancel', callback: () => resolve(null) },
+					],
+				});
+				dialog.render(true);
+				return;
+			} catch {
+				// Fall back to legacy Dialog below
+			}
+		}
+		const Dialog = getDialogCtor();
+		if (Dialog) {
+			const content = `<form><div class="form-group"><label>${label}</label><input type="text" name="text" autofocus /></div></form>`;
+			const dialog = new Dialog(
+				{
+					title,
+					content,
+					buttons: {
+						ok: {
+							label: 'OK',
+							callback: (html: any) => {
+								try {
+									const value: string | undefined =
+										(html?.find?.('input[name="text"]').val?.() as string | undefined) ?? undefined;
+									resolve(value && value.trim() ? value.trim() : null);
+								} catch {
+									resolve(null);
+								}
+							},
+						},
+						cancel: { label: 'Cancel', callback: () => resolve(null) },
+					},
+					default: 'ok',
+				},
+				{ jQuery: true },
+			);
+			dialog.render(true);
 			return;
 		}
-		const content = `<form><div class="form-group"><label>${label}</label><input type="text" name="text" autofocus /></div></form>`;
-		const dialog = new DialogCtor(
-			{
-				title,
-				content,
-				buttons: {
-					ok: {
-						label: 'OK',
-						callback: (html: any) => {
-							try {
-								const value: string | undefined =
-									(html?.find?.('input[name="text"]').val?.() as string | undefined) ?? undefined;
-								resolve(value && value.trim() ? value.trim() : null);
-							} catch {
-								resolve(null);
-							}
-						},
-					},
-					cancel: { label: 'Cancel', callback: () => resolve(null) },
-				},
-				default: 'ok',
-			},
-			{ jQuery: true },
-		);
-		dialog.render(true);
+		resolve(null);
 	});
 }
