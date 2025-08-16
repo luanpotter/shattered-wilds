@@ -1,4 +1,12 @@
-import { createTokenInScene, getActorCtor, getConst, getGame, getSceneCtor, SceneLike, GameLike } from './foundry-shim';
+import {
+	createTokenInScene,
+	getActorCtor,
+	getConst,
+	getGame,
+	getSceneCtor,
+	SceneLike,
+	GameLike,
+} from './foundry-shim.js';
 
 export async function createHexScene(params?: {
 	name?: string;

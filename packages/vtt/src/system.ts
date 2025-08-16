@@ -1,5 +1,13 @@
-import { createHexScene, createCharacterWithToken } from './vtt-api';
-import { getActorsManager, getActorSheetBase, getGame, getHooks, ActorSheetBaseCtor } from './foundry-shim';
+import { createHexScene, createCharacterWithToken } from './vtt-api.js';
+import {
+	getActorSheetBase,
+	getGame,
+	getHooks,
+	ActorSheetBaseCtor,
+	HeaderButton,
+	getDocumentSheetConfig,
+} from './foundry-shim.js';
+import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
 
 // CONFIG not used yet
 
@@ -14,17 +22,43 @@ class ShatteredWildsActorSheet extends ActorSheetBase {
 		(options as { template: string }).template = 'systems/shattered-wilds/templates/actor-sheet.html';
 		return options;
 	}
+
+	override _getHeaderButtons: () => HeaderButton[] = () => {
+		const superProto = Object.getPrototypeOf(ShatteredWildsActorSheet.prototype) as {
+			_getHeaderButtons?: () => HeaderButton[];
+		};
+		const baseButtons = superProto._getHeaderButtons ? superProto._getHeaderButtons.call(this) : [];
+		const buttons: HeaderButton[] = [...baseButtons];
+		buttons.unshift({
+			class: 'sw-export',
+			label: 'Export',
+			icon: 'fas fa-download',
+			onclick: () => {
+				const actor = (this as unknown as { actor: { system?: Record<string, unknown> } }).actor;
+				const share = exportActorPropsToShareString(actor);
+				void navigator.clipboard.writeText(share);
+			},
+		});
+		buttons.unshift({
+			class: 'sw-import',
+			label: 'Import',
+			icon: 'fas fa-upload',
+			onclick: () => {
+				const actor = (this as unknown as { actor: { update: (d: Record<string, unknown>) => Promise<unknown> } })
+					.actor;
+				void importActorPropsFromShareString(actor);
+			},
+		});
+		return buttons;
+	};
 }
 
 getHooks().once('init', () => {
 	(globalThis as { [k: string]: unknown }).ShatteredWildsActorSheet = ShatteredWildsActorSheet;
-	const Actors = getActorsManager();
-	try {
-		Actors.unregisterSheet('core', getActorSheetBase());
-	} catch {
-		/* ignore */
-	}
-	Actors.registerSheet('shattered-wilds', ShatteredWildsActorSheet, {
+	// v13: register via DocumentSheetConfig (documentClass, scope, sheetClass, options)
+	const ActorCtor = (globalThis as unknown as { Actor: unknown }).Actor;
+	getDocumentSheetConfig().registerSheet(ActorCtor, 'shattered-wilds', ShatteredWildsActorSheet, {
+		label: 'Shattered Wilds Actor Sheet',
 		types: ['character'],
 		makeDefault: true,
 	});

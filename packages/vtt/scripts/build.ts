@@ -5,16 +5,21 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
-const dist = join(root, 'dist');
-const systemOut = join(dist, 'system');
+const buildDir = join(root, 'build');
+const outDir = join(root, 'dist');
+const systemOut = join(outDir, 'system');
 
 function safeMkdir(path: string) {
 	if (!existsSync(path)) mkdirSync(path, { recursive: true });
 }
 
 function main() {
+	// Ensure working directory is the package root regardless of invocation origin
+	process.chdir(root);
+
 	// Prepare dist folders
-	rmSync(systemOut, { recursive: true, force: true });
+	rmSync(outDir, { recursive: true, force: true });
+	safeMkdir(outDir);
 	safeMkdir(systemOut);
 
 	// Copy manifest
@@ -26,11 +31,14 @@ function main() {
 		/* optional */
 	}
 
-	// Copy compiled JS (rename index.js -> system.js). Our entry is src/index.ts
-	const compiledIndex = join(dist, 'index.js');
-	const compiledMap = join(dist, 'index.js.map');
-	cpSync(compiledIndex, join(systemOut, 'system.js'));
-	if (existsSync(compiledMap)) cpSync(compiledMap, join(systemOut, 'system.js.map'));
+	// Bundle compiled JS into a single system.js that inlines workspace deps (e.g., @shattered-wilds/commons)
+	const entry = join(buildDir, 'index.js');
+	execSync(`bun build "${entry}" --outfile="${join(buildDir, 'system.js')}" --format=esm --target=browser --minify --sourcemap`, {
+		stdio: 'inherit',
+	});
+	// Copy bundled output to dist/system
+	cpSync(join(buildDir, 'system.js'), join(systemOut, 'system.js'));
+	if (existsSync(join(buildDir, 'system.js.map'))) cpSync(join(buildDir, 'system.js.map'), join(systemOut, 'system.js.map'));
 
 	// Copy templates
 	safeMkdir(join(systemOut, 'templates'));
@@ -50,15 +58,6 @@ function main() {
 	// Create a minimal language file
 	safeMkdir(join(systemOut, 'lang'));
 	writeFileSync(join(systemOut, 'lang', 'en.json'), JSON.stringify({ SHATTERED_WILDS: 'Shattered Wilds' }, null, 2));
-
-	// Zip package
-	try {
-		const zipPath = join(dist, 'shattered-wilds.zip');
-		execSync(`cd "${systemOut}" && zip -r "${zipPath}" .`, { stdio: 'inherit' });
-	} catch (err) {
-		console.warn('zip command not available; produced unzipped system directory instead.');
-		void err;
-	}
 }
 
 main();

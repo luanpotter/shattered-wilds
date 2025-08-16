@@ -19,8 +19,10 @@ export type ActorsManagerLike = {
 	registerSheet: (namespace: string, sheet: unknown, options: { types: string[]; makeDefault?: boolean }) => void;
 };
 
+export type HeaderButton = { class: string; label: string; icon: string; onclick: () => void };
+
 export type ActorSheetBaseCtor = {
-	new (...args: unknown[]): object;
+	new (...args: unknown[]): { _getHeaderButtons: () => HeaderButton[] };
 	defaultOptions: unknown;
 };
 
@@ -33,17 +35,42 @@ export function getActorsManager(): ActorsManagerLike {
 }
 
 export function getActorSheetBase(): ActorSheetBaseCtor {
-	return (globalThis as any).ActorSheet as ActorSheetBaseCtor;
+	const ns = (globalThis as any).foundry?.appv1?.sheets?.ActorSheet;
+	return (ns || (globalThis as any).ActorSheet) as ActorSheetBaseCtor;
 }
 
 export function getGame(): GameLike {
 	return (globalThis as any).game as GameLike;
 }
 
+export function getUI(): {
+	notifications?: { info: (m: string) => void; warn: (m: string) => void; error: (m: string) => void };
+} {
+	return (globalThis as any).ui as {
+		notifications?: { info: (m: string) => void; warn: (m: string) => void; error: (m: string) => void };
+	};
+}
+
 export function getActorCtor(): {
 	create(data: { name: string; type: string }): Promise<{ id: string; name: string }>;
 } {
 	return (globalThis as any).Actor;
+}
+
+export function getDocumentSheetConfig(): {
+	registerSheet: (documentClass: unknown, scope: string, sheetClass: unknown, options: Record<string, unknown>) => void;
+	unregisterSheet: (documentClass: unknown, scope: string, sheetClass?: unknown) => void;
+} {
+	const ns = (globalThis as any).foundry?.applications?.apps?.DocumentSheetConfig;
+	return (ns || (globalThis as any).DocumentSheetConfig) as {
+		registerSheet: (
+			documentClass: unknown,
+			scope: string,
+			sheetClass: unknown,
+			options: Record<string, unknown>,
+		) => void;
+		unregisterSheet: (documentClass: unknown, scope: string, sheetClass?: unknown) => void;
+	};
 }
 
 export function getSceneCtor(): {
