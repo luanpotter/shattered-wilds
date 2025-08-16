@@ -25,6 +25,7 @@ const MixedBase = HbsMixin(V2Base) as unknown as (new (...args: unknown[]) => ob
 
 export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => object) {
 	#actorId: string | undefined;
+	#activeTab: string = 'stats'; // Store the current active tab
 
 	static get DEFAULT_OPTIONS() {
 		const base = (MixedBase as { DEFAULT_OPTIONS?: Record<string, unknown> }).DEFAULT_OPTIONS ?? {};
@@ -144,12 +145,18 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			resources,
 			resourcesArray,
 			statTreeData,
+			activeTab: this.#activeTab,
+			isStatsTabActive: this.#activeTab === 'stats',
+			isDebugTabActive: this.#activeTab === 'debug',
 		};
 	}
 
 	async _onRender(): Promise<void> {
 		const root = (this as unknown as { element?: HTMLElement }).element ?? undefined;
 		if (!root || !this.#actorId) return;
+
+		// Restore tab state after re-render
+		this.restoreTabState(root);
 		const importBtn = root.querySelector('[data-action="sw-import"]') as HTMLButtonElement | null;
 		if (importBtn) {
 			importBtn.addEventListener('click', async () => {
@@ -207,11 +214,14 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				const tabId = btn.dataset.tab;
 				if (!tabId) return;
 
-				// Update tab buttons
+				// Store the active tab state in the application instance
+				this.#activeTab = tabId;
+
+				// Update tab buttons immediately (for instant feedback)
 				tabButtons.forEach(b => b.classList.remove('active'));
 				btn.classList.add('active');
 
-				// Update tab panels
+				// Update tab panels immediately (for instant feedback)
 				const tabPanels = root.querySelectorAll('.tab-panel') as NodeListOf<HTMLElement>;
 				tabPanels.forEach(panel => {
 					panel.classList.remove('active');
@@ -220,6 +230,30 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					}
 				});
 			});
+		});
+	}
+
+	private restoreTabState(root: HTMLElement): void {
+		// Restore the active tab state from our stored value
+		const tabButtons = root.querySelectorAll('.tab-button') as NodeListOf<HTMLButtonElement>;
+		const tabPanels = root.querySelectorAll('.tab-panel') as NodeListOf<HTMLElement>;
+
+		// Update tab buttons
+		tabButtons.forEach(btn => {
+			if (btn.dataset.tab === this.#activeTab) {
+				btn.classList.add('active');
+			} else {
+				btn.classList.remove('active');
+			}
+		});
+
+		// Update tab panels
+		tabPanels.forEach(panel => {
+			if (panel.dataset.tabPanel === this.#activeTab) {
+				panel.classList.add('active');
+			} else {
+				panel.classList.remove('active');
+			}
 		});
 	}
 
@@ -238,16 +272,34 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		try {
 			// Create character sheet to use updateResource method
 			const characterSheet = CharacterSheet.from(props);
+			const oldResourceValue = characterSheet.getResource(resource);
 			const newValue = characterSheet.updateResource(resource, delta);
 
-			// Update the actor's props with the new resource value
+			// Early exit if value didn't actually change
+			if (oldResourceValue.current === newValue) {
+				return;
+			}
+
+			// Update the resource value directly in the DOM first (for instant feedback)
+			const root = (this as unknown as { element?: HTMLElement }).element ?? undefined;
+			if (root) {
+				const resourceValueElement = root
+					.querySelector(`[data-resource="${resource}"]`)
+					?.closest('.resource-control')
+					?.querySelector('.resource-value');
+				if (resourceValueElement) {
+					const updatedCharacterSheet = CharacterSheet.from({ ...props, [resource]: newValue.toString() });
+					const updatedResourceInfo = updatedCharacterSheet.getResource(resource);
+					resourceValueElement.textContent = `${updatedResourceInfo.current}/${updatedResourceInfo.max}`;
+				}
+			}
+
+			// Update the actor's props with the new resource value (background operation)
 			const updatedProps = { ...props, [resource]: newValue.toString() };
 			await actor.setFlag('shattered-wilds', 'props', updatedProps);
 
-			// Re-render the sheet
-			(this as unknown as { render: (force?: boolean) => void }).render(false);
-
-			getUI().notifications?.info(`${RESOURCES[resource].shortName} updated`);
+			// DO NOT call render() here - we've already updated the DOM directly
+			// getUI().notifications?.info(`${RESOURCES[resource].shortName} updated`);
 		} catch (err) {
 			console.error('Failed to update resource:', err);
 			getUI().notifications?.error('Failed to update resource');
@@ -267,6 +319,20 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		const props = swFlags?.props ?? {};
 
 		try {
+			// Update all resource values directly in the DOM first (for instant feedback)
+			const root = (this as unknown as { element?: HTMLElement }).element ?? undefined;
+			if (root) {
+				Object.values(Resource).forEach(resource => {
+					const resourceValueElement = root
+						.querySelector(`[data-resource="${resource}"]`)
+						?.closest('.resource-control')
+						?.querySelector('.resource-value');
+					if (resourceValueElement) {
+						resourceValueElement.textContent = `${CurrentResources.MAX_VALUE}/${CurrentResources.MAX_VALUE}`;
+					}
+				});
+			}
+
 			// Set all resources to maximum value
 			const updatedProps = { ...props };
 			Object.values(Resource).forEach(resource => {
@@ -275,9 +341,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 			await actor.setFlag('shattered-wilds', 'props', updatedProps);
 
-			// Re-render the sheet
-			(this as unknown as { render: (force?: boolean) => void }).render(false);
-
+			// DO NOT call render() here - we've already updated the DOM directly
 			getUI().notifications?.info('All resources refilled to maximum');
 		} catch (err) {
 			console.error('Failed to refill resources:', err);

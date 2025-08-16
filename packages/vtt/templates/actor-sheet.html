@@ -40,10 +40,10 @@
 				<!-- Tab Navigation -->
 				<div class="tabs-container">
 					<div class="tab-buttons">
-						<button type="button" class="tab-button active" data-tab="stats">
+						<button type="button" class="tab-button {{#if isStatsTabActive}}active{{/if}}" data-tab="stats">
 							<i class="fas fa-sitemap"></i> Stats
 						</button>
-						<button type="button" class="tab-button" data-tab="debug">
+						<button type="button" class="tab-button {{#if isDebugTabActive}}active{{/if}}" data-tab="debug">
 							<i class="fas fa-bug"></i> Debug
 						</button>
 					</div>
@@ -51,7 +51,7 @@
 					<!-- Tab Content -->
 					<div class="tab-content">
 						<!-- Stats Tab -->
-						<div class="tab-panel active" data-tab-panel="stats">
+						<div class="tab-panel {{#if isStatsTabActive}}active{{/if}}" data-tab-panel="stats">
 							{{#if statTreeData}}
 								<div class="stat-tree-grid">
 									<!-- Level Section -->
@@ -152,7 +152,7 @@
 						</div>
 
 						<!-- Debug Tab -->
-						<div class="tab-panel" data-tab-panel="debug">
+						<div class="tab-panel {{#if isDebugTabActive}}active{{/if}}" data-tab-panel="debug">
 							<div class="debug-section">
 								<ul>
 									{{#each props as |value key|}}
