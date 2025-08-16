@@ -16,6 +16,12 @@
 					{{/if}}
 				{{/each}}
 			</ul>
+			<h4>All Properties (Debug)</h4>
+			<ul>
+				{{#each flags.shattered-wilds.props as |value key|}}
+					<li><code>{{key}}</code>: {{value}}</li>
+				{{/each}}
+			</ul>
 		</div>
 	</section>
 </form>

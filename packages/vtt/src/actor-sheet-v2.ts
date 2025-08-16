@@ -43,6 +43,8 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				};
 				if (!actor?.setFlag) return getUI().notifications?.warn('Actor not found');
 				await importActorPropsFromShareString(actor);
+				// Re-render the sheet to show updated data
+				(this as unknown as { render: (force?: boolean) => void }).render(false);
 			});
 		}
 		const exportBtn = root.querySelector('[data-action="sw-export"]') as HTMLButtonElement | null;
