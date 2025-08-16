@@ -1,6 +1,13 @@
 import { getActorSheetV2, getActorById, getUI, getHandlebarsApplicationMixin } from './foundry-shim.js';
 import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
-import { CharacterSheet, Resource, StatType } from '@shattered-wilds/commons';
+import {
+	CharacterSheet,
+	Resource,
+	StatType,
+	StatNode,
+	NodeStatModifier,
+	CircumstanceModifier,
+} from '@shattered-wilds/commons';
 
 const V2Base = getActorSheetV2();
 const HbsMixin = getHandlebarsApplicationMixin();
@@ -52,31 +59,59 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 				// Prepare stat tree data for template
 				const statTree = characterSheet.getStatTree();
+				const prepareNodeData = (node: StatNode, modifier: NodeStatModifier) => {
+					const tooltip = modifier.appliedModifiers.map((mod: CircumstanceModifier) => mod.description);
+
+					// Check for warnings: level capping OR unallocated points
+					const hasLevelCapWarning = modifier.wasLevelCapped;
+					const hasUnallocatedPointsWarning = node.childrenHaveUnallocatedPoints;
+					const hasWarning = hasLevelCapWarning || hasUnallocatedPointsWarning;
+
+					// Add warning-specific tooltip information
+					if (hasLevelCapWarning) {
+						tooltip.push(
+							`This stat was capped from ${modifier.baseValuePreCap.description} to ${modifier.baseValue.description}.`,
+						);
+					}
+					if (hasUnallocatedPointsWarning) {
+						if (node.hasUnallocatedPoints) {
+							tooltip.push(
+								`Contains ${node.unallocatedPoints} unallocated points.`,
+								`${node.allocatedPoints} / ${node.allocatablePoints} points allocated.`,
+							);
+						} else {
+							tooltip.push('Children contain unallocated points.');
+						}
+					}
+
+					return {
+						type: node.type,
+						node,
+						modifier,
+						points: node.points,
+						tooltip: tooltip.join('\n'),
+						hasWarning,
+						hasTooltip: tooltip.length > 0 || hasWarning,
+					};
+				};
+
 				statTreeData = {
-					level: {
-						node: statTree.root,
-						modifier: statTree.getNodeModifier(statTree.root),
-						points: statTree.root.points,
-					},
+					level: prepareNodeData(statTree.root, statTree.getNodeModifier(statTree.root)),
 					realms: [StatType.Body, StatType.Mind, StatType.Soul].map(realmType => {
 						const realmNode = statTree.getNode(realmType);
+						const realmModifier = statTree.getNodeModifier(realmNode);
 						return {
-							type: realmType,
-							node: realmNode,
-							modifier: statTree.getNodeModifier(realmNode),
-							points: realmNode.points,
-							attributes: realmNode.children.map(attrNode => ({
-								type: attrNode.type,
-								node: attrNode,
-								modifier: statTree.getNodeModifier(attrNode),
-								points: attrNode.points,
-								skills: attrNode.children.map(skillNode => ({
-									type: skillNode.type,
-									node: skillNode,
-									modifier: statTree.getNodeModifier(skillNode),
-									points: skillNode.points,
-								})),
-							})),
+							...prepareNodeData(realmNode, realmModifier),
+							attributes: realmNode.children.map(attrNode => {
+								const attrModifier = statTree.getNodeModifier(attrNode);
+								return {
+									...prepareNodeData(attrNode, attrModifier),
+									skills: attrNode.children.map(skillNode => {
+										const skillModifier = statTree.getNodeModifier(skillNode);
+										return prepareNodeData(skillNode, skillModifier);
+									}),
+								};
+							}),
 						};
 					}),
 				};

@@ -29,6 +29,7 @@
 	display: flex;
 	align-items: center;
 	gap: 4px;
+	position: relative;
 }
 
 .points-circle {
@@ -55,6 +56,26 @@
 	background: rgba(0, 0, 0, 0.2);
 	font-size: 0.8em;
 	font-weight: bold;
+	position: relative;
+}
+
+/* Stat Icons */
+.stat-icon {
+	position: absolute;
+	top: -4px;
+	right: -4px;
+	width: 10px;
+	height: 10px;
+	font-size: 10px;
+	cursor: help;
+}
+
+.stat-icon.warning {
+	color: orange;
+}
+
+.stat-icon.info {
+	color: #4a90e2;
 }
 
 /* Main Grid Container */

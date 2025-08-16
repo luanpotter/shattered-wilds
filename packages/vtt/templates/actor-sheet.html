@@ -34,8 +34,17 @@
 							<div class="level-display">
 								<span class="level-label">Level:</span>
 								<div class="stat-value">
-									<span class="points-circle">{{statTreeData.level.points}}</span>
-									<span class="modifier-value">{{statTreeData.level.modifier.value.description}}</span>
+									<span class="points-circle" title="{{statTreeData.level.tooltip}}">{{statTreeData.level.points}}</span>
+									<span class="modifier-value" title="{{statTreeData.level.tooltip}}">
+										{{statTreeData.level.modifier.value.description}}
+										{{#if statTreeData.level.hasWarning}}
+											<i class="stat-icon warning fas fa-exclamation-triangle" title="{{statTreeData.level.tooltip}}"></i>
+										{{else}}
+											{{#if statTreeData.level.hasTooltip}}
+												<i class="stat-icon info fas fa-info-circle" title="{{statTreeData.level.tooltip}}"></i>
+											{{/if}}
+										{{/if}}
+									</span>
 								</div>
 							</div>
 						</div>
@@ -48,8 +57,17 @@
 									<div class="realm-label {{type.name}}">
 										<div class="realm-name">{{type.name}}</div>
 										<div class="stat-value">
-											<span class="points-circle">{{points}}</span>
-											<span class="modifier-value">{{modifier.value.description}}</span>
+											<span class="points-circle" title="{{tooltip}}">{{points}}</span>
+											<span class="modifier-value" title="{{tooltip}}">
+												{{modifier.value.description}}
+												{{#if hasWarning}}
+													<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
+												{{else}}
+													{{#if hasTooltip}}
+														<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
+													{{/if}}
+												{{/if}}
+											</span>
 										</div>
 									</div>
 								{{/each}}
@@ -64,8 +82,17 @@
 											<div class="attribute-header">
 												<span class="attribute-name">{{type.name}}</span>
 												<div class="stat-value">
-													<span class="points-circle">{{points}}</span>
-													<span class="modifier-value">{{modifier.value.description}}</span>
+													<span class="points-circle" title="{{tooltip}}">{{points}}</span>
+													<span class="modifier-value" title="{{tooltip}}">
+														{{modifier.value.description}}
+														{{#if hasWarning}}
+															<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
+														{{else}}
+															{{#if hasTooltip}}
+																<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
+															{{/if}}
+														{{/if}}
+													</span>
 												</div>
 											</div>
 											
@@ -75,8 +102,17 @@
 													<div class="skill-row">
 														<span class="skill-name">{{type.name}}</span>
 														<div class="stat-value">
-															<span class="points-circle">{{points}}</span>
-															<span class="modifier-value">{{modifier.value.description}}</span>
+															<span class="points-circle" title="{{tooltip}}">{{points}}</span>
+															<span class="modifier-value" title="{{tooltip}}">
+																{{modifier.value.description}}
+																{{#if hasWarning}}
+																	<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
+																{{else}}
+																	{{#if hasTooltip}}
+																		<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
+																	{{/if}}
+																{{/if}}
+															</span>
 														</div>
 													</div>
 												{{/each}}
