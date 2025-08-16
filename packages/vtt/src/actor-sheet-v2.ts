@@ -199,6 +199,28 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				}
 			});
 		}
+
+		// Add tab switching handlers
+		const tabButtons = root.querySelectorAll('.tab-button') as NodeListOf<HTMLButtonElement>;
+		tabButtons.forEach(btn => {
+			btn.addEventListener('click', () => {
+				const tabId = btn.dataset.tab;
+				if (!tabId) return;
+
+				// Update tab buttons
+				tabButtons.forEach(b => b.classList.remove('active'));
+				btn.classList.add('active');
+
+				// Update tab panels
+				const tabPanels = root.querySelectorAll('.tab-panel') as NodeListOf<HTMLElement>;
+				tabPanels.forEach(panel => {
+					panel.classList.remove('active');
+					if (panel.dataset.tabPanel === tabId) {
+						panel.classList.add('active');
+					}
+				});
+			});
+		});
 	}
 
 	private async handleResourceChange(resource: Resource, delta: number): Promise<void> {

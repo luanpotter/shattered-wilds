@@ -2,23 +2,18 @@
 	<style>
 		@import url("systems/shattered-wilds/styles/actor-sheet.css");
 	</style>
-	
+
 	<form class="actor-sheet">
-		<header class="sheet-header">
-			<h1 class="charname">{{actor.name}}</h1>
-		</header>
 		<section class="sheet-body">
 			<div class="controls" style="display:flex; gap:8px; margin-bottom:8px;">
 				<button type="button" data-action="sw-import"><i class="fas fa-upload"></i> Import</button>
 				<button type="button" data-action="sw-export"><i class="fas fa-download"></i> Export</button>
 			</div>
-			<div class="resources">
-				{{#if characterSheet}}
-					<h3>Character: {{characterSheet.name}}</h3>
-					<p><strong>Race:</strong> {{characterSheet.race.primaryRace}}{{#if characterSheet.race.halfRace}} / {{characterSheet.race.halfRace}}{{/if}}</p>
-					<p><strong>Class:</strong> {{characterSheet.characterClass.characterClass}} (Level {{characterSheet.level}})</p>
+
+			{{#if characterSheet}}
+				<div class="character-info">
+					<p><strong>{{characterSheet.name}}</strong> - {{characterSheet.race.primaryRace}}{{#if characterSheet.race.halfRace}} / {{characterSheet.race.halfRace}}{{/if}} {{characterSheet.characterClass.characterClass}} (Level {{characterSheet.level}})</p>
 					
-					<h4>Resources</h4>
 					<div class="resources-row">
 						{{#each resourcesArray}}
 							<div class="resource-control">
@@ -40,118 +35,137 @@
 							</button>
 						</div>
 					</div>
-					
-									<h4>Stats</h4>
-				{{#if statTreeData}}
-					<div class="stat-tree-grid">
-						<!-- Level Section -->
-						<div class="level-section">
-							<div class="level-display">
-								<span class="level-label">Level:</span>
-								<div class="stat-value">
-									<span class="points-circle" title="{{statTreeData.level.tooltip}}">{{statTreeData.level.points}}</span>
-									<span class="modifier-value" title="{{statTreeData.level.tooltip}}">
-										{{statTreeData.level.modifier.value.description}}
-										{{#if statTreeData.level.hasWarning}}
-											<i class="stat-icon warning fas fa-exclamation-triangle" title="{{statTreeData.level.tooltip}}"></i>
-										{{else}}
-											{{#if statTreeData.level.hasTooltip}}
-												<i class="stat-icon info fas fa-info-circle" title="{{statTreeData.level.tooltip}}"></i>
-											{{/if}}
-										{{/if}}
-									</span>
-								</div>
-							</div>
-						</div>
-						
-						<!-- Main Grid Layout -->
-						<div class="stat-grid-container">
-							<!-- Vertical Realm Labels -->
-							<div class="realm-labels">
-								{{#each statTreeData.realms}}
-									<div class="realm-label {{type.name}}">
-										<div class="realm-name">{{type.name}}</div>
-										<div class="stat-value">
-											<span class="points-circle" title="{{tooltip}}">{{points}}</span>
-											<span class="modifier-value" title="{{tooltip}}">
-												{{modifier.value.description}}
-												{{#if hasWarning}}
-													<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
-												{{else}}
-													{{#if hasTooltip}}
-														<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
+				</div>
+
+				<!-- Tab Navigation -->
+				<div class="tabs-container">
+					<div class="tab-buttons">
+						<button type="button" class="tab-button active" data-tab="stats">
+							<i class="fas fa-sitemap"></i> Stats
+						</button>
+						<button type="button" class="tab-button" data-tab="debug">
+							<i class="fas fa-bug"></i> Debug
+						</button>
+					</div>
+
+					<!-- Tab Content -->
+					<div class="tab-content">
+						<!-- Stats Tab -->
+						<div class="tab-panel active" data-tab-panel="stats">
+							{{#if statTreeData}}
+								<div class="stat-tree-grid">
+									<!-- Level Section -->
+									<div class="level-section">
+										<div class="level-display">
+											<span class="level-label">Level:</span>
+											<div class="stat-value">
+												<span class="points-circle" title="{{statTreeData.level.tooltip}}">{{statTreeData.level.points}}</span>
+												<span class="modifier-value" title="{{statTreeData.level.tooltip}}">
+													{{statTreeData.level.modifier.value.description}}
+													{{#if statTreeData.level.hasWarning}}
+														<i class="stat-icon warning fas fa-exclamation-triangle" title="{{statTreeData.level.tooltip}}"></i>
+													{{else}}
+														{{#if statTreeData.level.hasTooltip}}
+															<i class="stat-icon info fas fa-info-circle" title="{{statTreeData.level.tooltip}}"></i>
+														{{/if}}
 													{{/if}}
-												{{/if}}
-											</span>
+												</span>
+											</div>
 										</div>
 									</div>
-								{{/each}}
-							</div>
-							
-							<!-- 3x3 Attribute Grid -->
-							<div class="attributes-grid">
-								{{#each statTreeData.realms}}
-									{{#each attributes}}
-										<div class="attribute-panel">
-											<!-- Attribute Header -->
-											<div class="attribute-header">
-												<span class="attribute-name">{{type.name}}</span>
-												<div class="stat-value">
-													<span class="points-circle" title="{{tooltip}}">{{points}}</span>
-													<span class="modifier-value" title="{{tooltip}}">
-														{{modifier.value.description}}
-														{{#if hasWarning}}
-															<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
-														{{else}}
-															{{#if hasTooltip}}
-																<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
-															{{/if}}
-														{{/if}}
-													</span>
-												</div>
-											</div>
-											
-											<!-- Skills List -->
-											<div class="skills-list">
-												{{#each skills}}
-													<div class="skill-row">
-														<span class="skill-name">{{type.name}}</span>
-														<div class="stat-value">
-															<span class="points-circle" title="{{tooltip}}">{{points}}</span>
-															<span class="modifier-value" title="{{tooltip}}">
-																{{modifier.value.description}}
-																{{#if hasWarning}}
-																	<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
-																{{else}}
-																	{{#if hasTooltip}}
-																		<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
-																	{{/if}}
+
+									<!-- Main Grid Layout -->
+									<div class="stat-grid-container">
+										<!-- Vertical Realm Labels -->
+										<div class="realm-labels">
+											{{#each statTreeData.realms}}
+												<div class="realm-label {{type.name}}">
+													<div class="realm-name">{{type.name}}</div>
+													<div class="stat-value">
+														<span class="points-circle" title="{{tooltip}}">{{points}}</span>
+														<span class="modifier-value" title="{{tooltip}}">
+															{{modifier.value.description}}
+															{{#if hasWarning}}
+																<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
+															{{else}}
+																{{#if hasTooltip}}
+																	<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
 																{{/if}}
-															</span>
+															{{/if}}
+														</span>
+													</div>
+												</div>
+											{{/each}}
+										</div>
+
+										<!-- 3x3 Attribute Grid -->
+										<div class="attributes-grid">
+											{{#each statTreeData.realms}}
+												{{#each attributes}}
+													<div class="attribute-panel">
+														<!-- Attribute Header -->
+														<div class="attribute-header">
+															<span class="attribute-name">{{type.name}}</span>
+															<div class="stat-value">
+																<span class="points-circle" title="{{tooltip}}">{{points}}</span>
+																<span class="modifier-value" title="{{tooltip}}">
+																	{{modifier.value.description}}
+																	{{#if hasWarning}}
+																		<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
+																	{{else}}
+																		{{#if hasTooltip}}
+																			<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
+																		{{/if}}
+																	{{/if}}
+																</span>
+															</div>
+														</div>
+
+														<!-- Skills List -->
+														<div class="skills-list">
+															{{#each skills}}
+																<div class="skill-row">
+																	<span class="skill-name">{{type.name}}</span>
+																	<div class="stat-value">
+																		<span class="points-circle" title="{{tooltip}}">{{points}}</span>
+																		<span class="modifier-value" title="{{tooltip}}">
+																			{{modifier.value.description}}
+																			{{#if hasWarning}}
+																				<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
+																			{{else}}
+																				{{#if hasTooltip}}
+																					<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
+																				{{/if}}
+																			{{/if}}
+																		</span>
+																	</div>
+																</div>
+															{{/each}}
 														</div>
 													</div>
 												{{/each}}
-											</div>
+											{{/each}}
 										</div>
+									</div>
+								</div>
+							{{/if}}
+						</div>
+
+						<!-- Debug Tab -->
+						<div class="tab-panel" data-tab-panel="debug">
+							<div class="debug-section">
+								<ul>
+									{{#each props as |value key|}}
+										<li><code>{{key}}</code>: {{value}}</li>
 									{{/each}}
-								{{/each}}
+								</ul>
 							</div>
 						</div>
 					</div>
-				{{/if}}
-				{{else}}
-					<p>No character data imported yet. Use the Import button to load a character.</p>
-				{{/if}}
-				
-				<div class="debug-section">
-					<h4>Raw Properties (Debug)</h4>
-					<ul>
-						{{#each props as |value key|}}
-							<li><code>{{key}}</code>: {{value}}</li>
-						{{/each}}
-					</ul>
 				</div>
-			</div>
+			{{else}}
+				<p>No character data imported yet. Use the Import button to load a character.</p>
+			{{/if}}
 		</section>
 	</form>
 </div>
