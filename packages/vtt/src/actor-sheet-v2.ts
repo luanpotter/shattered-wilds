@@ -29,6 +29,48 @@ if (!V2Base || !HbsMixin) {
 	throw new Error('V2 ActorSheet or HandlebarsApplicationMixin not available');
 }
 
+// Text processing helper for feat descriptions
+function processDescriptionText(text: string): string {
+	if (!text) return '';
+
+	let processed = text;
+
+	// First, protect code blocks from other processing
+	const codeBlocks: string[] = [];
+	processed = processed.replace(/`([^`]+)`/g, (_match, code) => {
+		const placeholder = `__CODE_BLOCK_${codeBlocks.length}__`;
+		codeBlocks.push(code);
+		return placeholder;
+	});
+
+	// Process wiki links: [[Link Text]] or [[Link Text | Display Text]]
+	// Keep original case for display, create slug properly for URL
+	processed = processed.replace(/\[\[([^\]|]+)(\|([^\]]+))?\]\]/g, (_match, linkText, _, displayText) => {
+		const display = displayText ? displayText.trim() : linkText.trim();
+		// Create slug: preserve case but replace spaces with underscores, no lowercasing
+		const slug = linkText.trim().replace(/\s+/g, '_');
+		return `<a href="https://d12.nexus/wiki/${slug}" target="_blank" rel="noopener">${display}</a>`;
+	});
+
+	// Process basic markdown - be more careful with underscores to avoid conflicts
+	// Bold: **text** only (avoid __ to prevent conflicts with slugs)
+	processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+	// Italic: *text* only (avoid _ to prevent conflicts with slugs)
+	processed = processed.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+	// Restore code blocks with proper inline styling
+	codeBlocks.forEach((code, index) => {
+		const placeholder = `__CODE_BLOCK_${index}__`;
+		processed = processed.replace(placeholder, `<code>${code}</code>`);
+	});
+
+	// Line breaks
+	processed = processed.replace(/\n/g, '<br>');
+
+	return processed;
+}
+
 // Create the mixed base class using HandlebarsApplicationMixin
 const MixedBase = HbsMixin(V2Base) as unknown as (new (...args: unknown[]) => object) & {
 	DEFAULT_OPTIONS?: Record<string, unknown>;
@@ -37,6 +79,24 @@ const MixedBase = HbsMixin(V2Base) as unknown as (new (...args: unknown[]) => ob
 export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => object) {
 	#actorId: string | undefined;
 	#activeTab: string = 'stats'; // Store the current active tab
+
+	constructor(...args: unknown[]) {
+		super(...args);
+		// Register Handlebars helpers
+		this.registerHelper('processDescription', processDescriptionText as (...args: unknown[]) => unknown);
+		this.registerHelper('eq', (a: unknown, b: unknown) => a === b);
+	}
+
+	private registerHelper(name: string, fn: (...args: unknown[]) => unknown) {
+		const Handlebars = (
+			globalThis as unknown as {
+				Handlebars?: { registerHelper(name: string, fn: (...args: unknown[]) => unknown): void };
+			}
+		).Handlebars;
+		if (Handlebars) {
+			Handlebars.registerHelper(name, fn);
+		}
+	}
 
 	static get DEFAULT_OPTIONS() {
 		const base = (MixedBase as { DEFAULT_OPTIONS?: Record<string, unknown> }).DEFAULT_OPTIONS ?? {};
@@ -467,6 +527,9 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		try {
 			const { statType, modifier, useExtra, useLuck, circumstanceModifier, targetDC, extraAttribute } = rollData;
 
+			// Get stat breakdown details
+			const statBreakdown = this.getStatBreakdown(statType);
+
 			// Build the base formula
 			const totalModifier = modifier + circumstanceModifier;
 			const formula = `2d12 + ${totalModifier}`;
@@ -534,7 +597,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			});
 
 			// Process Shattered Wilds specific mechanics with extra dice
-			this.processEnhancedShatteredWildsRoll(roll, rollData, extraDice);
+			this.processEnhancedShatteredWildsRoll(roll, rollData, extraDice, statBreakdown);
 		} catch (err) {
 			console.error('Failed to roll dice:', err);
 			getUI().notifications?.error('Failed to roll dice');
@@ -570,6 +633,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		roll: FoundryRoll,
 		rollData: DiceRollData,
 		extraDice: { type: string; value: number; valid?: boolean; label?: string }[],
+		statBreakdown: { baseValue: number; modifiers: Array<{ source: string; value: number }>; total: number } | null,
 	): void {
 		const baseDice = roll.terms[0]?.results || [];
 		const baseValues = baseDice.map(d => d.result);
@@ -610,6 +674,28 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 		// Build enhanced mechanics message
 		let mechanicsHtml = `<div class="shattered-wilds-mechanics" style="font-family: Arial; margin: 8px 0; padding: 8px; border: 1px solid #ccc; border-radius: 4px; background: #f9f9f9;">`;
+
+		// Show stat breakdown
+		if (statBreakdown) {
+			mechanicsHtml += `<div style="margin-bottom: 8px; padding: 6px; background: rgba(0,0,0,0.1); border-radius: 3px;">`;
+			mechanicsHtml += `<strong>${rollData.statType} Breakdown:</strong><br>`;
+			mechanicsHtml += `• Base: ${statBreakdown.baseValue}`;
+
+			if (statBreakdown.modifiers.length > 0) {
+				for (const mod of statBreakdown.modifiers) {
+					const sign = mod.value >= 0 ? '+' : '';
+					mechanicsHtml += `<br>• ${mod.source}: ${sign}${mod.value}`;
+				}
+			}
+
+			if (rollData.circumstanceModifier !== 0) {
+				const sign = rollData.circumstanceModifier > 0 ? '+' : '';
+				mechanicsHtml += `<br>• Circumstance: ${sign}${rollData.circumstanceModifier}`;
+			}
+
+			mechanicsHtml += `<br><strong>Total Modifier: ${statBreakdown.total + rollData.circumstanceModifier}</strong>`;
+			mechanicsHtml += `</div>`;
+		}
 
 		// Show dice breakdown
 		mechanicsHtml += `<div style="margin-bottom: 8px;">`;
@@ -671,5 +757,67 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		}
 
 		return shifts;
+	}
+
+	private getStatBreakdown(
+		statTypeName: string,
+	): { baseValue: number; modifiers: Array<{ source: string; value: number }>; total: number } | null {
+		try {
+			const actor = (this.#actorId && getActorById(this.#actorId)) || { id: this.#actorId, name: 'Unknown', flags: {} };
+
+			// Get the raw props from flags
+			const flags = actor.flags as Record<string, unknown> | undefined;
+			const swFlags = (flags?.['shattered-wilds'] as { props?: Record<string, string> } | undefined) ?? undefined;
+			const rawProps = swFlags?.props ?? {};
+
+			// Transform feat props back to expected format
+			const props = Object.fromEntries(
+				Object.entries(rawProps).map(([key, value]) => {
+					if (key.startsWith('feat_')) {
+						const transformedKey = key.replace(/^feat_(\d+)_(\w+)_(\d+)$/, 'feat.$1.$2.$3');
+						return [transformedKey, value];
+					}
+					return [key, value];
+				}),
+			);
+
+			if (Object.keys(props).length === 0) return null;
+
+			const characterSheet = CharacterSheet.from(props);
+			const statTree = characterSheet.getStatTree();
+			const statType = StatType.values.find(st => st.name === statTypeName);
+
+			if (!statType) return null;
+
+			const node = statTree.getNode(statType);
+			const nodeModifier = statTree.getNodeModifier(node);
+
+			// Get the base value (points allocated)
+			const baseValue = node.allocatedPoints;
+
+			// Get all modifiers
+			const modifiers: Array<{ source: string; value: number }> = [];
+
+			// Add modifiers from the NodeStatModifier
+			if (nodeModifier.appliedModifiers && nodeModifier.appliedModifiers.length > 0) {
+				for (const modifier of nodeModifier.appliedModifiers) {
+					if (modifier.source && modifier.value.value !== 0) {
+						modifiers.push({
+							source: `${modifier.source} ${modifier.name}`,
+							value: modifier.value.value,
+						});
+					}
+				}
+			}
+
+			return {
+				baseValue,
+				modifiers,
+				total: nodeModifier.value.value,
+			};
+		} catch (err) {
+			console.warn('Failed to get stat breakdown:', err);
+			return null;
+		}
 	}
 }

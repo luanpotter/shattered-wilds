@@ -313,6 +313,12 @@
 	gap: 12px;
 }
 
+/* Make single feat cards span full width */
+.feats-grid:has(.feat-box:only-child) .feat-box,
+.feats-grid.single-feat .feat-box {
+	grid-column: 1 / -1;
+}
+
 .feat-box {
 	padding: 10px;
 	border: 1px solid #666;
@@ -352,6 +358,37 @@
 	font-size: 0.85em;
 	line-height: 1.4;
 	color: #bbb;
+}
+
+.feat-description strong {
+	color: #ddd;
+	font-weight: bold;
+}
+
+.feat-description em {
+	font-style: italic;
+	color: #ccc;
+}
+
+.feat-description code {
+	display: inline;
+	background: rgba(255, 255, 255, 0.1);
+	padding: 2px 4px;
+	border-radius: 3px;
+	font-family: 'Courier New', monospace;
+	font-size: 0.9em;
+	color: #f0f0f0;
+}
+
+.feat-description a {
+	color: #5bc0de;
+	text-decoration: none;
+	border-bottom: 1px dotted #5bc0de;
+}
+
+.feat-description a:hover {
+	color: #31b0d5;
+	border-bottom-style: solid;
 }
 
 .feats-loading {

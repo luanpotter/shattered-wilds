@@ -176,7 +176,7 @@
 									{{#each featsData.featsOrSlotsByLevel}}
 										<div class="feat-level">
 											<h3 class="feat-level-title">Level {{level}}</h3>
-											<div class="feats-grid">
+											<div class="feats-grid {{#if (eq featsOrSlots.length 1)}}single-feat{{/if}}">
 												{{#each featsOrSlots}}
 													<div class="feat-box {{#if warning}}warning{{/if}} {{#if isEmpty}}empty{{/if}}">
 														<div class="feat-header">
@@ -198,7 +198,7 @@
 														{{#if info}}
 															{{#if info.feat}}
 																{{#if info.feat.description}}
-																	<div class="feat-description">{{info.feat.description}}</div>
+																	<div class="feat-description">{{{processDescription info.feat.description}}}</div>
 																{{/if}}
 															{{/if}}
 														{{/if}}
