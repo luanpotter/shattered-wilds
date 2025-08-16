@@ -22,7 +22,7 @@
 					<div class="resources-row">
 						{{#each resourcesArray}}
 							<div class="resource-control">
-								<span class="resource-label">{{shortName}}</span>
+								<span class="resource-label" title="{{name}}">{{shortName}}</span>
 								<div class="resource-buttons">
 									<button type="button" class="resource-btn minus" data-action="resource-change" data-resource="{{key}}" data-delta="-1">
 										<i class="fas fa-minus"></i>
@@ -34,6 +34,11 @@
 								</div>
 							</div>
 						{{/each}}
+						<div class="resource-control refill-control">
+							<button type="button" class="refill-btn" data-action="refill-resources" title="Refill all resources to maximum">
+								<i class="fas fa-battery-full"></i>
+							</button>
+						</div>
 					</div>
 					
 									<h4>Stats</h4>

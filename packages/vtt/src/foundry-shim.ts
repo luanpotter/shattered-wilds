@@ -112,6 +112,64 @@ export function getDialogCtor(): any {
 	return (globalThis as any).Dialog;
 }
 
+export async function confirmAction({ title, message }: { title: string; message: string }): Promise<boolean> {
+	return new Promise(resolve => {
+		const DialogV2 = getDialogV2Ctor();
+		if (DialogV2) {
+			try {
+				const content = `<div><p>${message}</p></div>`;
+				const dialog = new DialogV2({
+					window: { title },
+					content,
+					buttons: [
+						{
+							label: 'Yes',
+							action: 'yes',
+							default: false,
+							callback: () => resolve(true),
+						},
+						{
+							label: 'No',
+							action: 'no',
+							default: true,
+							callback: () => resolve(false),
+						},
+					],
+				});
+				dialog.render(true);
+				return;
+			} catch {
+				// Fall back to legacy Dialog below
+			}
+		}
+		const Dialog = getDialogCtor();
+		if (Dialog) {
+			const content = `<div><p>${message}</p></div>`;
+			const dialog = new Dialog(
+				{
+					title,
+					content,
+					buttons: {
+						yes: {
+							label: 'Yes',
+							callback: () => resolve(true),
+						},
+						no: {
+							label: 'No',
+							callback: () => resolve(false),
+						},
+					},
+					default: 'no',
+				},
+				{ jQuery: true },
+			);
+			dialog.render(true);
+			return;
+		}
+		resolve(false);
+	});
+}
+
 export async function promptText({ title, label }: { title: string; label: string }): Promise<string | null> {
 	return new Promise(resolve => {
 		const DialogV2 = getDialogV2Ctor();

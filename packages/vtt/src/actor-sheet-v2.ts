@@ -1,9 +1,10 @@
-import { getActorSheetV2, getActorById, getUI, getHandlebarsApplicationMixin } from './foundry-shim.js';
+import { getActorSheetV2, getActorById, getUI, getHandlebarsApplicationMixin, confirmAction } from './foundry-shim.js';
 import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
 import {
 	CharacterSheet,
 	Resource,
 	RESOURCES,
+	CurrentResources,
 	StatType,
 	StatNode,
 	NodeStatModifier,
@@ -47,7 +48,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		// Use CharacterSheet.from to get computed character data
 		let characterSheet: CharacterSheet | undefined;
 		const resources: Record<string, { current: number; max: number }> = {};
-		let resourcesArray: Array<{ key: string; shortName: string; current: number; max: number }> = [];
+		let resourcesArray: Array<{ key: string; name: string; shortName: string; current: number; max: number }> = [];
 		let statTreeData: unknown = null;
 
 		try {
@@ -65,6 +66,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					const definition = RESOURCES[resource];
 					return {
 						key: resource,
+						name: definition.name,
 						shortName: definition.shortName,
 						current: resourceData.current,
 						max: resourceData.max,
@@ -182,6 +184,21 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				await this.handleResourceChange(resource, delta);
 			});
 		});
+
+		// Add refill all resources handler
+		const refillBtn = root.querySelector('[data-action="refill-resources"]') as HTMLButtonElement | null;
+		if (refillBtn) {
+			refillBtn.addEventListener('click', async () => {
+				const confirmed = await confirmAction({
+					title: 'Refill Resources',
+					message: 'Are you sure you want to refill all resources to their maximum values?',
+				});
+
+				if (confirmed) {
+					await this.handleRefillAllResources();
+				}
+			});
+		}
 	}
 
 	private async handleResourceChange(resource: Resource, delta: number): Promise<void> {
@@ -212,6 +229,37 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		} catch (err) {
 			console.error('Failed to update resource:', err);
 			getUI().notifications?.error('Failed to update resource');
+		}
+	}
+
+	private async handleRefillAllResources(): Promise<void> {
+		const actor = getActorById(this.#actorId!) as unknown as {
+			flags?: Record<string, unknown>;
+			setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
+		};
+		if (!actor?.setFlag) return getUI().notifications?.warn('Actor not found');
+
+		// Get current props
+		const flags = actor.flags as Record<string, unknown> | undefined;
+		const swFlags = (flags?.['shattered-wilds'] as { props?: Record<string, string> } | undefined) ?? undefined;
+		const props = swFlags?.props ?? {};
+
+		try {
+			// Set all resources to maximum value
+			const updatedProps = { ...props };
+			Object.values(Resource).forEach(resource => {
+				updatedProps[resource] = CurrentResources.MAX_VALUE.toString();
+			});
+
+			await actor.setFlag('shattered-wilds', 'props', updatedProps);
+
+			// Re-render the sheet
+			(this as unknown as { render: (force?: boolean) => void }).render(false);
+
+			getUI().notifications?.info('All resources refilled to maximum');
+		} catch (err) {
+			console.error('Failed to refill resources:', err);
+			getUI().notifications?.error('Failed to refill resources');
 		}
 	}
 }
