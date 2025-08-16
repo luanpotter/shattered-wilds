@@ -2,6 +2,9 @@
 export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 	try {
 		const actorWithPrototype = actor as {
+			id?: string;
+			name?: string;
+			system?: Record<string, unknown>;
 			prototypeToken?: {
 				flags?: Record<string, unknown>;
 				update?: (data: Record<string, unknown>) => Promise<unknown>;
@@ -9,63 +12,78 @@ export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 			update?: (data: Record<string, unknown>) => Promise<unknown>;
 		};
 
-		// Check if Bar Brawl bars are already configured
-		const barBrawlFlags = actorWithPrototype.prototypeToken?.flags?.['barbrawl'] as
-			| { resourceBars?: unknown[] }
-			| undefined;
+		// Configure Bar Brawl resource bars
+		const defaultBarsObject = {
+			bar1: {
+				id: 'bar1',
+				order: 0,
+				attribute: 'resources.vp',
+				mincolor: '#ff0000',
+				maxcolor: '#00ff00',
+				position: 'bottom-inner',
+				gmVisibility: -1,
+				ownerVisibility: 'ALWAYS',
+				otherVisibility: 'ALWAYS',
+				indentation: 0,
+				showMaxValue: true,
+				showLabel: false,
+			},
+			bar2: {
+				id: 'bar2',
+				order: 1,
+				attribute: 'resources.fp',
+				mincolor: '#000080',
+				maxcolor: '#87ceeb',
+				position: 'bottom-inner',
+				gmVisibility: -1,
+				ownerVisibility: 'ALWAYS',
+				otherVisibility: 'ALWAYS',
+				indentation: 0,
+				showMaxValue: true,
+				showLabel: false,
+			},
+			bar3: {
+				id: 'bar3',
+				order: 2,
+				attribute: 'resources.sp',
+				mincolor: '#800080',
+				maxcolor: '#ffd700',
+				position: 'bottom-inner',
+				gmVisibility: -1,
+				ownerVisibility: 'ALWAYS',
+				otherVisibility: 'ALWAYS',
+				indentation: 0,
+				showMaxValue: true,
+				showLabel: false,
+			},
+		};
 
-		// Only configure if not already set up
-		if (!barBrawlFlags?.resourceBars || barBrawlFlags.resourceBars.length === 0) {
-			const defaultBars = [
-				{
-					id: 'vp-bar',
-					attribute: 'system.resources.vp.value',
-					maxAttribute: 'system.resources.vp.max',
-					minColor: '#ff0000',
-					maxColor: '#00ff00',
-					position: 'bottom-inner',
-					order: 0,
-					ownerVisibility: 'ALWAYS',
-					otherVisibility: 'ALWAYS',
-					indentation: 0,
-					showMaxValue: true,
-					showLabel: false,
-				},
-				{
-					id: 'fp-bar',
-					attribute: 'system.resources.fp.value',
-					maxAttribute: 'system.resources.fp.max',
-					minColor: '#000080',
-					maxColor: '#87ceeb',
-					position: 'bottom-inner',
-					order: 1,
-					ownerVisibility: 'ALWAYS',
-					otherVisibility: 'ALWAYS',
-					indentation: 0,
-					showMaxValue: true,
-					showLabel: false,
-				},
-				{
-					id: 'sp-bar',
-					attribute: 'system.resources.sp.value',
-					maxAttribute: 'system.resources.sp.max',
-					minColor: '#800080',
-					maxColor: '#ffd700',
-					position: 'bottom-inner',
-					order: 2,
-					ownerVisibility: 'ALWAYS',
-					otherVisibility: 'ALWAYS',
-					indentation: 0,
-					showMaxValue: true,
-					showLabel: false,
-				},
-			];
+		// Format 2: Array format (no longer used but keeping for reference)
+		// const defaultBarsArray = [
+		// 	defaultBarsObject.bar1,
+		// 	defaultBarsObject.bar2,
+		// 	defaultBarsObject.bar3,
+		// ];
 
-			// Update the prototype token with Bar Brawl configuration
-			if (actorWithPrototype.update) {
+		// Configure both Bar Brawl and Foundry's built-in bars
+		if (actorWithPrototype.update) {
+			try {
+				// Configure Bar Brawl
 				await actorWithPrototype.update({
-					'prototypeToken.flags.barbrawl.resourceBars': defaultBars,
+					'prototypeToken.flags.barbrawl': {
+						resourceBars: defaultBarsObject,
+					},
 				});
+
+				// Also configure Foundry's built-in token bars as fallback
+				await actorWithPrototype.update({
+					'prototypeToken.bar1': { attribute: 'resources.vp' },
+					'prototypeToken.bar2': { attribute: 'resources.fp' },
+					'prototypeToken.displayBars': 40, // ALWAYS for EVERYONE
+					'prototypeToken.displayName': 30, // HOVER for EVERYONE
+				});
+			} catch (err) {
+				console.debug('Failed to configure token bars:', err);
 			}
 		}
 	} catch (err) {

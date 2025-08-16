@@ -36,26 +36,12 @@ if (hooks?.on) {
 		}
 	});
 
-	// Hook for when tokens are created to ensure actor data persistence
+	// Hook for when tokens are created to configure token bars
 	hooks.on('createToken', async (tokenDoc: unknown) => {
 		try {
-			const token = tokenDoc as { actor?: unknown; actorId?: string; name?: string };
-			console.error('TOKEN CREATED:', {
-				tokenName: token.name,
-				actorId: token.actorId,
-				hasActor: !!token.actor,
-				actorData: token.actor,
-			});
-
+			const token = tokenDoc as { actor?: unknown };
 			if (token.actor) {
-				const actorData = token.actor as { type?: string; id?: string; name?: string; flags?: Record<string, unknown> };
-				console.error('TOKEN ACTOR:', {
-					actorId: actorData.id,
-					actorName: actorData.name,
-					actorType: actorData.type,
-					hasFlags: !!actorData.flags,
-					hasSWFlags: !!actorData.flags?.['shattered-wilds'],
-				});
+				const actorData = token.actor as { type?: string };
 
 				if (actorData.type === 'character') {
 					// Ensure the actor has proper token bar configuration
@@ -120,7 +106,4 @@ getHooks().once('ready', () => {
 	};
 
 	console.log('Shattered Wilds system ready (V3)');
-	console.log(
-		'To configure token bars for all existing characters, run: game.shatteredWilds.configureAllCharacterTokenBars()',
-	);
 });
