@@ -51,7 +51,7 @@ echo "🏷️  Creating tag vtt-v$VERSION"
 git tag "vtt-v$VERSION"
 
 echo "⬆️  Pushing to origin..."
-git push origin main
+git push origin master
 git push origin "vtt-v$VERSION"
 
 echo ""
