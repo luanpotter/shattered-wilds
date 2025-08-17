@@ -627,10 +627,10 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				if (weaponName && modeType && attackStat) {
 					if (event.shiftKey) {
 						// Shift+click does a quick weapon attack roll
-						await this.handleWeaponAttackRoll(weaponName, modeType, attackStat, modeBonus);
+						await this.handleWeaponAttackRoll(weaponName, attackStat, modeBonus);
 					} else {
 						// Normal click opens the dice modal for weapon attack
-						await this.handleWeaponAttackRollModal(weaponName, modeType, attackStat, modeBonus);
+						await this.handleWeaponAttackRollModal(weaponName, attackStat, modeBonus);
 					}
 				}
 			});
@@ -851,17 +851,12 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		return modifiers;
 	}
 
-	private async handleWeaponAttackRoll(
-		weaponName: string,
-		modeType: string,
-		attackStat: string,
-		weaponBonus: number,
-	): Promise<void> {
+	private async handleWeaponAttackRoll(weaponName: string, attackStat: string, weaponBonus: number): Promise<void> {
 		// Quick weapon attack roll using centralized dice system - treat as stat check with weapon modifier
 		const rollRequest: DiceRollRequest = {
 			name: `${attackStat} Check`,
 			characterName: this.getCharacterSheet()?.name ?? 'Unknown',
-			modifiers: this.buildWeaponAttackModifiers(attackStat, weaponBonus, weaponName, modeType),
+			modifiers: this.buildWeaponAttackModifiers(attackStat, weaponBonus, weaponName),
 			extra: undefined,
 			luck: undefined,
 			targetDC: undefined,
@@ -872,22 +867,22 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 	private async handleWeaponAttackRollModal(
 		weaponName: string,
-		modeType: string,
 		attackStat: string,
 		weaponBonus: number,
 	): Promise<void> {
 		if (!DiceRollModal.isSupported()) {
 			getUI().notifications?.warn('Dice modal not supported in this Foundry version');
-			return this.handleWeaponAttackRoll(weaponName, modeType, attackStat, weaponBonus);
+			return this.handleWeaponAttackRoll(weaponName, attackStat, weaponBonus);
 		}
 
-		// Get the total modifier for the weapon attack - treat as stat check
-		const modifiers = this.buildWeaponAttackModifiers(attackStat, weaponBonus, weaponName, modeType);
-		const totalModifier = Object.values(modifiers).reduce((sum: number, val: number) => sum + val, 0);
+		// Get the detailed modifier breakdown for weapon attacks
+		const modifierBreakdown = this.buildWeaponAttackModifiers(attackStat, weaponBonus, weaponName);
+		const totalModifier = Object.values(modifierBreakdown).reduce((sum: number, val: number) => sum + val, 0);
 
 		await DiceRollModal.open({
 			statType: attackStat, // Use the stat name instead of weapon name
 			modifier: totalModifier,
+			modifierBreakdown, // Pass the detailed breakdown
 			actorId: this.getCurrentActorId()!,
 			onCancel: () => {
 				// Nothing to do on cancel
@@ -899,14 +894,28 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		attackStat: string,
 		weaponBonus: number,
 		weaponName: string,
-		modeType: string,
 	): Record<string, number> {
-		// Start with the stat's normal modifiers using the centralized breakdown
-		const modifiers = this.buildModifiersMap(attackStat, 0, 0); // Get the stat's breakdown with no extra modifiers
+		const modifiers: Record<string, number> = {};
 
-		// Add weapon bonus as an equipment modifier
+		// Get the stat breakdown to separate base from other modifiers
+		const statBreakdown = this.getStatBreakdown(attackStat);
+		if (statBreakdown) {
+			// Add base stat points as "Base" modifier
+			if (statBreakdown.baseValue > 0) {
+				modifiers['Base'] = statBreakdown.baseValue;
+			}
+
+			// Add individual stat modifiers (feats, equipment, etc.)
+			for (const mod of statBreakdown.modifiers) {
+				modifiers[mod.source] = mod.value;
+			}
+		} else {
+			console.warn(`Failed to get stat breakdown for ${attackStat}`);
+		}
+
+		// Add weapon bonus as a separate equipment modifier
 		if (weaponBonus !== 0) {
-			modifiers[`${weaponName} (${modeType})`] = weaponBonus;
+			modifiers[weaponName] = weaponBonus;
 		}
 
 		return modifiers;

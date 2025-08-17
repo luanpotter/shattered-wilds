@@ -8,6 +8,7 @@ export interface DiceRollOptions {
 	statType: string;
 	modifier: number;
 	actorId: string;
+	modifierBreakdown?: Record<string, number>;
 }
 
 export interface DiceRollModalOptions extends DiceRollOptions {
@@ -111,9 +112,20 @@ if (AppV2 && HbsMixin) {
 						.value
 				: 0;
 
+			// Prepare modifier display text
+			let modifierDisplay = `+${modifier}`;
+			if (this.#options.modifierBreakdown) {
+				// Show detailed breakdown as comma-separated list
+				const modifierParts = Object.entries(this.#options.modifierBreakdown)
+					.filter(([, value]) => value !== 0)
+					.map(([name, value]) => `${name} ${value >= 0 ? '+' : ''}${value}`);
+				modifierDisplay = modifierParts.length > 0 ? modifierParts.join(', ') : `+${modifier}`;
+			}
+
 			return {
 				statType,
 				modifier,
+				modifierDisplay,
 				actorId,
 				attributeOptions,
 				fortuneValue,
@@ -180,6 +192,15 @@ if (AppV2 && HbsMixin) {
 			baseModifier: number,
 			circumstanceModifier: number,
 		): Promise<Record<string, number>> {
+			// If we have a detailed breakdown (e.g., for weapon attacks), use that instead
+			if (this.#options.modifierBreakdown) {
+				return {
+					...this.#options.modifierBreakdown,
+					...(circumstanceModifier !== 0 ? { Circumstance: circumstanceModifier } : {}),
+				};
+			}
+
+			// Fallback to simple base + circumstance for regular stat rolls
 			return {
 				Base: baseModifier,
 				...(circumstanceModifier !== 0 ? { Circumstance: circumstanceModifier } : {}),
