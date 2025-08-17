@@ -40,12 +40,30 @@ import {
 import { parseCharacterSheet } from './characters.js';
 
 // Helper function to convert StandardCheck to StatType (enhanced version from simulator)
-function computeStatType(statType: StatType | StandardCheck, actionsUIState?: Record<string, unknown>): StatType {
+function computeStatType(
+	statType: StatType | StandardCheck,
+	actionsUIState?: Record<string, unknown>,
+	characterSheet?: CharacterSheet,
+): StatType {
 	if (typeof statType === 'string' && Object.values(StandardCheck).includes(statType as StandardCheck)) {
 		switch (statType as StandardCheck) {
-			case StandardCheck.BodyAttack:
-				// TODO: Use selected weapon to determine STR vs DEX
-				return StatType.STR; // Default to STR for body attacks
+			case StandardCheck.BodyAttack: {
+				// Use selected weapon to determine STR vs DEX
+				if (actionsUIState?.selectedWeapon && characterSheet) {
+					const selectedWeaponIndex = actionsUIState.selectedWeapon as number;
+					const weapons = characterSheet.equipment.items.filter(item => item instanceof Weapon) as Weapon[];
+					const weaponIndex = Math.floor(selectedWeaponIndex / 100);
+					const modeIndex = selectedWeaponIndex % 100;
+
+					const weapon = weapons[weaponIndex];
+					const mode = weapon?.modes[modeIndex];
+
+					if (weapon && mode) {
+						return mode.statType; // This will be DEX for Light Melee, STR for Heavy Melee, etc.
+					}
+				}
+				return StatType.STR; // Default to STR for body attacks when no weapon selected
+			}
 			case StandardCheck.Defense:
 				// Use selected defense realm
 				if (actionsUIState?.selectedDefenseRealm) {
@@ -717,76 +735,149 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			);
 		}
 
-		// Apply contextual filtering based on selected weapon mode and defense realm
-		actions = actions.filter(action => {
-			// Filter based on weapon mode for attack actions
-			if (type === ActionType.Attack) {
-				const selectedWeaponIndex = this.#actionsUIState.selectedWeapon;
-				if (selectedWeaponIndex !== null && selectedWeaponIndex >= 0) {
-					const equipment = characterSheet.equipment;
-					const weapons = equipment.items.filter(item => item instanceof Weapon) as Weapon[];
-					const weaponIndex = Math.floor(selectedWeaponIndex / 100);
-					const modeIndex = selectedWeaponIndex % 100;
-					const weapon = weapons[weaponIndex];
-					const mode = weapon?.modes[modeIndex];
+		// Apply contextual filtering based on selected weapon mode and defense realm (only when showAll is disabled)
+		if (!this.#actionsUIState.showAll) {
+			actions = actions.filter(action => {
+				// Filter based on weapon mode for attack actions
+				if (type === ActionType.Attack) {
+					const selectedWeaponIndex = this.#actionsUIState.selectedWeapon;
+					if (selectedWeaponIndex !== null && selectedWeaponIndex >= 0) {
+						const equipment = characterSheet.equipment;
+						const weapons = equipment.items.filter(item => item instanceof Weapon) as Weapon[];
+						const weaponIndex = Math.floor(selectedWeaponIndex / 100);
+						const modeIndex = selectedWeaponIndex % 100;
+						const weapon = weapons[weaponIndex];
+						const mode = weapon?.modes[modeIndex];
 
-					if (mode) {
-						const isRangedMode = mode.rangeType === Trait.Ranged;
-						// Hide ranged actions if melee weapon selected, and vice versa
-						if (action.traits.includes(Trait.Ranged) && !isRangedMode) {
-							return false;
-						}
-						if (action.traits.includes(Trait.Melee) && isRangedMode) {
-							return false;
-						}
-					}
-				} else {
-					// For unarmed (-1) or shield bash (-2), treat as melee
-					if (action.traits.includes(Trait.Ranged)) {
-						return false;
-					}
-				}
-			}
-
-			// Filter based on defense realm for defense actions
-			if (type === ActionType.Defense) {
-				const selectedDefenseRealm = this.#actionsUIState.selectedDefenseRealm;
-				if (selectedDefenseRealm) {
-					// Always show Basic Defense regardless of realm
-					if (action.key === Action.BasicDefense) {
-						return true;
-					}
-
-					// Hide body-only defense actions if Mind or Soul is selected
-					if (selectedDefenseRealm.name !== 'Body') {
-						// Check if action is body-only by looking at its parameters
-						const hasBodyOnlyParameters = action.parameters.some(param => {
-							if (param instanceof ActionCheckParameter) {
-								return (
-									param.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Armor) ||
-									param.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Shield)
-								);
+						if (mode) {
+							const isRangedMode = mode.rangeType === Trait.Ranged;
+							// Hide ranged actions if melee weapon selected, and vice versa
+							if (action.traits.includes(Trait.Ranged) && !isRangedMode) {
+								return false;
 							}
-							return false;
-						});
-						if (hasBodyOnlyParameters) {
-							return false;
+							if (action.traits.includes(Trait.Melee) && isRangedMode) {
+								return false;
+							}
 						}
-					}
-
-					// Hide Shield Block if show all is false and no shield is selected
-					if (action.key === Action.ShieldBlock && !this.#actionsUIState.showAll) {
-						if (this.#actionsUIState.selectedShield === null) {
+					} else {
+						// For unarmed (-1) or shield bash (-2), treat as melee
+						if (action.traits.includes(Trait.Ranged)) {
 							return false;
 						}
 					}
 				}
-			}
 
-			return true;
-		});
+				// Filter based on defense realm for defense actions
+				if (type === ActionType.Defense) {
+					const selectedDefenseRealm = this.#actionsUIState.selectedDefenseRealm;
+					if (selectedDefenseRealm) {
+						// Always show Basic Defense regardless of realm
+						if (action.key === Action.BasicDefense) {
+							return true;
+						}
+
+						// Hide body-only defense actions if Mind or Soul is selected
+						if (selectedDefenseRealm.name !== 'Body') {
+							// Check if action is body-only by looking at its parameters
+							const hasBodyOnlyParameters = action.parameters.some(param => {
+								if (param instanceof ActionCheckParameter) {
+									return (
+										param.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Armor) ||
+										param.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Shield)
+									);
+								}
+								return false;
+							});
+							if (hasBodyOnlyParameters) {
+								return false;
+							}
+						}
+
+						// Hide Shield Block if show all is false and no shield is selected
+						if (action.key === Action.ShieldBlock && !this.#actionsUIState.showAll) {
+							if (this.#actionsUIState.selectedShield === null) {
+								return false;
+							}
+						}
+					}
+				}
+
+				return true;
+			});
+		}
 
 		return actions.map(action => this.prepareActionItem(action, characterSheet));
+	}
+
+	private wouldActionBeHiddenByTraitFiltering(action: ActionDefinition, characterSheet: CharacterSheet): boolean {
+		// This function determines if an action WOULD be hidden by trait filtering
+		// regardless of the showAll setting (used for red text indication)
+
+		// Check weapon trait filtering for attack actions
+		if (action.type === ActionType.Attack) {
+			const selectedWeaponIndex = this.#actionsUIState.selectedWeapon;
+			if (selectedWeaponIndex !== null && selectedWeaponIndex >= 0) {
+				const equipment = characterSheet.equipment;
+				const weapons = equipment.items.filter(item => item instanceof Weapon) as Weapon[];
+				const weaponIndex = Math.floor(selectedWeaponIndex / 100);
+				const modeIndex = selectedWeaponIndex % 100;
+				const weapon = weapons[weaponIndex];
+				const mode = weapon?.modes[modeIndex];
+
+				if (mode) {
+					const isRangedMode = mode.rangeType === Trait.Ranged;
+					// Action would be hidden if it has ranged trait but melee weapon selected, or vice versa
+					if (action.traits.includes(Trait.Ranged) && !isRangedMode) {
+						return true;
+					}
+					if (action.traits.includes(Trait.Melee) && isRangedMode) {
+						return true;
+					}
+				}
+			} else {
+				// For unarmed (-1) or shield bash (-2), treat as melee - ranged actions would be hidden
+				if (action.traits.includes(Trait.Ranged)) {
+					return true;
+				}
+			}
+		}
+
+		// Check defense realm filtering for defense actions
+		if (action.type === ActionType.Defense) {
+			const selectedDefenseRealm = this.#actionsUIState.selectedDefenseRealm;
+			if (selectedDefenseRealm) {
+				// Always show Basic Defense regardless of realm
+				if (action.key === Action.BasicDefense) {
+					return false; // Basic Defense is never hidden
+				}
+
+				// Hide body-only defense actions if Mind or Soul is selected
+				if (selectedDefenseRealm.name !== 'Body') {
+					// Check if action is body-only by looking at its parameters
+					const hasBodyOnlyParameters = action.parameters.some(param => {
+						if (param instanceof ActionCheckParameter) {
+							return (
+								param.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Armor) ||
+								param.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Shield)
+							);
+						}
+						return false;
+					});
+					if (hasBodyOnlyParameters) {
+						return true; // Would be hidden because it's body-only but non-body realm selected
+					}
+				}
+
+				// Also check Shield Block specifically
+				if (action.key === Action.ShieldBlock) {
+					if (this.#actionsUIState.selectedShield === null) {
+						return true; // Would be hidden because no shield is selected
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 
 	private prepareActionItem(action: ActionDefinition, characterSheet: CharacterSheet): unknown {
@@ -800,6 +891,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		});
 
 		const costTooltip = costs.map(c => c.value).join('\n');
+		const canAfford = costs.every(c => !c.insufficient);
 
 		const parameters = action.parameters
 			.map(param => {
@@ -828,7 +920,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					};
 				} else if (param instanceof ActionCheckParameter) {
 					const tree = characterSheet.getStatTree();
-					const resolvedStatType = computeStatType(param.statType, this.#actionsUIState);
+					const resolvedStatType = computeStatType(param.statType, this.#actionsUIState, characterSheet);
 
 					// Compute included modifiers based on current UI state
 					const cms = param.includeEquipmentModifiers.flatMap(includeModifierFor =>
@@ -839,12 +931,14 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					) as CircumstanceModifier[];
 
 					const statModifier = tree.getModifier(resolvedStatType, circumstanceModifiers);
+					const wouldBeHidden = this.wouldActionBeHiddenByTraitFiltering(action, characterSheet);
 
 					return {
 						type: 'check',
 						title: resolvedStatType.toString(),
 						value: statModifier.value.description,
 						tooltip: `${statModifier.description} • Click for advanced options • Shift+Click for quick roll`,
+						wouldBeHidden,
 						checkData: {
 							stat: resolvedStatType.toString(),
 							modifier: statModifier.value.value,
@@ -867,6 +961,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			traits: action.traits,
 			costs,
 			costTooltip,
+			canAfford,
 			parameters,
 		};
 	}
@@ -1296,7 +1391,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				try {
 					// Build the check with current character state and UI modifiers
 					const tree = characterSheet.getStatTree();
-					const resolvedStatType = computeStatType(parameter.statType, this.#actionsUIState);
+					const resolvedStatType = computeStatType(parameter.statType, this.#actionsUIState, characterSheet);
 
 					// Compute included modifiers based on current UI state
 					const cms = parameter.includeEquipmentModifiers.flatMap(includeModifierFor =>

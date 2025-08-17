@@ -436,7 +436,7 @@
 																title="{{costTooltip}}" 
 																data-action="consume-action-cost" 
 																data-action-key="{{key}}">
-																<div class="action-cost-title">COST</div>
+																<div class="action-cost-title {{#unless canAfford}}insufficient{{/unless}}">COST</div>
 																{{#each costs}}
 																	<div class="action-cost-value {{#if insufficient}}insufficient{{/if}}">
 																		{{value}}
@@ -473,8 +473,8 @@
 																			data-action="roll-action-check" 
 																			data-action-key="{{../key}}" 
 																			data-parameter-index="{{@index}}">
-																			<div class="parameter-title">{{title}}</div>
-																			<div class="parameter-value">{{value}}<i class="fas fa-dice-d12 dice-icon"></i></div>
+																			<div class="parameter-title {{#if wouldBeHidden}}insufficient{{/if}}">{{title}}</div>
+																			<div class="parameter-value {{#if wouldBeHidden}}insufficient{{/if}}">{{value}}<i class="fas fa-dice-d12 dice-icon"></i></div>
 																		</div>
 																	{{/if}}
 																</div>

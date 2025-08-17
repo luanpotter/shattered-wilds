@@ -1029,8 +1029,11 @@
 	font-weight: bold;
 }
 
-.action-cost-value.insufficient {
-	color: var(--error-color);
+.action-cost-value.insufficient,
+.action-cost-title.insufficient,
+.parameter-title.insufficient,
+.parameter-value.insufficient {
+	color: #ff6b6b !important;
 }
 
 /* Action Details */
