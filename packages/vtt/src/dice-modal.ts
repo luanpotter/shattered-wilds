@@ -1,6 +1,7 @@
 // Dice roll modal for Shattered Wilds system
 import { getApplicationV2Ctor, getHandlebarsApplicationMixin, getActorById } from './foundry-shim.js';
 import { CharacterSheet, StatType, StatHierarchy } from '@shattered-wilds/commons';
+import { executeEnhancedRoll, type DiceRollRequest } from './dices.js';
 
 export interface DiceRollOptions {
 	statType: string;
@@ -9,18 +10,7 @@ export interface DiceRollOptions {
 }
 
 export interface DiceRollModalOptions extends DiceRollOptions {
-	onRoll?: (rollData: DiceRollData) => Promise<void>;
 	onCancel?: () => void;
-}
-
-export interface DiceRollData {
-	statType: string;
-	modifier: number;
-	useExtra: boolean;
-	useLuck: boolean;
-	extraAttribute: string | undefined;
-	circumstanceModifier: number;
-	targetDC: number | undefined;
 }
 
 const AppV2 = getApplicationV2Ctor();
@@ -164,6 +154,41 @@ if (AppV2 && HbsMixin) {
 			}
 		}
 
+		private async getAttributeValue(attributeName: string): Promise<number> {
+			const actor = getActorById(this.#options.actorId);
+			const flags = actor?.flags as Record<string, unknown> | undefined;
+			const swFlags = (flags?.['shattered-wilds'] as { props?: Record<string, string> } | undefined) ?? undefined;
+			const props = swFlags?.props ?? {};
+
+			try {
+				if (Object.keys(props).length > 0) {
+					const characterSheet = CharacterSheet.from(props);
+					const statTree = characterSheet.getStatTree();
+					const statType = Object.values(StatType).find(st => st.name === attributeName);
+
+					if (statType) {
+						const node = statTree.getNode(statType);
+						const modifier = statTree.getNodeModifier(node);
+						return modifier.value.value;
+					}
+				}
+			} catch (err) {
+				console.warn('Failed to get attribute value:', err);
+			}
+
+			return 0;
+		}
+
+		private async buildModifiersMap(
+			baseModifier: number,
+			circumstanceModifier: number,
+		): Promise<Record<string, number>> {
+			return {
+				Base: baseModifier,
+				...(circumstanceModifier !== 0 ? { Circumstance: circumstanceModifier } : {}),
+			};
+		}
+
 		async _onRender(): Promise<void> {
 			const root = (this as unknown as { element?: HTMLElement }).element ?? undefined;
 			if (!root) return;
@@ -199,19 +224,33 @@ if (AppV2 && HbsMixin) {
 			const form = e.target as HTMLFormElement;
 			const formData = new FormData(form);
 
-			const rollData: DiceRollData = {
-				statType: this.#options.statType,
-				modifier: this.#options.modifier,
-				useExtra: formData.get('useExtra') === 'on',
-				useLuck: formData.get('useLuck') === 'on',
-				extraAttribute: (formData.get('extraAttribute') as string) || undefined,
-				circumstanceModifier: parseInt((formData.get('circumstanceModifier') as string) || '0'),
-				targetDC: formData.get('targetDC') ? parseInt(formData.get('targetDC') as string) : undefined,
+			const useExtra = formData.get('useExtra') === 'on';
+			const useLuck = formData.get('useLuck') === 'on';
+			const extraAttribute = (formData.get('extraAttribute') as string) || undefined;
+			const circumstanceModifier = parseInt((formData.get('circumstanceModifier') as string) || '0');
+			const targetDC = formData.get('targetDC') ? parseInt(formData.get('targetDC') as string) : undefined;
+
+			// Use centralized dice system directly
+			const rollRequest: DiceRollRequest = {
+				name: this.#options.statType,
+				modifiers: await this.buildModifiersMap(this.#options.modifier, circumstanceModifier),
+				extra:
+					useExtra && extraAttribute
+						? {
+								name: extraAttribute,
+								value: await this.getAttributeValue(extraAttribute),
+							}
+						: undefined,
+				luck: useLuck
+					? {
+							value: await this.getAttributeValue('Fortune'),
+						}
+					: undefined,
+				targetDC,
 			};
 
-			if (this.#options.onRoll) {
-				await this.#options.onRoll(rollData);
-			}
+			// Execute the centralized dice roll
+			await executeEnhancedRoll(rollRequest);
 
 			this.close();
 		}

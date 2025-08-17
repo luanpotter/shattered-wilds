@@ -57,13 +57,6 @@ export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 			},
 		};
 
-		// Format 2: Array format (no longer used but keeping for reference)
-		// const defaultBarsArray = [
-		// 	defaultBarsObject.bar1,
-		// 	defaultBarsObject.bar2,
-		// 	defaultBarsObject.bar3,
-		// ];
-
 		// Configure both Bar Brawl and Foundry's built-in bars
 		if (actorWithPrototype.update) {
 			try {

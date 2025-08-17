@@ -1,15 +1,7 @@
-import {
-	getActorSheetV2,
-	getActorById,
-	getUI,
-	getHandlebarsApplicationMixin,
-	confirmAction,
-	getRollCtor,
-	getChatMessage,
-	type FoundryRoll,
-} from './foundry-shim.js';
+import { getActorSheetV2, getActorById, getUI, getHandlebarsApplicationMixin, confirmAction } from './foundry-shim.js';
 import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
-import { DiceRollModal, type DiceRollData } from './dice-modal.js';
+import { DiceRollModal } from './dice-modal.js';
+import { executeEnhancedRoll, type DiceRollRequest } from './dices.js';
 import { configureDefaultTokenBars } from './token-bars.js';
 import { getActorData, getCharacterProps, ensureActorDataPersistence, type ActorLike } from './actor-data-manager.js';
 import {
@@ -678,18 +670,16 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 	}
 
 	private async handleStatRoll(statType: string, modifier: number): Promise<void> {
-		// Quick roll with default options
-		const rollData: DiceRollData = {
-			statType,
-			modifier,
-			useExtra: false,
-			useLuck: false,
-			extraAttribute: undefined,
-			circumstanceModifier: 0,
+		// Quick roll with default options using centralized dice system
+		const rollRequest: DiceRollRequest = {
+			name: statType,
+			modifiers: this.buildModifiersMap(statType, modifier, 0), // modifier + 0 circumstance
+			extra: undefined,
+			luck: undefined,
 			targetDC: undefined,
 		};
 
-		await this.executeEnhancedRoll(rollData);
+		await executeEnhancedRoll(rollRequest);
 	}
 
 	private async handleStatRollModal(statType: string, modifier: number): Promise<void> {
@@ -702,249 +692,43 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			statType,
 			modifier,
 			actorId: this.getCurrentActorId()!,
-			onRoll: async (rollData: DiceRollData) => {
-				await this.executeEnhancedRoll(rollData);
-			},
+			// Modal handles rolling directly through centralized system now
 			onCancel: () => {
 				// Nothing to do on cancel
 			},
 		});
 	}
 
-	private async executeEnhancedRoll(rollData: DiceRollData): Promise<void> {
-		try {
-			const { statType, modifier, useExtra, useLuck, circumstanceModifier, targetDC, extraAttribute } = rollData;
+	private buildModifiersMap(
+		statType: string,
+		_ignoredBaseModifier: number,
+		circumstanceModifier: number,
+	): Record<string, number> {
+		const modifiers: Record<string, number> = {};
 
-			// Get stat breakdown details
-			const statBreakdown = this.getStatBreakdown(statType);
-
-			// Build the base formula
-			const totalModifier = modifier + circumstanceModifier;
-			const formula = `2d12 + ${totalModifier}`;
-
-			// Execute the roll using Foundry's dice system
-			const roll = await getRollCtor().create(formula);
-			await roll.evaluate();
-
-			// Get extra dice values if needed
-			const extraDice: { type: string; value: number; valid?: boolean; label?: string }[] = [];
-
-			if (useExtra && extraAttribute) {
-				const extraRoll = await getRollCtor().create('1d12');
-				await extraRoll.evaluate();
-				const extraRollValue = extraRoll.total;
-				const extraValue = await this.getAttributeValue(extraAttribute);
-
-				// Send the chat message for the extra die
-				await extraRoll.toMessage({
-					flavor: `<strong>Extra Die</strong> (${extraAttribute}: ${extraValue})`,
-				});
-
-				extraDice.push({
-					type: 'extra',
-					value: extraRollValue,
-					valid: extraRollValue <= extraValue,
-					label: `${extraAttribute} (${extraValue})`,
-				});
+		// ALWAYS use the well-tested commons breakdown instead of the passed baseModifier
+		const breakdown = this.getStatBreakdown(statType);
+		if (breakdown) {
+			// Add base points if any
+			if (breakdown.baseValue > 0) {
+				modifiers['Base'] = breakdown.baseValue;
 			}
 
-			if (useLuck) {
-				const luckRoll = await getRollCtor().create('1d12');
-				await luckRoll.evaluate();
-				const luckRollValue = luckRoll.total;
-				const fortuneValue = await this.getAttributeValue('Fortune');
-
-				// Send the chat message for the luck die
-				await luckRoll.toMessage({
-					flavor: `<strong>Luck Die</strong> (Fortune: ${fortuneValue})`,
-				});
-
-				extraDice.push({
-					type: 'luck',
-					value: luckRollValue,
-					valid: luckRollValue <= fortuneValue,
-					label: `Luck (${fortuneValue})`,
-				});
+			// Add individual modifiers from the well-tested commons logic
+			for (const mod of breakdown.modifiers) {
+				modifiers[mod.source] = mod.value;
 			}
-
-			// Display the roll result
-			let flavorText = `<strong>${statType} Check</strong><br>Rolling ${formula}`;
-			if (circumstanceModifier !== 0) {
-				const sign = circumstanceModifier > 0 ? '+' : '';
-				flavorText += `<br>Circumstance Modifier: ${sign}${circumstanceModifier}`;
-			}
-			if (targetDC !== undefined) {
-				flavorText += `<br>Target DC: ${targetDC}`;
-			}
-
-			await roll.toMessage({
-				speaker: {
-					alias: `${statType} Check`,
-				},
-				flavor: flavorText,
-			});
-
-			// Process Shattered Wilds specific mechanics with extra dice
-			this.processEnhancedShatteredWildsRoll(roll, rollData, extraDice, statBreakdown);
-		} catch (err) {
-			console.error('Failed to roll dice:', err);
-			getUI().notifications?.error('Failed to roll dice');
-		}
-	}
-
-	private async getAttributeValue(attributeName: string): Promise<number> {
-		const actor = getActorById(this.getCurrentActorId()!);
-		const flags = actor?.flags as Record<string, unknown> | undefined;
-		const swFlags = (flags?.['shattered-wilds'] as { props?: Record<string, string> } | undefined) ?? undefined;
-		const props = swFlags?.props ?? {};
-
-		try {
-			if (Object.keys(props).length > 0) {
-				const characterSheet = CharacterSheet.from(props);
-				const statTree = characterSheet.getStatTree();
-				const statType = Object.values(StatType).find(st => st.name === attributeName);
-
-				if (statType) {
-					const node = statTree.getNode(statType);
-					const modifier = statTree.getNodeModifier(node);
-					return modifier.value.value;
-				}
-			}
-		} catch (err) {
-			console.warn('Failed to get attribute value:', err);
-		}
-
-		return 0;
-	}
-
-	private processEnhancedShatteredWildsRoll(
-		roll: FoundryRoll,
-		rollData: DiceRollData,
-		extraDice: { type: string; value: number; valid?: boolean; label?: string }[],
-		statBreakdown: { baseValue: number; modifiers: Array<{ source: string; value: number }>; total: number } | null,
-	): void {
-		const baseDice = roll.terms[0]?.results || [];
-		const baseValues = baseDice.map(d => d.result);
-
-		// Include extra dice in the analysis
-		const allDiceValues = [...baseValues, ...extraDice.map(d => d.value)];
-
-		// Check for crit modifiers
-		let critModifiers = 0;
-		if (allDiceValues.includes(12)) critModifiers += 6;
-
-		// Check for pairs
-		const pairs = allDiceValues.filter(
-			(val: number, i: number, arr: number[]) =>
-				arr.indexOf(val) !== i && arr.filter((x: number) => x === val).length >= 2,
-		);
-		if (pairs.length > 0) critModifiers += 6;
-
-		// Check for auto-fail (pair of 1s)
-		const ones = allDiceValues.filter((v: number) => v === 1);
-		const autoFail = ones.length >= 2;
-
-		// Calculate final total
-		const baseTotal = roll.total;
-		const finalTotal = baseTotal + critModifiers;
-
-		// Calculate success and shifts if DC is provided
-		let success: boolean | undefined;
-		let shifts = 0;
-
-		if (!autoFail && rollData.targetDC !== undefined) {
-			success = finalTotal >= rollData.targetDC;
-			if (success) {
-				const excess = finalTotal - rollData.targetDC;
-				shifts = this.calculateShifts(excess);
-			}
-		}
-
-		// Build enhanced mechanics message
-		let mechanicsHtml = `<div class="shattered-wilds-mechanics" style="font-family: Arial; margin: 8px 0; padding: 8px; border: 1px solid #ccc; border-radius: 4px; background: #f9f9f9;">`;
-
-		// Show stat breakdown
-		if (statBreakdown) {
-			mechanicsHtml += `<div style="margin-bottom: 8px; padding: 6px; background: rgba(0,0,0,0.1); border-radius: 3px;">`;
-			mechanicsHtml += `<strong>${rollData.statType} Breakdown:</strong><br>`;
-			mechanicsHtml += `• Base: ${statBreakdown.baseValue}`;
-
-			if (statBreakdown.modifiers.length > 0) {
-				for (const mod of statBreakdown.modifiers) {
-					const sign = mod.value >= 0 ? '+' : '';
-					mechanicsHtml += `<br>• ${mod.source}: ${sign}${mod.value}`;
-				}
-			}
-
-			if (rollData.circumstanceModifier !== 0) {
-				const sign = rollData.circumstanceModifier > 0 ? '+' : '';
-				mechanicsHtml += `<br>• Circumstance: ${sign}${rollData.circumstanceModifier}`;
-			}
-
-			mechanicsHtml += `<br><strong>Total Modifier: ${statBreakdown.total + rollData.circumstanceModifier}</strong>`;
-			mechanicsHtml += `</div>`;
-		}
-
-		// Show dice breakdown
-		mechanicsHtml += `<div style="margin-bottom: 8px;">`;
-		mechanicsHtml += `<strong>Base Dice:</strong> ${baseValues.join(', ')}`;
-
-		if (extraDice.length > 0) {
-			const extraLabels = extraDice.map(d => {
-				const validText = d.valid !== undefined ? (d.valid ? '✓' : '✗') : '';
-				return `${d.label}: ${d.value} ${validText}`;
-			});
-			mechanicsHtml += `<br><strong>Extra Dice:</strong> ${extraLabels.join(', ')}`;
-		}
-		mechanicsHtml += `</div>`;
-
-		// Show mechanics
-		if (autoFail) {
-			mechanicsHtml += `<div style="color: #d32f2f; font-weight: bold; font-size: 1.1em;">🎲 AUTO FAIL</div>`;
-			mechanicsHtml += `<div style="color: #666; font-size: 0.9em;">Rolled pair of 1s</div>`;
 		} else {
-			if (critModifiers > 0) {
-				mechanicsHtml += `<div style="color: #f57c00; font-weight: bold;">🎲 Crit Modifiers: +${critModifiers}</div>`;
-			}
-
-			mechanicsHtml += `<div style="color: #2e7d32; font-weight: bold; font-size: 1.1em;">🎯 Final Total: ${finalTotal}</div>`;
-
-			if (rollData.targetDC !== undefined) {
-				const successText = success ? 'SUCCESS' : 'FAILURE';
-				const successColor = success ? '#2e7d32' : '#d32f2f';
-				mechanicsHtml += `<div style="color: ${successColor}; font-weight: bold; margin-top: 4px;">vs DC ${rollData.targetDC}: ${successText}</div>`;
-
-				if (success && shifts > 0) {
-					mechanicsHtml += `<div style="color: #ff6f00; font-weight: bold;">⚡ Shifts: ${shifts}</div>`;
-				}
-			}
+			// This should rarely happen - commons should always provide breakdown
+			console.warn(`Failed to get stat breakdown for ${statType}, this shouldn't happen`);
 		}
 
-		mechanicsHtml += `</div>`;
-
-		// Send the mechanics message
-		getChatMessage().create({
-			content: mechanicsHtml,
-			speaker: {
-				alias: `${rollData.statType} Check`,
-			},
-		});
-	}
-
-	private calculateShifts(excess: number): number {
-		if (excess < 6) return 0;
-
-		let shifts = 0;
-		let threshold = 6;
-		let gap = 6;
-
-		while (excess >= threshold) {
-			shifts++;
-			threshold += gap;
-			gap += 6;
+		// Add circumstance modifier if any
+		if (circumstanceModifier !== 0) {
+			modifiers['Circumstance'] = circumstanceModifier;
 		}
 
-		return shifts;
+		return modifiers;
 	}
 
 	private getStatBreakdown(
@@ -1011,7 +795,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			const nodeModifier = statTree.getNodeModifier(node);
 
 			// Get the base value (points allocated)
-			const baseValue = node.allocatedPoints;
+			const baseValue = nodeModifier.baseValue.value;
 
 			// Get all modifiers
 			const modifiers: Array<{ source: string; value: number }> = [];
