@@ -823,3 +823,225 @@
 .equipment-traits strong {
 	color: #ddd;
 }
+
+/* ===== ACTIONS SECTION ===== */
+
+.actions-section {
+	padding: 16px;
+}
+
+.actions-controls {
+	margin-bottom: 16px;
+}
+
+.actions-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 16px;
+}
+
+.actions-header h3 {
+	margin: 0;
+	font-size: 1.1em;
+}
+
+.actions-show-all {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 0.9em;
+	cursor: pointer;
+}
+
+.actions-show-all input[type="checkbox"] {
+	margin: 0;
+}
+
+/* Actions Sub-tabs */
+.actions-tabs {
+	display: flex;
+	gap: 2px;
+	border-bottom: 1px solid var(--text);
+	margin-bottom: 16px;
+}
+
+.actions-tab-button {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 12px;
+	border: none;
+	border-radius: 0;
+	border-bottom: 2px solid transparent;
+	background: transparent;
+	color: var(--text);
+	cursor: pointer;
+	font-size: 0.9em;
+	font-weight: normal;
+	transition: all 0.2s ease;
+}
+
+.actions-tab-button:hover {
+	background: rgba(255, 255, 255, 0.1);
+}
+
+.actions-tab-button.active {
+	background: var(--background-alt);
+	border-bottom-color: var(--text);
+	font-weight: bold;
+}
+
+.actions-tab-button i {
+	font-size: 14px;
+}
+
+/* Actions Content */
+.actions-content {
+	min-height: 200px;
+}
+
+.actions-tab-content {
+	display: block;
+}
+
+.actions-divider {
+	border: none;
+	border-top: 1px solid var(--text);
+	margin: 16px 0;
+	opacity: 0.3;
+}
+
+.actions-empty {
+	text-align: center;
+	padding: 32px;
+	color: var(--text-muted);
+	font-style: italic;
+}
+
+.actions-loading {
+	text-align: center;
+	padding: 32px;
+	color: var(--text-muted);
+}
+
+/* Action Items */
+.action-item {
+	display: flex;
+	gap: 4px;
+	margin-bottom: 12px;
+}
+
+/* Action Cost Box */
+.action-cost-box {
+	min-width: 60px;
+	padding: 8px;
+	border: 1px solid var(--text);
+	border-radius: 4px;
+	background: var(--background-alt);
+	text-align: center;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+
+.action-cost-box:hover {
+	background: rgba(255, 255, 255, 0.1);
+}
+
+.action-cost-title {
+	font-size: 0.7em;
+	font-weight: bold;
+	text-transform: uppercase;
+	margin-bottom: 4px;
+	color: var(--text-muted);
+}
+
+.action-cost-value {
+	font-size: 0.8em;
+	font-weight: bold;
+}
+
+.action-cost-value.insufficient {
+	color: var(--error-color);
+}
+
+/* Action Details */
+.action-details {
+	flex: 1;
+	padding: 12px;
+	border: 1px solid var(--text);
+	border-radius: 4px;
+	background: var(--background-alt);
+}
+
+.action-header {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+
+.action-name-traits {
+	display: flex;
+	gap: 6px;
+	align-items: center;
+}
+
+.action-name {
+	font-weight: bold;
+}
+
+.action-description {
+	font-size: 0.9em;
+	line-height: 1.4;
+}
+
+/* Action Parameters */
+.action-parameter {
+	margin-left: 4px;
+}
+
+.parameter-box {
+	min-width: 60px;
+	padding: 8px;
+	border: 1px solid var(--text);
+	border-radius: 4px;
+	background: var(--background-alt);
+	text-align: center;
+	font-size: 0.8em;
+}
+
+.parameter-box.value-parameter {
+	background: rgba(100, 100, 100, 0.3);
+}
+
+.parameter-box.check-parameter {
+	background: rgba(0, 100, 200, 0.3);
+	cursor: pointer;
+	transition: all 0.2s ease;
+	position: relative;
+}
+
+.parameter-box.check-parameter:hover {
+	background: rgba(0, 100, 200, 0.5);
+	transform: translateY(-1px);
+}
+
+.parameter-box.check-parameter .dice-icon {
+	position: absolute;
+	top: 2px;
+	right: 4px;
+	font-size: 10px;
+	opacity: 0.7;
+}
+
+.parameter-title {
+	font-size: 0.7em;
+	font-weight: bold;
+	text-transform: uppercase;
+	margin-bottom: 4px;
+	color: var(--text-muted);
+}
+
+.parameter-value {
+	font-weight: bold;
+}

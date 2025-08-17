@@ -20,8 +20,33 @@ import {
 	Shield,
 	OtherItem,
 	PRIMARY_WEAPON_TYPES,
+	ACTIONS,
+	ActionDefinition,
+	ActionType,
+	ActionValueParameter,
+	ActionCheckParameter,
+	ActionValueUnit,
+	Bonus,
+	Distance,
+	StandardCheck,
 } from '@shattered-wilds/commons';
 import { parseCharacterSheet } from './characters.js';
+
+// Helper function to convert StandardCheck to StatType (simplified version from simulator)
+function computeStatType(statType: StatType | StandardCheck): StatType {
+	if (typeof statType === 'string' && Object.values(StandardCheck).includes(statType as StandardCheck)) {
+		// For now, simple mapping - can be enhanced later with weapon selection
+		switch (statType as StandardCheck) {
+			case StandardCheck.BodyAttack:
+				return StatType.STR; // Default to STR for body attacks
+			case StandardCheck.Defense:
+				return StatType.Body; // Default to Body for defense
+			default:
+				return StatType.STR; // Fallback
+		}
+	}
+	return statType as StatType;
+}
 
 // Helper function to sync resources to actor system data for token bars
 async function syncResourcesToSystemData(actor: unknown, characterSheet: CharacterSheet): Promise<void> {
@@ -129,6 +154,19 @@ const MixedBase = HbsMixin(V2Base) as unknown as (new (...args: unknown[]) => ob
 export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => object) {
 	// Remove cached actor ID - always get from context to prevent cross-contamination
 	#activeTab: string = 'stats'; // Store the current active tab
+
+	// Actions-specific UI state
+	#actionsUIState = {
+		activeTab: 'Movement' as string,
+		showAll: true,
+		selectedRange: null as string | null,
+		selectedDefenseRealm: 'Body' as string,
+		selectedPassiveCover: 'None' as string,
+		heightIncrements: '',
+		selectedWeapon: null as number | null,
+		selectedArmor: null as number | null,
+		selectedShield: null as number | null,
+	};
 
 	// Helper to get current actor from context (never cache!)
 	private getCurrentActor(): ActorLike | undefined {
@@ -381,10 +419,12 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			statTreeData,
 			featsData: this.prepareFeatsData(characterSheet),
 			equipmentData: this.prepareEquipmentData(characterSheet),
+			actionsData: this.prepareActionsData(characterSheet),
 			activeTab: this.#activeTab,
 			isStatsTabActive: this.#activeTab === 'stats',
 			isFeatsTabActive: this.#activeTab === 'feats',
 			isEquipmentTabActive: this.#activeTab === 'equipment',
+			isActionsTabActive: this.#activeTab === 'actions',
 			isDebugTabActive: this.#activeTab === 'debug',
 		};
 	}
@@ -494,6 +534,144 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			console.warn('Failed to prepare equipment data:', err);
 			return { isEmpty: true, items: [] };
 		}
+	}
+
+	prepareActionsData(characterSheet: CharacterSheet | undefined): Record<string, unknown> | null {
+		if (!characterSheet) {
+			return null;
+		}
+
+		try {
+			// Prepare action types as tabs
+			const actionTypes = Object.values(ActionType);
+			const actionTabs = actionTypes.map(type => ({
+				key: type,
+				label: type,
+				icon: this.getActionTypeIcon(type),
+				active: this.#actionsUIState.activeTab === type,
+				actions: this.prepareActionsForType(type, characterSheet),
+				header: this.getActionTypeHeader(),
+			}));
+
+			return {
+				showAll: this.#actionsUIState.showAll,
+				tabs: actionTabs,
+				uiState: this.#actionsUIState,
+			};
+		} catch (err) {
+			console.warn('Failed to prepare actions data:', err);
+			return null;
+		}
+	}
+
+	private getActionTypeIcon(type: ActionType): string {
+		switch (type) {
+			case ActionType.Movement:
+				return 'fas fa-running';
+			case ActionType.Attack:
+				return 'fas fa-fist-raised';
+			case ActionType.Defense:
+				return 'fas fa-shield';
+			case ActionType.Support:
+				return 'fas fa-hand-holding';
+			case ActionType.Heroic:
+				return 'fas fa-star';
+			case ActionType.Meta:
+				return 'fas fa-cog';
+			default:
+				return 'fas fa-star';
+		}
+	}
+
+	private prepareActionsForType(type: ActionType, characterSheet: CharacterSheet): unknown[] {
+		const actions = Object.values(ACTIONS)
+			.filter(action => action.type === type)
+			.filter(
+				action =>
+					this.#actionsUIState.showAll ||
+					action.costs.every(cost => characterSheet.getResource(cost.resource).current >= cost.amount),
+			);
+
+		return actions.map(action => this.prepareActionItem(action, characterSheet));
+	}
+
+	private prepareActionItem(action: ActionDefinition, characterSheet: CharacterSheet): unknown {
+		const costs = action.costs.map(cost => {
+			const resource = RESOURCES[cost.resource];
+			const current = characterSheet.getResource(cost.resource).current;
+			return {
+				value: `${cost.amount}${cost.variable ? '+' : ''} ${resource.shortName}`,
+				insufficient: current < cost.amount,
+			};
+		});
+
+		const costTooltip = costs.map(c => c.value).join('\n');
+
+		const parameters = action.parameters
+			.map(param => {
+				if (param instanceof ActionValueParameter) {
+					const tree = characterSheet.getStatTree();
+					const result = param.compute(tree);
+
+					// Convert result to appropriate value type
+					const computeValueForUnit = (value: number, unit: ActionValueUnit) => {
+						switch (unit) {
+							case ActionValueUnit.Modifier:
+								return new Bonus({ value });
+							case ActionValueUnit.Hex:
+								return new Distance({ value });
+						}
+					};
+
+					const value = computeValueForUnit(result.value, param.unit);
+					const tooltip = [param.name, result.tooltip].filter(Boolean).join('\n');
+
+					return {
+						type: 'value',
+						title: param.name,
+						value: value.description,
+						tooltip: tooltip,
+					};
+				} else if (param instanceof ActionCheckParameter) {
+					const tree = characterSheet.getStatTree();
+					const resolvedStatType = computeStatType(param.statType);
+					// Simple implementation for now - no equipment modifiers yet
+					const statModifier = tree.getModifier(
+						resolvedStatType,
+						param.circumstanceModifier ? [param.circumstanceModifier] : [],
+					);
+
+					return {
+						type: 'check',
+						title: resolvedStatType.toString(),
+						value: statModifier.value.description,
+						tooltip: `${statModifier.description} • Click for advanced options • Shift+Click for quick roll`,
+						checkData: {
+							stat: resolvedStatType.toString(),
+							modifier: statModifier.value.value,
+							description: statModifier.description,
+							parameter: param,
+						},
+					};
+				}
+				return null;
+			})
+			.filter(Boolean);
+
+		return {
+			key: action.key,
+			name: action.name,
+			description: processDescriptionText(action.description),
+			traits: action.traits,
+			costs,
+			costTooltip,
+			parameters,
+		};
+	}
+
+	private getActionTypeHeader(): string | null {
+		// For now, return null - will implement specific headers later if needed
+		return null;
 	}
 
 	async _onRender(): Promise<void> {
@@ -637,6 +815,9 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		});
 
 		// Add tab switching handlers
+		// Add Actions-specific event handlers
+		this.addActionsEventHandlers(root);
+
 		const tabButtons = root.querySelectorAll('.tab-button') as NodeListOf<HTMLButtonElement>;
 		tabButtons.forEach(btn => {
 			btn.addEventListener('click', () => {
@@ -683,6 +864,95 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			} else {
 				panel.classList.remove('active');
 			}
+		});
+	}
+
+	private addActionsEventHandlers(root: HTMLElement): void {
+		// Actions sub-tab switching
+		const actionTabButtons = root.querySelectorAll('.actions-tab-button') as NodeListOf<HTMLButtonElement>;
+		actionTabButtons.forEach(btn => {
+			btn.addEventListener('click', () => {
+				const tabKey = btn.dataset.tab;
+				if (!tabKey) return;
+
+				// Update Actions UI state
+				this.#actionsUIState.activeTab = tabKey;
+
+				// Re-render to update content (preserve main tab state)
+				(this as unknown as { render: (force?: boolean) => void }).render(false);
+			});
+		});
+
+		// Show All checkbox
+		const showAllCheckbox = root.querySelector('[data-action="toggle-actions-show-all"]') as HTMLInputElement | null;
+		if (showAllCheckbox) {
+			showAllCheckbox.addEventListener('change', () => {
+				this.#actionsUIState.showAll = showAllCheckbox.checked;
+				// Re-render to update filtered actions
+				(this as unknown as { render: (force?: boolean) => void }).render(false);
+			});
+		}
+
+		// Action check rolls
+		const actionCheckButtons = root.querySelectorAll('[data-action="roll-action-check"]') as NodeListOf<HTMLElement>;
+		actionCheckButtons.forEach(btn => {
+			const handleClick = async (event: MouseEvent) => {
+				const actionKey = btn.dataset.actionKey;
+				const parameterIndex = btn.dataset.parameterIndex;
+
+				if (!actionKey || parameterIndex === undefined) return;
+
+				const action = Object.values(ACTIONS).find(a => a.key === actionKey);
+				if (!action) return;
+
+				const paramIndex = parseInt(parameterIndex);
+				const parameter = action.parameters[paramIndex];
+
+				if (!(parameter instanceof ActionCheckParameter)) return;
+
+				const characterSheet = this.getCharacterSheet();
+				if (!characterSheet) return;
+
+				try {
+					// Build the check with current character state
+					const tree = characterSheet.getStatTree();
+					const resolvedStatType = computeStatType(parameter.statType);
+					const statModifier = tree.getModifier(
+						resolvedStatType,
+						parameter.circumstanceModifier ? [parameter.circumstanceModifier] : [],
+					);
+
+					if (event.shiftKey) {
+						// Quick roll - directly execute
+						const rollRequest: DiceRollRequest = {
+							name: `${action.name} - ${resolvedStatType.toString()}`,
+							characterName: characterSheet.name,
+							modifiers: { Base: statModifier.value.value },
+							extra: undefined,
+							luck: undefined,
+							targetDC: parameter.targetDc,
+						};
+						await executeEnhancedRoll(rollRequest);
+					} else {
+						// Open modal for advanced options
+						if (!DiceRollModal.isSupported()) {
+							getUI().notifications?.warn('Dice modal not supported in this Foundry version');
+							return;
+						}
+
+						await DiceRollModal.open({
+							statType: resolvedStatType.toString(),
+							modifier: statModifier.value.value,
+							actorId: this.getCurrentActorId()!,
+						});
+					}
+				} catch (err) {
+					console.error('Failed to roll action check:', err);
+					getUI().notifications?.error('Failed to roll action check');
+				}
+			};
+
+			btn.addEventListener('click', handleClick);
 		});
 	}
 

@@ -68,6 +68,9 @@
 					<button type="button" class="tab-button {{#if isEquipmentTabActive}}active{{/if}}" data-tab="equipment">
 						<i class="fas fa-sword"></i> Equipment
 					</button>
+					<button type="button" class="tab-button {{#if isActionsTabActive}}active{{/if}}" data-tab="actions">
+						<i class="fas fa-fist-raised"></i> Actions
+					</button>
 					<button type="button" class="tab-button {{#if isDebugTabActive}}active{{/if}}" data-tab="debug">
 						<i class="fas fa-bug"></i> Debug
 					</button>
@@ -315,6 +318,112 @@
 						{{else}}
 							<div class="equipment-loading">
 								<p>Loading equipment...</p>
+							</div>
+						{{/if}}
+					</div>
+
+					<!-- Actions Tab -->
+					<div class="tab-panel {{#if isActionsTabActive}}active{{/if}}" data-tab-panel="actions">
+						{{#if actionsData}}
+							<div class="actions-section">
+								<!-- Actions controls -->
+								<div class="actions-controls">
+									<div class="actions-header">
+										<h3>Actions</h3>
+										<label class="actions-show-all">
+											<input type="checkbox" {{#if actionsData.showAll}}checked{{/if}} data-action="toggle-actions-show-all">
+											Show All
+										</label>
+									</div>
+								</div>
+
+								<!-- Actions sub-tabs -->
+								<div class="actions-tabs">
+									{{#each actionsData.tabs}}
+										<button type="button" 
+											class="actions-tab-button {{#if active}}active{{/if}}" 
+											data-action="select-actions-tab" 
+											data-tab="{{key}}">
+											{{#if icon}}<i class="{{icon}}"></i>{{/if}}
+											{{label}}
+										</button>
+									{{/each}}
+								</div>
+
+								<!-- Actions content -->
+								<div class="actions-content">
+									{{#each actionsData.tabs}}
+										{{#if active}}
+											<div class="actions-tab-content">
+												{{#if header}}
+													{{{header}}}
+													<hr class="actions-divider">
+												{{/if}}
+												
+												{{#if actions}}
+													{{#each actions}}
+														<div class="action-item">
+															<!-- Cost box -->
+															<div class="action-cost-box" title="{{costTooltip}}">
+																<div class="action-cost-title">COST</div>
+																{{#each costs}}
+																	<div class="action-cost-value {{#if insufficient}}insufficient{{/if}}">
+																		{{value}}
+																	</div>
+																{{/each}}
+															</div>
+
+															<!-- Action details -->
+															<div class="action-details">
+																<div class="action-header">
+																	<div class="action-name-traits">
+																		<span class="action-name">{{name}}</span>
+																		{{#each traits}}
+																			<span class="trait">{{this}}</span>
+																		{{/each}}
+																	</div>
+																</div>
+																<div class="action-description">
+																	{{{description}}}
+																</div>
+															</div>
+
+															<!-- Action parameters -->
+															{{#each parameters}}
+																<div class="action-parameter">
+																	{{#if (eq type "value")}}
+																		<div class="parameter-box value-parameter" title="{{tooltip}}">
+																			<div class="parameter-title">{{title}}</div>
+																			<div class="parameter-value">{{value}}</div>
+																		</div>
+																	{{else if (eq type "check")}}
+																		<div class="parameter-box check-parameter clickable" 
+																			title="{{tooltip}}" 
+																			data-action="roll-action-check" 
+																			data-action-key="{{../key}}" 
+																			data-parameter-index="{{@index}}">
+																			<div class="parameter-title">{{title}}</div>
+																			<div class="parameter-value">{{value}}</div>
+																			<i class="fas fa-dice-d12 dice-icon"></i>
+																		</div>
+																	{{/if}}
+																</div>
+															{{/each}}
+														</div>
+													{{/each}}
+												{{else}}
+													<div class="actions-empty">
+														<p>No actions available for this category.</p>
+													</div>
+												{{/if}}
+											</div>
+										{{/if}}
+									{{/each}}
+								</div>
+							</div>
+						{{else}}
+							<div class="actions-loading">
+								<p>Loading actions...</p>
 							</div>
 						{{/if}}
 					</div>
