@@ -18,7 +18,7 @@ export interface PrimaryWeaponTypeDefinition {
 
 export const PRIMARY_WEAPON_TYPES: Record<PrimaryWeaponType, PrimaryWeaponTypeDefinition> = {
 	[PrimaryWeaponType.Unarmed]: { statType: StatType.STR, rangeType: Trait.Melee },
-	[PrimaryWeaponType.Thrown]: { statType: StatType.DEX, rangeType: Trait.Ranged },
+	[PrimaryWeaponType.Thrown]: { statType: StatType.STR, rangeType: Trait.Ranged },
 	[PrimaryWeaponType.LightMelee]: { statType: StatType.DEX, rangeType: Trait.Melee },
 	[PrimaryWeaponType.Ranged]: { statType: StatType.DEX, rangeType: Trait.Ranged },
 	[PrimaryWeaponType.HeavyMelee]: { statType: StatType.STR, rangeType: Trait.Melee },

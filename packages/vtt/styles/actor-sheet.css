@@ -621,3 +621,205 @@
 	color: #89CFF0;
 	font-weight: bold;
 }
+
+/* Equipment Tab Styles */
+.equipment-empty {
+	padding: 20px;
+	text-align: center;
+	color: #666;
+	font-style: italic;
+}
+
+.equipment-loading {
+	padding: 20px;
+	text-align: center;
+	color: #666;
+}
+
+.equipment-list {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.equipment-item {
+	border: 1px solid #555;
+	border-radius: 3px;
+	background: rgba(255, 255, 255, 0.02);
+	margin-bottom: 2px;
+}
+
+.equipment-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 12px;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+	border-bottom: 1px solid transparent;
+	min-height: 32px;
+}
+
+.equipment-header:hover {
+	background: rgba(255, 255, 255, 0.06);
+}
+
+.equipment-name {
+	font-size: 0.85em;
+	color: #ddd;
+	flex: 1;
+}
+
+.equipment-name strong {
+	font-weight: bold;
+	color: #fff;
+}
+
+.equipment-type {
+	font-size: 0.7em;
+	color: #999;
+	text-transform: uppercase;
+	margin-right: 8px;
+}
+
+.equipment-toggle-icon {
+	color: #999;
+	font-size: 0.8em;
+	transition: transform 0.2s ease;
+}
+
+.equipment-details {
+	padding: 10px 12px;
+	border-top: 1px solid #444;
+	background: rgba(0, 0, 0, 0.05);
+}
+
+.equipment-description {
+	font-size: 0.85em;
+	color: #bbb;
+	margin-bottom: 12px;
+	line-height: 1.4;
+}
+
+/* Weapon Modes Section */
+.weapon-modes {
+	margin-top: 12px;
+}
+
+.weapon-modes h4 {
+	margin: 0 0 8px 0;
+	font-size: 0.9em;
+	color: #ddd;
+	font-weight: bold;
+	text-transform: uppercase;
+}
+
+.weapon-mode {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 6px 8px;
+	margin-bottom: 4px;
+	border: 1px solid #444;
+	border-radius: 3px;
+	background: rgba(255, 255, 255, 0.01);
+}
+
+.weapon-mode:last-child {
+	margin-bottom: 0;
+}
+
+.weapon-mode-info {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex: 1;
+}
+
+.weapon-mode-type {
+	font-weight: bold;
+	font-size: 0.8em;
+	color: #ddd;
+	min-width: 60px;
+}
+
+.weapon-mode-bonus {
+	font-size: 0.75em;
+	color: #aaa;
+	min-width: 30px;
+}
+
+.weapon-mode-primary {
+	font-size: 0.7em;
+	color: #888;
+	font-style: italic;
+	min-width: 60px;
+}
+
+.weapon-mode-range {
+	font-size: 0.75em;
+	color: #aaa;
+}
+
+.weapon-attack-btn {
+	display: flex;
+	align-items: center;
+	gap: 3px;
+	padding: 3px 6px;
+	border: 1px solid #666;
+	border-radius: 3px;
+	background: rgba(255, 179, 0, 0.1);
+	color: #ffb300;
+	cursor: pointer;
+	font-size: 0.7em;
+	transition: all 0.2s ease;
+}
+
+.weapon-attack-btn:hover {
+	background: rgba(255, 179, 0, 0.2);
+	border-color: #ffb300;
+	color: #ffc933;
+	transform: scale(1.05);
+}
+
+.weapon-attack-btn:active {
+	transform: scale(0.95);
+}
+
+/* Armor/Shield Info Sections */
+.armor-info,
+.shield-info {
+	margin-top: 12px;
+}
+
+.armor-detail,
+.shield-detail {
+	display: flex;
+	justify-content: space-between;
+	font-size: 0.85em;
+	padding: 4px 0;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.armor-detail:last-child,
+.shield-detail:last-child {
+	border-bottom: none;
+}
+
+.armor-detail strong,
+.shield-detail strong {
+	color: #ddd;
+}
+
+/* Equipment Traits */
+.equipment-traits {
+	font-size: 0.85em;
+	color: #bbb;
+	margin-top: 12px;
+	padding-top: 8px;
+	border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.equipment-traits strong {
+	color: #ddd;
+}

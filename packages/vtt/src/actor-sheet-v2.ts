@@ -15,6 +15,11 @@ import {
 	CircumstanceModifier,
 	FeatsSection,
 	DerivedStatType,
+	Weapon,
+	Armor,
+	Shield,
+	OtherItem,
+	PRIMARY_WEAPON_TYPES,
 } from '@shattered-wilds/commons';
 import { parseCharacterSheet } from './characters.js';
 
@@ -375,9 +380,11 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			derivedStatsData,
 			statTreeData,
 			featsData: this.prepareFeatsData(characterSheet),
+			equipmentData: this.prepareEquipmentData(characterSheet),
 			activeTab: this.#activeTab,
 			isStatsTabActive: this.#activeTab === 'stats',
 			isFeatsTabActive: this.#activeTab === 'feats',
+			isEquipmentTabActive: this.#activeTab === 'equipment',
 			isDebugTabActive: this.#activeTab === 'debug',
 		};
 	}
@@ -396,6 +403,96 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		} catch (err) {
 			console.warn('Failed to create feats section:', err);
 			return null;
+		}
+	}
+
+	prepareEquipmentData(characterSheet: CharacterSheet | undefined): Record<string, unknown> | null {
+		if (!characterSheet) {
+			return null;
+		}
+		try {
+			const equipment = characterSheet.equipment;
+			if (!equipment || equipment.items.length === 0) {
+				return { isEmpty: true, items: [] };
+			}
+
+			const items = equipment.items.map(item => {
+				const baseItem = {
+					name: item.name,
+					description: item.displayText,
+					traits: [],
+				};
+
+				if (item instanceof Weapon) {
+					return {
+						...baseItem,
+						itemType: 'Weapon',
+						headerDisplay: `<strong>${item.name}</strong> - ${item.description}`,
+						traits: item.traits,
+						weaponModes: item.modes.map(mode => {
+							const weaponTypeDef = PRIMARY_WEAPON_TYPES[mode.type];
+							return {
+								type: mode.description,
+								bonus: mode.bonus.description,
+								bonusValue: mode.bonus.value,
+								range: mode.range?.description,
+								attackStat: weaponTypeDef.statType.name,
+								primaryAttribute: `Primary: ${weaponTypeDef.statType.name}`,
+							};
+						}),
+					};
+				}
+
+				if (item instanceof Armor) {
+					return {
+						...baseItem,
+						itemType: 'Armor',
+						headerDisplay: `<strong>${item.name}</strong> - ${item.description}`,
+						traits: item.traits,
+						armorInfo: {
+							type: item.type,
+							bonus: item.bonus.description,
+							dexPenalty: item.dexPenalty.isNotZero ? item.dexPenalty.description : null,
+						},
+					};
+				}
+
+				if (item instanceof Shield) {
+					return {
+						...baseItem,
+						itemType: 'Shield',
+						headerDisplay: `<strong>${item.name}</strong> - ${item.description}`,
+						traits: item.traits,
+						shieldInfo: {
+							type: item.type,
+							bonus: item.bonus.description,
+						},
+					};
+				}
+
+				if (item instanceof OtherItem) {
+					return {
+						...baseItem,
+						itemType: 'Other',
+						headerDisplay: `<strong>${item.name}</strong> - ${item.details || 'Other equipment'}`,
+						description: item.details || item.name,
+					};
+				}
+
+				return {
+					...baseItem,
+					itemType: 'Unknown',
+					headerDisplay: `<strong>${item.name}</strong> - Unknown equipment`,
+				};
+			});
+
+			return {
+				isEmpty: false,
+				items,
+			};
+		} catch (err) {
+			console.warn('Failed to prepare equipment data:', err);
+			return { isEmpty: true, items: [] };
 		}
 	}
 
@@ -491,6 +588,49 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 							// Normal click opens the dice modal
 							await this.handleStatRollModal('initiative', initiative.value.value);
 						}
+					}
+				}
+			});
+		});
+
+		// Add equipment toggle handlers
+		const equipmentToggles = root.querySelectorAll('[data-action="toggle-equipment"]') as NodeListOf<HTMLElement>;
+		equipmentToggles.forEach(toggle => {
+			toggle.addEventListener('click', () => {
+				const itemIndex = toggle.dataset.itemIndex;
+				if (itemIndex === undefined) return;
+
+				const itemElement = toggle.closest('.equipment-item');
+				if (!itemElement) return;
+
+				const detailsElement = itemElement.querySelector('.equipment-details') as HTMLElement;
+				const iconElement = toggle.querySelector('.equipment-toggle-icon') as HTMLElement;
+
+				if (detailsElement && iconElement) {
+					const isVisible = detailsElement.style.display !== 'none';
+					detailsElement.style.display = isVisible ? 'none' : 'block';
+					iconElement.classList.toggle('fa-chevron-down', isVisible);
+					iconElement.classList.toggle('fa-chevron-up', !isVisible);
+				}
+			});
+		});
+
+		// Add weapon attack roll handlers
+		const weaponAttackButtons = root.querySelectorAll('[data-action="roll-weapon-attack"]') as NodeListOf<HTMLElement>;
+		weaponAttackButtons.forEach(btn => {
+			btn.addEventListener('click', async event => {
+				const weaponName = btn.dataset.weaponName;
+				const modeType = btn.dataset.modeType;
+				const modeBonus = parseInt(btn.dataset.modeBonus || '0');
+				const attackStat = btn.dataset.attackStat;
+
+				if (weaponName && modeType && attackStat) {
+					if (event.shiftKey) {
+						// Shift+click does a quick weapon attack roll
+						await this.handleWeaponAttackRoll(weaponName, modeType, attackStat, modeBonus);
+					} else {
+						// Normal click opens the dice modal for weapon attack
+						await this.handleWeaponAttackRollModal(weaponName, modeType, attackStat, modeBonus);
 					}
 				}
 			});
@@ -706,6 +846,67 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		// Add circumstance modifier if any
 		if (circumstanceModifier !== 0) {
 			modifiers['Circumstance'] = circumstanceModifier;
+		}
+
+		return modifiers;
+	}
+
+	private async handleWeaponAttackRoll(
+		weaponName: string,
+		modeType: string,
+		attackStat: string,
+		weaponBonus: number,
+	): Promise<void> {
+		// Quick weapon attack roll using centralized dice system - treat as stat check with weapon modifier
+		const rollRequest: DiceRollRequest = {
+			name: `${attackStat} Check`,
+			characterName: this.getCharacterSheet()?.name ?? 'Unknown',
+			modifiers: this.buildWeaponAttackModifiers(attackStat, weaponBonus, weaponName, modeType),
+			extra: undefined,
+			luck: undefined,
+			targetDC: undefined,
+		};
+
+		await executeEnhancedRoll(rollRequest);
+	}
+
+	private async handleWeaponAttackRollModal(
+		weaponName: string,
+		modeType: string,
+		attackStat: string,
+		weaponBonus: number,
+	): Promise<void> {
+		if (!DiceRollModal.isSupported()) {
+			getUI().notifications?.warn('Dice modal not supported in this Foundry version');
+			return this.handleWeaponAttackRoll(weaponName, modeType, attackStat, weaponBonus);
+		}
+
+		// Get the total modifier for the weapon attack - treat as stat check
+		const modifiers = this.buildWeaponAttackModifiers(attackStat, weaponBonus, weaponName, modeType);
+		const totalModifier = Object.values(modifiers).reduce((sum: number, val: number) => sum + val, 0);
+
+		await DiceRollModal.open({
+			statType: attackStat, // Use the stat name instead of weapon name
+			modifier: totalModifier,
+			actorId: this.getCurrentActorId()!,
+			onCancel: () => {
+				// Nothing to do on cancel
+			},
+		});
+	}
+
+	private buildWeaponAttackModifiers(
+		attackStat: string,
+		weaponBonus: number,
+		weaponName: string,
+		modeType: string,
+	): Record<string, number> {
+		// Start with the stat's normal modifiers using the centralized breakdown
+		const modifiers = this.buildModifiersMap(attackStat, 0, 0); // Get the stat's breakdown with no extra modifiers
+
+		// Add weapon bonus as an equipment modifier
+		if (weaponBonus !== 0) {
+			modifiers[`${weaponName} (${modeType})`] = weaponBonus;
 		}
 
 		return modifiers;
