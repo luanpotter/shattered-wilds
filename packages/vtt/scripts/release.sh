@@ -1,10 +1,8 @@
-#!/bin/bash
+#!/bin/bash -xe
 
 # Shattered Wilds VTT System Release Script
 # Usage: ./scripts/release.sh [version]
 # Example: ./scripts/release.sh 0.1.0
-
-set -e
 
 VERSION=$1
 
