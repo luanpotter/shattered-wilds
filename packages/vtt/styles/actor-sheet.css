@@ -899,10 +899,68 @@
 /* Actions Content */
 .actions-content {
 	min-height: 200px;
+	max-height: 400px;
+	overflow-y: auto;
 }
 
 .actions-tab-content {
 	display: block;
+}
+
+/* Actions Header Controls */
+.actions-header-section {
+	margin-bottom: 16px;
+}
+
+.actions-header-controls {
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+	align-items: end;
+}
+
+.header-dropdown,
+.header-input {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 120px;
+}
+
+.header-label {
+	font-size: 0.8em;
+	font-weight: bold;
+	color: var(--text-muted);
+	text-transform: uppercase;
+}
+
+.header-select,
+.header-input-field {
+	padding: 6px 8px;
+	border: 1px solid var(--text);
+	border-radius: 4px;
+	background: var(--background);
+	color: var(--text);
+	font-size: 0.9em;
+}
+
+.header-select:focus,
+.header-input-field:focus {
+	outline: none;
+	border-color: #4a90e2;
+	box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.header-value {
+	padding: 6px 8px;
+	background: var(--background-alt);
+	border: 1px solid var(--text);
+	border-radius: 4px;
+	font-size: 0.9em;
+	color: var(--text);
+	min-height: 20px;
+	display: flex;
+	align-items: center;
 }
 
 .actions-divider {
@@ -928,8 +986,15 @@
 /* Action Items */
 .action-item {
 	display: flex;
+	align-items: center;
 	gap: 4px;
-	margin-bottom: 12px;
+	margin-bottom: 6px;
+	padding-bottom: 6px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.action-item:last-child {
+	border-bottom: none;
 }
 
 /* Action Cost Box */
@@ -940,11 +1005,14 @@
 	border-radius: 4px;
 	background: var(--background-alt);
 	text-align: center;
-	cursor: pointer;
 	transition: background-color 0.2s ease;
 }
 
-.action-cost-box:hover {
+.action-cost-box.clickable {
+	cursor: pointer;
+}
+
+.action-cost-box.clickable:hover {
 	background: rgba(255, 255, 255, 0.1);
 }
 
@@ -993,6 +1061,27 @@
 .action-description {
 	font-size: 0.9em;
 	line-height: 1.4;
+}
+
+.action-description code {
+	display: inline;
+	background: rgba(255, 255, 255, 0.1);
+	padding: 2px 4px;
+	border-radius: 3px;
+	font-family: 'Courier New', monospace;
+	font-size: 0.9em;
+	color: #f0f0f0;
+}
+
+.action-description a {
+	color: #ffd700;
+	text-decoration: none;
+	border-bottom: 1px dotted #ffd700;
+}
+
+.action-description a:hover {
+	color: #ffed4e;
+	border-bottom-style: solid;
 }
 
 /* Action Parameters */
@@ -1045,3 +1134,4 @@
 .parameter-value {
 	font-weight: bold;
 }
+

@@ -29,23 +29,144 @@ import {
 	Bonus,
 	Distance,
 	StandardCheck,
+	PassiveCoverType,
+	Trait,
+	ModifierSource,
+	COVER_TYPES,
 } from '@shattered-wilds/commons';
 import { parseCharacterSheet } from './characters.js';
 
-// Helper function to convert StandardCheck to StatType (simplified version from simulator)
-function computeStatType(statType: StatType | StandardCheck): StatType {
+// Helper function to convert StandardCheck to StatType (enhanced version from simulator)
+function computeStatType(statType: StatType | StandardCheck, actionsUIState?: Record<string, unknown>): StatType {
 	if (typeof statType === 'string' && Object.values(StandardCheck).includes(statType as StandardCheck)) {
-		// For now, simple mapping - can be enhanced later with weapon selection
 		switch (statType as StandardCheck) {
 			case StandardCheck.BodyAttack:
+				// TODO: Use selected weapon to determine STR vs DEX
 				return StatType.STR; // Default to STR for body attacks
 			case StandardCheck.Defense:
+				// Use selected defense realm
+				if (actionsUIState?.selectedDefenseRealm) {
+					return actionsUIState.selectedDefenseRealm as StatType;
+				}
 				return StatType.Body; // Default to Body for defense
 			default:
 				return StatType.STR; // Fallback
 		}
 	}
 	return statType as StatType;
+}
+
+// Helper function to compute included modifiers based on current UI state
+function computeIncludedModifiers(
+	includeModifierFor: string,
+	characterSheet: CharacterSheet,
+	actionsUIState: Record<string, unknown>,
+): CircumstanceModifier[] {
+	const equipment = characterSheet.equipment;
+
+	switch (includeModifierFor) {
+		case 'Weapon': {
+			const modifiers: CircumstanceModifier[] = [];
+
+			// Weapon modifier
+			const selectedWeaponIndex = actionsUIState.selectedWeapon as number | null;
+			if (selectedWeaponIndex !== null && selectedWeaponIndex >= 0) {
+				const weapons = equipment.items.filter(item => item instanceof Weapon) as Weapon[];
+				const weaponIndex = Math.floor(selectedWeaponIndex / 100);
+				const modeIndex = selectedWeaponIndex % 100;
+
+				const weapon = weapons[weaponIndex];
+				const mode = weapon?.modes[modeIndex];
+
+				if (weapon && mode) {
+					const weaponModifier: CircumstanceModifier = {
+						source: ModifierSource.Equipment,
+						name: `${weapon.name} (${mode.description})`,
+						description: `Weapon bonus from ${weapon.name} (${mode.description})`,
+						value: mode.bonus,
+					};
+					modifiers.push(weaponModifier);
+
+					// Range increment modifier for ranged weapons
+					if (mode.rangeType === Trait.Ranged) {
+						const selectedRange = actionsUIState.selectedRange as Distance | null;
+						if (selectedRange && mode.range) {
+							const rangeIncrements = Math.max(0, Math.floor((selectedRange.value - 1) / mode.range.value));
+							if (rangeIncrements > 0) {
+								const rangeModifier: CircumstanceModifier = {
+									source: ModifierSource.Circumstance,
+									name: `Range Increment Penalty`,
+									description: `${rangeIncrements} range increment(s) penalty`,
+									value: Bonus.of(rangeIncrements * -3),
+								};
+								modifiers.push(rangeModifier);
+							}
+						}
+					}
+				}
+			}
+
+			// Passive cover modifier
+			const selectedPassiveCover = actionsUIState.selectedPassiveCover as PassiveCoverType;
+			if (selectedPassiveCover && selectedPassiveCover !== PassiveCoverType.None) {
+				const coverModifier = COVER_TYPES[selectedPassiveCover].modifier;
+				if (coverModifier) {
+					modifiers.push(coverModifier);
+				}
+			}
+
+			// Height increments modifier
+			const heightIncrements = actionsUIState.heightIncrements as string;
+			if (heightIncrements) {
+				const increments = parseInt(heightIncrements);
+				if (!isNaN(increments) && increments !== 0) {
+					const heightModifier: CircumstanceModifier = {
+						source: ModifierSource.Circumstance,
+						name: `Height Increments (${increments})`,
+						description: `${increments} height increment(s) modifier`,
+						value: Bonus.of(increments * -3),
+					};
+					modifiers.push(heightModifier);
+				}
+			}
+
+			return modifiers;
+		}
+		case 'Armor': {
+			// Armor only applies to Body defense
+			const selectedDefenseRealm = actionsUIState.selectedDefenseRealm as StatType;
+			if (selectedDefenseRealm?.name !== 'Body') return [];
+
+			const selectedArmorIndex = actionsUIState.selectedArmor as number | null;
+			if (selectedArmorIndex === null) return [];
+
+			const armors = equipment.items.filter(item => item instanceof Armor) as Armor[];
+			const armor = armors[selectedArmorIndex];
+
+			if (armor) {
+				return [armor.getEquipmentModifier()];
+			}
+			return [];
+		}
+		case 'Shield': {
+			// Shield only applies to Body defense
+			const selectedDefenseRealm = actionsUIState.selectedDefenseRealm as StatType;
+			if (selectedDefenseRealm?.name !== 'Body') return [];
+
+			const selectedShieldIndex = actionsUIState.selectedShield as number | null;
+			if (selectedShieldIndex === null) return [];
+
+			const shields = equipment.items.filter(item => item instanceof Shield) as Shield[];
+			const shield = shields[selectedShieldIndex];
+
+			if (shield) {
+				return [shield.getEquipmentModifier()];
+			}
+			return [];
+		}
+		default:
+			return [];
+	}
 }
 
 // Helper function to sync resources to actor system data for token bars
@@ -157,11 +278,11 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 	// Actions-specific UI state
 	#actionsUIState = {
-		activeTab: 'Movement' as string,
+		activeTab: ActionType.Movement as string,
 		showAll: true,
-		selectedRange: null as string | null,
-		selectedDefenseRealm: 'Body' as string,
-		selectedPassiveCover: 'None' as string,
+		selectedRange: null as Distance | null,
+		selectedDefenseRealm: StatType.Body as StatType,
+		selectedPassiveCover: PassiveCoverType.None as PassiveCoverType,
 		heightIncrements: '',
 		selectedWeapon: null as number | null,
 		selectedArmor: null as number | null,
@@ -550,7 +671,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				icon: this.getActionTypeIcon(type),
 				active: this.#actionsUIState.activeTab === type,
 				actions: this.prepareActionsForType(type, characterSheet),
-				header: this.getActionTypeHeader(),
+				header: this.getActionTypeHeader(type, characterSheet),
 			}));
 
 			return {
@@ -634,12 +755,17 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					};
 				} else if (param instanceof ActionCheckParameter) {
 					const tree = characterSheet.getStatTree();
-					const resolvedStatType = computeStatType(param.statType);
-					// Simple implementation for now - no equipment modifiers yet
-					const statModifier = tree.getModifier(
-						resolvedStatType,
-						param.circumstanceModifier ? [param.circumstanceModifier] : [],
+					const resolvedStatType = computeStatType(param.statType, this.#actionsUIState);
+
+					// Compute included modifiers based on current UI state
+					const cms = param.includeEquipmentModifiers.flatMap(includeModifierFor =>
+						computeIncludedModifiers(includeModifierFor.toString(), characterSheet, this.#actionsUIState),
 					);
+					const circumstanceModifiers = [param.circumstanceModifier, ...cms].filter(
+						e => e !== undefined,
+					) as CircumstanceModifier[];
+
+					const statModifier = tree.getModifier(resolvedStatType, circumstanceModifiers);
 
 					return {
 						type: 'check',
@@ -658,10 +784,13 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			})
 			.filter(Boolean);
 
+		// Show only first paragraph of description
+		const firstParagraph = action.description.split('\n\n')[0] || action.description;
+
 		return {
 			key: action.key,
 			name: action.name,
-			description: processDescriptionText(action.description),
+			description: processDescriptionText(firstParagraph),
 			traits: action.traits,
 			costs,
 			costTooltip,
@@ -669,9 +798,77 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		};
 	}
 
-	private getActionTypeHeader(): string | null {
-		// For now, return null - will implement specific headers later if needed
-		return null;
+	private getActionTypeHeader(type: ActionType, characterSheet: CharacterSheet): Record<string, unknown> | null {
+		switch (type) {
+			case ActionType.Movement: {
+				// No header needed for movement - movement stat is already shown in derived stats
+				return null;
+			}
+			case ActionType.Attack: {
+				const equipment = characterSheet.equipment;
+				const hasShield = equipment.items.some(item => item instanceof Shield);
+				const weapons = equipment.items.filter(item => item instanceof Weapon) as Weapon[];
+
+				// Build weapon modes list
+				const weaponModes = [
+					{ index: -1, label: 'Unarmed', weapon: null, mode: null },
+					...(hasShield ? [{ index: -2, label: 'Shield Bash', weapon: null, mode: null }] : []),
+					...weapons.flatMap(weapon =>
+						weapon.modes.map((mode, modeIndex) => ({
+							index: weapons.indexOf(weapon) * 100 + modeIndex, // Unique index
+							label: `${weapon.name} - ${mode.description}`,
+							weapon,
+							mode,
+						})),
+					),
+				];
+
+				const selectedWeaponData =
+					this.#actionsUIState.selectedWeapon !== null
+						? weaponModes.find(w => w.index === this.#actionsUIState.selectedWeapon)
+						: weaponModes[0]; // Default to Unarmed
+
+				return {
+					type: 'attack',
+					weaponModes,
+					selectedWeapon: selectedWeaponData,
+					hasRangedWeapon: selectedWeaponData?.mode?.rangeType === Trait.Ranged,
+					selectedRange: this.#actionsUIState.selectedRange,
+					heightIncrements: this.#actionsUIState.heightIncrements,
+					passiveCoverOptions: Object.values(PassiveCoverType),
+					selectedPassiveCover: this.#actionsUIState.selectedPassiveCover,
+				};
+			}
+			case ActionType.Defense: {
+				const equipment = characterSheet.equipment;
+				const armors = equipment.items.filter(item => item instanceof Armor) as Armor[];
+				const shields = equipment.items.filter(item => item instanceof Shield) as Shield[];
+
+				return {
+					type: 'defense',
+					defenseRealms: StatType.realms,
+					selectedDefenseRealm: this.#actionsUIState.selectedDefenseRealm,
+					armors,
+					shields,
+					selectedArmor:
+						this.#actionsUIState.selectedArmor !== null
+							? {
+									index: this.#actionsUIState.selectedArmor,
+									...armors[this.#actionsUIState.selectedArmor],
+								}
+							: null,
+					selectedShield:
+						this.#actionsUIState.selectedShield !== null
+							? {
+									index: this.#actionsUIState.selectedShield,
+									...shields[this.#actionsUIState.selectedShield],
+								}
+							: null,
+				};
+			}
+			default:
+				return null;
+		}
 	}
 
 	async _onRender(): Promise<void> {
@@ -893,6 +1090,97 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			});
 		}
 
+		// Action cost consumption
+		const costBoxes = root.querySelectorAll('[data-action="consume-action-cost"]') as NodeListOf<HTMLElement>;
+		costBoxes.forEach(box => {
+			box.addEventListener('click', async () => {
+				const actionKey = box.dataset.actionKey;
+				if (!actionKey) return;
+
+				const action = Object.values(ACTIONS).find(a => a.key === actionKey);
+				if (!action) return;
+
+				// TODO: Open resource consumption modal
+				console.log('TODO: Open consume resource modal for action:', action.name);
+				getUI().notifications?.info(`TODO: Consume resources for ${action.name}`);
+			});
+		});
+
+		// Header control handlers
+		const weaponSelects = root.querySelectorAll('[data-action="select-weapon"]') as NodeListOf<HTMLSelectElement>;
+		weaponSelects.forEach(select => {
+			select.addEventListener('change', () => {
+				const weaponIndex = parseInt(select.value);
+				this.#actionsUIState.selectedWeapon = weaponIndex;
+				(this as unknown as { render: (force?: boolean) => void }).render(false);
+			});
+		});
+
+		const defenseRealmSelects = root.querySelectorAll(
+			'[data-action="select-defense-realm"]',
+		) as NodeListOf<HTMLSelectElement>;
+		defenseRealmSelects.forEach(select => {
+			select.addEventListener('change', () => {
+				// Find the StatType by name
+				const realmName = select.value;
+				const realm = StatType.realms.find(r => r.name === realmName);
+				if (realm) {
+					this.#actionsUIState.selectedDefenseRealm = realm;
+					// Clear armor and shield selections when switching away from Body realm
+					if (realm.name !== 'Body') {
+						this.#actionsUIState.selectedArmor = null;
+						this.#actionsUIState.selectedShield = null;
+					}
+					(this as unknown as { render: (force?: boolean) => void }).render(false);
+				}
+			});
+		});
+
+		const passiveCoverSelects = root.querySelectorAll(
+			'[data-action="select-passive-cover"]',
+		) as NodeListOf<HTMLSelectElement>;
+		passiveCoverSelects.forEach(select => {
+			select.addEventListener('change', () => {
+				this.#actionsUIState.selectedPassiveCover = select.value as unknown as PassiveCoverType;
+				(this as unknown as { render: (force?: boolean) => void }).render(false);
+			});
+		});
+
+		const rangeInputs = root.querySelectorAll('[data-action="set-range"]') as NodeListOf<HTMLInputElement>;
+		rangeInputs.forEach(input => {
+			input.addEventListener('change', () => {
+				const value = parseInt(input.value);
+				this.#actionsUIState.selectedRange = value > 0 ? Distance.of(value) : null;
+				(this as unknown as { render: (force?: boolean) => void }).render(false);
+			});
+		});
+
+		const heightInputs = root.querySelectorAll('[data-action="set-height"]') as NodeListOf<HTMLInputElement>;
+		heightInputs.forEach(input => {
+			input.addEventListener('change', () => {
+				this.#actionsUIState.heightIncrements = input.value;
+				(this as unknown as { render: (force?: boolean) => void }).render(false);
+			});
+		});
+
+		const armorSelects = root.querySelectorAll('[data-action="select-armor"]') as NodeListOf<HTMLSelectElement>;
+		armorSelects.forEach(select => {
+			select.addEventListener('change', () => {
+				const armorIndex = parseInt(select.value);
+				this.#actionsUIState.selectedArmor = armorIndex >= 0 ? armorIndex : null;
+				(this as unknown as { render: (force?: boolean) => void }).render(false);
+			});
+		});
+
+		const shieldSelects = root.querySelectorAll('[data-action="select-shield"]') as NodeListOf<HTMLSelectElement>;
+		shieldSelects.forEach(select => {
+			select.addEventListener('change', () => {
+				const shieldIndex = parseInt(select.value);
+				this.#actionsUIState.selectedShield = shieldIndex >= 0 ? shieldIndex : null;
+				(this as unknown as { render: (force?: boolean) => void }).render(false);
+			});
+		});
+
 		// Action check rolls
 		const actionCheckButtons = root.querySelectorAll('[data-action="roll-action-check"]') as NodeListOf<HTMLElement>;
 		actionCheckButtons.forEach(btn => {
@@ -914,13 +1202,19 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				if (!characterSheet) return;
 
 				try {
-					// Build the check with current character state
+					// Build the check with current character state and UI modifiers
 					const tree = characterSheet.getStatTree();
-					const resolvedStatType = computeStatType(parameter.statType);
-					const statModifier = tree.getModifier(
-						resolvedStatType,
-						parameter.circumstanceModifier ? [parameter.circumstanceModifier] : [],
+					const resolvedStatType = computeStatType(parameter.statType, this.#actionsUIState);
+
+					// Compute included modifiers based on current UI state
+					const cms = parameter.includeEquipmentModifiers.flatMap(includeModifierFor =>
+						computeIncludedModifiers(includeModifierFor.toString(), characterSheet, this.#actionsUIState),
 					);
+					const circumstanceModifiers = [parameter.circumstanceModifier, ...cms].filter(
+						e => e !== undefined,
+					) as CircumstanceModifier[];
+
+					const statModifier = tree.getModifier(resolvedStatType, circumstanceModifiers);
 
 					if (event.shiftKey) {
 						// Quick roll - directly execute
