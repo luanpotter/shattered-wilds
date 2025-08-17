@@ -1659,6 +1659,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 							modifier: statModifier.value.value,
 							modifierBreakdown,
 							actorId: this.getCurrentActorId()!,
+							...(parameter.targetDc !== undefined && { targetDC: parameter.targetDc }),
 						});
 					}
 				} catch (err) {

@@ -56,7 +56,7 @@
 			<!-- Target DC Section -->
 			<div class="option-group">
 				<label for="targetDC">Target DC (optional):</label>
-				<input type="number" name="targetDC" placeholder="Leave empty for no target" min="1" max="50" step="1">
+				<input type="number" name="targetDC" placeholder="Leave empty for no target" min="1" max="50" step="1" {{#if targetDC}}value="{{targetDC}}"{{/if}}>
 				<small class="help-text">Difficulty Class to beat</small>
 			</div>
 		</div>

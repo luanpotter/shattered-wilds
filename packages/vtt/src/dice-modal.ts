@@ -9,6 +9,7 @@ export interface DiceRollOptions {
 	modifier: number;
 	actorId: string;
 	modifierBreakdown?: Record<string, number>;
+	targetDC?: number;
 }
 
 export interface DiceRollModalOptions extends DiceRollOptions {
@@ -65,7 +66,7 @@ if (AppV2 && HbsMixin) {
 		};
 
 		async _prepareContext(): Promise<Record<string, unknown>> {
-			const { statType, modifier, actorId } = this.#options;
+			const { statType, modifier, actorId, targetDC } = this.#options;
 
 			// Get character data for extra die options
 			const actor = getActorById(actorId);
@@ -131,6 +132,7 @@ if (AppV2 && HbsMixin) {
 				fortuneValue,
 				canUseExtra,
 				canUseLuck,
+				targetDC,
 			};
 		}
 
