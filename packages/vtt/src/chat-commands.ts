@@ -64,9 +64,9 @@ async function executeShatteredWildsRoll(options: RollOptions): Promise<void> {
 	const { modifier, useExtra, useLuck, dc } = options;
 
 	try {
-		// Use centralized dice system
 		const rollRequest: DiceRollRequest = {
 			name: 'Chat Roll',
+			characterName: 'Unknown',
 			modifiers: modifier !== 0 ? { Base: modifier } : {},
 			extra: useExtra
 				? {
@@ -88,5 +88,3 @@ async function executeShatteredWildsRoll(options: RollOptions): Promise<void> {
 		getUI().notifications?.error?.('Failed to execute dice roll');
 	}
 }
-
-// All dice mechanics now handled by centralized dices.ts

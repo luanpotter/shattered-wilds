@@ -65,7 +65,7 @@ export function getUI(): {
 	};
 }
 
-export function getActorById(id: string): { id?: string; name?: string; flags?: Record<string, unknown> } | undefined {
+export function getActorById(id: string): { id: string; name: string; flags: Record<string, unknown> } | undefined {
 	return (globalThis as any).game?.actors?.get?.(id);
 }
 
@@ -315,11 +315,6 @@ export function getTokenObjectCtor(): { prototype: TokenLike & { _onClickLeft2: 
 		| undefined;
 	if (!ctor) throw new Error('Token class not found at foundry.canvas.placeables.Token');
 	return ctor;
-}
-
-export function getDice3D(): any {
-	const game = getGame();
-	return game?.dice3d;
 }
 
 export function getTokenDisplayModes(): {

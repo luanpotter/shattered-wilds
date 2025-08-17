@@ -16,6 +16,7 @@ import {
 	FeatsSection,
 	DerivedStatType,
 } from '@shattered-wilds/commons';
+import { parseCharacterSheet } from './characters.js';
 
 // Helper function to sync resources to actor system data for token bars
 async function syncResourcesToSystemData(actor: unknown, characterSheet: CharacterSheet): Promise<void> {
@@ -125,9 +126,8 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 	#activeTab: string = 'stats'; // Store the current active tab
 
 	// Helper to get current actor from context (never cache!)
-	private getCurrentActor(): { id?: string; name?: string; flags?: Record<string, unknown> } | null {
-		const actorLike = (this as unknown as { actor?: ActorLike }).actor;
-		return actorLike || null;
+	private getCurrentActor(): ActorLike | undefined {
+		return (this as unknown as { actor?: ActorLike }).actor;
 	}
 
 	private getCurrentActorId(): string | undefined {
@@ -136,28 +136,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 	private getCharacterSheet(): CharacterSheet | undefined {
 		const actor = this.getCurrentActor();
-		if (!actor) return undefined;
-
-		const rawProps = getCharacterProps(actor);
-		const props = Object.fromEntries(
-			Object.entries(rawProps).map(([key, value]) => {
-				if (key.startsWith('feat_')) {
-					// Convert feat_1_Minor_0 back to feat.1.Minor.0
-					const transformedKey = key.replace(/^feat_(\d+)_(\w+)_(\d+)$/, 'feat.$1.$2.$3');
-					return [transformedKey, value];
-				}
-				return [key, value];
-			}),
-		);
-
-		try {
-			if (Object.keys(props).length > 0) {
-				return CharacterSheet.from(props);
-			}
-		} catch (err) {
-			console.warn('Failed to create CharacterSheet:', err);
-		}
-		return undefined;
+		return actor ? parseCharacterSheet(actor) : undefined;
 	}
 
 	constructor(...args: unknown[]) {
@@ -673,6 +652,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		// Quick roll with default options using centralized dice system
 		const rollRequest: DiceRollRequest = {
 			name: statType,
+			characterName: this.getCharacterSheet()?.name ?? 'Unknown',
 			modifiers: this.buildModifiersMap(statType, modifier, 0), // modifier + 0 circumstance
 			extra: undefined,
 			luck: undefined,
@@ -733,34 +713,11 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 	private getStatBreakdown(
 		statTypeName: string,
-	): { baseValue: number; modifiers: Array<{ source: string; value: number }>; total: number } | null {
+	): { baseValue: number; modifiers: Array<{ source: string; value: number }>; total: number } | undefined {
 		try {
-			const currentActorId = this.getCurrentActorId();
-			const actor = (currentActorId && getActorById(currentActorId)) || {
-				id: currentActorId,
-				name: 'Unknown',
-				flags: {},
-			};
+			const characterSheet = this.getCharacterSheet();
+			if (!characterSheet) return undefined;
 
-			// Get the raw props from flags
-			const flags = actor.flags as Record<string, unknown> | undefined;
-			const swFlags = (flags?.['shattered-wilds'] as { props?: Record<string, string> } | undefined) ?? undefined;
-			const rawProps = swFlags?.props ?? {};
-
-			// Transform feat props back to expected format
-			const props = Object.fromEntries(
-				Object.entries(rawProps).map(([key, value]) => {
-					if (key.startsWith('feat_')) {
-						const transformedKey = key.replace(/^feat_(\d+)_(\w+)_(\d+)$/, 'feat.$1.$2.$3');
-						return [transformedKey, value];
-					}
-					return [key, value];
-				}),
-			);
-
-			if (Object.keys(props).length === 0) return null;
-
-			const characterSheet = CharacterSheet.from(props);
 			const statTree = characterSheet.getStatTree();
 
 			// Special handling for derived stats like initiative
@@ -789,7 +746,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 			const statType = StatType.values.find(st => st.name === statTypeName);
 
-			if (!statType) return null;
+			if (!statType) return undefined;
 
 			const node = statTree.getNode(statType);
 			const nodeModifier = statTree.getNodeModifier(node);
@@ -819,7 +776,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			};
 		} catch (err) {
 			console.warn('Failed to get stat breakdown:', err);
-			return null;
+			return undefined;
 		}
 	}
 }

@@ -1,6 +1,7 @@
-import { getApplicationV2Ctor, getHandlebarsApplicationMixin, getActorById, getUI } from './foundry-shim.js';
+import { Resource, StatType } from '@shattered-wilds/commons';
 import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
-import { CharacterSheet, Resource, StatType } from '@shattered-wilds/commons';
+import { parseCharacterSheet } from './characters.js';
+import { getActorById, getApplicationV2Ctor, getHandlebarsApplicationMixin, getUI } from './foundry-shim.js';
 
 export interface SWCharacterAppOptions {
 	actorId: string;
@@ -50,21 +51,13 @@ if (AppV2 && HbsMixin) {
 
 		async _prepareContext(): Promise<Record<string, unknown>> {
 			const actor = getActorById(this.#actorId) ?? { id: this.#actorId, name: 'Unknown', flags: {} };
+			const characterSheet = parseCharacterSheet(actor);
 
-			// Get the raw props from flags
-			const flags = actor.flags as Record<string, unknown> | undefined;
-			const swFlags = (flags?.['shattered-wilds'] as { props?: Record<string, string> } | undefined) ?? undefined;
-			const props = swFlags?.props ?? {};
-
-			// Use CharacterSheet.from to get computed character data
-			let characterSheet: CharacterSheet | undefined;
 			const resources: Record<string, { current: number; max: number }> = {};
 			let statTreeData: unknown = null;
 
 			try {
-				if (Object.keys(props).length > 0) {
-					characterSheet = CharacterSheet.from(props);
-
+				if (characterSheet) {
 					// Prepare resources data for template
 					Object.values(Resource).forEach(resource => {
 						resources[resource] = characterSheet!.getResource(resource);
@@ -108,7 +101,6 @@ if (AppV2 && HbsMixin) {
 			return {
 				actor,
 				flags: actor.flags ?? {},
-				props,
 				characterSheet,
 				resources,
 				statTreeData,

@@ -1,7 +1,8 @@
-import { FoundryRoll, getDice3D, getRollCtor } from './foundry-shim';
+import { FoundryRoll, getRollCtor } from './foundry-shim';
 
 export interface DiceRollRequest {
 	name: string; // name of the roll, either the primary stat or derived stat (e.g. "STR", "Level", "Finesse")
+	characterName: string; // name of the character to roll for
 	modifiers: Record<string, number>; // list of modifiers to apply with user facing names (e.g. "Feat: Favored Upbringing" -> +1)
 	extra: // whether to add the extra die, and if so, the parameters
 	| {
@@ -17,63 +18,43 @@ export interface DiceRollRequest {
 	targetDC: number | undefined; // the target DC to check if the roll is successful (optional)
 }
 
-export const executeEnhancedRoll = async (roll: DiceRollRequest): Promise<void> => {
-	const { name, modifiers, extra, luck, targetDC } = roll;
+export type ExtraDiceParams = { value: number; valid?: boolean; label?: string };
 
-	const ps: Promise<void>[] = [];
-	const queueRoll = async (formula: string): Promise<FoundryRoll> => {
-		const roll = await getRollCtor().create(formula);
-		ps.push(roll.evaluate());
-		return roll;
+export const executeEnhancedRoll = async (roll: DiceRollRequest): Promise<number> => {
+	const { name, characterName, modifiers, extra, luck, targetDC } = roll;
+
+	const diceCount = 2 + (extra ? 1 : 0) + (luck ? 1 : 0);
+
+	const rolls = await getRollCtor().create(`${diceCount}d12`);
+	await rolls.evaluate();
+
+	const extraDice: { extra: ExtraDiceParams | undefined; luck: ExtraDiceParams | undefined } = {
+		extra: undefined,
+		luck: undefined,
 	};
 
-	const rolls = {
-		base: await queueRoll('2d12'),
-		extra: extra ? await queueRoll('1d12') : undefined,
-		luck: luck ? await queueRoll('1d12') : undefined,
-	} as const;
-
-	await Promise.all(ps);
-
-	const extraDice: { type: string; value: number; valid?: boolean; label?: string }[] = [];
-
-	if (extra && rolls.extra) {
-		const extraRollValue = rolls.extra.total;
+	if (extra) {
+		const extraIndex = 2;
+		const extraRollValue = rolls.terms[0]!.results![extraIndex]!.result;
 		const extraValue = extra.value;
 
-		extraDice.push({
-			type: 'extra',
+		extraDice.extra = {
 			value: extraRollValue,
 			valid: extraRollValue <= extraValue,
 			label: `${extra.name} (${extraValue})`,
-		});
+		};
 	}
 
-	if (luck && rolls.luck) {
-		const luckRollValue = rolls.luck.total;
+	if (luck) {
+		const luckIndex = 2 + (extra ? 1 : 0);
+		const luckRollValue = rolls.terms[0]!.results![luckIndex]!.result;
 		const fortuneValue = luck.value;
 
-		extraDice.push({
-			type: 'luck',
+		extraDice.luck = {
 			value: luckRollValue,
 			valid: luckRollValue <= fortuneValue,
 			label: `Luck (${fortuneValue})`,
-		});
-	}
-
-	// Show extra dice animations with Dice So Nice if available
-	const dice3d = getDice3D();
-	if (dice3d && (rolls.extra || rolls.luck)) {
-		const extraRolls = [rolls.extra, rolls.luck].filter(roll => roll !== undefined);
-		for (const extraRoll of extraRolls) {
-			try {
-				// TODO(luan): move to shim
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				dice3d.showForRoll(extraRoll, (globalThis as any).game?.user, true);
-			} catch (err) {
-				console.debug('Failed to show Dice So Nice animation for extra roll:', err);
-			}
-		}
+		};
 	}
 
 	const totalModifier = Object.values(modifiers).reduce((sum, val) => sum + val, 0);
@@ -91,10 +72,9 @@ export const executeEnhancedRoll = async (roll: DiceRollRequest): Promise<void> 
 		flavorText += `<br>Target DC: ${targetDC}`;
 	}
 
-	// Process Shattered Wilds specific mechanics with extra dice (single message)
-	await processEnhancedShatteredWildsRoll(rolls, modifiers, extraDice, name, targetDC, {
+	return await processEnhancedShatteredWildsRoll(rolls, modifiers, extraDice, name, targetDC, {
 		speaker: {
-			alias: `${name} Check`,
+			alias: `${name} Check - ${characterName}`,
 		},
 		flavor: flavorText,
 	});
@@ -116,32 +96,31 @@ const calculateShifts = (excess: number): number => {
 	return shifts;
 };
 
-const rollToResults = (roll: FoundryRoll): number[] => {
-	return roll.terms[0]?.results?.map(d => d.result) || [];
+const rollToResults = (roll: FoundryRoll, index: number): number | undefined => {
+	return roll.terms[0]?.results?.[index]?.result;
 };
 
 const processEnhancedShatteredWildsRoll = async (
-	rolls: { base: FoundryRoll; extra: FoundryRoll | undefined; luck: FoundryRoll | undefined },
+	rolls: FoundryRoll,
 	modifiers: Record<string, number>,
-	extraDice: { type: string; value: number; valid?: boolean; label?: string }[],
+	extraDice: { extra: ExtraDiceParams | undefined; luck: ExtraDiceParams | undefined },
 	name: string,
 	targetDC: number | undefined,
 	chatOptions: { speaker?: { alias?: string }; flavor?: string },
-): Promise<void> => {
-	const baseValues = rollToResults(rolls.base);
+): Promise<number> => {
+	const baseValues = [rollToResults(rolls, 0)!, rollToResults(rolls, 1)!];
 
-	// Include extra dice in the analysis
 	const allDiceValues = [
 		...baseValues,
-		...(rolls.extra ? rollToResults(rolls.extra) : []),
-		...(rolls.luck ? rollToResults(rolls.luck) : []),
+		...(extraDice.extra ? [extraDice.extra.value] : []),
+		...(extraDice.luck ? [extraDice.luck.value] : []),
 	];
 
 	const allValidDiceValues = [
 		...baseValues,
-		...(rolls.extra && extraDice.find(d => d.type === 'extra')?.valid ? [rollToResults(rolls.extra)[0]] : []),
-		...(rolls.luck && extraDice.find(d => d.type === 'luck')?.valid ? [rollToResults(rolls.luck)[0]] : []),
-	].filter(d => d !== undefined);
+		...(extraDice.extra?.valid === true ? [extraDice.extra.value] : []),
+		...(extraDice.luck?.valid === true ? [extraDice.luck.value] : []),
+	];
 	const topTwoValidDiceValues = allValidDiceValues.sort((a, b) => b - a).slice(0, 2);
 
 	// Check for crit modifiers
@@ -197,13 +176,18 @@ const processEnhancedShatteredWildsRoll = async (
 	mechanicsHtml += `<div style="margin-bottom: 8px;">`;
 	mechanicsHtml += `<strong>Base Dice:</strong> ${baseValues.join(', ')}`;
 
-	if (extraDice.length > 0) {
-		const extraLabels = extraDice.map(d => {
-			const validText = d.valid !== undefined ? (d.valid ? ' ✓' : ' ✗') : '';
-			return `${d.label}: ${d.value}${validText}`;
-		});
-		mechanicsHtml += `<br><strong>Extra Dice:</strong> ${extraLabels.join(', ')}`;
+	if (extraDice.extra) {
+		const extraLabels = extraDice.extra.valid !== undefined ? (extraDice.extra.valid ? ' ✓' : ' ✗') : '';
+		mechanicsHtml += `<br><strong>Extra Dice:</strong> ${extraDice.extra.label}: ${extraDice.extra.value}${extraLabels}`;
 	}
+	if (extraDice.luck) {
+		const luckLabels = extraDice.luck.valid !== undefined ? (extraDice.luck.valid ? ' ✓' : ' ✗') : '';
+		mechanicsHtml += `<br><strong>Luck Dice:</strong> ${extraDice.luck.label}: ${extraDice.luck.value}${luckLabels}`;
+	}
+	if (extraDice.extra || extraDice.luck) {
+		mechanicsHtml += `<br><strong>Selected Dice:</strong> ${topTwoValidDiceValues.join(', ')} = ${baseTotal}`;
+	}
+
 	mechanicsHtml += `</div>`;
 
 	// Show mechanics
@@ -231,8 +215,10 @@ const processEnhancedShatteredWildsRoll = async (
 	mechanicsHtml += `</div>`;
 
 	// Send the enhanced single message with dice and mechanics
-	await rolls.base.toMessage({
+	await rolls.toMessage({
 		...chatOptions,
 		flavor: `${chatOptions.flavor || ''}<br>${mechanicsHtml}`,
 	});
+
+	return finalTotal;
 };

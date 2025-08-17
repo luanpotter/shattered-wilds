@@ -2,6 +2,7 @@
 import { getApplicationV2Ctor, getHandlebarsApplicationMixin, getActorById } from './foundry-shim.js';
 import { CharacterSheet, StatType, StatHierarchy } from '@shattered-wilds/commons';
 import { executeEnhancedRoll, type DiceRollRequest } from './dices.js';
+import { parseCharacterSheet } from './characters.js';
 
 export interface DiceRollOptions {
 	statType: string;
@@ -67,18 +68,14 @@ if (AppV2 && HbsMixin) {
 
 			// Get character data for extra die options
 			const actor = getActorById(actorId);
-			const flags = actor?.flags as Record<string, unknown> | undefined;
-			const swFlags = (flags?.['shattered-wilds'] as { props?: Record<string, string> } | undefined) ?? undefined;
-			const props = swFlags?.props ?? {};
+			const characterSheet = actor ? parseCharacterSheet(actor) : undefined;
 
-			let characterSheet: CharacterSheet | undefined;
 			let attributeOptions: Array<{ key: string; name: string; value: number }> = [];
 			let canUseExtra = false;
 			let canUseLuck = true;
 
 			try {
-				if (Object.keys(props).length > 0) {
-					characterSheet = CharacterSheet.from(props);
+				if (characterSheet) {
 					const statTree = characterSheet.getStatTree();
 
 					// Determine if this is a skill roll and which attribute to exclude
@@ -230,9 +227,13 @@ if (AppV2 && HbsMixin) {
 			const circumstanceModifier = parseInt((formData.get('circumstanceModifier') as string) || '0');
 			const targetDC = formData.get('targetDC') ? parseInt(formData.get('targetDC') as string) : undefined;
 
+			const actor = getActorById(this.#options.actorId);
+			const characterSheet = actor ? parseCharacterSheet(actor) : undefined;
+
 			// Use centralized dice system directly
 			const rollRequest: DiceRollRequest = {
 				name: this.#options.statType,
+				characterName: characterSheet?.name ?? 'Unknown',
 				modifiers: await this.buildModifiersMap(this.#options.modifier, circumstanceModifier),
 				extra:
 					useExtra && extraAttribute
