@@ -127,7 +127,7 @@ async function rollShatteredWildsInitiative(actor: ActorLike): Promise<number | 
 		);
 
 		await roll.toMessage({
-			flavor: `<strong>Initiative Roll</strong><br><strong>${actor.name || 'Character'}</strong>${mechanicsHtml}`,
+			flavor: `<strong>Initiative Check</strong><br><strong>${actor.name || 'Character'}</strong>${mechanicsHtml}`,
 		});
 
 		return result.finalTotal;
