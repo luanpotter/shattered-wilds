@@ -21,6 +21,7 @@ import {
 	OtherItem,
 	PRIMARY_WEAPON_TYPES,
 	ACTIONS,
+	Action,
 	ActionDefinition,
 	ActionType,
 	ActionValueParameter,
@@ -33,6 +34,7 @@ import {
 	Trait,
 	ModifierSource,
 	COVER_TYPES,
+	IncludeEquipmentModifier,
 } from '@shattered-wilds/commons';
 import { parseCharacterSheet } from './characters.js';
 
@@ -705,13 +707,83 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 	}
 
 	private prepareActionsForType(type: ActionType, characterSheet: CharacterSheet): unknown[] {
-		const actions = Object.values(ACTIONS)
-			.filter(action => action.type === type)
-			.filter(
-				action =>
-					this.#actionsUIState.showAll ||
-					action.costs.every(cost => characterSheet.getResource(cost.resource).current >= cost.amount),
+		let actions = Object.values(ACTIONS).filter(action => action.type === type);
+
+		// Apply resource-based filtering
+		if (!this.#actionsUIState.showAll) {
+			actions = actions.filter(action =>
+				action.costs.every(cost => characterSheet.getResource(cost.resource).current >= cost.amount),
 			);
+		}
+
+		// Apply contextual filtering based on selected weapon mode and defense realm
+		actions = actions.filter(action => {
+			// Filter based on weapon mode for attack actions
+			if (type === ActionType.Attack) {
+				const selectedWeaponIndex = this.#actionsUIState.selectedWeapon;
+				if (selectedWeaponIndex !== null && selectedWeaponIndex >= 0) {
+					const equipment = characterSheet.equipment;
+					const weapons = equipment.items.filter(item => item instanceof Weapon) as Weapon[];
+					const weaponIndex = Math.floor(selectedWeaponIndex / 100);
+					const modeIndex = selectedWeaponIndex % 100;
+					const weapon = weapons[weaponIndex];
+					const mode = weapon?.modes[modeIndex];
+
+					if (mode) {
+						const isRangedMode = mode.rangeType === Trait.Ranged;
+						// Hide ranged actions if melee weapon selected, and vice versa
+						if (action.traits.includes(Trait.Ranged) && !isRangedMode) {
+							return false;
+						}
+						if (action.traits.includes(Trait.Melee) && isRangedMode) {
+							return false;
+						}
+					}
+				} else {
+					// For unarmed (-1) or shield bash (-2), treat as melee
+					if (action.traits.includes(Trait.Ranged)) {
+						return false;
+					}
+				}
+			}
+
+			// Filter based on defense realm for defense actions
+			if (type === ActionType.Defense) {
+				const selectedDefenseRealm = this.#actionsUIState.selectedDefenseRealm;
+				if (selectedDefenseRealm) {
+					// Always show Basic Defense regardless of realm
+					if (action.key === Action.BasicDefense) {
+						return true;
+					}
+
+					// Hide body-only defense actions if Mind or Soul is selected
+					if (selectedDefenseRealm.name !== 'Body') {
+						// Check if action is body-only by looking at its parameters
+						const hasBodyOnlyParameters = action.parameters.some(param => {
+							if (param instanceof ActionCheckParameter) {
+								return (
+									param.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Armor) ||
+									param.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Shield)
+								);
+							}
+							return false;
+						});
+						if (hasBodyOnlyParameters) {
+							return false;
+						}
+					}
+
+					// Hide Shield Block if show all is false and no shield is selected
+					if (action.key === Action.ShieldBlock && !this.#actionsUIState.showAll) {
+						if (this.#actionsUIState.selectedShield === null) {
+							return false;
+						}
+					}
+				}
+			}
+
+			return true;
+		});
 
 		return actions.map(action => this.prepareActionItem(action, characterSheet));
 	}
@@ -1216,12 +1288,19 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 					const statModifier = tree.getModifier(resolvedStatType, circumstanceModifiers);
 
+					// Build detailed modifier breakdown
+					const modifierBreakdown = this.buildActionModifierBreakdown(
+						resolvedStatType,
+						circumstanceModifiers,
+						characterSheet,
+					);
+
 					if (event.shiftKey) {
 						// Quick roll - directly execute
 						const rollRequest: DiceRollRequest = {
 							name: `${action.name} - ${resolvedStatType.toString()}`,
 							characterName: characterSheet.name,
-							modifiers: { Base: statModifier.value.value },
+							modifiers: modifierBreakdown,
 							extra: undefined,
 							luck: undefined,
 							targetDC: parameter.targetDc,
@@ -1237,6 +1316,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 						await DiceRollModal.open({
 							statType: resolvedStatType.toString(),
 							modifier: statModifier.value.value,
+							modifierBreakdown,
 							actorId: this.getCurrentActorId()!,
 						});
 					}
@@ -1410,6 +1490,44 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		// Add circumstance modifier if any
 		if (circumstanceModifier !== 0) {
 			modifiers['Circumstance'] = circumstanceModifier;
+		}
+
+		return modifiers;
+	}
+
+	private buildActionModifierBreakdown(
+		statType: StatType,
+		circumstanceModifiers: CircumstanceModifier[],
+		characterSheet: CharacterSheet,
+	): Record<string, number> {
+		const modifiers: Record<string, number> = {};
+		const tree = characterSheet.getStatTree();
+
+		// Get the base stat value (without any circumstance modifiers)
+		const baseStatModifier = tree.getModifier(statType, []);
+		if (baseStatModifier.value.value !== 0) {
+			modifiers['Base'] = baseStatModifier.value.value;
+		}
+
+		// Add each circumstance modifier separately
+		for (const cm of circumstanceModifiers) {
+			if (cm.value.value !== 0) {
+				// Use a more descriptive name based on the modifier source
+				let modifierName = cm.name;
+				if (cm.source === ModifierSource.Circumstance) {
+					modifierName = 'CM';
+				} else if (cm.source === ModifierSource.Equipment) {
+					modifierName = 'Equipment';
+				}
+
+				// If we already have a modifier with this name, combine them
+				const existingValue = modifiers[modifierName];
+				if (existingValue !== undefined) {
+					modifiers[modifierName] = existingValue + cm.value.value;
+				} else {
+					modifiers[modifierName] = cm.value.value;
+				}
+			}
 		}
 
 		return modifiers;

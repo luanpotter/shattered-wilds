@@ -603,7 +603,7 @@ export const ACTIONS = {
 				circumstanceModifier: new CircumstanceModifier({
 					source: ModifierSource.Circumstance,
 					name: 'Take Cover',
-					value: Bonus.of(3),
+					value: Bonus.of(6),
 				}),
 			}),
 		],

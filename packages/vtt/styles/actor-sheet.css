@@ -1116,11 +1116,11 @@
 }
 
 .parameter-box.check-parameter .dice-icon {
-	position: absolute;
-	top: 2px;
-	right: 4px;
-	font-size: 10px;
-	opacity: 0.7;
+	font-size: 1em;
+	margin-left: 2px;
+	opacity: 0.9;
+	display: inline;
+	vertical-align: baseline;
 }
 
 .parameter-title {
@@ -1133,5 +1133,17 @@
 
 .parameter-value {
 	font-weight: bold;
+}
+
+/* Trait Styling */
+.trait {
+	color: #6bff6b;
+	font-size: 0.8em;
+	padding: 0.1rem 0.3rem;
+	border-radius: 3px;
+	border: 1px solid white;
+	background-color: var(--background-alt);
+	margin-left: 4px;
+	display: inline-block;
 }
 
