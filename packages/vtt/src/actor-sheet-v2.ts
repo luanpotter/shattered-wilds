@@ -36,6 +36,8 @@ import {
 	ModifierSource,
 	COVER_TYPES,
 	IncludeEquipmentModifier,
+	Condition,
+	CONDITIONS,
 } from '@shattered-wilds/commons';
 import { parseCharacterSheet } from './characters.js';
 
@@ -310,6 +312,180 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		selectedShield: null as number | null,
 	};
 
+	#conditions = new Set<Condition>();
+	#conditionsLoaded = false;
+
+	private loadConditionsFromActor(): void {
+		const actor = this.getCurrentActor();
+		if (!actor) return;
+
+		// Only load conditions once per sheet instance
+		if (this.#conditionsLoaded) return;
+
+		// Load from actor flags first
+		const flags = actor.flags as Record<string, unknown> | undefined;
+		const swFlags = flags?.['shattered-wilds'] as { conditions?: Condition[] } | undefined;
+		const flagConditions = swFlags?.conditions || [];
+
+		// Also check token status effects for initial sync
+		const actorWithStatuses = actor as { statuses?: Set<string> } | undefined;
+		const tokenConditions: Condition[] = [];
+
+		if (actorWithStatuses?.statuses) {
+			for (const statusId of actorWithStatuses.statuses) {
+				if (statusId.startsWith('sw-')) {
+					const conditionName = statusId
+						.replace('sw-', '')
+						.replace(/-/g, ' ')
+						.replace(/\b\w/g, l => l.toUpperCase());
+					const condition = Object.values(Condition).find(
+						c => c === conditionName || c.toLowerCase().replace(/\s+/g, '-') === statusId.replace('sw-', ''),
+					);
+					if (condition) {
+						tokenConditions.push(condition);
+					}
+				}
+			}
+		}
+
+		// Use token conditions if they exist and differ from flags (token is source of truth)
+		const conditionsToLoad = tokenConditions.length > 0 ? tokenConditions : flagConditions;
+
+		this.#conditions.clear();
+		conditionsToLoad.forEach(condition => this.#conditions.add(condition));
+		this.#conditionsLoaded = true;
+
+		// Sync flags if token had different conditions
+		if (
+			tokenConditions.length > 0 &&
+			JSON.stringify([...tokenConditions].sort()) !== JSON.stringify(flagConditions.sort())
+		) {
+			this.saveConditionsToActor().catch(err => console.warn('Failed to sync token conditions to actor flags:', err));
+		}
+	}
+
+	private async saveConditionsToActor(): Promise<void> {
+		const actor = this.getCurrentActor() as
+			| {
+					flags?: Record<string, unknown>;
+					setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
+			  }
+			| undefined;
+
+		if (!actor?.setFlag) {
+			console.warn('Cannot save conditions: actor not found or missing setFlag');
+			return;
+		}
+
+		const conditionsArray = Array.from(this.#conditions);
+		await actor.setFlag('shattered-wilds', 'conditions', conditionsArray);
+		await this.syncConditionsToToken();
+	}
+
+	private async syncConditionsToToken(): Promise<void> {
+		const actor = this.getCurrentActor() as
+			| {
+					token?: {
+						document?: {
+							update?: (data: Record<string, unknown>) => Promise<unknown>;
+							actor?: {
+								statuses?: Set<string>;
+								toggleStatusEffect?: (statusId: string, options?: { active?: boolean }) => Promise<boolean>;
+							};
+						};
+					};
+					getActiveTokens?: () => Array<{
+						document?: {
+							update?: (data: Record<string, unknown>) => Promise<unknown>;
+							actor?: {
+								statuses?: Set<string>;
+								toggleStatusEffect?: (statusId: string, options?: { active?: boolean }) => Promise<boolean>;
+							};
+						};
+					}>;
+					statuses?: Set<string>;
+					toggleStatusEffect?: (statusId: string, options?: { active?: boolean }) => Promise<boolean>;
+			  }
+			| undefined;
+
+		if (!actor) return;
+
+		try {
+			// Get all tokens for this actor
+			const tokens = actor.getActiveTokens?.() || (actor.token?.document ? [actor.token] : []);
+
+			// If no tokens, try to update actor directly
+			const targets = tokens.length > 0 ? tokens.map(t => t.document?.actor || actor) : [actor];
+
+			for (const target of targets) {
+				if (!target?.toggleStatusEffect) continue;
+
+				// Get current SW status effects on the token
+				const currentStatuses = target.statuses || new Set<string>();
+				const currentSWStatuses = new Set(Array.from(currentStatuses).filter(statusId => statusId.startsWith('sw-')));
+
+				// Get desired SW status effects from current conditions
+				const desiredSWStatuses = new Set(
+					Array.from(this.#conditions).map(condition => `sw-${condition.toLowerCase().replace(/\s+/g, '-')}`),
+				);
+
+				// Find differences
+				const statusesToRemove = Array.from(currentSWStatuses).filter(statusId => !desiredSWStatuses.has(statusId));
+				const statusesToAdd = Array.from(desiredSWStatuses).filter(statusId => !currentSWStatuses.has(statusId));
+
+				// Apply only the changes needed
+				for (const statusId of statusesToRemove) {
+					await target.toggleStatusEffect(statusId, { active: false });
+				}
+
+				for (const statusId of statusesToAdd) {
+					await target.toggleStatusEffect(statusId, { active: true });
+				}
+			}
+		} catch (err) {
+			console.warn('Failed to sync conditions to token:', err);
+		}
+	}
+
+	static registerStatusEffects(): void {
+		const CONFIG = (globalThis as { CONFIG?: { statusEffects?: unknown[] } }).CONFIG;
+
+		if (!CONFIG?.statusEffects) return;
+
+		// Remove existing SW conditions to avoid duplicates
+		CONFIG.statusEffects = (CONFIG.statusEffects as Array<{ id: string }>).filter(
+			effect => !effect.id?.startsWith('sw-'),
+		);
+
+		// Define condition icon mapping using Foundry core icons
+		const getConditionIcon = (condition: Condition): string => {
+			const iconMap: Record<Condition, string> = {
+				[Condition.Blessed]: 'icons/svg/angel.svg',
+				[Condition.Blinded]: 'icons/svg/blind.svg',
+				[Condition.Distracted]: 'icons/svg/daze.svg',
+				[Condition.Distraught]: 'icons/svg/cursed.svg', // Using cursed for distraught (emotional/spiritual turmoil)
+				[Condition.Frightened]: 'icons/svg/terror.svg',
+				[Condition.Immobilized]: 'icons/svg/net.svg',
+				[Condition.Incapacitated]: 'icons/svg/skull.svg',
+				[Condition.OffGuard]: 'icons/svg/downgrade.svg',
+				[Condition.Prone]: 'icons/svg/falling.svg',
+				[Condition.Silenced]: 'icons/svg/silenced.svg',
+				[Condition.Unconscious]: 'icons/svg/unconscious.svg',
+			};
+			return iconMap[condition] || 'icons/svg/aura.svg';
+		};
+
+		// Add our conditions as status effects
+		const conditionEffects = Object.values(Condition).map(condition => ({
+			id: `sw-${condition.toLowerCase().replace(/\s+/g, '-')}`,
+			name: condition,
+			icon: getConditionIcon(condition),
+			description: CONDITIONS[condition].description,
+		}));
+
+		CONFIG.statusEffects.push(...conditionEffects);
+	}
+
 	// Helper to get current actor from context (never cache!)
 	private getCurrentActor(): ActorLike | undefined {
 		return (this as unknown as { actor?: ActorLike }).actor;
@@ -399,6 +575,9 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 				// Sync resources to actor system data for token bars
 				await syncResourcesToSystemData(actor, characterSheet);
+
+				// Load conditions from actor
+				this.loadConditionsFromActor();
 
 				// Prepare resources data for template
 				Object.values(Resource).forEach(resource => {
@@ -557,6 +736,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			characterSheet,
 			resources,
 			resourcesArray,
+			conditionsData: this.prepareConditionsData(),
 			derivedStatsData,
 			statTreeData,
 			featsData: this.prepareFeatsData(characterSheet),
@@ -880,6 +1060,33 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		return false;
 	}
 
+	private prepareConditionsData(): unknown[] {
+		return Object.values(Condition).map(condition => ({
+			key: condition,
+			name: condition,
+			description: CONDITIONS[condition].description,
+			active: this.#conditions.has(condition),
+			icon: this.getConditionIcon(condition),
+		}));
+	}
+
+	private getConditionIcon(condition: Condition): string {
+		const iconMap: Record<Condition, string> = {
+			[Condition.Blessed]: 'fas fa-sun',
+			[Condition.Blinded]: 'fas fa-eye-slash',
+			[Condition.Distracted]: 'fas fa-dizzy',
+			[Condition.Distraught]: 'fas fa-heart-broken',
+			[Condition.Frightened]: 'fas fa-ghost',
+			[Condition.Immobilized]: 'fas fa-chain',
+			[Condition.Incapacitated]: 'fas fa-skull',
+			[Condition.OffGuard]: 'fas fa-shield-slash',
+			[Condition.Prone]: 'fas fa-person-falling',
+			[Condition.Silenced]: 'fas fa-volume-mute',
+			[Condition.Unconscious]: 'fas fa-bed',
+		};
+		return iconMap[condition] || 'fas fa-exclamation-triangle';
+	}
+
 	private prepareActionItem(action: ActionDefinition, characterSheet: CharacterSheet): unknown {
 		const costs = action.costs.map(cost => {
 			const resource = RESOURCES[cost.resource];
@@ -1068,6 +1275,25 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				getUI().notifications?.info('Share string copied to clipboard');
 			});
 		}
+
+		// Add condition toggle handlers
+		const conditionCheckboxes = root.querySelectorAll(
+			'[data-action="toggle-condition"]',
+		) as NodeListOf<HTMLInputElement>;
+		conditionCheckboxes.forEach(checkbox => {
+			checkbox.addEventListener('change', async () => {
+				const condition = checkbox.dataset.condition as Condition;
+				if (!condition) return;
+
+				if (checkbox.checked) {
+					this.#conditions.add(condition);
+				} else {
+					this.#conditions.delete(condition);
+				}
+
+				await this.saveConditionsToActor();
+			});
+		});
 
 		// Add resource change handlers
 		const resourceBtns = root.querySelectorAll('[data-action="resource-change"]') as NodeListOf<HTMLButtonElement>;

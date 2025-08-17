@@ -54,6 +54,22 @@
 							</button>
 						</div>
 					</div>
+									</div>
+
+				<!-- Conditions Tracker -->
+				<div class="conditions-row">
+					{{#each conditionsData}}
+						<label class="condition-item" title="{{description}}">
+							<input type="checkbox" 
+								data-action="toggle-condition" 
+								data-condition="{{key}}" 
+								{{#if active}}checked{{/if}}>
+							<span class="condition-icon">
+								<i class="{{icon}}"></i>
+							</span>
+							<span class="condition-name">{{name}}</span>
+						</label>
+					{{/each}}
 				</div>
 
 				<!-- Tab Navigation -->

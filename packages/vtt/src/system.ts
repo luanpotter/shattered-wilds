@@ -21,6 +21,9 @@ getHooks().once('init', () => {
 
 	// Register initiative system hooks
 	registerInitiativeHooks();
+
+	// Register status effects for conditions
+	SWActorSheetV2.registerStatusEffects();
 });
 
 // Hook for when actors are created to set up default token bars

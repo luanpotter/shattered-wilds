@@ -1036,6 +1036,64 @@
 	color: #ff6b6b !important;
 }
 
+/* Conditions Row */
+.conditions-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	padding: 12px 16px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+	background: rgba(0, 0, 0, 0.1);
+}
+
+.condition-item {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 10px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 4px;
+	background: rgba(0, 0, 0, 0.3);
+	cursor: pointer;
+	transition: all 0.2s ease;
+	user-select: none;
+}
+
+.condition-item:hover {
+	background: rgba(255, 255, 255, 0.1);
+	border-color: rgba(255, 255, 255, 0.4);
+}
+
+.condition-item input[type="checkbox"] {
+	margin: 0;
+	cursor: pointer;
+}
+
+.condition-item input[type="checkbox"]:checked + .condition-icon {
+	color: #4a9eff;
+}
+
+.condition-item input[type="checkbox"]:checked ~ .condition-name {
+	color: #4a9eff;
+	font-weight: bold;
+}
+
+.condition-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	color: #ccc;
+	transition: color 0.2s ease;
+}
+
+.condition-name {
+	font-size: 0.85em;
+	color: #ddd;
+	transition: color 0.2s ease;
+}
+
 /* Action Details */
 .action-details {
 	flex: 1;
