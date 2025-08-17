@@ -1,0 +1,53 @@
+<div class="sw-consume-resource-modal">
+	<style>
+		@import url("systems/shattered-wilds/styles/consume-resource-modal.css");
+	</style>
+
+	<div class="sw-consume-modal-header">
+		<h3><i class="fas fa-coins"></i> Consume Resources</h3>
+	</div>
+
+	<div class="sw-consume-modal-content">
+		<div class="sw-consume-resources-list">
+			{{#each resources}}
+				<div class="sw-consume-resource-item" data-resource-index="{{@index}}">
+					<div class="sw-consume-resource-info">
+						<div class="sw-consume-resource-name {{#if insufficient}}insufficient{{/if}}">
+							{{displayName}}
+						</div>
+						<div class="sw-consume-resource-available">
+							{{current}}/{{max}} available
+						</div>
+					</div>
+
+					<div class="sw-consume-resource-controls">
+						{{#if variable}}
+							<button type="button" class="sw-consume-adjust-btn minus" data-action="adjust-cost" data-index="{{@index}}" data-delta="-1" {{#if (eq adjustedAmount 0)}}disabled{{/if}}>
+								<i class="fas fa-minus"></i>
+							</button>
+						{{/if}}
+
+						<div class="sw-consume-cost-amount {{#if insufficient}}insufficient{{/if}}">
+							{{adjustedAmount}}
+						</div>
+
+						{{#if variable}}
+							<button type="button" class="sw-consume-adjust-btn plus" data-action="adjust-cost" data-index="{{@index}}" data-delta="1">
+								<i class="fas fa-plus"></i>
+							</button>
+						{{/if}}
+					</div>
+				</div>
+			{{/each}}
+		</div>
+	</div>
+
+	<div class="sw-consume-modal-footer">
+		<button type="button" class="sw-consume-modal-btn cancel" data-action="cancel">
+			<i class="fas fa-times"></i> Cancel
+		</button>
+		<button type="button" class="sw-consume-modal-btn confirm" data-action="confirm" {{#unless canAfford}}disabled{{/unless}}>
+			<i class="fas fa-check"></i> Consume
+		</button>
+	</div>
+</div>

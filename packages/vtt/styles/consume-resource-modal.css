@@ -1,0 +1,162 @@
+/* Consume Resource Modal Styles */
+.sw-consume-resource-modal {
+	background: #1a1a1a;
+	border: 1px solid #ffffff;
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+	min-width: 400px;
+	max-width: 500px;
+}
+
+.sw-consume-modal-header {
+	padding: 16px 20px;
+	border-bottom: 1px solid #ffffff;
+	text-align: center;
+}
+
+.sw-consume-modal-header h3 {
+	margin: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	font-size: 1.1em;
+	color: #ffffff;
+}
+
+.sw-consume-modal-content {
+	padding: 20px;
+}
+
+.sw-consume-resources-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.sw-consume-resource-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px;
+	border: 1px solid #ffffff;
+	border-radius: 4px;
+	background-color: #2a2a2a;
+}
+
+.sw-consume-resource-info {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+}
+
+.sw-consume-resource-name {
+	font-weight: bold;
+	color: #ffffff;
+}
+
+.sw-consume-resource-name.insufficient {
+	color: #ff6b6b;
+}
+
+.sw-consume-resource-available {
+	font-size: 0.9em;
+	opacity: 0.8;
+	color: #ffffff;
+}
+
+.sw-consume-resource-controls {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.sw-consume-adjust-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	border: 1px solid #ffffff;
+	border-radius: 3px;
+	background: #2a2a2a;
+	color: #ffffff;
+	cursor: pointer;
+	font-size: 0.8em;
+	padding: 0;
+}
+
+.sw-consume-adjust-btn:hover:not(:disabled) {
+	background: #4a9eff;
+	border-color: #4a9eff;
+}
+
+.sw-consume-adjust-btn:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+.sw-consume-cost-amount {
+	min-width: 40px;
+	text-align: center;
+	font-weight: bold;
+	color: #ffffff;
+}
+
+.sw-consume-cost-amount.insufficient {
+	color: #ff6b6b;
+}
+
+.sw-consume-modal-footer {
+	padding: 16px 20px;
+	border-top: 1px solid #ffffff;
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
+}
+
+.sw-consume-modal-btn {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 16px;
+	border: 1px solid #ffffff;
+	border-radius: 4px;
+	background: #2a2a2a;
+	color: #ffffff;
+	cursor: pointer;
+	font-size: 0.9em;
+	transition: all 0.2s;
+}
+
+.sw-consume-modal-btn:hover:not(:disabled) {
+	background: #4a9eff;
+	border-color: #4a9eff;
+}
+
+.sw-consume-modal-btn:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+.sw-consume-modal-btn.cancel:hover:not(:disabled) {
+	background: #ff6b6b;
+	border-color: #ff6b6b;
+}
+
+.sw-consume-modal-btn.confirm:hover:not(:disabled) {
+	background: #28a745;
+	border-color: #28a745;
+}
+
+/* Application-level container styles */
+.sw-consume-modal-app {
+	/* Ensure modal app container doesn't interfere with other elements */
+	position: relative;
+	z-index: 9999;
+}
+
+.sw-consume-modal-window {
+	/* Ensure modal window content doesn't interfere with other elements */
+	position: relative;
+}

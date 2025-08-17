@@ -4,6 +4,7 @@ import { DiceRollModal } from './dice-modal.js';
 import { executeEnhancedRoll, type DiceRollRequest } from './dices.js';
 import { configureDefaultTokenBars } from './token-bars.js';
 import { getActorData, getCharacterProps, ensureActorDataPersistence, type ActorLike } from './actor-data-manager.js';
+import { ConsumeResourceModal } from './consume-resource-modal.js';
 import {
 	CharacterSheet,
 	Resource,
@@ -1172,9 +1173,28 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				const action = Object.values(ACTIONS).find(a => a.key === actionKey);
 				if (!action) return;
 
-				// TODO: Open resource consumption modal
-				console.log('TODO: Open consume resource modal for action:', action.name);
-				getUI().notifications?.info(`TODO: Consume resources for ${action.name}`);
+				const characterSheet = this.getCharacterSheet();
+				const actorId = this.getCurrentActorId();
+				if (!characterSheet || !actorId) return;
+
+				try {
+					// Check if modal is supported
+					if (!ConsumeResourceModal.isSupported()) {
+						getUI().notifications?.warn('Resource consumption modal not supported in this Foundry version');
+						return;
+					}
+
+					// Open the consume resource modal
+					await ConsumeResourceModal.open(characterSheet, action.costs, action.name, actorId, {
+						onConfirm: () => {
+							// Re-render the sheet to show updated resources
+							(this as unknown as { render: (force?: boolean) => void }).render(false);
+						},
+					});
+				} catch (error) {
+					console.error('Failed to open consume resource modal:', error);
+					getUI().notifications?.error('Failed to open resource consumption modal');
+				}
 			});
 		});
 
