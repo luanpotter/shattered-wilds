@@ -251,7 +251,7 @@ export const ACTIONS = {
 		key: Action.Stride,
 		type: ActionType.Movement,
 		name: 'Stride',
-		description: 'Enables you to move up to [[Movement]] hexes. Movement can be saved for later.',
+		description: 'Enables you to move up to [[Movement]] hexes. Movement cannot be saved for later except during a sequence of Movement Actions.',
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		parameters: [
 			new ActionValueParameter({
