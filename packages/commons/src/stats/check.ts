@@ -1,4 +1,5 @@
 import { StatModifier } from './stat-tree.js';
+import { StatType } from './stat-type.js';
 import { Bonus } from './value.js';
 
 export enum CheckMode {
@@ -34,5 +35,12 @@ export class Check {
 
 	get modifierValue(): Bonus {
 		return this.statModifier.value;
+	}
+
+	get name(): string {
+		if (this.statModifier.statType instanceof StatType) {
+			return this.statModifier.statType.name;
+		}
+		return this.statModifier.statType;
 	}
 }

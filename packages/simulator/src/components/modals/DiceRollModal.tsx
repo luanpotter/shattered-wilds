@@ -284,12 +284,47 @@ const DiceRollModalContent: React.FC<{
 	const handleDcInputChange = (value: string) => setDc(value ? parseInt(value) : null);
 
 	const handleCopyToVTT = () => {
-		const parts = [
-			`/r d12 + ${check.modifierValue.value}`,
-			useExtra && 'extra',
-			useLuck && 'luck',
-			dc !== null && `dc ${dc}`,
-		].filter(Boolean);
+		// Build /d12 command: /d12 "Check Name" mod:"Source":+value mod:"Source2":+value extra:STAT:value luck:value dc:value
+		const parts: string[] = [`/d12 "${check.name} Check"`];
+
+		// Add modifiers - need to break down the stat modifier
+		if (check.statModifier.appliedModifiers && check.statModifier.appliedModifiers.length > 0) {
+			// Use detailed modifier breakdown if available
+			for (const modifier of check.statModifier.appliedModifiers) {
+				if (modifier.value.value !== 0) {
+					const modName = `${modifier.source} ${modifier.name}`.trim();
+					parts.push(`mod:"${modName}":${modifier.value.value >= 0 ? '+' : ''}${modifier.value.value}`);
+				}
+			}
+
+			// Add base value if any
+			if (check.statModifier.baseValue.value > 0) {
+				parts.push(`mod:"Base":+${check.statModifier.baseValue.value}`);
+			}
+		} else {
+			// Fallback to total modifier if no breakdown available
+			if (check.modifierValue.value !== 0) {
+				parts.push(`mod:"Base":${check.modifierValue.value >= 0 ? '+' : ''}${check.modifierValue.value}`);
+			}
+		}
+
+		// Add extra die if selected
+		if (useExtra) {
+			const extraValue = tree.valueOf(extraSkill).value;
+			parts.push(`extra:${extraSkill.name}:${extraValue}`);
+		}
+
+		// Add luck die if selected
+		if (useLuck) {
+			const fortuneValue = tree.valueOf(StatType.Fortune).value;
+			parts.push(`luck:${fortuneValue}`);
+		}
+
+		// Add DC if set
+		if (dc !== null) {
+			parts.push(`dc:${dc}`);
+		}
+
 		exportDataToClipboard(parts.join(' '));
 	};
 
