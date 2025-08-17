@@ -196,15 +196,8 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 	};
 
 	async _prepareContext(): Promise<Record<string, unknown>> {
-		// Get the sheet instance ID for debugging
-		const sheetInstance = `Sheet-${Math.random().toString(36).substr(2, 9)}`;
-
 		const actorLike = (this as unknown as { actor?: ActorLike }).actor;
 		const currentActorId = actorLike?.id;
-
-		console.warn(`[${sheetInstance}] _prepareContext called for actor ${currentActorId} (${actorLike?.name})`);
-		console.warn(`[${sheetInstance}] Actor flags:`, actorLike?.flags);
-		console.warn(`[${sheetInstance}] Actor has SW flags:`, !!actorLike?.flags?.['shattered-wilds']);
 
 		let actor: ActorLike | null = actorLike || null;
 		if (!actor) {

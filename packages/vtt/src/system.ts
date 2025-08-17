@@ -73,15 +73,12 @@ getHooks().once('ready', () => {
 		configureAllCharacterTokenBars: async () => {
 			const game = getGame();
 			const actors = (game as { actors?: { contents?: unknown[] } }).actors?.contents || [];
-			let configured = 0;
 			for (const actor of actors) {
 				const actorData = actor as { type?: string };
 				if (actorData.type === 'character') {
 					await configureDefaultTokenBars(actor);
-					configured++;
 				}
 			}
-			console.log(`Configured token bars for ${configured} character actors`);
 		},
 	};
 
@@ -92,8 +89,6 @@ getHooks().once('ready', () => {
 		try {
 			const actorId: string | undefined = this.document?.actorId ?? this.actor?.id;
 			if (actorId) {
-				console.warn('Token double-clicked, opening V2 sheet for actor:', actorId);
-				// Get the actor and open its default sheet (which should be our V2 sheet)
 				const game = getGame();
 				const actors = (game as { actors?: { get?: (id: string) => unknown } }).actors;
 				const actor = actors?.get?.(actorId) as { sheet?: { render?: (force?: boolean) => unknown } };

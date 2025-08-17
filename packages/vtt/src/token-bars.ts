@@ -1,3 +1,5 @@
+import { getTokenDisplayModes } from './foundry-shim.js';
+
 // Helper function to configure default token bars for Bar Brawl
 export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 	try {
@@ -13,6 +15,9 @@ export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 		};
 
 		// Configure Bar Brawl resource bars
+		// Bar Brawl expects Foundry CONST.TOKEN_DISPLAY_MODES constants
+		const DISPLAY_MODES = getTokenDisplayModes();
+
 		const defaultBarsObject = {
 			bar1: {
 				id: 'bar1',
@@ -21,9 +26,7 @@ export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 				mincolor: '#ff0000',
 				maxcolor: '#00ff00',
 				position: 'bottom-inner',
-				gmVisibility: -1,
-				ownerVisibility: 'ALWAYS',
-				otherVisibility: 'ALWAYS',
+				visibility: DISPLAY_MODES.ALWAYS,
 				indentation: 0,
 				showMaxValue: true,
 				showLabel: false,
@@ -35,9 +38,7 @@ export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 				mincolor: '#000080',
 				maxcolor: '#87ceeb',
 				position: 'bottom-inner',
-				gmVisibility: -1,
-				ownerVisibility: 'ALWAYS',
-				otherVisibility: 'ALWAYS',
+				visibility: DISPLAY_MODES.ALWAYS,
 				indentation: 0,
 				showMaxValue: true,
 				showLabel: false,
@@ -49,9 +50,7 @@ export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 				mincolor: '#800080',
 				maxcolor: '#ffd700',
 				position: 'bottom-inner',
-				gmVisibility: -1,
-				ownerVisibility: 'ALWAYS',
-				otherVisibility: 'ALWAYS',
+				visibility: DISPLAY_MODES.ALWAYS,
 				indentation: 0,
 				showMaxValue: true,
 				showLabel: false,
@@ -68,7 +67,7 @@ export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 		// Configure both Bar Brawl and Foundry's built-in bars
 		if (actorWithPrototype.update) {
 			try {
-				// Configure Bar Brawl
+				// Then configure Bar Brawl with correct visibility modes
 				await actorWithPrototype.update({
 					'prototypeToken.flags.barbrawl': {
 						resourceBars: defaultBarsObject,
@@ -79,6 +78,7 @@ export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 				await actorWithPrototype.update({
 					'prototypeToken.bar1': { attribute: 'resources.vp' },
 					'prototypeToken.bar2': { attribute: 'resources.fp' },
+					'prototypeToken.bar3': { attribute: 'resources.sp' },
 					'prototypeToken.displayBars': 40, // ALWAYS for EVERYONE
 					'prototypeToken.displayName': 30, // HOVER for EVERYONE
 				});

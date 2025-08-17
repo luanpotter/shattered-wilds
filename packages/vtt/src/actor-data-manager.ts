@@ -69,24 +69,9 @@ export function getCharacterProps(actor: ActorLike): Record<string, string> {
 	if (!actor || !actor.id) return {};
 
 	try {
-		// Debug logging to track prop access
-		console.error(`Getting props for actor ${actor.id} (${actor.name})`);
-
-		// Primary path: actor flags
 		const flags = actor.flags as Record<string, unknown> | undefined;
 		const swFlags = flags?.['shattered-wilds'] as { props?: Record<string, string> } | undefined;
 		let props = swFlags?.props ?? {};
-
-		// Debug the primary path
-		console.error(`Primary props for ${actor.id}:`, Object.keys(props).length, 'items');
-		console.error(`Actor flags structure:`, {
-			hasFlags: !!flags,
-			flagsKeys: flags ? Object.keys(flags) : [],
-			hasSWFlags: !!swFlags,
-			swFlagsKeys: swFlags ? Object.keys(swFlags) : [],
-			hasProps: !!swFlags?.props,
-			propsKeys: swFlags?.props ? Object.keys(swFlags.props) : [],
-		});
 
 		// Fallback path: prototype token actor data (for tokens created from prototypes)
 		if (Object.keys(props).length === 0) {
@@ -95,11 +80,9 @@ export function getCharacterProps(actor: ActorLike): Record<string, string> {
 			const prototypeProps = prototypeSWFlags?.props;
 			if (prototypeProps) {
 				props = prototypeProps;
-				console.debug(`Using prototype props for ${actor.id}:`, Object.keys(props).length, 'items');
 			}
 		}
 
-		// Return a copy to prevent shared references
 		return { ...props };
 	} catch (err) {
 		console.warn('Failed to get character props:', err);

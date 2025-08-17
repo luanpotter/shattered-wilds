@@ -321,3 +321,25 @@ export function getDice3D(): any {
 	const game = getGame();
 	return game?.dice3d;
 }
+
+export function getTokenDisplayModes(): {
+	NONE: number;
+	CONTROL: number;
+	OWNER: number;
+	HOVER: number;
+	ALWAYS: number;
+} {
+	const foundryConst = (
+		globalThis as unknown as {
+			CONST?: { TOKEN_DISPLAY_MODES?: Record<string, number> };
+		}
+	).CONST?.TOKEN_DISPLAY_MODES;
+
+	return {
+		NONE: foundryConst?.NONE ?? 0,
+		CONTROL: foundryConst?.CONTROL ?? 10,
+		OWNER: foundryConst?.OWNER ?? 20,
+		HOVER: foundryConst?.HOVER ?? 30,
+		ALWAYS: foundryConst?.ALWAYS ?? 40,
+	};
+}
