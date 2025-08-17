@@ -343,6 +343,24 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		if (characterSheet) {
 			const statTree = characterSheet.getStatTree();
 
+			// Race (from character sheet)
+			derivedStatsData.push({
+				key: 'race',
+				name: 'Race',
+				value: characterSheet.race?.primaryRace || 'Unknown',
+				description: `Character race: ${characterSheet.race?.primaryRace || 'Unknown'}`,
+				clickable: false,
+			});
+
+			// Class (from character sheet)
+			derivedStatsData.push({
+				key: 'class',
+				name: 'Class',
+				value: characterSheet.characterClass?.characterClass || 'Unknown',
+				description: `Character class: ${characterSheet.characterClass?.characterClass || 'Unknown'}`,
+				clickable: false,
+			});
+
 			// Size (from character sheet)
 			derivedStatsData.push({
 				key: 'size',

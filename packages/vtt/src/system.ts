@@ -5,6 +5,7 @@ import { newSWCharacterApp } from './character-app.js';
 import { SWActorSheetV2 } from './actor-sheet-v2.js';
 import { registerChatCommands } from './chat-commands.js';
 import { configureDefaultTokenBars } from './token-bars.js';
+import { registerInitiativeHooks } from './initiative.js';
 
 getHooks().once('init', () => {
 	// Register V2 ActorSheet with HandlebarsApplicationMixin
@@ -17,6 +18,9 @@ getHooks().once('init', () => {
 
 	// Register chat commands for dice rolling
 	registerChatCommands();
+
+	// Register initiative system hooks
+	registerInitiativeHooks();
 });
 
 // Hook for when actors are created to set up default token bars
