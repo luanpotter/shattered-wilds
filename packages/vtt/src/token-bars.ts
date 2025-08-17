@@ -21,7 +21,7 @@ export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 		const defaultBarsObject = {
 			bar1: {
 				id: 'bar1',
-				order: 0,
+				order: 3,
 				attribute: 'resources.vp',
 				mincolor: '#ff0000',
 				maxcolor: '#00ff00',
@@ -33,7 +33,7 @@ export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 			},
 			bar2: {
 				id: 'bar2',
-				order: 1,
+				order: 2,
 				attribute: 'resources.fp',
 				mincolor: '#000080',
 				maxcolor: '#87ceeb',
@@ -45,7 +45,7 @@ export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 			},
 			bar3: {
 				id: 'bar3',
-				order: 2,
+				order: 1,
 				attribute: 'resources.sp',
 				mincolor: '#800080',
 				maxcolor: '#ffd700',

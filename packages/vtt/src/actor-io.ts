@@ -19,7 +19,6 @@ export async function importActorPropsFromShareString(actor: {
 	if (!shareString) return;
 	try {
 		const props = CharacterSheet.parsePropsFromShareString(shareString);
-		console.log('Parsed props:', props);
 		// Sanitize the props to ensure no path expansion issues
 		const sanitizedProps = Object.fromEntries(
 			Object.entries(props).map(([key, value]) => [
