@@ -24,7 +24,7 @@ jobs:
         run: bun install
 
       - name: Build VTT System
-        run: bun run build
+        run: ./scripts/build.sh
 
       - name: Create release archive
         run: |
