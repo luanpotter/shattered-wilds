@@ -62,6 +62,17 @@ function main() {
 	// Create a minimal language file
 	safeMkdir(join(systemOut, 'lang'));
 	writeFileSync(join(systemOut, 'lang', 'en.json'), JSON.stringify({ SHATTERED_WILDS: 'Shattered Wilds' }, null, 2));
+
+	// Create release package for distribution
+	const releaseDir = join(outDir, 'shattered-wilds');
+	safeMkdir(releaseDir);
+
+	// Copy all system files to release directory
+	cpSync(systemOut, releaseDir, { recursive: true });
+
+	console.log('✅ Build complete!');
+	console.log(`📦 System built in: ${systemOut}`);
+	console.log(`🚀 Release package ready in: ${releaseDir}`);
 }
 
 main();

@@ -1,7 +1,7 @@
 {
 	"name": "@shattered-wilds/vtt",
 	"private": true,
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"description": "Shattered Wilds Foundry VTT v13 system",
 	"type": "module",
 	"scripts": {
