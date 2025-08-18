@@ -447,7 +447,7 @@ On top of these types of actions, the different Skills can still be used for oth
 		description: `Concentration, ability to ignore pain or hardship or being disturbed and keep going, mental toughness and grit.`,
 		exampleUsages: [
 			`A Check can be used to perform the [[Focus]] action.`,
-			`A Check can be used to maintain [[Concentration]] when disrupted or damaged.`,
+			`A Check can be used to maintain [[Concentrate | Concentration]] when disrupted or damaged.`,
 			`A Check can be used to continue acting in the face of pain, hardship, or distractions.`,
 			`A Check can be used to temporarily mitigate the effects of [[Exhaustion]].`,
 		],
