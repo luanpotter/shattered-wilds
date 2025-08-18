@@ -6,7 +6,7 @@ While Shattered Wilds does not feature a strict _Alignment System_, such as D&D,
 
 ## Calling
 
-On a typical **Shattered Wilds** campaign, the goal of each character is to reach the **Citadel** - a legendary city of flourishing culture, science and magic. However, each character should have a different specific reason (called their **Calling**) for reaching it (which they can keep in secret from other players if desired).
+On a typical **Shattered Wilds** campaign, the goal of each character is to reach the **Citadel** - a legendary city of flourishing culture, science and magic. However, each character should have a different specific reason (known as their **Calling**) for reaching it (which they can keep in secret from other players if desired).
 
 ## Vice
 
