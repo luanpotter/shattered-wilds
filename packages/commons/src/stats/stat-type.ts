@@ -397,9 +397,9 @@ On top of these types of actions, the different Skills can still be used for oth
 		parent: StatType.DIV,
 		name: StatTypeName.Devotion,
 		description: `A personal connection to a deity; faith, ability to believe, ask and receive for providence through Prayer.`,
-		longDescription: `**Note**: While a character does not need to be an **Adept** to perform **Devotion Checks**, they do need to have a connection to one specific **Protean**. If they start investing in [[Devotion]], and attempt to use the [[Pray]] action, they might be answered by some unspecified force, or it might not work at all.`,
+		longDescription: `**Note**: While a character does not need to be an **Adept** to perform **Devotion Checks**, they do need to have a connection to one specific **Protean**. If they start investing in [[Devotion]], and attempt to **Pray**, they might be answered by some unspecified force, or it might not work at all.`,
 		exampleUsages: [
-			`A Check can be used to determine the effectiveness of the [[Pray]] action.`,
+			`A Check can be used to determine the effectiveness of their **Prayers**.`,
 			`A Check can be used to maintain divine favor during morally challenging situations.`,
 			`A Check can be used to resist effects that would corrupt or turn you away from your faith.`,
 			`A Check can be requested by the DM to receive and understand messages, visions, omens, guidance or requests from your **Protean**.`,

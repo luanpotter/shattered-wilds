@@ -150,35 +150,35 @@ However, differently from the **Casters** table, this matrix is a bit more diver
 
 Therefore, much like it is for the **Warriors**, your **Role** will define your **Core Major Feat**, while your **Flavor** will define your **Core Minor Feat**.
 
-## The Adept
+## The Disciple
 
-The **Adept** is a **Mystic** who either has (1) submitted, (2) a contract, or (3) a bond with a specific higher power in the **Aether** - i.e., a **Protean**.
+The **Disciple** is a **Mystic** who either has (1) submitted, (2) a contract, or (3) a bond with a specific higher power in the **Aether** - i.e., a **Protean**.
 The nature of their connection can be varied, from an abstract concept and blind devotion to a more personal touch towards an Avatar (see the **Archetypes** section in [Divine](/rules/divine)).
 
-Regardless of the nature of their connection, the **Adept** can:
+Regardless of the nature of their connection, the **Disciple** can:
 
 * Actively **Channel** powers from the **Aether** into the material world (i.e. [[Divine Channeling]]), using a [[DIV]] Check;
-* Actively [[Pray]] as a one-way communication with their **Protean** to inform their desires, needs, concerns and requests, typically done once a day after a [[Long Rest]], using a [[Devotion]] Check;
+* Actively **Pray** as a one-way communication with their **Protean** to inform their desires, needs, concerns and requests, typically done once a day after a [[Long Rest]], using a [[Devotion]] Check;
 * Passively receive messages, guidance, or visions from their **Protean**, at the discretion of the DM.
 
 In exchange, they are responsible for respecting and furthering their **Protean**'s cause. Unlike other settings, there is no defined pantheon of impossibly powerful (or even omnipotent) gods. Instead, players should work with their DMs to create **Proteans** as part of their character creation. However, some pre-defined templates will be provided below.
 
-Typically, Adepts will **Pray** once at the start of every day (after a [[Long Rest]]), and they can at this moment express their vague desires, needs, and concerns to their **Protean**. They can attempt to ask for more specific requests, but depending on the type of request, how aligned it is with their **Protean**'s cause, the complexity, specificity and difficulty of the requests, it will be less likely to succeed. Regardless of the ask, the character will do a [[Devotion]] Check, and the DM will rule over the outcome, which might be nothing right now, undisclosed things that might happen later, or might include any immediate messages, visions, omens, guidance or requests from the **Protean**.
+Typically, **Disciples** will **Pray** once at the start of every day (after a [[Long Rest]]), and they can at this moment express their vague desires, needs, and concerns to their **Protean**. They can attempt to ask for more specific requests, but depending on the type of request, how aligned it is with their **Protean**'s cause, the complexity, specificity and difficulty of the requests, it will be less likely to succeed. Regardless of the ask, the character will do a [[Devotion]] Check, and the DM will rule over the outcome, which might be nothing right now, undisclosed things that might happen later, or might include any immediate messages, visions, omens, guidance or requests from the **Protean**.
 
 A character can attempt to **Pray** on any longer moments of peace and quiet (like a [[Short Rest]]), but typically praying more than once a day is infective. Similarly, a DM might request a [[Devotion]] Check at any moment, depending on circumstances, the nature of the **Protean** and the connection, or any other reason.
 
 <details>
-  <summary>Adept Feats</summary>
-  {% list_feats_for_source "Adept" %}
-</details>
-
-## The Disciple
-
-The **Disciple** is a **Mystic** who is able to channel the power within their **Soul** into the Material World. They are still finely connected and attuned to the **Aether**, but they are not bound to a specific **Protean**, but rather strengthen the connection with their own **Soul**. Therefore, they are uniquely equipped to fight with their own power-unlocked Body.
-
-<details>
   <summary>Disciple Feats</summary>
   {% list_feats_for_source "Disciple" %}
+</details>
+
+## The Adept
+
+The **Adept** is a **Mystic** who is able to channel the power within their **Soul** into the Material World. They are still finely connected and attuned to the **Aether**, but they are not bound to a specific **Protean**, but rather strengthen the connection with their own **Soul**. Therefore, they are uniquely equipped to fight with their own power-unlocked Body.
+
+<details>
+  <summary>Adept Feats</summary>
+  {% list_feats_for_source "Adept" %}
 </details>
 
 ## The Inspired
