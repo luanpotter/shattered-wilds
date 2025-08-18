@@ -105,7 +105,7 @@ export class StatType {
 		hierarchy: StatHierarchy.Realm,
 		parent: StatType.Level,
 		name: StatTypeName.Soul,
-		description: `The realm of spiritual capabilities, representing your character's life force, connection to the **Aether** and to their own Soul.`,
+		description: `The realm of spiritual capabilities, representing your character's life force, connection to the **Aether** and the link to their own physical being.`,
 		exampleUsages: [
 			`Determines [[Spirit Point | Spirit Points]].`,
 			`Is used for **Basic Soul Defense** resisted checks.`,
@@ -211,7 +211,7 @@ On top of these types of actions, the different Skills can still be used for oth
 		description: `How hard it is to move or push one around, how well one can keep their stance, resist to being shoved back.`,
 		exampleUsages: [
 			`A Contested Check can be used to resist a [[Shove]] Special Attack.`,
-			`A Contested Check can be used to resist some Telekinesis Arcane Special Attacks, such as Magic Shove.`,
+			`A Contested Check can be used to resist some [[Telekinesis]] **Special Attacks**, such as [[Magic Shove]].`,
 		],
 	});
 	static readonly Lift = StatType.build({
@@ -244,7 +244,7 @@ On top of these types of actions, the different Skills can still be used for oth
 			`A Check can be used to perform a tricky acrobatic maneuver.`,
 			`A Contested Check can be used to defend against a **Basic Body Attack** by using the [[Dodge]] action.`,
 			`A Contested Check can be used to resist certain **Special Attacks** actions such as [[Grapple]].`,
-			`A Contested Check can be used to resist **Arcane Special Attacks** such as **Hurl Spikes**.`,
+			`A Contested Check can be used to resist several **Arcane Special Attacks**, such as [[Evoke Flames]].`,
 		],
 	});
 	static readonly Agility = StatType.build({
