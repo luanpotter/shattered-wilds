@@ -717,7 +717,7 @@ export const ACTIONS = {
 		name: 'Taunt',
 		description:
 			'Spend 1 [[Spirit_Point | SP]]; roll a [[Presence]] Check against targets [[Resolve]] to persuade an enemy attempting to **Melee Attack** a different target to instead attack you (when you are also in range and would be a valid target).',
-		traits: [Trait.Reaction, Trait.Concentrate],
+		traits: [Trait.Reaction],
 		costs: [
 			new ActionCost({ resource: Resource.ActionPoint, amount: 1 }),
 			new ActionCost({ resource: Resource.SpiritPoint, amount: 1 }),
