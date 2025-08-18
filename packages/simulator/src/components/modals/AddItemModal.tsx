@@ -325,7 +325,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 							disabled={!editMode}
 						/>
 						<LabeledInput
-							label='Dex Penalty'
+							label='DEX Penalty'
 							value={`${armorDexPenalty}`}
 							onBlur={v => setArmorDexPenalty(parseInt(v) || 0)}
 							disabled={!editMode}

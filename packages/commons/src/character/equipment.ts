@@ -165,7 +165,7 @@ export class Armor implements Item {
 	}
 
 	get description(): string {
-		const dexPenalty = this.dexPenalty.isNotZero ? `, Dex Penalty: ${this.dexPenalty.description}` : '';
+		const dexPenalty = this.dexPenalty.isNotZero ? `, DEX Penalty: ${this.dexPenalty.description}` : '';
 		return `${this.type} ${this.bonus.description}${dexPenalty}`;
 	}
 
