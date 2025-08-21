@@ -4,15 +4,16 @@ import { slugify } from '../utils.js';
 export const actions = Object.values(ACTIONS).map(def => {
 	const slug = slugify(def.name);
 	const addCostMetadata = (resource, force) => {
-		const value = def.costs.find(c => c.resource === resource)?.amount ?? 0;
-		if (value === 0 && !force) {
+		const cost = def.costs.find(c => c.resource === resource);
+		const amount = cost?.amount ?? 0;
+		if (amount === 0 && !force) {
 			return undefined;
 		}
 
 		return {
 			key: resource,
 			title: RESOURCES[resource].shortName,
-			value,
+			value: cost.variable ? `${amount}+` : amount,
 			cssClass: `metadata-cost`,
 		};
 	};
