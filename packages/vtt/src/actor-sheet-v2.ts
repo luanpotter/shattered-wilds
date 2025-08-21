@@ -17,6 +17,7 @@ import {
 	FeatsSection,
 	DerivedStatType,
 	Weapon,
+	WeaponMode,
 	Armor,
 	Shield,
 	OtherItem,
@@ -41,6 +42,35 @@ import {
 } from '@shattered-wilds/commons';
 import { parseCharacterSheet } from './characters.js';
 
+// Helper function to build weapon modes list
+function buildWeaponModesList(
+	characterSheet: CharacterSheet,
+): Array<{ index: number; label: string; weapon: Weapon | null; mode: WeaponMode | null }> {
+	const equipment = characterSheet.equipment;
+	const hasShield = equipment.items.some(item => item instanceof Shield);
+	const weapons = equipment.items.filter(item => item instanceof Weapon) as Weapon[];
+
+	const weaponModes: Array<{ index: number; label: string; weapon: Weapon | null; mode: WeaponMode | null }> = [
+		{ index: 0, label: 'Unarmed', weapon: null, mode: null },
+		...(hasShield ? [{ index: 1, label: 'Shield Bash', weapon: null, mode: null }] : []),
+	];
+
+	let currentIndex = hasShield ? 2 : 1;
+
+	for (const weapon of weapons) {
+		for (const mode of weapon.modes) {
+			weaponModes.push({
+				index: currentIndex++,
+				label: `${weapon.name} - ${mode.description}`,
+				weapon: weapon,
+				mode: mode,
+			});
+		}
+	}
+
+	return weaponModes;
+}
+
 // Helper function to convert StandardCheck to StatType (enhanced version from simulator)
 function computeStatType(
 	statType: StatType | StandardCheck,
@@ -51,17 +81,17 @@ function computeStatType(
 		switch (statType as StandardCheck) {
 			case StandardCheck.BodyAttack: {
 				// Use selected weapon to determine STR vs DEX
-				if (actionsUIState?.selectedWeapon && characterSheet) {
-					const selectedWeaponIndex = actionsUIState.selectedWeapon as number;
-					const weapons = characterSheet.equipment.items.filter(item => item instanceof Weapon) as Weapon[];
-					const weaponIndex = Math.floor(selectedWeaponIndex / 100);
-					const modeIndex = selectedWeaponIndex % 100;
+				if (
+					actionsUIState?.selectedWeaponIndex !== null &&
+					actionsUIState?.selectedWeaponIndex !== undefined &&
+					characterSheet
+				) {
+					const selectedIndex = actionsUIState.selectedWeaponIndex as number;
+					const weaponModes = buildWeaponModesList(characterSheet);
+					const selectedWeaponMode = weaponModes.find(w => w.index === selectedIndex);
 
-					const weapon = weapons[weaponIndex];
-					const mode = weapon?.modes[modeIndex];
-
-					if (weapon && mode) {
-						return mode.statType; // This will be DEX for Light Melee, STR for Heavy Melee, etc.
+					if (selectedWeaponMode?.mode) {
+						return selectedWeaponMode.mode.statType; // This will be DEX for Light Melee, STR for Heavy Melee, etc.
 					}
 				}
 				return StatType.STR; // Default to STR for body attacks when no weapon selected
@@ -92,16 +122,15 @@ function computeIncludedModifiers(
 			const modifiers: CircumstanceModifier[] = [];
 
 			// Weapon modifier
-			const selectedWeaponIndex = actionsUIState.selectedWeapon as number | null;
+			const selectedWeaponIndex = actionsUIState.selectedWeaponIndex as number | null;
 			if (selectedWeaponIndex !== null && selectedWeaponIndex >= 0) {
-				const weapons = equipment.items.filter(item => item instanceof Weapon) as Weapon[];
-				const weaponIndex = Math.floor(selectedWeaponIndex / 100);
-				const modeIndex = selectedWeaponIndex % 100;
+				const weaponModes = buildWeaponModesList(characterSheet);
+				const selectedWeaponMode = weaponModes.find(w => w.index === selectedWeaponIndex);
 
-				const weapon = weapons[weaponIndex];
-				const mode = weapon?.modes[modeIndex];
+				if (selectedWeaponMode?.weapon && selectedWeaponMode?.mode) {
+					const weapon = selectedWeaponMode.weapon;
+					const mode = selectedWeaponMode.mode;
 
-				if (weapon && mode) {
 					const weaponModifier: CircumstanceModifier = {
 						source: ModifierSource.Equipment,
 						name: `${weapon.name} (${mode.description})`,
@@ -307,7 +336,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		selectedDefenseRealm: StatType.Body as StatType,
 		selectedPassiveCover: PassiveCoverType.None as PassiveCoverType,
 		heightIncrements: '',
-		selectedWeapon: null as number | null,
+		selectedWeaponIndex: null as number | null, // Index in the flat weapon modes list
 		selectedArmor: null as number | null,
 		selectedShield: null as number | null,
 	};
@@ -920,16 +949,13 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			actions = actions.filter(action => {
 				// Filter based on weapon mode for attack actions
 				if (type === ActionType.Attack) {
-					const selectedWeaponIndex = this.#actionsUIState.selectedWeapon;
+					const selectedWeaponIndex = this.#actionsUIState.selectedWeaponIndex;
 					if (selectedWeaponIndex !== null && selectedWeaponIndex >= 0) {
-						const equipment = characterSheet.equipment;
-						const weapons = equipment.items.filter(item => item instanceof Weapon) as Weapon[];
-						const weaponIndex = Math.floor(selectedWeaponIndex / 100);
-						const modeIndex = selectedWeaponIndex % 100;
-						const weapon = weapons[weaponIndex];
-						const mode = weapon?.modes[modeIndex];
+						const weaponModes = buildWeaponModesList(characterSheet);
+						const selectedWeaponMode = weaponModes.find(w => w.index === selectedWeaponIndex);
 
-						if (mode) {
+						if (selectedWeaponMode?.mode) {
+							const mode = selectedWeaponMode.mode;
 							const isRangedMode = mode.rangeType === Trait.Ranged;
 							// Hide ranged actions if melee weapon selected, and vice versa
 							if (action.traits.includes(Trait.Ranged) && !isRangedMode) {
@@ -995,16 +1021,13 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 		// Check weapon trait filtering for attack actions
 		if (action.type === ActionType.Attack) {
-			const selectedWeaponIndex = this.#actionsUIState.selectedWeapon;
+			const selectedWeaponIndex = this.#actionsUIState.selectedWeaponIndex;
 			if (selectedWeaponIndex !== null && selectedWeaponIndex >= 0) {
-				const equipment = characterSheet.equipment;
-				const weapons = equipment.items.filter(item => item instanceof Weapon) as Weapon[];
-				const weaponIndex = Math.floor(selectedWeaponIndex / 100);
-				const modeIndex = selectedWeaponIndex % 100;
-				const weapon = weapons[weaponIndex];
-				const mode = weapon?.modes[modeIndex];
+				const weaponModes = buildWeaponModesList(characterSheet);
+				const selectedWeaponMode = weaponModes.find(w => w.index === selectedWeaponIndex);
 
-				if (mode) {
+				if (selectedWeaponMode?.mode) {
+					const mode = selectedWeaponMode.mode;
 					const isRangedMode = mode.rangeType === Trait.Ranged;
 					// Action would be hidden if it has ranged trait but melee weapon selected, or vice versa
 					if (action.traits.includes(Trait.Ranged) && !isRangedMode) {
@@ -1180,27 +1203,12 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				return null;
 			}
 			case ActionType.Attack: {
-				const equipment = characterSheet.equipment;
-				const hasShield = equipment.items.some(item => item instanceof Shield);
-				const weapons = equipment.items.filter(item => item instanceof Weapon) as Weapon[];
-
 				// Build weapon modes list
-				const weaponModes = [
-					{ index: -1, label: 'Unarmed', weapon: null, mode: null },
-					...(hasShield ? [{ index: -2, label: 'Shield Bash', weapon: null, mode: null }] : []),
-					...weapons.flatMap(weapon =>
-						weapon.modes.map((mode, modeIndex) => ({
-							index: weapons.indexOf(weapon) * 100 + modeIndex, // Unique index
-							label: `${weapon.name} - ${mode.description}`,
-							weapon,
-							mode,
-						})),
-					),
-				];
+				const weaponModes = buildWeaponModesList(characterSheet);
 
 				const selectedWeaponData =
-					this.#actionsUIState.selectedWeapon !== null
-						? weaponModes.find(w => w.index === this.#actionsUIState.selectedWeapon)
+					this.#actionsUIState.selectedWeaponIndex !== null
+						? weaponModes.find(w => w.index === this.#actionsUIState.selectedWeaponIndex)
 						: weaponModes[0]; // Default to Unarmed
 
 				return {
@@ -1524,7 +1532,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		weaponSelects.forEach(select => {
 			select.addEventListener('change', () => {
 				const weaponIndex = parseInt(select.value);
-				this.#actionsUIState.selectedWeapon = weaponIndex;
+				this.#actionsUIState.selectedWeaponIndex = weaponIndex;
 				(this as unknown as { render: (force?: boolean) => void }).render(false);
 			});
 		});
