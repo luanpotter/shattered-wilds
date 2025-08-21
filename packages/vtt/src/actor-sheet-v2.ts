@@ -576,29 +576,14 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			await ensureActorDataPersistence(actor);
 		}
 
-		// Transform feat props back to expected format (dots instead of underscores)
-		// During import, dots were sanitized to underscores, but CharacterSheet expects dots
-		const props = Object.fromEntries(
-			Object.entries(rawProps).map(([key, value]) => {
-				if (key.startsWith('feat_')) {
-					// Convert feat_1_Minor_0 back to feat.1.Minor.0
-					const transformedKey = key.replace(/^feat_(\d+)_(\w+)_(\d+)$/, 'feat.$1.$2.$3');
-					return [transformedKey, value];
-				}
-				return [key, value];
-			}),
-		);
-
-		// Use CharacterSheet.from to get computed character data
-		let characterSheet: CharacterSheet | undefined;
+		// Use centralized character parsing logic
+		const characterSheet = parseCharacterSheet(actor);
 		const resources: Record<string, { current: number; max: number }> = {};
 		let resourcesArray: Array<{ key: string; name: string; shortName: string; current: number; max: number }> = [];
 		let statTreeData: unknown = null;
 
 		try {
-			if (Object.keys(props).length > 0) {
-				characterSheet = CharacterSheet.from(props);
-
+			if (characterSheet) {
 				// Configure default token bars (one-time setup)
 				await configureDefaultTokenBars(actor);
 
@@ -761,7 +746,6 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		return {
 			actor,
 			flags: actor?.flags ?? {},
-			props,
 			characterSheet,
 			resources,
 			resourcesArray,
