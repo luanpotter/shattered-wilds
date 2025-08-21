@@ -15,7 +15,7 @@ export const FeatBox: React.FC<{
 	const slot = featOrSlot.slot ?? featOrSlot.info?.slot;
 	const info = featOrSlot.info;
 	const feat = info?.feat;
-	const description = feat?.description;
+	const description = info?.description;
 
 	const type = feat?.type || featOrSlot.slot?.type;
 
