@@ -6,6 +6,20 @@ export type SceneLike = {
 	createEmbeddedDocuments?: (collection: string, docs: any[]) => Promise<any[]>;
 };
 
+export interface ActorLike {
+	id?: string;
+	name?: string;
+	flags?: Record<string, unknown>;
+	prototypeToken?: {
+		actorData?: {
+			flags?: Record<string, unknown>;
+		};
+		flags?: Record<string, unknown>;
+	};
+	update?: (data: Record<string, unknown>) => Promise<unknown>;
+	setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
+}
+
 export type GameLike = {
 	scenes?: {
 		get(id: string): SceneLike | undefined;
@@ -13,7 +27,7 @@ export type GameLike = {
 		contents?: SceneLike[];
 	};
 	actors?: {
-		get(id: string): { id?: string; name?: string; flags?: Record<string, unknown> } | undefined;
+		get(id: string): ActorLike | undefined;
 	};
 	user?: any;
 	dice3d?: any;
@@ -65,7 +79,7 @@ export function getUI(): {
 	};
 }
 
-export function getActorById(id: string): { id: string; name: string; flags: Record<string, unknown> } | undefined {
+export function getActorById(id: string): ActorLike | undefined {
 	return (globalThis as any).game?.actors?.get?.(id);
 }
 

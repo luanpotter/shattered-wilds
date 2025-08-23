@@ -13,7 +13,7 @@ export interface ActorLike {
 		flags?: Record<string, unknown>;
 	};
 	update?: (data: Record<string, unknown>) => Promise<unknown>;
-	setFlag?: (scope: string, key: string, value: unknown) => Promise<unknown>;
+	setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
 }
 
 // Ensure actor data is preserved in the prototype token for new token creation
@@ -39,8 +39,10 @@ export async function ensureActorDataPersistence(actor: ActorLike): Promise<void
 }
 
 // Get actor data with multiple fallback strategies
-export function getActorData(actorId: string | undefined): ActorLike | null {
-	if (!actorId) return null;
+export function getActorData(actorId: string | undefined): ActorLike | undefined {
+	if (!actorId) {
+		return undefined;
+	}
 
 	try {
 		const game = getGame();
@@ -55,17 +57,15 @@ export function getActorData(actorId: string | undefined): ActorLike | null {
 		// Try to get from the global actor registry (fallback)
 		const globalThis = window as unknown as { game?: { actors?: { contents?: ActorLike[] } } };
 		const allActors = globalThis.game?.actors?.contents || [];
-		const foundActor = allActors.find(a => a.id === actorId);
-
-		return foundActor || null;
+		return allActors.find(a => a.id === actorId);
 	} catch (err) {
 		console.warn('Failed to retrieve actor data:', err);
-		return null;
+		return undefined;
 	}
 }
 
 // Ensure character props are accessible via multiple paths for robustness
-export function getCharacterProps(actor: ActorLike): Record<string, string> {
+export function getRawCharacterProps(actor: ActorLike): Record<string, string> {
 	if (!actor || !actor.id) return {};
 
 	try {
@@ -75,6 +75,8 @@ export function getCharacterProps(actor: ActorLike): Record<string, string> {
 
 		// Fallback path: prototype token actor data (for tokens created from prototypes)
 		if (Object.keys(props).length === 0) {
+			console.warn('FALLBACK props were accessed');
+
 			const prototypeFlags = actor.prototypeToken?.actorData?.flags as Record<string, unknown> | undefined;
 			const prototypeSWFlags = prototypeFlags?.['shattered-wilds'] as { props?: Record<string, string> } | undefined;
 			const prototypeProps = prototypeSWFlags?.props;

@@ -3,7 +3,7 @@ import { exportActorPropsToShareString, importActorPropsFromShareString } from '
 import { DiceRollModal } from './dice-modal.js';
 import { executeEnhancedRoll, type DiceRollRequest } from './dices.js';
 import { configureDefaultTokenBars } from './token-bars.js';
-import { getActorData, getCharacterProps, ensureActorDataPersistence, type ActorLike } from './actor-data-manager.js';
+import { getActorData, ensureActorDataPersistence, type ActorLike } from './actor-data-manager.js';
 import { ConsumeResourceModal } from './consume-resource-modal.js';
 import {
 	CharacterSheet,
@@ -40,7 +40,7 @@ import {
 	Condition,
 	CONDITIONS,
 } from '@shattered-wilds/commons';
-import { parseCharacterSheet } from './characters.js';
+import { parseCharacterProps, parseCharacterSheet } from './characters.js';
 
 // Helper function to build weapon modes list
 function buildWeaponModesList(
@@ -560,24 +560,18 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		const actorLike = (this as unknown as { actor?: ActorLike }).actor;
 		const currentActorId = actorLike?.id;
 
-		let actor: ActorLike | null = actorLike || null;
-		if (!actor) {
-			actor = getActorData(currentActorId);
-		}
-		if (!actor) {
-			actor = { id: currentActorId || 'unknown', name: 'Unknown', flags: {} };
-		}
+		const actor = actorLike || getActorData(currentActorId);
 
 		// Get character props using robust method with multiple fallbacks
-		const rawProps = getCharacterProps(actor);
+		const props = actor ? parseCharacterProps(actor) : {};
+		const characterSheet = actor ? parseCharacterSheet(actor) : undefined;
 
 		// Ensure actor data persistence for future token creation
-		if (actor && Object.keys(rawProps).length > 0) {
+		if (actor && !characterSheet) {
 			await ensureActorDataPersistence(actor);
 		}
 
 		// Use centralized character parsing logic
-		const characterSheet = parseCharacterSheet(actor);
 		const resources: Record<string, { current: number; max: number }> = {};
 		let resourcesArray: Array<{ key: string; name: string; shortName: string; current: number; max: number }> = [];
 		let statTreeData: unknown = null;
@@ -747,7 +741,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			actor,
 			flags: actor?.flags ?? {},
 			characterSheet,
-			props: rawProps,
+			props,
 			resources,
 			resourcesArray,
 			conditionsData: this.prepareConditionsData(),
@@ -1261,10 +1255,14 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		const exportBtn = root.querySelector('[data-action="sw-export"]') as HTMLButtonElement | null;
 		if (exportBtn) {
 			exportBtn.addEventListener('click', async () => {
-				const actor = getActorById(currentActorId!) as unknown as { flags?: Record<string, unknown> };
-				if (!actor) return getUI().notifications?.warn('Actor not found');
-				const share = exportActorPropsToShareString(actor as { flags?: Record<string, unknown> });
-				await navigator.clipboard.writeText(share);
+				const actor = getActorById(currentActorId);
+				if (!actor) {
+					return getUI().notifications?.warn('Actor not found');
+				}
+
+				const shareString = exportActorPropsToShareString(actor);
+				await navigator.clipboard.writeText(shareString);
+
 				getUI().notifications?.info('Share string copied to clipboard');
 			});
 		}

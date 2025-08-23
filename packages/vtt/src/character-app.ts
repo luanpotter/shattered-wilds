@@ -50,8 +50,8 @@ if (AppV2 && HbsMixin) {
 		};
 
 		async _prepareContext(): Promise<Record<string, unknown>> {
-			const actor = getActorById(this.#actorId) ?? { id: this.#actorId, name: 'Unknown', flags: {} };
-			const characterSheet = parseCharacterSheet(actor);
+			const actor = getActorById(this.#actorId);
+			const characterSheet = actor ? parseCharacterSheet(actor) : undefined;
 
 			const resources: Record<string, { current: number; max: number }> = {};
 			let statTreeData: unknown = null;
@@ -100,7 +100,7 @@ if (AppV2 && HbsMixin) {
 
 			return {
 				actor,
-				flags: actor.flags ?? {},
+				flags: actor?.flags ?? {},
 				characterSheet,
 				resources,
 				statTreeData,
@@ -113,10 +113,11 @@ if (AppV2 && HbsMixin) {
 			const importBtn = root.querySelector('[data-action="sw-import"]') as HTMLButtonElement | null;
 			if (importBtn) {
 				importBtn.addEventListener('click', async () => {
-					const actor = getActorById(this.#actorId) as unknown as {
-						setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
-					};
-					if (!actor?.setFlag) return getUI().notifications?.warn('Actor not found');
+					const actor = getActorById(this.#actorId);
+					if (!actor) {
+						return getUI().notifications?.warn('Actor not found');
+					}
+
 					await importActorPropsFromShareString(actor);
 					// Re-render the app to show updated data
 					(this as unknown as { render: (force?: boolean) => void }).render(false);
@@ -125,10 +126,14 @@ if (AppV2 && HbsMixin) {
 			const exportBtn = root.querySelector('[data-action="sw-export"]') as HTMLButtonElement | null;
 			if (exportBtn) {
 				exportBtn.addEventListener('click', async () => {
-					const actor = getActorById(this.#actorId) as unknown as { flags?: Record<string, unknown> };
-					if (!actor) return getUI().notifications?.warn('Actor not found');
-					const share = exportActorPropsToShareString(actor as { flags?: Record<string, unknown> });
-					await navigator.clipboard.writeText(share);
+					const actor = getActorById(this.#actorId);
+					if (!actor) {
+						return getUI().notifications?.warn('Actor not found');
+					}
+
+					const shareString = exportActorPropsToShareString(actor);
+					await navigator.clipboard.writeText(shareString);
+
 					getUI().notifications?.info('Share string copied to clipboard');
 				});
 			}
