@@ -2,6 +2,8 @@
 .stat-tree-grid {
 	margin: 6px 0;
 	font-size: 0.9em;
+	max-height: 500px;
+	overflow-y: auto;
 }
 
 /* Level Section */
