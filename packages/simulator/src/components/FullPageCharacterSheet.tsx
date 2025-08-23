@@ -6,6 +6,7 @@ import {
 	FaCopy,
 	FaExclamationTriangle,
 	FaBrain,
+	FaBug,
 	FaMagic,
 	FaPen,
 	FaShieldAlt,
@@ -23,6 +24,7 @@ import { Navigator } from '../utils/routes';
 
 import { ActionsSection } from './ActionsSection';
 import { ArcaneSection } from './ArcaneSection';
+import { DebugSection } from './DebugSection';
 import { DerivedStatsRowComponent } from './DerivedStatsRowComponent';
 import { DivineSection } from './DivineSection';
 import { EquipmentSection } from './EquipmentSection';
@@ -71,7 +73,17 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 	const sheet = character?.props ? CharacterSheet.from(character.props) : null;
 
 	const { useState } = useUIStateFactory(`full-page-sheet-${characterId}`);
-	type TabKey = 'all' | 'stats' | 'feats' | 'equipment' | 'actions' | 'arcane' | 'divine' | 'personality' | 'misc';
+	type TabKey =
+		| 'all'
+		| 'stats'
+		| 'feats'
+		| 'equipment'
+		| 'actions'
+		| 'arcane'
+		| 'divine'
+		| 'personality'
+		| 'misc'
+		| 'debug';
 	const [activeTab, setActiveTab] = useState<TabKey>('activeTab', 'all');
 
 	const primaryAttrName = sheet?.characterClass.definition.primaryAttribute.name;
@@ -88,6 +100,7 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 		...(hasDivine ? ([{ key: 'divine', icon: FaSun, tooltip: 'Divine' }] as const) : ([] as const)),
 		{ key: 'personality', icon: FaBrain, tooltip: 'Personality' },
 		{ key: 'misc', icon: FaPen, tooltip: 'Misc' },
+		{ key: 'debug', icon: FaBug, tooltip: 'Debug' },
 	];
 	const availableKeys = tabs.map(t => t.key);
 	const resolvedTab: TabKey = (availableKeys.includes(activeTab) ? activeTab : 'all') as TabKey;
@@ -237,6 +250,7 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 				)}
 				{(resolvedTab === 'all' || resolvedTab === 'personality') && <PersonalitySection characterId={characterId} />}
 				{(resolvedTab === 'all' || resolvedTab === 'misc') && <MiscSection characterId={characterId} />}
+				{resolvedTab === 'debug' && <DebugSection characterId={characterId} />}
 			</Column>
 		</>
 	);
