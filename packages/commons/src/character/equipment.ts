@@ -483,7 +483,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 				name: 'Mace',
 				type: PrimaryWeaponType.HeavyMelee,
 				bonus: Bonus.of(5),
-				range: Distance.of(12),
+				range: Distance.of(1),
 			}),
 		alternativeNames: ['Club', 'Mace', 'Morningstar'],
 	}),
