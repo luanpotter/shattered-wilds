@@ -1,12 +1,12 @@
 /* Stat Tree Grid Styling */
 .stat-tree-grid {
-	margin: 8px 0;
+	margin: 6px 0;
 	font-size: 0.9em;
 }
 
 /* Level Section */
 .level-section {
-	margin-bottom: 12px;
+	margin-bottom: 8px;
 }
 
 .level-display {
@@ -14,7 +14,7 @@
 	align-items: center;
 	justify-content: center;
 	gap: 8px;
-	padding: 8px;
+	padding: 6px;
 	background: rgba(0, 0, 0, 0.1);
 	border-radius: 6px;
 }
@@ -81,14 +81,14 @@
 /* Main Grid Container */
 .stat-grid-container {
 	display: flex;
-	gap: 8px;
+	gap: 6px;
 }
 
 /* Realm Labels (Vertical) */
 .realm-labels {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: 6px;
 	min-width: 80px;
 }
 
@@ -97,11 +97,11 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: 4px;
-	padding: 8px 4px;
+	gap: 3px;
+	padding: 6px 4px;
 	border: 1px solid #999;
 	border-radius: 6px;
-	min-height: 140px; /* Increased to match attribute panels */
+	min-height: 120px; /* Reduced to match compacted attribute panels */
 	text-align: center;
 }
 
@@ -131,7 +131,7 @@
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	grid-template-rows: repeat(3, 1fr);
-	gap: 8px;
+	gap: 6px;
 	flex: 1;
 }
 
@@ -142,14 +142,14 @@
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
-	min-height: 140px;
+	min-height: 120px;
 }
 
 .attribute-header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding: 6px 8px;
+	padding: 4px 6px;
 	background: rgba(0, 0, 0, 0.1);
 	border-bottom: 1px solid #999;
 }
@@ -161,10 +161,10 @@
 
 .skills-list {
 	flex: 1;
-	padding: 4px;
+	padding: 2px 4px;
 	display: flex;
 	flex-direction: column;
-	gap: 1px;
+	gap: 0px;
 	justify-content: flex-start;
 }
 
@@ -172,7 +172,7 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding: 2px 4px;
+	padding: 1px 4px;
 	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 	font-size: 0.85em;
 }
