@@ -747,6 +747,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			actor,
 			flags: actor?.flags ?? {},
 			characterSheet,
+			props: rawProps,
 			resources,
 			resourcesArray,
 			conditionsData: this.prepareConditionsData(),
