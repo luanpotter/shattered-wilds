@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { FaPlus, FaEye, FaTrash, FaArrowLeft, FaClipboard, FaChevronDown } from 'react-icons/fa';
+import { CharacterSheet } from '@shattered-wilds/commons';
+import React, { useEffect, useRef, useState } from 'react';
+import { FaArrowLeft, FaChevronDown, FaClipboard, FaEye, FaPlus, FaTrash } from 'react-icons/fa';
 
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
@@ -88,8 +89,8 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 		}
 	};
 
-	const handleDeleteCharacter = (id: string) => {
-		setConfirmDelete(id);
+	const handleDeleteCharacter = (character: Character) => {
+		setConfirmDelete(character.id);
 	};
 
 	const handleConfirmDelete = () => {
@@ -309,30 +310,33 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 				) : (
 					<div>
 						<div style={{ marginTop: '1rem' }}>
-							{characters.map(character => (
-								<div
-									key={character.id}
-									style={{
-										display: 'flex',
-										justifyContent: 'space-between',
-										alignItems: 'center',
-										padding: '1rem',
-										marginBottom: '0.5rem',
-										border: '1px solid var(--text)',
-										borderRadius: '4px',
-										backgroundColor: 'var(--background-alt)',
-									}}
-								>
-									<span style={{ fontSize: '1.1rem' }}>
-										<strong>{character.props.name}</strong> / Level {character.props['level'] || '1'}{' '}
-										{character.props['race'] || 'Unknown'} {character.props['class'] || 'Unknown'}
-									</span>
-									<div style={{ display: 'flex', gap: '0.5rem' }}>
-										<Button onClick={() => handleViewCharacter(character)} icon={FaEye} title='View' />
-										<Button onClick={() => handleDeleteCharacter(character.id)} icon={FaTrash} title='Delete' />
+							{characters.map(character => {
+								const sheet = CharacterSheet.from(character.props);
+								return (
+									<div
+										key={character.id}
+										style={{
+											display: 'flex',
+											justifyContent: 'space-between',
+											alignItems: 'center',
+											padding: '1rem',
+											marginBottom: '0.5rem',
+											border: '1px solid var(--text)',
+											borderRadius: '4px',
+											backgroundColor: 'var(--background-alt)',
+										}}
+									>
+										<span style={{ fontSize: '1.1rem' }}>
+											<strong>{sheet.name}</strong> / Level {sheet.level} {sheet.race.toString()}{' '}
+											{sheet.characterClass.toString()}
+										</span>
+										<div style={{ display: 'flex', gap: '0.5rem' }}>
+											<Button onClick={() => handleViewCharacter(character)} icon={FaEye} title='View' />
+											<Button onClick={() => handleDeleteCharacter(character)} icon={FaTrash} title='Delete' />
+										</div>
 									</div>
-								</div>
-							))}
+								);
+							})}
 						</div>
 					</div>
 				)}

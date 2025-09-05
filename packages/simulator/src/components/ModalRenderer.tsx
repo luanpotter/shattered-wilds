@@ -8,7 +8,6 @@ import { Modal as ModalType } from '../types/ui';
 import { copyCharacterDataToClipboard } from '../utils/clipboard';
 import { Navigator } from '../utils/routes';
 
-import { CharacterList } from './CharacterList';
 import { CharacterSheetModal } from './CharacterSheet';
 import {
 	AttackActionModal,
@@ -25,6 +24,7 @@ import {
 	ModalWrapper,
 	RaceSetupModal,
 } from './modals';
+import { CharacterListModal } from './modals/CharacterListModal';
 import { Button } from './shared/Button';
 
 interface ModalRendererProps {
@@ -99,7 +99,7 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 
 		switch (modal.type) {
 			case 'character-list':
-				return <CharacterList />;
+				return <CharacterListModal />;
 			case 'character-creation':
 				return <CharacterCreationModal hexPosition={modal.hexPosition} onClose={onClose} />;
 			case 'character-sheet': {

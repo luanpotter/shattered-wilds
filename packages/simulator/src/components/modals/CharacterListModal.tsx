@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaClipboard } from 'react-icons/fa';
+import { FaClipboard, FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 
-import { useModals } from '../hooks/useModals';
-import { useStore } from '../store';
-import { Character } from '../types/ui';
-import { findNextEmptyHexPosition } from '../utils';
-import { importCharacterDataFromClipboard } from '../utils/clipboard';
+import { useModals } from '../../hooks/useModals';
+import { useStore } from '../../store';
+import { Character } from '../../types/ui';
+import { findNextEmptyHexPosition } from '../../utils';
+import { importCharacterDataFromClipboard } from '../../utils/clipboard';
+import { Button } from '../shared/Button';
 
-import { Button } from './shared/Button';
-
-export const CharacterList: React.FC = () => {
+export const CharacterListModal: React.FC = () => {
 	const characters = useStore(state => state.characters);
 
 	const { openCharacterCreationModal, openCharacterSheetModal } = useModals();
