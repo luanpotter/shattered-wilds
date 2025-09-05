@@ -7,17 +7,16 @@ export function registerChatCommands(): void {
 	const hooks = getHooks();
 	if (hooks?.on) {
 		hooks.on('chatMessage', (_chatLog: unknown, message: string, chatData: Record<string, unknown>) => {
-			// Check if this is a Shattered Wilds /d12 command
-			if (message.startsWith('/d12 ')) {
-				const command = message.slice(5).trim(); // Remove '/d12 '
+			const prefix = '/d12 ';
+			if (message.startsWith(prefix)) {
+				const command = message.slice(prefix.length).trim();
 
-				// Parse the /d12 command
 				if (parseD12Command(command, chatData)) {
-					return false; // Prevent default processing
+					return false; // prevents default processing
 				}
 			}
 
-			return true; // Allow default processing
+			return true; // allows default processing
 		});
 	}
 }
@@ -31,7 +30,6 @@ interface D12CommandOptions {
 }
 
 function extractCharacterName(chatData: Record<string, unknown>): string {
-	// Try to get character name from speaker information
 	const speaker = chatData.speaker as Record<string, unknown> | undefined;
 
 	if (speaker) {

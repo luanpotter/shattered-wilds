@@ -8,14 +8,9 @@ import {
 	GameLike,
 } from './foundry-shim.js';
 
-export async function createHexScene(params?: {
-	name?: string;
-	gridSize?: number;
-	//	hexType?: 'odd' | 'even';
-}) {
+export async function createHexScene(params?: { name?: string; gridSize?: number }) {
 	const name = params?.name ?? 'Shattered Wilds Hex Map';
 	const gridSize = params?.gridSize ?? 100;
-	//	const hexType = params?.hexType ?? 'odd';
 
 	// Foundry v13 hex grid type constant
 	const gridType = getConst()?.GRID_TYPES?.HEXODD ?? 2;

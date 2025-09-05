@@ -1,4 +1,3 @@
-// Dice roll modal for Shattered Wilds system
 import { getApplicationV2Ctor, getHandlebarsApplicationMixin, getActorById } from './foundry-shim.js';
 import { CharacterSheet, StatType, StatHierarchy } from '@shattered-wilds/commons';
 import { executeEnhancedRoll, type DiceRollRequest } from './dices.js';

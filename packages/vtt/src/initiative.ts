@@ -1,4 +1,3 @@
-// Initiative integration for Foundry VTT
 import { DerivedStatType } from '@shattered-wilds/commons';
 import { type ActorLike } from './actor-data-manager.js';
 import { parseCharacterSheet } from './characters.js';

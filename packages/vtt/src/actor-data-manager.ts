@@ -1,5 +1,3 @@
-// Utility to manage actor data persistence and ensure character data survives token creation
-
 import { getGame } from './foundry-shim.js';
 
 export interface ActorLike {
@@ -16,7 +14,6 @@ export interface ActorLike {
 	setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
 }
 
-// Ensure actor data is preserved in the prototype token for new token creation
 export async function ensureActorDataPersistence(actor: ActorLike): Promise<void> {
 	try {
 		const flags = actor.flags as Record<string, unknown> | undefined;
@@ -38,7 +35,6 @@ export async function ensureActorDataPersistence(actor: ActorLike): Promise<void
 	}
 }
 
-// Get actor data with multiple fallback strategies
 export function getActorData(actorId: string | undefined): ActorLike | undefined {
 	if (!actorId) {
 		return undefined;
@@ -64,7 +60,6 @@ export function getActorData(actorId: string | undefined): ActorLike | undefined
 	}
 }
 
-// Ensure character props are accessible via multiple paths for robustness
 export function getRawCharacterProps(actor: ActorLike): Record<string, string> {
 	if (!actor || !actor.id) return {};
 

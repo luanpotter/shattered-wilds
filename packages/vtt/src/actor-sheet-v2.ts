@@ -42,7 +42,6 @@ import {
 } from '@shattered-wilds/commons';
 import { parseCharacterProps, parseCharacterSheet } from './characters.js';
 
-// Helper function to build weapon modes list
 function buildWeaponModesList(
 	characterSheet: CharacterSheet,
 ): Array<{ index: number; label: string; weapon: Weapon | null; mode: WeaponMode | null }> {
@@ -71,7 +70,6 @@ function buildWeaponModesList(
 	return weaponModes;
 }
 
-// Helper function to convert StandardCheck to StatType (enhanced version from simulator)
 function computeStatType(
 	statType: StatType | StandardCheck,
 	actionsUIState?: Record<string, unknown>,
@@ -109,7 +107,6 @@ function computeStatType(
 	return statType as StatType;
 }
 
-// Helper function to compute included modifiers based on current UI state
 function computeIncludedModifiers(
 	includeModifierFor: string,
 	characterSheet: CharacterSheet,
@@ -221,7 +218,6 @@ function computeIncludedModifiers(
 	}
 }
 
-// Helper function to sync resources to actor system data for token bars
 async function syncResourcesToSystemData(actor: unknown, characterSheet: CharacterSheet): Promise<void> {
 	try {
 		const resourceData: Record<string, { value: number; max: number }> = {};
@@ -277,7 +273,6 @@ if (!V2Base || !HbsMixin) {
 	throw new Error('V2 ActorSheet or HandlebarsApplicationMixin not available');
 }
 
-// Text processing helper for feat descriptions
 function processDescriptionText(text: string): string {
 	if (!text) return '';
 
@@ -319,7 +314,6 @@ function processDescriptionText(text: string): string {
 	return processed;
 }
 
-// Create the mixed base class using HandlebarsApplicationMixin
 const MixedBase = HbsMixin(V2Base) as unknown as (new (...args: unknown[]) => object) & {
 	DEFAULT_OPTIONS?: Record<string, unknown>;
 };
