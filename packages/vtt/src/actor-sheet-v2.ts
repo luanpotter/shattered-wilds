@@ -2,6 +2,7 @@ import {
 	getActorSheetV2Ctor,
 	getActorById,
 	getHandlebarsApplicationMixin,
+	getFoundryConfig,
 	confirmAction,
 	ActorLike,
 	showNotification,
@@ -480,22 +481,14 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 	}
 
 	static registerStatusEffects(): void {
-		const CONFIG = (globalThis as { CONFIG?: { statusEffects?: unknown[] } }).CONFIG;
+		const CONFIG = getFoundryConfig();
 
-		if (!CONFIG?.statusEffects) return;
-
-		// Remove existing SW conditions to avoid duplicates
-		CONFIG.statusEffects = (CONFIG.statusEffects as Array<{ id: string }>).filter(
-			effect => !effect.id?.startsWith('sw-'),
-		);
-
-		// Define condition icon mapping using Foundry core icons
 		const getConditionIcon = (condition: Condition): string => {
 			const iconMap: Record<Condition, string> = {
 				[Condition.Blessed]: 'icons/svg/angel.svg',
 				[Condition.Blinded]: 'icons/svg/blind.svg',
 				[Condition.Distracted]: 'icons/svg/daze.svg',
-				[Condition.Distraught]: 'icons/svg/cursed.svg', // Using cursed for distraught (emotional/spiritual turmoil)
+				[Condition.Distraught]: 'icons/svg/aura.svg',
 				[Condition.Frightened]: 'icons/svg/terror.svg',
 				[Condition.Immobilized]: 'icons/svg/net.svg',
 				[Condition.Incapacitated]: 'icons/svg/skull.svg',
@@ -507,18 +500,14 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			return iconMap[condition] || 'icons/svg/aura.svg';
 		};
 
-		// Add our conditions as status effects
-		const conditionEffects = Object.values(Condition).map(condition => ({
+		CONFIG.statusEffects = Object.values(Condition).map(condition => ({
 			id: `sw-${condition.toLowerCase().replace(/\s+/g, '-')}`,
 			name: condition,
-			icon: getConditionIcon(condition),
+			img: getConditionIcon(condition),
 			description: CONDITIONS[condition].description,
 		}));
-
-		CONFIG.statusEffects.push(...conditionEffects);
 	}
 
-	// Helper to get current actor from context (never cache!)
 	private getCurrentActor(): ActorLike | undefined {
 		return (this as unknown as { actor?: ActorLike }).actor;
 	}
@@ -534,6 +523,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 	constructor(...args: unknown[]) {
 		super(...args);
+
 		// Register Handlebars helpers
 		this.registerHelper('processDescription', processDescriptionText as (...args: unknown[]) => unknown);
 		this.registerHelper('eq', (a: unknown, b: unknown) => a === b);

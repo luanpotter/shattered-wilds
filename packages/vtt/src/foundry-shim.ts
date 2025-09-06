@@ -154,7 +154,6 @@ interface FoundryGlobals {
 	game?: GameLike;
 	ui?: UILike;
 	Hooks?: HooksLike;
-	Actors?: { contents?: ActorLike[] };
 	Actor?: { create(data: Record<string, unknown>, options?: Record<string, unknown>): Promise<ActorLike> };
 	Scene?: { create(data: Record<string, unknown>, options?: Record<string, unknown>): Promise<SceneLike> };
 	CONST?: FoundryConstants;
@@ -163,6 +162,11 @@ interface FoundryGlobals {
 	Roll?: FoundryRollCtor;
 	ChatMessage?: FoundryChatMessage;
 	foundry?: {
+		documents?: {
+			collections?: {
+				Actors?: { contents?: ActorLike[] };
+			};
+		};
 		applications?: {
 			api?: {
 				ApplicationV2?: unknown;
@@ -187,6 +191,14 @@ interface FoundryGlobals {
 			};
 		};
 	};
+	CONFIG?: {
+		statusEffects?: Array<{
+			id: string;
+			name: string;
+			img?: string;
+			description?: string;
+		}>;
+	};
 	ActorSheet?: ActorSheetBaseCtor;
 	DocumentSheetConfig?: DocumentSheetConfigLike;
 	Handlebars?: {
@@ -207,7 +219,8 @@ export function getHooks(): HooksLike {
 
 export function getActors(): { contents?: ActorLike[] } {
 	const globals = getFoundryGlobals();
-	return globals.Actors ?? {};
+	// Try modern API first, fallback to game.actors
+	return globals.foundry?.documents?.collections?.Actors ?? globals.game?.actors ?? {};
 }
 
 export function getActorSheetBaseCtor(): ActorSheetBaseCtor {
@@ -234,6 +247,18 @@ export function getUI(): UILike {
 export function getActorById(id: string): ActorLike | undefined {
 	const globals = getFoundryGlobals();
 	return globals.game?.actors?.get?.(id);
+}
+
+export function getFoundryConfig(): {
+	statusEffects?: Array<{
+		id: string;
+		name: string;
+		img?: string;
+		description?: string;
+	}>;
+} {
+	const globals = getFoundryGlobals();
+	return globals.CONFIG ?? {};
 }
 
 export function getActorCtor(): {
