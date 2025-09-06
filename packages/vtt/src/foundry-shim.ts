@@ -1,130 +1,90 @@
-// Centralized minimal typings and accessors for Foundry's globals.
-// This isolates unsafe 'any' usage to this file only.
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-export type SceneLike = {
-	createEmbeddedDocuments?: (collection: string, docs: any[]) => Promise<any[]>;
-};
+// Foundry VTT type definitions and safe access layer
+// This file centralizes all Foundry API access to provide type safety
 
 export interface ActorLike {
 	id: string;
 	name: string;
+	type: string;
 	flags?: Record<string, unknown>;
-	prototypeToken?: {
-		actorData?: {
-			flags?: Record<string, unknown>;
-		};
-		flags?: Record<string, unknown>;
-	};
 	update?: (data: Record<string, unknown>) => Promise<unknown>;
+	getFlag?: (scope: string, key: string) => unknown;
 	setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
-	sheet: { render: (force: boolean) => void } | undefined;
+	unsetFlag?: (scope: string, key: string) => Promise<unknown>;
 	getActiveTokens?: () => TokenLike[];
+	token?: TokenLike;
+	sheet?: {
+		render?: (force?: boolean) => void;
+	};
 }
 
-export type TokenLike = {
-	document?: { actorId?: string };
+export interface TokenLike {
+	id: string;
+	name: string;
 	actor?: ActorLike;
-};
+	document?: {
+		update?: (data: Record<string, unknown>) => Promise<unknown>;
+		actorId?: string;
+	};
+}
 
-export type GameLike = {
+export interface SceneLike {
+	id: string;
+	name: string;
+	active?: boolean;
+	createEmbeddedDocuments?: (type: string, data: unknown[]) => Promise<unknown[]>;
+}
+
+export interface GameLike {
+	actors?: {
+		get?: (id: string) => ActorLike | undefined;
+		contents?: ActorLike[];
+	};
 	scenes?: {
-		get(id: string): SceneLike | undefined;
+		get?: (id: string) => SceneLike | undefined;
 		active?: SceneLike;
 		contents?: SceneLike[];
 	};
-	actors?: {
-		get(id: string): ActorLike | undefined;
-	};
-	user?: any;
-	dice3d?: any;
-};
-
-export type ActorsManagerLike = {
-	unregisterSheet: (namespace: string, sheet: unknown) => void;
-	registerSheet: (namespace: string, sheet: unknown, options: { types: string[]; makeDefault?: boolean }) => void;
-};
-
-export type HeaderButton = { class: string; label: string; icon: string; onclick: () => void };
-
-export type ActorSheetBaseCtor = {
-	new (...args: unknown[]): { _getHeaderButtons: () => HeaderButton[] };
-	defaultOptions: unknown;
-};
-
-export function getHooks(): {
-	once(event: 'init' | 'ready', fn: () => void): void;
-	on?(event: string, fn: (...args: any[]) => void): void;
-} {
-	return (globalThis as any).Hooks;
-}
-
-export function getActorsManager(): ActorsManagerLike {
-	return (globalThis as any).Actors;
-}
-
-export function getActorSheetBase(): ActorSheetBaseCtor {
-	const ns = (globalThis as any).foundry?.appv1?.sheets?.ActorSheet;
-	return (ns || (globalThis as any).ActorSheet) as ActorSheetBaseCtor;
-}
-
-export function getActorSheetV2(): ActorSheetBaseCtor | undefined {
-	// Prefer v2 sheets namespace if available
-	const v2 = (globalThis as any).foundry?.applications?.sheets?.ActorSheet;
-	return (v2 as ActorSheetBaseCtor | undefined) ?? undefined;
-}
-
-export function getGame(): GameLike {
-	return (globalThis as any).game as GameLike;
-}
-
-export function getUI(): {
-	notifications?: { info: (m: string) => void; warn: (m: string) => void; error: (m: string) => void };
-} {
-	return (globalThis as any).ui as {
-		notifications?: { info: (m: string) => void; warn: (m: string) => void; error: (m: string) => void };
+	user?: {
+		id: string;
+		name: string;
 	};
 }
 
-export function getActorById(id: string): ActorLike | undefined {
-	return (globalThis as any).game?.actors?.get?.(id);
+export interface HooksLike {
+	on?: (event: string, callback: (...args: unknown[]) => unknown) => void;
+	once?: (event: string, callback: (...args: unknown[]) => unknown) => void;
+	call?: (event: string, ...args: unknown[]) => unknown;
 }
 
-export function getActorCtor(): {
-	create(data: { name: string; type: string }): Promise<{ id: string; name: string }>;
-} {
-	return (globalThis as any).Actor;
+export interface UILike {
+	notifications?: {
+		info?: (message: string) => void;
+		warn?: (message: string) => void;
+		error?: (message: string) => void;
+	};
 }
 
-export function getDocumentSheetConfig(): {
+export interface ActorSheetBaseCtor {
+	new (...args: unknown[]): unknown;
+}
+
+export interface DocumentSheetConfigLike {
 	registerSheet: (documentClass: unknown, scope: string, sheetClass: unknown, options: Record<string, unknown>) => void;
 	unregisterSheet: (documentClass: unknown, scope: string, sheetClass?: unknown) => void;
-} {
-	const ns = (globalThis as any).foundry?.applications?.apps?.DocumentSheetConfig;
-	return (ns || (globalThis as any).DocumentSheetConfig) as {
-		registerSheet: (
-			documentClass: unknown,
-			scope: string,
-			sheetClass: unknown,
-			options: Record<string, unknown>,
-		) => void;
-		unregisterSheet: (documentClass: unknown, scope: string, sheetClass?: unknown) => void;
-	};
 }
 
-export function getSceneCtor(): {
-	create(data: Record<string, unknown>, options?: Record<string, unknown>): Promise<SceneLike>;
-} {
-	return (globalThis as any).Scene;
+export interface CombatLike {
+	combatants: Array<{
+		id: string;
+		actor?: ActorLike;
+		update?: (data: Record<string, unknown>) => Promise<unknown>;
+	}>;
+	rollInitiative: (ids: string[], options?: Record<string, unknown>) => Promise<unknown>;
 }
 
-export function getConst(): { GRID_TYPES?: { HEXODD?: number } } | undefined {
-	return (globalThis as any).CONST;
-}
-
-export async function createTokenInScene(scene: SceneLike, tokenData: Record<string, unknown>): Promise<unknown> {
-	const docs = await (scene as any).createEmbeddedDocuments?.('Token', [tokenData]);
-	return docs?.[0];
+export interface FoundryConstants {
+	GRID_TYPES?: { HEXODD?: number };
+	TOKEN_DISPLAY_MODES?: Record<string, number>;
 }
 
 export interface DialogV2Ctor {
@@ -158,15 +118,6 @@ export interface DialogCtor {
 	): { render: (force: boolean) => void };
 }
 
-export function getDialogV2Ctor(): DialogV2Ctor | undefined {
-	return (globalThis as { foundry?: { applications?: { api?: { DialogV2?: DialogV2Ctor } } } }).foundry?.applications
-		?.api?.DialogV2;
-}
-
-export function getDialogCtor(): DialogCtor | undefined {
-	return (globalThis as { Dialog?: DialogCtor }).Dialog;
-}
-
 export interface FoundryRoll {
 	evaluate(): Promise<void>;
 	toMessage(options: { speaker?: { alias?: string }; flavor?: string }): Promise<void>;
@@ -183,12 +134,165 @@ export interface FoundryChatMessage {
 	create(data: { content: string; speaker?: { alias?: string } }): Promise<unknown>;
 }
 
+// Core Foundry global types for type-safe access
+interface FoundryGlobals {
+	game?: GameLike;
+	ui?: UILike;
+	Hooks?: HooksLike;
+	Actors?: { contents?: ActorLike[] };
+	Actor?: { create(data: Record<string, unknown>, options?: Record<string, unknown>): Promise<ActorLike> };
+	Scene?: { create(data: Record<string, unknown>, options?: Record<string, unknown>): Promise<SceneLike> };
+	CONST?: FoundryConstants;
+	Combat?: { new (...args: unknown[]): CombatLike; prototype: CombatLike };
+	Dialog?: DialogCtor;
+	Roll?: FoundryRollCtor;
+	ChatMessage?: FoundryChatMessage;
+	foundry?: {
+		applications?: {
+			api?: {
+				ApplicationV2?: unknown;
+				HandlebarsApplicationMixin?: (base: unknown) => unknown;
+				DialogV2?: DialogV2Ctor;
+			};
+			apps?: {
+				DocumentSheetConfig?: DocumentSheetConfigLike;
+			};
+			sheets?: {
+				ActorSheet?: { new (...args: unknown[]): unknown };
+			};
+		};
+		appv1?: {
+			sheets?: {
+				ActorSheet?: ActorSheetBaseCtor;
+			};
+		};
+		canvas?: {
+			placeables?: {
+				Token?: { prototype: TokenLike & { _onClickLeft2: (event: unknown) => void } };
+			};
+		};
+	};
+	ActorSheet?: ActorSheetBaseCtor;
+	DocumentSheetConfig?: DocumentSheetConfigLike;
+	Handlebars?: {
+		registerHelper(name: string, fn: (...args: unknown[]) => unknown): void;
+	};
+}
+
+// Safe global access with type checking
+function getFoundryGlobals(): FoundryGlobals {
+	return (globalThis as unknown as FoundryGlobals) ?? {};
+}
+
+// Type-safe accessor functions with proper error handling
+export function getHooks(): HooksLike {
+	const globals = getFoundryGlobals();
+	return globals.Hooks ?? {};
+}
+
+export function getActors(): { contents?: ActorLike[] } {
+	const globals = getFoundryGlobals();
+	return globals.Actors ?? {};
+}
+
+export function getActorSheetBaseCtor(): ActorSheetBaseCtor {
+	const globals = getFoundryGlobals();
+	const ns = globals.foundry?.appv1?.sheets?.ActorSheet;
+	return (ns || globals.ActorSheet) as ActorSheetBaseCtor;
+}
+
+export function getActorSheetV2Ctor(): { new (...args: unknown[]): unknown } | undefined {
+	const globals = getFoundryGlobals();
+	return globals.foundry?.applications?.sheets?.ActorSheet;
+}
+
+export function getGame(): GameLike {
+	const globals = getFoundryGlobals();
+	return globals.game ?? {};
+}
+
+export function getUI(): UILike {
+	const globals = getFoundryGlobals();
+	return globals.ui ?? {};
+}
+
+export function getActorById(id: string): ActorLike | undefined {
+	const globals = getFoundryGlobals();
+	return globals.game?.actors?.get?.(id);
+}
+
+export function getActorCtor(): {
+	create(data: Record<string, unknown>, options?: Record<string, unknown>): Promise<ActorLike>;
+} {
+	const globals = getFoundryGlobals();
+	return (
+		globals.Actor ?? {
+			create: async () => {
+				throw new Error('Actor constructor not available');
+			},
+		}
+	);
+}
+
+export function getDocumentSheetConfig(): DocumentSheetConfigLike {
+	const globals = getFoundryGlobals();
+	const ns = globals.foundry?.applications?.apps?.DocumentSheetConfig;
+	return (ns || globals.DocumentSheetConfig) as DocumentSheetConfigLike;
+}
+
+export function getSceneCtor(): {
+	create(data: Record<string, unknown>, options?: Record<string, unknown>): Promise<SceneLike>;
+} {
+	const globals = getFoundryGlobals();
+	return (
+		globals.Scene ?? {
+			create: async () => {
+				throw new Error('Scene constructor not available');
+			},
+		}
+	);
+}
+
+export function getConst(): FoundryConstants | undefined {
+	const globals = getFoundryGlobals();
+	return globals.CONST;
+}
+
+export async function createTokenInScene(scene: SceneLike, tokenData: Record<string, unknown>): Promise<unknown> {
+	const docs = await scene.createEmbeddedDocuments?.('Token', [tokenData]);
+	return docs?.[0];
+}
+
+export function getDialogV2Ctor(): DialogV2Ctor | undefined {
+	const globals = getFoundryGlobals();
+	return globals.foundry?.applications?.api?.DialogV2;
+}
+
+export function getDialogCtor(): DialogCtor | undefined {
+	const globals = getFoundryGlobals();
+	return globals.Dialog;
+}
+
 export function getRollCtor(): FoundryRollCtor {
-	return (globalThis as unknown as { Roll: FoundryRollCtor }).Roll;
+	const globals = getFoundryGlobals();
+	return (
+		globals.Roll ?? {
+			create: async () => {
+				throw new Error('Roll constructor not available');
+			},
+		}
+	);
 }
 
 export function getChatMessage(): FoundryChatMessage {
-	return (globalThis as unknown as { ChatMessage: FoundryChatMessage }).ChatMessage;
+	const globals = getFoundryGlobals();
+	return (
+		globals.ChatMessage ?? {
+			create: async () => {
+				throw new Error('ChatMessage not available');
+			},
+		}
+	);
 }
 
 export async function confirmAction({ title, message }: { title: string; message: string }): Promise<boolean> {
@@ -263,10 +367,13 @@ export async function promptText({ title, label }: { title: string; label: strin
 							label: 'OK',
 							action: 'ok',
 							default: true,
-							callback: (_ev: unknown, _button: unknown, instance: any) => {
+							callback: (_ev: unknown, _button: unknown, instance: unknown) => {
 								try {
+									const htmlElement = instance as {
+										element?: { querySelector?: (selector: string) => HTMLInputElement | null };
+									};
 									const input: HTMLInputElement | null =
-										instance?.element?.querySelector?.('input[name="text"]') ?? null;
+										htmlElement?.element?.querySelector?.('input[name="text"]') ?? null;
 									const value = input?.value ?? '';
 									resolve(value.trim() ? value.trim() : null);
 								} catch {
@@ -293,10 +400,10 @@ export async function promptText({ title, label }: { title: string; label: strin
 					buttons: {
 						ok: {
 							label: 'OK',
-							callback: (html: any) => {
+							callback: (html: unknown) => {
 								try {
-									const value: string | undefined =
-										(html?.find?.('input[name="text"]').val?.() as string | undefined) ?? undefined;
+									const htmlJQuery = html as { find?: (selector: string) => { val?: () => string | undefined } };
+									const value: string | undefined = htmlJQuery?.find?.('input[name="text"]')?.val?.() ?? undefined;
 									resolve(value && value.trim() ? value.trim() : null);
 								} catch {
 									resolve(null);
@@ -317,18 +424,19 @@ export async function promptText({ title, label }: { title: string; label: strin
 }
 
 export function getApplicationV2Ctor(): unknown {
-	return (globalThis as any).foundry?.applications?.api?.ApplicationV2;
+	const globals = getFoundryGlobals();
+	return globals.foundry?.applications?.api?.ApplicationV2;
 }
 
 export function getHandlebarsApplicationMixin(): ((base: unknown) => unknown) | undefined {
-	const mixin = (globalThis as any).foundry?.applications?.api?.HandlebarsApplicationMixin;
+	const globals = getFoundryGlobals();
+	const mixin = globals.foundry?.applications?.api?.HandlebarsApplicationMixin;
 	return (typeof mixin === 'function' ? mixin : undefined) as ((base: unknown) => unknown) | undefined;
 }
 
 export function getTokenObjectCtor(): { prototype: TokenLike & { _onClickLeft2: (event: unknown) => void } } {
-	const ctor = (globalThis as any).foundry?.canvas?.placeables?.Token as
-		| { prototype: TokenLike & { _onClickLeft2: (event: unknown) => void } }
-		| undefined;
+	const globals = getFoundryGlobals();
+	const ctor = globals.foundry?.canvas?.placeables?.Token;
 	if (!ctor) throw new Error('Token class not found at foundry.canvas.placeables.Token');
 	return ctor;
 }
@@ -340,11 +448,7 @@ export function getTokenDisplayModes(): {
 	HOVER: number;
 	ALWAYS: number;
 } {
-	const foundryConst = (
-		globalThis as unknown as {
-			CONST?: { TOKEN_DISPLAY_MODES?: Record<string, number> };
-		}
-	).CONST?.TOKEN_DISPLAY_MODES;
+	const foundryConst = getConst()?.TOKEN_DISPLAY_MODES;
 
 	return {
 		NONE: foundryConst?.NONE ?? 0,
@@ -353,4 +457,35 @@ export function getTokenDisplayModes(): {
 		HOVER: foundryConst?.HOVER ?? 30,
 		ALWAYS: foundryConst?.ALWAYS ?? 40,
 	};
+}
+
+export function getCombatCtor(): { new (...args: unknown[]): CombatLike; prototype: CombatLike } | undefined {
+	const globals = getFoundryGlobals();
+	return globals.Combat;
+}
+
+export function getHandlebars():
+	| {
+			registerHelper(name: string, fn: (...args: unknown[]) => unknown): void;
+	  }
+	| undefined {
+	const globals = getFoundryGlobals();
+	return globals.Handlebars;
+}
+
+export function getActorConstructor(): { new (...args: unknown[]): unknown } {
+	const globals = getFoundryGlobals();
+	return (
+		(globals as unknown as { Actor: { new (...args: unknown[]): unknown } }).Actor ?? {
+			new: () => {
+				throw new Error('Actor constructor not available');
+			},
+		}
+	);
+}
+
+// Helper functions for safe UI operations
+export function showNotification(type: 'info' | 'warn' | 'error', message: string): void {
+	const ui = getUI();
+	ui.notifications?.[type]?.(message);
 }

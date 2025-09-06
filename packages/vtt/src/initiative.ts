@@ -1,28 +1,22 @@
 import { DerivedStatType } from '@shattered-wilds/commons';
 import { parseCharacterSheet } from './characters.js';
 import { executeEnhancedRoll, type DiceRollRequest } from './dices.js';
-import { ActorLike, getHooks } from './foundry-shim.js';
+import { ActorLike, getHooks, getCombatCtor } from './foundry-shim.js';
 
 export function registerInitiativeHooks(): void {
 	const hooks = getHooks();
 	if (!hooks?.on) return;
 
 	// Override Combat.rollInitiative method entirely to prevent Foundry from using its formula
-	hooks.once('ready', () => {
-		const Combat = (globalThis as unknown as { Combat?: unknown }).Combat;
+	hooks.once?.('ready', () => {
+		const Combat = getCombatCtor();
 		if (!Combat) return;
 
-		const CombatClass = Combat as {
-			prototype: {
-				rollInitiative: (ids: string[], options?: Record<string, unknown>) => Promise<unknown>;
-			};
-		};
-
 		// Store the original method
-		const originalRollInitiative = CombatClass.prototype.rollInitiative;
+		const originalRollInitiative = Combat.prototype.rollInitiative;
 
 		// Override with our custom implementation
-		CombatClass.prototype.rollInitiative = async function (
+		Combat.prototype.rollInitiative = async function (
 			this: {
 				combatants: Array<{
 					id: string;

@@ -35,7 +35,7 @@ export async function createCharacterWithToken(params: { name: string; sceneId?:
 	const game = getGame() as GameLike;
 	const scenes = game.scenes;
 	const targetScene: SceneLike | undefined = params.sceneId
-		? scenes?.get(params.sceneId)
+		? scenes?.get?.(params.sceneId)
 		: (scenes?.active ?? scenes?.contents?.[0]);
 
 	if (!targetScene) return { actor, token: null as unknown };

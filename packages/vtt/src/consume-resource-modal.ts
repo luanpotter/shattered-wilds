@@ -1,4 +1,10 @@
-import { getApplicationV2Ctor, getHandlebarsApplicationMixin, getUI, getActorById } from './foundry-shim.js';
+import {
+	getApplicationV2Ctor,
+	getHandlebarsApplicationMixin,
+	getActorById,
+	getHandlebars,
+	showNotification,
+} from './foundry-shim.js';
 import { ActionCost, CharacterSheet, RESOURCES } from '@shattered-wilds/commons';
 
 interface AdjustedCost extends ActionCost {
@@ -74,13 +80,9 @@ if (AppV2 && HbsMixin) {
 		}
 
 		private registerHelper(name: string, fn: (...args: unknown[]) => unknown) {
-			const Handlebars = (
-				globalThis as unknown as {
-					Handlebars?: { registerHelper(name: string, fn: (...args: unknown[]) => unknown): void };
-				}
-			).Handlebars;
-			if (Handlebars) {
-				Handlebars.registerHelper(name, fn);
+			const handlebars = getHandlebars();
+			if (handlebars) {
+				handlebars.registerHelper(name, fn);
 			}
 		}
 
@@ -181,7 +183,7 @@ if (AppV2 && HbsMixin) {
 				});
 
 				if (!canAfford) {
-					getUI().notifications?.error('Insufficient resources!');
+					showNotification('error', 'Insufficient resources!');
 					return;
 				}
 
@@ -192,13 +194,13 @@ if (AppV2 && HbsMixin) {
 				this.#options.onConfirm?.();
 
 				// Show success message
-				getUI().notifications?.info(`Resources consumed for ${this.#options.actionName}`);
+				showNotification('info', `Resources consumed for ${this.#options.actionName}`);
 
 				// Close the modal
 				this.close();
 			} catch (error) {
 				console.error('Failed to consume resources:', error);
-				getUI().notifications?.error('Failed to consume resources');
+				showNotification('error', 'Failed to consume resources');
 			}
 		}
 

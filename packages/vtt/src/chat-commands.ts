@@ -1,17 +1,21 @@
 // Chat command system for Shattered Wilds dice rolling
-import { getHooks, getUI } from './foundry-shim.js';
+import { getHooks, showNotification } from './foundry-shim.js';
 import { executeEnhancedRoll, type DiceRollRequest } from './dices.js';
 
 export function registerChatCommands(): void {
 	// Hook into Foundry's chat command system
 	const hooks = getHooks();
 	if (hooks?.on) {
-		hooks.on('chatMessage', (_chatLog: unknown, message: string, chatData: Record<string, unknown>) => {
+		hooks.on('chatMessage', (...args: unknown[]) => {
+			const [, message, chatData] = args;
+			if (typeof message !== 'string') return true;
+			if (!chatData || typeof chatData !== 'object') return true;
+
 			const prefix = '/d12 ';
 			if (message.startsWith(prefix)) {
 				const command = message.slice(prefix.length).trim();
 
-				if (parseD12Command(command, chatData)) {
+				if (parseD12Command(command, chatData as Record<string, unknown>)) {
 					return false; // prevents default processing
 				}
 			}
@@ -64,7 +68,7 @@ function parseD12Command(command: string, chatData: Record<string, unknown>): bo
 		return true;
 	} catch (err) {
 		console.error('Failed to parse /d12 command:', err);
-		getUI().notifications?.error?.(`Invalid /d12 command: ${err instanceof Error ? err.message : 'Unknown error'}`);
+		showNotification('error', `Invalid /d12 command: ${err instanceof Error ? err.message : 'Unknown error'}`);
 		return false;
 	}
 }
@@ -137,6 +141,6 @@ async function executeD12Roll(options: D12CommandOptions, characterName: string)
 		await executeEnhancedRoll(rollRequest);
 	} catch (err) {
 		console.error('Failed to execute /d12 roll:', err);
-		getUI().notifications?.error?.('Failed to execute dice roll');
+		showNotification('error', 'Failed to execute dice roll');
 	}
 }

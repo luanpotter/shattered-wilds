@@ -1,10 +1,10 @@
 import {
-	getActorSheetV2,
+	getActorSheetV2Ctor,
 	getActorById,
-	getUI,
 	getHandlebarsApplicationMixin,
 	confirmAction,
 	ActorLike,
+	showNotification,
 } from './foundry-shim.js';
 import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
 import { DiceRollModal } from './dice-modal.js';
@@ -277,7 +277,7 @@ async function syncResourcesToSystemData(actor: unknown, characterSheet: Charact
 	}
 }
 
-const V2Base = getActorSheetV2();
+const V2Base = getActorSheetV2Ctor();
 const HbsMixin = getHandlebarsApplicationMixin();
 
 if (!V2Base || !HbsMixin) {
@@ -1248,7 +1248,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			importBtn.addEventListener('click', async () => {
 				const actor = getActorById(currentActorId!);
 				if (!actor) {
-					return getUI().notifications?.warn('Actor not found');
+					return showNotification('warn', 'Actor not found');
 				}
 
 				await importActorPropsFromShareString(actor);
@@ -1261,13 +1261,13 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			exportBtn.addEventListener('click', async () => {
 				const actor = getActorById(currentActorId);
 				if (!actor) {
-					return getUI().notifications?.warn('Actor not found');
+					return showNotification('warn', 'Actor not found');
 				}
 
 				const shareString = exportActorPropsToShareString(actor);
 				await navigator.clipboard.writeText(shareString);
 
-				getUI().notifications?.info('Share string copied to clipboard');
+				showNotification('info', 'Share string copied to clipboard');
 			});
 		}
 
@@ -1496,7 +1496,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				try {
 					// Check if modal is supported
 					if (!ConsumeResourceModal.isSupported()) {
-						getUI().notifications?.warn('Resource consumption modal not supported in this Foundry version');
+						showNotification('warn', 'Resource consumption modal not supported in this Foundry version');
 						return;
 					}
 
@@ -1504,7 +1504,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					await ConsumeResourceModal.open(characterSheet, action.costs, action.name, actorId);
 				} catch (error) {
 					console.error('Failed to open consume resource modal:', error);
-					getUI().notifications?.error('Failed to open resource consumption modal');
+					showNotification('error', 'Failed to open resource consumption modal');
 				}
 			});
 		});
@@ -1640,7 +1640,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					} else {
 						// Open modal for advanced options
 						if (!DiceRollModal.isSupported()) {
-							getUI().notifications?.warn('Dice modal not supported in this Foundry version');
+							showNotification('warn', 'Dice modal not supported in this Foundry version');
 							return;
 						}
 
@@ -1654,7 +1654,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					}
 				} catch (err) {
 					console.error('Failed to roll action check:', err);
-					getUI().notifications?.error('Failed to roll action check');
+					showNotification('error', 'Failed to roll action check');
 				}
 			};
 
@@ -1665,7 +1665,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 	private async handleResourceChange(resource: Resource, delta: number): Promise<void> {
 		const actor = this.getCurrentActor();
 		if (!actor) {
-			return getUI().notifications?.warn('Actor not found');
+			return showNotification('warn', 'Actor not found');
 		}
 
 		try {
@@ -1688,23 +1688,23 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			}
 		} catch (err) {
 			console.error('Failed to update resource:', err);
-			getUI().notifications?.error('Failed to update resource');
+			showNotification('error', 'Failed to update resource');
 		}
 	}
 
 	private async handleLongRest(): Promise<void> {
 		const actor = this.getCurrentActor();
 		if (!actor) {
-			return getUI().notifications?.warn('Actor not found');
+			return showNotification('warn', 'Actor not found');
 		}
 
 		try {
 			const { performLongRest } = await import('./update-actor-resources.js');
 			await performLongRest(actor);
-			getUI().notifications?.info('Long rest complete: all points refilled except heroism, +1 heroism point');
+			showNotification('info', 'Long rest complete: all points refilled except heroism, +1 heroism point');
 		} catch (err) {
 			console.error('Failed to perform long rest:', err);
-			getUI().notifications?.error('Failed to perform long rest');
+			showNotification('error', 'Failed to perform long rest');
 		}
 	}
 
@@ -1724,7 +1724,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 	private async handleStatRollModal(statType: string, modifier: number): Promise<void> {
 		if (!DiceRollModal.isSupported()) {
-			getUI().notifications?.warn('Dice modal not supported in this Foundry version');
+			showNotification('warn', 'Dice modal not supported in this Foundry version');
 			return this.handleStatRoll(statType, modifier);
 		}
 
@@ -1829,7 +1829,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		weaponBonus: number,
 	): Promise<void> {
 		if (!DiceRollModal.isSupported()) {
-			getUI().notifications?.warn('Dice modal not supported in this Foundry version');
+			showNotification('warn', 'Dice modal not supported in this Foundry version');
 			return this.handleWeaponAttackRoll(weaponName, attackStat, weaponBonus);
 		}
 

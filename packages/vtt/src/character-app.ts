@@ -1,7 +1,7 @@
 import { Resource, StatType } from '@shattered-wilds/commons';
 import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
 import { parseCharacterSheet } from './characters.js';
-import { getActorById, getApplicationV2Ctor, getHandlebarsApplicationMixin, getUI } from './foundry-shim.js';
+import { getActorById, getApplicationV2Ctor, getHandlebarsApplicationMixin, showNotification } from './foundry-shim.js';
 
 export interface SWCharacterAppOptions {
 	actorId: string;
@@ -115,7 +115,7 @@ if (AppV2 && HbsMixin) {
 				importBtn.addEventListener('click', async () => {
 					const actor = getActorById(this.#actorId);
 					if (!actor) {
-						return getUI().notifications?.warn('Actor not found');
+						return showNotification('warn', 'Actor not found');
 					}
 
 					await importActorPropsFromShareString(actor);
@@ -128,13 +128,13 @@ if (AppV2 && HbsMixin) {
 				exportBtn.addEventListener('click', async () => {
 					const actor = getActorById(this.#actorId);
 					if (!actor) {
-						return getUI().notifications?.warn('Actor not found');
+						return showNotification('warn', 'Actor not found');
 					}
 
 					const shareString = exportActorPropsToShareString(actor);
 					await navigator.clipboard.writeText(shareString);
 
-					getUI().notifications?.info('Share string copied to clipboard');
+					showNotification('info', 'Share string copied to clipboard');
 				});
 			}
 		}

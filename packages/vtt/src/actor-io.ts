@@ -1,5 +1,5 @@
 import { CharacterSheet } from '@shattered-wilds/commons';
-import { ActorLike, getUI, promptText } from './foundry-shim.js';
+import { ActorLike, promptText, showNotification } from './foundry-shim.js';
 import { configureDefaultTokenBars } from './token-bars.js';
 import { ensureActorDataPersistence } from './actor-data-manager.js';
 import { parseCharacterProps, sanitizeProps } from './characters.js';
@@ -23,9 +23,9 @@ export async function importActorPropsFromShareString(actor: ActorLike) {
 		// Configure default token bars after successful import
 		await configureDefaultTokenBars(actor);
 
-		getUI().notifications?.info('Character imported');
+		showNotification('info', 'Character imported');
 	} catch (err) {
 		console.error('Failed to import character', err);
-		getUI().notifications?.error('Failed to import character');
+		showNotification('error', 'Failed to import character');
 	}
 }
