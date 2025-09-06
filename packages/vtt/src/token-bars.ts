@@ -29,7 +29,7 @@ export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 				visibility: DISPLAY_MODES.ALWAYS,
 				indentation: 0,
 				showMaxValue: true,
-				showLabel: false,
+				showLabel: true,
 			},
 			bar2: {
 				id: 'bar2',
@@ -41,7 +41,7 @@ export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 				visibility: DISPLAY_MODES.ALWAYS,
 				indentation: 0,
 				showMaxValue: true,
-				showLabel: false,
+				showLabel: true,
 			},
 			bar3: {
 				id: 'bar3',
@@ -53,7 +53,7 @@ export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 				visibility: DISPLAY_MODES.ALWAYS,
 				indentation: 0,
 				showMaxValue: true,
-				showLabel: false,
+				showLabel: true,
 			},
 		};
 
@@ -72,10 +72,11 @@ export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 					'prototypeToken.bar1': { attribute: 'resources.vp' },
 					'prototypeToken.bar2': { attribute: 'resources.fp' },
 					'prototypeToken.bar3': { attribute: 'resources.sp' },
-					'prototypeToken.displayBars': 40, // ALWAYS for EVERYONE
-					'prototypeToken.displayName': 30, // HOVER for EVERYONE
+					'prototypeToken.displayBars': DISPLAY_MODES.ALWAYS,
+					'prototypeToken.displayName': DISPLAY_MODES.ALWAYS,
 					'prototypeToken.actorLink': true, // Ensure all tokens created from this actor are linked
 					'prototypeToken.disposition': 1, // Friendly disposition for characters
+					'prototypeToken.lockRotation': true, // Lock rotation for character tokens
 				});
 			} catch (err) {
 				console.debug('Failed to configure token bars:', err);
