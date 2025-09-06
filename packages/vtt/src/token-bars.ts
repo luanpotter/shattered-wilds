@@ -74,6 +74,8 @@ export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 					'prototypeToken.bar3': { attribute: 'resources.sp' },
 					'prototypeToken.displayBars': 40, // ALWAYS for EVERYONE
 					'prototypeToken.displayName': 30, // HOVER for EVERYONE
+					'prototypeToken.actorLink': true, // Ensure all tokens created from this actor are linked
+					'prototypeToken.disposition': 1, // Friendly disposition for characters
 				});
 			} catch (err) {
 				console.debug('Failed to configure token bars:', err);
@@ -82,5 +84,41 @@ export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 	} catch (err) {
 		// Bar Brawl might not be installed, fail silently
 		console.debug('Failed to configure token bars (Bar Brawl may not be installed):', err);
+	}
+}
+
+/**
+ * Fix existing unlinked tokens by setting their actorLink property to true
+ * This can be called to repair tokens that became unlinked
+ */
+export async function fixUnlinkedTokens(actor: unknown): Promise<void> {
+	try {
+		const actorWithTokens = actor as {
+			id?: string;
+			getActiveTokens?: () => Array<{
+				document?: {
+					update?: (data: Record<string, unknown>) => Promise<unknown>;
+					actorLink?: boolean;
+				};
+			}>;
+		};
+
+		if (!actorWithTokens.getActiveTokens) return;
+
+		const tokens = actorWithTokens.getActiveTokens();
+		for (const token of tokens) {
+			try {
+				if (token.document?.update && token.document.actorLink !== true) {
+					console.log(`Fixing unlinked token for actor ${actorWithTokens.id}`);
+					await token.document.update({
+						actorLink: true,
+					});
+				}
+			} catch (err) {
+				console.warn('Failed to fix unlinked token:', err);
+			}
+		}
+	} catch (err) {
+		console.warn('Failed to fix unlinked tokens:', err);
 	}
 }

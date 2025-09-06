@@ -1,10 +1,21 @@
 import { createHexScene, createCharacterWithToken } from './vtt-api.js';
-import { getGame, getHooks, getTokenObjectCtor, getDocumentSheetConfig, getActorConstructor } from './foundry-shim.js';
+import {
+	getGame,
+	getHooks,
+	getTokenObjectCtor,
+	getDocumentSheetConfig,
+	getActorConstructor,
+	GameLike,
+	ActorLike,
+	getActors,
+	getActorById,
+	TokenDocumentLike,
+} from './foundry-shim.js';
 import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
 import { newSWCharacterApp } from './character-app.js';
 import { SWActorSheetV2 } from './actor-sheet-v2.js';
 import { registerChatCommands } from './chat-commands.js';
-import { configureDefaultTokenBars } from './token-bars.js';
+import { configureDefaultTokenBars, fixUnlinkedTokens } from './token-bars.js';
 import { registerInitiativeHooks } from './initiative.js';
 
 getHooks().once?.('init', () => {
@@ -31,7 +42,7 @@ const actorHooks = getHooks();
 if (actorHooks?.on) {
 	actorHooks.on('createActor', async (actor: unknown) => {
 		try {
-			const actorData = actor as { type?: string };
+			const actorData = actor as ActorLike;
 			if (actorData.type === 'character') {
 				// Small delay to ensure actor is fully created
 				setTimeout(async () => {
@@ -46,26 +57,71 @@ if (actorHooks?.on) {
 	// Hook for when tokens are created to configure token bars
 	actorHooks.on('createToken', async (tokenDoc: unknown) => {
 		try {
-			const token = tokenDoc as { actor?: unknown };
-			if (token.actor) {
-				const actorData = token.actor as { type?: string };
-
-				if (actorData.type === 'character') {
-					// Ensure the actor has proper token bar configuration
-					setTimeout(async () => {
-						await configureDefaultTokenBars(token.actor);
-					}, 100);
-				}
+			const token = tokenDoc as TokenDocumentLike;
+			if (token.actor && token.actor.type === 'character') {
+				// Ensure the actor has proper token bar configuration
+				setTimeout(async () => {
+					await configureDefaultTokenBars(token.actor);
+				}, 100);
 			}
 		} catch (err) {
 			console.debug('Failed to configure token bars for new token:', err);
 		}
 	});
+
+	// Hook for when actors are updated to sync token resources
+	actorHooks.on('updateActor', async (actor: unknown, changes: unknown) => {
+		try {
+			const actorData = actor as ActorLike;
+			const updateData = changes as { system?: { resources?: unknown } };
+
+			if (actorData.type === 'character' && updateData.system?.resources) {
+				// Sync resources to all active tokens for this actor
+				const tokens = actorData.getActiveTokens?.() || [];
+				for (const token of tokens) {
+					try {
+						if (token.document?.update) {
+							await token.document.update({
+								'actorData.system.resources': updateData.system.resources,
+							});
+						}
+					} catch (err) {
+						console.debug('Failed to sync token resources:', err);
+					}
+				}
+			}
+		} catch (err) {
+			console.debug('Failed to sync actor update to tokens:', err);
+		}
+	});
+
+	// Hook to prevent character tokens from becoming unlinked
+	actorHooks.on('updateToken', async (tokenDoc: unknown, changes: unknown) => {
+		try {
+			const tokenData = tokenDoc as TokenDocumentLike;
+			const updateData = changes as { actorLink?: boolean };
+
+			// If a character token is being updated to unlink, force it back to linked
+			if (tokenData.actor?.type === 'character' && updateData.actorLink === false) {
+				console.log('Preventing character token from becoming unlinked');
+				setTimeout(async () => {
+					try {
+						if (tokenData.update) {
+							await tokenData.update({ actorLink: true });
+						}
+					} catch (err) {
+						console.warn('Failed to re-link character token:', err);
+					}
+				}, 100); // Small delay to avoid infinite loops
+			}
+		} catch (err) {
+			console.debug('Failed to monitor token update:', err);
+		}
+	});
 }
 
 getHooks().once?.('ready', () => {
-	const game = getGame();
-	(game as { shatteredWilds?: unknown }).shatteredWilds = {
+	(getGame() as GameLike & { shatteredWilds?: unknown }).shatteredWilds = {
 		createHexScene,
 		createCharacterWithToken,
 		openCharacterApp: (actorId: string) => {
@@ -74,11 +130,19 @@ getHooks().once?.('ready', () => {
 		},
 		exportActor: exportActorPropsToShareString,
 		importActor: importActorPropsFromShareString,
-		configureAllCharacterTokenBars: async () => {
-			const actors = (game as { actors?: { contents?: unknown[] } }).actors?.contents || [];
+		fixUnlinkedTokens,
+		fixAllUnlinkedTokens: async () => {
+			const actors = getActors().contents || [];
 			for (const actor of actors) {
-				const actorData = actor as { type?: string };
-				if (actorData.type === 'character') {
+				if (actor.type === 'character') {
+					await fixUnlinkedTokens(actor);
+				}
+			}
+		},
+		configureAllCharacterTokenBars: async () => {
+			const actors = getActors().contents || [];
+			for (const actor of actors) {
+				if (actor.type === 'character') {
 					await configureDefaultTokenBars(actor);
 				}
 			}
@@ -92,10 +156,7 @@ getHooks().once?.('ready', () => {
 		try {
 			const actorId: string | undefined = this.document?.actorId ?? this.actor?.id;
 			if (actorId) {
-				const game = getGame();
-				const actors = (game as { actors?: { get?: (id: string) => unknown } }).actors;
-				const actor = actors?.get?.(actorId) as { sheet?: { render?: (force?: boolean) => unknown } };
-
+				const actor = getActorById(actorId);
 				if (actor?.sheet?.render) {
 					actor.sheet.render(true);
 					return;
@@ -111,7 +172,7 @@ getHooks().once?.('ready', () => {
 });
 
 getHooks().once?.('ready', () => {
-	(getGame() as { shatteredWilds?: unknown }).shatteredWilds = {
+	(getGame() as GameLike & { shatteredWilds?: unknown }).shatteredWilds = {
 		createHexScene,
 		createCharacterWithToken,
 		openCharacterApp: (actorId: string) => {
@@ -121,14 +182,32 @@ getHooks().once?.('ready', () => {
 		exportActor: exportActorPropsToShareString,
 		importActor: importActorPropsFromShareString,
 		configureAllCharacterTokenBars: async () => {
-			const game = getGame();
-			const actors = (game as { actors?: { contents?: unknown[] } }).actors?.contents || [];
+			const actors = getActors().contents || [];
 			for (const actor of actors) {
-				const actorData = actor as { type?: string };
-				if (actorData.type === 'character') {
+				if (actor.type === 'character') {
 					await configureDefaultTokenBars(actor);
 				}
 			}
+		},
+		fixAllUnlinkedTokens: async () => {
+			const actors = getActors().contents || [];
+			let fixedCount = 0;
+
+			for (const actor of actors) {
+				if (actor.type === 'character' && actor.getActiveTokens) {
+					const tokens = actor.getActiveTokens();
+					for (const token of tokens) {
+						if (token.document && !token.document.actorLink && token.document.update) {
+							console.log('Fixing unlinked token for actor:', actor);
+							await token.document.update({ actorLink: true });
+							fixedCount++;
+						}
+					}
+				}
+			}
+
+			console.log(`Fixed ${fixedCount} unlinked character tokens`);
+			return fixedCount;
 		},
 	};
 
@@ -139,9 +218,7 @@ getHooks().once?.('ready', () => {
 		try {
 			const actorId: string | undefined = this.document?.actorId ?? this.actor?.id;
 			if (actorId) {
-				const game = getGame();
-				const actors = (game as { actors?: { get?: (id: string) => unknown } }).actors;
-				const actor = actors?.get?.(actorId) as { sheet?: { render?: (force?: boolean) => unknown } };
+				const actor = getActorById(actorId);
 
 				if (actor?.sheet?.render) {
 					actor.sheet.render(true);
@@ -155,4 +232,34 @@ getHooks().once?.('ready', () => {
 	};
 
 	console.log('Shattered Wilds system ready (V4)');
+
+	// Auto-fix unlinked tokens on world startup
+	setTimeout(async () => {
+		console.log('Shattered Wilds: Checking for unlinked character tokens...');
+		try {
+			const actors = getActors().contents || [];
+			let fixedCount = 0;
+
+			for (const actor of actors) {
+				if (actor.type === 'character' && actor.getActiveTokens) {
+					const tokens = actor.getActiveTokens();
+					for (const token of tokens) {
+						if (token.document && !token.document.actorLink && token.document.update) {
+							console.log('Fixing unlinked token:', token);
+							await token.document.update({ actorLink: true });
+							fixedCount++;
+						}
+					}
+				}
+			}
+
+			if (fixedCount > 0) {
+				console.log(`Shattered Wilds: Fixed ${fixedCount} unlinked character tokens`);
+			} else {
+				console.log('Shattered Wilds: All character tokens are properly linked');
+			}
+		} catch (err) {
+			console.warn('Shattered Wilds: Failed to check/fix unlinked tokens:', err);
+		}
+	}, 2000); // Wait 2 seconds after ready to ensure all data is loaded
 });

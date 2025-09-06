@@ -1,4 +1,4 @@
-import { ActorLike } from './foundry-shim.js';
+import { ActorLike, getUI } from './foundry-shim.js';
 import { CharacterSheet, Resource } from '@shattered-wilds/commons';
 import { sanitizeProps, parseCharacterProps } from './characters.js';
 
@@ -122,16 +122,15 @@ function getCurrentActorProps(actor: ActorLike): Record<string, string> {
 async function refreshActorSheets(actor: ActorLike): Promise<void> {
 	try {
 		// Get all rendered applications and find ones for this actor
-		const ui = (globalThis as { ui?: { windows?: Record<string, unknown> } }).ui;
-		const apps = ui?.windows;
+		const ui = getUI();
+		const apps = ui.windows;
 		if (!apps) return;
 
 		for (const app of Object.values(apps)) {
-			const appWithActor = app as { actor?: { id?: string }; render?: (force?: boolean) => Promise<unknown> };
 			// Check if this is an actor sheet for our actor
-			if (appWithActor.actor?.id === actor.id && appWithActor.render) {
+			if (app.actor?.id === actor.id && app.render) {
 				// Force a render to refresh the data
-				await appWithActor.render(false);
+				await app.render(false);
 			}
 		}
 	} catch (error) {
@@ -149,7 +148,12 @@ async function syncTokenResources(
 	try {
 		// Get all tokens for this actor
 		const actorWithTokens = actor as {
-			getActiveTokens?: () => Array<{ document?: { update?: (data: Record<string, unknown>) => Promise<unknown> } }>;
+			getActiveTokens?: () => Array<{
+				document?: {
+					update?: (data: Record<string, unknown>) => Promise<unknown>;
+					actorData?: Record<string, unknown>;
+				};
+			}>;
 		};
 		const tokens = actorWithTokens.getActiveTokens?.() || [];
 
@@ -157,16 +161,46 @@ async function syncTokenResources(
 		for (const token of tokens) {
 			try {
 				if (token.document?.update) {
+					// Update both the token's actor data and delta source
 					await token.document.update({
 						'actorData.system.resources': systemResourceData,
+						// Also update the delta source to ensure changes propagate
+						'delta.system.resources': systemResourceData,
 					});
 				}
 			} catch (error) {
 				console.warn('Failed to sync token resources:', error);
 			}
 		}
+
+		// Additionally, force refresh any token sheets that might be open
+		await refreshTokenSheets(actor);
 	} catch (error) {
 		console.warn('Failed to sync token resources:', error);
+	}
+}
+
+/**
+ * Force refresh any open token sheets to reflect the updated data
+ */
+async function refreshTokenSheets(actor: ActorLike): Promise<void> {
+	try {
+		const ui = getUI();
+		const apps = ui.windows;
+		if (!apps) return;
+
+		for (const app of Object.values(apps)) {
+			// Check if this is a token sheet for our actor
+			const tokenApp = app as {
+				token?: { actor?: { id?: string } };
+				render?: (force?: boolean) => Promise<unknown>;
+			};
+			if (tokenApp.token?.actor?.id === actor.id && tokenApp.render) {
+				await tokenApp.render(false);
+			}
+		}
+	} catch (error) {
+		console.warn('Failed to refresh token sheets:', error);
 	}
 }
 

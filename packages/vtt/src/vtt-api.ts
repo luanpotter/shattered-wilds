@@ -46,6 +46,7 @@ export async function createCharacterWithToken(params: { name: string; sceneId?:
 	const tokenData = {
 		name: actor.name,
 		actorId: actor.id,
+		actorLink: true, // Ensure token is linked to actor
 		x,
 		y,
 		disposition: 1,

@@ -24,7 +24,15 @@ export interface TokenLike {
 	document?: {
 		update?: (data: Record<string, unknown>) => Promise<unknown>;
 		actorId?: string;
+		actorLink?: boolean;
 	};
+}
+
+export interface TokenDocumentLike {
+	actor?: ActorLike;
+	actorId?: string;
+	actorLink?: boolean;
+	update?: (data: Record<string, unknown>) => Promise<unknown>;
 }
 
 export interface SceneLike {
@@ -62,6 +70,13 @@ export interface UILike {
 		warn?: (message: string) => void;
 		error?: (message: string) => void;
 	};
+	windows?: Record<
+		string,
+		{
+			actor?: { id?: string };
+			render?: (force?: boolean) => Promise<unknown>;
+		}
+	>;
 }
 
 export interface ActorSheetBaseCtor {
