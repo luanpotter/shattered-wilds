@@ -1,15 +1,26 @@
-import { getActorSheetV2, getActorById, getUI, getHandlebarsApplicationMixin, confirmAction } from './foundry-shim.js';
+import {
+	getActorSheetV2,
+	getActorById,
+	getUI,
+	getHandlebarsApplicationMixin,
+	confirmAction,
+	ActorLike,
+} from './foundry-shim.js';
 import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
 import { DiceRollModal } from './dice-modal.js';
 import { executeEnhancedRoll, type DiceRollRequest } from './dices.js';
 import { configureDefaultTokenBars } from './token-bars.js';
-import { getActorData, ensureActorDataPersistence, type ActorLike } from './actor-data-manager.js';
+import {
+	getActorData,
+	ensureActorDataPersistence,
+	getCharacterConditions,
+	getCharacterProps,
+} from './actor-data-manager.js';
 import { ConsumeResourceModal } from './consume-resource-modal.js';
 import {
 	CharacterSheet,
 	Resource,
 	RESOURCES,
-	CurrentResources,
 	StatType,
 	StatNode,
 	NodeStatModifier,
@@ -346,9 +357,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		if (this.#conditionsLoaded) return;
 
 		// Load from actor flags first
-		const flags = actor.flags as Record<string, unknown> | undefined;
-		const swFlags = flags?.['shattered-wilds'] as { conditions?: Condition[] } | undefined;
-		const flagConditions = swFlags?.conditions || [];
+		const flagConditions = getCharacterConditions(actor);
 
 		// Also check token status effects for initial sync
 		const actorWithStatuses = actor as { statuses?: Set<string> } | undefined;
@@ -1237,10 +1246,11 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		const importBtn = root.querySelector('[data-action="sw-import"]') as HTMLButtonElement | null;
 		if (importBtn) {
 			importBtn.addEventListener('click', async () => {
-				const actor = getActorById(currentActorId!) as unknown as {
-					setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
-				};
-				if (!actor?.setFlag) return getUI().notifications?.warn('Actor not found');
+				const actor = getActorById(currentActorId!);
+				if (!actor) {
+					return getUI().notifications?.warn('Actor not found');
+				}
+
 				await importActorPropsFromShareString(actor);
 				// Re-render the sheet to show updated data
 				(this as unknown as { render: (force?: boolean) => void }).render(false);
@@ -1292,17 +1302,17 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			});
 		});
 
-		// Add refill all resources handler
-		const refillBtn = root.querySelector('[data-action="refill-resources"]') as HTMLButtonElement | null;
-		if (refillBtn) {
-			refillBtn.addEventListener('click', async () => {
+		const longRestBtn = root.querySelector('[data-action="long-rest"]') as HTMLButtonElement | null;
+		if (longRestBtn) {
+			longRestBtn.addEventListener('click', async () => {
 				const confirmed = await confirmAction({
-					title: 'Refill Resources',
-					message: 'Are you sure you want to refill all resources to their maximum values?',
+					title: 'Long Rest',
+					message:
+						'Are you sure you want to take a Long Rest? This will refill all points except Heroism, and add 1 Heroism Point.',
 				});
 
 				if (confirmed) {
-					await this.handleRefillAllResources();
+					await this.handleLongRest();
 				}
 			});
 		}
@@ -1491,12 +1501,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					}
 
 					// Open the consume resource modal
-					await ConsumeResourceModal.open(characterSheet, action.costs, action.name, actorId, {
-						onConfirm: () => {
-							// Re-render the sheet to show updated resources
-							(this as unknown as { render: (force?: boolean) => void }).render(false);
-						},
-					});
+					await ConsumeResourceModal.open(characterSheet, action.costs, action.name, actorId);
 				} catch (error) {
 					console.error('Failed to open consume resource modal:', error);
 					getUI().notifications?.error('Failed to open resource consumption modal');
@@ -1658,17 +1663,11 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 	}
 
 	private async handleResourceChange(resource: Resource, delta: number): Promise<void> {
-		const currentActorId = this.getCurrentActorId();
-		const actor = getActorById(currentActorId!) as unknown as {
-			flags?: Record<string, unknown>;
-			setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
-		};
-		if (!actor?.setFlag) return getUI().notifications?.warn('Actor not found');
-
-		// Get current props
-		const flags = actor.flags as Record<string, unknown> | undefined;
-		const swFlags = (flags?.['shattered-wilds'] as { props?: Record<string, string> } | undefined) ?? undefined;
-		const props = swFlags?.props ?? {};
+		const actor = this.getCurrentActor();
+		if (!actor) {
+			return getUI().notifications?.warn('Actor not found');
+		}
+		const props = getCharacterProps(actor);
 
 		try {
 			// Create character sheet to use updateResource method
@@ -1695,13 +1694,10 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				}
 			}
 
-			// Update the actor's props with the new resource value (background operation)
+			// Update actor flags and system data using shared utility
 			const updatedProps = { ...props, [resource]: newValue.toString() };
-			await actor.setFlag('shattered-wilds', 'props', updatedProps);
-
-			// Sync updated resources to system data for token bars
-			const updatedCharacterSheet = CharacterSheet.from(updatedProps);
-			await syncResourcesToSystemData(actor, updatedCharacterSheet);
+			const { updateActorResources } = await import('./update-actor-resources.js');
+			await updateActorResources(actor, updatedProps);
 
 			// DO NOT call render() here - we've already updated the DOM directly
 			// getUI().notifications?.info(`${RESOURCES[resource].shortName} updated`);
@@ -1711,51 +1707,31 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		}
 	}
 
-	private async handleRefillAllResources(): Promise<void> {
-		const currentActorId = this.getCurrentActorId();
-		const actor = getActorById(currentActorId!) as unknown as {
-			flags?: Record<string, unknown>;
-			setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
-		};
-		if (!actor?.setFlag) return getUI().notifications?.warn('Actor not found');
+	private async handleLongRest(): Promise<void> {
+		const actor = this.getCurrentActor();
+		if (!actor) {
+			return getUI().notifications?.warn('Actor not found');
+		}
 
-		// Get current props
-		const flags = actor.flags as Record<string, unknown> | undefined;
-		const swFlags = (flags?.['shattered-wilds'] as { props?: Record<string, string> } | undefined) ?? undefined;
-		const props = swFlags?.props ?? {};
+		const props = getCharacterProps(actor);
+		const sheet = CharacterSheet.from(props);
 
 		try {
-			// Update all resource values directly in the DOM first (for instant feedback)
-			const root = (this as unknown as { element?: HTMLElement }).element ?? undefined;
-			if (root) {
-				Object.values(Resource).forEach(resource => {
-					const resourceValueElement = root
-						.querySelector(`[data-resource="${resource}"]`)
-						?.closest('.resource-control')
-						?.querySelector('.resource-value');
-					if (resourceValueElement) {
-						resourceValueElement.textContent = `${CurrentResources.MAX_VALUE}/${CurrentResources.MAX_VALUE}`;
-					}
-				});
-			}
-
-			// Set all resources to maximum value
 			const updatedProps = { ...props };
 			Object.values(Resource).forEach(resource => {
-				updatedProps[resource] = CurrentResources.MAX_VALUE.toString();
+				const { current, max } = sheet.getResource(resource);
+
+				const updatedValue = resource === Resource.HeroismPoint ? (current < max ? current + 1 : max) : max;
+				updatedProps[resource] = updatedValue.toString();
 			});
 
-			await actor.setFlag('shattered-wilds', 'props', updatedProps);
+			const { updateActorResources } = await import('./update-actor-resources.js');
+			await updateActorResources(actor, updatedProps);
 
-			// Sync updated resources to system data for token bars
-			const characterSheet = CharacterSheet.from(updatedProps);
-			await syncResourcesToSystemData(actor, characterSheet);
-
-			// DO NOT call render() here - we've already updated the DOM directly
-			getUI().notifications?.info('All resources refilled to maximum');
+			getUI().notifications?.info('Long rest complete: all points refilled except heroism, +1 heroism point');
 		} catch (err) {
-			console.error('Failed to refill resources:', err);
-			getUI().notifications?.error('Failed to refill resources');
+			console.error('Failed to perform long rest:', err);
+			getUI().notifications?.error('Failed to perform long rest');
 		}
 	}
 

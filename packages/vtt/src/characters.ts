@@ -1,5 +1,6 @@
 import { CharacterSheet } from '@shattered-wilds/commons';
-import { ActorLike, getRawCharacterProps } from './actor-data-manager';
+import { getCharacterProps } from './actor-data-manager';
+import { ActorLike } from './foundry-shim';
 
 export const parseCharacterSheet = (actor: ActorLike): CharacterSheet | undefined => {
 	const props = parseCharacterProps(actor);
@@ -16,7 +17,7 @@ export const parseCharacterSheet = (actor: ActorLike): CharacterSheet | undefine
 };
 
 export const parseCharacterProps = (actor: ActorLike): Record<string, string> => {
-	const rawProps = getRawCharacterProps(actor);
+	const rawProps = getCharacterProps(actor);
 	return unSanitizeProps(rawProps);
 };
 

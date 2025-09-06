@@ -107,5 +107,5 @@ getHooks().once('ready', () => {
 		return original(event);
 	};
 
-	console.log('Shattered Wilds system ready (V3)');
+	console.log('Shattered Wilds system ready (V4)');
 });

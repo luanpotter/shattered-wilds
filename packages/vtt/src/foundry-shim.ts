@@ -7,8 +7,8 @@ export type SceneLike = {
 };
 
 export interface ActorLike {
-	id?: string;
-	name?: string;
+	id: string;
+	name: string;
 	flags?: Record<string, unknown>;
 	prototypeToken?: {
 		actorData?: {
@@ -18,7 +18,14 @@ export interface ActorLike {
 	};
 	update?: (data: Record<string, unknown>) => Promise<unknown>;
 	setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
+	sheet: { render: (force: boolean) => void } | undefined;
+	getActiveTokens?: () => TokenLike[];
 }
+
+export type TokenLike = {
+	document?: { actorId?: string };
+	actor?: ActorLike;
+};
 
 export type GameLike = {
 	scenes?: {
@@ -317,11 +324,6 @@ export function getHandlebarsApplicationMixin(): ((base: unknown) => unknown) | 
 	const mixin = (globalThis as any).foundry?.applications?.api?.HandlebarsApplicationMixin;
 	return (typeof mixin === 'function' ? mixin : undefined) as ((base: unknown) => unknown) | undefined;
 }
-
-export type TokenLike = {
-	document?: { actorId?: string };
-	actor?: { id?: string };
-};
 
 export function getTokenObjectCtor(): { prototype: TokenLike & { _onClickLeft2: (event: unknown) => void } } {
 	const ctor = (globalThis as any).foundry?.canvas?.placeables?.Token as

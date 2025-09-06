@@ -2,6 +2,7 @@ import { getApplicationV2Ctor, getHandlebarsApplicationMixin, getActorById } fro
 import { CharacterSheet, StatType, StatHierarchy } from '@shattered-wilds/commons';
 import { executeEnhancedRoll, type DiceRollRequest } from './dices.js';
 import { parseCharacterSheet } from './characters.js';
+import { getCharacterProps } from './actor-data-manager.js';
 
 export interface DiceRollOptions {
 	statType: string;
@@ -166,9 +167,7 @@ if (AppV2 && HbsMixin) {
 
 		private async getAttributeValue(attributeName: string): Promise<number> {
 			const actor = getActorById(this.#options.actorId);
-			const flags = actor?.flags as Record<string, unknown> | undefined;
-			const swFlags = (flags?.['shattered-wilds'] as { props?: Record<string, string> } | undefined) ?? undefined;
-			const props = swFlags?.props ?? {};
+			const props = actor ? getCharacterProps(actor) : {};
 
 			try {
 				if (Object.keys(props).length > 0) {

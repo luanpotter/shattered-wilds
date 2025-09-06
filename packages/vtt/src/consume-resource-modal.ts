@@ -1,3 +1,4 @@
+import { updateActorResources } from './update-actor-resources.js';
 import { getApplicationV2Ctor, getHandlebarsApplicationMixin, getUI, getActorById } from './foundry-shim.js';
 import { ActionCost, CharacterSheet, RESOURCES, Resource } from '@shattered-wilds/commons';
 
@@ -189,9 +190,7 @@ if (AppV2 && HbsMixin) {
 				await this.consumeResources();
 
 				// Call the onConfirm callback if provided
-				if (this.#options.onConfirm) {
-					this.#options.onConfirm();
-				}
+				this.#options.onConfirm?.();
 
 				// Show success message
 				getUI().notifications?.info(`Resources consumed for ${this.#options.actionName}`);
@@ -205,84 +204,27 @@ if (AppV2 && HbsMixin) {
 		}
 
 		private async consumeResources(): Promise<void> {
-			const actor = getActorById(this.#options.actorId) as unknown as {
-				flags?: Record<string, unknown>;
-				setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
-			};
-
-			if (!actor?.setFlag) {
-				throw new Error('Actor not found or cannot update flags');
+			const actor = getActorById(this.#options.actorId);
+			if (!actor) {
+				throw new Error(`Actor not found for ${this.#options.actorId}`);
 			}
 
-			// Get current props
-			const flags = actor.flags as Record<string, unknown> | undefined;
-			const swFlags = (flags?.['shattered-wilds'] as { props?: Record<string, string> } | undefined) ?? undefined;
-			const props = swFlags?.props ?? {};
-
-			// Calculate new resource values
-			const updatedProps = { ...props };
+			const sheet = this.#options.characterSheet;
+			// Start from the latest resource values in the sheet
+			const updatedProps: Record<string, string> = {};
+			(Object.values(Resource) as Resource[]).forEach(resource => {
+				const { current } = sheet.getResource(resource);
+				updatedProps[resource] = current.toString();
+			});
+			// Apply adjustments
 			for (const cost of this.adjustedCosts) {
 				if (cost.adjustedAmount > 0) {
-					const currentSheet = CharacterSheet.from(updatedProps);
-					const newValue = currentSheet.updateResource(cost.resource, -cost.adjustedAmount);
+					const newValue = sheet.updateResource(cost.resource, -cost.adjustedAmount);
 					updatedProps[cost.resource] = newValue.toString();
 				}
 			}
-
-			// Update the actor's props
-			await actor.setFlag('shattered-wilds', 'props', updatedProps);
-
-			// Sync updated resources to system data for token bars (similar to handleResourceChange)
-			const updatedCharacterSheet = CharacterSheet.from(updatedProps);
-			await this.syncResourcesToSystemData(actor, updatedCharacterSheet);
-		}
-
-		private async syncResourcesToSystemData(actor: unknown, characterSheet: CharacterSheet): Promise<void> {
-			try {
-				const resourceData: Record<string, { value: number; max: number }> = {};
-
-				// Map our resources to the system data structure
-				const resourceMapping = {
-					hp: Resource.HeroismPoint,
-					vp: Resource.VitalityPoint,
-					fp: Resource.FocusPoint,
-					sp: Resource.SpiritPoint,
-					ap: Resource.ActionPoint,
-				};
-
-				// Get current resource values from character sheet
-				for (const [systemKey, resourceEnum] of Object.entries(resourceMapping)) {
-					const resourceInfo = characterSheet.getResource(resourceEnum);
-					resourceData[systemKey] = {
-						value: resourceInfo.current,
-						max: resourceInfo.max,
-					};
-				}
-
-				// Type check and update actor system data if it has changed
-				const actorWithSystem = actor as {
-					system?: { resources?: Record<string, { value: number; max: number }> };
-					update?: (data: Record<string, unknown>) => Promise<unknown>;
-				};
-				const currentSystemData = actorWithSystem.system?.resources || {};
-				let needsUpdate = false;
-
-				for (const [key, data] of Object.entries(resourceData)) {
-					const current = currentSystemData[key];
-					if (!current || current.value !== data.value || current.max !== data.max) {
-						needsUpdate = true;
-						break;
-					}
-				}
-
-				if (needsUpdate && actorWithSystem.update) {
-					await actorWithSystem.update({
-						'system.resources': resourceData,
-					});
-				}
-			} catch (err) {
-				console.warn('Failed to sync resources to system data:', err);
-			}
+			// Update actor flags and system data using shared utility
+			await updateActorResources(actor, updatedProps);
 		}
 	}
 

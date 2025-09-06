@@ -1,7 +1,7 @@
 import { CharacterSheet } from '@shattered-wilds/commons';
-import { getUI, promptText } from './foundry-shim.js';
+import { ActorLike, getUI, promptText } from './foundry-shim.js';
 import { configureDefaultTokenBars } from './token-bars.js';
-import { ActorLike, ensureActorDataPersistence } from './actor-data-manager.js';
+import { ensureActorDataPersistence } from './actor-data-manager.js';
 import { parseCharacterProps, sanitizeProps } from './characters.js';
 
 export function exportActorPropsToShareString(actor: ActorLike): string {

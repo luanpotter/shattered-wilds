@@ -1,8 +1,7 @@
 import { DerivedStatType } from '@shattered-wilds/commons';
-import { type ActorLike } from './actor-data-manager.js';
 import { parseCharacterSheet } from './characters.js';
 import { executeEnhancedRoll, type DiceRollRequest } from './dices.js';
-import { getHooks } from './foundry-shim.js';
+import { ActorLike, getHooks } from './foundry-shim.js';
 
 export function registerInitiativeHooks(): void {
 	const hooks = getHooks();
