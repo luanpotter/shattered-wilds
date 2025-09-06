@@ -1,6 +1,5 @@
-import { updateActorResources } from './update-actor-resources.js';
 import { getApplicationV2Ctor, getHandlebarsApplicationMixin, getUI, getActorById } from './foundry-shim.js';
-import { ActionCost, CharacterSheet, RESOURCES, Resource } from '@shattered-wilds/commons';
+import { ActionCost, CharacterSheet, RESOURCES } from '@shattered-wilds/commons';
 
 interface AdjustedCost extends ActionCost {
 	adjustedAmount: number;
@@ -209,22 +208,17 @@ if (AppV2 && HbsMixin) {
 				throw new Error(`Actor not found for ${this.#options.actorId}`);
 			}
 
-			const sheet = this.#options.characterSheet;
-			// Start from the latest resource values in the sheet
-			const updatedProps: Record<string, string> = {};
-			(Object.values(Resource) as Resource[]).forEach(resource => {
-				const { current } = sheet.getResource(resource);
-				updatedProps[resource] = current.toString();
-			});
-			// Apply adjustments
-			for (const cost of this.adjustedCosts) {
-				if (cost.adjustedAmount > 0) {
-					const newValue = sheet.updateResource(cost.resource, -cost.adjustedAmount);
-					updatedProps[cost.resource] = newValue.toString();
-				}
-			}
-			// Update actor flags and system data using shared utility
-			await updateActorResources(actor, updatedProps);
+			// Convert adjusted costs to the expected format
+			const resourceCosts = this.adjustedCosts
+				.filter(cost => cost.adjustedAmount > 0)
+				.map(cost => ({
+					resource: cost.resource,
+					amount: cost.adjustedAmount,
+				}));
+
+			// Use the centralized consumption function
+			const { consumeActionResources } = await import('./update-actor-resources.js');
+			await consumeActionResources(actor, resourceCosts);
 		}
 	}
 

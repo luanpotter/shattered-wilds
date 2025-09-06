@@ -1667,20 +1667,12 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		if (!actor) {
 			return getUI().notifications?.warn('Actor not found');
 		}
-		const props = getCharacterProps(actor);
 
 		try {
-			// Create character sheet to use updateResource method
-			const characterSheet = CharacterSheet.from(props);
-			const oldResourceValue = characterSheet.getResource(resource);
-			const newValue = characterSheet.updateResource(resource, delta);
+			const { changeActorResource } = await import('./update-actor-resources.js');
+			const newValue = await changeActorResource(actor, resource, delta);
 
-			// Early exit if value didn't actually change
-			if (oldResourceValue.current === newValue) {
-				return;
-			}
-
-			// Update the resource value directly in the DOM first (for instant feedback)
+			// Update the resource value directly in the DOM for instant feedback
 			const root = (this as unknown as { element?: HTMLElement }).element ?? undefined;
 			if (root) {
 				const resourceValueElement = root
@@ -1688,19 +1680,12 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					?.closest('.resource-control')
 					?.querySelector('.resource-value');
 				if (resourceValueElement) {
+					const props = getCharacterProps(actor);
 					const updatedCharacterSheet = CharacterSheet.from({ ...props, [resource]: newValue.toString() });
 					const updatedResourceInfo = updatedCharacterSheet.getResource(resource);
 					resourceValueElement.textContent = `${updatedResourceInfo.current}/${updatedResourceInfo.max}`;
 				}
 			}
-
-			// Update actor flags and system data using shared utility
-			const updatedProps = { ...props, [resource]: newValue.toString() };
-			const { updateActorResources } = await import('./update-actor-resources.js');
-			await updateActorResources(actor, updatedProps);
-
-			// DO NOT call render() here - we've already updated the DOM directly
-			// getUI().notifications?.info(`${RESOURCES[resource].shortName} updated`);
 		} catch (err) {
 			console.error('Failed to update resource:', err);
 			getUI().notifications?.error('Failed to update resource');
@@ -1713,21 +1698,9 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			return getUI().notifications?.warn('Actor not found');
 		}
 
-		const props = getCharacterProps(actor);
-		const sheet = CharacterSheet.from(props);
-
 		try {
-			const updatedProps = { ...props };
-			Object.values(Resource).forEach(resource => {
-				const { current, max } = sheet.getResource(resource);
-
-				const updatedValue = resource === Resource.HeroismPoint ? (current < max ? current + 1 : max) : max;
-				updatedProps[resource] = updatedValue.toString();
-			});
-
-			const { updateActorResources } = await import('./update-actor-resources.js');
-			await updateActorResources(actor, updatedProps);
-
+			const { performLongRest } = await import('./update-actor-resources.js');
+			await performLongRest(actor);
 			getUI().notifications?.info('Long rest complete: all points refilled except heroism, +1 heroism point');
 		} catch (err) {
 			console.error('Failed to perform long rest:', err);
