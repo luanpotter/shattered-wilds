@@ -742,12 +742,14 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			statTreeData,
 			featsData: this.prepareFeatsData(characterSheet),
 			personalityData: this.preparePersonalityData(characterSheet),
+			miscData: this.prepareMiscData(characterSheet),
 			equipmentData: this.prepareEquipmentData(characterSheet),
 			actionsData: this.prepareActionsData(characterSheet),
 			activeTab: this.#activeTab,
 			isStatsTabActive: this.#activeTab === 'stats',
 			isFeatsTabActive: this.#activeTab === 'feats',
 			isPersonalityTabActive: this.#activeTab === 'personality',
+			isMiscTabActive: this.#activeTab === 'misc',
 			isEquipmentTabActive: this.#activeTab === 'equipment',
 			isActionsTabActive: this.#activeTab === 'actions',
 			isDebugTabActive: this.#activeTab === 'debug',
@@ -826,6 +828,30 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		return {
 			isEmpty,
 			traits: personalityTraits,
+		};
+	}
+
+	prepareMiscData(characterSheet: CharacterSheet | undefined): Record<string, unknown> | null {
+		if (!characterSheet) {
+			return null;
+		}
+
+		// Get the actor to access props
+		const actorLike = (this as unknown as { actor?: ActorLike }).actor;
+		const currentActorId = actorLike?.id;
+		const actor = actorLike || getActorData(currentActorId);
+
+		if (!actor) {
+			return null;
+		}
+
+		// Extract misc prop
+		const props = parseCharacterProps(actor);
+		const miscValue = props['misc']?.trim() ?? '';
+
+		return {
+			value: miscValue,
+			isEmpty: !miscValue,
 		};
 	}
 
@@ -1477,6 +1503,14 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				});
 			});
 		});
+
+		// Add misc textarea event handler
+		const miscTextarea = root.querySelector('[data-action="update-misc"]') as HTMLTextAreaElement;
+		if (miscTextarea) {
+			miscTextarea.addEventListener('blur', async () => {
+				await this.handleMiscUpdate(miscTextarea.value);
+			});
+		}
 	}
 
 	private restoreTabState(root: HTMLElement): void {
@@ -1755,6 +1789,23 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		} catch (err) {
 			console.error('Failed to perform long rest:', err);
 			showNotification('error', 'Failed to perform long rest');
+		}
+	}
+
+	private async handleMiscUpdate(value: string): Promise<void> {
+		const actor = this.getCurrentActor();
+		if (!actor) {
+			return showNotification('warn', 'Actor not found');
+		}
+
+		try {
+			const { updateActorResources } = await import('./update-actor-resources.js');
+			const currentProps = parseCharacterProps(actor);
+			const updatedProps = { ...currentProps, misc: value.trim() };
+			await updateActorResources(actor, updatedProps);
+		} catch (err) {
+			console.error('Failed to update misc:', err);
+			showNotification('error', 'Failed to update misc notes');
 		}
 	}
 

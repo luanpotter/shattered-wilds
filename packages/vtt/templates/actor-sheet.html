@@ -86,6 +86,9 @@
 					<button type="button" class="tab-button {{#if isPersonalityTabActive}}active{{/if}}" data-tab="personality">
 						<i class="fas fa-theater-masks"></i> Personality
 					</button>
+					<button type="button" class="tab-button {{#if isMiscTabActive}}active{{/if}}" data-tab="misc">
+						<i class="fas fa-sticky-note"></i> Misc
+					</button>
 					<button type="button" class="tab-button {{#if isDebugTabActive}}active{{/if}}" data-tab="debug">
 						<i class="fas fa-bug"></i> Debug
 					</button>
@@ -546,6 +549,29 @@
 						{{else}}
 							<div class="personality-loading">
 								<p>Loading personality...</p>
+							</div>
+						{{/if}}
+					</div>
+
+					<!-- Misc Tab -->
+					<div class="tab-panel {{#if isMiscTabActive}}active{{/if}}" data-tab-panel="misc">
+						{{#if miscData}}
+							<div class="misc-section">
+								<div class="misc-header">
+									<h3>Misc Notes</h3>
+								</div>
+								<div class="misc-content">
+									<textarea
+										class="misc-textarea"
+										data-action="update-misc"
+										rows="12"
+										placeholder="Use this space for any additional character notes, backstory details, or other miscellaneous information."
+									>{{miscData.value}}</textarea>
+								</div>
+							</div>
+						{{else}}
+							<div class="misc-loading">
+								<p>Loading misc data...</p>
 							</div>
 						{{/if}}
 					</div>
