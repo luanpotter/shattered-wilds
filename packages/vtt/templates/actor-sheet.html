@@ -83,6 +83,9 @@
 					<button type="button" class="tab-button {{#if isActionsTabActive}}active{{/if}}" data-tab="actions">
 						<i class="fas fa-fist-raised"></i> Actions
 					</button>
+					<button type="button" class="tab-button {{#if isPersonalityTabActive}}active{{/if}}" data-tab="personality">
+						<i class="fas fa-theater-masks"></i> Personality
+					</button>
 					<button type="button" class="tab-button {{#if isDebugTabActive}}active{{/if}}" data-tab="debug">
 						<i class="fas fa-bug"></i> Debug
 					</button>
@@ -508,6 +511,41 @@
 						{{else}}
 							<div class="actions-loading">
 								<p>Loading actions...</p>
+							</div>
+						{{/if}}
+					</div>
+
+					<!-- Personality Tab -->
+					<div class="tab-panel {{#if isPersonalityTabActive}}active{{/if}}" data-tab-panel="personality">
+						{{#if personalityData}}
+							{{#if personalityData.isEmpty}}
+								<div class="personality-empty">
+									<p>No personality traits defined yet.</p>
+								</div>
+							{{else}}
+								<div class="personality-section">
+									<div class="personality-traits">
+										{{#each personalityData.traits}}
+											{{#if value}}
+												<div class="personality-trait">
+													<div class="trait-header">
+														<h4 class="trait-label">{{label}}</h4>
+														<span class="trait-description" title="{{description}}">
+															<i class="fas fa-info-circle"></i>
+														</span>
+													</div>
+													<div class="trait-content">
+														<p>{{value}}</p>
+													</div>
+												</div>
+											{{/if}}
+										{{/each}}
+									</div>
+								</div>
+							{{/if}}
+						{{else}}
+							<div class="personality-loading">
+								<p>Loading personality...</p>
 							</div>
 						{{/if}}
 					</div>

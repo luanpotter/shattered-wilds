@@ -741,11 +741,13 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			derivedStatsData,
 			statTreeData,
 			featsData: this.prepareFeatsData(characterSheet),
+			personalityData: this.preparePersonalityData(characterSheet),
 			equipmentData: this.prepareEquipmentData(characterSheet),
 			actionsData: this.prepareActionsData(characterSheet),
 			activeTab: this.#activeTab,
 			isStatsTabActive: this.#activeTab === 'stats',
 			isFeatsTabActive: this.#activeTab === 'feats',
+			isPersonalityTabActive: this.#activeTab === 'personality',
 			isEquipmentTabActive: this.#activeTab === 'equipment',
 			isActionsTabActive: this.#activeTab === 'actions',
 			isDebugTabActive: this.#activeTab === 'debug',
@@ -767,6 +769,64 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			console.warn('Failed to create feats section:', err);
 			return null;
 		}
+	}
+
+	preparePersonalityData(characterSheet: CharacterSheet | undefined): Record<string, unknown> | null {
+		if (!characterSheet) {
+			return null;
+		}
+
+		// Get the actor to access props
+		const actorLike = (this as unknown as { actor?: ActorLike }).actor;
+		const currentActorId = actorLike?.id;
+		const actor = actorLike || getActorData(currentActorId);
+
+		if (!actor) {
+			return null;
+		}
+
+		// Extract personality traits from character props
+		const props = parseCharacterProps(actor);
+		const personalityTraits = [
+			{
+				key: 'calling',
+				label: 'Calling',
+				value: props['calling'] ?? '',
+				description: "Your character's motivation for reaching the Citadel",
+			},
+			{
+				key: 'vice',
+				label: 'Vice',
+				value: props['vice'] ?? '',
+				description: 'An indulgence, temptation, or flaw your character has difficulty resisting',
+			},
+			{
+				key: 'aversion',
+				label: 'Aversion',
+				value: props['aversion'] ?? '',
+				description: 'Something your character cannot bring themselves to do',
+			},
+			{
+				key: 'tenet',
+				label: 'Tenet',
+				value: props['tenet'] ?? '',
+				description: 'Rules and edicts your character must always follow',
+			},
+			{
+				key: 'leanings',
+				label: 'Leanings',
+				value: props['leanings'] ?? '',
+				description: "Personality traits that guide your character's behavior",
+			},
+		];
+
+		// Check if all personality traits are empty
+		const isEmpty = personalityTraits.every(trait => !trait.value.trim());
+
+		return {
+			isEmpty,
+			traits: personalityTraits,
+		};
 	}
 
 	prepareEquipmentData(characterSheet: CharacterSheet | undefined): Record<string, unknown> | null {
