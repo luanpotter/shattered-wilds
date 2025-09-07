@@ -32,7 +32,7 @@ A character cannot become **Frightened** if they are **Blessed**.
 	}),
 	[Condition.Blinded]: new ConditionDefinition({
 		name: Condition.Blinded,
-		description: `The character is unable to see. Add a \`-6\` [[Circumstance Modifier | CM]] to all [[Action | Actions]] that require sight (including _Attack Actions_), and a \`-3\` [[Circumstance Modifier | CM]] to [[Body]] Defense Checks.`,
+		description: `The character's ability to see is temporarily hampered. They are still vaguely aware of their surroundings if they have other senses (such as hearing and smell), specially their immediate surroundings; however, they might not be able to notice or react to specific, heavily sight-reliant events without an [[Awareness]] or [[Perception]] check (to the DM's discretion). Other than that, they can still attempt to perform any [[Action]], but have a \`-6\` [[Circumstance Modifier | CM]] to all [[Action | Actions]] or Checks that require sight (including _Attack Actions_, and the aforementioned [[Awareness]] / [[Perception]] checks), and a \`-3\` [[Circumstance Modifier | CM]] to all [[Body]] Defense Checks.`,
 	}),
 	[Condition.Distracted]: new ConditionDefinition({
 		name: Condition.Distracted,
