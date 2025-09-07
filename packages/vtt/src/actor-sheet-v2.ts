@@ -16,6 +16,7 @@ import {
 	ensureActorDataPersistence,
 	getCharacterConditions,
 	getCharacterProps,
+	getRawCharacterFlags,
 } from './actor-data-manager.js';
 import { ConsumeResourceModal } from './consume-resource-modal.js';
 import {
@@ -349,6 +350,8 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 	#conditions = new Set<Condition>();
 	#conditionsLoaded = false;
+	#exhaustionRank = 0;
+	#exhaustionLoaded = false;
 
 	private loadConditionsFromActor(): void {
 		const actor = this.getCurrentActor();
@@ -395,6 +398,33 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		) {
 			this.saveConditionsToActor().catch(err => console.warn('Failed to sync token conditions to actor flags:', err));
 		}
+	}
+
+	private loadExhaustionFromActor(): void {
+		const actor = this.getCurrentActor();
+		if (!actor) return;
+
+		if (this.#exhaustionLoaded) return;
+
+		const flags = getRawCharacterFlags(actor) as { exhaustionRank?: number } | undefined;
+		this.#exhaustionRank = flags?.exhaustionRank ?? 0;
+		this.#exhaustionLoaded = true;
+	}
+
+	private async saveExhaustionToActor(): Promise<void> {
+		const actor = this.getCurrentActor() as
+			| {
+					flags?: Record<string, unknown>;
+					setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
+			  }
+			| undefined;
+
+		if (!actor?.setFlag) {
+			console.warn('Cannot save exhaustion: actor not found or missing setFlag');
+			return;
+		}
+
+		await actor.setFlag('shattered-wilds', 'exhaustionRank', this.#exhaustionRank);
 	}
 
 	private async saveConditionsToActor(): Promise<void> {
@@ -580,6 +610,9 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				// Load conditions from actor
 				this.loadConditionsFromActor();
 
+				// Load exhaustion from actor
+				this.loadExhaustionFromActor();
+
 				// Prepare resources data for template
 				Object.values(Resource).forEach(resource => {
 					resources[resource] = characterSheet!.getResource(resource);
@@ -738,6 +771,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			resources,
 			resourcesArray,
 			conditionsData: this.prepareConditionsData(),
+			exhaustionData: this.prepareExhaustionData(),
 			derivedStatsData,
 			statTreeData,
 			featsData: this.prepareFeatsData(characterSheet),
@@ -1168,6 +1202,44 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		return iconMap[condition] || 'fas fa-exclamation-triangle';
 	}
 
+	private modifierTextForRank(rank: number): { modifier: number; text: string } {
+		if (rank >= 10) {
+			return { modifier: 0, text: 'Death' };
+		}
+
+		let modifier;
+
+		if (rank < 3) modifier = 0;
+		else if (rank === 3) modifier = -1;
+		else if (rank === 4) modifier = -2;
+		else if (rank === 5) modifier = -4;
+		else if (rank === 6) modifier = -8;
+		else if (rank === 7) modifier = -16;
+		else if (rank === 8) modifier = -32;
+		else modifier = -64;
+
+		return { modifier, text: `CM: ${modifier}` };
+	}
+
+	private prepareExhaustionData(): {
+		rank: number;
+		maxRank: number;
+		hasRanks: boolean;
+		modifier: number;
+		modifierText: string;
+	} {
+		const rank = this.#exhaustionRank;
+		const { modifier, text } = this.modifierTextForRank(rank);
+
+		return {
+			rank,
+			maxRank: 10, // Death at 10+
+			hasRanks: rank > 0,
+			modifier,
+			modifierText: text,
+		};
+	}
+
 	private prepareActionItem(action: ActionDefinition, characterSheet: CharacterSheet): unknown {
 		const costs = action.costs.map(cost => {
 			const resource = RESOURCES[cost.resource];
@@ -1384,7 +1456,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				const confirmed = await confirmAction({
 					title: 'Long Rest',
 					message:
-						'Are you sure you want to take a Long Rest? This will refill all points except Heroism, and add 1 Heroism Point.',
+						'Are you sure you want to take a Long Rest? This will refill all points except Heroism, add 1 Heroism Point, and clear 3 ranks of Exhaustion.',
 				});
 
 				if (confirmed) {
@@ -1392,6 +1464,31 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				}
 			});
 		}
+
+		// Add short rest button handler
+		const shortRestBtn = root.querySelector('[data-action="short-rest"]') as HTMLButtonElement | null;
+		if (shortRestBtn) {
+			shortRestBtn.addEventListener('click', async () => {
+				const confirmed = await confirmAction({
+					title: 'Short Rest',
+					message:
+						'Are you sure you want to take a Short Rest? This will refill all points except Heroism and add 1 rank of Exhaustion.',
+				});
+
+				if (confirmed) {
+					await this.handleShortRest();
+				}
+			});
+		}
+
+		// Add exhaustion change handlers
+		const exhaustionButtons = root.querySelectorAll('[data-action="exhaustion-change"]') as NodeListOf<HTMLElement>;
+		exhaustionButtons.forEach(btn => {
+			btn.addEventListener('click', async () => {
+				const delta = parseInt(btn.dataset.delta || '0');
+				await this.handleExhaustionChange(delta);
+			});
+		});
 
 		// Add stat roll handlers
 		const statButtons = root.querySelectorAll('[data-action="roll-stat"]') as NodeListOf<HTMLElement>;
@@ -1785,10 +1882,79 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		try {
 			const { performLongRest } = await import('./update-actor-resources.js');
 			await performLongRest(actor);
-			showNotification('info', 'Long rest complete: all points refilled except heroism, +1 heroism point');
+
+			// Clear 3 ranks of exhaustion
+			this.#exhaustionRank = Math.max(0, this.#exhaustionRank - 3);
+			await this.saveExhaustionToActor();
+
+			showNotification(
+				'info',
+				'Long rest complete: all points refilled except heroism, +1 heroism point, -3 exhaustion ranks',
+			);
 		} catch (err) {
 			console.error('Failed to perform long rest:', err);
 			showNotification('error', 'Failed to perform long rest');
+		}
+	}
+
+	private async handleShortRest(): Promise<void> {
+		const actor = this.getCurrentActor();
+		if (!actor) {
+			return showNotification('warn', 'Actor not found');
+		}
+
+		try {
+			// Restore all resources except heroism
+			const currentProps = parseCharacterProps(actor);
+			const characterSheet = CharacterSheet.from(currentProps);
+			const updatedProps = { ...currentProps };
+
+			Object.values(Resource).forEach(resource => {
+				if (resource !== Resource.HeroismPoint) {
+					const { max } = characterSheet.getResource(resource);
+					updatedProps[resource] = max.toString();
+				}
+			});
+
+			const { updateActorResources } = await import('./update-actor-resources.js');
+			await updateActorResources(actor, updatedProps);
+
+			// Add 1 rank of exhaustion
+			this.#exhaustionRank += 1;
+			await this.saveExhaustionToActor();
+
+			showNotification('info', 'Short rest complete: all points refilled except heroism, +1 exhaustion rank');
+		} catch (err) {
+			console.error('Failed to perform short rest:', err);
+			showNotification('error', 'Failed to perform short rest');
+		}
+	}
+
+	private async handleExhaustionChange(delta: number): Promise<void> {
+		const newRank = Math.max(0, this.#exhaustionRank + delta);
+
+		if (newRank === this.#exhaustionRank) {
+			return; // No change needed
+		}
+
+		const action = delta > 0 ? 'increase' : 'decrease';
+		const confirmed = await confirmAction({
+			title: `${action === 'increase' ? 'Increase' : 'Decrease'} Exhaustion`,
+			message: `Are you sure you want to ${action} exhaustion from ${this.#exhaustionRank} to ${newRank} ranks?`,
+		});
+
+		if (confirmed) {
+			this.#exhaustionRank = newRank;
+			await this.saveExhaustionToActor();
+
+			// Update the UI immediately
+			const root = (this as unknown as { element?: HTMLElement }).element;
+			if (root) {
+				const exhaustionValueElement = root.querySelector('.exhaustion-value');
+				if (exhaustionValueElement) {
+					exhaustionValueElement.textContent = this.#exhaustionRank.toString();
+				}
+			}
 		}
 	}
 

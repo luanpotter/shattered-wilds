@@ -44,8 +44,29 @@
 								</div>
 							</div>
 						{{/each}}
-						<div class="resource-control refill-control">
-							<button type="button" class="long-rest-btn" data-action="long-rest" title="Take a long rest (refill all except heroism, add 1 heroism)">
+					</div>
+
+					<!-- Exhaustion and Rest Controls -->
+					<div class="exhaustion-rest-row">
+						<div class="exhaustion-control">
+							<label title="Exhaustion Ranks">Exhaustion</label>
+							<button type="button" class="exhaustion-btn minus" data-action="exhaustion-change" data-delta="-1" {{#unless exhaustionData.hasRanks}}disabled{{/unless}}>
+								<i class="fas fa-minus"></i>
+							</button>
+							<span class="exhaustion-value">{{exhaustionData.rank}}</span>
+							<button type="button" class="exhaustion-btn plus" data-action="exhaustion-change" data-delta="1">
+								<i class="fas fa-plus"></i>
+							</button>
+						</div>
+						<div class="exhaustion-modifier">
+							<span class="modifier-text">{{exhaustionData.modifierText}}</span>
+							<span class="modifier-note">(must apply manually!)</span>
+						</div>
+						<div class="rest-controls">
+							<button type="button" class="rest-btn short-rest" data-action="short-rest" title="Take a short rest (refill all except heroism, +1 exhaustion)">
+								<i class="fas fa-clock"></i> Short Rest
+							</button>
+							<button type="button" class="rest-btn" data-action="long-rest" title="Take a long rest (refill all except heroism, +1 heroism, -3 exhaustion)">
 								<i class="fas fa-bed"></i> Long Rest
 							</button>
 						</div>
