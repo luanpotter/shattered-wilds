@@ -2,7 +2,8 @@
 .stat-tree-grid {
 	margin: 6px 0;
 	font-size: 0.9em;
-	max-height: 500px;
+	min-height: 200px;
+	max-height: 400px;
 	overflow-y: auto;
 }
 
