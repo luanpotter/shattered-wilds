@@ -3,6 +3,7 @@ import { Race, RACE_DEFINITIONS, RacialStatModifier, Upbringing } from './races.
 import { InherentModifier, ModifierSource } from '../stats/stat-tree.js';
 import { StatType } from '../stats/stat-type.js';
 import { Bonus } from '../stats/value.js';
+import { PredefinedArcaneSpell } from './arcane.js';
 
 export enum FeatType {
 	Core = 'Core',
@@ -213,6 +214,7 @@ export class FeatDefinition<T extends string | void> {
 export interface FeatParameter<T extends string | void> {
 	id: string;
 	name: string;
+	exact: boolean;
 	values: T[];
 }
 
@@ -227,15 +229,27 @@ export class FeatInfo<T extends string | void> {
 		this.parameter = parameter;
 	}
 
-	get name(): string {
-		if (this.parameter) {
-			return `${this.feat.name} (${this.parameter})`;
+	private parameterSuffix(): string {
+		if (!this.parameter) {
+			return '';
 		}
-		return this.feat.name;
+		if (
+			this.feat.parameter &&
+			!this.feat.parameter.exact &&
+			typeof this.parameter === 'string' &&
+			!this.feat.parameter.values.includes(this.parameter)
+		) {
+			return ` (Other: ${this.parameter})`;
+		}
+		return ` (${this.parameter})`;
+	}
+
+	get name(): string {
+		return `${this.feat.name}${this.parameterSuffix()}`;
 	}
 
 	get description(): string {
-		return this.feat?.fullDescription?.(this) ?? this.feat.description;
+		return this.feat?.fullDescription?.(this) ?? `${this.feat.description}${this.parameterSuffix()}`;
 	}
 
 	toProp(): [string, string] | undefined {
@@ -248,6 +262,7 @@ export class FeatInfo<T extends string | void> {
 
 	private encodeValue(): string {
 		if (this.parameter) {
+			// Always encode as key#parameter, even for custom
 			return `${this.feat.key}#${this.parameter}`;
 		} else {
 			return this.feat.key;
@@ -265,15 +280,32 @@ export class FeatInfo<T extends string | void> {
 		if (!value.includes('#')) {
 			return [value as Feat, null];
 		}
-		return value.split('#') as [Feat, string];
+		// Support custom values: always treat after # as parameter
+		const [feat, ...rest] = value.split('#');
+		return [feat as Feat, rest.join('#')];
 	}
 
-	private static parseParameter = (def: FeatDefinition<string | void>, parameters: Record<string, string>) => {
+	private static parseParameter = (
+		def: FeatDefinition<string | void>,
+		parameters: Record<string, string>,
+	): string | undefined => {
 		const parameterType = def.parameter?.id;
 		if (parameterType) {
 			const parameterValue = parameters[parameterType];
 			if (parameterValue === undefined) {
+				// temporary fallback backfill for existing feat that was recently modified
+				if (def.key === Feat.SignatureSpell) {
+					return 'N/A';
+				}
 				throw new Error(`Parameter value for ${parameterType} is not defined for feat ${def.key}.`);
+			}
+			// If not exact, allow any string
+			if (!def.parameter?.exact) {
+				return parameterValue;
+			}
+			// If exact, must be in values
+			if (!def.parameter.values.includes(parameterValue)) {
+				throw new Error(`Parameter value '${parameterValue}' is not valid for feat ${def.key}.`);
 			}
 			return parameterValue;
 		} else {
@@ -412,7 +444,6 @@ export enum Trade {
 	Tanner = 'Tanner',
 	Weaver = 'Weaver',
 	Woodcutter = 'Woodcutter',
-	Other = 'Other',
 }
 
 export enum Tool {
@@ -421,7 +452,6 @@ export enum Tool {
 	DisguiseKit = 'Disguise Kit',
 	MusicalInstrument = 'Musical Instrument',
 	HealersKit = "Healer's Kit",
-	Other = 'Other',
 }
 
 // TODO(luan): figure out how to make typescript behave
@@ -438,9 +468,9 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		parameter: {
 			id: 'trade',
 			name: 'Trade',
+			exact: false,
 			values: Object.values(Trade),
 		},
-		fullDescription: info => `Trade Specialization (${info.parameter})`,
 	}),
 	[Feat.ToolProficiency]: new FeatDefinition<Tool>({
 		key: Feat.ToolProficiency,
@@ -453,9 +483,9 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		parameter: {
 			id: 'tool',
 			name: 'Tool',
+			exact: false,
 			values: Object.values(Tool),
 		},
-		fullDescription: info => `Tool Proficiency (${info.parameter})`,
 	}),
 	[Feat.LipReading]: new FeatDefinition<void>({
 		key: Feat.LipReading,
@@ -520,11 +550,12 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		parameter: {
 			id: 'class-role',
 			name: 'Class Role',
+			exact: true,
 			values: Object.values(ClassRole),
 		},
 		fullDescription: info => {
 			const primaryAttribute = CLASS_ROLE_PRIMARY_ATTRIBUTE[info.parameter];
-			return `Class Specialization: +1 ${primaryAttribute}.`;
+			return `Class Specialization modifier for ${info.parameter}: +1 ${primaryAttribute}.`;
 		},
 		effects: info => {
 			const primaryAttribute = CLASS_ROLE_PRIMARY_ATTRIBUTE[info.parameter];
@@ -542,6 +573,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		parameter: {
 			id: 'race',
 			name: 'Race',
+			exact: true,
 			values: Object.values(Race),
 		},
 		fullDescription: info => {
@@ -567,6 +599,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		parameter: {
 			id: 'upbringing-favored-modifier',
 			name: 'Upbringing Favored Modifier',
+			exact: true,
 			values: StatType.mindOrSoulAttributes,
 		},
 		fullDescription: info => {
@@ -588,6 +621,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		parameter: {
 			id: 'upbringing-disfavored-modifier',
 			name: 'Upbringing Disfavored Modifier',
+			exact: true,
 			values: StatType.mindOrSoulAttributes,
 		},
 		fullDescription: info => {
@@ -610,6 +644,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		parameter: {
 			id: 'upbringing',
 			name: 'Upbringing',
+			exact: true,
 			values: Object.values(Upbringing),
 		},
 	}),
@@ -877,12 +912,12 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		parameter: {
 			id: 'stat',
 			name: 'Stat',
+			exact: true,
 			values: StatType.mindAttributes,
 		},
 	}),
 	// Arcanist
-	// TODO(luan): support free-form parameters
-	[Feat.SignatureSpell]: new FeatDefinition<void>({
+	[Feat.SignatureSpell]: new FeatDefinition<PredefinedArcaneSpell>({
 		key: Feat.SignatureSpell,
 		name: 'Signature Spell',
 		type: FeatType.Core,
@@ -890,6 +925,12 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		level: 1,
 		description:
 			'You have fully committed all the details of a specific form of the Fundamental Arcane Spell (such as from the [[Predefined_Arcane_Spells | Predefined Spells]] list); you have a `+3` to cast that exact spell.',
+		parameter: {
+			id: 'spell',
+			name: 'Spell',
+			exact: false,
+			values: Object.values(PredefinedArcaneSpell),
+		},
 	}),
 	[Feat.ReactiveCasting]: new FeatDefinition<void>({
 		key: Feat.ReactiveCasting,

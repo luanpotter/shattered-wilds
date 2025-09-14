@@ -1,5 +1,5 @@
-import { ClassFlavor } from '../core/classes.js';
-import { Trait } from '../core/traits.js';
+import { ClassFlavor } from './classes.js';
+import { Trait } from './traits.js';
 import { CircumstanceModifier, ModifierSource } from '../stats/stat-tree.js';
 import { Bonus } from '../stats/value.js';
 

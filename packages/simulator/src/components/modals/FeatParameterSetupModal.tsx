@@ -20,50 +20,52 @@ export const FeatParameterSetupModal: React.FC<FeatParameterSetupModalProps> = (
 }) => {
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
 	const characters = useStore(state => state.characters);
-	const [parameter, setParameter] = useState<string | null>(null);
-	const [parameterError, setParameterError] = useState<string | null>(null);
+	const [parameter, setParameter] = useState<string | undefined>(undefined);
+	const [customParameter, setCustomParameter] = useState<string>('');
+	const [parameterError, setParameterError] = useState<string | undefined>(undefined);
 
 	const character = characters.find(c => c.id === characterId);
 	if (!character) {
 		return <div>Character not found: {characterId}</div>;
 	}
 
-	const handleParameterChange = (value: string) => {
+	const handleParameterChange = (value: string | undefined) => {
 		setParameter(value);
-		setParameterError(null);
+		setParameterError(undefined);
+		if (value !== undefined) {
+			setCustomParameter('');
+		}
 	};
 
+	const handleCustomParameterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setCustomParameter(e.target.value);
+		setParameterError(undefined);
+	};
 	const handleConfirm = () => {
 		// Validate all required parameters are filled
-		const missingParameter = !baseFeat.parameter || !parameter;
-
-		if (missingParameter) {
-			// Set error state for missing parameters
+		const param = baseFeat.parameter as FeatParameter<string> | undefined;
+		let finalParameter: string | undefined = parameter;
+		if (param && !param.exact && parameter === undefined) {
+			if (!customParameter.trim()) {
+				setParameterError('Custom value is required');
+				return;
+			}
+			finalParameter = customParameter.trim();
+		}
+		if (!param || !finalParameter) {
 			setParameterError(`Missing required parameters for ${baseFeat.name}`);
 			return;
 		}
-
-		// Clear any previous errors
-		setParameterError(null);
-
-		// Create the parameterized feat instance
-		const info = FeatInfo.hydrateFeatDefinition(
-			baseFeat,
-			parameter ? { [baseFeat.parameter!.id]: parameter } : {},
-			slot,
-		);
-
-		// Update the slot with the parameterized feat ID
+		setParameterError(undefined);
+		const info = FeatInfo.hydrateFeatDefinition(baseFeat, { [param.id]: finalParameter as string }, slot);
 		const [key, value] = info.toProp()!;
 		updateCharacterProp(character, key, value);
-
-		// Close modal
 		onClose();
 	};
 
 	const handleCancel = () => {
-		setParameter(null);
-		setParameterError(null);
+		setParameter(undefined);
+		setParameterError(undefined);
 		onClose();
 	};
 
@@ -73,16 +75,28 @@ export const FeatParameterSetupModal: React.FC<FeatParameterSetupModalProps> = (
 			return <></>;
 		}
 		const hasError = parameterError!;
+		// If not exact, add Other option
+		const options: (string | undefined)[] = param.exact ? param.values : [...param.values, undefined];
 		return (
 			<div key={param.id} style={{ marginBottom: '12px' }}>
 				<LabeledDropdown
 					label={param.name}
 					value={parameter}
-					options={param.values || []}
-					describe={option => option}
+					options={options}
+					describe={option => (option === undefined ? 'Other...' : option)}
 					onChange={handleParameterChange}
 					placeholder='Select parameter'
 				/>
+				{/* Show textbox if "Other" is selected */}
+				{!param.exact && parameter === undefined && (
+					<input
+						type='text'
+						value={customParameter}
+						onChange={handleCustomParameterChange}
+						placeholder='Enter custom value'
+						style={{ marginTop: '8px', width: '100%' }}
+					/>
+				)}
 				{hasError && (
 					<div
 						style={{

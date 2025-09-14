@@ -12,7 +12,7 @@ export * from './core/classes.js';
 export * from './core/feats.js';
 export * from './core/actions.js';
 export * from './core/cover.js';
-export * from './character/arcane.js';
+export * from './core/arcane.js';
 export * from './character/character-sheet.js';
 export * from './character/class-info.js';
 export * from './character/race-info.js';
