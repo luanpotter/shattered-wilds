@@ -157,6 +157,7 @@ const CheckParameter: React.FC<CheckParameterProps> = ({
 }) => {
 	const { openDiceRollModal } = useModals();
 
+	// Weapon trait validation (existing logic)
 	if (requireTrait && parameter.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Weapon)) {
 		const currentWeaponRangeTrait = tabParameters.selectedWeapon?.mode.rangeType ?? Trait.Melee;
 		if (currentWeaponRangeTrait !== requireTrait) {
@@ -169,6 +170,17 @@ const CheckParameter: React.FC<CheckParameterProps> = ({
 				</ParameterBoxComponent>
 			);
 		}
+	}
+
+	if (
+		parameter.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Shield) &&
+		tabParameters.selectedShield === 'None'
+	) {
+		return (
+			<ParameterBoxComponent title='Invalid Shield' tooltip='This action requires a shield to be equipped.'>
+				<div style={{ color: 'var(--error-color)' }}>Shield Required</div>
+			</ParameterBoxComponent>
+		);
 	}
 
 	const statType = computeStatType(parameter.statType, tabParameters);
