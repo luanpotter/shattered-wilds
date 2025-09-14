@@ -99,8 +99,8 @@ interface TabParameters {
 	passiveCoverModifier: CircumstanceModifier | null;
 	heightIncrementsModifier: CircumstanceModifier | null;
 	selectedDefenseRealm: StatType;
-	selectedShield: Shield | null;
-	selectedArmor: Armor | null;
+	selectedShield: Shield | 'None';
+	selectedArmor: Armor | 'None';
 }
 
 const computeIncludedModifiers = (
@@ -123,11 +123,11 @@ const computeIncludedModifiers = (
 				return [];
 			}
 			const armor = tabParameters.selectedArmor;
-			return armor ? [armor.getEquipmentModifier()] : [];
+			return armor !== 'None' ? [armor.getEquipmentModifier()] : [];
 		}
 		case IncludeEquipmentModifier.Shield: {
 			const shield = tabParameters.selectedShield;
-			return shield ? [shield.getEquipmentModifier()] : [];
+			return shield !== 'None' ? [shield.getEquipmentModifier()] : [];
 		}
 	}
 };
@@ -240,12 +240,18 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 		[hasShield, weapons],
 	);
 
-	const armors = sheet.equipment.items.filter(item => item instanceof Armor) as Armor[];
-	const shields = sheet.equipment.items.filter(item => item instanceof Shield) as Shield[];
+	const armors = useMemo(
+		() => ['None', ...sheet.equipment.items.filter(item => item instanceof Armor)] as const,
+		[sheet.equipment.items],
+	);
+	const shields = useMemo(
+		() => ['None', ...sheet.equipment.items.filter(item => item instanceof Shield)] as const,
+		[sheet.equipment.items],
+	);
 
 	const [selectedWeapon, setSelectedWeapon] = useStateArrayItem('selectedWeapon', weaponModes, null);
-	const [selectedArmor, setSelectedArmor] = useStateArrayItem('selectedArmor', armors, null);
-	const [selectedShield, setSelectedShield] = useStateArrayItem('selectedShield', shields, null);
+	const [selectedArmor, setSelectedArmor] = useStateArrayItem('selectedArmor', armors, 'None');
+	const [selectedShield, setSelectedShield] = useStateArrayItem('selectedShield', shields, 'None');
 
 	const rangeIncrementModifier = useMemo(() => {
 		if (!selectedWeapon || !selectedRange || selectedWeapon.mode.rangeType !== Trait.Ranged) {
@@ -447,7 +453,6 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 				};
 			}
 			case ActionType.Defense: {
-				const shields = sheet.equipment.items.filter(item => item instanceof Shield) as Shield[];
 				const isBody = selectedDefenseRealm === StatType.Body;
 				return {
 					Header: (
@@ -460,12 +465,12 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 								onChange={realm => setSelectedDefenseRealm(realm)}
 							/>
 							{isBody && selectedArmor && (
-								<LabeledDropdown
+								<LabeledDropdown<Armor | 'None'>
 									label='Armor'
 									tooltip='Armor is applied to the any **Body Defense** check.'
 									value={selectedArmor}
 									options={armors}
-									describe={armor => armor.displayText}
+									describe={armor => (armor === 'None' ? 'No Armor' : armor.displayText)}
 									onChange={setSelectedArmor}
 								/>
 							)}
@@ -474,8 +479,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 									label='Shield'
 									value={selectedShield}
 									options={shields}
-									describe={shield => shield.displayText}
-									placeholder='Select shield...'
+									describe={shield => (shield === 'None' ? 'No Shield' : shield.displayText)}
 									onChange={setSelectedShield}
 									disabled={!hasShield}
 								/>
