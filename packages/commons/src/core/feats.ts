@@ -378,6 +378,9 @@ export class FeatInfo<T extends string | void> {
 type MindAttributes = (typeof StatType.mindAttributes)[number];
 type MindOrSoulAttributes = (typeof StatType.mindOrSoulAttributes)[number];
 
+const skills = StatType.skills.map(stat => stat.name);
+type Skills = (typeof skills)[number];
+
 export enum Feat {
 	// General
 	TradeSpecialization = 'TradeSpecialization',
@@ -388,6 +391,7 @@ export enum Feat {
 	UnreliableMemory = 'UnreliableMemory',
 	GirthCompensation = 'GirthCompensation',
 	BlindSense = 'BlindSense',
+	SkillSpecialization = 'SkillSpecialization',
 	// Class
 	ClassSpecialization = 'ClassSpecialization',
 	// Race
@@ -583,6 +587,32 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		level: 2,
 		description:
 			'Your strong connection to your Soul Realm allows you to expand your sense of hearing and smell. You can spend 1 [[Action_Point | AP]] and 2 [[Spirit_Point | SP]] to know the positions of any creature you are aware of within `6 Hexes` as well as if you could see them clearly. If they are explicitly trying to sneak, you get a +6 in your [[Perception]] Check.',
+	}),
+	[Feat.SkillSpecialization]: new FeatDefinition<Skills>({
+		key: Feat.SkillSpecialization,
+		name: 'Skill Specialization',
+		type: FeatType.Major,
+		sources: [StaticFeatSource.General],
+		level: 4,
+		description:
+			'You have specialized into one of the three [[Skill | Skills]] for a given [[Attribute]]. You get +2 in that Skill and -2 on the other two.',
+		parameter: {
+			id: 'skill',
+			name: 'Skill',
+			exact: true,
+			values: skills,
+		},
+		effects: info => {
+			const skill = StatType.fromName(info.parameter);
+			const siblings = StatType.skills.filter(s => s !== skill && s.parent === skill.parent);
+			return [new FeatStatModifier(skill, Bonus.of(2)), ...siblings.map(s => new FeatStatModifier(s, Bonus.of(-2)))];
+		},
+		fullDescription: info => {
+			const skill = StatType.fromName(info.parameter);
+			const attribute = skill.parent;
+			const effects = info.feat.effects?.(info);
+			return `You have specialized into ${skill.name} within ${attribute}. You get:\n${effects?.map(e => `* ${e.statType.name}: ${e.value.description}`).join('\n')}`;
+		},
 	}),
 	// Class
 	[Feat.ClassSpecialization]: new FeatDefinition<ClassRole>({
