@@ -499,7 +499,7 @@ export enum Tool {
 	HealersKit = "Healer's Kit",
 }
 
-// TODO(luan): figure out how to make typescript behave
+// NOTE: typescript does not support generic type parameters
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const FEATS: Record<Feat, FeatDefinition<any>> = {
 	[Feat.TradeSpecialization]: new FeatDefinition<Trade>({
