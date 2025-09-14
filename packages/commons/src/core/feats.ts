@@ -215,6 +215,8 @@ export interface FeatParameter<T extends string | void> {
 	id: string;
 	name: string;
 	exact: boolean;
+	// for Core feats only; sometimes the parameter can be independently chosen
+	independentlyChosen?: boolean;
 	values: T[];
 }
 
@@ -293,9 +295,9 @@ export class FeatInfo<T extends string | void> {
 		if (parameterType) {
 			const parameterValue = parameters[parameterType];
 			if (parameterValue === undefined) {
-				// temporary fallback backfill for existing feat that was recently modified
-				if (def.key === Feat.SignatureSpell) {
-					return 'N/A';
+				// For independentlyChosen core feats, do not fallback to 'N/A'
+				if (def.parameter?.independentlyChosen) {
+					return undefined;
 				}
 				throw new Error(`Parameter value for ${parameterType} is not defined for feat ${def.key}.`);
 			}
@@ -318,7 +320,18 @@ export class FeatInfo<T extends string | void> {
 		parameters: Record<string, string>,
 		slot: FeatSlot | undefined = undefined,
 	): FeatInfo<string | void> => {
-		const parameter = FeatInfo.parseParameter(def, parameters);
+		// For core feats with user parameter, allow parameter from core prop
+		let parameter: string | void = undefined;
+		if (def.type === FeatType.Core && def.parameter && def.parameter.independentlyChosen && !slot) {
+			const coreKey = FeatInfo.coreFeatPropKey(def.key);
+			if (parameters[coreKey] !== undefined) {
+				parameter = parameters[coreKey];
+			} else {
+				parameter = FeatInfo.parseParameter(def, parameters);
+			}
+		} else {
+			parameter = FeatInfo.parseParameter(def, parameters);
+		}
 		return new FeatInfo({ feat: def, slot, parameter });
 	};
 
@@ -328,6 +341,38 @@ export class FeatInfo<T extends string | void> {
 	): FeatInfo<string | void>[] => {
 		return defs.map(def => FeatInfo.hydrateFeatDefinition(def, parameters));
 	};
+
+	/**
+	 * Returns the prop key for a user-parametrized core feat (e.g., core.SignatureSpell)
+	 */
+	static coreFeatPropKey(feat: Feat): string {
+		return `core.${feat}`;
+	}
+
+	/**
+	 * Returns the prop key/value tuple for a user-parametrized core feat,
+	 * or undefined if not applicable.
+	 */
+	static toCoreProp(info: FeatInfo<string | void>): [string, string] | undefined {
+		if (
+			info.feat.type === FeatType.Core &&
+			info.feat.parameter &&
+			info.feat.parameter.independentlyChosen &&
+			!info.slot &&
+			info.parameter
+		) {
+			return [FeatInfo.coreFeatPropKey(info.feat.key), info.parameter];
+		}
+		return undefined;
+	}
+
+	/**
+	 * Hydrates a FeatInfo from a core feat prop key/value
+	 */
+	static fromCoreProp(feat: Feat, value: string): FeatInfo<string | void> {
+		const def = FEATS[feat];
+		return new FeatInfo({ feat: def, slot: undefined, parameter: value });
+	}
 }
 
 type MindAttributes = (typeof StatType.mindAttributes)[number];
@@ -929,6 +974,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 			id: 'spell',
 			name: 'Spell',
 			exact: false,
+			independentlyChosen: true,
 			values: Object.values(PredefinedArcaneSpell),
 		},
 	}),

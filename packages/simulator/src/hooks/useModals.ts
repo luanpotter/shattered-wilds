@@ -272,7 +272,9 @@ export function useModals() {
 		baseFeat,
 	}: {
 		characterId: string;
-		slot: FeatSlot;
+		// note: typically core feats (no slots) are not configurable,
+		//       except if they have a independentlyChosen parameter
+		slot: FeatSlot | undefined;
 		baseFeat: FeatDefinition<string | void>;
 	}) => {
 		const character = characters.find(c => c.id === characterId);

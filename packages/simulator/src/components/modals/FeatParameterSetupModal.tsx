@@ -1,13 +1,17 @@
-import { FeatDefinition, FeatParameter, FeatSlot, FeatInfo } from '@shattered-wilds/commons';
+import { FeatDefinition, FeatParameter, FeatSlot, FeatInfo, FeatType } from '@shattered-wilds/commons';
 import React, { useState } from 'react';
 
 import { useStore } from '../../store';
 import { Button } from '../shared/Button';
 import LabeledDropdown from '../shared/LabeledDropdown';
+import LabeledInput from '../shared/LabeledInput';
+import { RichText } from '../shared/RichText';
+
+const OTHER_OPTION = 'Other...';
 
 interface FeatParameterSetupModalProps {
 	characterId: string;
-	slot: FeatSlot;
+	slot: FeatSlot | undefined;
 	baseFeat: FeatDefinition<string | void>;
 	onClose: () => void;
 }
@@ -20,33 +24,29 @@ export const FeatParameterSetupModal: React.FC<FeatParameterSetupModalProps> = (
 }) => {
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
 	const characters = useStore(state => state.characters);
-	const [parameter, setParameter] = useState<string | undefined>(undefined);
-	const [customParameter, setCustomParameter] = useState<string>('');
-	const [parameterError, setParameterError] = useState<string | undefined>(undefined);
+	const [parameter, setParameter] = useState<string | null>(null);
+	const [customParameter, setCustomParameter] = useState<string | null>(null);
+	const [parameterError, setParameterError] = useState<string | null>(null);
 
 	const character = characters.find(c => c.id === characterId);
 	if (!character) {
 		return <div>Character not found: {characterId}</div>;
 	}
 
-	const handleParameterChange = (value: string | undefined) => {
+	const handleParameterChange = (value: string) => {
 		setParameter(value);
-		setParameterError(undefined);
-		if (value !== undefined) {
-			setCustomParameter('');
+		setParameterError(null);
+		if (value !== null) {
+			setCustomParameter(null);
 		}
 	};
 
-	const handleCustomParameterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setCustomParameter(e.target.value);
-		setParameterError(undefined);
-	};
 	const handleConfirm = () => {
 		// Validate all required parameters are filled
 		const param = baseFeat.parameter as FeatParameter<string> | undefined;
-		let finalParameter: string | undefined = parameter;
-		if (param && !param.exact && parameter === undefined) {
-			if (!customParameter.trim()) {
+		let finalParameter: string | null | undefined = parameter;
+		if (param && !param.exact && parameter === OTHER_OPTION) {
+			if (!customParameter?.trim()) {
 				setParameterError('Custom value is required');
 				return;
 			}
@@ -56,16 +56,28 @@ export const FeatParameterSetupModal: React.FC<FeatParameterSetupModalProps> = (
 			setParameterError(`Missing required parameters for ${baseFeat.name}`);
 			return;
 		}
-		setParameterError(undefined);
+		setParameterError(null);
 		const info = FeatInfo.hydrateFeatDefinition(baseFeat, { [param.id]: finalParameter as string }, slot);
-		const [key, value] = info.toProp()!;
-		updateCharacterProp(character, key, value);
+		// If this is a user-parametrized core feat, use core prop key
+		if (baseFeat.type === FeatType.Core && baseFeat.parameter && !slot) {
+			const coreProp = FeatInfo.toCoreProp(info);
+			if (coreProp) {
+				updateCharacterProp(character, coreProp[0], coreProp[1]);
+				onClose();
+				return;
+			}
+		}
+		// Otherwise, use slot-based prop
+		const slotProp = info.toProp();
+		if (slotProp) {
+			updateCharacterProp(character, slotProp[0], slotProp[1]);
+		}
 		onClose();
 	};
 
 	const handleCancel = () => {
-		setParameter(undefined);
-		setParameterError(undefined);
+		setParameter(null);
+		setParameterError(null);
 		onClose();
 	};
 
@@ -76,25 +88,26 @@ export const FeatParameterSetupModal: React.FC<FeatParameterSetupModalProps> = (
 		}
 		const hasError = parameterError!;
 		// If not exact, add Other option
-		const options: (string | undefined)[] = param.exact ? param.values : [...param.values, undefined];
+		const options = param.exact ? param.values : [...param.values, OTHER_OPTION];
 		return (
-			<div key={param.id} style={{ marginBottom: '12px' }}>
+			<div key={param.id}>
 				<LabeledDropdown
 					label={param.name}
 					value={parameter}
 					options={options}
-					describe={option => (option === undefined ? 'Other...' : option)}
+					describe={option => option}
 					onChange={handleParameterChange}
 					placeholder='Select parameter'
 				/>
 				{/* Show textbox if "Other" is selected */}
-				{!param.exact && parameter === undefined && (
-					<input
-						type='text'
-						value={customParameter}
-						onChange={handleCustomParameterChange}
-						placeholder='Enter custom value'
-						style={{ marginTop: '8px', width: '100%' }}
+				{!param.exact && parameter === OTHER_OPTION && (
+					<LabeledInput
+						label='Custom Value'
+						value={customParameter ?? ''}
+						onChange={value => {
+							setCustomParameter(value);
+							setParameterError(null);
+						}}
 					/>
 				)}
 				{hasError && (
@@ -113,12 +126,12 @@ export const FeatParameterSetupModal: React.FC<FeatParameterSetupModalProps> = (
 	};
 
 	return (
-		<div>
-			<div style={{ fontSize: '0.9em', marginBottom: '12px' }}>{baseFeat.description}</div>
+		<div style={{ padding: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+			<RichText>{baseFeat.description}</RichText>
 
 			{renderFeatParameterPicker()}
 
-			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '16px' }}>
+			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
 				<Button onClick={handleCancel} title='Cancel' />
 				<Button onClick={handleConfirm} title='Confirm' />
 			</div>

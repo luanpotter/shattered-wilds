@@ -94,7 +94,7 @@ export type Modal =
 	| (BaseModal & {
 			type: 'feat-parameter-setup';
 			characterId: string;
-			slot: FeatSlot;
+			slot: FeatSlot | undefined;
 			baseFeat: FeatDefinition<string | void>;
 	  })
 	| (BaseModal & {

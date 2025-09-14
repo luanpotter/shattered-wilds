@@ -96,7 +96,11 @@ export class CharacterFeats {
 	}
 
 	static from(props: Record<string, string>, race: RaceInfo, characterClass: ClassInfo): CharacterFeats {
-		const coreFeats = [...race.getCoreFeats(), ...characterClass.getCoreFeats()];
+		const customCoreFeatParameters = extractCustomCoreParameters(props);
+		const coreFeats = [
+			...race.getCoreFeats(customCoreFeatParameters),
+			...characterClass.getCoreFeats(customCoreFeatParameters),
+		];
 		const feats = Object.entries(props)
 			.filter(([key]) => key.startsWith('feat.'))
 			.map(prop => FeatInfo.fromProp(prop));
@@ -253,3 +257,7 @@ export class CharacterSheet {
 		return btoa(keyValuePairs);
 	}
 }
+
+export const extractCustomCoreParameters = (props: Record<string, string>): Record<string, string> => {
+	return Object.fromEntries(Object.entries(props).filter(([key]) => key.startsWith('core.')));
+};

@@ -6,13 +6,15 @@ import {
 	ClassRole,
 	ClassFlavor,
 	CLASS_ROLE_PRIMARY_ATTRIBUTE,
+	extractCustomCoreParameters,
+	FeatOrSlot,
 } from '@shattered-wilds/commons';
 import React, { useState } from 'react';
 
 import { useStore } from '../../store';
 import { Character } from '../../types/ui';
+import { FeatBox } from '../FeatBox';
 import { Button } from '../shared/Button';
-import { RichText } from '../shared/RichText';
 import { Tabs } from '../shared/Tabs';
 
 interface ClassSetupModalProps {
@@ -124,7 +126,8 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 			);
 		}
 
-		const coreFeats = currentClassInfo.getCoreFeats();
+		const customCoreFeatParameters = extractCustomCoreParameters(character.props);
+		const coreFeats = currentClassInfo.getCoreFeats(customCoreFeatParameters);
 
 		const description = [
 			['Realm', definition.realm],
@@ -153,31 +156,11 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 								</span>
 							))}
 						</p>
-						<div style={{ marginTop: '8px' }}>
+						<div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
 							<strong>Core Class Feats (Level 1):</strong>
-							<div style={{ maxHeight: '200px', overflowY: 'auto', marginTop: '4px' }}>
-								{coreFeats.map(featInfo => {
-									const feat = featInfo.feat;
-									const key = feat.key;
-									return (
-										<div
-											key={key}
-											style={{
-												marginBottom: '6px',
-												padding: '6px',
-												backgroundColor: 'var(--background)',
-												borderRadius: '4px',
-												border: '1px solid var(--text)',
-											}}
-										>
-											<div style={{ fontWeight: 'bold', marginBottom: '2px', fontSize: '0.9em' }}>{feat.name}</div>
-											<div style={{ fontSize: '0.8em' }}>
-												<RichText>{feat.description}</RichText>
-											</div>
-										</div>
-									);
-								})}
-							</div>
+							{coreFeats.map(coreFeat => (
+								<FeatBox key={coreFeat.name} featOrSlot={new FeatOrSlot({ info: coreFeat })} character={character} />
+							))}
 						</div>
 					</>
 				) : (

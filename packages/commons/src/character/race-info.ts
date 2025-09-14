@@ -50,7 +50,7 @@ export class RaceInfo {
 	}
 
 	// Get the core feats that should be assigned to this race/upbringing combination
-	getCoreFeats(): FeatInfo<string | void>[] {
+	getCoreFeats(customCoreFeatParameters: Record<string, string>): FeatInfo<string | void>[] {
 		const racialFeats = Object.values(FEATS)
 			.filter(feat => feat.fitsRace(this.primaryRace, this.upbringing))
 			.filter(feat => feat.type === FeatType.Core);
@@ -60,6 +60,7 @@ export class RaceInfo {
 			upbringing: this.upbringing,
 			'upbringing-favored-modifier': this.upbringingPlusModifier.name,
 			'upbringing-disfavored-modifier': this.upbringingMinusModifier.name,
+			...customCoreFeatParameters,
 		};
 		return FeatInfo.hydrateFeatDefinitions(racialFeats, parameters);
 	}

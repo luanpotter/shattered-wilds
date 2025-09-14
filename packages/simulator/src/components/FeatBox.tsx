@@ -24,16 +24,25 @@ export const FeatBox: React.FC<{
 
 	const isEmpty = featOrSlot.isEmpty;
 	const warning = featOrSlot.warning;
-	const isClickable = !isCore;
+	const independentlyChosen = feat?.parameter?.independentlyChosen;
+	const isClickable = !isCore || independentlyChosen;
 
 	const key = slot?.toProp() || feat?.key;
 	const name = info?.name ?? `Empty ${featOrSlot.slot?.name}`;
 
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
-	const { openFeatSelectionModal } = useModals();
+	const { openFeatSelectionModal, openFeatParameterSetupModal } = useModals();
 
 	const handleOpen = () => {
 		if (!isClickable) {
+			return;
+		}
+		if (independentlyChosen && isCore && feat) {
+			openFeatParameterSetupModal({
+				characterId: character.id,
+				slot: undefined, // core feats have no slots
+				baseFeat: feat,
+			});
 			return;
 		}
 		if (featOrSlot.slot) {

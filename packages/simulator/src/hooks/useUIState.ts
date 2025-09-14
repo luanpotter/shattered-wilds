@@ -48,20 +48,20 @@ export function useUIStateFactory(baseKey: string) {
 
 	const useStateArrayItem = function <T>(key: string, array: readonly T[], defaultValue: T): [T, (value: T) => void] {
 		const fullKey = `${baseKey}-${key}`;
-		const [selectedIndex, setSelectedIndex] = useUIState<number | null>(fullKey, null);
+		const [selectedIndex, setSelectedIndex] = useUIState<number | undefined>(fullKey, undefined);
 
 		const selectedItem = useMemo(() => {
-			if (selectedIndex === null || selectedIndex >= array.length) return defaultValue;
+			if (selectedIndex === undefined || selectedIndex >= array.length) return defaultValue;
 			return array[selectedIndex];
 		}, [selectedIndex, array, defaultValue]);
 
 		const setSelectedItem = useMemo(() => {
-			return (item: T | null) => {
-				if (item === null) {
-					setSelectedIndex(null);
+			return (item: T | undefined) => {
+				if (item === undefined) {
+					setSelectedIndex(undefined);
 				} else {
 					const index = array.indexOf(item);
-					setSelectedIndex(index >= 0 ? index : null);
+					setSelectedIndex(index >= 0 ? index : undefined);
 				}
 			};
 		}, [array, setSelectedIndex]);

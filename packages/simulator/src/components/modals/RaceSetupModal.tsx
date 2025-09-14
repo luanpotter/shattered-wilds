@@ -1,4 +1,11 @@
-import { CharacterSheet, FeatOrSlot, Race, StatType, Upbringing } from '@shattered-wilds/commons';
+import {
+	CharacterSheet,
+	extractCustomCoreParameters,
+	FeatOrSlot,
+	Race,
+	StatType,
+	Upbringing,
+} from '@shattered-wilds/commons';
 import React from 'react';
 
 import { useStore } from '../../store';
@@ -28,7 +35,8 @@ const RaceSetupModal: React.FC<RaceSetupModalProps> = ({ characterId, onClose })
 	const currentRace = sheet.race;
 
 	// Get modifiers for the preview using current values
-	const coreFeats = currentRace.getCoreFeats();
+	const customCoreFeatParameters = extractCustomCoreParameters(character.props);
+	const coreFeats = currentRace.getCoreFeats(customCoreFeatParameters);
 
 	// Handle immediate updates
 	const handlePrimaryRaceChange = (value: Race) => {

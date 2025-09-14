@@ -18,7 +18,7 @@ export class ClassInfo {
 		return CLASS_DEFINITIONS[this.characterClass];
 	}
 
-	getCoreFeats(): FeatInfo<string | void>[] {
+	getCoreFeats(customCoreFeatParameters: Record<string, string>): FeatInfo<string | void>[] {
 		const classFeats = Object.values(FEATS)
 			.filter(feat => feat.fitsClass(this.definition))
 			.filter(feat => feat.type === FeatType.Core);
@@ -27,6 +27,7 @@ export class ClassInfo {
 		const parameters = {
 			'class-role': classDefinition.role,
 			stat: classDefinition.primaryAttribute.name,
+			...customCoreFeatParameters,
 		};
 		return FeatInfo.hydrateFeatDefinitions(classFeats, parameters);
 	}
