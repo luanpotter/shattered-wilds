@@ -34,74 +34,76 @@ interface BaseModal {
 }
 
 // Modal type discriminated unions
-export type Modal =
-	| (BaseModal & {
-			type: 'character-list';
-	  })
-	| (BaseModal & {
-			type: 'character-creation';
-			hexPosition?: HexPosition;
-	  })
-	| (BaseModal & {
-			type: 'character-sheet';
-			characterId: string;
-	  })
-	| (BaseModal & {
-			type: 'race-setup';
-			characterId: string;
-	  })
-	| (BaseModal & {
-			type: 'class-setup';
-			characterId: string;
-	  })
-	| (BaseModal & {
-			type: 'feats-setup';
-			characterId: string;
-	  })
-	| (BaseModal & {
-			type: 'basic-attacks';
-			characterId: string;
-	  })
-	| (BaseModal & {
-			type: 'dice-roll';
-			characterId: string;
-			check: Check;
-			onDiceRollComplete?: (result: { total: number; shifts: number }) => void;
-			initialTargetDC?: number;
-	  })
-	| (BaseModal & {
-			type: 'attack-action';
-			attackerId: string;
-			defenderId: string;
-			attackIndex: number;
-	  })
-	| (BaseModal & {
-			type: 'measure';
-			fromCharacterId: string;
-			toPosition: HexPosition;
-			distance: number;
-	  })
-	| (BaseModal & {
-			type: 'consume-resource';
-			characterId: string;
-			actionCosts: ActionCost[];
-	  })
-	| (BaseModal & {
-			type: 'feat-selection';
-			characterId: string;
-			slot: FeatSlot;
-	  })
-	| (BaseModal & {
-			type: 'feat-parameter-setup';
-			characterId: string;
-			slot: FeatSlot | undefined;
-			baseFeat: FeatDefinition<string | void>;
-	  })
-	| (BaseModal & {
-			type: 'item';
-			characterId: string;
-			itemIndex?: number; // if provided, edit/view existing; else create new
-	  });
+export type Modal = BaseModal &
+	(
+		| {
+				type: 'character-list';
+		  }
+		| {
+				type: 'character-creation';
+				hexPosition?: HexPosition;
+		  }
+		| {
+				type: 'character-sheet';
+				characterId: string;
+		  }
+		| {
+				type: 'race-setup';
+				characterId: string;
+		  }
+		| {
+				type: 'class-setup';
+				characterId: string;
+		  }
+		| {
+				type: 'feats-setup';
+				characterId: string;
+		  }
+		| {
+				type: 'basic-attacks';
+				characterId: string;
+		  }
+		| {
+				type: 'dice-roll';
+				characterId: string;
+				check: Check;
+				onDiceRollComplete?: (result: { total: number; shifts: number }) => void;
+				initialTargetDC?: number;
+		  }
+		| {
+				type: 'attack-action';
+				attackerId: string;
+				defenderId: string;
+				attackIndex: number;
+		  }
+		| {
+				type: 'measure';
+				fromCharacterId: string;
+				toPosition: HexPosition;
+				distance: number;
+		  }
+		| {
+				type: 'consume-resource';
+				characterId: string;
+				actionCosts: ActionCost[];
+		  }
+		| {
+				type: 'feat-selection';
+				characterId: string;
+				slot: FeatSlot;
+		  }
+		| {
+				type: 'feat-parameter-setup';
+				characterId: string;
+				slot: FeatSlot | undefined;
+				baseFeat: FeatDefinition<string | void>;
+		  }
+		| {
+				type: 'item';
+				characterId: string;
+				itemIndex?: number; // if provided, edit/view existing; else create new
+		  }
+	);
 
 export interface Character {
 	id: string;

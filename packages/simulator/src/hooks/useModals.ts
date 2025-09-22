@@ -1,41 +1,39 @@
-import { ActionCost, Check, FeatSlot, FeatDefinition } from '@shattered-wilds/commons';
+import { ActionCost, Check, FeatDefinition, FeatSlot } from '@shattered-wilds/commons';
 
 import { useStore } from '../store';
-import { HexPosition } from '../types/ui';
-import { findNextWindowPosition } from '../utils';
-
-interface CharacterCreationModalParams {
-	hexPosition?: HexPosition;
-}
+import { HexPosition, Modal } from '../types/ui';
+import { Mouse } from '../utils/mouse';
+import { DistributiveOmit } from '../utils/types';
 
 export function useModals() {
 	const modals = useStore(state => state.modals);
-	const addModal = useStore(state => state.addModal);
+	const addModalStore = useStore(state => state.addModal);
 	const updateModal = useStore(state => state.updateModal);
 	const removeModal = useStore(state => state.removeModal);
 	const characters = useStore(state => state.characters);
 
 	const generateModalId = () => window.crypto.randomUUID();
 
-	const getNextPosition = () => findNextWindowPosition(modals);
-
-	const openCharacterListModal = () => {
-		addModal({
+	const addModal = (params: DistributiveOmit<Modal, 'id' | 'position'>) => {
+		addModalStore({
 			id: generateModalId(),
-			title: 'Characters',
-			type: 'character-list',
-			position: getNextPosition(),
+			position: Mouse.getPosition(),
+			...params,
 		});
 	};
 
-	const openCharacterCreationModal = ({ hexPosition }: CharacterCreationModalParams = {}) => {
-		const title = hexPosition ? `Create Character (${hexPosition.q}, ${hexPosition.r})` : 'Create Character';
-
+	const openCharacterListModal = () => {
 		addModal({
-			id: generateModalId(),
+			title: 'Characters',
+			type: 'character-list',
+		});
+	};
+
+	const openCharacterCreationModal = ({ hexPosition }: { hexPosition?: HexPosition }) => {
+		const title = hexPosition ? `Create Character (${hexPosition.q}, ${hexPosition.r})` : 'Create Character';
+		addModal({
 			title,
 			type: 'character-creation',
-			position: getNextPosition(),
 			...(hexPosition && { hexPosition }),
 		});
 	};
@@ -52,11 +50,9 @@ export function useModals() {
 		if (existingModal) return;
 
 		addModal({
-			id: generateModalId(),
 			title: `${character.props.name}'s Sheet`,
 			type: 'character-sheet',
 			characterId,
-			position: getNextPosition(),
 			width: '750px',
 		});
 	};
@@ -73,11 +69,9 @@ export function useModals() {
 		if (existingModal) return;
 
 		addModal({
-			id: generateModalId(),
 			title: `${character.props.name}'s Race Setup`,
 			type: 'race-setup',
 			characterId,
-			position: getNextPosition(),
 			width: '500px',
 		});
 	};
@@ -94,11 +88,9 @@ export function useModals() {
 		if (existingModal) return;
 
 		addModal({
-			id: generateModalId(),
 			title: `${character.props.name}'s Class Setup`,
 			type: 'class-setup',
 			characterId,
-			position: getNextPosition(),
 			width: '700px',
 		});
 	};
@@ -115,11 +107,9 @@ export function useModals() {
 		if (existingModal) return;
 
 		addModal({
-			id: generateModalId(),
 			title: `${character.props.name}'s Feats`,
 			type: 'feats-setup',
 			characterId,
-			position: getNextPosition(),
 			width: '700px',
 		});
 	};
@@ -136,11 +126,9 @@ export function useModals() {
 		if (existingModal) return;
 
 		addModal({
-			id: generateModalId(),
 			title: `${character.props.name}'s Basic Attacks`,
 			type: 'basic-attacks',
 			characterId,
-			position: getNextPosition(),
 		});
 	};
 
@@ -158,12 +146,10 @@ export function useModals() {
 		initialTargetDC?: number;
 	}) => {
 		addModal({
-			id: generateModalId(),
 			title: title ?? 'Roll Dice',
 			type: 'dice-roll',
 			characterId,
 			check,
-			position: getNextPosition(),
 			...(onDiceRollComplete && { onDiceRollComplete }),
 			...(initialTargetDC !== undefined && { initialTargetDC }),
 		});
@@ -187,13 +173,11 @@ export function useModals() {
 		}
 
 		addModal({
-			id: generateModalId(),
 			title: `${attacker.props.name} attacks ${defender.props.name}`,
 			type: 'attack-action',
 			attackerId,
 			defenderId,
 			attackIndex,
-			position: getNextPosition(),
 		});
 	};
 
@@ -213,13 +197,11 @@ export function useModals() {
 		}
 
 		addModal({
-			id: generateModalId(),
 			title: `Measure Distance`,
 			type: 'measure',
 			fromCharacterId,
 			toPosition,
 			distance,
-			position: getNextPosition(),
 		});
 	};
 
@@ -239,12 +221,10 @@ export function useModals() {
 		}
 
 		addModal({
-			id: generateModalId(),
 			title: title ?? 'Consume Resources',
 			type: 'consume-resource',
 			characterId,
 			actionCosts,
-			position: getNextPosition(),
 		});
 	};
 
@@ -256,12 +236,10 @@ export function useModals() {
 		}
 
 		addModal({
-			id: generateModalId(),
 			title: `Select ${slot.type} Feat for Level ${slot.level}`,
 			type: 'feat-selection',
 			characterId,
 			slot,
-			position: getNextPosition(),
 			width: '600px',
 		});
 	};
@@ -284,35 +262,29 @@ export function useModals() {
 		}
 
 		addModal({
-			id: generateModalId(),
 			title: `Configure ${baseFeat.name}`,
 			type: 'feat-parameter-setup',
 			characterId,
 			slot,
 			baseFeat,
-			position: getNextPosition(),
 			width: '500px',
 		});
 	};
 
 	const openAddItemModal = ({ characterId }: { characterId: string }) => {
 		addModal({
-			id: generateModalId(),
 			title: 'Add Item',
 			type: 'item',
 			characterId,
-			position: getNextPosition(),
 		});
 	};
 
 	const openViewItemModal = ({ characterId, itemIndex }: { characterId: string; itemIndex: number }) => {
 		addModal({
-			id: generateModalId(),
 			title: 'View Item',
 			type: 'item',
 			characterId,
 			itemIndex,
-			position: getNextPosition(),
 		});
 	};
 

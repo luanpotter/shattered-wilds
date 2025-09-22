@@ -1,9 +1,4 @@
-import { Character, Point, Modal, HexPosition } from './types/ui';
-
-// Constants for modal positioning
-const INITIAL_POSITION: Point = { x: 20, y: 20 };
-const WINDOW_SIZE = { width: 300, height: 300 };
-const OVERLAP_MARGIN = 8; // Additional buffer when checking for overlaps
+import { Character, HexPosition, Point } from './types/ui';
 
 /**
  * Convert a number to an ordinal string, for example 1 -> "1st", 7 -> "7th" or 22 -> "22nd".
@@ -20,91 +15,6 @@ export const numberToOrdinal = (number: number): string => {
 					3: 'rd',
 				}[number % 10] || 'th';
 	return `${number}${suffix}`;
-};
-
-/**
- * Find the next available position for a new modal
- */
-export const findNextWindowPosition = (modals: Modal[]): Point => {
-	// If no modals, return default position
-	if (modals.length === 0) {
-		return INITIAL_POSITION;
-	}
-
-	// Get viewport dimensions
-	const viewportWidth = window.innerWidth - WINDOW_SIZE.width;
-	const viewportHeight = window.innerHeight - WINDOW_SIZE.height;
-
-	// Define step size for grid positions
-	const stepSize = 50; // Pixels between positions
-
-	// Compute grid size based on viewport dimensions and step size
-	const gridCols = Math.ceil(viewportWidth / stepSize);
-	const gridRows = Math.ceil(viewportHeight / stepSize);
-	const gridSize = Math.max(gridCols, gridRows);
-
-	// Create a grid to represent potential modal positions
-	const grid: boolean[][] = [];
-
-	// Initialize the grid (all positions free)
-	for (let i = 0; i < gridSize; i++) {
-		grid[i] = [];
-		for (let j = 0; j < gridSize; j++) {
-			grid[i][j] = false;
-		}
-	}
-
-	// Mark occupied positions based on existing modals
-	for (const modal of modals) {
-		// Get the modal's bounds
-		const modalLeft = modal.position.x;
-		const modalRight = modal.position.x + WINDOW_SIZE.width;
-		const modalTop = modal.position.y;
-		const modalBottom = modal.position.y + WINDOW_SIZE.height;
-
-		// Check each grid cell to see if it overlaps with this modal
-		for (let row = 0; row < gridSize; row++) {
-			for (let col = 0; col < gridSize; col++) {
-				// Calculate the grid cell's bounds
-				const cellLeft = col * stepSize + INITIAL_POSITION.x;
-				const cellRight = cellLeft + WINDOW_SIZE.width;
-				const cellTop = row * stepSize + INITIAL_POSITION.y;
-				const cellBottom = cellTop + WINDOW_SIZE.height;
-
-				// Check for overlap (with margin)
-				if (
-					cellRight + OVERLAP_MARGIN > modalLeft &&
-					cellLeft - OVERLAP_MARGIN < modalRight &&
-					cellBottom + OVERLAP_MARGIN > modalTop &&
-					cellTop - OVERLAP_MARGIN < modalBottom
-				) {
-					grid[row][col] = true; // Mark as occupied
-				}
-			}
-		}
-	}
-
-	// Find the first free position
-	for (let row = 0; row < gridSize; row++) {
-		for (let col = 0; col < gridSize; col++) {
-			if (!grid[row][col]) {
-				const x = col * stepSize + INITIAL_POSITION.x;
-				const y = row * stepSize + INITIAL_POSITION.y;
-
-				// Ensure the position is within viewport bounds
-				if (x < viewportWidth && y < viewportHeight) {
-					return { x, y };
-				}
-			}
-		}
-	}
-
-	// If no free position found, cascade from the last modal
-	const lastModal = modals[modals.length - 1];
-	const x = Math.min(lastModal.position.x + 20, viewportWidth - 20);
-	const y = Math.min(lastModal.position.y + 20, viewportHeight - 20);
-
-	return { x, y };
 };
 
 /**
