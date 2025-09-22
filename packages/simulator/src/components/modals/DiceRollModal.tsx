@@ -326,6 +326,7 @@ const DiceRollModalContent: React.FC<{
 		}
 
 		exportDataToClipboard(parts.join(' '));
+		onClose();
 	};
 
 	const handleRollDice = () => {
