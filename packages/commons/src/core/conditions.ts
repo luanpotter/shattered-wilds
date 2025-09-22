@@ -44,7 +44,9 @@ This can be caused by the [[Feint]] action and cleared using the [[Focus]] actio
 		name: Condition.Distraught,
 		description: `The character is in emotional and spiritual turmoil and unable to use [[Channel]] actions.
 
-This can be inflicted by the [[Demoralize]] action, and cleared using the [[Calm]] action.`,
+This can be inflicted by the [[Demoralize]] action, and cleared using the [[Calm]] action.
+
+It can also be inflicted by the a [[Transfiguration]] **Arcane Spell** such as [[Hideous Visage]].`,
 	}),
 	[Condition.Frightened]: new ConditionDefinition({
 		name: Condition.Frightened,
