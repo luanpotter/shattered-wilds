@@ -463,7 +463,7 @@ export const PREDEFINED_ARCANE_SPELLS: Record<PredefinedArcaneSpell, ArcaneSpell
 	[PredefinedArcaneSpell.HideousVisage]: new ArcaneSpellDefinition({
 		name: PredefinedArcaneSpell.HideousVisage,
 		school: ArcaneSpellSchool.Transfiguration,
-		description: `Transfigures a desired surface-level aspect of a target's appearance, making it hideous and slightly repulsive. The target can resist the transformation itself with a [[Toughness]] Check. If successful, the target then must resist again with a [[Tenacity]] check or take 1 [[Spirit_Point | SP]] and become [[Demoralized]] while transformed. Regardless of their self-perception, they will get a \`-6\` [[Circumstance_Modifier | CM]] to any [[Presence]] Checks.`,
+		description: `Transfigures a desired surface-level aspect of a target's appearance, making it hideous and slightly repulsive. The target can resist the transformation itself with a [[Toughness]] Check. If successful, the target then must resist again with a [[Tenacity]] check or take 1 [[Spirit_Point | SP]] and become [[Distraught]] while transformed. Regardless of their self-perception, they will get a \`-6\` [[Circumstance_Modifier | CM]] to any [[Presence]] Checks.`,
 		augmentations: [
 			new ArcaneSpellAugmentation({
 				type: ArcaneSpellAugmentationType.Specificity,
