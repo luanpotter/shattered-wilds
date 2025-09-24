@@ -912,7 +912,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassRole.Tank],
 		level: 4,
 		description:
-			'When a creature performs a **Ranged Attack** involving firing a projectile at a target other than you, you can use pay 1 [[Action_Point | AP]] to react by jumping at most 1 Hex onto the path of the incoming projectile. The original target gains **Greater Cover** against the attack, but if it misses by no more than -1 Shifts, you are hit instead.',
+			'When a creature performs a **Ranged Attack** involving firing a projectile at a target other than you, you can use pay 1 [[Action_Point | AP]] to react by jumping at most `1 Hex` onto the path of the incoming projectile. The original target gains [Cover_Greater | Greater Cover] against the attack, but if it misses by no more than -1 Shifts, you are hit instead.',
 	}),
 	[Feat.StoutMetabolism]: new FeatDefinition<void>({
 		key: Feat.StoutMetabolism,
@@ -956,8 +956,9 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Major,
 		sources: [ClassFlavor.Martial],
 		level: 4,
-		description:
-			'Whenever a creature misses a **Melee Basic Attack** against you, you can spend 1 [[Focus_Point | FP]] to perform the [[Opportunity_Attack | Opportunity Attack]] reaction against them; you still pay the [[Action_Point | AP]] (and any other) cost.',
+		description: `Whenever a creature misses a **Melee Basic Attack** against you, you can spend 1 [[Focus_Point | FP]] to perform the [[Opportunity_Attack | Opportunity Attack]] reaction against them; you still pay the [[Action_Point | AP]] (and any other) cost.
+
+			For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Action_Points | AP]] and 1 [[Focus_Point | FP]] in total.`,
 	}),
 	[Feat.KnowThyEnemy]: new FeatDefinition<void>({
 		key: Feat.KnowThyEnemy,
@@ -965,7 +966,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Minor,
 		sources: [ClassFlavor.Martial],
 		level: 5,
-		description: `You can roll an [[Intuition]] Check to inspect a creature you can see clearly for a couple minutes in order to asses their threat level towards you; their tactical capabilities; or other useful military information. You can ask for specific details (to the DM's discretion), or just seek for a general impression.`,
+		description: `You can roll an [[Intuition]] Check to inspect a creature you can see clearly for a couple minutes in order to asses their approximate threat or power level; some notion of their combat capabilities; or other noticeable tactical or military information. You can ask for specific details (to the DM's discretion), or just seek for a general impression.`,
 	}),
 	// Survivalist
 	[Feat.Rage]: new FeatDefinition<void>({
@@ -1010,8 +1011,9 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Major,
 		sources: [ClassFlavor.Survivalist],
 		level: 4,
-		description:
-			'When using the [[Rage]] action, you can spend additional [[Spirit_Point | SPs]] to keep more of your [[Focus_Point | FP]]: for each additional [[Spirit_Point | SP]] you spend, you can keep an additional [[Focus_Point | FP]]. For example you can spend 1 [[Action_Point | AP]] and 3 [[Spirit_Point | SP]] in total to become **Enraged** while keeping 3 [[Focus_Point | FP]].',
+		description: `When using the [[Rage]] action, you can spend additional [[Spirit_Point | SPs]] to keep more of your [[Focus_Point | FP]]: for each additional [[Spirit_Point | SP]] you spend, you can keep an additional [[Focus_Point | FP]].
+
+			For example you can spend 1 [[Action_Point | AP]] and 3 [[Spirit_Point | SP]] in total to become **Enraged** while keeping 3 [[Focus_Point | FP]].`,
 	}),
 	// Scoundrel
 	[Feat.FancyFootwork]: new FeatDefinition<void>({
