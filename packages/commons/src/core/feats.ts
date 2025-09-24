@@ -414,20 +414,27 @@ export enum Feat {
 	PinningShot = 'PinningShot',
 	QuickDraw = 'QuickDraw',
 	DoubleShot = 'DoubleShot',
+	SecondNatureShot = 'SecondNatureShot',
+	BallisticReconstruction = 'BallisticReconstruction',
 	// Tank
 	ImprovedTaunt = 'ImprovedTaunt',
 	QuickBash = 'QuickBash',
 	ArmorFamiliarity = 'ArmorFamiliarity',
 	BulkyFrame = 'BulkyFrame',
+	GreaterCoverUp = 'GreaterCoverUp',
+	StoutMetabolism = 'StoutMetabolism',
 	// Martial
 	ExertAuthority = 'ExertAuthority',
 	DistributedShifts = 'DistributedShifts',
 	WeaponHoning = 'WeaponHoning',
+	Retaliation = 'Retaliation',
+	KnowThyEnemy = 'KnowThyEnemy',
 	// Survivalist
 	Rage = 'Rage',
 	InstinctiveTracking = 'InstinctiveTracking', // shared with Naturalist
 	DisregardCover = 'DisregardCover',
 	Potioneer = 'Potioneer', // shared with Naturalist
+	ControlledRage = 'ControlledRage',
 	// Scoundrel
 	FancyFootwork = 'FancyFootwork',
 	ThievesFingers = 'ThievesFingers',
@@ -450,11 +457,16 @@ export enum Feat {
 	LyricResonance = 'LyricResonance',
 	InspiringPerformance = 'InspiringPerformance',
 	TheresMoreToThisSong = 'TheresMoreToThisSong',
+	// Erudite
+	OtherworldlyFocus = 'OtherworldlyFocus',
+	CognitiveResilience = 'CognitiveResilience',
+	IReadAboutThat = 'IReadAboutThat',
 	// Disciple
 	DivineChanneling = 'DivineChanneling',
 	SacredCalm = 'SacredCalm',
 	FocusedReach = 'FocusedReach',
 	ReligiousRites = 'ReligiousRites',
+	DivineInspiration = 'DivineInspiration',
 	// Adept
 	FlurryOfBlows = 'FlurryOfBlows',
 	ChannelingFists = 'ChannelingFists',
@@ -468,6 +480,8 @@ export enum Feat {
 	LesserDivineChanneling = 'LesserDivineChanneling',
 	EffortlessAttuning = 'EffortlessAttuning',
 	FocusedChanneling = 'FocusedChanneling',
+	PiousModesty = 'PiousModesty',
+	FervorousDevotion = 'FervorousDevotion',
 	// Crusader
 	DivineSmite = 'DivineSmite',
 	SpiritualArmor = 'SpiritualArmor',
@@ -838,6 +852,24 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		description:
 			'You can spend 3 [[Spirit_Points | SP]] to shoot two projectiles with a single [[Strike]] action. Roll for each separately, one after the other.',
 	}),
+	[Feat.SecondNatureShot]: new FeatDefinition<void>({
+		key: Feat.SecondNatureShot,
+		name: 'Second Nature Shot',
+		type: FeatType.Minor,
+		sources: [ClassRole.Ranged],
+		level: 4,
+		description:
+			'While performing a **Ranged Attack** with a weapon you are familiar with, you can spend 1 [[Spirit_Point | SP]] to ignore the [[Concentrate]] trait.',
+	}),
+	[Feat.BallisticReconstruction]: new FeatDefinition<void>({
+		key: Feat.BallisticReconstruction,
+		name: 'Ballistic Reconstruction',
+		type: FeatType.Minor,
+		sources: [ClassRole.Ranged],
+		level: 5,
+		description:
+			'You can analyze the undisturbed remains of a projectile (such as an arrow or dart) and its impact site to determine the ballistic trajectory taken, including the approximate direction and distance of origin, as well as the nature of the weapon used,with reliable accuracy.',
+	}),
 	// Tank
 	[Feat.ImprovedTaunt]: new FeatDefinition<void>({
 		key: Feat.ImprovedTaunt,
@@ -873,6 +905,23 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		description:
 			'You have a `+6` [[Circumstance Modifier | CM]] to your [[Stance]] Checks to resist opponents of your size or larger attempting to [[Pass Through]] you.',
 	}),
+	[Feat.GreaterCoverUp]: new FeatDefinition<void>({
+		key: Feat.GreaterCoverUp,
+		name: 'Greater Cover-Up',
+		type: FeatType.Major,
+		sources: [ClassRole.Tank],
+		level: 4,
+		description:
+			'When a creature performs a **Ranged Attack** involving firing a projectile at a target other than you, you can use pay 1 [[Action_Point | AP]] to react by jumping at most 1 Hex onto the path of the incoming projectile. The original target gains **Greater Cover** against the attack, but if it misses by no more than -1 Shifts, you are hit instead.',
+	}),
+	[Feat.StoutMetabolism]: new FeatDefinition<void>({
+		key: Feat.StoutMetabolism,
+		name: 'Stout Metabolism',
+		type: FeatType.Minor,
+		sources: [ClassRole.Tank],
+		level: 5,
+		description: 'You can go upwards of a week without eating before suffering any significant ill effects.',
+	}),
 	// Martial
 	[Feat.ExertAuthority]: new FeatDefinition<void>({
 		key: Feat.ExertAuthority,
@@ -901,6 +950,23 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		description:
 			'You can spend a few hours and 1 [[Spirit_Point | SP]] to hone and carefully refine your weapon to your personal style, preferences and needs, creating a unique connection between you and it. This connection will last until the end of the day, as it fades away in your memory, but while it lasts, the weapon will concede an additional `+1` Equipment Modifier bonus to your [[Strike]] actions.',
 	}),
+	[Feat.Retaliation]: new FeatDefinition<void>({
+		key: Feat.Retaliation,
+		name: 'Retaliation',
+		type: FeatType.Major,
+		sources: [ClassFlavor.Martial],
+		level: 4,
+		description:
+			'Whenever a creature misses a **Melee Basic Attack** against you, you can spend 1 [[Focus_Point | FP]] to perform the [[Opportunity_Attack | Opportunity Attack]] reaction against them; you still pay the [[Action_Point | AP]] (and any other) cost.',
+	}),
+	[Feat.KnowThyEnemy]: new FeatDefinition<void>({
+		key: Feat.KnowThyEnemy,
+		name: 'Know Thy Enemy',
+		type: FeatType.Minor,
+		sources: [ClassFlavor.Martial],
+		level: 5,
+		description: `You can roll an [[Intuition]] Check to inspect a creature you can see clearly for a couple minutes in order to asses their threat level towards you; their tactical capabilities; or other useful military information. You can ask for specific details (to the DM's discretion), or just seek for a general impression.`,
+	}),
 	// Survivalist
 	[Feat.Rage]: new FeatDefinition<void>({
 		key: Feat.Rage,
@@ -918,7 +984,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassFlavor.Survivalist, ClassFlavor.Naturalist],
 		level: 2,
 		description:
-			'You get a `+3` [[Circumstance Modifier | CM]] to Checks you make related to tracking creatures (following footprints, etc).',
+			'You get a `+3` [[Circumstance Modifier | CM]] to Checks you make related to tracking creatures (following footprints, etc), and you can spend 1 [[Focus_Point | FP]] to gain an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).',
 	}),
 	[Feat.DisregardCover]: new FeatDefinition<void>({
 		key: Feat.DisregardCover,
@@ -933,10 +999,19 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		key: Feat.Potioneer,
 		name: 'Potioneer',
 		type: FeatType.Minor,
-		sources: [ClassFlavor.Survivalist, ClassFlavor.Naturalist],
+		sources: [ClassFlavor.Survivalist, ClassFlavor.Naturalist, ClassFlavor.Devout],
 		level: 3,
 		description:
-			'You can spend a few hours to forage for ingredients on the appropriate environment with an [[Intuition]] Check. You can also spend a few hours and 1 [[Spirit_Point | SP]] to brew a salve that can be used to heal an amount of points (determined by a [[Knowledge]] Check) of either [[Vitality_Point | VP]], [[Focus_Point | FP]] or [[Spirit_Point | SP]] (your choice). The salve will lose potency and expire after a few days to a week.',
+			'You can spend a few hours to forage for ingredients on the appropriate environment with an [[Intuition]] Check. You can also spend a few hours and 1 [[Spirit_Point | SP]] to brew a salve that can be used to heal an amount of points (determined by a [[Knowledge]] Check) of either [[Vitality_Point | VP]], [[Focus_Point | FP]] or [[Spirit_Point | SP]] (your choice). The salve will lose potency and expire after a few days.',
+	}),
+	[Feat.ControlledRage]: new FeatDefinition<void>({
+		key: Feat.ControlledRage,
+		name: 'Controlled Rage',
+		type: FeatType.Major,
+		sources: [ClassFlavor.Survivalist],
+		level: 4,
+		description:
+			'When using the [[Rage]] action, you can spend additional [[Spirit_Point | SPs]] to keep more of your [[Focus_Point | FP]]: for each additional [[Spirit_Point | SP]] you spend, you can keep an additional [[Focus_Point | FP]]. For example you can spend 1 [[Action_Point | AP]] and 3 [[Spirit_Point | SP]] in total to become **Enraged** while keeping 3 [[Focus_Point | FP]].',
 	}),
 	// Scoundrel
 	[Feat.FancyFootwork]: new FeatDefinition<void>({
@@ -1101,6 +1176,34 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		description:
 			'You can attempt to hide a message in a song you are singing, only to be perceived by certain listeners. Roll a [[Speechcraft]] Check with `+6` [[Circumstance Modifier | CM]]; all listeners then contest with an [[IQ]] Check. The targets you wanted to understand get a `+3` [[Circumstance Modifier | CM]] to their Check, or a `+6` if they are aware that you are trying to hide a message.',
 	}),
+	// Erudite
+	[Feat.OtherworldlyFocus]: new FeatDefinition<void>({
+		key: Feat.OtherworldlyFocus,
+		name: 'Otherworldly Focus',
+		type: FeatType.Major,
+		sources: [ClassRole.Erudite],
+		level: 4,
+		description:
+			'Whenever you would spend [[Spirit_Point | SP]] to activate a wand or stave, you can spend [[Focus_Point | FP]] instead (the action still treated as [[Channeling]]).',
+	}),
+	[Feat.CognitiveResilience]: new FeatDefinition<void>({
+		key: Feat.CognitiveResilience,
+		name: 'Cognitive Resilience',
+		type: FeatType.Major,
+		sources: [ClassRole.Erudite],
+		level: 4,
+		description:
+			'Whenever you become [[Distracted]] while you are concentrating, you can spend 1 [[Focus_Point | FP]] to avoid losing your concentration. You still become [[Distracted]], which affects any future actions.',
+	}),
+	[Feat.IReadAboutThat]: new FeatDefinition<void>({
+		key: Feat.IReadAboutThat,
+		name: 'I Read About That',
+		type: FeatType.Minor,
+		sources: [ClassRole.Erudite],
+		level: 5,
+		description:
+			'While researching in substantial text collections (such as libraries), you can roll [[Knowledge]] instead of [[Serendipity]] when using the [[Write History]] action to establish that a specific answer is present.',
+	}),
 	//Disciple
 	[Feat.DivineChanneling]: new FeatDefinition<void>({
 		key: Feat.DivineChanneling,
@@ -1137,6 +1240,15 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		level: 3,
 		description:
 			'You are particularly knowledgeable about the specific rites, rituals, the nature of your contract, or whatever are the details of your connection with your Protean. You get a `+3` to [[Knowledge]] Checks related to these topics, and can spend `1` [[Focus_Point | FP]] to get an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).',
+	}),
+	[Feat.DivineInspiration]: new FeatDefinition<void>({
+		key: Feat.DivineInspiration,
+		name: 'Divine Inspiration',
+		type: FeatType.Major,
+		sources: [ClassRole.Disciple],
+		level: 4,
+		description:
+			'You can roll [[Devotion]] instead of [[Empathy]] when using the [[Inspire]] action; additionally, you can spend 1 [[Focus_Point | FP]] to gain a +3 [[Circumstance Modifier | CM]] to the Check.',
 	}),
 	//Adept
 	[Feat.FlurryOfBlows]: new FeatDefinition<void>({
@@ -1227,6 +1339,24 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		level: 2,
 		description:
 			"You can spend 1 [[Focus_Points | FP]] (and add the [[Concentrate]] trait, if it didn't have it already) when doing an action with the [[Channeling]] trait to get a +3 [[Circumstance Modifier | CM]].",
+	}),
+	[Feat.PiousModesty]: new FeatDefinition<void>({
+		key: Feat.PiousModesty,
+		name: 'Pious Modesty',
+		type: FeatType.Major,
+		sources: [ClassFlavor.Devout],
+		level: 4,
+		description:
+			'You gain a +6 [[Circumstance Modifier | CM]] to [[Resolve]] contested checks resisting the [[Demoralize]] or other actions attempting to cause the [[Distraught]] condition by targeting your self-esteem.',
+	}),
+	[Feat.FervorousDevotion]: new FeatDefinition<void>({
+		key: Feat.FervorousDevotion,
+		name: 'Fervorous Devotion',
+		type: FeatType.Minor,
+		sources: [ClassFlavor.Devout],
+		level: 5,
+		description:
+			'You can use your [[Devotion]] instead of [[Discipline]] when resisting the temptation of your **Vices**.',
 	}),
 	// Mixed - WIP
 	// Crusader
