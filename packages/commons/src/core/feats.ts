@@ -427,7 +427,7 @@ export enum Feat {
 	ExertAuthority = 'ExertAuthority',
 	DistributedShifts = 'DistributedShifts',
 	WeaponHoning = 'WeaponHoning',
-	Retaliation = 'Retaliation',
+	OpportuneRetaliation = 'OpportuneRetaliation',
 	KnowThyEnemy = 'KnowThyEnemy',
 	// Survivalist
 	Rage = 'Rage',
@@ -950,9 +950,9 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		description:
 			'You can spend a few hours and 1 [[Spirit_Point | SP]] to hone and carefully refine your weapon to your personal style, preferences and needs, creating a unique connection between you and it. This connection will last until the end of the day, as it fades away in your memory, but while it lasts, the weapon will concede an additional `+1` Equipment Modifier bonus to your [[Strike]] actions.',
 	}),
-	[Feat.Retaliation]: new FeatDefinition<void>({
-		key: Feat.Retaliation,
-		name: 'Retaliation',
+	[Feat.OpportuneRetaliation]: new FeatDefinition<void>({
+		key: Feat.OpportuneRetaliation,
+		name: 'Opportune Retaliation',
 		type: FeatType.Major,
 		sources: [ClassFlavor.Martial],
 		level: 4,
