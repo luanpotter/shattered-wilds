@@ -574,7 +574,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [StaticFeatSource.General],
 		level: 1,
 		description:
-			'You are particularly good at double-digit basic arithmetic in your head, and you can quickly estimate the number of items in a group with relative accuracy at only a glance.',
+			'You are particularly good at basic (up-to triple-digit) arithmetic in your head, and you can quickly estimate the number of items in a reasonably-sized group with relative accuracy at only a glance.',
 	}),
 	[Feat.UnreliableMemory]: new FeatDefinition<void>({
 		key: Feat.UnreliableMemory,
@@ -583,7 +583,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [StaticFeatSource.General],
 		level: 1,
 		description:
-			'You gain a `+6` [[Circumstance Modifier | CM]] to all [[Memory]] Checks attempting to recall information; however, your rolls will be done in secret by the DM, and if you fail, you will confidently remember incorrect (or half-correct) versions of the truth.',
+			'You gain a `+6` [[Circumstance Modifier | CM]] to all [[Memory]] Checks attempting to recall information; however, your rolls will be done in secret by the DM, and, if you fail, you will confidently remember incorrect (or half-correct) versions of the truth.',
 	}),
 	[Feat.GirthCompensation]: new FeatDefinition<void>({
 		key: Feat.GirthCompensation,
@@ -600,7 +600,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [StaticFeatSource.General],
 		level: 2,
 		description:
-			'Your strong connection to your Soul Realm allows you to expand your sense of hearing and smell. You can spend 1 [[Action_Point | AP]] and 2 [[Spirit_Point | SP]] to know the positions of any creature you are aware of within `6 Hexes` as well as if you could see them clearly. If they are explicitly trying to sneak, you get a +6 in your [[Perception]] Check.',
+			'Your strong connection to your Soul Realm allows you to expand your sense of hearing and smell. You can spend 1 [[Action_Point | AP]] and 2 [[Spirit_Point | SP]] to know the positions of any creature you are aware of within `6 Hexes` as well as if you could see them clearly. If they are explicitly trying to sneak, you get `+6` [[Circumstance Modifier | CM]] to your [[Perception]] Check.',
 	}),
 	[Feat.SkillSpecialization]: new FeatDefinition<Skills>({
 		key: Feat.SkillSpecialization,
@@ -761,7 +761,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [Upbringing.Tribal],
 		level: 0,
 		description:
-			'Pay 1 [[Heroism_Point | Heroism Point]] to reduce your [[Exhaustion]] _rank_ by 1 if you can directly tie a current task to your personal sense of duty to your tribe.',
+			'Pay 1 [[Heroism_Point | Heroism Point]] to reduce your [[Exhaustion]] _rank_ by 1 if you can directly tie a current task to your personal sense of duty towards your tribe.',
 	}),
 	[Feat.LightFeet]: new FeatDefinition<void>({
 		key: Feat.LightFeet,
@@ -805,7 +805,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassRole.Melee],
 		level: 3,
 		description:
-			'Upgrade the **Sweep Attack** to target any number of creatures; they no longer need to be adjacent to each other.',
+			'Upgrade the **Sweep Attack** to target any number of creatures; they no longer need to be adjacent to each other (they still need to be adjacent to you).',
 	}),
 	// Ranged
 	[Feat.RefinedAiming]: new FeatDefinition<void>({
@@ -815,7 +815,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassRole.Ranged],
 		level: 1,
 		description:
-			'When using the [[Aim]] action, you can increase the base range of your Ranged Weapon by your [[Finesse]] modifier.',
+			'When using the [[Aim]] action, you can increase the base range of your **Ranged Weapon** by your [[Finesse]] modifier.',
 	}),
 	[Feat.RapidFire]: new FeatDefinition<void>({
 		key: Feat.RapidFire,
@@ -841,7 +841,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassRole.Ranged],
 		level: 3,
 		description:
-			'If you have at least one hand free, you can spend 1 [[Focus_Point | FP]] to draw a Light Melee Weapon without spending an action.',
+			'If you have at least one hand free, you can spend 1 [[Focus_Point | FP]] to draw a **Light Melee Weapon** without spending an action.',
 	}),
 	[Feat.DoubleShot]: new FeatDefinition<void>({
 		key: Feat.DoubleShot,
@@ -854,12 +854,13 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 	}),
 	[Feat.SecondNatureShot]: new FeatDefinition<void>({
 		key: Feat.SecondNatureShot,
-		name: 'Second Nature Shot',
+		name: 'Second-Nature Shot',
 		type: FeatType.Major,
 		sources: [ClassRole.Ranged],
 		level: 4,
-		description:
-			'While performing a **Ranged Attack** with a weapon you are familiar with, you can spend 1 [[Spirit_Point | SP]] to ignore the [[Concentrate]] trait.',
+		description: `While performing a **Ranged Attack** with a weapon you are familiar with, you can spend 1 [[Spirit_Point | SP]] to ignore the [[Concentrate]] trait.
+
+			You are "familiar" with a weapon that you have used at least twice each in at least two encounters in at least two distinct days; or you can spend a 1 hour during your daily downtime for at least a few days getting accustomed to it - to DM's discretion.`,
 	}),
 	[Feat.BallisticReconstruction]: new FeatDefinition<void>({
 		key: Feat.BallisticReconstruction,
@@ -886,7 +887,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Major,
 		sources: [ClassRole.Tank],
 		level: 2,
-		description: 'You only need to spend 1 [[Action_Point | AP]] to perform a **Shield Bash** .',
+		description: 'You only need to spend 1 [[Action_Point | AP]] (instead of 2) to perform a **Shield Bash** .',
 	}),
 	[Feat.ArmorFamiliarity]: new FeatDefinition<void>({
 		key: Feat.ArmorFamiliarity,
@@ -912,7 +913,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassRole.Tank],
 		level: 4,
 		description:
-			'When a creature performs a **Ranged Attack** involving firing a projectile at a target other than you, you can use pay 1 [[Action_Point | AP]] to react by jumping at most `1 Hex` onto the path of the incoming projectile. The original target gains [[Cover_Greater | Greater Cover]] against the attack, but if it misses by no more than -1 Shifts, you are hit instead.',
+			'When a creature performs a **Ranged Attack** involving firing a projectile at a target other than you, you can pay 1 [[Action_Point | AP]] to react by jumping (at most `1 Hex`) onto the path of the incoming projectile. The original target gains [[Cover_Greater | Greater Cover]] against the attack, but if it misses by no more than -1 Shifts, you are hit instead.',
 	}),
 	[Feat.StoutMetabolism]: new FeatDefinition<void>({
 		key: Feat.StoutMetabolism,
@@ -930,7 +931,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassFlavor.Martial],
 		level: 1,
 		description:
-			'Spend 1 [[Action_Point | AP]] and 1 [[Spirit_Point | SP]] to authoritatively command an ally that can see and hear you clearly to perform a specific 1 [[Action_Point | AP]] action of your choice. The ally can choose to perform the action immediately without spending any AP if they wish.',
+			'Spend 1 [[Action_Point | AP]] and 1 [[Spirit_Point | SP]] to authoritatively command a creature that can see and hear you clearly to perform a specific 1 [[Action_Point | AP]] action of your choice. If the creature wishes to follow your command, they can perform the action immediately without spending the [[Action_Point | AP]].',
 	}),
 	[Feat.DistributedShifts]: new FeatDefinition<void>({
 		key: Feat.DistributedShifts,
@@ -948,7 +949,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassFlavor.Martial],
 		level: 3,
 		description:
-			'You can spend a few hours and 1 [[Spirit_Point | SP]] to hone and carefully refine your weapon to your personal style, preferences and needs, creating a unique connection between you and it. This connection will last until the end of the day, as it fades away in your memory, but while it lasts, the weapon will concede an additional `+1` Equipment Modifier bonus to your [[Strike]] actions.',
+			'You can spend an hour and 1 [[Spirit_Point | SP]] to hone and carefully refine your weapon to your personal style, preferences and needs, creating a unique connection between you and it. This connection will last until the end of the day, as it fades away in your memory, but while it lasts, the weapon will concede an additional `+1` Equipment Modifier bonus to your [[Strike]] actions. You can do this as a downtime activity during a [[Long Rest]].',
 	}),
 	[Feat.OpportuneRetaliation]: new FeatDefinition<void>({
 		key: Feat.OpportuneRetaliation,
@@ -1040,8 +1041,9 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Major,
 		sources: [ClassFlavor.Scoundrel],
 		level: 2,
-		description:
-			'If you would inflict additional damage through a **Basic Strike** to an enemy via **Crit Shifts**, you can instead spend any number of [[Spirit_Point | SP]] (up to your level) to inflict that many additional [[Vitality_Point | VP]] of damage. So for example if you get 2 **Shifts** for an attack (normal damage of 3), you can spend 2 [[Spirit_Point | SP]] to inflict 2 additional [[Vitality_Point | VP]] of damage (total damage of 5).',
+		description: `If you would inflict additional damage through a **Basic Strike** to an enemy via **Crit Shifts**, you can instead spend any number of [[Spirit_Point | SP]] (up to your level) to inflict that many additional [[Vitality_Point | VP]] of damage.
+
+			For example, if you get 2 **Shifts** for an attack (normal damage of 3), you can spend 2 [[Spirit_Point | SP]] to inflict 2 additional [[Vitality_Point | VP]] of damage (total damage of 5).`,
 	}),
 	[Feat.BeginnersLuck]: new FeatDefinition<void>({
 		key: Feat.BeginnersLuck,
@@ -1322,7 +1324,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassFlavor.Devout],
 		level: 2,
 		description:
-			'Unlocks Divine Channeling for non-Adepts; this probably represent a much more indirect connection to some higher (possibly unknown) force. See [Rules: Divine](/rules/divine) for details on how the **Divine** magic system works.',
+			'Unlocks **Divine Channeling** for non-Adepts; this probably represent a much more indirect connection to some higher (possibly unknown) force. See [Rules: Divine](/rules/divine) for details on how the **Divine** magic system works.',
 	}),
 	[Feat.EffortlessAttuning]: new FeatDefinition<void>({
 		key: Feat.EffortlessAttuning,
@@ -1331,7 +1333,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassFlavor.Devout],
 		level: 1,
 		description:
-			'Whenever you would spend [[Spirit_Point | Spirit Points]] to use an **Imbued Item** that would otherwise not require an [[Attunement]] Check, you can make an [[Attunement]] Check DC 15 to spend one less [[Spirit_Point | SP]] (min 0).',
+			'Whenever you would spend [[Spirit_Point | Spirit Points]] to use an **Imbued Item** that would otherwise not require an [[Attunement]] Check, you can make an [[Attunement]] Check (DC 15) to spend one (plus any **Shifts**) less [[Spirit_Point | SP]] (min 0).',
 	}),
 	[Feat.FocusedChanneling]: new FeatDefinition<void>({
 		key: Feat.FocusedChanneling,
@@ -1369,7 +1371,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassFlavor.Crusader],
 		level: 1,
 		description:
-			'You can spend 2 [[Spirit_Point | SP]] when striking with a weapon to get a +3 [[Circumstance Modifier | CM]] as you channel raw power into it, making it acquire a distinct glow as you lift it to strike.',
+			'You can spend 2 [[Spirit_Point | SP]] when striking with a weapon to get a `+3` [[Circumstance Modifier | CM]] as you channel raw power into it, making it acquire a distinct glow as you lift it to strike. The attack gains the [[Channel]] trait.',
 	}),
 	[Feat.SpiritualArmor]: new FeatDefinition<void>({
 		key: Feat.SpiritualArmor,
@@ -1387,7 +1389,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassFlavor.Crusader],
 		level: 3,
 		description:
-			"If you witness someone performing an action that directly contradicts your (or your Protean's) **Tenets**, you get a `+6` to any [[CHA]]-based Checks attempting to stop or dissuade this behavior (such as intimidation, persuasion, deception, etc).",
+			"If you witness someone performing an action that directly contradicts your (or your Protean's) **Tenets**, you get a `+3` to any [[CHA]]-based Checks attempting to stop or dissuade this behavior (such as intimidation, persuasion, deception, etc), and can spend `1` [[Focus_Point | FP]] to get an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).",
 	}),
 };
 
