@@ -855,7 +855,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 	[Feat.SecondNatureShot]: new FeatDefinition<void>({
 		key: Feat.SecondNatureShot,
 		name: 'Second Nature Shot',
-		type: FeatType.Minor,
+		type: FeatType.Major,
 		sources: [ClassRole.Ranged],
 		level: 4,
 		description:
@@ -912,7 +912,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassRole.Tank],
 		level: 4,
 		description:
-			'When a creature performs a **Ranged Attack** involving firing a projectile at a target other than you, you can use pay 1 [[Action_Point | AP]] to react by jumping at most `1 Hex` onto the path of the incoming projectile. The original target gains [Cover_Greater | Greater Cover] against the attack, but if it misses by no more than -1 Shifts, you are hit instead.',
+			'When a creature performs a **Ranged Attack** involving firing a projectile at a target other than you, you can use pay 1 [[Action_Point | AP]] to react by jumping at most `1 Hex` onto the path of the incoming projectile. The original target gains [[Cover_Greater | Greater Cover]] against the attack, but if it misses by no more than -1 Shifts, you are hit instead.',
 	}),
 	[Feat.StoutMetabolism]: new FeatDefinition<void>({
 		key: Feat.StoutMetabolism,
@@ -1013,7 +1013,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		level: 4,
 		description: `When using the [[Rage]] action, you can spend additional [[Spirit_Point | SPs]] to keep more of your [[Focus_Point | FP]]: for each additional [[Spirit_Point | SP]] you spend, you can keep an additional [[Focus_Point | FP]].
 
-			For example you can spend 1 [[Action_Point | AP]] and 3 [[Spirit_Point | SP]] in total to become **Enraged** while keeping 3 [[Focus_Point | FP]].`,
+			For example, you can spend 1 [[Action_Point | AP]] and 3 [[Spirit_Point | SP]] in total to become **Enraged** while keeping 3 [[Focus_Point | FP]].`,
 	}),
 	// Scoundrel
 	[Feat.FancyFootwork]: new FeatDefinition<void>({
@@ -1186,7 +1186,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassRole.Erudite],
 		level: 4,
 		description:
-			'Whenever you would spend [[Spirit_Point | SP]] to activate a wand or stave, you can spend [[Focus_Point | FP]] instead (the action still treated as [[Channeling]]).',
+			'Whenever you would spend [[Spirit_Point | SP]] to activate a wand or stave, you can spend [[Focus_Point | FP]] instead (the action still has the [[Channel]] trait).',
 	}),
 	[Feat.CognitiveResilience]: new FeatDefinition<void>({
 		key: Feat.CognitiveResilience,
@@ -1204,7 +1204,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassRole.Erudite],
 		level: 5,
 		description:
-			'While researching in substantial text collections (such as libraries), you can roll [[Knowledge]] instead of [[Serendipity]] when using the [[Write History]] action to establish that a specific answer is present.',
+			'While researching within a significant body of text (such as libraries), you can roll [[Knowledge]] instead of [[Serendipity]] when using the [[Write History]] action to establish that a specific answer can be encountered.',
 	}),
 	//Disciple
 	[Feat.DivineChanneling]: new FeatDefinition<void>({
@@ -1340,7 +1340,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassFlavor.Devout],
 		level: 2,
 		description:
-			"You can spend 1 [[Focus_Points | FP]] (and add the [[Concentrate]] trait, if it didn't have it already) when doing an action with the [[Channeling]] trait to get a +3 [[Circumstance Modifier | CM]].",
+			"You can spend 1 [[Focus_Points | FP]] (and add the [[Concentrate]] trait, if it didn't have it already) when doing an action with the [[Channel]] trait to get a +3 [[Circumstance Modifier | CM]].",
 	}),
 	[Feat.PiousModesty]: new FeatDefinition<void>({
 		key: Feat.PiousModesty,
