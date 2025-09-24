@@ -605,11 +605,11 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 	[Feat.SkillSpecialization]: new FeatDefinition<Skills>({
 		key: Feat.SkillSpecialization,
 		name: 'Skill Specialization',
-		type: FeatType.Major,
+		type: FeatType.Minor,
 		sources: [StaticFeatSource.General],
-		level: 4,
+		level: 5,
 		description:
-			'You have specialized into one of the three [[Skill | Skills]] for a given [[Attribute]]. You get +2 in that Skill and -2 on the other two.',
+			'You have specialized into one of the three [[Skill | Skills]] for a given [[Attribute]]. You get +1 in that Skill and -1 on the other two.',
 		parameter: {
 			id: 'skill',
 			name: 'Skill',
@@ -619,7 +619,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		effects: info => {
 			const skill = StatType.fromName(info.parameter);
 			const siblings = StatType.skills.filter(s => s !== skill && s.parent === skill.parent);
-			return [new FeatStatModifier(skill, Bonus.of(2)), ...siblings.map(s => new FeatStatModifier(s, Bonus.of(-2)))];
+			return [new FeatStatModifier(skill, Bonus.of(1)), ...siblings.map(s => new FeatStatModifier(s, Bonus.of(-1)))];
 		},
 		fullDescription: info => {
 			const skill = StatType.fromName(info.parameter);
@@ -868,7 +868,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassRole.Ranged],
 		level: 5,
 		description:
-			'You can analyze the undisturbed remains of a projectile (such as an arrow or dart) and its impact site to determine the ballistic trajectory taken, including the approximate direction and distance of origin, as well as the nature of the weapon used,with reliable accuracy.',
+			'You can analyze the undisturbed remains of a projectile (such as an arrow or dart) and its impact site to determine the ballistic trajectory taken, including the approximate direction and distance of origin, as well as the nature of the weapon used, with reliable accuracy.',
 	}),
 	// Tank
 	[Feat.ImprovedTaunt]: new FeatDefinition<void>({
