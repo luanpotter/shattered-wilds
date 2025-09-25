@@ -482,6 +482,7 @@ export enum Feat {
 	FocusedChanneling = 'FocusedChanneling',
 	PiousModesty = 'PiousModesty',
 	FervorousDevotion = 'FervorousDevotion',
+	PersonalizedBlessing = 'PersonalizedBlessing',
 	// Crusader
 	DivineSmite = 'DivineSmite',
 	SpiritualArmor = 'SpiritualArmor',
@@ -1361,6 +1362,15 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		level: 5,
 		description:
 			'You can use your [[Devotion]] instead of [[Discipline]] when resisting the temptation of your **Vices**.',
+	}),
+	[Feat.PersonalizedBlessing]: new FeatDefinition<void>({
+		key: Feat.PersonalizedBlessing,
+		name: 'Personalized Blessing',
+		type: FeatType.Major,
+		sources: [ClassFlavor.Devout],
+		level: 5,
+		description:
+			'When [Divine Channeling](/rules/divine) with the intent of [[Blessed | blessing]] others, you can pay 1 [[Focus_Point | FP]] to include a personalized inspirational speech related to the targets; while their are [[Blessed]] by you, they can choose a **Skill** of your choice (related to your speech) other than [[Fortune]] for their free [[Luck Die]].',
 	}),
 	// Mixed - WIP
 	// Crusader
