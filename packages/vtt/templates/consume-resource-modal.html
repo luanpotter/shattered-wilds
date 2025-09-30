@@ -6,34 +6,34 @@
 	<div class="sw-consume-modal-content">
 		<div class="sw-consume-resources-list">
 			{{#each resources}}
-				<div class="sw-consume-resource-item" data-resource-index="{{@index}}">
-					<div class="sw-consume-resource-info">
-						<div class="sw-consume-resource-name {{#if insufficient}}insufficient{{/if}}">
-							{{displayName}}
-						</div>
-						<div class="sw-consume-resource-available">
-							{{current}}/{{max}} available
-						</div>
+			<div class="sw-consume-resource-item" data-resource-index="{{@index}}">
+				<div class="sw-consume-resource-info">
+					<div class="sw-consume-resource-name {{#if insufficient}}insufficient{{/if}}">
+						{{displayName}}
 					</div>
-
-					<div class="sw-consume-resource-controls">
-						{{#if variable}}
-							<button type="button" class="sw-consume-adjust-btn minus" data-action="adjust-cost" data-index="{{@index}}" data-delta="-1" {{#if (eq adjustedAmount 0)}}disabled{{/if}}>
-								<i class="fas fa-minus"></i>
-							</button>
-						{{/if}}
-
-						<div class="sw-consume-cost-amount {{#if insufficient}}insufficient{{/if}}">
-							{{adjustedAmount}}
-						</div>
-
-						{{#if variable}}
-							<button type="button" class="sw-consume-adjust-btn plus" data-action="adjust-cost" data-index="{{@index}}" data-delta="1">
-								<i class="fas fa-plus"></i>
-							</button>
-						{{/if}}
+					<div class="sw-consume-resource-available">
+						{{current}}/{{max}} available
 					</div>
 				</div>
+
+				<div class="sw-consume-resource-controls">
+					{{#if variable}}
+					<button type="button" class="sw-consume-adjust-btn minus" data-action="adjust-cost" data-index="{{@index}}" data-delta="-1" {{#if (eq adjustedAmount 0)}}disabled{{/if}}>
+						<i class="fas fa-minus"></i>
+					</button>
+					{{/if}}
+
+					<div class="sw-consume-cost-amount {{#if insufficient}}insufficient{{/if}}">
+						{{adjustedAmount}}
+					</div>
+
+					{{#if variable}}
+					<button type="button" class="sw-consume-adjust-btn plus" data-action="adjust-cost" data-index="{{@index}}" data-delta="1">
+						<i class="fas fa-plus"></i>
+					</button>
+					{{/if}}
+				</div>
+			</div>
 			{{/each}}
 		</div>
 	</div>

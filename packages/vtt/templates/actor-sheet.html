@@ -2,103 +2,103 @@
 	<form class="actor-sheet">
 		<section class="sheet-body">
 			{{#if characterSheet}}
-				<div class="character-info">
-					<div class="character-header">
-						<div class="character-title">
-							<strong>{{characterSheet.name}}</strong> - {{characterSheet.race.primaryRace}}{{#if characterSheet.race.halfRace}} / {{characterSheet.race.halfRace}}{{/if}} {{characterSheet.characterClass.characterClass}} (Level {{characterSheet.level}})
-						</div>
-						<div class="header-controls">
-							<button type="button" data-action="sw-import"><i class="fas fa-upload"></i> Import</button>
-							<button type="button" data-action="sw-export"><i class="fas fa-download"></i> Export</button>
-						</div>
+			<div class="character-info">
+				<div class="character-header">
+					<div class="character-title">
+						<strong>{{characterSheet.name}}</strong> - {{characterSheet.race.primaryRace}}{{#if characterSheet.race.halfRace}} / {{characterSheet.race.halfRace}}{{/if}} {{characterSheet.characterClass.characterClass}} (Level {{characterSheet.level}})
 					</div>
-					
-					<!-- Derived Stats Row -->
-					{{#if derivedStatsData}}
-						<div class="derived-stats-row">
-							{{#each derivedStatsData}}
-								<div class="derived-stat-item">
-									<span class="derived-stat-label">{{name}}</span>
-									{{#if clickable}}
-										<div class="derived-stat-value clickable" data-action="roll-derived-stat" data-derived-stat="{{key}}" title="{{description}} • Click for advanced options • Shift+Click for quick roll">
-											{{value}}
-											<i class="fas fa-dice-d12 dice-icon"></i>
-										</div>
-									{{else}}
-										<span class="derived-stat-value" title="{{description}}">{{value}}</span>
-									{{/if}}
-								</div>
-							{{/each}}
-						</div>
-					{{/if}}
-					
-					<div class="resources-row">
-						{{#each resourcesArray}}
-							<div class="resource-control">
-								<span class="resource-label" title="{{name}}">{{shortName}}</span>
-								<div class="resource-buttons">
-									<button type="button" class="resource-btn minus" data-action="resource-change" data-resource="{{key}}" data-delta="-1">
-										<i class="fas fa-minus"></i>
-									</button>
-									<span class="resource-value">{{current}}/{{max}}</span>
-									<button type="button" class="resource-btn plus" data-action="resource-change" data-resource="{{key}}" data-delta="1">
-										<i class="fas fa-plus"></i>
-									</button>
-								</div>
-							</div>
-						{{/each}}
+					<div class="header-controls">
+						<button type="button" data-action="sw-import"><i class="fas fa-upload"></i> Import</button>
+						<button type="button" data-action="sw-export"><i class="fas fa-download"></i> Export</button>
 					</div>
-
-					<!-- Exhaustion and Rest Controls -->
-					<div class="exhaustion-rest-row">
-						<div class="exhaustion-control">
-							<label title="Exhaustion Ranks">Exhaustion</label>
-							<button type="button" class="exhaustion-btn minus" data-action="exhaustion-change" data-delta="-1" {{#unless exhaustionData.hasRanks}}disabled{{/unless}}>
+				</div>
+					
+				<!-- Derived Stats Row -->
+				{{#if derivedStatsData}}
+				<div class="derived-stats-row">
+					{{#each derivedStatsData}}
+					<div class="derived-stat-item">
+						<span class="derived-stat-label">{{name}}</span>
+						{{#if clickable}}
+						<div class="derived-stat-value clickable" data-action="roll-derived-stat" data-derived-stat="{{key}}" title="{{description}} • Click for advanced options • Shift+Click for quick roll">
+							{{value}}
+							<i class="fas fa-dice-d12 dice-icon"></i>
+						</div>
+						{{else}}
+						<span class="derived-stat-value" title="{{description}}">{{value}}</span>
+						{{/if}}
+					</div>
+					{{/each}}
+				</div>
+				{{/if}}
+					
+				<div class="resources-row">
+					{{#each resourcesArray}}
+					<div class="resource-control">
+						<span class="resource-label" title="{{name}}">{{shortName}}</span>
+						<div class="resource-buttons">
+							<button type="button" class="resource-btn minus" data-action="resource-change" data-resource="{{key}}" data-delta="-1">
 								<i class="fas fa-minus"></i>
 							</button>
-							<span class="exhaustion-value">{{exhaustionData.rank}}</span>
-							<button type="button" class="exhaustion-btn plus" data-action="exhaustion-change" data-delta="1">
+							<span class="resource-value">{{current}}/{{max}}</span>
+							<button type="button" class="resource-btn plus" data-action="resource-change" data-resource="{{key}}" data-delta="1">
 								<i class="fas fa-plus"></i>
 							</button>
 						</div>
-						<div class="exhaustion-modifier">
-							<span class="modifier-text">{{exhaustionData.modifierText}}</span>
-							<span class="modifier-note">(must apply manually!)</span>
-						</div>
-						<div class="rest-controls">
-							<button type="button" class="rest-btn short-rest" data-action="short-rest" title="Take a short rest (refill all except heroism, +1 exhaustion)">
-								<i class="fas fa-clock"></i> Short Rest
-							</button>
-							<button type="button" class="rest-btn" data-action="long-rest" title="Take a long rest (refill all except heroism, +1 heroism, -3 exhaustion)">
-								<i class="fas fa-bed"></i> Long Rest
-							</button>
-						</div>
 					</div>
-				</div>
-
-				<!-- Conditions Tracker -->
-				<div class="conditions-row">
-					{{#each conditionsData}}
-						<label class="condition-item" title="{{description}}">
-							<input type="checkbox" 
-								data-action="toggle-condition" 
-								data-condition="{{key}}" 
-								{{#if active}}checked{{/if}}>
-							<span class="condition-icon">
-								<i class="{{icon}}"></i>
-							</span>
-							<span class="condition-name">{{name}}</span>
-						</label>
 					{{/each}}
 				</div>
 
-				<!-- Tab Navigation -->
-				<div class="tabs-container">
-					<div class="tab-buttons">
-						<button type="button" class="tab-button {{#if isStatsTabActive}}active{{/if}}" data-tab="stats">
-							<i class="fas fa-sitemap"></i> Stats
+				<!-- Exhaustion and Rest Controls -->
+				<div class="exhaustion-rest-row">
+					<div class="exhaustion-control">
+						<label title="Exhaustion Ranks">Exhaustion</label>
+						<button type="button" class="exhaustion-btn minus" data-action="exhaustion-change" data-delta="-1" {{#unless exhaustionData.hasRanks}}disabled{{/unless}}>
+							<i class="fas fa-minus"></i>
 						</button>
-											<button type="button" class="tab-button {{#if isFeatsTabActive}}active{{/if}}" data-tab="feats">
+						<span class="exhaustion-value">{{exhaustionData.rank}}</span>
+						<button type="button" class="exhaustion-btn plus" data-action="exhaustion-change" data-delta="1">
+							<i class="fas fa-plus"></i>
+						</button>
+					</div>
+					<div class="exhaustion-modifier">
+						<span class="modifier-text">{{exhaustionData.modifierText}}</span>
+						<span class="modifier-note">(must apply manually!)</span>
+					</div>
+					<div class="rest-controls">
+						<button type="button" class="rest-btn short-rest" data-action="short-rest" title="Take a short rest (refill all except heroism, +1 exhaustion)">
+							<i class="fas fa-clock"></i> Short Rest
+						</button>
+						<button type="button" class="rest-btn" data-action="long-rest" title="Take a long rest (refill all except heroism, +1 heroism, -3 exhaustion)">
+							<i class="fas fa-bed"></i> Long Rest
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Conditions Tracker -->
+			<div class="conditions-row">
+				{{#each conditionsData}}
+				<label class="condition-item" title="{{description}}">
+					<input type="checkbox" 
+						data-action="toggle-condition" 
+						data-condition="{{key}}" 
+						{{#if active}}checked{{/if}}>
+					<span class="condition-icon">
+						<i class="{{icon}}"></i>
+					</span>
+					<span class="condition-name">{{name}}</span>
+				</label>
+				{{/each}}
+			</div>
+
+			<!-- Tab Navigation -->
+			<div class="tabs-container">
+				<div class="tab-buttons">
+					<button type="button" class="tab-button {{#if isStatsTabActive}}active{{/if}}" data-tab="stats">
+						<i class="fas fa-sitemap"></i> Stats
+					</button>
+					<button type="button" class="tab-button {{#if isFeatsTabActive}}active{{/if}}" data-tab="feats">
 						<i class="fas fa-star"></i> Feats
 					</button>
 					<button type="button" class="tab-button {{#if isEquipmentTabActive}}active{{/if}}" data-tab="equipment">
@@ -116,206 +116,206 @@
 					<button type="button" class="tab-button {{#if isDebugTabActive}}active{{/if}}" data-tab="debug">
 						<i class="fas fa-bug"></i> Debug
 					</button>
-					</div>
+				</div>
 
-					<!-- Tab Content -->
-					<div class="tab-content">
-						<!-- Stats Tab -->
-						<div class="tab-panel {{#if isStatsTabActive}}active{{/if}}" data-tab-panel="stats">
-							{{#if statTreeData}}
-								<div class="stat-tree-grid">
-									<!-- Level Section -->
-									<div class="level-section">
-																	<div class="level-display">
-								<span class="level-label">Level:</span>
-								<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="Level" data-modifier="{{statTreeData.level.modifier.value.value}}" title="Click for advanced options • Shift+Click for quick roll">
-									<span class="points-circle" title="{{statTreeData.level.tooltip}}">{{statTreeData.level.points}}</span>
-									<span class="modifier-value" title="{{statTreeData.level.tooltip}}">
-										{{statTreeData.level.modifier.value.description}}
-										{{#if statTreeData.level.hasWarning}}
+				<!-- Tab Content -->
+				<div class="tab-content">
+					<!-- Stats Tab -->
+					<div class="tab-panel {{#if isStatsTabActive}}active{{/if}}" data-tab-panel="stats">
+						{{#if statTreeData}}
+						<div class="stat-tree-grid">
+							<!-- Level Section -->
+							<div class="level-section">
+								<div class="level-display">
+									<span class="level-label">Level:</span>
+									<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="Level" data-modifier="{{statTreeData.level.modifier.value.value}}" title="Click for advanced options • Shift+Click for quick roll">
+										<span class="points-circle" title="{{statTreeData.level.tooltip}}">{{statTreeData.level.points}}</span>
+										<span class="modifier-value" title="{{statTreeData.level.tooltip}}">
+											{{statTreeData.level.modifier.value.description}}
+											{{#if statTreeData.level.hasWarning}}
 											<i class="stat-icon warning fas fa-exclamation-triangle" title="{{statTreeData.level.tooltip}}"></i>
-										{{else}}
+											{{else}}
 											{{#if statTreeData.level.hasTooltip}}
-												<i class="stat-icon info fas fa-info-circle" title="{{statTreeData.level.tooltip}}"></i>
+											<i class="stat-icon info fas fa-info-circle" title="{{statTreeData.level.tooltip}}"></i>
 											{{/if}}
-										{{/if}}
-									</span>
-									<i class="fas fa-dice-d12 dice-icon"></i>
+											{{/if}}
+										</span>
+										<i class="fas fa-dice-d12 dice-icon"></i>
+									</div>
 								</div>
 							</div>
-									</div>
 
-									<!-- Main Grid Layout -->
-									<div class="stat-grid-container">
-										<!-- Vertical Realm Labels -->
-										<div class="realm-labels">
-																					{{#each statTreeData.realms}}
-											<div class="realm-label {{type.name}}">
-												<div class="realm-name">{{type.name}}</div>
+							<!-- Main Grid Layout -->
+							<div class="stat-grid-container">
+								<!-- Vertical Realm Labels -->
+								<div class="realm-labels">
+									{{#each statTreeData.realms}}
+									<div class="realm-label {{type.name}}">
+										<div class="realm-name">{{type.name}}</div>
+										<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="{{type.name}}" data-modifier="{{modifier.value.value}}" title="Click for advanced options • Shift+Click for quick {{type.name}} roll">
+											<span class="points-circle" title="{{tooltip}}">{{points}}</span>
+											<span class="modifier-value" title="{{tooltip}}">
+												{{modifier.value.description}}
+												{{#if hasWarning}}
+												<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
+												{{else}}
+												{{#if hasTooltip}}
+												<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
+												{{/if}}
+												{{/if}}
+											</span>
+											<i class="fas fa-dice-d12 dice-icon"></i>
+										</div>
+									</div>
+									{{/each}}
+								</div>
+
+								<!-- 3x3 Attribute Grid -->
+								<div class="attributes-grid">
+									{{#each statTreeData.realms}}
+									{{#each attributes}}
+									<div class="attribute-panel">
+										<!-- Attribute Header -->
+										<div class="attribute-header">
+											<span class="attribute-name">{{type.name}}</span>
+											<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="{{type.name}}" data-modifier="{{modifier.value.value}}" title="Click for advanced options • Shift+Click for quick {{type.name}} roll">
+												<span class="points-circle" title="{{tooltip}}">{{points}}</span>
+												<span class="modifier-value" title="{{tooltip}}">
+													{{modifier.value.description}}
+													{{#if hasWarning}}
+													<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
+													{{else}}
+													{{#if hasTooltip}}
+													<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
+													{{/if}}
+													{{/if}}
+												</span>
+												<i class="fas fa-dice-d12 dice-icon"></i>
+											</div>
+										</div>
+
+										<!-- Skills List -->
+										<div class="skills-list">
+											{{#each skills}}
+											<div class="skill-row">
+												<span class="skill-name">{{type.name}}</span>
 												<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="{{type.name}}" data-modifier="{{modifier.value.value}}" title="Click for advanced options • Shift+Click for quick {{type.name}} roll">
 													<span class="points-circle" title="{{tooltip}}">{{points}}</span>
 													<span class="modifier-value" title="{{tooltip}}">
 														{{modifier.value.description}}
 														{{#if hasWarning}}
-															<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
+														<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
 														{{else}}
-															{{#if hasTooltip}}
-																<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
-															{{/if}}
+														{{#if hasTooltip}}
+														<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
+														{{/if}}
 														{{/if}}
 													</span>
 													<i class="fas fa-dice-d12 dice-icon"></i>
 												</div>
 											</div>
-										{{/each}}
-										</div>
-
-										<!-- 3x3 Attribute Grid -->
-										<div class="attributes-grid">
-											{{#each statTreeData.realms}}
-												{{#each attributes}}
-													<div class="attribute-panel">
-														<!-- Attribute Header -->
-														<div class="attribute-header">
-															<span class="attribute-name">{{type.name}}</span>
-															<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="{{type.name}}" data-modifier="{{modifier.value.value}}" title="Click for advanced options • Shift+Click for quick {{type.name}} roll">
-																<span class="points-circle" title="{{tooltip}}">{{points}}</span>
-																<span class="modifier-value" title="{{tooltip}}">
-																	{{modifier.value.description}}
-																	{{#if hasWarning}}
-																		<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
-																	{{else}}
-																		{{#if hasTooltip}}
-																			<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
-																		{{/if}}
-																	{{/if}}
-																</span>
-																<i class="fas fa-dice-d12 dice-icon"></i>
-															</div>
-														</div>
-
-														<!-- Skills List -->
-														<div class="skills-list">
-															{{#each skills}}
-																<div class="skill-row">
-																														<span class="skill-name">{{type.name}}</span>
-													<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="{{type.name}}" data-modifier="{{modifier.value.value}}" title="Click for advanced options • Shift+Click for quick {{type.name}} roll">
-														<span class="points-circle" title="{{tooltip}}">{{points}}</span>
-														<span class="modifier-value" title="{{tooltip}}">
-															{{modifier.value.description}}
-															{{#if hasWarning}}
-																<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
-															{{else}}
-																{{#if hasTooltip}}
-																	<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
-																{{/if}}
-															{{/if}}
-														</span>
-														<i class="fas fa-dice-d12 dice-icon"></i>
-													</div>
-																</div>
-															{{/each}}
-														</div>
-													</div>
-												{{/each}}
 											{{/each}}
 										</div>
 									</div>
+									{{/each}}
+									{{/each}}
 								</div>
-							{{/if}}
+							</div>
 						</div>
+						{{/if}}
+					</div>
 
-						<!-- Feats Tab -->
-						<div class="tab-panel {{#if isFeatsTabActive}}active{{/if}}" data-tab-panel="feats">
-							{{#if featsData}}
-								{{#if featsData.isEmpty}}
-									<div class="feats-empty">
-										<p>No feats assigned yet.</p>
-									</div>
-								{{else}}
-									{{#if featsData.warnings.length}}
-										<div class="feats-warnings">
-											<i class="fas fa-exclamation-triangle"></i>
-											<span>{{featsData.warnings.length}} warnings</span>
+					<!-- Feats Tab -->
+					<div class="tab-panel {{#if isFeatsTabActive}}active{{/if}}" data-tab-panel="feats">
+						{{#if featsData}}
+						{{#if featsData.isEmpty}}
+						<div class="feats-empty">
+							<p>No feats assigned yet.</p>
+						</div>
+						{{else}}
+						{{#if featsData.warnings.length}}
+						<div class="feats-warnings">
+							<i class="fas fa-exclamation-triangle"></i>
+							<span>{{featsData.warnings.length}} warnings</span>
+						</div>
+						{{/if}}
+
+						<div class="feats-content">
+							{{#each featsData.featsOrSlotsByLevel}}
+							<div class="feat-level">
+								<h3 class="feat-level-title">Level {{level}}</h3>
+								<div class="feats-grid {{#if (eq featsOrSlots.length 1)}}single-feat{{/if}}">
+									{{#each featsOrSlots}}
+									<div class="feat-box {{#if warning}}warning{{/if}} {{#if isEmpty}}empty{{/if}}">
+										<div class="feat-header">
+											<span class="feat-name">
+												{{#if info}}
+												{{info.name}}
+												{{else}}
+												{{#if slot}}
+												Empty {{slot.name}}
+												{{else}}
+												Unknown Feat
+												{{/if}}
+												{{/if}}
+											</span>
+											{{#if warning}}
+											<i class="fas fa-exclamation-triangle feat-warning-icon" title="{{warning}}"></i>
+											{{/if}}
 										</div>
-									{{/if}}
-
-									<div class="feats-content">
-										{{#each featsData.featsOrSlotsByLevel}}
-											<div class="feat-level">
-												<h3 class="feat-level-title">Level {{level}}</h3>
-												<div class="feats-grid {{#if (eq featsOrSlots.length 1)}}single-feat{{/if}}">
-													{{#each featsOrSlots}}
-														<div class="feat-box {{#if warning}}warning{{/if}} {{#if isEmpty}}empty{{/if}}">
-															<div class="feat-header">
-																<span class="feat-name">
-																	{{#if info}}
-																		{{info.name}}
-																	{{else}}
-																		{{#if slot}}
-																			Empty {{slot.name}}
-																		{{else}}
-																			Unknown Feat
-																		{{/if}}
-																	{{/if}}
-																</span>
-																{{#if warning}}
-																	<i class="fas fa-exclamation-triangle feat-warning-icon" title="{{warning}}"></i>
-																{{/if}}
-															</div>
-															{{#if info}}
-																{{#if info.feat}}
-																	{{#if info.feat.description}}
-																		<div class="feat-description">{{{processDescription info.description}}}</div>
-																	{{/if}}
-																{{/if}}
-															{{/if}}
-														</div>
-													{{/each}}
-												</div>
-											</div>
-										{{/each}}
+										{{#if info}}
+										{{#if info.feat}}
+										{{#if info.feat.description}}
+										<div class="feat-description">{{{processDescription info.description}}}</div>
+										{{/if}}
+										{{/if}}
+										{{/if}}
 									</div>
-								{{/if}}
-							{{else}}
-								<div class="feats-loading">
-									<p>Loading feats...</p>
+									{{/each}}
 								</div>
-							{{/if}}
+							</div>
+							{{/each}}
 						</div>
+						{{/if}}
+						{{else}}
+						<div class="feats-loading">
+							<p>Loading feats...</p>
+						</div>
+						{{/if}}
+					</div>
 
-											<!-- Equipment Tab -->
+					<!-- Equipment Tab -->
 					<div class="tab-panel {{#if isEquipmentTabActive}}active{{/if}}" data-tab-panel="equipment">
 						{{#if equipmentData}}
-							{{#if equipmentData.isEmpty}}
-								<div class="equipment-empty">
-									<p>No equipment found.</p>
+						{{#if equipmentData.isEmpty}}
+						<div class="equipment-empty">
+							<p>No equipment found.</p>
+						</div>
+						{{else}}
+						<div class="equipment-list">
+							{{#each equipmentData.items}}
+							<div class="equipment-item" data-item-id="{{@index}}">
+								<div class="equipment-header" data-action="toggle-equipment" data-item-index="{{@index}}">
+									<span class="equipment-name">{{{headerDisplay}}}</span>
+									<span class="equipment-type">{{itemType}}</span>
+									<i class="fas fa-chevron-down equipment-toggle-icon"></i>
 								</div>
-							{{else}}
-															<div class="equipment-list">
-								{{#each equipmentData.items}}
-									<div class="equipment-item" data-item-id="{{@index}}">
-										<div class="equipment-header" data-action="toggle-equipment" data-item-index="{{@index}}">
-											<span class="equipment-name">{{{headerDisplay}}}</span>
-											<span class="equipment-type">{{itemType}}</span>
-											<i class="fas fa-chevron-down equipment-toggle-icon"></i>
-										</div>
-											<div class="equipment-details" style="display: none;">
-												{{#if description}}
-													<div class="equipment-description">{{description}}</div>
-												{{/if}}
+								<div class="equipment-details" style="display: none;">
+									{{#if description}}
+									<div class="equipment-description">{{description}}</div>
+									{{/if}}
 												
-												{{#if weaponModes}}
-													<div class="weapon-modes">
-														<h4>Attack Modes</h4>
-																							{{#each weaponModes}}
+									{{#if weaponModes}}
+									<div class="weapon-modes">
+										<h4>Attack Modes</h4>
+										{{#each weaponModes}}
 										<div class="weapon-mode">
 											<div class="weapon-mode-info">
 												<span class="weapon-mode-type">{{type}}</span>
 												<span class="weapon-mode-bonus">{{bonus}}</span>
 												<span class="weapon-mode-primary">{{primaryAttribute}}</span>
 												{{#if range}}
-													<span class="weapon-mode-range">Range: {{range}}</span>
+												<span class="weapon-mode-range">Range: {{range}}</span>
 												{{/if}}
 											</div>
 											<button type="button" class="weapon-attack-btn" 
@@ -328,318 +328,318 @@
 												<i class="fas fa-dice-d12"></i> {{attackStat}} Check
 											</button>
 										</div>
-									{{/each}}
-													</div>
-												{{/if}}
+										{{/each}}
+									</div>
+									{{/if}}
 												
-												{{#if armorInfo}}
-													<div class="armor-info">
-														<div class="armor-detail"><strong>Type:</strong> {{armorInfo.type}}</div>
-														<div class="armor-detail"><strong>Bonus:</strong> {{armorInfo.bonus}}</div>
-														{{#if armorInfo.dexPenalty}}
-															<div class="armor-detail"><strong>DEX Penalty:</strong> {{armorInfo.dexPenalty}}</div>
-														{{/if}}
-													</div>
-												{{/if}}
+									{{#if armorInfo}}
+									<div class="armor-info">
+										<div class="armor-detail"><strong>Type:</strong> {{armorInfo.type}}</div>
+										<div class="armor-detail"><strong>Bonus:</strong> {{armorInfo.bonus}}</div>
+										{{#if armorInfo.dexPenalty}}
+										<div class="armor-detail"><strong>DEX Penalty:</strong> {{armorInfo.dexPenalty}}</div>
+										{{/if}}
+									</div>
+									{{/if}}
 												
-												{{#if shieldInfo}}
-													<div class="shield-info">
-														<div class="shield-detail"><strong>Type:</strong> {{shieldInfo.type}}</div>
-														<div class="shield-detail"><strong>Bonus:</strong> {{shieldInfo.bonus}}</div>
-													</div>
-												{{/if}}
+									{{#if shieldInfo}}
+									<div class="shield-info">
+										<div class="shield-detail"><strong>Type:</strong> {{shieldInfo.type}}</div>
+										<div class="shield-detail"><strong>Bonus:</strong> {{shieldInfo.bonus}}</div>
+									</div>
+									{{/if}}
 												
-												{{#if traits.length}}
-													<div class="equipment-traits">
-														<strong>Traits:</strong> {{#each traits}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
-													</div>
-												{{/if}}
-											</div>
-										</div>
-									{{/each}}
+									{{#if traits.length}}
+									<div class="equipment-traits">
+										<strong>Traits:</strong> {{#each traits}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+									</div>
+									{{/if}}
 								</div>
-							{{/if}}
-						{{else}}
-							<div class="equipment-loading">
-								<p>Loading equipment...</p>
 							</div>
+							{{/each}}
+						</div>
+						{{/if}}
+						{{else}}
+						<div class="equipment-loading">
+							<p>Loading equipment...</p>
+						</div>
 						{{/if}}
 					</div>
 
 					<!-- Actions Tab -->
 					<div class="tab-panel {{#if isActionsTabActive}}active{{/if}}" data-tab-panel="actions">
 						{{#if actionsData}}
-							<div class="actions-section">
-								<!-- Actions controls -->
-								<div class="actions-controls">
-									<div class="actions-header">
-										<h3>Actions</h3>
-										<label class="actions-show-all">
-											<input type="checkbox" {{#if actionsData.showAll}}checked{{/if}} data-action="toggle-actions-show-all">
-											Show All
-										</label>
-									</div>
+						<div class="actions-section">
+							<!-- Actions controls -->
+							<div class="actions-controls">
+								<div class="actions-header">
+									<h3>Actions</h3>
+									<label class="actions-show-all">
+										<input type="checkbox" {{#if actionsData.showAll}}checked{{/if}} data-action="toggle-actions-show-all">
+										Show All
+									</label>
 								</div>
+							</div>
 
-								<!-- Actions sub-tabs -->
-								<div class="actions-tabs">
-									{{#each actionsData.tabs}}
-										<button type="button" 
-											class="actions-tab-button {{#if active}}active{{/if}}" 
-											data-action="select-actions-tab" 
-											data-tab="{{key}}">
-											{{#if icon}}<i class="{{icon}}"></i>{{/if}}
-											{{label}}
-										</button>
-									{{/each}}
-								</div>
+							<!-- Actions sub-tabs -->
+							<div class="actions-tabs">
+								{{#each actionsData.tabs}}
+								<button type="button" 
+									class="actions-tab-button {{#if active}}active{{/if}}" 
+									data-action="select-actions-tab" 
+									data-tab="{{key}}">
+									{{#if icon}}<i class="{{icon}}"></i>{{/if}}
+									{{label}}
+								</button>
+								{{/each}}
+							</div>
 
-								<!-- Actions content -->
-								<div class="actions-content">
-									{{#each actionsData.tabs}}
-										{{#if active}}
-											<div class="actions-tab-content">
-												{{#if header}}
-													<div class="actions-header-section">
-														<div class="actions-header-controls">
-															<!-- Movement display (read-only) -->
-															{{#if header.movement}}
-																<div class="header-input">
-																	<label class="header-label">Movement</label>
-																	<span class="header-value" title="{{header.movement.description}}">{{header.movement.value.description}}</span>
-																</div>
-															{{/if}}
-															
-															<!-- Weapon selection -->
-															{{#if header.weaponModes}}
-																<div class="header-dropdown">
-																	<label class="header-label">Weapon</label>
-																	<select data-action="select-weapon" class="header-select">
-																		{{#each header.weaponModes}}
-																			<option value="{{index}}" {{#if (eq index ../header.selectedWeapon.index)}}selected{{/if}}>{{label}}</option>
-																		{{/each}}
-																	</select>
-																</div>
-															{{/if}}
-															
-															<!-- Ranged weapon controls -->
-															{{#if header.hasRangedWeapon}}
-																<div class="header-input">
-																	<label class="header-label">Range</label>
-																	<span class="header-value">{{header.selectedWeapon.mode.range.description}}</span>
-																</div>
-																<div class="header-input">
-																	<label class="header-label">Target (Hexes)</label>
-																	<input type="number" class="header-input-field" data-action="set-range" value="{{#if header.selectedRange}}{{header.selectedRange.value}}{{/if}}" placeholder="0">
-																</div>
-																{{#if header.rangeIncrementModifier}}
-																	<div class="header-input">
-																		<label class="header-label">Range CM</label>
-																		<span class="header-value" title="{{header.rangeIncrementModifier.description}}">{{header.rangeIncrementModifier.value.description}}</span>
-																	</div>
-																{{/if}}
-																<div class="header-input">
-																	<label class="header-label">Height Increments</label>
-																	<input type="number" class="header-input-field" data-action="set-height" value="{{header.heightIncrements}}" placeholder="0">
-																</div>
-																{{#if header.heightIncrementsModifier}}
-																	<div class="header-input">
-																		<label class="header-label">Height CM</label>
-																		<span class="header-value" title="{{header.heightIncrementsModifier.description}}">{{header.heightIncrementsModifier.value.description}}</span>
-																	</div>
-																{{/if}}
-																<div class="header-dropdown">
-																	<label class="header-label">Passive Cover</label>
-																	<select data-action="select-passive-cover" class="header-select">
-																		{{#each header.passiveCoverOptions}}
-																			<option value="{{this}}" {{#if (eq this ../header.selectedPassiveCover)}}selected{{/if}}>{{this}}</option>
-																		{{/each}}
-																	</select>
-																</div>
-															{{/if}}
-															
-															<!-- Defense realm selection -->
-															{{#if header.defenseRealms}}
-																<div class="header-dropdown">
-																	<label class="header-label">Defense Realm</label>
-																	<select data-action="select-defense-realm" class="header-select">
-																		{{#each header.defenseRealms}}
-																			<option value="{{name}}" {{#if (eq name ../header.selectedDefenseRealm.name)}}selected{{/if}}>{{name}}</option>
-																		{{/each}}
-																	</select>
-																</div>
-															{{/if}}
-															
-															<!-- Armor and Shield selection (only for Body defense) -->
-															{{#if (eq header.selectedDefenseRealm.name "Body")}}
-																<div class="header-dropdown">
-																	<label class="header-label">Armor</label>
-																	<select data-action="select-armor" class="header-select">
-																		<option value="-1" {{#unless header.selectedArmor}}selected{{/unless}}>None</option>
-																		{{#each header.armors}}
-																			<option value="{{@index}}" {{#if (eq @index ../header.selectedArmor.index)}}selected{{/if}}>{{name}}</option>
-																		{{/each}}
-																	</select>
-																</div>
-																
-																<div class="header-dropdown">
-																	<label class="header-label">Shield</label>
-																	<select data-action="select-shield" class="header-select">
-																		<option value="-1" {{#unless header.selectedShield}}selected{{/unless}}>None</option>
-																		{{#each header.shields}}
-																			<option value="{{@index}}" {{#if (eq @index ../header.selectedShield.index)}}selected{{/if}}>{{name}}</option>
-																		{{/each}}
-																	</select>
-																</div>
-															{{/if}}
-														</div>
-													</div>
-												{{/if}}
-												
-												<hr class="actions-divider">
-												
-												{{#if actions}}
-													{{#each actions}}
-														<div class="action-item">
-															<!-- Cost box -->
-															<div class="action-cost-box clickable" 
-																title="{{costTooltip}}" 
-																data-action="consume-action-cost" 
-																data-action-key="{{key}}">
-																<div class="action-cost-title {{#unless canAfford}}insufficient{{/unless}}">COST</div>
-																{{#each costs}}
-																	<div class="action-cost-value {{#if insufficient}}insufficient{{/if}}">
-																		{{value}}
-																	</div>
-																{{/each}}
-															</div>
-
-															<!-- Action details -->
-															<div class="action-details">
-																<div class="action-header">
-																	<div class="action-name-traits">
-																		<span class="action-name">{{name}}</span>
-																		{{#each traits}}
-																			<span class="trait">{{this}}</span>
-																		{{/each}}
-																	</div>
-																</div>
-																<div class="action-description">
-																	{{{description}}}
-																</div>
-															</div>
-
-															<!-- Action parameters -->
-															{{#each parameters}}
-																<div class="action-parameter">
-																	{{#if (eq type "value")}}
-																		<div class="parameter-box value-parameter" title="{{tooltip}}">
-																			<div class="parameter-title">{{title}}</div>
-																			<div class="parameter-value">{{value}}</div>
-																		</div>
-																	{{else if (eq type "check")}}
-																		<div class="parameter-box check-parameter clickable" 
-																			title="{{tooltip}}" 
-																			data-action="roll-action-check" 
-																			data-action-key="{{../key}}" 
-																			data-parameter-index="{{@index}}">
-																			<div class="parameter-title {{#if hasError}}action-box-error{{/if}}">{{title}}</div>
-																			<div class="parameter-value {{#if hasError}}action-box-error{{/if}}">{{value}}<i class="fas fa-dice-d12 dice-icon"></i></div>
-																		</div>
-																	{{/if}}
-																</div>
-															{{/each}}
-														</div>
-													{{/each}}
-												{{else}}
-													<div class="actions-empty">
-														<p>No actions available for this category.</p>
-													</div>
-												{{/if}}
+							<!-- Actions content -->
+							<div class="actions-content">
+								{{#each actionsData.tabs}}
+								{{#if active}}
+								<div class="actions-tab-content">
+									{{#if header}}
+									<div class="actions-header-section">
+										<div class="actions-header-controls">
+											<!-- Movement display (read-only) -->
+											{{#if header.movement}}
+											<div class="header-input">
+												<label class="header-label">Movement</label>
+												<span class="header-value" title="{{header.movement.description}}">{{header.movement.value.description}}</span>
 											</div>
-										{{/if}}
+											{{/if}}
+															
+											<!-- Weapon selection -->
+											{{#if header.weaponModes}}
+											<div class="header-dropdown">
+												<label class="header-label">Weapon</label>
+												<select data-action="select-weapon" class="header-select">
+													{{#each header.weaponModes}}
+													<option value="{{index}}" {{#if (eq index ../header.selectedWeapon.index)}}selected{{/if}}>{{label}}</option>
+													{{/each}}
+												</select>
+											</div>
+											{{/if}}
+															
+											<!-- Ranged weapon controls -->
+											{{#if header.hasRangedWeapon}}
+											<div class="header-input">
+												<label class="header-label">Range</label>
+												<span class="header-value">{{header.selectedWeapon.mode.range.description}}</span>
+											</div>
+											<div class="header-input">
+												<label class="header-label">Target (Hexes)</label>
+												<input type="number" class="header-input-field" data-action="set-range" value="{{#if header.selectedRange}}{{header.selectedRange.value}}{{/if}}" placeholder="0">
+											</div>
+											{{#if header.rangeIncrementModifier}}
+											<div class="header-input">
+												<label class="header-label">Range CM</label>
+												<span class="header-value" title="{{header.rangeIncrementModifier.description}}">{{header.rangeIncrementModifier.value.description}}</span>
+											</div>
+											{{/if}}
+											<div class="header-input">
+												<label class="header-label">Height Increments</label>
+												<input type="number" class="header-input-field" data-action="set-height" value="{{header.heightIncrements}}" placeholder="0">
+											</div>
+											{{#if header.heightIncrementsModifier}}
+											<div class="header-input">
+												<label class="header-label">Height CM</label>
+												<span class="header-value" title="{{header.heightIncrementsModifier.description}}">{{header.heightIncrementsModifier.value.description}}</span>
+											</div>
+											{{/if}}
+											<div class="header-dropdown">
+												<label class="header-label">Passive Cover</label>
+												<select data-action="select-passive-cover" class="header-select">
+													{{#each header.passiveCoverOptions}}
+													<option value="{{this}}" {{#if (eq this ../header.selectedPassiveCover)}}selected{{/if}}>{{this}}</option>
+													{{/each}}
+												</select>
+											</div>
+											{{/if}}
+															
+											<!-- Defense realm selection -->
+											{{#if header.defenseRealms}}
+											<div class="header-dropdown">
+												<label class="header-label">Defense Realm</label>
+												<select data-action="select-defense-realm" class="header-select">
+													{{#each header.defenseRealms}}
+													<option value="{{name}}" {{#if (eq name ../header.selectedDefenseRealm.name)}}selected{{/if}}>{{name}}</option>
+													{{/each}}
+												</select>
+											</div>
+											{{/if}}
+															
+											<!-- Armor and Shield selection (only for Body defense) -->
+											{{#if (eq header.selectedDefenseRealm.name "Body")}}
+											<div class="header-dropdown">
+												<label class="header-label">Armor</label>
+												<select data-action="select-armor" class="header-select">
+													<option value="-1" {{#unless header.selectedArmor}}selected{{/unless}}>None</option>
+													{{#each header.armors}}
+													<option value="{{@index}}" {{#if (eq @index ../header.selectedArmor.index)}}selected{{/if}}>{{name}}</option>
+													{{/each}}
+												</select>
+											</div>
+																
+											<div class="header-dropdown">
+												<label class="header-label">Shield</label>
+												<select data-action="select-shield" class="header-select">
+													<option value="-1" {{#unless header.selectedShield}}selected{{/unless}}>None</option>
+													{{#each header.shields}}
+													<option value="{{@index}}" {{#if (eq @index ../header.selectedShield.index)}}selected{{/if}}>{{name}}</option>
+													{{/each}}
+												</select>
+											</div>
+											{{/if}}
+										</div>
+									</div>
+									{{/if}}
+												
+									<hr class="actions-divider">
+												
+									{{#if actions}}
+									{{#each actions}}
+									<div class="action-item">
+										<!-- Cost box -->
+										<div class="action-cost-box clickable" 
+											title="{{costTooltip}}" 
+											data-action="consume-action-cost" 
+											data-action-key="{{key}}">
+											<div class="action-cost-title {{#unless canAfford}}insufficient{{/unless}}">COST</div>
+											{{#each costs}}
+											<div class="action-cost-value {{#if insufficient}}insufficient{{/if}}">
+												{{value}}
+											</div>
+											{{/each}}
+										</div>
+
+										<!-- Action details -->
+										<div class="action-details">
+											<div class="action-header">
+												<div class="action-name-traits">
+													<span class="action-name">{{name}}</span>
+													{{#each traits}}
+													<span class="trait">{{this}}</span>
+													{{/each}}
+												</div>
+											</div>
+											<div class="action-description">
+												{{{description}}}
+											</div>
+										</div>
+
+										<!-- Action parameters -->
+										{{#each parameters}}
+										<div class="action-parameter">
+											{{#if (eq type "value")}}
+											<div class="parameter-box value-parameter" title="{{tooltip}}">
+												<div class="parameter-title">{{title}}</div>
+												<div class="parameter-value">{{value}}</div>
+											</div>
+											{{else if (eq type "check")}}
+											<div class="parameter-box check-parameter clickable" 
+												title="{{tooltip}}" 
+												data-action="roll-action-check" 
+												data-action-key="{{../key}}" 
+												data-parameter-index="{{@index}}">
+												<div class="parameter-title {{#if hasError}}action-box-error{{/if}}">{{title}}</div>
+												<div class="parameter-value {{#if hasError}}action-box-error{{/if}}">{{value}}<i class="fas fa-dice-d12 dice-icon"></i></div>
+											</div>
+											{{/if}}
+										</div>
+										{{/each}}
+									</div>
 									{{/each}}
+									{{else}}
+									<div class="actions-empty">
+										<p>No actions available for this category.</p>
+									</div>
+									{{/if}}
 								</div>
+								{{/if}}
+								{{/each}}
 							</div>
+						</div>
 						{{else}}
-							<div class="actions-loading">
-								<p>Loading actions...</p>
-							</div>
+						<div class="actions-loading">
+							<p>Loading actions...</p>
+						</div>
 						{{/if}}
 					</div>
 
 					<!-- Personality Tab -->
 					<div class="tab-panel {{#if isPersonalityTabActive}}active{{/if}}" data-tab-panel="personality">
 						{{#if personalityData}}
-							{{#if personalityData.isEmpty}}
-								<div class="personality-empty">
-									<p>No personality traits defined yet.</p>
-								</div>
-							{{else}}
-								<div class="personality-section">
-									<div class="personality-traits">
-										{{#each personalityData.traits}}
-											{{#if value}}
-												<div class="personality-trait">
-													<div class="trait-header">
-														<h4 class="trait-label">{{label}}</h4>
-														<span class="trait-description" title="{{description}}">
-															<i class="fas fa-info-circle"></i>
-														</span>
-													</div>
-													<div class="trait-content">
-														<p>{{value}}</p>
-													</div>
-												</div>
-											{{/if}}
-										{{/each}}
+						{{#if personalityData.isEmpty}}
+						<div class="personality-empty">
+							<p>No personality traits defined yet.</p>
+						</div>
+						{{else}}
+						<div class="personality-section">
+							<div class="personality-traits">
+								{{#each personalityData.traits}}
+								{{#if value}}
+								<div class="personality-trait">
+									<div class="trait-header">
+										<h4 class="trait-label">{{label}}</h4>
+										<span class="trait-description" title="{{description}}">
+											<i class="fas fa-info-circle"></i>
+										</span>
+									</div>
+									<div class="trait-content">
+										<p>{{value}}</p>
 									</div>
 								</div>
-							{{/if}}
-						{{else}}
-							<div class="personality-loading">
-								<p>Loading personality...</p>
+								{{/if}}
+								{{/each}}
 							</div>
+						</div>
+						{{/if}}
+						{{else}}
+						<div class="personality-loading">
+							<p>Loading personality...</p>
+						</div>
 						{{/if}}
 					</div>
 
 					<!-- Misc Tab -->
 					<div class="tab-panel {{#if isMiscTabActive}}active{{/if}}" data-tab-panel="misc">
 						{{#if miscData}}
-							<div class="misc-section">
-								<div class="misc-header">
-									<h3>Misc Notes</h3>
-								</div>
-								<div class="misc-content">
-									<textarea
-										class="misc-textarea"
-										data-action="update-misc"
-										rows="12"
-										placeholder="Use this space for any additional character notes, backstory details, or other miscellaneous information."
-									>{{miscData.value}}</textarea>
-								</div>
+						<div class="misc-section">
+							<div class="misc-header">
+								<h3>Misc Notes</h3>
 							</div>
+							<div class="misc-content">
+								<textarea
+									class="misc-textarea"
+									data-action="update-misc"
+									rows="12"
+									placeholder="Use this space for any additional character notes, backstory details, or other miscellaneous information."
+								>{{miscData.value}}</textarea>
+							</div>
+						</div>
 						{{else}}
-							<div class="misc-loading">
-								<p>Loading misc data...</p>
-							</div>
+						<div class="misc-loading">
+							<p>Loading misc data...</p>
+						</div>
 						{{/if}}
 					</div>
 
 					<!-- Debug Tab -->
 					<div class="tab-panel {{#if isDebugTabActive}}active{{/if}}" data-tab-panel="debug">
-							<div class="debug-section">
-								<ul>
-									{{#each props as |value key|}}
-										<li><code>{{key}}</code>: {{value}}</li>
-									{{/each}}
-								</ul>
-							</div>
+						<div class="debug-section">
+							<ul>
+								{{#each props as |value key|}}
+								<li><code>{{key}}</code>: {{value}}</li>
+								{{/each}}
+							</ul>
 						</div>
 					</div>
 				</div>
+			</div>
 			{{else}}
-				<p>No character data imported yet. Use the Import button to load a character.</p>
+			<p>No character data imported yet. Use the Import button to load a character.</p>
 			{{/if}}
 		</section>
 	</form>

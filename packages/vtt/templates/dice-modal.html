@@ -10,36 +10,36 @@
 		<div class="roll-options">
 			<!-- Extra Die Section (only for skills) -->
 			{{#if canUseExtra}}
-				<div class="option-group">
-					<label class="checkbox-container">
-						<input type="checkbox" name="useExtra">
-						<span class="checkmark"></span>
-						Use Extra Die
-					</label>
-					<div class="sub-option">
-						<label for="extraAttribute">Attribute:</label>
-						<select name="extraAttribute" disabled>
-							{{#each attributeOptions}}
-								<option value="{{key}}">{{name}} ({{value}})</option>
-							{{/each}}
-						</select>
-						<small class="help-text">Extra die must roll ≤ selected attribute</small>
-					</div>
+			<div class="option-group">
+				<label class="checkbox-container">
+					<input type="checkbox" name="useExtra">
+					<span class="checkmark"></span>
+					Use Extra Die
+				</label>
+				<div class="sub-option">
+					<label for="extraAttribute">Attribute:</label>
+					<select name="extraAttribute" disabled>
+						{{#each attributeOptions}}
+						<option value="{{key}}">{{name}} ({{value}})</option>
+						{{/each}}
+					</select>
+					<small class="help-text">Extra die must roll ≤ selected attribute</small>
 				</div>
+			</div>
 			{{/if}}
 
 			<!-- Luck Die Section -->
 			{{#if canUseLuck}}
-				<div class="option-group">
-					<label class="checkbox-container">
-						<input type="checkbox" name="useLuck">
-						<span class="checkmark"></span>
-						Use Luck Die
-					</label>
-					<div class="sub-option">
-						<small class="help-text">Luck die must roll ≤ Fortune ({{fortuneValue}})</small>
-					</div>
+			<div class="option-group">
+				<label class="checkbox-container">
+					<input type="checkbox" name="useLuck">
+					<span class="checkmark"></span>
+					Use Luck Die
+				</label>
+				<div class="sub-option">
+					<small class="help-text">Luck die must roll ≤ Fortune ({{fortuneValue}})</small>
 				</div>
+			</div>
 			{{/if}}
 
 			<!-- Circumstance Modifier Section -->

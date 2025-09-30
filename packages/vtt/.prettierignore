@@ -1,0 +1,2 @@
+# Ignore HTML templates with Handlebars syntax
+templates/**/*.html
