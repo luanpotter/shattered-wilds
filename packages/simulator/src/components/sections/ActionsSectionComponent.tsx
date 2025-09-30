@@ -512,6 +512,11 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 				)}
 
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+					{actions.length === 0 && (
+						<div style={{ display: 'flex', justifyContent: 'center' }}>
+							<RichText>_No actions available. Select `Show All` to see all actions._</RichText>
+						</div>
+					)}
 					{actions.map(action => {
 						return (
 							<div key={action.key} style={{ display: 'flex', gap: '2px' }}>
