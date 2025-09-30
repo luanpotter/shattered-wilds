@@ -1099,7 +1099,23 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					}
 					break;
 				case ActionTabInputName.RangeCM:
-					// Range CM is computed dynamically, no static data needed
+					if (hasRangedWeapon && this.#actionsUIState.selectedRange) {
+						// Create input values for computing the range modifier
+						const selectedWeapon = this.getSelectedWeapon();
+						const inputValues = new ActionTabInputValues({
+							selectedWeapon,
+							selectedRange: this.#actionsUIState.selectedRange,
+							selectedDefenseRealm: this.#actionsUIState.selectedDefenseRealm,
+							selectedPassiveCover: this.#actionsUIState.selectedPassiveCover,
+							heightIncrements: this.#actionsUIState.heightIncrements,
+							selectedArmor: this.getSelectedArmor() || 'None',
+							selectedShield: this.getSelectedShield() || 'None',
+						});
+						const rangeIncrementModifier = inputValues.rangeIncrementModifier();
+						if (rangeIncrementModifier) {
+							headerData.rangeIncrementModifier = rangeIncrementModifier;
+						}
+					}
 					break;
 				case ActionTabInputName.PassiveCover:
 					if (hasRangedWeapon) {
@@ -1113,7 +1129,23 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					}
 					break;
 				case ActionTabInputName.HeightCM:
-					// Height CM is computed dynamically, no static data needed
+					if (hasRangedWeapon && this.#actionsUIState.heightIncrements) {
+						// Create input values for computing the height modifier
+						const selectedWeapon = this.getSelectedWeapon();
+						const inputValues = new ActionTabInputValues({
+							selectedWeapon,
+							selectedRange: this.#actionsUIState.selectedRange,
+							selectedDefenseRealm: this.#actionsUIState.selectedDefenseRealm,
+							selectedPassiveCover: this.#actionsUIState.selectedPassiveCover,
+							heightIncrements: this.#actionsUIState.heightIncrements,
+							selectedArmor: this.getSelectedArmor() || 'None',
+							selectedShield: this.getSelectedShield() || 'None',
+						});
+						const heightIncrementsModifier = inputValues.heightIncrementsModifier();
+						if (heightIncrementsModifier) {
+							headerData.heightIncrementsModifier = heightIncrementsModifier;
+						}
+					}
 					break;
 				case ActionTabInputName.DefenseRealm:
 					headerData.defenseRealms = StatType.realms;

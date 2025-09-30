@@ -402,6 +402,14 @@
 												{{#if header}}
 													<div class="actions-header-section">
 														<div class="actions-header-controls">
+															<!-- Movement display (read-only) -->
+															{{#if header.movement}}
+																<div class="header-input">
+																	<label class="header-label">Movement</label>
+																	<span class="header-value" title="{{header.movement.description}}">{{header.movement.value.description}}</span>
+																</div>
+															{{/if}}
+															
 															<!-- Weapon selection -->
 															{{#if header.weaponModes}}
 																<div class="header-dropdown">
@@ -424,10 +432,22 @@
 																	<label class="header-label">Target (Hexes)</label>
 																	<input type="number" class="header-input-field" data-action="set-range" value="{{#if header.selectedRange}}{{header.selectedRange.value}}{{/if}}" placeholder="0">
 																</div>
+																{{#if header.rangeIncrementModifier}}
+																	<div class="header-input">
+																		<label class="header-label">Range CM</label>
+																		<span class="header-value" title="{{header.rangeIncrementModifier.description}}">{{header.rangeIncrementModifier.value.description}}</span>
+																	</div>
+																{{/if}}
 																<div class="header-input">
 																	<label class="header-label">Height Increments</label>
 																	<input type="number" class="header-input-field" data-action="set-height" value="{{header.heightIncrements}}" placeholder="0">
 																</div>
+																{{#if header.heightIncrementsModifier}}
+																	<div class="header-input">
+																		<label class="header-label">Height CM</label>
+																		<span class="header-value" title="{{header.heightIncrementsModifier.description}}">{{header.heightIncrementsModifier.value.description}}</span>
+																	</div>
+																{{/if}}
 																<div class="header-dropdown">
 																	<label class="header-label">Passive Cover</label>
 																	<select data-action="select-passive-cover" class="header-select">
