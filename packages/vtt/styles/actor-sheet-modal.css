@@ -189,9 +189,44 @@
 	margin-bottom: 15px;
 }
 
-.character-info p {
-	margin: 5px 0;
-	font-size: 0.9em;
+/* Character Header Section */
+.character-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 15px;
+	gap: 16px;
+}
+
+.character-title {
+	font-size: 1.2em;
+	font-weight: bold;
+	color: white;
+	flex-grow: 1;
+}
+
+.header-controls {
+	display: flex;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
+.header-controls button {
+	padding: 6px 12px;
+	background: rgba(0, 0, 0, 0.2);
+	border: 1px solid #999;
+	border-radius: 4px;
+	color: inherit;
+	cursor: pointer;
+	font-size: 0.85em;
+}
+
+.header-controls button:hover {
+	background: rgba(0, 0, 0, 0.3);
+}
+
+.header-controls button i {
+	margin-right: 4px;
 }
 
 /* Derived Stats Row */
@@ -808,31 +843,6 @@
 
 .refill-btn:active {
 	background: rgba(0, 120, 255, 0.4);
-}
-
-/* Controls styling */
-.controls {
-	display: flex;
-	gap: 8px;
-	margin-bottom: 12px;
-}
-
-.controls button {
-	padding: 6px 12px;
-	background: rgba(0, 0, 0, 0.2);
-	border: 1px solid #999;
-	border-radius: 4px;
-	color: inherit;
-	cursor: pointer;
-	font-size: 0.85em;
-}
-
-.controls button:hover {
-	background: rgba(0, 0, 0, 0.3);
-}
-
-.controls button i {
-	margin-right: 4px;
 }
 
 /* Debug section styling */
