@@ -44,14 +44,8 @@ export class ActionsSection {
 	}): ActionsSection {
 		return new ActionsSection({
 			tabs: mapEnumToRecord(ActionType, type => {
-				const filter = ActionsSection.getFilterForActionType({ type, inputValues });
 				const actions = Object.values(ACTIONS)
 					.filter(action => action.type === type)
-					.filter(
-						action =>
-							showAll || action.costs.every(cost => characterSheet.getResource(cost.resource).current >= cost.amount),
-					)
-					.filter(action => showAll || (filter?.(action) ?? true))
 					.map(
 						action =>
 							new ActionTabItem({
@@ -75,7 +69,8 @@ export class ActionsSection {
 									});
 								}),
 							}),
-					);
+					)
+					.filter(actionItem => showAll || (actionItem.cost.canAfford && !actionItem.hasErrors()));
 				return new ActionTab({
 					type: type,
 					parameters: ActionsSection.getParametersForActionType(type, inputValues),
@@ -84,33 +79,6 @@ export class ActionsSection {
 			}),
 			inputValues,
 		});
-	}
-
-	static getFilterForActionType({
-		type,
-		inputValues,
-	}: {
-		type: ActionType;
-		inputValues: ActionTabInputValues;
-	}): ((action: ActionDefinition) => boolean) | null {
-		switch (type) {
-			case ActionType.Attack: {
-				const weaponMode = inputValues.selectedWeapon?.mode?.rangeType;
-				return (action: ActionDefinition) => {
-					switch (weaponMode) {
-						case Trait.Melee:
-							return !action.traits.includes(Trait.Ranged);
-						case Trait.Ranged:
-							return !action.traits.includes(Trait.Melee);
-						default:
-							return true;
-					}
-				};
-			}
-			default:
-				// No specific filter for other action types for now
-				return null;
-		}
 	}
 
 	static getParametersForActionType(type: ActionType, inputValues?: ActionTabInputValues): ActionTabInputs[] {
@@ -355,6 +323,15 @@ export class ActionTabItem {
 		this.traits = traits;
 		this.description = description;
 		this.parameters = boxes;
+	}
+
+	hasErrors(): boolean {
+		return this.parameters.some(param => {
+			if (param.data instanceof ActionTabParameterCheckData) {
+				return param.data.errors.length > 0;
+			}
+			return false;
+		});
 	}
 }
 
@@ -692,6 +669,7 @@ export class ActionTabItemCost {
 	characterSheet: CharacterSheet;
 	name: string;
 	actionCosts: ActionCost[];
+	canAfford: boolean;
 
 	constructor({
 		characterId,
@@ -708,5 +686,6 @@ export class ActionTabItemCost {
 		this.characterSheet = characterSheet;
 		this.name = name;
 		this.actionCosts = actionCosts;
+		this.canAfford = actionCosts.every(cost => characterSheet.getResource(cost.resource).current >= cost.amount);
 	}
 }
