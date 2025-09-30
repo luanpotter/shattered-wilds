@@ -3,10 +3,10 @@ import React from 'react';
 import {
 	FaArrowLeft,
 	FaBolt,
-	FaCopy,
-	FaExclamationTriangle,
 	FaBrain,
 	FaBug,
+	FaCopy,
+	FaExclamationTriangle,
 	FaMagic,
 	FaPen,
 	FaShieldAlt,
@@ -22,16 +22,16 @@ import { useStore } from '../store';
 import { copyCharacterDataToClipboard } from '../utils/clipboard';
 import { Navigator } from '../utils/routes';
 
-import { ActionsSection } from './ActionsSection';
-import { ArcaneSection } from './ArcaneSection';
 import { DebugSection } from './DebugSection';
 import { DerivedStatsRowComponent } from './DerivedStatsRowComponent';
-import { DivineSection } from './DivineSection';
 import { EquipmentSection } from './EquipmentSection';
-import { FeatsSectionComponent } from './FeatsSectionComponent';
-import { MiscSection } from './MiscSection';
-import { PersonalitySection } from './PersonalitySection';
 import { ResourcesRowComponent } from './ResourcesRowComponent';
+import { ActionsSectionComponent } from './sections/ActionsSectionComponent';
+import { ArcaneSectionComponent } from './sections/ArcaneSectionComponent';
+import { DivineSectionComponent } from './sections/DivineSectionComponent';
+import { FeatsSectionComponent } from './sections/FeatsSectionComponent';
+import { MiscSectionComponent } from './sections/MiscSectionComponent';
+import { PersonalitySectionComponent } from './sections/PersonalitySectionComponent';
 import Block from './shared/Block';
 import { Button } from './shared/Button';
 import LabeledInput from './shared/LabeledInput';
@@ -241,15 +241,17 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 
 				{(resolvedTab === 'all' || resolvedTab === 'feats') && <FeatsSectionComponent characterId={characterId} />}
 				{(resolvedTab === 'all' || resolvedTab === 'equipment') && <EquipmentSection characterId={characterId} />}
-				{(resolvedTab === 'all' || resolvedTab === 'actions') && <ActionsSection characterId={characterId} />}
+				{(resolvedTab === 'all' || resolvedTab === 'actions') && <ActionsSectionComponent characterId={characterId} />}
 				{(resolvedTab === 'all' || resolvedTab === 'arcane') && hasArcane && (
-					<ArcaneSection characterId={characterId} />
+					<ArcaneSectionComponent characterId={characterId} />
 				)}
 				{(resolvedTab === 'all' || resolvedTab === 'divine') && hasDivine && (
-					<DivineSection characterId={characterId} />
+					<DivineSectionComponent characterId={characterId} />
 				)}
-				{(resolvedTab === 'all' || resolvedTab === 'personality') && <PersonalitySection characterId={characterId} />}
-				{(resolvedTab === 'all' || resolvedTab === 'misc') && <MiscSection characterId={characterId} />}
+				{(resolvedTab === 'all' || resolvedTab === 'personality') && (
+					<PersonalitySectionComponent characterId={characterId} />
+				)}
+				{(resolvedTab === 'all' || resolvedTab === 'misc') && <MiscSectionComponent characterId={characterId} />}
 				{resolvedTab === 'debug' && <DebugSection characterId={characterId} />}
 			</Column>
 		</>

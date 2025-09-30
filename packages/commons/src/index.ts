@@ -17,4 +17,4 @@ export * from './character/character-sheet.js';
 export * from './character/class-info.js';
 export * from './character/race-info.js';
 export * from './character/equipment.js';
-export * from './character/feats-section.js';
+export * from './sections/feats-section.js';

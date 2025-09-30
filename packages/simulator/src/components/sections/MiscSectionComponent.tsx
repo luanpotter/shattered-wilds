@@ -1,15 +1,14 @@
 import React from 'react';
 
-import { useStore } from '../store';
-
-import Block from './shared/Block';
-import LabeledTextArea from './shared/LabeledTextArea';
+import { useStore } from '../../store';
+import Block from '../shared/Block';
+import LabeledTextArea from '../shared/LabeledTextArea';
 
 interface MiscSectionProps {
 	characterId: string;
 }
 
-export const MiscSection: React.FC<MiscSectionProps> = ({ characterId }) => {
+export const MiscSectionComponent: React.FC<MiscSectionProps> = ({ characterId }) => {
 	const editMode = useStore(state => state.editMode);
 	const character = useStore(state => state.characters.find(c => c.id === characterId))!;
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);

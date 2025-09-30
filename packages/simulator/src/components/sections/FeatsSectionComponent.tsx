@@ -2,12 +2,11 @@ import { CharacterSheet, FeatsSection } from '@shattered-wilds/commons';
 import React from 'react';
 import { FaCog, FaExclamationTriangle } from 'react-icons/fa';
 
-import { useModals } from '../hooks/useModals';
-import { useStore } from '../store';
-
-import { FeatBox } from './FeatBox';
-import Block from './shared/Block';
-import { Button } from './shared/Button';
+import { useModals } from '../../hooks/useModals';
+import { useStore } from '../../store';
+import { FeatBox } from '../FeatBox';
+import Block from '../shared/Block';
+import { Button } from '../shared/Button';
 
 export const FeatsSectionComponent: React.FC<{ characterId: string }> = ({ characterId }) => {
 	const { openFeatsSetupModal } = useModals();

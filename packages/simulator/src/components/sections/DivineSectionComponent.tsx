@@ -13,21 +13,20 @@ import {
 import React from 'react';
 import { FaDice } from 'react-icons/fa';
 
-import { useModals } from '../hooks/useModals';
-import { useStore } from '../store';
-import { Character } from '../types/ui';
-
-import { CostBoxComponent } from './CostBoxComponent';
-import { ParameterBoxComponent } from './ParameterBoxComponent';
-import Block from './shared/Block';
-import LabeledInput from './shared/LabeledInput';
-import { RichText } from './shared/RichText';
+import { useModals } from '../../hooks/useModals';
+import { useStore } from '../../store';
+import { Character } from '../../types/ui';
+import { CostBoxComponent } from '../CostBoxComponent';
+import { ParameterBoxComponent } from '../ParameterBoxComponent';
+import Block from '../shared/Block';
+import LabeledInput from '../shared/LabeledInput';
+import { RichText } from '../shared/RichText';
 
 interface DivineSectionProps {
 	characterId: string;
 }
 
-export const DivineSection: React.FC<DivineSectionProps> = ({ characterId }) => {
+export const DivineSectionComponent: React.FC<DivineSectionProps> = ({ characterId }) => {
 	const character = useStore(state => state.characters.find(c => c.id === characterId))!;
 	const sheet = CharacterSheet.from(character.props);
 	const tree = sheet.getStatTree();

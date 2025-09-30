@@ -25,24 +25,23 @@ import {
 import React, { useMemo } from 'react';
 import { FaDice } from 'react-icons/fa';
 
-import { useModals } from '../hooks/useModals';
-import { useUIStateFactory } from '../hooks/useUIState';
-import { useStore } from '../store';
-import { Character } from '../types/ui';
-import { numberToOrdinal } from '../utils';
-
-import { CostBoxComponent } from './CostBoxComponent';
-import { ParameterBoxComponent } from './ParameterBoxComponent';
-import Block from './shared/Block';
-import LabeledDropdown from './shared/LabeledDropdown';
-import LabeledInput from './shared/LabeledInput';
-import { RichText } from './shared/RichText';
+import { useModals } from '../../hooks/useModals';
+import { useUIStateFactory } from '../../hooks/useUIState';
+import { useStore } from '../../store';
+import { Character } from '../../types/ui';
+import { numberToOrdinal } from '../../utils';
+import { CostBoxComponent } from '../CostBoxComponent';
+import { ParameterBoxComponent } from '../ParameterBoxComponent';
+import Block from '../shared/Block';
+import LabeledDropdown from '../shared/LabeledDropdown';
+import LabeledInput from '../shared/LabeledInput';
+import { RichText } from '../shared/RichText';
 
 interface ArcaneSectionProps {
 	characterId: string;
 }
 
-export const ArcaneSection: React.FC<ArcaneSectionProps> = ({ characterId }) => {
+export const ArcaneSectionComponent: React.FC<ArcaneSectionProps> = ({ characterId }) => {
 	const character = useStore(state => state.characters.find(c => c.id === characterId))!;
 	const sheet = CharacterSheet.from(character.props);
 	const tree = sheet.getStatTree();

@@ -1,15 +1,14 @@
 import React from 'react';
 
-import { useStore } from '../store';
-
-import Block from './shared/Block';
-import LabeledTextArea from './shared/LabeledTextArea';
+import { useStore } from '../../store';
+import Block from '../shared/Block';
+import LabeledTextArea from '../shared/LabeledTextArea';
 
 interface PersonalitySectionProps {
 	characterId: string;
 }
 
-export const PersonalitySection: React.FC<PersonalitySectionProps> = ({ characterId }) => {
+export const PersonalitySectionComponent: React.FC<PersonalitySectionProps> = ({ characterId }) => {
 	const editMode = useStore(state => state.editMode);
 	const character = useStore(state => state.characters.find(c => c.id === characterId))!;
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
