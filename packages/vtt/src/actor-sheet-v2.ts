@@ -25,7 +25,6 @@ import {
 	Shield,
 	StatNode,
 	StatType,
-	Trait,
 	Weapon,
 	WeaponModeOption,
 } from '@shattered-wilds/commons';
@@ -1054,7 +1053,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		characterSheet: CharacterSheet,
 		actionsSection: ActionsSection,
 	): Record<string, unknown> | null {
-		// Get the ActionsSection to determine which inputs to show
+		const { inputValues } = actionsSection;
 		const { inputs } = actionsSection.tabs[type];
 		if (inputs.length === 0) {
 			return null;
@@ -1068,12 +1067,9 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			weapon: option.weapon,
 			mode: option.mode,
 		}));
-		const selectedWeaponData = weaponModes[this.#actionsUIState.selectedWeaponIndex] || weaponModes[0];
-		const hasRangedWeapon = selectedWeaponData?.mode?.rangeType === Trait.Ranged;
 		const equipment = characterSheet.equipment;
 		const armors = equipment.items.filter(item => item instanceof Armor) as Armor[];
 		const shields = equipment.items.filter(item => item instanceof Shield) as Shield[];
-		const isBody = this.#actionsUIState.selectedDefenseRealm === StatType.Body;
 
 		// Build header data based on the inputs from ActionsSection
 		const headerData: Record<string, unknown> = {};
@@ -1085,102 +1081,49 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					break;
 				case ActionTabInputName.WeaponMode:
 					headerData.weaponModes = weaponModes;
-					headerData.selectedWeapon = selectedWeaponData;
+					headerData.selectedWeapon = inputValues.selectedWeapon!;
 					break;
 				case ActionTabInputName.RangeIncrement:
-					if (hasRangedWeapon) {
-						headerData.hasRangedWeapon = true;
-						headerData.rangeIncrement = selectedWeaponData.mode.range;
-					}
+					headerData.hasRangedWeapon = true;
+					headerData.rangeIncrement = inputValues.selectedWeapon!.mode.range;
 					break;
 				case ActionTabInputName.Target:
-					if (hasRangedWeapon) {
-						headerData.selectedRange = this.#actionsUIState.selectedRange;
-					}
+					headerData.selectedRange = inputValues.selectedRange!;
 					break;
-				case ActionTabInputName.RangeCM:
-					if (hasRangedWeapon && this.#actionsUIState.selectedRange) {
-						// Create input values for computing the range modifier
-						const selectedWeapon = this.getSelectedWeapon();
-						const inputValues = new ActionTabInputValues({
-							selectedWeapon,
-							selectedRange: this.#actionsUIState.selectedRange,
-							selectedDefenseRealm: this.#actionsUIState.selectedDefenseRealm,
-							selectedPassiveCover: this.#actionsUIState.selectedPassiveCover,
-							heightIncrements: this.#actionsUIState.heightIncrements,
-							selectedArmor: this.getSelectedArmor() || 'None',
-							selectedShield: this.getSelectedShield() || 'None',
-						});
-						const rangeIncrementModifier = inputValues.rangeIncrementModifier();
-						if (rangeIncrementModifier) {
-							headerData.rangeIncrementModifier = rangeIncrementModifier;
-						}
-					}
+				case ActionTabInputName.RangeCM: {
+					headerData.rangeIncrementModifier = inputValues.rangeIncrementModifier()!;
 					break;
+				}
 				case ActionTabInputName.PassiveCover:
-					if (hasRangedWeapon) {
-						headerData.passiveCoverOptions = Object.values(PassiveCoverType);
-						headerData.selectedPassiveCover = this.#actionsUIState.selectedPassiveCover;
-					}
+					headerData.passiveCoverOptions = Object.values(PassiveCoverType);
+					headerData.selectedPassiveCover = inputValues.selectedPassiveCover!;
 					break;
 				case ActionTabInputName.HeightIncrements:
-					if (hasRangedWeapon) {
-						headerData.heightIncrements = this.#actionsUIState.heightIncrements;
-					}
+					headerData.heightIncrements = inputValues.heightIncrements!;
 					break;
-				case ActionTabInputName.HeightCM:
-					if (hasRangedWeapon && this.#actionsUIState.heightIncrements) {
-						// Create input values for computing the height modifier
-						const selectedWeapon = this.getSelectedWeapon();
-						const inputValues = new ActionTabInputValues({
-							selectedWeapon,
-							selectedRange: this.#actionsUIState.selectedRange,
-							selectedDefenseRealm: this.#actionsUIState.selectedDefenseRealm,
-							selectedPassiveCover: this.#actionsUIState.selectedPassiveCover,
-							heightIncrements: this.#actionsUIState.heightIncrements,
-							selectedArmor: this.getSelectedArmor() || 'None',
-							selectedShield: this.getSelectedShield() || 'None',
-						});
-						const heightIncrementsModifier = inputValues.heightIncrementsModifier();
-						if (heightIncrementsModifier) {
-							headerData.heightIncrementsModifier = heightIncrementsModifier;
-						}
-					}
+				case ActionTabInputName.HeightCM: {
+					headerData.heightIncrementsModifier = inputValues.heightIncrementsModifier()!;
 					break;
+				}
 				case ActionTabInputName.DefenseRealm:
 					headerData.defenseRealms = StatType.realms;
-					headerData.selectedDefenseRealm = this.#actionsUIState.selectedDefenseRealm;
+					headerData.selectedDefenseRealm = inputValues.selectedDefenseRealm!;
 					break;
 				case ActionTabInputName.Armor:
-					if (isBody) {
-						headerData.armors = armors;
-						headerData.selectedArmor =
-							this.#actionsUIState.selectedArmor !== null && armors.length > 0
-								? {
-										index: this.#actionsUIState.selectedArmor,
-										...armors[this.#actionsUIState.selectedArmor],
-									}
-								: null;
-					}
+					headerData.armors = armors;
+					headerData.selectedArmor = inputValues.selectedArmor;
 					break;
 				case ActionTabInputName.Shield:
-					if (isBody) {
-						headerData.shields = shields;
-						headerData.selectedShield =
-							this.#actionsUIState.selectedShield !== null && shields.length > 0
-								? {
-										index: this.#actionsUIState.selectedShield,
-										...shields[this.#actionsUIState.selectedShield],
-									}
-								: null;
-					}
+					headerData.shields = shields;
+					headerData.selectedShield = inputValues.selectedShield;
 					break;
 				case ActionTabInputName.ActionPoints:
 				case ActionTabInputName.VitalityPoints:
 				case ActionTabInputName.FocusPoints:
 				case ActionTabInputName.SpiritPoints:
 				case ActionTabInputName.HeroismPoints:
-					// Resource inputs are handled in the template via character sheet
+					// Resource inputs are not shown in vtt since they are already in the main section
+					// and the vtt character sheet has limited space
 					break;
 			}
 		});

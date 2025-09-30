@@ -24,9 +24,11 @@ import { mapEnumToRecord, numberToOrdinal } from '../utils/utils.js';
 /// can currently execute, include pre-computed costs and parameters.
 export class ActionsSection {
 	tabs: Record<ActionType, ActionTab>;
+	inputValues: ActionTabInputValues;
 
-	constructor({ tabs }: { tabs: Record<ActionType, ActionTab> }) {
+	constructor({ tabs, inputValues }: { tabs: Record<ActionType, ActionTab>; inputValues: ActionTabInputValues }) {
 		this.tabs = tabs;
+		this.inputValues = inputValues;
 	}
 
 	static create({
@@ -76,10 +78,11 @@ export class ActionsSection {
 					);
 				return new ActionTab({
 					type: type,
-					parameters: ActionsSection.getParametersForActionType(type),
+					parameters: ActionsSection.getParametersForActionType(type, inputValues),
 					actions,
 				});
 			}),
+			inputValues,
 		});
 	}
 
@@ -110,7 +113,19 @@ export class ActionsSection {
 		}
 	}
 
-	static getParametersForActionType(type: ActionType): ActionTabInputs[] {
+	static getParametersForActionType(type: ActionType, inputValues?: ActionTabInputValues): ActionTabInputs[] {
+		const allInputs = ActionsSection.getAllParametersForActionType(type);
+
+		// If no input values provided, return all inputs (for initial setup)
+		if (!inputValues) {
+			return allInputs;
+		}
+
+		// Filter inputs based on current selections and visibility rules
+		return allInputs.filter(input => ActionsSection.shouldShowInput(input.name, inputValues));
+	}
+
+	private static getAllParametersForActionType(type: ActionType): ActionTabInputs[] {
 		switch (type) {
 			case ActionType.Movement:
 				return [
@@ -147,6 +162,46 @@ export class ActionsSection {
 				];
 			case ActionType.Meta:
 				return [];
+		}
+	}
+
+	private static shouldShowInput(inputName: ActionTabInputName, inputValues: ActionTabInputValues): boolean {
+		const hasRangedWeapon = inputValues.selectedWeapon?.mode.rangeType === Trait.Ranged;
+		const isBodyDefense = inputValues.selectedDefenseRealm?.name === 'Body';
+
+		switch (inputName) {
+			// Always visible inputs
+			case ActionTabInputName.Movement:
+			case ActionTabInputName.WeaponMode:
+			case ActionTabInputName.DefenseRealm:
+			case ActionTabInputName.ActionPoints:
+			case ActionTabInputName.VitalityPoints:
+			case ActionTabInputName.FocusPoints:
+			case ActionTabInputName.SpiritPoints:
+			case ActionTabInputName.HeroismPoints:
+				return true;
+
+			// Ranged weapon only inputs
+			case ActionTabInputName.RangeIncrement:
+			case ActionTabInputName.Target:
+			case ActionTabInputName.PassiveCover:
+			case ActionTabInputName.HeightIncrements:
+				return hasRangedWeapon;
+
+			// Ranged weapon + additional condition inputs
+			case ActionTabInputName.RangeCM:
+				return hasRangedWeapon && inputValues.selectedRange !== null;
+
+			case ActionTabInputName.HeightCM:
+				return hasRangedWeapon && inputValues.heightIncrementsModifier() !== null;
+
+			// Body defense only inputs
+			case ActionTabInputName.Armor:
+			case ActionTabInputName.Shield:
+				return isBodyDefense;
+
+			default:
+				return true;
 		}
 	}
 }
@@ -419,12 +474,30 @@ export class ActionTabParameter {
 	): CircumstanceModifier[] => {
 		switch (includeModifierFor) {
 			case IncludeEquipmentModifier.Weapon: {
-				return [
-					inputValues.weaponModifier(),
-					inputValues.rangeIncrementModifier(),
-					inputValues.passiveCoverModifier(),
-					inputValues.heightIncrementsModifier(),
-				].filter(e => e !== null);
+				const modifiers = [];
+				const hasRangedWeapon = inputValues.selectedWeapon?.mode.rangeType === Trait.Ranged;
+
+				// Always include weapon modifier if weapon is selected
+				if (inputValues.selectedWeapon) {
+					modifiers.push(inputValues.weaponModifier());
+				}
+
+				// Only include range modifier if RangeCM input should be visible
+				if (hasRangedWeapon && inputValues.selectedRange !== null) {
+					modifiers.push(inputValues.rangeIncrementModifier());
+				}
+
+				// Only include passive cover if PassiveCover input should be visible
+				if (hasRangedWeapon) {
+					modifiers.push(inputValues.passiveCoverModifier());
+				}
+
+				// Only include height increments if HeightCM input should be visible
+				if (hasRangedWeapon && inputValues.heightIncrementsModifier() !== null) {
+					modifiers.push(inputValues.heightIncrementsModifier());
+				}
+
+				return modifiers.filter(e => e !== null);
 			}
 			case IncludeEquipmentModifier.Armor: {
 				if (inputValues.selectedDefenseRealm !== StatType.Body) {

@@ -14,7 +14,6 @@ import {
 	Resource,
 	Shield,
 	StatType,
-	Trait,
 	Weapon,
 	WeaponMode,
 } from '@shattered-wilds/commons';
@@ -204,19 +203,11 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 
 	const getHeaderInputsForTab = (type: ActionType): React.ReactNode | null => {
 		const headerDivStyle = { marginBottom: '12px', display: 'flex', gap: '8px' };
-		const { inputs } = actionsSection.tabs[type];
-
-		const movement = sheet.getStatTree().getDistance(DerivedStatType.Movement);
-		const hasRangedWeaponSelected = selectedWeapon?.mode.rangeType === Trait.Ranged;
-		const isBody = selectedDefenseRealm === StatType.Body;
-
 		const resourceInput = (resource: Resource) => {
 			return <ResourceInputComponent variant='normal' character={character} sheet={sheet} resource={resource} />;
 		};
 
-		const rangeIncrementModifier = inputValues.rangeIncrementModifier();
-		const heightIncrementsModifier = inputValues.heightIncrementsModifier();
-
+		const { inputs } = actionsSection.tabs[type];
 		const reactInputs = inputs.map(input => {
 			switch (input.name) {
 				case ActionTabInputName.ActionPoints:
@@ -229,7 +220,9 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 					return resourceInput(Resource.SpiritPoint);
 				case ActionTabInputName.HeroismPoints:
 					return resourceInput(Resource.HeroismPoint);
-				case ActionTabInputName.Movement:
+				case ActionTabInputName.Movement: {
+					const movement = sheet.getStatTree().getDistance(DerivedStatType.Movement);
+
 					return (
 						<LabeledInput
 							label='Movement'
@@ -238,6 +231,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 							disabled={true}
 						/>
 					);
+				}
 				case ActionTabInputName.WeaponMode:
 					return (
 						<LabeledDropdown
@@ -249,23 +243,22 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 						/>
 					);
 				case ActionTabInputName.RangeIncrement:
-					return hasRangedWeaponSelected ? (
-						<LabeledInput label='Range Increment' value={selectedWeapon.mode.range.description} disabled={true} />
-					) : null;
-				case ActionTabInputName.RangeCM:
 					return (
-						hasRangedWeaponSelected &&
-						rangeIncrementModifier && (
-							<LabeledInput
-								label='Range CM'
-								disabled={true}
-								tooltip={rangeIncrementModifier.description}
-								value={rangeIncrementModifier.value.description}
-							/>
-						)
+						<LabeledInput label='Range Increment' value={selectedWeapon!.mode.range.description} disabled={true} />
 					);
+				case ActionTabInputName.RangeCM: {
+					const rangeIncrementModifier = inputValues.rangeIncrementModifier();
+					return (
+						<LabeledInput
+							label='Range CM'
+							disabled={true}
+							tooltip={rangeIncrementModifier!.description}
+							value={rangeIncrementModifier!.value.description}
+						/>
+					);
+				}
 				case ActionTabInputName.Target:
-					return hasRangedWeaponSelected ? (
+					return (
 						<LabeledInput
 							label='Target (Hexes)'
 							value={selectedRange?.value.toString() ?? ''}
@@ -273,18 +266,19 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 								setSelectedRange(value && parseInt(value) > 0 ? Distance.of(parseInt(value)) : null);
 							}}
 						/>
-					) : null;
+					);
 				case ActionTabInputName.PassiveCover:
-					return hasRangedWeaponSelected ? (
+					return (
 						<LabeledDropdown
 							label='Passive Cover'
 							value={selectedPassiveCover}
 							options={Object.values(PassiveCoverType) as PassiveCoverType[]}
 							onChange={cover => setSelectedPassiveCover(cover)}
 						/>
-					) : null;
-				case ActionTabInputName.HeightIncrements:
-					return hasRangedWeaponSelected ? (
+					);
+				case ActionTabInputName.HeightIncrements: {
+					const heightIncrementsModifier = inputValues.heightIncrementsModifier();
+					return (
 						<LabeledInput
 							label='Height Increments'
 							value={heightIncrements}
@@ -295,16 +289,19 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 							}
 							onChange={value => setHeightIncrements(value)}
 						/>
-					) : null;
-				case ActionTabInputName.HeightCM:
-					return heightIncrementsModifier ? (
+					);
+				}
+				case ActionTabInputName.HeightCM: {
+					const heightIncrementsModifier = inputValues.heightIncrementsModifier();
+					return (
 						<LabeledInput
 							label='Height CM'
 							disabled={true}
-							tooltip={heightIncrementsModifier.description}
-							value={heightIncrementsModifier.value.description}
+							tooltip={heightIncrementsModifier!.description}
+							value={heightIncrementsModifier!.value.description}
 						/>
-					) : null;
+					);
+				}
 				case ActionTabInputName.DefenseRealm:
 					return (
 						<LabeledDropdown
@@ -317,31 +314,25 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 					);
 				case ActionTabInputName.Armor:
 					return (
-						isBody &&
-						selectedArmor && (
-							<LabeledDropdown<Armor | 'None'>
-								label='Armor'
-								tooltip='Armor is applied to the any **Body Defense** check.'
-								value={selectedArmor}
-								options={armors}
-								describe={armor => (armor === 'None' ? 'No Armor' : armor.displayText)}
-								onChange={setSelectedArmor}
-							/>
-						)
+						<LabeledDropdown<Armor | 'None'>
+							label='Armor'
+							tooltip='Armor is applied to the any **Body Defense** check.'
+							value={selectedArmor}
+							options={armors}
+							describe={armor => (armor === 'None' ? 'No Armor' : armor.displayText)}
+							onChange={setSelectedArmor}
+						/>
 					);
 				case ActionTabInputName.Shield:
 					return (
-						isBody &&
-						shields.length > 0 && (
-							<LabeledDropdown
-								label='Shield'
-								value={selectedShield}
-								options={shields}
-								describe={shield => (shield === 'None' ? 'No Shield' : shield.displayText)}
-								onChange={setSelectedShield}
-								disabled={!hasShield}
-							/>
-						)
+						<LabeledDropdown
+							label='Shield'
+							value={selectedShield}
+							options={shields}
+							describe={shield => (shield === 'None' ? 'No Shield' : shield.displayText)}
+							onChange={setSelectedShield}
+							disabled={!hasShield}
+						/>
 					);
 			}
 		});
