@@ -1076,9 +1076,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		const isBody = this.#actionsUIState.selectedDefenseRealm === StatType.Body;
 
 		// Build header data based on the inputs from ActionsSection
-		const headerData: Record<string, unknown> = {
-			type: type.toLowerCase(),
-		};
+		const headerData: Record<string, unknown> = {};
 
 		inputs.forEach(input => {
 			switch (input.name) {
@@ -1125,7 +1123,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					if (isBody) {
 						headerData.armors = armors;
 						headerData.selectedArmor =
-							this.#actionsUIState.selectedArmor !== null
+							this.#actionsUIState.selectedArmor !== null && armors.length > 0
 								? {
 										index: this.#actionsUIState.selectedArmor,
 										...armors[this.#actionsUIState.selectedArmor],
@@ -1134,10 +1132,10 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					}
 					break;
 				case ActionTabInputName.Shield:
-					if (isBody && shields.length > 0) {
+					if (isBody) {
 						headerData.shields = shields;
 						headerData.selectedShield =
-							this.#actionsUIState.selectedShield !== null
+							this.#actionsUIState.selectedShield !== null && shields.length > 0
 								? {
 										index: this.#actionsUIState.selectedShield,
 										...shields[this.#actionsUIState.selectedShield],
