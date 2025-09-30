@@ -1318,7 +1318,9 @@
 .action-cost-value.insufficient,
 .action-cost-title.insufficient,
 .parameter-title.insufficient,
-.parameter-value.insufficient {
+.parameter-value.insufficient,
+.parameter-title.action-box-error,
+.parameter-value.action-box-error {
 	color: #ff6b6b !important;
 }
 
