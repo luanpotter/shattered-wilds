@@ -1,14 +1,17 @@
 <div class="shattered-wilds-sheet">
 	<form class="actor-sheet">
 		<section class="sheet-body">
-			<div class="controls" style="display:flex; gap:8px; margin-bottom:8px;">
-				<button type="button" data-action="sw-import"><i class="fas fa-upload"></i> Import</button>
-				<button type="button" data-action="sw-export"><i class="fas fa-download"></i> Export</button>
-			</div>
-
 			{{#if characterSheet}}
 				<div class="character-info">
-					<p><strong>{{characterSheet.name}}</strong> - {{characterSheet.race.primaryRace}}{{#if characterSheet.race.halfRace}} / {{characterSheet.race.halfRace}}{{/if}} {{characterSheet.characterClass.characterClass}} (Level {{characterSheet.level}})</p>
+					<div class="character-header">
+						<div class="character-title">
+							<strong>{{characterSheet.name}}</strong> - {{characterSheet.race.primaryRace}}{{#if characterSheet.race.halfRace}} / {{characterSheet.race.halfRace}}{{/if}} {{characterSheet.characterClass.characterClass}} (Level {{characterSheet.level}})
+						</div>
+						<div class="header-controls">
+							<button type="button" data-action="sw-import"><i class="fas fa-upload"></i> Import</button>
+							<button type="button" data-action="sw-export"><i class="fas fa-download"></i> Export</button>
+						</div>
+					</div>
 					
 					<!-- Derived Stats Row -->
 					{{#if derivedStatsData}}
@@ -71,7 +74,7 @@
 							</button>
 						</div>
 					</div>
-									</div>
+				</div>
 
 				<!-- Conditions Tracker -->
 				<div class="conditions-row">
