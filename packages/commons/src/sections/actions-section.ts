@@ -4,6 +4,8 @@ import { ActionCost, ActionDefinition, ActionParameter, ACTIONS, ActionType } fr
 import { Trait } from '../core/traits.js';
 import { mapEnumToRecord } from '../utils/utils.js';
 
+/// A pre-computed, tab-grouped breakdown of which actions the a given character sheet
+/// can currently execute, include pre-computed costs and parameters.
 export class ActionsSection {
 	tabs: Record<ActionType, ActionTab>;
 

@@ -2,10 +2,10 @@ import * as TypeComparator from 'type-comparator';
 import { FeatDefinition, FeatInfo, FEATS, FeatSlot, FeatType } from '../core/feats.js';
 import { CharacterSheet } from '../character/character-sheet.js';
 
-// each "card" we want to show in the feats section; either:
-// - a core (non-slotted) feat
-// - a slotted feat (which has a slot)
-// - a feat slot (which has no info, just a slot)
+/// Each precomputed "card" we want to show in the feats section in character sheet; either:
+/// - a core (non-slotted) feat
+/// - a slotted feat (which has a slot)
+/// - a feat slot (which has no info, just a slot)
 export class FeatOrSlot {
 	info: FeatInfo<string | void> | undefined;
 	slot: FeatSlot | undefined;
