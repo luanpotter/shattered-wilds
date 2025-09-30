@@ -73,7 +73,7 @@ export class ActionsSection {
 					.filter(actionItem => showAll || (actionItem.cost.canAfford && !actionItem.hasErrors()));
 				return new ActionTab({
 					type: type,
-					parameters: ActionsSection.getParametersForActionType(type, inputValues),
+					parameters: ActionsSection.getParametersForActionType(type, inputValues).filter(e => e !== undefined),
 					actions,
 				});
 			}),
@@ -81,95 +81,55 @@ export class ActionsSection {
 		});
 	}
 
-	static getParametersForActionType(type: ActionType, inputValues?: ActionTabInputValues): ActionTabInputs[] {
-		const allInputs = ActionsSection.getAllParametersForActionType(type);
-
-		// If no input values provided, return all inputs (for initial setup)
-		if (!inputValues) {
-			return allInputs;
-		}
-
-		// Filter inputs based on current selections and visibility rules
-		return allInputs.filter(input => ActionsSection.shouldShowInput(input.name, inputValues));
-	}
-
-	private static getAllParametersForActionType(type: ActionType): ActionTabInputs[] {
-		switch (type) {
-			case ActionType.Movement:
-				return [
-					new ActionTabInputs({ name: ActionTabInputName.Movement }),
-					new ActionTabInputs({ name: ActionTabInputName.ActionPoints }),
-				];
-			case ActionType.Attack:
-				return [
-					new ActionTabInputs({ name: ActionTabInputName.WeaponMode }),
-					new ActionTabInputs({ name: ActionTabInputName.RangeIncrement }),
-					new ActionTabInputs({ name: ActionTabInputName.Target }),
-					new ActionTabInputs({ name: ActionTabInputName.RangeCM }),
-					new ActionTabInputs({ name: ActionTabInputName.PassiveCover }),
-					new ActionTabInputs({ name: ActionTabInputName.HeightIncrements }),
-					new ActionTabInputs({ name: ActionTabInputName.HeightCM }),
-				];
-			case ActionType.Defense:
-				return [
-					new ActionTabInputs({ name: ActionTabInputName.DefenseRealm }),
-					new ActionTabInputs({ name: ActionTabInputName.Armor }),
-					new ActionTabInputs({ name: ActionTabInputName.Shield }),
-				];
-			case ActionType.Support:
-				return [
-					new ActionTabInputs({ name: ActionTabInputName.ActionPoints }),
-					new ActionTabInputs({ name: ActionTabInputName.VitalityPoints }),
-					new ActionTabInputs({ name: ActionTabInputName.FocusPoints }),
-					new ActionTabInputs({ name: ActionTabInputName.SpiritPoints }),
-				];
-			case ActionType.Heroic:
-				return [
-					new ActionTabInputs({ name: ActionTabInputName.ActionPoints }),
-					new ActionTabInputs({ name: ActionTabInputName.HeroismPoints }),
-				];
-			case ActionType.Meta:
-				return [];
-		}
-	}
-
-	private static shouldShowInput(inputName: ActionTabInputName, inputValues: ActionTabInputValues): boolean {
+	static getParametersForActionType(
+		type: ActionType,
+		inputValues: ActionTabInputValues,
+	): (ActionTabInputs | undefined)[] {
 		const hasRangedWeapon = inputValues.selectedWeapon?.mode.rangeType === Trait.Ranged;
 		const isBodyDefense = inputValues.selectedDefenseRealm?.name === 'Body';
 
-		switch (inputName) {
-			// Always visible inputs
-			case ActionTabInputName.Movement:
-			case ActionTabInputName.WeaponMode:
-			case ActionTabInputName.DefenseRealm:
-			case ActionTabInputName.ActionPoints:
-			case ActionTabInputName.VitalityPoints:
-			case ActionTabInputName.FocusPoints:
-			case ActionTabInputName.SpiritPoints:
-			case ActionTabInputName.HeroismPoints:
-				return true;
+		const input = (name: ActionTabInputName) => new ActionTabInputs({ name });
+		const inputIfTrue = (name: ActionTabInputName, condition: boolean) => {
+			return condition ? input(name) : undefined;
+		};
+		const inputIfNotNull = <T>(name: ActionTabInputName, requirement: T | null) => {
+			return inputIfTrue(name, requirement !== null);
+		};
 
-			// Ranged weapon only inputs
-			case ActionTabInputName.RangeIncrement:
-			case ActionTabInputName.Target:
-			case ActionTabInputName.PassiveCover:
-			case ActionTabInputName.HeightIncrements:
-				return hasRangedWeapon;
-
-			// Ranged weapon + additional condition inputs
-			case ActionTabInputName.RangeCM:
-				return hasRangedWeapon && inputValues.selectedRange !== null;
-
-			case ActionTabInputName.HeightCM:
-				return hasRangedWeapon && inputValues.heightIncrementsModifier() !== null;
-
-			// Body defense only inputs
-			case ActionTabInputName.Armor:
-			case ActionTabInputName.Shield:
-				return isBodyDefense;
-
-			default:
-				return true;
+		switch (type) {
+			case ActionType.Movement:
+				return [input(ActionTabInputName.Movement), input(ActionTabInputName.ActionPoints)];
+			case ActionType.Attack:
+				return [
+					input(ActionTabInputName.WeaponMode),
+					...(hasRangedWeapon
+						? [
+								input(ActionTabInputName.RangeIncrement),
+								input(ActionTabInputName.Target),
+								inputIfNotNull(ActionTabInputName.RangeCM, inputValues.selectedRange),
+								input(ActionTabInputName.PassiveCover),
+								input(ActionTabInputName.HeightIncrements),
+								inputIfNotNull(ActionTabInputName.HeightCM, inputValues.heightIncrementsModifier()),
+							]
+						: []),
+				];
+			case ActionType.Defense:
+				return [
+					input(ActionTabInputName.DefenseRealm),
+					inputIfTrue(ActionTabInputName.Armor, isBodyDefense),
+					inputIfTrue(ActionTabInputName.Shield, isBodyDefense),
+				];
+			case ActionType.Support:
+				return [
+					input(ActionTabInputName.ActionPoints),
+					input(ActionTabInputName.VitalityPoints),
+					input(ActionTabInputName.FocusPoints),
+					input(ActionTabInputName.SpiritPoints),
+				];
+			case ActionType.Heroic:
+				return [input(ActionTabInputName.ActionPoints), input(ActionTabInputName.HeroismPoints)];
+			case ActionType.Meta:
+				return [];
 		}
 	}
 }
