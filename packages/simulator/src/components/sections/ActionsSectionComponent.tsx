@@ -303,6 +303,12 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 		showAll,
 		inputValues: {
 			selectedWeapon,
+			selectedRange,
+			selectedDefenseRealm,
+			selectedPassiveCover,
+			heightIncrements,
+			selectedArmor,
+			selectedShield,
 		},
 	});
 

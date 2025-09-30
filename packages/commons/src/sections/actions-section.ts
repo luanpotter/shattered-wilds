@@ -1,7 +1,10 @@
 import { CharacterSheet } from '../character/character-sheet.js';
-import { WeaponModeOption } from '../character/equipment.js';
+import { WeaponModeOption, Armor, Shield } from '../character/equipment.js';
 import { ActionCost, ActionDefinition, ActionParameter, ACTIONS, ActionType } from '../core/actions.js';
+import { PassiveCoverType } from '../core/cover.js';
 import { Trait } from '../core/traits.js';
+import { StatType } from '../stats/stat-type.js';
+import { Distance } from '../stats/value.js';
 import { mapEnumToRecord } from '../utils/utils.js';
 
 /// A pre-computed, tab-grouped breakdown of which actions the a given character sheet
@@ -174,6 +177,12 @@ export enum ActionTabInputName {
 
 export interface ActionTabInputValues {
 	selectedWeapon: WeaponModeOption | null;
+	selectedRange: Distance | null;
+	selectedDefenseRealm: StatType;
+	selectedPassiveCover: PassiveCoverType;
+	heightIncrements: string;
+	selectedArmor: Armor | 'None';
+	selectedShield: Shield | 'None';
 }
 
 export class ActionTabInputs {

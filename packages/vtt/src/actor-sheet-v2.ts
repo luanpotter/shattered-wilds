@@ -537,6 +537,34 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		return weaponModes[this.#actionsUIState.selectedWeaponIndex] || null;
 	}
 
+	private getSelectedArmor(): Armor | 'None' {
+		const characterSheet = this.getCharacterSheet();
+		if (!characterSheet) return 'None';
+
+		const equipment = characterSheet.equipment;
+		const armors = equipment.items.filter(item => item instanceof Armor) as Armor[];
+
+		if (this.#actionsUIState.selectedArmor !== null && this.#actionsUIState.selectedArmor < armors.length) {
+			const armor = armors[this.#actionsUIState.selectedArmor];
+			return armor || 'None';
+		}
+		return 'None';
+	}
+
+	private getSelectedShield(): Shield | 'None' {
+		const characterSheet = this.getCharacterSheet();
+		if (!characterSheet) return 'None';
+
+		const equipment = characterSheet.equipment;
+		const shields = equipment.items.filter(item => item instanceof Shield) as Shield[];
+
+		if (this.#actionsUIState.selectedShield !== null && this.#actionsUIState.selectedShield < shields.length) {
+			const shield = shields[this.#actionsUIState.selectedShield];
+			return shield || 'None';
+		}
+		return 'None';
+	}
+
 	constructor(...args: unknown[]) {
 		super(...args);
 
@@ -977,6 +1005,12 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				showAll: this.#actionsUIState.showAll,
 				inputValues: {
 					selectedWeapon: this.getSelectedWeapon(),
+					selectedRange: this.#actionsUIState.selectedRange,
+					selectedDefenseRealm: this.#actionsUIState.selectedDefenseRealm,
+					selectedPassiveCover: this.#actionsUIState.selectedPassiveCover,
+					heightIncrements: this.#actionsUIState.heightIncrements,
+					selectedArmor: this.getSelectedArmor(),
+					selectedShield: this.getSelectedShield(),
 				},
 			});
 
@@ -990,7 +1024,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				actions: actionsSection.tabs[type].actions.map(actionTabItem =>
 					this.prepareActionItemFromTabItem(actionTabItem, characterSheet),
 				),
-				header: this.getActionTypeHeader(type, characterSheet),
+				header: this.getActionTypeHeader(type, characterSheet, actionsSection),
 			}));
 
 			return {
@@ -1176,17 +1210,12 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		};
 	}
 
-	private getActionTypeHeader(type: ActionType, characterSheet: CharacterSheet): Record<string, unknown> | null {
+	private getActionTypeHeader(
+		type: ActionType,
+		characterSheet: CharacterSheet,
+		actionsSection: ActionsSection,
+	): Record<string, unknown> | null {
 		// Get the ActionsSection to determine which inputs to show
-		const actionsSection = ActionsSection.create({
-			characterId: this.getCurrentActorId() || '',
-			characterSheet,
-			showAll: this.#actionsUIState.showAll,
-			inputValues: {
-				selectedWeapon: this.getSelectedWeapon(),
-			},
-		});
-
 		const { inputs } = actionsSection.tabs[type];
 		if (inputs.length === 0) {
 			return null;
