@@ -1,23 +1,6 @@
 import { Character, HexPosition, Point } from './types/ui';
 
 /**
- * Convert a number to an ordinal string, for example 1 -> "1st", 7 -> "7th" or 22 -> "22nd".
- * @param number - The number to convert
- * @returns The ordinal string
- */
-export const numberToOrdinal = (number: number): string => {
-	const suffix =
-		number % 100 === 11 || number % 100 === 12 || number % 100 === 13
-			? 'th'
-			: {
-					1: 'st',
-					2: 'nd',
-					3: 'rd',
-				}[number % 10] || 'th';
-	return `${number}${suffix}`;
-};
-
-/**
  * Find the next available character number
  * Skips numbers that are already used in existing character names
  */

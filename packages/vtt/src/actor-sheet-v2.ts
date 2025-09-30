@@ -1,59 +1,56 @@
 import {
-	getActorSheetV2Ctor,
-	getActorById,
-	getHandlebarsApplicationMixin,
-	getFoundryConfig,
-	confirmAction,
-	ActorLike,
-	showNotification,
-} from './foundry-shim.js';
-import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
-import { DiceRollModal } from './dice-modal.js';
-import { executeEnhancedRoll, type DiceRollRequest } from './dices.js';
-import { configureDefaultTokenBars } from './token-bars.js';
+	ACTIONS,
+	ActionsSection,
+	ActionTabInputName,
+	ActionTabInputValues,
+	ActionTabItem,
+	ActionTabParameter,
+	ActionTabParameterCheckData,
+	ActionTabParameterValueData,
+	ActionType,
+	Armor,
+	CharacterSheet,
+	CircumstanceModifier,
+	Condition,
+	CONDITIONS,
+	DerivedStatType,
+	Distance,
+	FeatsSection,
+	NodeStatModifier,
+	OtherItem,
+	PassiveCoverType,
+	PRIMARY_WEAPON_TYPES,
+	Resource,
+	RESOURCES,
+	Shield,
+	StatNode,
+	StatType,
+	Trait,
+	Weapon,
+	WeaponModeOption,
+} from '@shattered-wilds/commons';
 import {
-	getActorData,
 	ensureActorDataPersistence,
+	getActorData,
 	getCharacterConditions,
 	getCharacterProps,
 	getRawCharacterFlags,
 } from './actor-data-manager.js';
-import { ConsumeResourceModal } from './consume-resource-modal.js';
-import {
-	CharacterSheet,
-	Resource,
-	RESOURCES,
-	StatType,
-	StatNode,
-	NodeStatModifier,
-	CircumstanceModifier,
-	FeatsSection,
-	DerivedStatType,
-	Weapon,
-	WeaponModeOption,
-	Armor,
-	Shield,
-	OtherItem,
-	PRIMARY_WEAPON_TYPES,
-	ACTIONS,
-	ActionType,
-	ActionValueParameter,
-	ActionCheckParameter,
-	ActionValueUnit,
-	Bonus,
-	Distance,
-	StandardCheck,
-	PassiveCoverType,
-	Trait,
-	ModifierSource,
-	COVER_TYPES,
-	Condition,
-	CONDITIONS,
-	ActionsSection,
-	ActionTabItem,
-	ActionTabInputName,
-} from '@shattered-wilds/commons';
+import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
 import { parseCharacterProps, parseCharacterSheet } from './characters.js';
+import { ConsumeResourceModal } from './consume-resource-modal.js';
+import { DiceRollModal } from './dice-modal.js';
+import { executeEnhancedRoll, type DiceRollRequest } from './dices.js';
+import {
+	ActorLike,
+	confirmAction,
+	getActorById,
+	getActorSheetV2Ctor,
+	getFoundryConfig,
+	getHandlebarsApplicationMixin,
+	showNotification,
+} from './foundry-shim.js';
+import { configureDefaultTokenBars } from './token-bars.js';
 
 function buildWeaponModeOptions(characterSheet: CharacterSheet): WeaponModeOption[] {
 	const equipment = characterSheet.equipment;
@@ -65,148 +62,6 @@ function buildWeaponModeOptions(characterSheet: CharacterSheet): WeaponModeOptio
 		...(hasShield ? [Weapon.shieldBash()] : []),
 		...weapons.flatMap(weapon => weapon.modes.map(mode => ({ weapon, mode }))),
 	];
-}
-
-function computeStatType(
-	statType: StatType | StandardCheck,
-	actionsUIState?: Record<string, unknown>,
-	characterSheet?: CharacterSheet,
-): StatType {
-	if (typeof statType === 'string' && Object.values(StandardCheck).includes(statType as StandardCheck)) {
-		switch (statType as StandardCheck) {
-			case StandardCheck.BodyAttack: {
-				// Use selected weapon to determine STR vs DEX
-				if (actionsUIState?.selectedWeaponIndex !== undefined && characterSheet) {
-					const weaponModes = buildWeaponModeOptions(characterSheet);
-					const selectedWeapon = weaponModes[actionsUIState.selectedWeaponIndex as number];
-					if (selectedWeapon) {
-						return selectedWeapon.mode.statType; // This will be DEX for Light Melee, STR for Heavy Melee, etc.
-					}
-				}
-				return StatType.STR; // Default to STR for body attacks when no weapon selected
-			}
-			case StandardCheck.Defense:
-				// Use selected defense realm
-				if (actionsUIState?.selectedDefenseRealm) {
-					return actionsUIState.selectedDefenseRealm as StatType;
-				}
-				return StatType.Body; // Default to Body for defense
-			default:
-				return StatType.STR; // Fallback
-		}
-	}
-	return statType as StatType;
-}
-
-function computeIncludedModifiers(
-	includeModifierFor: string,
-	characterSheet: CharacterSheet,
-	actionsUIState: Record<string, unknown>,
-): CircumstanceModifier[] {
-	const equipment = characterSheet.equipment;
-
-	switch (includeModifierFor) {
-		case 'Weapon': {
-			const modifiers: CircumstanceModifier[] = [];
-
-			// Weapon modifier
-			const selectedWeaponIndex = actionsUIState.selectedWeaponIndex as number;
-			if (selectedWeaponIndex !== undefined) {
-				const weaponModes = buildWeaponModeOptions(characterSheet);
-				const selectedWeapon = weaponModes[selectedWeaponIndex];
-
-				if (selectedWeapon) {
-					const weapon = selectedWeapon.weapon;
-					const mode = selectedWeapon.mode;
-
-					const weaponModifier: CircumstanceModifier = {
-						source: ModifierSource.Equipment,
-						name: `${weapon.name} (${mode.description})`,
-						description: `Weapon bonus from ${weapon.name} (${mode.description})`,
-						value: mode.bonus,
-					};
-					modifiers.push(weaponModifier);
-
-					// Range increment modifier for ranged weapons
-					if (mode.rangeType === Trait.Ranged) {
-						const selectedRange = actionsUIState.selectedRange as Distance | null;
-						if (selectedRange && mode.range) {
-							const rangeIncrements = Math.max(0, Math.floor((selectedRange.value - 1) / mode.range.value));
-							if (rangeIncrements > 0) {
-								const rangeModifier: CircumstanceModifier = {
-									source: ModifierSource.Circumstance,
-									name: `Range Increment Penalty`,
-									description: `${rangeIncrements} range increment(s) penalty`,
-									value: Bonus.of(rangeIncrements * -3),
-								};
-								modifiers.push(rangeModifier);
-							}
-						}
-					}
-				}
-			}
-
-			// Passive cover modifier
-			const selectedPassiveCover = actionsUIState.selectedPassiveCover as PassiveCoverType;
-			if (selectedPassiveCover && selectedPassiveCover !== PassiveCoverType.None) {
-				const coverModifier = COVER_TYPES[selectedPassiveCover].modifier;
-				if (coverModifier) {
-					modifiers.push(coverModifier);
-				}
-			}
-
-			// Height increments modifier
-			const heightIncrements = actionsUIState.heightIncrements as string;
-			if (heightIncrements) {
-				const increments = parseInt(heightIncrements);
-				if (!isNaN(increments) && increments !== 0) {
-					const heightModifier: CircumstanceModifier = {
-						source: ModifierSource.Circumstance,
-						name: `Height Increments (${increments})`,
-						description: `${increments} height increment(s) modifier`,
-						value: Bonus.of(increments * -3),
-					};
-					modifiers.push(heightModifier);
-				}
-			}
-
-			return modifiers;
-		}
-		case 'Armor': {
-			// Armor only applies to Body defense
-			const selectedDefenseRealm = actionsUIState.selectedDefenseRealm as StatType;
-			if (selectedDefenseRealm?.name !== 'Body') return [];
-
-			const selectedArmorIndex = actionsUIState.selectedArmor as number | null;
-			if (selectedArmorIndex === null) return [];
-
-			const armors = equipment.items.filter(item => item instanceof Armor) as Armor[];
-			const armor = armors[selectedArmorIndex];
-
-			if (armor) {
-				return [armor.getEquipmentModifier()];
-			}
-			return [];
-		}
-		case 'Shield': {
-			// Shield only applies to Body defense
-			const selectedDefenseRealm = actionsUIState.selectedDefenseRealm as StatType;
-			if (selectedDefenseRealm?.name !== 'Body') return [];
-
-			const selectedShieldIndex = actionsUIState.selectedShield as number | null;
-			if (selectedShieldIndex === null) return [];
-
-			const shields = equipment.items.filter(item => item instanceof Shield) as Shield[];
-			const shield = shields[selectedShieldIndex];
-
-			if (shield) {
-				return [shield.getEquipmentModifier()];
-			}
-			return [];
-		}
-		default:
-			return [];
-	}
 }
 
 async function syncResourcesToSystemData(actor: unknown, characterSheet: CharacterSheet): Promise<void> {
@@ -999,19 +854,20 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		}
 
 		try {
+			const inputValues = new ActionTabInputValues({
+				selectedWeapon: this.getSelectedWeapon(),
+				selectedRange: this.#actionsUIState.selectedRange,
+				selectedDefenseRealm: this.#actionsUIState.selectedDefenseRealm,
+				selectedPassiveCover: this.#actionsUIState.selectedPassiveCover,
+				heightIncrements: this.#actionsUIState.heightIncrements,
+				selectedArmor: this.getSelectedArmor(),
+				selectedShield: this.getSelectedShield(),
+			});
 			const actionsSection = ActionsSection.create({
 				characterId: this.getCurrentActorId() || '',
 				characterSheet,
 				showAll: this.#actionsUIState.showAll,
-				inputValues: {
-					selectedWeapon: this.getSelectedWeapon(),
-					selectedRange: this.#actionsUIState.selectedRange,
-					selectedDefenseRealm: this.#actionsUIState.selectedDefenseRealm,
-					selectedPassiveCover: this.#actionsUIState.selectedPassiveCover,
-					heightIncrements: this.#actionsUIState.heightIncrements,
-					selectedArmor: this.getSelectedArmor(),
-					selectedShield: this.getSelectedShield(),
-				},
+				inputValues,
 			});
 
 			// Prepare action types as tabs for VTT template compatibility
@@ -1056,46 +912,38 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 		const parameters = actionTabItem.parameters
 			.map(param => {
-				if (param.parameter instanceof ActionValueParameter) {
-					const result = param.parameter.compute(characterSheet.getStatTree());
-					const value = this.computeValueForUnit(result.value, param.parameter.unit);
-					const tooltip = [param.parameter.name, result.tooltip].filter(Boolean).join('\n');
+				const { data } = param;
+				if (data instanceof ActionTabParameterValueData) {
+					const { title, tooltip, description } = data;
 
 					return {
 						type: 'value',
-						title: param.parameter.name,
-						value: value.description,
-						tooltip: tooltip,
+						title,
+						tooltip,
+						value: description,
 					};
-				} else if (param.parameter instanceof ActionCheckParameter) {
-					// Reconstruct the proper check parameter format from the original VTT logic
-					const tree = characterSheet.getStatTree();
-					const resolvedStatType = computeStatType(param.parameter.statType, this.#actionsUIState, characterSheet);
+				} else if (data instanceof ActionTabParameterCheckData) {
+					const { title, tooltip, textTitle, errors } = data;
 
-					// Compute included modifiers based on current UI state
-					const cms = param.parameter.includeEquipmentModifiers.flatMap(includeModifierFor =>
-						computeIncludedModifiers(includeModifierFor.toString(), characterSheet, this.#actionsUIState),
-					);
-					const circumstanceModifiers = [param.parameter.circumstanceModifier, ...cms].filter(
-						e => e !== undefined,
-					) as CircumstanceModifier[];
-
-					const statModifier = tree.getModifier(resolvedStatType, circumstanceModifiers);
-					const inherentModifier = statModifier.inherentModifier;
-					const targetDcSuffix = param.parameter.targetDc ? ` | DC ${param.parameter.targetDc}` : '';
+					// Show error state if there are errors, but still allow clicking
+					const hasErrors = errors.length > 0;
+					if (hasErrors && errors[0]) {
+						const error = errors[0];
+						return {
+							type: 'check',
+							title: error.title,
+							value: error.text,
+							tooltip: `${error.tooltip} • Click for advanced options • Shift+Click for quick roll`,
+							hasError: true, // This will make the text red via CSS (insufficient class)
+						};
+					}
 
 					return {
 						type: 'check',
-						title: `${resolvedStatType.name} (${inherentModifier.description})`,
-						value: statModifier.value.description,
-						tooltip: `${statModifier.description} • Click for advanced options • Shift+Click for quick roll`,
-						checkData: {
-							stat: resolvedStatType.toString(),
-							modifier: statModifier.value.value,
-							description: statModifier.description,
-							parameter: param.parameter,
-						},
-						targetDcSuffix,
+						title,
+						value: textTitle,
+						tooltip: `${tooltip} • Click for advanced options • Shift+Click for quick roll`,
+						hasError: false,
 					};
 				}
 				return null;
@@ -1115,15 +963,6 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			canAfford,
 			parameters,
 		};
-	}
-
-	private computeValueForUnit(value: number, unit: ActionValueUnit): Bonus | Distance {
-		switch (unit) {
-			case ActionValueUnit.Modifier:
-				return new Bonus({ value });
-			case ActionValueUnit.Hex:
-				return new Distance({ value });
-		}
 	}
 
 	private getActionTypeIcon(type: ActionType): string {
@@ -1709,63 +1548,79 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 				if (!actionKey || parameterIndex === undefined) return;
 
-				const action = Object.values(ACTIONS).find(a => a.key === actionKey);
-				if (!action) return;
-
-				const paramIndex = parseInt(parameterIndex);
-				const parameter = action.parameters[paramIndex];
-
-				if (!(parameter instanceof ActionCheckParameter)) return;
-
 				const characterSheet = this.getCharacterSheet();
 				if (!characterSheet) return;
 
 				try {
-					// Build the check with current character state and UI modifiers
-					const tree = characterSheet.getStatTree();
-					const resolvedStatType = computeStatType(parameter.statType, this.#actionsUIState, characterSheet);
-
-					// Compute included modifiers based on current UI state
-					const cms = parameter.includeEquipmentModifiers.flatMap(includeModifierFor =>
-						computeIncludedModifiers(includeModifierFor.toString(), characterSheet, this.#actionsUIState),
-					);
-					const circumstanceModifiers = [parameter.circumstanceModifier, ...cms].filter(
-						e => e !== undefined,
-					) as CircumstanceModifier[];
-
-					const statModifier = tree.getModifier(resolvedStatType, circumstanceModifiers);
-
-					// Build detailed modifier breakdown
-					const modifierBreakdown = this.buildActionModifierBreakdown(
-						resolvedStatType,
-						circumstanceModifiers,
+					// Recreate the actions section with current UI state to get pre-computed data
+					const inputValues = new ActionTabInputValues({
+						selectedWeapon: this.getSelectedWeapon(),
+						selectedRange: this.#actionsUIState.selectedRange,
+						selectedDefenseRealm: this.#actionsUIState.selectedDefenseRealm,
+						selectedPassiveCover: this.#actionsUIState.selectedPassiveCover,
+						heightIncrements: this.#actionsUIState.heightIncrements,
+						selectedArmor: this.getSelectedArmor(),
+						selectedShield: this.getSelectedShield(),
+					});
+					const actionsSection = ActionsSection.create({
+						characterId: this.getCurrentActorId() || '',
 						characterSheet,
-					);
+						showAll: this.#actionsUIState.showAll,
+						inputValues,
+					});
+
+					// Find the action and parameter in the pre-computed data
+					const paramIndex = parseInt(parameterIndex);
+					let actionTabItem: ActionTabItem | undefined;
+					let actionTabParameter: ActionTabParameter | undefined;
+
+					// Search through all action types to find the matching action and parameter
+					for (const actionType of Object.values(ActionType)) {
+						const tab = actionsSection.tabs[actionType];
+						actionTabItem = tab.actions.find(item => item.key === actionKey);
+						if (actionTabItem) {
+							actionTabParameter = actionTabItem.parameters[paramIndex];
+							break;
+						}
+					}
+
+					if (!actionTabItem || !actionTabParameter) {
+						console.warn('Could not find action or parameter in pre-computed data');
+						return;
+					}
+
+					// Check if this is actually a check parameter
+					if (!(actionTabParameter.data instanceof ActionTabParameterCheckData)) {
+						console.warn('Parameter is not a check parameter');
+						return;
+					}
+
+					const checkData = actionTabParameter.data;
 
 					if (event.shiftKey) {
-						// Quick roll - directly execute
+						// Quick roll - directly execute using pre-computed data
 						const rollRequest: DiceRollRequest = {
-							name: `${action.name} - ${resolvedStatType.toString()}`,
+							name: `${actionTabItem.title} - ${checkData.checkData.check.name}`,
 							characterName: characterSheet.name,
-							modifiers: modifierBreakdown,
+							modifiers: checkData.modifierBreakdown,
 							extra: undefined,
 							luck: undefined,
-							targetDC: parameter.targetDc,
+							targetDC: checkData.checkData.targetDc,
 						};
 						await executeEnhancedRoll(rollRequest);
 					} else {
-						// Open modal for advanced options
+						// Open modal for advanced options using pre-computed data
 						if (!DiceRollModal.isSupported()) {
 							showNotification('warn', 'Dice modal not supported in this Foundry version');
 							return;
 						}
 
 						await DiceRollModal.open({
-							statType: resolvedStatType.toString(),
-							modifier: statModifier.value.value,
-							modifierBreakdown,
+							statType: checkData.checkData.check.name,
+							modifier: checkData.checkData.check.modifierValue.value,
+							modifierBreakdown: checkData.modifierBreakdown,
 							actorId: this.getCurrentActorId()!,
-							...(parameter.targetDc !== undefined && { targetDC: parameter.targetDc }),
+							...(checkData.checkData.targetDc !== undefined && { targetDC: checkData.checkData.targetDc }),
 						});
 					}
 				} catch (err) {
@@ -1968,44 +1823,6 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		// Add circumstance modifier if any
 		if (circumstanceModifier !== 0) {
 			modifiers['Circumstance'] = circumstanceModifier;
-		}
-
-		return modifiers;
-	}
-
-	private buildActionModifierBreakdown(
-		statType: StatType,
-		circumstanceModifiers: CircumstanceModifier[],
-		characterSheet: CharacterSheet,
-	): Record<string, number> {
-		const modifiers: Record<string, number> = {};
-		const tree = characterSheet.getStatTree();
-
-		// Get the base stat value (without any circumstance modifiers)
-		const baseStatModifier = tree.getModifier(statType, []);
-		if (baseStatModifier.value.value !== 0) {
-			modifiers['Base'] = baseStatModifier.value.value;
-		}
-
-		// Add each circumstance modifier separately
-		for (const cm of circumstanceModifiers) {
-			if (cm.value.value !== 0) {
-				// Use a more descriptive name based on the modifier source
-				let modifierName = cm.name;
-				if (cm.source === ModifierSource.Circumstance) {
-					modifierName = 'CM';
-				} else if (cm.source === ModifierSource.Equipment) {
-					modifierName = 'Equipment';
-				}
-
-				// If we already have a modifier with this name, combine them
-				const existingValue = modifiers[modifierName];
-				if (existingValue !== undefined) {
-					modifiers[modifierName] = existingValue + cm.value.value;
-				} else {
-					modifiers[modifierName] = cm.value.value;
-				}
-			}
 		}
 
 		return modifiers;

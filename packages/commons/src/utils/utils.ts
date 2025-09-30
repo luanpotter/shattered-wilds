@@ -30,3 +30,20 @@ export function mapEnumToRecord<E extends string | number, T>(
 export function getRecordKeys<K extends string | number, T>(record: Record<K, T>): K[] {
 	return Object.keys(record) as K[];
 }
+
+/**
+ * Convert a number to an ordinal string, for example 1 -> "1st", 7 -> "7th" or 22 -> "22nd".
+ * @param number - The number to convert
+ * @returns The ordinal string
+ */
+export const numberToOrdinal = (number: number): string => {
+	const suffix =
+		number % 100 === 11 || number % 100 === 12 || number % 100 === 13
+			? 'th'
+			: {
+					1: 'st',
+					2: 'nd',
+					3: 'rd',
+				}[number % 10] || 'th';
+	return `${number}${suffix}`;
+};

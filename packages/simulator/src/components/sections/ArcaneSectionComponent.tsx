@@ -21,6 +21,7 @@ import {
 	StatTree,
 	StatType,
 	Trait,
+	numberToOrdinal,
 } from '@shattered-wilds/commons';
 import React, { useMemo } from 'react';
 import { FaDice } from 'react-icons/fa';
@@ -29,7 +30,6 @@ import { useModals } from '../../hooks/useModals';
 import { useUIStateFactory } from '../../hooks/useUIState';
 import { useStore } from '../../store';
 import { Character } from '../../types/ui';
-import { numberToOrdinal } from '../../utils';
 import { CostBoxComponent } from '../CostBoxComponent';
 import { ParameterBoxComponent } from '../ParameterBoxComponent';
 import Block from '../shared/Block';

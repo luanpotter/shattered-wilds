@@ -1,41 +1,30 @@
 import {
-	ActionCheckParameter,
+	ActionsSection,
+	ActionTabInputName,
+	ActionTabInputValues,
+	ActionTabParameterCheckData,
+	ActionTabParameterValueData,
 	ActionType,
-	ActionValueParameter,
-	ActionValueUnit,
 	Armor,
-	Bonus,
 	CharacterSheet,
-	Check,
-	CircumstanceModifier,
-	COVER_TYPES,
 	DerivedStatType,
 	Distance,
-	IncludeEquipmentModifier,
-	ModifierSource,
+	getRecordKeys,
 	PassiveCoverType,
 	Resource,
 	Shield,
-	StandardCheck,
-	StatTree,
 	StatType,
 	Trait,
-	Value,
 	Weapon,
 	WeaponMode,
-	ActionsSection,
-	ActionTabInputName,
-	getRecordKeys,
 } from '@shattered-wilds/commons';
-import React, { useEffect, useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
 import { FaShield } from 'react-icons/fa6';
 
 import { useModals } from '../../hooks/useModals';
 import { useUIStateFactory } from '../../hooks/useUIState';
 import { useStore } from '../../store';
-import { Character } from '../../types/ui';
-import { numberToOrdinal } from '../../utils';
 import { CostBoxComponent } from '../CostBoxComponent';
 import { ParameterBoxComponent } from '../ParameterBoxComponent';
 import { ResourceInputComponent } from '../ResourceInputComponent';
@@ -61,167 +50,52 @@ interface WeaponModeOption {
 }
 
 interface ValueParameterProps {
-	parameter: ActionValueParameter;
-	statTree: StatTree;
+	data: ActionTabParameterValueData;
 }
 
-const ValueParameter: React.FC<ValueParameterProps> = ({ parameter, statTree }) => {
-	const computeValueForUnit = (value: number, unit: ActionValueUnit): Value => {
-		switch (unit) {
-			case ActionValueUnit.Modifier:
-				return new Bonus({ value });
-			case ActionValueUnit.Hex:
-				return new Distance({ value });
-		}
-	};
-	const result = parameter.compute(statTree);
-	const value = computeValueForUnit(result.value, parameter.unit);
-	const tooltip = [parameter.name, result.tooltip].filter(Boolean).join('\n');
-
+const ValueParameter: React.FC<ValueParameterProps> = ({ data }) => {
 	return (
-		<ParameterBoxComponent title={parameter.name} tooltip={tooltip}>
-			{value.description}
+		<ParameterBoxComponent title={data.title} tooltip={data.tooltip}>
+			{data.description}
 		</ParameterBoxComponent>
 	);
 };
 
 interface CheckParameterProps {
-	parameter: ActionCheckParameter;
-	statTree: StatTree;
-	character: Character;
-	tabParameters: TabParameters;
-	requireTrait?: Trait.Melee | Trait.Ranged;
+	characterId: string;
+	data: ActionTabParameterCheckData;
 }
 
-interface TabParameters {
-	selectedWeapon: WeaponModeOption | null;
-	rangeIncrementModifier: CircumstanceModifier | null;
-	passiveCoverModifier: CircumstanceModifier | null;
-	heightIncrementsModifier: CircumstanceModifier | null;
-	selectedDefenseRealm: StatType;
-	selectedShield: Shield | 'None';
-	selectedArmor: Armor | 'None';
-}
-
-const computeIncludedModifiers = (
-	includeModifierFor: IncludeEquipmentModifier,
-	tabParameters: TabParameters,
-): CircumstanceModifier[] => {
-	switch (includeModifierFor) {
-		case IncludeEquipmentModifier.Weapon: {
-			const weaponMode = tabParameters.selectedWeapon;
-			const weaponModifier = weaponMode ? weaponMode.weapon.getEquipmentModifier(weaponMode.mode) : null;
-			return [
-				weaponModifier,
-				tabParameters.rangeIncrementModifier,
-				tabParameters.passiveCoverModifier,
-				tabParameters.heightIncrementsModifier,
-			].filter(e => e !== null);
-		}
-		case IncludeEquipmentModifier.Armor: {
-			if (tabParameters.selectedDefenseRealm !== StatType.Body) {
-				return [];
-			}
-			const armor = tabParameters.selectedArmor;
-			return armor !== 'None' ? [armor.getEquipmentModifier()] : [];
-		}
-		case IncludeEquipmentModifier.Shield: {
-			const shield = tabParameters.selectedShield;
-			return shield !== 'None' ? [shield.getEquipmentModifier()] : [];
-		}
-	}
-};
-
-const computeStatType = (statType: StatType | StandardCheck, tabParameters: TabParameters): StatType => {
-	if (statType instanceof StatType) {
-		return statType;
-	}
-
-	const weaponMode = tabParameters.selectedWeapon;
-	switch (statType) {
-		case StandardCheck.BodyAttack: {
-			return weaponMode ? weaponMode.mode.statType : StatType.STR;
-		}
-		case StandardCheck.Defense: {
-			return tabParameters.selectedDefenseRealm;
-		}
-	}
-};
-
-const CheckParameter: React.FC<CheckParameterProps> = ({
-	parameter,
-	statTree,
-	character,
-	tabParameters,
-	requireTrait,
-}) => {
+const CheckParameter: React.FC<CheckParameterProps> = ({ characterId, data }) => {
 	const { openDiceRollModal } = useModals();
 
-	// Weapon trait validation (existing logic)
-	if (requireTrait && parameter.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Weapon)) {
-		const currentWeaponRangeTrait = tabParameters.selectedWeapon?.mode.rangeType ?? Trait.Melee;
-		if (currentWeaponRangeTrait !== requireTrait) {
-			return (
-				<ParameterBoxComponent
-					title='Invalid Weapon'
-					tooltip={`This action requires a weapon with the ${requireTrait} trait.`}
-				>
-					<div style={{ color: 'var(--error-color)' }}>{`${requireTrait} Required`}</div>
-				</ParameterBoxComponent>
-			);
-		}
-	}
+	const { title, tooltip, checkData, textTitle, textSubtitle, errors } = data;
 
-	if (
-		parameter.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Shield) &&
-		tabParameters.selectedShield === 'None'
-	) {
+	const error = errors[0];
+	if (error) {
 		return (
-			<ParameterBoxComponent title='Invalid Shield' tooltip='This action requires a shield to be equipped.'>
-				<div style={{ color: 'var(--error-color)' }}>Shield Required</div>
+			<ParameterBoxComponent title={error.title} tooltip={error.tooltip}>
+				<div style={{ color: 'var(--error-color)' }}>{error.text}</div>
 			</ParameterBoxComponent>
 		);
 	}
 
-	const statType = computeStatType(parameter.statType, tabParameters);
-	const cms = parameter.includeEquipmentModifiers.flatMap(includeModifierFor =>
-		computeIncludedModifiers(includeModifierFor, tabParameters),
-	);
-	const circumstanceModifiers = [parameter.circumstanceModifier, ...cms].filter(e => e !== undefined);
-
-	const statModifier = statTree.getModifier(statType, circumstanceModifiers);
-	const name = statType.name;
-	const tooltipText = [
-		`Stat: ${statType.name}`,
-		statModifier.description,
-		`Check type: ${parameter.mode}-${parameter.nature}`,
-		parameter.targetDc && `Target DC: ${parameter.targetDc}`,
-	]
-		.filter(Boolean)
-		.join('\n');
-
-	const inherentModifier = statModifier.inherentModifier;
-	const targetDcSuffix = parameter.targetDc ? ` | DC ${parameter.targetDc}` : '';
 	return (
 		<ParameterBoxComponent
-			title={`${name} (${inherentModifier.description})`}
-			tooltip={tooltipText}
+			title={title}
+			tooltip={tooltip}
 			onClick={() => {
 				openDiceRollModal({
-					characterId: character.id,
-					check: new Check({
-						mode: parameter.mode,
-						nature: parameter.nature,
-						statModifier: statModifier,
-					}),
-					title: `Roll ${name} Check`,
-					...(parameter.targetDc !== undefined && { initialTargetDC: parameter.targetDc }),
+					characterId,
+					check: checkData.check,
+					title: checkData.title,
+					...(checkData.targetDc !== undefined && { initialTargetDC: checkData.targetDc }),
 				});
 			}}
 		>
-			{statModifier.value.description}
+			{textTitle}
 			<FaDice size={12} />
-			{targetDcSuffix}
+			{textSubtitle}
 		</ParameterBoxComponent>
 	);
 };
@@ -232,7 +106,6 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 	const [showAll, setShowAll] = useState('showAll', true);
 
 	const character = useStore(state => state.characters.find(c => c.id === characterId))!;
-	const tree = sheet.getStatTree();
 	const hasShield = sheet.equipment.items.some(item => item instanceof Shield);
 	const weapons = sheet.equipment.items.filter(item => item instanceof Weapon) as Weapon[];
 	const weaponModes = useMemo(
@@ -265,51 +138,21 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 	const [selectedArmor, setSelectedArmor] = useStateArrayItem('selectedArmor', armors, 'None');
 	const [selectedShield, setSelectedShield] = useStateArrayItem('selectedShield', shields, 'None');
 
-	const rangeIncrementModifier = useMemo(() => {
-		if (!selectedWeapon || !selectedRange || selectedWeapon.mode.rangeType !== Trait.Ranged) {
-			return null;
-		}
-		const weaponRange = selectedWeapon.mode.range;
-		const rangeIncrements = Math.max(0, Math.floor((selectedRange.value - 1) / weaponRange.value));
-
-		return new CircumstanceModifier({
-			source: ModifierSource.Circumstance,
-			name: `${numberToOrdinal(rangeIncrements)} Range Increment Penalty`,
-			value: Bonus.of(rangeIncrements * -3),
-		});
-	}, [selectedWeapon, selectedRange]);
-
-	const passiveCoverModifier = useMemo(() => {
-		if (selectedPassiveCover === PassiveCoverType.None) {
-			return null;
-		}
-		return COVER_TYPES[selectedPassiveCover].modifier;
-	}, [selectedPassiveCover]);
-	const heightIncrementsModifier = useMemo(() => {
-		const increments = parseInt(heightIncrements);
-		if (!increments || isNaN(increments) || increments === 0) {
-			return null;
-		}
-		return new CircumstanceModifier({
-			source: ModifierSource.Circumstance,
-			name: `Height Increments (${increments})`,
-			value: Bonus.of(increments * -3),
-		});
-	}, [heightIncrements]);
+	const inputValues = new ActionTabInputValues({
+		selectedWeapon,
+		selectedRange,
+		selectedDefenseRealm,
+		selectedPassiveCover,
+		heightIncrements,
+		selectedArmor,
+		selectedShield,
+	});
 
 	const actionsSection = ActionsSection.create({
 		characterId,
 		characterSheet: sheet,
 		showAll,
-		inputValues: {
-			selectedWeapon,
-			selectedRange,
-			selectedDefenseRealm,
-			selectedPassiveCover,
-			heightIncrements,
-			selectedArmor,
-			selectedShield,
-		},
+		inputValues,
 	});
 
 	const updateSelectedWeapon = useCallback(
@@ -370,6 +213,9 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 		const resourceInput = (resource: Resource) => {
 			return <ResourceInputComponent variant='normal' character={character} sheet={sheet} resource={resource} />;
 		};
+
+		const rangeIncrementModifier = inputValues.rangeIncrementModifier();
+		const heightIncrementsModifier = inputValues.heightIncrementsModifier();
 
 		const reactInputs = inputs.map(input => {
 			switch (input.name) {
@@ -558,28 +404,11 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 								</div>
 
 								{action.parameters.map(actionParameter => {
-									const { key, parameter } = actionParameter;
-									if (parameter instanceof ActionValueParameter) {
-										return <ValueParameter key={key} parameter={parameter} statTree={tree} />;
-									} else if (parameter instanceof ActionCheckParameter) {
-										return (
-											<CheckParameter
-												key={key}
-												parameter={parameter}
-												statTree={tree}
-												character={character}
-												tabParameters={{
-													selectedWeapon,
-													selectedDefenseRealm,
-													selectedArmor,
-													selectedShield,
-													rangeIncrementModifier,
-													passiveCoverModifier,
-													heightIncrementsModifier,
-												}}
-												requireTrait={action.traits.filter(trait => trait === Trait.Melee || trait === Trait.Ranged)[0]}
-											/>
-										);
+									const { key, data } = actionParameter;
+									if (data instanceof ActionTabParameterValueData) {
+										return <ValueParameter key={key} data={data} />;
+									} else if (data instanceof ActionTabParameterCheckData) {
+										return <CheckParameter key={key} characterId={characterId} data={data} />;
 									}
 									return null;
 								})}

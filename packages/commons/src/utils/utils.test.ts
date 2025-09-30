@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { mapEnumToRecord, getRecordKeys } from './utils.js';
+import { mapEnumToRecord, getRecordKeys, numberToOrdinal } from './utils.js';
 
 describe('mapEnumToRecord', () => {
 	it('should map all enum values to a record', () => {
@@ -44,5 +44,40 @@ describe('getRecordKeys', () => {
 		expect(keys).toContain(TestEnum.Beta);
 		expect(keys).toContain(TestEnum.Gamma);
 		expect(keys.sort()).toEqual([TestEnum.Alpha, TestEnum.Beta, TestEnum.Gamma].sort());
+	});
+});
+
+describe('numberToOrdinal', () => {
+	it('should convert numbers to ordinal strings correctly', () => {
+		// Basic cases
+		expect(numberToOrdinal(1)).toBe('1st');
+		expect(numberToOrdinal(2)).toBe('2nd');
+		expect(numberToOrdinal(3)).toBe('3rd');
+		expect(numberToOrdinal(4)).toBe('4th');
+		expect(numberToOrdinal(5)).toBe('5th');
+		expect(numberToOrdinal(7)).toBe('7th');
+		expect(numberToOrdinal(10)).toBe('10th');
+
+		// Special cases for 11, 12, 13 (always "th")
+		expect(numberToOrdinal(11)).toBe('11th');
+		expect(numberToOrdinal(12)).toBe('12th');
+		expect(numberToOrdinal(13)).toBe('13th');
+
+		// Higher numbers with special endings
+		expect(numberToOrdinal(21)).toBe('21st');
+		expect(numberToOrdinal(22)).toBe('22nd');
+		expect(numberToOrdinal(23)).toBe('23rd');
+		expect(numberToOrdinal(24)).toBe('24th');
+
+		// Numbers ending in 11, 12, 13 (always "th")
+		expect(numberToOrdinal(111)).toBe('111th');
+		expect(numberToOrdinal(112)).toBe('112th');
+		expect(numberToOrdinal(113)).toBe('113th');
+
+		// Higher numbers with normal endings
+		expect(numberToOrdinal(101)).toBe('101st');
+		expect(numberToOrdinal(102)).toBe('102nd');
+		expect(numberToOrdinal(103)).toBe('103rd');
+		expect(numberToOrdinal(104)).toBe('104th');
 	});
 });
