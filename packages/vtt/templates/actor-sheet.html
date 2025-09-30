@@ -452,7 +452,7 @@
 												<label class="header-label">Passive Cover</label>
 												<select data-action="select-passive-cover" class="header-select">
 													{{#each header.passiveCoverOptions}}
-													<option value="{{this}}" {{#if (eq this ../header.selectedPassiveCover)}}selected{{/if}}>{{this}}</option>
+													<option value="{{this.value}}" {{#if (eq this.value ../header.selectedPassiveCover)}}selected{{/if}}>{{this.label}}</option>
 													{{/each}}
 												</select>
 											</div>

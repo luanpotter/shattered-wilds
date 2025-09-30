@@ -7,6 +7,7 @@ import {
 	ActionType,
 	Armor,
 	CharacterSheet,
+	COVER_TYPES,
 	DerivedStatType,
 	Distance,
 	getRecordKeys,
@@ -273,6 +274,11 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 							label='Passive Cover'
 							value={selectedPassiveCover}
 							options={Object.values(PassiveCoverType) as PassiveCoverType[]}
+							describe={cover => {
+								const definition = COVER_TYPES[cover];
+								const bonus = definition.bonus.value;
+								return bonus === 0 ? cover : `${cover} (${bonus})`;
+							}}
 							onChange={cover => setSelectedPassiveCover(cover)}
 						/>
 					);

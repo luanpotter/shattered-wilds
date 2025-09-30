@@ -13,6 +13,7 @@ import {
 	CircumstanceModifier,
 	Condition,
 	CONDITIONS,
+	COVER_TYPES,
 	DerivedStatType,
 	Distance,
 	FeatsSection,
@@ -1095,7 +1096,14 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					break;
 				}
 				case ActionTabInputName.PassiveCover:
-					headerData.passiveCoverOptions = Object.values(PassiveCoverType);
+					headerData.passiveCoverOptions = Object.values(PassiveCoverType).map(cover => {
+						const definition = COVER_TYPES[cover];
+						const bonus = definition.bonus.value;
+						return {
+							value: cover,
+							label: bonus === 0 ? cover : `${cover} (${bonus})`,
+						};
+					});
 					headerData.selectedPassiveCover = inputValues.selectedPassiveCover!;
 					break;
 				case ActionTabInputName.HeightIncrements:
