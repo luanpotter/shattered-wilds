@@ -30,14 +30,12 @@ import {
 	FeatsSection,
 	DerivedStatType,
 	Weapon,
-	WeaponMode,
+	WeaponModeOption,
 	Armor,
 	Shield,
 	OtherItem,
 	PRIMARY_WEAPON_TYPES,
 	ACTIONS,
-	Action,
-	ActionDefinition,
 	ActionType,
 	ActionValueParameter,
 	ActionCheckParameter,
@@ -49,38 +47,23 @@ import {
 	Trait,
 	ModifierSource,
 	COVER_TYPES,
-	IncludeEquipmentModifier,
 	Condition,
 	CONDITIONS,
+	ActionsSection,
+	ActionTabItem,
 } from '@shattered-wilds/commons';
 import { parseCharacterProps, parseCharacterSheet } from './characters.js';
 
-function buildWeaponModesList(
-	characterSheet: CharacterSheet,
-): Array<{ index: number; label: string; weapon: Weapon | null; mode: WeaponMode | null }> {
+function buildWeaponModeOptions(characterSheet: CharacterSheet): WeaponModeOption[] {
 	const equipment = characterSheet.equipment;
 	const hasShield = equipment.items.some(item => item instanceof Shield);
 	const weapons = equipment.items.filter(item => item instanceof Weapon) as Weapon[];
 
-	const weaponModes: Array<{ index: number; label: string; weapon: Weapon | null; mode: WeaponMode | null }> = [
-		{ index: 0, label: 'Unarmed', weapon: null, mode: null },
-		...(hasShield ? [{ index: 1, label: 'Shield Bash', weapon: null, mode: null }] : []),
+	return [
+		Weapon.unarmed(),
+		...(hasShield ? [Weapon.shieldBash()] : []),
+		...weapons.flatMap(weapon => weapon.modes.map(mode => ({ weapon, mode }))),
 	];
-
-	let currentIndex = hasShield ? 2 : 1;
-
-	for (const weapon of weapons) {
-		for (const mode of weapon.modes) {
-			weaponModes.push({
-				index: currentIndex++,
-				label: `${weapon.name} - ${mode.description}`,
-				weapon: weapon,
-				mode: mode,
-			});
-		}
-	}
-
-	return weaponModes;
 }
 
 function computeStatType(
@@ -92,17 +75,11 @@ function computeStatType(
 		switch (statType as StandardCheck) {
 			case StandardCheck.BodyAttack: {
 				// Use selected weapon to determine STR vs DEX
-				if (
-					actionsUIState?.selectedWeaponIndex !== null &&
-					actionsUIState?.selectedWeaponIndex !== undefined &&
-					characterSheet
-				) {
-					const selectedIndex = actionsUIState.selectedWeaponIndex as number;
-					const weaponModes = buildWeaponModesList(characterSheet);
-					const selectedWeaponMode = weaponModes.find(w => w.index === selectedIndex);
-
-					if (selectedWeaponMode?.mode) {
-						return selectedWeaponMode.mode.statType; // This will be DEX for Light Melee, STR for Heavy Melee, etc.
+				if (actionsUIState?.selectedWeaponIndex !== undefined && characterSheet) {
+					const weaponModes = buildWeaponModeOptions(characterSheet);
+					const selectedWeapon = weaponModes[actionsUIState.selectedWeaponIndex as number];
+					if (selectedWeapon) {
+						return selectedWeapon.mode.statType; // This will be DEX for Light Melee, STR for Heavy Melee, etc.
 					}
 				}
 				return StatType.STR; // Default to STR for body attacks when no weapon selected
@@ -132,14 +109,14 @@ function computeIncludedModifiers(
 			const modifiers: CircumstanceModifier[] = [];
 
 			// Weapon modifier
-			const selectedWeaponIndex = actionsUIState.selectedWeaponIndex as number | null;
-			if (selectedWeaponIndex !== null && selectedWeaponIndex >= 0) {
-				const weaponModes = buildWeaponModesList(characterSheet);
-				const selectedWeaponMode = weaponModes.find(w => w.index === selectedWeaponIndex);
+			const selectedWeaponIndex = actionsUIState.selectedWeaponIndex as number;
+			if (selectedWeaponIndex !== undefined) {
+				const weaponModes = buildWeaponModeOptions(characterSheet);
+				const selectedWeapon = weaponModes[selectedWeaponIndex];
 
-				if (selectedWeaponMode?.weapon && selectedWeaponMode?.mode) {
-					const weapon = selectedWeaponMode.weapon;
-					const mode = selectedWeaponMode.mode;
+				if (selectedWeapon) {
+					const weapon = selectedWeapon.weapon;
+					const mode = selectedWeapon.mode;
 
 					const weaponModifier: CircumstanceModifier = {
 						source: ModifierSource.Equipment,
@@ -343,7 +320,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		selectedDefenseRealm: StatType.Body as StatType,
 		selectedPassiveCover: PassiveCoverType.None as PassiveCoverType,
 		heightIncrements: '',
-		selectedWeaponIndex: null as number | null, // Index in the flat weapon modes list
+		selectedWeaponIndex: 0, // Index into weapon modes array (0 = Unarmed)
 		selectedArmor: null as number | null,
 		selectedShield: null as number | null,
 	};
@@ -549,6 +526,14 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 	private getCharacterSheet(): CharacterSheet | undefined {
 		const actor = this.getCurrentActor();
 		return actor ? parseCharacterSheet(actor) : undefined;
+	}
+
+	private getSelectedWeapon(): WeaponModeOption | null {
+		const characterSheet = this.getCharacterSheet();
+		if (!characterSheet) return null;
+
+		const weaponModes = buildWeaponModeOptions(characterSheet);
+		return weaponModes[this.#actionsUIState.selectedWeaponIndex] || null;
 	}
 
 	constructor(...args: unknown[]) {
@@ -985,14 +970,25 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		}
 
 		try {
-			// Prepare action types as tabs
+			const actionsSection = ActionsSection.create({
+				characterId: this.getCurrentActorId() || '',
+				characterSheet,
+				showAll: this.#actionsUIState.showAll,
+				inputValues: {
+					selectedWeapon: this.getSelectedWeapon(),
+				},
+			});
+
+			// Prepare action types as tabs for VTT template compatibility
 			const actionTypes = Object.values(ActionType);
 			const actionTabs = actionTypes.map(type => ({
 				key: type,
 				label: type,
 				icon: this.getActionTypeIcon(type),
 				active: this.#actionsUIState.activeTab === type,
-				actions: this.prepareActionsForType(type, characterSheet),
+				actions: actionsSection.tabs[type].actions.map(actionTabItem =>
+					this.prepareActionItemFromTabItem(actionTabItem, characterSheet),
+				),
 				header: this.getActionTypeHeader(type, characterSheet),
 			}));
 
@@ -1004,6 +1000,94 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		} catch (err) {
 			console.warn('Failed to prepare actions data:', err);
 			return null;
+		}
+	}
+
+	private prepareActionItemFromTabItem(actionTabItem: ActionTabItem, characterSheet: CharacterSheet): unknown {
+		// Convert ActionTabItem to VTT format
+		const costs = actionTabItem.cost.actionCosts.map(cost => {
+			const resource = characterSheet.getResource(cost.resource);
+			const insufficient = resource.current < cost.amount;
+			return {
+				resource: cost.resource,
+				amount: cost.amount,
+				value: `${cost.amount} ${RESOURCES[cost.resource as Resource].shortName}`,
+				insufficient,
+			};
+		});
+
+		const costTooltip = costs.map(c => c.value).join('\n');
+		const canAfford = costs.every(c => !c.insufficient);
+
+		const parameters = actionTabItem.parameters
+			.map(param => {
+				if (param.parameter instanceof ActionValueParameter) {
+					const result = param.parameter.compute(characterSheet.getStatTree());
+					const value = this.computeValueForUnit(result.value, param.parameter.unit);
+					const tooltip = [param.parameter.name, result.tooltip].filter(Boolean).join('\n');
+
+					return {
+						type: 'value',
+						title: param.parameter.name,
+						value: value.description,
+						tooltip: tooltip,
+					};
+				} else if (param.parameter instanceof ActionCheckParameter) {
+					// Reconstruct the proper check parameter format from the original VTT logic
+					const tree = characterSheet.getStatTree();
+					const resolvedStatType = computeStatType(param.parameter.statType, this.#actionsUIState, characterSheet);
+
+					// Compute included modifiers based on current UI state
+					const cms = param.parameter.includeEquipmentModifiers.flatMap(includeModifierFor =>
+						computeIncludedModifiers(includeModifierFor.toString(), characterSheet, this.#actionsUIState),
+					);
+					const circumstanceModifiers = [param.parameter.circumstanceModifier, ...cms].filter(
+						e => e !== undefined,
+					) as CircumstanceModifier[];
+
+					const statModifier = tree.getModifier(resolvedStatType, circumstanceModifiers);
+					const inherentModifier = statModifier.inherentModifier;
+					const targetDcSuffix = param.parameter.targetDc ? ` | DC ${param.parameter.targetDc}` : '';
+
+					return {
+						type: 'check',
+						title: `${resolvedStatType.name} (${inherentModifier.description})`,
+						value: statModifier.value.description,
+						tooltip: `${statModifier.description} • Click for advanced options • Shift+Click for quick roll`,
+						checkData: {
+							stat: resolvedStatType.toString(),
+							modifier: statModifier.value.value,
+							description: statModifier.description,
+							parameter: param.parameter,
+						},
+						targetDcSuffix,
+					};
+				}
+				return null;
+			})
+			.filter(Boolean);
+
+		// Show only first paragraph of description
+		const firstParagraph = actionTabItem.description.split('\n\n')[0] || actionTabItem.description;
+
+		return {
+			key: actionTabItem.key,
+			name: actionTabItem.title,
+			description: processDescriptionText(firstParagraph),
+			traits: actionTabItem.traits,
+			costs,
+			costTooltip,
+			canAfford,
+			parameters,
+		};
+	}
+
+	private computeValueForUnit(value: number, unit: ActionValueUnit): Bonus | Distance {
+		switch (unit) {
+			case ActionValueUnit.Modifier:
+				return new Bonus({ value });
+			case ActionValueUnit.Hex:
+				return new Distance({ value });
 		}
 	}
 
@@ -1024,155 +1108,6 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			default:
 				return 'fas fa-star';
 		}
-	}
-
-	private prepareActionsForType(type: ActionType, characterSheet: CharacterSheet): unknown[] {
-		let actions = Object.values(ACTIONS).filter(action => action.type === type);
-
-		// Apply resource-based filtering
-		if (!this.#actionsUIState.showAll) {
-			actions = actions.filter(action =>
-				action.costs.every(cost => characterSheet.getResource(cost.resource).current >= cost.amount),
-			);
-		}
-
-		// Apply contextual filtering based on selected weapon mode and defense realm (only when showAll is disabled)
-		if (!this.#actionsUIState.showAll) {
-			actions = actions.filter(action => {
-				// Filter based on weapon mode for attack actions
-				if (type === ActionType.Attack) {
-					const selectedWeaponIndex = this.#actionsUIState.selectedWeaponIndex;
-					if (selectedWeaponIndex !== null && selectedWeaponIndex >= 0) {
-						const weaponModes = buildWeaponModesList(characterSheet);
-						const selectedWeaponMode = weaponModes.find(w => w.index === selectedWeaponIndex);
-
-						if (selectedWeaponMode?.mode) {
-							const mode = selectedWeaponMode.mode;
-							const isRangedMode = mode.rangeType === Trait.Ranged;
-							// Hide ranged actions if melee weapon selected, and vice versa
-							if (action.traits.includes(Trait.Ranged) && !isRangedMode) {
-								return false;
-							}
-							if (action.traits.includes(Trait.Melee) && isRangedMode) {
-								return false;
-							}
-						}
-					} else {
-						// For unarmed (-1) or shield bash (-2), treat as melee
-						if (action.traits.includes(Trait.Ranged)) {
-							return false;
-						}
-					}
-				}
-
-				// Filter based on defense realm for defense actions
-				if (type === ActionType.Defense) {
-					const selectedDefenseRealm = this.#actionsUIState.selectedDefenseRealm;
-					if (selectedDefenseRealm) {
-						// Always show Basic Defense regardless of realm
-						if (action.key === Action.BasicDefense) {
-							return true;
-						}
-
-						// Hide body-only defense actions if Mind or Soul is selected
-						if (selectedDefenseRealm.name !== 'Body') {
-							// Check if action is body-only by looking at its parameters
-							const hasBodyOnlyParameters = action.parameters.some(param => {
-								if (param instanceof ActionCheckParameter) {
-									return (
-										param.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Armor) ||
-										param.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Shield)
-									);
-								}
-								return false;
-							});
-							if (hasBodyOnlyParameters) {
-								return false;
-							}
-						}
-
-						// Hide Shield Block if show all is false and no shield is selected
-						if (action.key === Action.ShieldBlock && !this.#actionsUIState.showAll) {
-							if (this.#actionsUIState.selectedShield === null) {
-								return false;
-							}
-						}
-					}
-				}
-
-				return true;
-			});
-		}
-
-		return actions.map(action => this.prepareActionItem(action, characterSheet));
-	}
-
-	private wouldActionBeHiddenByTraitFiltering(action: ActionDefinition, characterSheet: CharacterSheet): boolean {
-		// This function determines if an action WOULD be hidden by trait filtering
-		// regardless of the showAll setting (used for red text indication)
-
-		// Check weapon trait filtering for attack actions
-		if (action.type === ActionType.Attack) {
-			const selectedWeaponIndex = this.#actionsUIState.selectedWeaponIndex;
-			if (selectedWeaponIndex !== null && selectedWeaponIndex >= 0) {
-				const weaponModes = buildWeaponModesList(characterSheet);
-				const selectedWeaponMode = weaponModes.find(w => w.index === selectedWeaponIndex);
-
-				if (selectedWeaponMode?.mode) {
-					const mode = selectedWeaponMode.mode;
-					const isRangedMode = mode.rangeType === Trait.Ranged;
-					// Action would be hidden if it has ranged trait but melee weapon selected, or vice versa
-					if (action.traits.includes(Trait.Ranged) && !isRangedMode) {
-						return true;
-					}
-					if (action.traits.includes(Trait.Melee) && isRangedMode) {
-						return true;
-					}
-				}
-			} else {
-				// For unarmed (-1) or shield bash (-2), treat as melee - ranged actions would be hidden
-				if (action.traits.includes(Trait.Ranged)) {
-					return true;
-				}
-			}
-		}
-
-		// Check defense realm filtering for defense actions
-		if (action.type === ActionType.Defense) {
-			const selectedDefenseRealm = this.#actionsUIState.selectedDefenseRealm;
-			if (selectedDefenseRealm) {
-				// Always show Basic Defense regardless of realm
-				if (action.key === Action.BasicDefense) {
-					return false; // Basic Defense is never hidden
-				}
-
-				// Hide body-only defense actions if Mind or Soul is selected
-				if (selectedDefenseRealm.name !== 'Body') {
-					// Check if action is body-only by looking at its parameters
-					const hasBodyOnlyParameters = action.parameters.some(param => {
-						if (param instanceof ActionCheckParameter) {
-							return (
-								param.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Armor) ||
-								param.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Shield)
-							);
-						}
-						return false;
-					});
-					if (hasBodyOnlyParameters) {
-						return true; // Would be hidden because it's body-only but non-body realm selected
-					}
-				}
-
-				// Also check Shield Block specifically
-				if (action.key === Action.ShieldBlock) {
-					if (this.#actionsUIState.selectedShield === null) {
-						return true; // Would be hidden because no shield is selected
-					}
-				}
-			}
-		}
-
-		return false;
 	}
 
 	private prepareConditionsData(): unknown[] {
@@ -1240,92 +1175,6 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		};
 	}
 
-	private prepareActionItem(action: ActionDefinition, characterSheet: CharacterSheet): unknown {
-		const costs = action.costs.map(cost => {
-			const resource = RESOURCES[cost.resource];
-			const current = characterSheet.getResource(cost.resource).current;
-			return {
-				value: `${cost.amount}${cost.variable ? '+' : ''} ${resource.shortName}`,
-				insufficient: current < cost.amount,
-			};
-		});
-
-		const costTooltip = costs.map(c => c.value).join('\n');
-		const canAfford = costs.every(c => !c.insufficient);
-
-		const parameters = action.parameters
-			.map(param => {
-				if (param instanceof ActionValueParameter) {
-					const tree = characterSheet.getStatTree();
-					const result = param.compute(tree);
-
-					// Convert result to appropriate value type
-					const computeValueForUnit = (value: number, unit: ActionValueUnit) => {
-						switch (unit) {
-							case ActionValueUnit.Modifier:
-								return new Bonus({ value });
-							case ActionValueUnit.Hex:
-								return new Distance({ value });
-						}
-					};
-
-					const value = computeValueForUnit(result.value, param.unit);
-					const tooltip = [param.name, result.tooltip].filter(Boolean).join('\n');
-
-					return {
-						type: 'value',
-						title: param.name,
-						value: value.description,
-						tooltip: tooltip,
-					};
-				} else if (param instanceof ActionCheckParameter) {
-					const tree = characterSheet.getStatTree();
-					const resolvedStatType = computeStatType(param.statType, this.#actionsUIState, characterSheet);
-
-					// Compute included modifiers based on current UI state
-					const cms = param.includeEquipmentModifiers.flatMap(includeModifierFor =>
-						computeIncludedModifiers(includeModifierFor.toString(), characterSheet, this.#actionsUIState),
-					);
-					const circumstanceModifiers = [param.circumstanceModifier, ...cms].filter(
-						e => e !== undefined,
-					) as CircumstanceModifier[];
-
-					const statModifier = tree.getModifier(resolvedStatType, circumstanceModifiers);
-					const wouldBeHidden = this.wouldActionBeHiddenByTraitFiltering(action, characterSheet);
-
-					return {
-						type: 'check',
-						title: resolvedStatType.toString(),
-						value: statModifier.value.description,
-						tooltip: `${statModifier.description} • Click for advanced options • Shift+Click for quick roll`,
-						wouldBeHidden,
-						checkData: {
-							stat: resolvedStatType.toString(),
-							modifier: statModifier.value.value,
-							description: statModifier.description,
-							parameter: param,
-						},
-					};
-				}
-				return null;
-			})
-			.filter(Boolean);
-
-		// Show only first paragraph of description
-		const firstParagraph = action.description.split('\n\n')[0] || action.description;
-
-		return {
-			key: action.key,
-			name: action.name,
-			description: processDescriptionText(firstParagraph),
-			traits: action.traits,
-			costs,
-			costTooltip,
-			canAfford,
-			parameters,
-		};
-	}
-
 	private getActionTypeHeader(type: ActionType, characterSheet: CharacterSheet): Record<string, unknown> | null {
 		switch (type) {
 			case ActionType.Movement: {
@@ -1334,12 +1183,15 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			}
 			case ActionType.Attack: {
 				// Build weapon modes list
-				const weaponModes = buildWeaponModesList(characterSheet);
+				const weaponModeOptions = buildWeaponModeOptions(characterSheet);
+				const weaponModes = weaponModeOptions.map((option, index) => ({
+					index,
+					label: `${option.weapon.name} - ${option.mode.description}`,
+					weapon: option.weapon,
+					mode: option.mode,
+				}));
 
-				const selectedWeaponData =
-					this.#actionsUIState.selectedWeaponIndex !== null
-						? weaponModes.find(w => w.index === this.#actionsUIState.selectedWeaponIndex)
-						: weaponModes[0]; // Default to Unarmed
+				const selectedWeaponData = weaponModes[this.#actionsUIState.selectedWeaponIndex] || weaponModes[0];
 
 				return {
 					type: 'attack',

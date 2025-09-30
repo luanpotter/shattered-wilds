@@ -1,7 +1,5 @@
 import {
-	ACTIONS,
 	ActionCheckParameter,
-	ActionDefinition,
 	ActionType,
 	ActionValueParameter,
 	ActionValueUnit,
@@ -25,6 +23,9 @@ import {
 	Value,
 	Weapon,
 	WeaponMode,
+	ActionsSection,
+	ActionTabInputName,
+	getRecordKeys,
 } from '@shattered-wilds/commons';
 import React, { useEffect, useCallback, useMemo } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
@@ -43,7 +44,7 @@ import { LabeledCheckbox } from '../shared/LabeledCheckbox';
 import LabeledDropdown from '../shared/LabeledDropdown';
 import LabeledInput from '../shared/LabeledInput';
 import { RichText } from '../shared/RichText';
-import { Tabs, TabItem } from '../shared/Tabs';
+import { Tabs } from '../shared/Tabs';
 
 interface ActionsSectionProps {
 	characterId: string;
@@ -229,14 +230,6 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 	const { useState, useStateArrayItem } = useUIStateFactory(`actions-${characterId}`);
 	const [activeTab, setActiveTab] = useState('activeTab', ActionType.Movement);
 	const [showAll, setShowAll] = useState('showAll', true);
-	const [selectedRange, setSelectedRange] = useState<Distance | null>('selectedRange', null);
-	const [selectedDefenseRealm, setSelectedDefenseRealm] = useStateArrayItem(
-		'selectedDefenseRealm',
-		StatType.realms,
-		StatType.Body,
-	);
-	const [selectedPassiveCover, setSelectedPassiveCover] = useState('selectedPassiveCover', PassiveCoverType.None);
-	const [heightIncrements, setHeightIncrements] = useState('heightIncrements', '');
 
 	const character = useStore(state => state.characters.find(c => c.id === characterId))!;
 	const tree = sheet.getStatTree();
@@ -251,6 +244,14 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 		[hasShield, weapons],
 	);
 
+	const [selectedRange, setSelectedRange] = useState<Distance | null>('selectedRange', null);
+	const [selectedDefenseRealm, setSelectedDefenseRealm] = useStateArrayItem(
+		'selectedDefenseRealm',
+		StatType.realms,
+		StatType.Body,
+	);
+	const [selectedPassiveCover, setSelectedPassiveCover] = useState('selectedPassiveCover', PassiveCoverType.None);
+	const [heightIncrements, setHeightIncrements] = useState('heightIncrements', '');
 	const armors = useMemo(
 		() => ['None', ...sheet.equipment.items.filter(item => item instanceof Armor)] as const,
 		[sheet.equipment.items],
@@ -296,6 +297,15 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 		});
 	}, [heightIncrements]);
 
+	const actionsSection = ActionsSection.create({
+		characterId,
+		characterSheet: sheet,
+		showAll,
+		inputValues: {
+			selectedWeapon,
+		},
+	});
+
 	const updateSelectedWeapon = useCallback(
 		(weapon: WeaponModeOption) => {
 			setSelectedWeapon(weapon);
@@ -335,219 +345,165 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 	};
 
 	const renderTabButtons = () => {
-		const availableTabs = [...new Set(Object.values(ACTIONS).map(action => action.type))];
-		const tabItems: TabItem<ActionType>[] = availableTabs.map(tab => ({
-			key: tab,
-			label: tab,
-			icon: getTypeIcon(tab),
+		const tabItems = getRecordKeys(actionsSection.tabs).map(actionType => ({
+			key: actionType,
+			label: actionType,
+			icon: getTypeIcon(actionType),
 		}));
 		return <Tabs tabs={tabItems} activeKey={activeTab} onChange={setActiveTab} iconSize={14} />;
 	};
 
-	const getHeaderForTab = (
-		type: ActionType,
-	): {
-		Header: React.ReactNode | undefined;
-		filter?: (action: ActionDefinition) => boolean;
-	} => {
+	const getHeaderInputsForTab = (type: ActionType): React.ReactNode | null => {
 		const headerDivStyle = { marginBottom: '12px', display: 'flex', gap: '8px' };
-		switch (type) {
-			case ActionType.Movement: {
-				const movement = sheet.getStatTree().getDistance(DerivedStatType.Movement);
-				return {
-					Header: (
-						<div style={headerDivStyle}>
+		const { inputs } = actionsSection.tabs[type];
+
+		const movement = sheet.getStatTree().getDistance(DerivedStatType.Movement);
+		const hasRangedWeaponSelected = selectedWeapon?.mode.rangeType === Trait.Ranged;
+		const isBody = selectedDefenseRealm === StatType.Body;
+
+		const resourceInput = (resource: Resource) => {
+			return <ResourceInputComponent variant='normal' character={character} sheet={sheet} resource={resource} />;
+		};
+
+		const reactInputs = inputs.map(input => {
+			switch (input.name) {
+				case ActionTabInputName.ActionPoints:
+					return resourceInput(Resource.ActionPoint);
+				case ActionTabInputName.VitalityPoints:
+					return resourceInput(Resource.VitalityPoint);
+				case ActionTabInputName.FocusPoints:
+					return resourceInput(Resource.FocusPoint);
+				case ActionTabInputName.SpiritPoints:
+					return resourceInput(Resource.SpiritPoint);
+				case ActionTabInputName.HeroismPoints:
+					return resourceInput(Resource.HeroismPoint);
+				case ActionTabInputName.Movement:
+					return (
+						<LabeledInput
+							label='Movement'
+							tooltip={movement.description}
+							value={movement.value.description}
+							disabled={true}
+						/>
+					);
+				case ActionTabInputName.WeaponMode:
+					return (
+						<LabeledDropdown
+							label='Weapon'
+							value={selectedWeapon}
+							options={weaponModes}
+							describe={weaponMode => `${weaponMode.weapon.name} - ${weaponMode.mode.description}`}
+							onChange={updateSelectedWeapon}
+						/>
+					);
+				case ActionTabInputName.RangeIncrement:
+					return hasRangedWeaponSelected ? (
+						<LabeledInput label='Range Increment' value={selectedWeapon.mode.range.description} disabled={true} />
+					) : null;
+				case ActionTabInputName.RangeCM:
+					return (
+						hasRangedWeaponSelected &&
+						rangeIncrementModifier && (
 							<LabeledInput
-								label='Movement'
-								tooltip={movement.description}
-								value={movement.value.description}
+								label='Range CM'
 								disabled={true}
+								tooltip={rangeIncrementModifier.description}
+								value={rangeIncrementModifier.value.description}
 							/>
-							<ResourceInputComponent
-								variant='normal'
-								character={character}
-								sheet={sheet}
-								resource={Resource.ActionPoint}
+						)
+					);
+				case ActionTabInputName.Target:
+					return hasRangedWeaponSelected ? (
+						<LabeledInput
+							label='Target (Hexes)'
+							value={selectedRange?.value.toString() ?? ''}
+							onChange={value => {
+								setSelectedRange(value && parseInt(value) > 0 ? Distance.of(parseInt(value)) : null);
+							}}
+						/>
+					) : null;
+				case ActionTabInputName.PassiveCover:
+					return hasRangedWeaponSelected ? (
+						<LabeledDropdown
+							label='Passive Cover'
+							value={selectedPassiveCover}
+							options={Object.values(PassiveCoverType) as PassiveCoverType[]}
+							onChange={cover => setSelectedPassiveCover(cover)}
+						/>
+					) : null;
+				case ActionTabInputName.HeightIncrements:
+					return hasRangedWeaponSelected ? (
+						<LabeledInput
+							label='Height Increments'
+							value={heightIncrements}
+							tooltip={
+								heightIncrementsModifier
+									? heightIncrementsModifier.description
+									: 'Provide the number of height increments between the attacker and the target.'
+							}
+							onChange={value => setHeightIncrements(value)}
+						/>
+					) : null;
+				case ActionTabInputName.HeightCM:
+					return heightIncrementsModifier ? (
+						<LabeledInput
+							label='Height CM'
+							disabled={true}
+							tooltip={heightIncrementsModifier.description}
+							value={heightIncrementsModifier.value.description}
+						/>
+					) : null;
+				case ActionTabInputName.DefenseRealm:
+					return (
+						<LabeledDropdown
+							label='Realm'
+							value={selectedDefenseRealm}
+							options={StatType.realms}
+							describe={realm => realm.name}
+							onChange={realm => setSelectedDefenseRealm(realm)}
+						/>
+					);
+				case ActionTabInputName.Armor:
+					return (
+						isBody &&
+						selectedArmor && (
+							<LabeledDropdown<Armor | 'None'>
+								label='Armor'
+								tooltip='Armor is applied to the any **Body Defense** check.'
+								value={selectedArmor}
+								options={armors}
+								describe={armor => (armor === 'None' ? 'No Armor' : armor.displayText)}
+								onChange={setSelectedArmor}
 							/>
-						</div>
-					),
-				};
-			}
-			case ActionType.Attack: {
-				const hasRangedWeaponSelected = selectedWeapon?.mode.rangeType === Trait.Ranged;
-				return {
-					Header: (
-						<div style={headerDivStyle}>
+						)
+					);
+				case ActionTabInputName.Shield:
+					return (
+						isBody &&
+						shields.length > 0 && (
 							<LabeledDropdown
-								label='Weapon'
-								value={selectedWeapon}
-								options={weaponModes}
-								describe={weaponMode => `${weaponMode.weapon.name} - ${weaponMode.mode.description}`}
-								onChange={updateSelectedWeapon}
+								label='Shield'
+								value={selectedShield}
+								options={shields}
+								describe={shield => (shield === 'None' ? 'No Shield' : shield.displayText)}
+								onChange={setSelectedShield}
+								disabled={!hasShield}
 							/>
-							{hasRangedWeaponSelected && (
-								<LabeledInput
-									label='Range Increment'
-									value={hasRangedWeaponSelected ? selectedWeapon.mode.range.description : '-'}
-									disabled={true}
-								/>
-							)}
-							{hasRangedWeaponSelected && (
-								<LabeledInput
-									label='Target (Hexes)'
-									value={selectedRange?.value.toString() ?? ''}
-									onChange={value => {
-										setSelectedRange(value && parseInt(value) > 0 ? Distance.of(parseInt(value)) : null);
-									}}
-								/>
-							)}
-							{hasRangedWeaponSelected && rangeIncrementModifier && (
-								<LabeledInput
-									label='Range CM'
-									disabled={true}
-									tooltip={rangeIncrementModifier.description}
-									value={rangeIncrementModifier.value.description}
-								/>
-							)}
-							{hasRangedWeaponSelected && (
-								<LabeledDropdown
-									label='Passive Cover'
-									value={selectedPassiveCover}
-									options={Object.values(PassiveCoverType) as PassiveCoverType[]}
-									onChange={cover => setSelectedPassiveCover(cover)}
-								/>
-							)}
-							{passiveCoverModifier && (
-								<LabeledInput
-									label='Cover CM'
-									disabled={true}
-									tooltip={passiveCoverModifier.description}
-									value={passiveCoverModifier.value.description}
-								/>
-							)}
-							{hasRangedWeaponSelected && (
-								<LabeledInput
-									label='Height Increments'
-									value={heightIncrements}
-									tooltip={
-										heightIncrementsModifier
-											? heightIncrementsModifier.description
-											: 'Provide the number of height increments between the attacker and the target.'
-									}
-									onChange={value => setHeightIncrements(value)}
-								/>
-							)}
-							{heightIncrementsModifier && (
-								<LabeledInput
-									label='Height CM'
-									disabled={true}
-									tooltip={heightIncrementsModifier.description}
-									value={heightIncrementsModifier.value.description}
-								/>
-							)}
-						</div>
-					),
-					filter: action => {
-						if (action.type !== ActionType.Attack) {
-							return false;
-						}
-						const weaponMode = selectedWeapon?.mode?.rangeType;
-						switch (weaponMode) {
-							case Trait.Melee:
-								return !action.traits.includes(Trait.Ranged);
-							case Trait.Ranged:
-								return !action.traits.includes(Trait.Melee);
-							default:
-								return true;
-						}
-					},
-				};
+						)
+					);
 			}
-			case ActionType.Defense: {
-				const isBody = selectedDefenseRealm === StatType.Body;
-				return {
-					Header: (
-						<div style={headerDivStyle}>
-							<LabeledDropdown
-								label='Realm'
-								value={selectedDefenseRealm}
-								options={StatType.realms}
-								describe={realm => realm.name}
-								onChange={realm => setSelectedDefenseRealm(realm)}
-							/>
-							{isBody && selectedArmor && (
-								<LabeledDropdown<Armor | 'None'>
-									label='Armor'
-									tooltip='Armor is applied to the any **Body Defense** check.'
-									value={selectedArmor}
-									options={armors}
-									describe={armor => (armor === 'None' ? 'No Armor' : armor.displayText)}
-									onChange={setSelectedArmor}
-								/>
-							)}
-							{isBody && shields.length > 0 && (
-								<LabeledDropdown
-									label='Shield'
-									value={selectedShield}
-									options={shields}
-									describe={shield => (shield === 'None' ? 'No Shield' : shield.displayText)}
-									onChange={setSelectedShield}
-									disabled={!hasShield}
-								/>
-							)}
-						</div>
-					),
-				};
-			}
+		});
 
-			case ActionType.Support: {
-				return {
-					Header: (
-						<div style={headerDivStyle}>
-							{[Resource.ActionPoint, Resource.VitalityPoint, Resource.FocusPoint, Resource.SpiritPoint].map(
-								resource => (
-									<ResourceInputComponent
-										variant='normal'
-										key={resource}
-										character={character}
-										sheet={sheet}
-										resource={resource}
-									/>
-								),
-							)}
-						</div>
-					),
-				};
-			}
-
-			case ActionType.Heroic: {
-				return {
-					Header: (
-						<div style={headerDivStyle}>
-							<ResourceInputComponent
-								variant='normal'
-								character={character}
-								sheet={sheet}
-								resource={Resource.HeroismPoint}
-							/>
-						</div>
-					),
-				};
-			}
-
-			default: {
-				return { Header: undefined };
-			}
+		if (reactInputs.length === 0) {
+			return null;
 		}
+
+		return <div style={headerDivStyle}>{reactInputs}</div>;
 	};
 
 	const renderActionsByType = (type: ActionType) => {
-		const { Header, filter } = getHeaderForTab(type);
-		const actions = Object.values(ACTIONS)
-			.filter(action => action.type === type)
-			.filter(action => showAll || action.costs.every(cost => sheet.getResource(cost.resource).current >= cost.amount))
-			.filter(action => showAll || (filter?.(action) ?? true));
-
+		const Header = getHeaderInputsForTab(type);
+		const actions = actionsSection.tabs[type].actions;
 		return (
 			<div key={type}>
 				{Header}
@@ -560,10 +516,10 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 						return (
 							<div key={action.key} style={{ display: 'flex', gap: '2px' }}>
 								<CostBoxComponent
-									characterId={character.id}
-									sheet={sheet}
-									name={action.name}
-									actionCosts={action.costs}
+									characterId={action.cost.characterId}
+									sheet={action.cost.characterSheet}
+									name={action.cost.name}
+									actionCosts={action.cost.actionCosts}
 								/>
 
 								<div
@@ -577,7 +533,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 								>
 									<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
 										<div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-											<span style={{ fontWeight: 'bold' }}>{action.name}</span>
+											<span style={{ fontWeight: 'bold' }}>{action.title}</span>
 											{action.traits.map(trait => (
 												<span key={trait} className='trait'>
 													{trait}
@@ -590,8 +546,8 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 									</div>
 								</div>
 
-								{action.parameters.map((parameter, index) => {
-									const key = `${action.name}-${parameter.constructor.name}-${index}`;
+								{action.parameters.map(actionParameter => {
+									const { key, parameter } = actionParameter;
 									if (parameter instanceof ActionValueParameter) {
 										return <ValueParameter key={key} parameter={parameter} statTree={tree} />;
 									} else if (parameter instanceof ActionCheckParameter) {
