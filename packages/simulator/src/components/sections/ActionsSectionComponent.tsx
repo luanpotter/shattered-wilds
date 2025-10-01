@@ -205,7 +205,15 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 	const getHeaderInputsForTab = (type: ActionType): React.ReactNode | null => {
 		const headerDivStyle = { marginBottom: '12px', display: 'flex', gap: '8px' };
 		const resourceInput = (resource: Resource) => {
-			return <ResourceInputComponent variant='normal' character={character} sheet={sheet} resource={resource} />;
+			return (
+				<ResourceInputComponent
+					key={`action-inputs-${resource}`}
+					variant='normal'
+					character={character}
+					sheet={sheet}
+					resource={resource}
+				/>
+			);
 		};
 
 		const { inputs } = actionsSection.tabs[type];
@@ -226,6 +234,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 
 					return (
 						<LabeledInput
+							key={`action-inputs-${input.name}`}
 							label='Movement'
 							tooltip={movement.description}
 							value={movement.value.description}
@@ -236,6 +245,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 				case ActionTabInputName.WeaponMode:
 					return (
 						<LabeledDropdown
+							key={`action-inputs-${input.name}`}
 							label='Weapon'
 							value={selectedWeapon}
 							options={weaponModes}
@@ -251,6 +261,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 					const rangeIncrementModifier = inputValues.rangeIncrementModifier();
 					return (
 						<LabeledInput
+							key={`action-inputs-${input.name}`}
 							label='Range CM'
 							disabled={true}
 							tooltip={rangeIncrementModifier!.description}
@@ -261,6 +272,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 				case ActionTabInputName.Target:
 					return (
 						<LabeledInput
+							key={`action-inputs-${input.name}`}
 							label='Target (Hexes)'
 							value={selectedRange?.value.toString() ?? ''}
 							onChange={value => {
@@ -271,6 +283,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 				case ActionTabInputName.PassiveCover:
 					return (
 						<LabeledDropdown
+							key={`action-inputs-${input.name}`}
 							label='Passive Cover'
 							value={selectedPassiveCover}
 							options={Object.values(PassiveCoverType) as PassiveCoverType[]}
@@ -286,6 +299,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 					const heightIncrementsModifier = inputValues.heightIncrementsModifier();
 					return (
 						<LabeledInput
+							key={`action-inputs-${input.name}`}
 							label='Height Increments'
 							value={heightIncrements}
 							tooltip={
@@ -301,6 +315,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 					const heightIncrementsModifier = inputValues.heightIncrementsModifier();
 					return (
 						<LabeledInput
+							key={`action-inputs-${input.name}`}
 							label='Height CM'
 							disabled={true}
 							tooltip={heightIncrementsModifier!.description}
@@ -311,6 +326,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 				case ActionTabInputName.DefenseRealm:
 					return (
 						<LabeledDropdown
+							key={`action-inputs-${input.name}`}
 							label='Realm'
 							value={selectedDefenseRealm}
 							options={StatType.realms}
@@ -321,6 +337,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 				case ActionTabInputName.Armor:
 					return (
 						<LabeledDropdown<Armor | 'None'>
+							key={`action-inputs-${input.name}`}
 							label='Armor'
 							tooltip='Armor is applied to the any **Body Defense** check.'
 							value={selectedArmor}
@@ -332,6 +349,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 				case ActionTabInputName.Shield:
 					return (
 						<LabeledDropdown
+							key={`action-inputs-${input.name}`}
 							label='Shield'
 							value={selectedShield}
 							options={shields}
