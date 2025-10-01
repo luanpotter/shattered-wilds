@@ -12,6 +12,9 @@ export type ArcaneSectionSchoolOption = 'All Schools' | ArcaneSpellSchool;
 export type ArcaneSectionCastingTimeOption = { name: string; value: number; modifier: Bonus; maxFocusCost?: number };
 export type ArcaneSectionFocusCostOption = { name: string; value: number; modifier: Bonus };
 
+const allAttackOptions = ['All Spells', 'Only Attacks', 'Only Utility'] as const;
+export type ArcaneSectionAttackOption = (typeof allAttackOptions)[number];
+
 export class ArcaneSection {
 	static allSchoolOptions = [
 		'All Schools' as const,
@@ -44,6 +47,7 @@ export class ArcaneSection {
 	castingTimeOptions: readonly ArcaneSectionCastingTimeOption[];
 	focusCostOptions: readonly ArcaneSectionFocusCostOption[];
 	componentOptions: Partial<Record<ArcaneSpellComponentType, readonly ArcaneSpellComponentDefinition[]>>;
+	attackOptions = allAttackOptions;
 
 	constructor({
 		schoolOptions,

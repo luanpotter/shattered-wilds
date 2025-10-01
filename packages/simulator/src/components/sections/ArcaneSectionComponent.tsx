@@ -3,10 +3,12 @@ import {
 	ARCANE_SCHOOLS,
 	ARCANE_SPELL_COMPONENTS,
 	ArcaneFocus,
+	ArcaneSection,
+	ArcaneSectionCastingTimeOption,
 	ArcaneSpellComponentType,
 	ArcaneSpellDefinition,
-	ArcaneSpellSchool,
 	Bonus,
+	CharacterSheet,
 	Check,
 	CheckMode,
 	CheckNature,
@@ -14,16 +16,14 @@ import {
 	DerivedStatType,
 	Distance,
 	FUNDAMENTAL_ARCANE_SPELL_DESCRIPTION,
-	CharacterSheet,
 	ModifierSource,
+	numberToOrdinal,
 	PREDEFINED_ARCANE_SPELLS,
 	Resource,
 	StatModifier,
 	StatTree,
 	StatType,
 	Trait,
-	numberToOrdinal,
-	ArcaneSection,
 } from '@shattered-wilds/commons';
 import React, { useMemo } from 'react';
 import { FaDice } from 'react-icons/fa';
@@ -66,16 +66,11 @@ const ArcaneSectionInner: React.FC<{
 	const [selectedRange, setSelectedRange] = useState<Distance>('selectedRange', Distance.of(0));
 
 	const arcaneSection = ArcaneSection.create({ sheet });
-	const { schoolOptions, castingTimeOptions } = arcaneSection;
+	const { schoolOptions, castingTimeOptions, attackOptions } = arcaneSection;
 
-	const [selectedSchool, setSelectedSchool] = useStateArrayItem<'All Schools' | ArcaneSpellSchool>(
-		'selectedSchool',
-		schoolOptions,
-		'All Schools',
-	);
+	const [selectedSchool, setSelectedSchool] = useStateArrayItem('selectedSchool', schoolOptions, 'All Schools');
 
-	const attackOptions = ['All Spells', 'Only Attacks', 'Only Utility'] as const;
-	const [selectedAttackOption, setSelectedAttackOption] = useStateArrayItem<(typeof attackOptions)[number]>(
+	const [selectedAttackOption, setSelectedAttackOption] = useStateArrayItem(
 		'selectedAttackOption',
 		attackOptions,
 		'All Spells',
@@ -86,7 +81,7 @@ const ArcaneSectionInner: React.FC<{
 		castingTimeOptions,
 		castingTimeOptions[1],
 	);
-	const setSelectedCastingTime = (option: (typeof castingTimeOptions)[number]) => {
+	const setSelectedCastingTime = (option: ArcaneSectionCastingTimeOption) => {
 		setSelectedCastingTimeState(option);
 		if (option.maxFocusCost && selectedFocusCost.value > option.maxFocusCost) {
 			setSelectedFocusCost(focusCostOptions[0]);
