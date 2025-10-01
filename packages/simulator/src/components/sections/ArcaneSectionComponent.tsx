@@ -23,6 +23,7 @@ import {
 	StatType,
 	Trait,
 	numberToOrdinal,
+	ArcaneSection,
 } from '@shattered-wilds/commons';
 import React, { useMemo } from 'react';
 import { FaDice } from 'react-icons/fa';
@@ -64,10 +65,9 @@ const ArcaneSectionInner: React.FC<{
 	const { useState, useStateArrayItem } = useUIStateFactory(`actions-${character.id}`);
 	const [selectedRange, setSelectedRange] = useState<Distance>('selectedRange', Distance.of(0));
 
-	const schoolOptions = [
-		'All Schools' as const,
-		...(Object.values(ArcaneSpellSchool) as ArcaneSpellSchool[]),
-	] as readonly ('All Schools' | ArcaneSpellSchool)[];
+	const arcaneSection = ArcaneSection.create({ sheet });
+	const { schoolOptions, castingTimeOptions } = arcaneSection;
+
 	const [selectedSchool, setSelectedSchool] = useStateArrayItem<'All Schools' | ArcaneSpellSchool>(
 		'selectedSchool',
 		schoolOptions,
@@ -81,13 +81,6 @@ const ArcaneSectionInner: React.FC<{
 		'All Spells',
 	);
 
-	const castingTimeOptions = [
-		{ name: '1 AP', value: 1, modifier: Bonus.of(-12), maxFocusCost: 1 },
-		{ name: '2 AP', value: 2, modifier: Bonus.zero(), maxFocusCost: 2 },
-		{ name: '3 AP', value: 3, modifier: Bonus.of(2), maxFocusCost: 3 },
-		{ name: '4 AP', value: 4, modifier: Bonus.of(4), maxFocusCost: 4 },
-		{ name: 'Ritual', value: 0, modifier: Bonus.of(6) },
-	];
 	const [selectedCastingTime, setSelectedCastingTimeState] = useStateArrayItem(
 		'selectedCastingTime',
 		castingTimeOptions,
@@ -100,22 +93,17 @@ const ArcaneSectionInner: React.FC<{
 		}
 	};
 
-	const focusCostOptions = [
-		{ name: '1 FP', value: 1, modifier: Bonus.zero() },
-		{ name: '2 FP', value: 2, modifier: Bonus.of(1) },
-		{ name: '3 FP', value: 3, modifier: Bonus.of(2) },
-		{ name: '4 FP', value: 4, modifier: Bonus.of(3) },
-	].filter(option => !selectedCastingTime.maxFocusCost || selectedCastingTime.maxFocusCost >= option.value);
+	// TODO: move filter inside ArcaneSection
+	const focusCostOptions = arcaneSection.focusCostOptions.filter(
+		option => !selectedCastingTime.maxFocusCost || selectedCastingTime.maxFocusCost >= option.value,
+	);
 	const [selectedFocusCost, setSelectedFocusCost] = useStateArrayItem(
 		'selectedFocusCost',
 		focusCostOptions,
 		focusCostOptions[0],
 	);
 
-	const components = Object.groupBy(
-		ARCANE_SPELL_COMPONENTS.filter(component => component.flavors.includes(sheet.characterClass.definition.flavor)),
-		component => component.type,
-	);
+	const components = arcaneSection.componentOptions;
 	const [selectedSomaticComponent, setSelectedSomaticComponent] = useStateArrayItem(
 		'selectedSomaticComponent',
 		components[ArcaneSpellComponentType.Somatic] ?? [],

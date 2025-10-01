@@ -18,5 +18,6 @@ export * from './character/class-info.js';
 export * from './character/race-info.js';
 export * from './character/equipment.js';
 export * from './sections/actions-section.js';
+export * from './sections/arcane.section.js';
 export * from './sections/feats-section.js';
 export * from './utils/utils.js';
