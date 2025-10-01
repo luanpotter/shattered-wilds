@@ -1,8 +1,6 @@
 import {
 	ActionCost,
 	ARCANE_SCHOOLS,
-	ARCANE_SPELL_COMPONENTS,
-	ArcaneFocus,
 	ArcaneSection,
 	ArcaneSectionCastingTimeOption,
 	ArcaneSpellComponentType,
@@ -110,29 +108,10 @@ const ArcaneSectionInner: React.FC<{
 		null,
 	);
 
-	const noFocalComponent = ARCANE_SPELL_COMPONENTS.find(c => c.type === ArcaneSpellComponentType.Focal)!;
-	const arcaneFoci = sheet.equipment.items.filter(item => item instanceof ArcaneFocus) as ArcaneFocus[];
-
-	type FocalComponentOption = {
-		name: string;
-		toComponentModifier: () => CircumstanceModifier;
-	};
-
-	const focalComponentOptions: FocalComponentOption[] = [
-		{
-			name: noFocalComponent.name,
-			toComponentModifier: () => noFocalComponent.toComponentModifier(),
-		},
-		...arcaneFoci.map(focus => ({
-			name: focus.name,
-			toComponentModifier: () => focus.getEquipmentModifier(),
-		})),
-	];
-
 	const [selectedFocalComponent, setSelectedFocalComponent] = useStateArrayItem(
 		'selectedFocalComponent',
-		focalComponentOptions,
-		focalComponentOptions[0], // Default to "No Focal Component"
+		components[ArcaneSpellComponentType.Focal] ?? [],
+		null,
 	);
 
 	const influenceRange = tree.getDistance(DerivedStatType.InfluenceRange);
@@ -187,6 +166,12 @@ const ArcaneSectionInner: React.FC<{
 			set: setSelectedVerbalComponent,
 			options: components[ArcaneSpellComponentType.Verbal],
 		},
+		{
+			type: ArcaneSpellComponentType.Focal,
+			get: selectedFocalComponent,
+			set: setSelectedFocalComponent,
+			options: components[ArcaneSpellComponentType.Focal],
+		},
 	];
 
 	const costs = [
@@ -238,17 +223,6 @@ const ArcaneSectionInner: React.FC<{
 							onChange={set}
 						/>
 					) : null,
-				)}
-				{focalComponentOptions.length > 1 && (
-					<LabeledDropdown
-						key={ArcaneSpellComponentType.Focal}
-						variant='normal'
-						label='Focal Component'
-						value={selectedFocalComponent}
-						options={focalComponentOptions}
-						describe={component => component.name}
-						onChange={setSelectedFocalComponent}
-					/>
 				)}
 				<LabeledInput
 					label='Combined Modifier'

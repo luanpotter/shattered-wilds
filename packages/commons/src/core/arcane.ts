@@ -63,7 +63,12 @@ export enum ArcaneSpellComponentType {
 	Focal = 'Focal',
 }
 
-export class ArcaneSpellComponentDefinition {
+export type ArcaneSpellComponentOption = {
+	name: string;
+	toComponentModifier(): CircumstanceModifier;
+};
+
+export class ArcaneSpellComponentDefinition implements ArcaneSpellComponentOption {
 	type: ArcaneSpellComponentType;
 	name: string;
 	flavors: ClassFlavor[];
