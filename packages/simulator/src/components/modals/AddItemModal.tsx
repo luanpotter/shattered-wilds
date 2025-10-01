@@ -1,6 +1,7 @@
 import {
 	Armor,
 	ArmorType,
+	ArcaneFocus,
 	BASIC_EQUIPMENT,
 	BasicEquipmentType,
 	Bonus,
@@ -23,7 +24,7 @@ import { LabeledCheckbox } from '../shared/LabeledCheckbox';
 import LabeledDropdown from '../shared/LabeledDropdown';
 import LabeledInput from '../shared/LabeledInput';
 
-type ItemKind = 'weapon' | 'armor' | 'shield' | 'other';
+type ItemKind = 'weapon' | 'armor' | 'shield' | 'arcane focus' | 'other';
 
 interface AddItemModalProps {
 	characterId: string;
@@ -47,6 +48,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 		if (existing instanceof Weapon) return 'weapon';
 		if (existing instanceof Armor) return 'armor';
 		if (existing instanceof Shield) return 'shield';
+		if (existing instanceof ArcaneFocus) return 'arcane focus';
 		if (existing instanceof OtherItem) return 'other';
 		return 'weapon';
 	});
@@ -80,6 +82,17 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 	);
 	const [shieldBonus, setShieldBonus] = useState<number>(existing instanceof Shield ? existing.bonus.value : 0);
 
+	// Arcane Focus
+	const [arcaneFocusBonus, setArcaneFocusBonus] = useState<number>(
+		existing instanceof ArcaneFocus ? existing.bonus.value : 0,
+	);
+	const [arcaneFocusSpCost, setArcaneFocusSpCost] = useState<number>(
+		existing instanceof ArcaneFocus ? existing.spCost : 1,
+	);
+	const [arcaneFocusDetails, setArcaneFocusDetails] = useState<string>(
+		existing instanceof ArcaneFocus ? (existing.details ?? '') : '',
+	);
+
 	// Other
 	const [otherDetails, setOtherDetails] = useState<string>(
 		existing instanceof OtherItem ? (existing.details ?? '') : '',
@@ -97,6 +110,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 			if (kind === 'weapon') return item instanceof Weapon;
 			if (kind === 'armor') return item instanceof Armor;
 			if (kind === 'shield') return item instanceof Shield;
+			if (kind === 'arcane focus') return item instanceof ArcaneFocus;
 			return false;
 		});
 	}, [kind]);
@@ -110,6 +124,9 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 		setArmorDexPenalty(0);
 		setShieldType(ShieldType.SmallShield);
 		setShieldBonus(0);
+		setArcaneFocusBonus(0);
+		setArcaneFocusSpCost(1);
+		setArcaneFocusDetails('');
 		setOtherDetails('');
 	}, []);
 
@@ -136,6 +153,13 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 			setTraits(item.traits);
 			setShieldType(item.type);
 			setShieldBonus(item.bonus.value);
+		} else if (item instanceof ArcaneFocus) {
+			setKind('arcane focus');
+			setName(item.name);
+			setTraits(item.traits);
+			setArcaneFocusBonus(item.bonus.value);
+			setArcaneFocusSpCost(item.spCost);
+			setArcaneFocusDetails(item.details ?? '');
 		}
 	}, [template, itemIndex]);
 
@@ -176,6 +200,12 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 			setTraits(current.traits);
 			setShieldType(current.type);
 			setShieldBonus(current.bonus.value);
+		} else if (current instanceof ArcaneFocus) {
+			setKind('arcane focus');
+			setTraits(current.traits);
+			setArcaneFocusBonus(current.bonus.value);
+			setArcaneFocusSpCost(current.spCost);
+			setArcaneFocusDetails(current.details ?? '');
 		} else if (current instanceof OtherItem) {
 			setKind('other');
 			setOtherDetails(current.details ?? '');
@@ -201,6 +231,15 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 		}
 		if (kind === 'shield') {
 			return new Shield({ name: name || 'Unnamed Shield', type: shieldType, bonus: Bonus.of(shieldBonus), traits });
+		}
+		if (kind === 'arcane focus') {
+			return new ArcaneFocus({
+				name: name || 'Unnamed Arcane Focus',
+				details: arcaneFocusDetails || undefined,
+				bonus: Bonus.of(arcaneFocusBonus),
+				spCost: arcaneFocusSpCost,
+				traits,
+			});
 		}
 		return new OtherItem({ name: name || 'New Item', details: otherDetails || undefined });
 	};
@@ -234,8 +273,10 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 				<LabeledDropdown
 					label='Item Type'
 					value={kind}
-					options={['weapon', 'armor', 'shield', 'other'] as const}
-					describe={k => ({ weapon: 'Weapon', armor: 'Armor', shield: 'Shield', other: 'Other' })[k]}
+					options={['weapon', 'armor', 'shield', 'arcane focus', 'other'] as const}
+					describe={k =>
+						({ weapon: 'Weapon', armor: 'Armor', shield: 'Shield', 'arcane focus': 'Arcane Focus', other: 'Other' })[k]
+					}
 					disabled={!editMode}
 					onChange={value => handleSetKind(value as ItemKind)}
 				/>
@@ -363,6 +404,43 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 							disabled={!editMode}
 						/>
 					</div>
+					<div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+						<span style={{ fontWeight: 'bold', marginRight: '4px' }}>Traits:</span>
+						{equipmentTraits.map(t => (
+							<LabeledCheckbox
+								key={t}
+								label={String(t)}
+								checked={traits.includes(t)}
+								disabled={!editMode}
+								onChange={() => toggleTrait(t)}
+							/>
+						))}
+					</div>
+				</div>
+			)}
+
+			{kind === 'arcane focus' && (
+				<div>
+					<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+						<LabeledInput
+							label='Bonus'
+							value={`${arcaneFocusBonus}`}
+							onBlur={v => setArcaneFocusBonus(parseInt(v) || 0)}
+							disabled={!editMode}
+						/>
+						<LabeledInput
+							label='SP Cost'
+							value={`${arcaneFocusSpCost}`}
+							onBlur={v => setArcaneFocusSpCost(parseInt(v) || 1)}
+							disabled={!editMode}
+						/>
+					</div>
+					<LabeledInput
+						label='Details (optional)'
+						value={arcaneFocusDetails}
+						onBlur={setArcaneFocusDetails}
+						disabled={!editMode}
+					/>
 					<div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
 						<span style={{ fontWeight: 'bold', marginRight: '4px' }}>Traits:</span>
 						{equipmentTraits.map(t => (

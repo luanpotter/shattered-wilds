@@ -212,6 +212,45 @@ export class Shield implements Item {
 	}
 }
 
+export class ArcaneFocus implements Item {
+	name: string;
+	details: string | undefined;
+	bonus: Bonus;
+	spCost: number;
+	traits: Trait[];
+
+	constructor({
+		name,
+		details,
+		bonus,
+		spCost,
+		traits = [],
+	}: {
+		name: string;
+		details?: string | undefined;
+		bonus: Bonus;
+		spCost: number;
+		traits?: Trait[];
+	}) {
+		this.name = name;
+		this.details = details;
+		this.bonus = bonus;
+		this.spCost = spCost;
+		this.traits = traits;
+	}
+
+	get description(): string {
+		if (this.details) {
+			return `${this.name} (${this.details}, ${this.bonus.description})`;
+		}
+		return `${this.name} (${this.bonus.description})`;
+	}
+
+	get displayText(): string {
+		return this.description;
+	}
+}
+
 export class OtherItem implements Item {
 	name: string;
 	details: string | undefined;
@@ -250,7 +289,7 @@ export class Equipment {
 		}
 
 		const itemData = JSON.parse(prop) as Array<{
-			itemType: 'weapon' | 'armor' | 'shield' | 'other';
+			itemType: 'weapon' | 'armor' | 'shield' | 'arcane focus' | 'other';
 			name: string;
 			details?: string;
 			modes?: Array<{
@@ -260,6 +299,7 @@ export class Equipment {
 			}>;
 			type?: string;
 			bonus?: number;
+			spCost?: number;
 			dexPenalty?: number;
 			traits?: string[];
 		}>;
@@ -298,6 +338,17 @@ export class Equipment {
 						name: data.name,
 						type: data.type as ShieldType,
 						bonus: Bonus.of(data.bonus ?? 0),
+						traits,
+					});
+				}
+				case 'arcane focus': {
+					if (data.bonus === undefined) throw new Error(`Arcane Focus ${data.name} must have a bonus`);
+					if (data.spCost === undefined) throw new Error(`Arcane Focus ${data.name} must have a spCost`);
+					return new ArcaneFocus({
+						name: data.name,
+						details: data.details,
+						bonus: Bonus.of(data.bonus),
+						spCost: data.spCost,
 						traits,
 					});
 				}
@@ -345,6 +396,15 @@ export class Equipment {
 					bonus: item.bonus.value,
 					traits: item.traits,
 				};
+			} else if (item instanceof ArcaneFocus) {
+				return {
+					itemType: 'arcane focus' as const,
+					name: item.name,
+					bonus: item.bonus.value,
+					spCost: item.spCost,
+					details: item.details,
+					traits: item.traits,
+				};
 			} else if (item instanceof OtherItem) {
 				return {
 					itemType: 'other' as const,
@@ -360,6 +420,7 @@ export class Equipment {
 }
 
 export enum BasicEquipmentType {
+	// Weapons
 	Javelin = 'Javelin',
 	Hatchet = 'Hatchet',
 	Dagger = 'Dagger',
@@ -369,11 +430,16 @@ export enum BasicEquipmentType {
 	Spear = 'Spear',
 	Mace = 'Mace',
 	Longsword = 'Longsword',
+	// Armor
 	LeatherArmor = 'Leather Armor',
 	Chainmail = 'Chainmail',
 	FullPlate = 'Full Plate',
+	// Shields
 	SmallShield = 'Small Shield',
 	LargeShield = 'Large Shield',
+	// Arcane Foci
+	Wand = 'Wand',
+	Staff = 'Staff',
 }
 
 export class BasicEquipmentDefinition {
@@ -544,6 +610,25 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 				name: 'Large Shield',
 				type: ShieldType.LargeShield,
 				bonus: Bonus.of(6),
+				traits: [Trait.TwoHanded],
+			}),
+	}),
+
+	// Arcane Foci
+	[BasicEquipmentType.Wand]: new BasicEquipmentDefinition({
+		generator: () =>
+			new ArcaneFocus({
+				name: 'Wand',
+				bonus: Bonus.of(2),
+				spCost: 1,
+			}),
+	}),
+	[BasicEquipmentType.Staff]: new BasicEquipmentDefinition({
+		generator: () =>
+			new ArcaneFocus({
+				name: 'Staff',
+				bonus: Bonus.of(3),
+				spCost: 1,
 				traits: [Trait.TwoHanded],
 			}),
 	}),

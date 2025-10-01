@@ -103,8 +103,8 @@ However, as any [[Imbued Item]], using a **Focal Component** requires spending a
 
 Therefore, as with other [[Imbued Item | Imbued Items]], the usages of a **Focal Component** require touching, concentrating, and possibly very minor manipulation of the **Focus**; and the [[Disarm]] action can be used to try to remove the **Focal Component** from a **Caster**'s hand.
 
-* **Typical One-Handed Wand**: +1
-* **Typical Two-Handed Staff**: +2
+* **Typical One-Handed Wand**: +2
+* **Typical Two-Handed Staff**: +3
 * **Custom Focus**: +4 (**Naturalists** only)
 
 As **Imbued Items**, **Wands** and **Staves**, even the simpler +1/+2 versions are not as trivial to find as **Mundane Items**, but a seasoned **Arcanist** such as a **Hero** can be considered to have found one if desired. **Custom Foci** can only be created by **Naturalists** (using their **Core Minor Feat**, [[Focal Connection]]), but are personally bound to their creators.
