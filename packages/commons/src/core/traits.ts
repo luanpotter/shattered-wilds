@@ -1,3 +1,5 @@
+import { StatType } from '../stats/stat-type.js';
+
 export enum TraitTarget {
 	Action = 'Action',
 	Equipment = 'Equipment',
@@ -14,6 +16,9 @@ export enum Trait {
 	MindAttack = 'Mind Attack',
 	SoulAttack = 'Soul Attack',
 	SpecialAttack = 'Special Attack',
+	BodyDefense = 'Body Defense',
+	MindDefense = 'Mind Defense',
+	SoulDefense = 'Soul Defense',
 
 	// Equipment Traits
 	Concealable = 'Concealable',
@@ -21,6 +26,14 @@ export enum Trait {
 	TwoHanded = 'Two-Handed',
 	Polearm = 'Polearm',
 }
+
+export const DEFENSE_TRAITS = {
+	[Trait.BodyDefense]: StatType.Body,
+	[Trait.MindDefense]: StatType.Mind,
+	[Trait.SoulDefense]: StatType.Soul,
+} as const;
+
+export type DefenseTrait = keyof typeof DEFENSE_TRAITS;
 
 export class TraitDefinition {
 	key: Trait;
@@ -103,6 +116,24 @@ Since your **AP** is replenished at the end of your turn, you do not need to dec
 		key: Trait.SpecialAttack,
 		name: 'Special Attack',
 		description: `This action is considered a **Special Attack**, meaning it is a contested Skill Check (the action will specify which Skills are involved).`,
+	}),
+	[Trait.BodyDefense]: new TraitDefinition({
+		target: TraitTarget.Action,
+		key: Trait.BodyDefense,
+		name: 'Body Defense',
+		description: `This action can be used as a **Body Defense**.`,
+	}),
+	[Trait.MindDefense]: new TraitDefinition({
+		target: TraitTarget.Action,
+		key: Trait.MindDefense,
+		name: 'Mind Defense',
+		description: `This action can be used as a **Mind Defense**.`,
+	}),
+	[Trait.SoulDefense]: new TraitDefinition({
+		target: TraitTarget.Action,
+		key: Trait.SoulDefense,
+		name: 'Soul Defense',
+		description: `This action can be used as a **Soul Defense**.`,
 	}),
 
 	// Weapon Traits

@@ -554,7 +554,7 @@ export const ACTIONS = {
 		name: 'Basic Defense',
 		description:
 			'A **Basic Defense** that can be used against any form of **Basic Attack** - contest with either [[Body]], [[Mind]] or [[Soul]] depending on the realm of the **Attack**. This does not cost any [[Action_Point | AP]] and thus can always be responded with.',
-		traits: [Trait.Reaction],
+		traits: [Trait.Reaction, Trait.BodyDefense, Trait.MindDefense, Trait.SoulDefense],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 0 })],
 		parameters: [ActionCheckParameter.bodyDefense()],
 	}),
@@ -563,7 +563,7 @@ export const ACTIONS = {
 		type: ActionType.Defense,
 		name: 'Shield Block',
 		description: 'Perform a **Body Defense** adding a **Shield Bonus** modifier (must be equipped with the shield).',
-		traits: [Trait.Reaction],
+		traits: [Trait.Reaction, Trait.BodyDefense],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		parameters: [
 			ActionCheckParameter.bodyDefense({
@@ -577,7 +577,7 @@ export const ACTIONS = {
 		name: 'Dodge',
 		description:
 			'Perform a **Body Defense** with an [[Evasiveness]] Check and a `+3` [[Circumstance Modifier | CM]] instead.',
-		traits: [Trait.Reaction],
+		traits: [Trait.Reaction, Trait.BodyDefense],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		parameters: [
 			ActionCheckParameter.bodyDefense({
@@ -596,7 +596,7 @@ export const ACTIONS = {
 		name: 'Take Cover',
 		description:
 			'Perform a **Body Defense** against a **Ranged Body Attack** with an [[Agility]] Check and a `+6` [[Circumstance_Modifier | CM]] instead (when already benefiting from **Passive Cover**).',
-		traits: [Trait.Reaction],
+		traits: [Trait.Reaction, Trait.BodyDefense],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		parameters: [
 			ActionCheckParameter.bodyDefense({
@@ -615,7 +615,7 @@ export const ACTIONS = {
 		name: 'Steel Conviction',
 		description:
 			'Perform a **Mind** or **Soul Defense** with a [[Resolve]] Check and a `+3` [[Circumstance_Modifier | CM]] instead.',
-		traits: [Trait.Reaction, Trait.Concentrate],
+		traits: [Trait.Reaction, Trait.Concentrate, Trait.MindDefense, Trait.SoulDefense],
 		costs: [new ActionCost({ resource: Resource.ActionPoint, amount: 1 })],
 		parameters: [
 			ActionCheckParameter.defense({

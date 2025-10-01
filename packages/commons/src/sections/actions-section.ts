@@ -13,7 +13,7 @@ import {
 	StandardCheck,
 } from '../core/actions.js';
 import { COVER_TYPES, PassiveCoverType } from '../core/cover.js';
-import { Trait } from '../core/traits.js';
+import { DEFENSE_TRAITS, DefenseTrait, Trait } from '../core/traits.js';
 import { Check } from '../index.js';
 import { CircumstanceModifier, ModifierSource } from '../stats/stat-tree.js';
 import { StatType } from '../stats/stat-type.js';
@@ -461,16 +461,31 @@ export class ActionTabParameter {
 		parameter: ActionCheckParameter;
 		inputValues: ActionTabInputValues;
 	}): ActionTabParameterCheckData => {
-		const requireTrait = action.traits.filter(trait => trait === Trait.Melee || trait === Trait.Ranged)[0];
+		const requireRangeTrait = action.traits.filter(trait => trait === Trait.Melee || trait === Trait.Ranged)[0];
+		const defenseTraits = action.traits.filter((trait): trait is DefenseTrait => trait in DEFENSE_TRAITS);
 		const errors: ActionTabParameterCheckError[] = [];
 
-		if (requireTrait && parameter.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Weapon)) {
+		if (requireRangeTrait && parameter.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Weapon)) {
 			const currentWeaponRangeTrait = inputValues.selectedWeapon?.mode.rangeType ?? Trait.Melee;
-			if (currentWeaponRangeTrait !== requireTrait) {
+			if (currentWeaponRangeTrait !== requireRangeTrait) {
 				errors.push({
-					title: `${requireTrait} Required`,
-					tooltip: `This action requires a weapon with the ${requireTrait} trait.`,
-					text: `${requireTrait} Required`,
+					title: `${requireRangeTrait} Required`,
+					tooltip: `This action requires a weapon with the ${requireRangeTrait} trait.`,
+					text: `${requireRangeTrait} Required`,
+				});
+			}
+		}
+
+		if (defenseTraits.length > 0) {
+			const selectedRealm = inputValues.selectedDefenseRealm.name;
+			const validRealms = defenseTraits.map(trait => DEFENSE_TRAITS[trait].name);
+			const isValid = validRealms.includes(selectedRealm);
+			if (!isValid) {
+				const validRealmNames = validRealms.join(', ');
+				errors.push({
+					title: 'Invalid Realm',
+					tooltip: `This action requires the defense realm to be one of: ${validRealmNames}.`,
+					text: `${selectedRealm} Invalid`,
 				});
 			}
 		}
