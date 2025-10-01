@@ -249,6 +249,14 @@ export class ArcaneFocus implements Item {
 	get displayText(): string {
 		return this.description;
 	}
+
+	getEquipmentModifier(): CircumstanceModifier {
+		return new CircumstanceModifier({
+			source: ModifierSource.Component,
+			name: this.name,
+			value: this.bonus,
+		});
+	}
 }
 
 export class OtherItem implements Item {

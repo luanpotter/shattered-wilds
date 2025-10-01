@@ -154,18 +154,6 @@ export const ARCANE_SPELL_COMPONENTS: ArcaneSpellComponentDefinition[] = [
 	}),
 	new ArcaneSpellComponentDefinition({
 		type: ArcaneSpellComponentType.Focal,
-		name: 'Typical One-Handed Wand',
-		flavors: [ClassFlavor.Arcanist, ClassFlavor.Naturalist],
-		bonus: Bonus.of(1),
-	}),
-	new ArcaneSpellComponentDefinition({
-		type: ArcaneSpellComponentType.Focal,
-		name: 'Typical Two-Handed Staff',
-		flavors: [ClassFlavor.Arcanist, ClassFlavor.Naturalist],
-		bonus: Bonus.of(2),
-	}),
-	new ArcaneSpellComponentDefinition({
-		type: ArcaneSpellComponentType.Focal,
 		name: 'Custom Focus',
 		flavors: [ClassFlavor.Naturalist],
 		bonus: Bonus.of(4),
