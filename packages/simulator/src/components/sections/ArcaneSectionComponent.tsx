@@ -3,6 +3,7 @@ import {
 	ARCANE_SCHOOLS,
 	ArcaneSection,
 	ArcaneSectionCastingTimeOption,
+	ArcaneSectionInputValues,
 	ArcaneSpellComponentType,
 	ArcaneSpellDefinition,
 	Bonus,
@@ -11,11 +12,9 @@ import {
 	CheckMode,
 	CheckNature,
 	CircumstanceModifier,
-	DerivedStatType,
 	Distance,
 	FUNDAMENTAL_ARCANE_SPELL_DESCRIPTION,
 	ModifierSource,
-	numberToOrdinal,
 	PREDEFINED_ARCANE_SPELLS,
 	Resource,
 	StatModifier,
@@ -23,7 +22,7 @@ import {
 	StatType,
 	Trait,
 } from '@shattered-wilds/commons';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { FaDice } from 'react-icons/fa';
 
 import { useModals } from '../../hooks/useModals';
@@ -63,7 +62,10 @@ const ArcaneSectionInner: React.FC<{
 	const { useState, useStateArrayItem } = useUIStateFactory(`actions-${character.id}`);
 	const [selectedRange, setSelectedRange] = useState<Distance>('selectedRange', Distance.of(0));
 
-	const arcaneSection = ArcaneSection.create({ sheet });
+	const inputValues: ArcaneSectionInputValues = {
+		selectedRange,
+	};
+	const arcaneSection = ArcaneSection.create({ sheet, inputValues });
 	const { schoolOptions, castingTimeOptions, attackOptions } = arcaneSection;
 
 	const [selectedSchool, setSelectedSchool] = useStateArrayItem('selectedSchool', schoolOptions, 'All Schools');
@@ -71,7 +73,7 @@ const ArcaneSectionInner: React.FC<{
 	const [selectedAttackOption, setSelectedAttackOption] = useStateArrayItem(
 		'selectedAttackOption',
 		attackOptions,
-		'All Spells',
+		attackOptions[0],
 	);
 
 	const [selectedCastingTime, setSelectedCastingTimeState] = useStateArrayItem(
@@ -114,19 +116,8 @@ const ArcaneSectionInner: React.FC<{
 		null,
 	);
 
-	const influenceRange = tree.getDistance(DerivedStatType.InfluenceRange);
-	const rangeIncrementModifier = useMemo(() => {
-		const rangeIncrements = Math.max(0, Math.floor((selectedRange.value - 1) / influenceRange.value.value));
-
-		return new CircumstanceModifier({
-			source: ModifierSource.Circumstance,
-			name: `${numberToOrdinal(rangeIncrements)} Range Increment Penalty`,
-			value: Bonus.of(rangeIncrements * -3),
-		});
-	}, [influenceRange, selectedRange]);
-
 	const combinedModifiers = [
-		rangeIncrementModifier,
+		arcaneSection.influenceRange.rangeIncrementModifier,
 		selectedSomaticComponent?.toComponentModifier(),
 		selectedVerbalComponent?.toComponentModifier(),
 		selectedFocalComponent?.toComponentModifier(),
@@ -193,8 +184,8 @@ const ArcaneSectionInner: React.FC<{
 				<LabeledInput
 					variant='normal'
 					label='Range Increment'
-					tooltip={influenceRange.description}
-					value={influenceRange.value.description}
+					tooltip={arcaneSection.influenceRange.description}
+					value={arcaneSection.influenceRange.value.description}
 					disabled
 				/>
 				<LabeledInput
