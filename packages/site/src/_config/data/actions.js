@@ -32,7 +32,7 @@ export const actions = Object.values(ACTIONS).map(def => {
 				cssClass: 'metadata-type',
 			},
 			...def.traits.map(trait => ({
-				key: trait,
+				key: slugify(trait),
 				title: trait,
 				value: undefined,
 				cssClass: 'metadata-trait',
