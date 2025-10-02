@@ -1,28 +1,21 @@
 import {
-	ActionCost,
 	ARCANE_SCHOOLS,
 	ArcaneSection,
 	ArcaneSectionCastingTimeOption,
+	ArcaneSectionDefaults,
 	ArcaneSectionInputValues,
+	ArcaneSectionSpell,
 	ArcaneSpellComponentType,
-	ArcaneSpellDefinition,
-	Bonus,
 	CharacterSheet,
 	Check,
 	CheckMode,
 	CheckNature,
-	CircumstanceModifier,
 	Distance,
 	FUNDAMENTAL_ARCANE_SPELL_DESCRIPTION,
-	ModifierSource,
-	PREDEFINED_ARCANE_SPELLS,
-	Resource,
 	StatModifier,
-	StatTree,
 	StatType,
-	Trait,
 } from '@shattered-wilds/commons';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FaDice } from 'react-icons/fa';
 
 import { useModals } from '../../hooks/useModals';
@@ -43,131 +36,128 @@ interface ArcaneSectionProps {
 export const ArcaneSectionComponent: React.FC<ArcaneSectionProps> = ({ characterId }) => {
 	const character = useStore(state => state.characters.find(c => c.id === characterId))!;
 	const sheet = CharacterSheet.from(character.props);
-	const tree = sheet.getStatTree();
 
 	const { primaryAttribute } = sheet.characterClass.definition;
 	if (!StatType.mindAttributes.includes(primaryAttribute.name)) {
 		return null; // not a caster
 	}
 
-	return <ArcaneSectionInner character={character} sheet={sheet} tree={tree} primaryAttribute={primaryAttribute} />;
+	return <ArcaneSectionInner character={character} sheet={sheet} />;
 };
 
 const ArcaneSectionInner: React.FC<{
 	character: Character;
 	sheet: CharacterSheet;
-	tree: StatTree;
-	primaryAttribute: StatType;
-}> = ({ character, sheet, tree, primaryAttribute }) => {
-	const { useState, useStateArrayItem } = useUIStateFactory(`actions-${character.id}`);
-	const [selectedRange, setSelectedRange] = useState<Distance>('selectedRange', Distance.of(0));
+}> = ({ character, sheet }) => {
+	const { useState, useStateArrayItem } = useUIStateFactory(`arcane-${character.id}`);
 
-	const inputValues: ArcaneSectionInputValues = {
-		selectedRange,
-	};
-	const arcaneSection = ArcaneSection.create({ sheet, inputValues });
-	const { schoolOptions, castingTimeOptions, attackOptions } = arcaneSection;
+	// Get component options to create defaults
+	const componentOptions = useMemo(() => ArcaneSection.getComponentsForFlavor(sheet), [sheet]);
 
-	const [selectedSchool, setSelectedSchool] = useStateArrayItem('selectedSchool', schoolOptions, 'All Schools');
+	const defaultInputValues = useMemo(
+		() => ArcaneSectionDefaults.createDefaultInputValues(componentOptions),
+		[componentOptions],
+	);
 
+	// State management
+	const [selectedRange, setSelectedRange] = useState<Distance>('selectedRange', ArcaneSectionDefaults.INITIAL_RANGE);
+	const [selectedSchool, setSelectedSchool] = useStateArrayItem(
+		'selectedSchool',
+		ArcaneSection.allSchoolOptions,
+		ArcaneSectionDefaults.INITIAL_SCHOOL,
+	);
 	const [selectedAttackOption, setSelectedAttackOption] = useStateArrayItem(
 		'selectedAttackOption',
-		attackOptions,
-		attackOptions[0],
+		ArcaneSection.allAttackOptions,
+		ArcaneSectionDefaults.INITIAL_ATTACK_OPTION,
 	);
-
 	const [selectedCastingTime, setSelectedCastingTimeState] = useStateArrayItem(
 		'selectedCastingTime',
-		castingTimeOptions,
-		castingTimeOptions[1],
+		ArcaneSection.allCastingTimeOptions,
+		ArcaneSection.allCastingTimeOptions[ArcaneSectionDefaults.INITIAL_CASTING_TIME_INDEX],
 	);
+
+	const focusCostOptions = useMemo(
+		() => ArcaneSection.getAvailableFocusCostOptions(selectedCastingTime),
+		[selectedCastingTime],
+	);
+
+	const [selectedFocusCost, setSelectedFocusCost] = useStateArrayItem(
+		'selectedFocusCost',
+		focusCostOptions,
+		focusCostOptions[ArcaneSectionDefaults.INITIAL_FOCUS_COST_INDEX],
+	);
+
+	const [selectedSomaticComponent, setSelectedSomaticComponent] = useStateArrayItem(
+		'selectedSomaticComponent',
+		componentOptions[ArcaneSpellComponentType.Somatic] ?? [],
+		defaultInputValues.selectedSomaticComponent,
+	);
+	const [selectedVerbalComponent, setSelectedVerbalComponent] = useStateArrayItem(
+		'selectedVerbalComponent',
+		componentOptions[ArcaneSpellComponentType.Verbal] ?? [],
+		defaultInputValues.selectedVerbalComponent,
+	);
+	const [selectedFocalComponent, setSelectedFocalComponent] = useStateArrayItem(
+		'selectedFocalComponent',
+		componentOptions[ArcaneSpellComponentType.Focal] ?? [],
+		defaultInputValues.selectedFocalComponent,
+	);
+
+	const [spellAugmentationValues, setSpellAugmentationValues] = useState(
+		'spellAugmentationValues',
+		{} as Record<string, Record<string, number>>,
+	);
+
+	const setSpellAugmentationValue = (spellName: string, key: string, value: number) => {
+		setSpellAugmentationValues(prev => ({
+			...prev,
+			[spellName]: { ...(prev[spellName] ?? {}), [key]: value },
+		}));
+	};
+
 	const setSelectedCastingTime = (option: ArcaneSectionCastingTimeOption) => {
 		setSelectedCastingTimeState(option);
-		if (option.maxFocusCost && selectedFocusCost.value > option.maxFocusCost) {
+		if ('maxFocusCost' in option && option.maxFocusCost && selectedFocusCost.value > option.maxFocusCost) {
 			setSelectedFocusCost(focusCostOptions[0]);
 		}
 	};
 
-	// TODO: move filter inside ArcaneSection
-	const focusCostOptions = arcaneSection.focusCostOptions.filter(
-		option => !selectedCastingTime.maxFocusCost || selectedCastingTime.maxFocusCost >= option.value,
-	);
-	const [selectedFocusCost, setSelectedFocusCost] = useStateArrayItem(
-		'selectedFocusCost',
-		focusCostOptions,
-		focusCostOptions[0],
-	);
+	const inputValues: ArcaneSectionInputValues = {
+		selectedRange,
+		selectedSchool,
+		selectedAttackOption,
+		selectedCastingTime,
+		selectedFocusCost,
+		selectedSomaticComponent,
+		selectedVerbalComponent,
+		selectedFocalComponent,
+		spellAugmentationValues,
+	};
 
-	const components = arcaneSection.componentOptions;
-	const [selectedSomaticComponent, setSelectedSomaticComponent] = useStateArrayItem(
-		'selectedSomaticComponent',
-		components[ArcaneSpellComponentType.Somatic] ?? [],
-		null,
-	);
-	const [selectedVerbalComponent, setSelectedVerbalComponent] = useStateArrayItem(
-		'selectedVerbalComponent',
-		components[ArcaneSpellComponentType.Verbal] ?? [],
-		null,
-	);
+	const arcaneSection = useMemo(() => ArcaneSection.create({ sheet, inputValues }), [sheet, inputValues]);
 
-	const [selectedFocalComponent, setSelectedFocalComponent] = useStateArrayItem(
-		'selectedFocalComponent',
-		components[ArcaneSpellComponentType.Focal] ?? [],
-		null,
-	);
-
-	const combinedModifiers = [
-		arcaneSection.influenceRange.rangeIncrementModifier,
-		selectedSomaticComponent?.toComponentModifier(),
-		selectedVerbalComponent?.toComponentModifier(),
-		selectedFocalComponent?.toComponentModifier(),
-	].filter(e => e !== undefined);
-	const fundamentalModifiers = [
-		...combinedModifiers,
-		selectedCastingTime.modifier.value !== 0
-			? new CircumstanceModifier({
-					source: ModifierSource.Augmentation,
-					name: `Casting Time: ${selectedCastingTime.name}`,
-					value: selectedCastingTime.modifier,
-				})
-			: undefined,
-		selectedFocusCost.modifier.value !== 0
-			? new CircumstanceModifier({
-					source: ModifierSource.Augmentation,
-					name: `Focus Cost: ${selectedFocusCost.name}`,
-					value: selectedFocusCost.modifier,
-				})
-			: undefined,
-	].filter(e => e !== undefined);
-
-	const baseModifier = tree.getModifier(primaryAttribute);
-	const combinedModifier = tree.getModifier(primaryAttribute, combinedModifiers);
-	const fundamentalModifier = tree.getModifier(primaryAttribute, fundamentalModifiers);
+	const { schoolOptions, castingTimeOptions, attackOptions } = arcaneSection;
 
 	const componentsWithState = [
 		{
 			type: ArcaneSpellComponentType.Somatic,
 			get: selectedSomaticComponent,
 			set: setSelectedSomaticComponent,
-			options: components[ArcaneSpellComponentType.Somatic],
+			options: componentOptions[ArcaneSpellComponentType.Somatic],
 		},
 		{
 			type: ArcaneSpellComponentType.Verbal,
 			get: selectedVerbalComponent,
 			set: setSelectedVerbalComponent,
-			options: components[ArcaneSpellComponentType.Verbal],
+			options: componentOptions[ArcaneSpellComponentType.Verbal],
 		},
 		{
 			type: ArcaneSpellComponentType.Focal,
 			get: selectedFocalComponent,
 			set: setSelectedFocalComponent,
-			options: components[ArcaneSpellComponentType.Focal],
+			options: componentOptions[ArcaneSpellComponentType.Focal],
 		},
-	];
-
-	const costs = [
-		new ActionCost({ resource: Resource.ActionPoint, amount: selectedCastingTime.value }),
-		new ActionCost({ resource: Resource.FocusPoint, amount: selectedFocusCost.value }),
 	];
 
 	return (
@@ -177,8 +167,8 @@ const ArcaneSectionInner: React.FC<{
 				<LabeledInput
 					variant='normal'
 					label='Base Modifier'
-					value={`${baseModifier.name} (${baseModifier.value.description})`}
-					tooltip={baseModifier.description}
+					value={`${arcaneSection.baseModifier.name} (${arcaneSection.baseModifier.value.description})`}
+					tooltip={arcaneSection.baseModifier.description}
 					disabled
 				/>
 				<LabeledInput
@@ -217,14 +207,19 @@ const ArcaneSectionInner: React.FC<{
 				)}
 				<LabeledInput
 					label='Combined Modifier'
-					value={combinedModifier.value.description}
-					tooltip={combinedModifier.description}
+					value={arcaneSection.combinedModifier.value.description}
+					tooltip={arcaneSection.combinedModifier.description}
 					disabled
 				/>
 			</div>
 			<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '0 0 12px 0', opacity: 0.3 }} />
 			<div style={{ display: 'flex', gap: '2px' }}>
-				<CostBoxComponent characterId={character.id} sheet={sheet} name='Arcane Spell' actionCosts={costs} />
+				<CostBoxComponent
+					characterId={character.id}
+					sheet={sheet}
+					name='Arcane Spell'
+					actionCosts={arcaneSection.costs}
+				/>
 				<div
 					style={{
 						flex: 1,
@@ -305,42 +300,18 @@ const ArcaneSectionInner: React.FC<{
 						onChange={setSelectedAttackOption}
 					/>
 				</div>
-				<SpellCheckBox character={character} finalModifier={fundamentalModifier} />
+				<SpellCheckBox character={character} finalModifier={arcaneSection.fundamentalModifier} />
 			</div>
 			<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '12px 0 12px 0', opacity: 0.3 }} />
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-				{Object.values(PREDEFINED_ARCANE_SPELLS)
-					.filter(spell => {
-						if (selectedSchool === 'All Schools') {
-							return true;
-						}
-						return spell.school === selectedSchool;
-					})
-					.filter(spell => {
-						const attackTraits = [Trait.BodyAttack, Trait.MindAttack, Trait.SoulAttack, Trait.SpecialAttack];
-						switch (selectedAttackOption) {
-							case 'All Spells':
-								return true;
-							case 'Only Attacks':
-								return spell.traits.some(trait => attackTraits.includes(trait));
-							case 'Only Utility':
-								return spell.traits.every(trait => !attackTraits.includes(trait));
-							default:
-								throw selectedAttackOption satisfies never;
-						}
-					})
-					.map(spell => {
-						return (
-							<SpellBox
-								key={spell.name}
-								character={character}
-								tree={tree}
-								primaryAttribute={primaryAttribute}
-								spell={spell}
-								fundamentalModifiers={fundamentalModifiers}
-							/>
-						);
-					})}
+				{arcaneSection.spells.map(spell => (
+					<SpellBox
+						key={spell.key}
+						character={character}
+						spell={spell}
+						setSpellAugmentationValue={setSpellAugmentationValue}
+					/>
+				))}
 			</div>
 		</Block>
 	);
@@ -376,33 +347,9 @@ const SpellCheckBox: React.FC<{
 
 const SpellBox: React.FC<{
 	character: Character;
-	tree: StatTree;
-	primaryAttribute: StatType;
-	spell: ArcaneSpellDefinition;
-	fundamentalModifiers: CircumstanceModifier[];
-}> = ({ character, tree, primaryAttribute, spell, fundamentalModifiers }) => {
-	const { useState } = useUIStateFactory(`actions-${character.id}-spell-${spell.name}`);
-	const [augmentationValues, setAugmentationValues] = useState(`augmentationValues`, {} as Record<string, number>);
-	const getAugmentationValue = (key: string) => {
-		return augmentationValues[key] ?? 1;
-	};
-	const setAugmentationValue = (key: string, value: number) => {
-		setAugmentationValues(prev => ({ ...prev, [key]: value }));
-	};
-
-	const finalModifiers = [
-		...fundamentalModifiers,
-		...spell.augmentations.map(augmentation => {
-			const value = getAugmentationValue(augmentation.key);
-			return new CircumstanceModifier({
-				source: ModifierSource.Augmentation,
-				name: augmentation.getTooltip(value),
-				value: Bonus.of(augmentation.computeBonus(value)),
-			});
-		}),
-	];
-	const finalModifier = tree.getModifier(primaryAttribute, finalModifiers);
-
+	spell: ArcaneSectionSpell;
+	setSpellAugmentationValue: (spellName: string, key: string, value: number) => void;
+}> = ({ character, spell, setSpellAugmentationValue }) => {
 	return (
 		<div style={{ display: 'flex', gap: '2px' }}>
 			<div
@@ -430,7 +377,7 @@ const SpellBox: React.FC<{
 				</div>
 			</div>
 			{spell.augmentations.map(augmentation => {
-				const value = getAugmentationValue(augmentation.key);
+				const value = augmentation.value;
 				return (
 					<ParameterBoxComponent
 						key={augmentation.key}
@@ -440,7 +387,7 @@ const SpellBox: React.FC<{
 								<span>{augmentation.shortDescription}</span>
 							</div>
 						}
-						tooltip={augmentation.getTooltip(value)}
+						tooltip={augmentation.tooltip}
 					>
 						{augmentation.variable ? (
 							<div style={{ display: 'flex', gap: '4px' }}>
@@ -455,10 +402,10 @@ const SpellBox: React.FC<{
 											}
 											return parsedValue;
 										})();
-										setAugmentationValue(augmentation.key, parsedValue);
+										setSpellAugmentationValue(spell.name, augmentation.key, parsedValue);
 									}}
 								/>
-								<span> = {augmentation.computeBonus(value)}</span>
+								<span> = {augmentation.bonus.description}</span>
 							</div>
 						) : (
 							<span>{augmentation.bonus.description}</span>
@@ -466,7 +413,7 @@ const SpellBox: React.FC<{
 					</ParameterBoxComponent>
 				);
 			})}
-			<SpellCheckBox character={character} finalModifier={finalModifier} />
+			<SpellCheckBox character={character} finalModifier={spell.finalModifier} />
 		</div>
 	);
 };
