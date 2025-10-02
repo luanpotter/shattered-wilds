@@ -9,6 +9,10 @@ import {
 	ActionTabParameterValueData,
 	ActionType,
 	Armor,
+	ArcaneSection,
+	ArcaneSectionDefaults,
+	ArcaneSectionInputValues,
+	ArcaneSpellComponentType,
 	CharacterSheet,
 	CircumstanceModifier,
 	Condition,
@@ -179,6 +183,19 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		selectedWeaponIndex: 0, // Index into weapon modes array (0 = Unarmed)
 		selectedArmor: null as number | null,
 		selectedShield: null as number | null,
+	};
+
+	// Arcane-specific UI state
+	#arcaneUIState = {
+		selectedRange: Distance.of(0),
+		selectedSchoolIndex: 0, // Index into allSchoolOptions (0 = All Schools)
+		selectedAttackOptionIndex: 0, // Index into allAttackOptions (0 = All Spells)
+		selectedCastingTimeIndex: ArcaneSectionDefaults.INITIAL_CASTING_TIME_INDEX,
+		selectedFocusCostIndex: ArcaneSectionDefaults.INITIAL_FOCUS_COST_INDEX,
+		selectedSomaticComponentIndex: 0,
+		selectedVerbalComponentIndex: 0,
+		selectedFocalComponentIndex: 0,
+		spellAugmentationValues: {} as Record<string, Record<string, number>>,
 	};
 
 	#conditions = new Set<Condition>();
@@ -648,6 +665,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			miscData: this.prepareMiscData(characterSheet),
 			equipmentData: this.prepareEquipmentData(characterSheet),
 			actionsData: this.prepareActionsData(characterSheet),
+			arcaneData: this.prepareArcaneData(characterSheet),
 			activeTab: this.#activeTab,
 			isStatsTabActive: this.#activeTab === 'stats',
 			isFeatsTabActive: this.#activeTab === 'feats',
@@ -655,6 +673,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			isMiscTabActive: this.#activeTab === 'misc',
 			isEquipmentTabActive: this.#activeTab === 'equipment',
 			isActionsTabActive: this.#activeTab === 'actions',
+			isArcaneTabActive: this.#activeTab === 'arcane',
 			isDebugTabActive: this.#activeTab === 'debug',
 		};
 	}
@@ -890,6 +909,169 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			};
 		} catch (err) {
 			console.warn('Failed to prepare actions data:', err);
+			return null;
+		}
+	}
+
+	prepareArcaneData(characterSheet: CharacterSheet | undefined): Record<string, unknown> | null {
+		if (!characterSheet) {
+			return null;
+		}
+
+		// Check if character is a caster
+		const { primaryAttribute } = characterSheet.characterClass.definition;
+		if (!StatType.mindAttributes.includes(primaryAttribute.name)) {
+			return null; // not a caster
+		}
+
+		try {
+			const componentOptions = ArcaneSection.getComponentsForFlavor(characterSheet);
+
+			// Build selected components from indices
+			const selectedSomaticComponent =
+				componentOptions[ArcaneSpellComponentType.Somatic]?.[this.#arcaneUIState.selectedSomaticComponentIndex] ?? null;
+			const selectedVerbalComponent =
+				componentOptions[ArcaneSpellComponentType.Verbal]?.[this.#arcaneUIState.selectedVerbalComponentIndex] ?? null;
+			const selectedFocalComponent =
+				componentOptions[ArcaneSpellComponentType.Focal]?.[this.#arcaneUIState.selectedFocalComponentIndex] ?? null;
+
+			const selectedSchool =
+				ArcaneSection.allSchoolOptions[this.#arcaneUIState.selectedSchoolIndex] ?? ArcaneSectionDefaults.INITIAL_SCHOOL;
+			const selectedAttackOption =
+				ArcaneSection.allAttackOptions[this.#arcaneUIState.selectedAttackOptionIndex] ??
+				ArcaneSectionDefaults.INITIAL_ATTACK_OPTION;
+			const selectedCastingTime =
+				ArcaneSection.allCastingTimeOptions[this.#arcaneUIState.selectedCastingTimeIndex] ??
+				ArcaneSection.allCastingTimeOptions[ArcaneSectionDefaults.INITIAL_CASTING_TIME_INDEX]!;
+			const selectedFocusCost =
+				ArcaneSection.getAvailableFocusCostOptions(selectedCastingTime)[this.#arcaneUIState.selectedFocusCostIndex] ??
+				ArcaneSection.allFocusCostOptions[ArcaneSectionDefaults.INITIAL_FOCUS_COST_INDEX]!;
+
+			const inputValues: ArcaneSectionInputValues = {
+				selectedRange: this.#arcaneUIState.selectedRange,
+				selectedSchool,
+				selectedAttackOption,
+				selectedCastingTime,
+				selectedFocusCost,
+				selectedSomaticComponent,
+				selectedVerbalComponent,
+				selectedFocalComponent,
+				spellAugmentationValues: this.#arcaneUIState.spellAugmentationValues,
+			};
+
+			const arcaneSection = ArcaneSection.create({ sheet: characterSheet, inputValues });
+
+			// Prepare header controls
+			const header = {
+				baseModifier: {
+					name: arcaneSection.baseModifier.name,
+					value: arcaneSection.baseModifier.value.description,
+					description: arcaneSection.baseModifier.description,
+				},
+				influenceRange: {
+					value: arcaneSection.influenceRange.value.description,
+					description: arcaneSection.influenceRange.description,
+				},
+				selectedRange: this.#arcaneUIState.selectedRange.value,
+				combinedModifier: {
+					value: arcaneSection.combinedModifier.value.description,
+					description: arcaneSection.combinedModifier.description,
+				},
+				// Dropdown options
+				schoolOptions: arcaneSection.schoolOptions.map((school, index) => ({
+					value: index,
+					label: school,
+					selected: index === this.#arcaneUIState.selectedSchoolIndex,
+				})),
+				attackOptions: arcaneSection.attackOptions.map((option, index) => ({
+					value: index,
+					label: option,
+					selected: index === this.#arcaneUIState.selectedAttackOptionIndex,
+				})),
+				castingTimeOptions: arcaneSection.castingTimeOptions.map((option, index) => ({
+					value: index,
+					label: option.name,
+					selected: index === this.#arcaneUIState.selectedCastingTimeIndex,
+				})),
+				focusCostOptions: ArcaneSection.getAvailableFocusCostOptions(selectedCastingTime).map((option, index) => ({
+					value: index,
+					label: option.name,
+					selected: index === this.#arcaneUIState.selectedFocusCostIndex,
+				})),
+				somaticComponentOptions: componentOptions[ArcaneSpellComponentType.Somatic]?.map((comp, index) => ({
+					value: index,
+					label: comp.name,
+					selected: index === this.#arcaneUIState.selectedSomaticComponentIndex,
+				})),
+				verbalComponentOptions: componentOptions[ArcaneSpellComponentType.Verbal]?.map((comp, index) => ({
+					value: index,
+					label: comp.name,
+					selected: index === this.#arcaneUIState.selectedVerbalComponentIndex,
+				})),
+				focalComponentOptions: componentOptions[ArcaneSpellComponentType.Focal]?.map((comp, index) => ({
+					value: index,
+					label: comp.name,
+					selected: index === this.#arcaneUIState.selectedFocalComponentIndex,
+				})),
+			};
+
+			// Prepare costs
+			const costs = arcaneSection.costs.map(cost => {
+				const resource = characterSheet.getResource(cost.resource);
+				const insufficient = resource.current < cost.amount;
+				return {
+					resource: cost.resource,
+					amount: cost.amount,
+					value: `${cost.amount} ${RESOURCES[cost.resource as Resource].shortName}`,
+					insufficient,
+				};
+			});
+
+			const costTooltip = costs.map(c => c.value).join('\n');
+			const canAfford = costs.every(c => !c.insufficient);
+
+			// Prepare fundamental modifier for check box
+			const fundamentalModifier = {
+				name: arcaneSection.fundamentalModifier.name,
+				value: arcaneSection.fundamentalModifier.value.description,
+				description: arcaneSection.fundamentalModifier.description,
+				modifierValue: arcaneSection.fundamentalModifier.value.value,
+			};
+
+			// Prepare spells
+			const spells = arcaneSection.spells.map(spell => ({
+				key: spell.key,
+				name: spell.name,
+				school: spell.school,
+				traits: spell.traits,
+				description: processDescriptionText(spell.description),
+				augmentations: spell.augmentations.map(aug => ({
+					key: aug.key,
+					type: aug.type,
+					shortDescription: aug.shortDescription,
+					tooltip: aug.tooltip,
+					variable: aug.variable,
+					value: aug.value,
+					bonusDescription: aug.bonus.description,
+				})),
+				finalModifier: {
+					name: spell.finalModifier.name,
+					value: spell.finalModifier.value.description,
+					description: spell.finalModifier.description,
+					modifierValue: spell.finalModifier.value.value,
+				},
+			}));
+
+			return {
+				header,
+				costs,
+				costTooltip,
+				canAfford,
+				fundamentalModifier,
+				spells,
+			};
+		} catch (err) {
+			console.warn('Failed to prepare arcane data:', err);
 			return null;
 		}
 	}
@@ -1517,6 +1699,106 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				const shieldIndex = parseInt(select.value);
 				this.#actionsUIState.selectedShield = shieldIndex >= 0 ? shieldIndex : null;
 				(this as unknown as { render: (force?: boolean) => void }).render(false);
+			});
+		});
+
+		// Arcane control handlers
+		const arcaneSchoolSelects = root.querySelectorAll(
+			'[data-action="select-arcane-school"]',
+		) as NodeListOf<HTMLSelectElement>;
+		arcaneSchoolSelects.forEach(select => {
+			select.addEventListener('change', () => {
+				this.#arcaneUIState.selectedSchoolIndex = parseInt(select.value);
+				(this as unknown as { render: (force?: boolean) => void }).render(false);
+			});
+		});
+
+		const arcaneAttackOptionSelects = root.querySelectorAll(
+			'[data-action="select-arcane-attack-option"]',
+		) as NodeListOf<HTMLSelectElement>;
+		arcaneAttackOptionSelects.forEach(select => {
+			select.addEventListener('change', () => {
+				this.#arcaneUIState.selectedAttackOptionIndex = parseInt(select.value);
+				(this as unknown as { render: (force?: boolean) => void }).render(false);
+			});
+		});
+
+		const arcaneCastingTimeSelects = root.querySelectorAll(
+			'[data-action="select-arcane-casting-time"]',
+		) as NodeListOf<HTMLSelectElement>;
+		arcaneCastingTimeSelects.forEach(select => {
+			select.addEventListener('change', () => {
+				const newIndex = parseInt(select.value);
+				this.#arcaneUIState.selectedCastingTimeIndex = newIndex;
+				// Reset focus cost index when casting time changes (available options may have changed)
+				this.#arcaneUIState.selectedFocusCostIndex = 0;
+				(this as unknown as { render: (force?: boolean) => void }).render(false);
+			});
+		});
+
+		const arcaneFocusCostSelects = root.querySelectorAll(
+			'[data-action="select-arcane-focus-cost"]',
+		) as NodeListOf<HTMLSelectElement>;
+		arcaneFocusCostSelects.forEach(select => {
+			select.addEventListener('change', () => {
+				this.#arcaneUIState.selectedFocusCostIndex = parseInt(select.value);
+				(this as unknown as { render: (force?: boolean) => void }).render(false);
+			});
+		});
+
+		const arcaneRangeInputs = root.querySelectorAll('[data-action="set-arcane-range"]') as NodeListOf<HTMLInputElement>;
+		arcaneRangeInputs.forEach(input => {
+			input.addEventListener('change', () => {
+				const value = parseInt(input.value);
+				this.#arcaneUIState.selectedRange = Distance.of(value);
+				(this as unknown as { render: (force?: boolean) => void }).render(false);
+			});
+		});
+
+		const arcaneSomaticSelects = root.querySelectorAll(
+			'[data-action="select-arcane-somatic-component"]',
+		) as NodeListOf<HTMLSelectElement>;
+		arcaneSomaticSelects.forEach(select => {
+			select.addEventListener('change', () => {
+				this.#arcaneUIState.selectedSomaticComponentIndex = parseInt(select.value);
+				(this as unknown as { render: (force?: boolean) => void }).render(false);
+			});
+		});
+
+		const arcaneVerbalSelects = root.querySelectorAll(
+			'[data-action="select-arcane-verbal-component"]',
+		) as NodeListOf<HTMLSelectElement>;
+		arcaneVerbalSelects.forEach(select => {
+			select.addEventListener('change', () => {
+				this.#arcaneUIState.selectedVerbalComponentIndex = parseInt(select.value);
+				(this as unknown as { render: (force?: boolean) => void }).render(false);
+			});
+		});
+
+		const arcaneFocalSelects = root.querySelectorAll(
+			'[data-action="select-arcane-focal-component"]',
+		) as NodeListOf<HTMLSelectElement>;
+		arcaneFocalSelects.forEach(select => {
+			select.addEventListener('change', () => {
+				this.#arcaneUIState.selectedFocalComponentIndex = parseInt(select.value);
+				(this as unknown as { render: (force?: boolean) => void }).render(false);
+			});
+		});
+
+		const spellAugmentationInputs = root.querySelectorAll(
+			'[data-action="set-spell-augmentation"]',
+		) as NodeListOf<HTMLInputElement>;
+		spellAugmentationInputs.forEach(input => {
+			input.addEventListener('change', () => {
+				const spellKey = input.dataset.spellKey;
+				const augmentationKey = input.dataset.augmentationKey;
+				if (spellKey && augmentationKey) {
+					if (!this.#arcaneUIState.spellAugmentationValues[spellKey]) {
+						this.#arcaneUIState.spellAugmentationValues[spellKey] = {};
+					}
+					this.#arcaneUIState.spellAugmentationValues[spellKey]![augmentationKey] = parseInt(input.value) || 0;
+					(this as unknown as { render: (force?: boolean) => void }).render(false);
+				}
 			});
 		});
 
