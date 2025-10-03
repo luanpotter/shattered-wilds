@@ -579,17 +579,17 @@
 						<div class="actions-section">
 							<!-- Arcane Header Controls -->
 							<div class="actions-header-section">
-								<!-- First row: Core spell parameters -->
+								<!-- First row: Core parameters -->
 								<div class="actions-header-controls">
 									<!-- Base Modifier (read-only) -->
 									<div class="header-input">
-										<label class="header-label">Base Modifier</label>
+										<label class="header-label">Base Mod</label>
 										<span class="header-value" title="{{arcaneData.header.baseModifier.description}}">{{arcaneData.header.baseModifier.value}}</span>
 									</div>
 												
 									<!-- Range Increment (read-only) -->
 									<div class="header-input">
-										<label class="header-label">Range Increment</label>
+										<label class="header-label">Range Inc</label>
 										<span class="header-value" title="{{arcaneData.header.influenceRange.description}}">{{arcaneData.header.influenceRange.value}}</span>
 									</div>
 												
@@ -599,10 +599,19 @@
 										<input type="number" class="header-input-field" data-action="set-arcane-range" value="{{arcaneData.header.selectedRange}}" placeholder="0">
 									</div>
 												
+									<!-- Combined Modifier (read-only) -->
+									<div class="header-input">
+										<label class="header-label">Combined Mod</label>
+										<span class="header-value" title="{{arcaneData.header.combinedModifier.description}}">{{arcaneData.header.combinedModifier.value}}</span>
+									</div>
+								</div>
+								
+								<!-- Second row: Components -->
+								<div class="actions-header-controls">
 									<!-- Somatic Component (if available) -->
 									{{#if arcaneData.header.somaticComponentOptions}}
 									<div class="header-dropdown">
-										<label class="header-label">Somatic Component</label>
+										<label class="header-label">Somatic</label>
 										<select data-action="select-arcane-somatic-component" class="header-select">
 											{{#each arcaneData.header.somaticComponentOptions}}
 											<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
@@ -614,7 +623,7 @@
 									<!-- Verbal Component (if available) -->
 									{{#if arcaneData.header.verbalComponentOptions}}
 									<div class="header-dropdown">
-										<label class="header-label">Verbal Component</label>
+										<label class="header-label">Verbal</label>
 										<select data-action="select-arcane-verbal-component" class="header-select">
 											{{#each arcaneData.header.verbalComponentOptions}}
 											<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
@@ -626,7 +635,7 @@
 									<!-- Focal Component (if available) -->
 									{{#if arcaneData.header.focalComponentOptions}}
 									<div class="header-dropdown">
-										<label class="header-label">Focal Component</label>
+										<label class="header-label">Focal</label>
 										<select data-action="select-arcane-focal-component" class="header-select">
 											{{#each arcaneData.header.focalComponentOptions}}
 											<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
@@ -634,12 +643,6 @@
 										</select>
 									</div>
 									{{/if}}
-												
-									<!-- Combined Modifier (read-only) -->
-									<div class="header-input">
-										<label class="header-label">Combined Modifier</label>
-										<span class="header-value" title="{{arcaneData.header.combinedModifier.description}}">{{arcaneData.header.combinedModifier.value}}</span>
-									</div>
 								</div>
 							</div>
 										
