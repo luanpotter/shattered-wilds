@@ -1,6 +1,8 @@
 import * as tseslint from 'typescript-eslint';
 import js from '@eslint/js';
 import globals from 'globals';
+import htmlParser from '@html-eslint/parser';
+import htmlPlugin from '@html-eslint/eslint-plugin';
 
 export default tseslint.config(
 	{
@@ -28,6 +30,19 @@ export default tseslint.config(
 			// use typescript-eslint/no-unused-vars instead
 			'no-unused-vars': 'off',
 			'@typescript-eslint/no-unused-vars': ['error'],
+		},
+	},
+	{
+		files: ['**/templates/**/*.html'],
+		languageOptions: {
+			parser: htmlParser,
+		},
+		plugins: {
+			'@html-eslint': htmlPlugin,
+		},
+		rules: {
+			'@html-eslint/no-trailing-spaces': 'error',
+			'@html-eslint/indent': ['error', 'tab'],
 		},
 	},
 );

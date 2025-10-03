@@ -80,9 +80,9 @@
 			<div class="conditions-row">
 				{{#each conditionsData}}
 				<label class="condition-item" title="{{description}}">
-					<input type="checkbox" 
-						data-action="toggle-condition" 
-						data-condition="{{key}}" 
+					<input type="checkbox"
+						data-action="toggle-condition"
+						data-condition="{{key}}"
 						{{#if active}}checked{{/if}}>
 					<span class="condition-icon">
 						<i class="{{icon}}"></i>
@@ -323,12 +323,12 @@
 												<span class="weapon-mode-range">Range: {{range}}</span>
 												{{/if}}
 											</div>
-											<button type="button" class="weapon-attack-btn" 
-												data-action="roll-weapon-attack" 
-												data-weapon-name="{{../name}}" 
-												data-mode-type="{{type}}" 
-												data-mode-bonus="{{bonusValue}}" 
-												data-attack-stat="{{attackStat}}" 
+											<button type="button" class="weapon-attack-btn"
+												data-action="roll-weapon-attack"
+												data-weapon-name="{{../name}}"
+												data-mode-type="{{type}}"
+												data-mode-bonus="{{bonusValue}}"
+												data-attack-stat="{{attackStat}}"
 												title="Click for advanced options • Shift+Click for quick {{attackStat}} check roll">
 												<i class="fas fa-dice-d12"></i> {{attackStat}} Check
 											</button>
@@ -389,9 +389,9 @@
 							<!-- Actions sub-tabs -->
 							<div class="actions-tabs">
 								{{#each actionsData.tabs}}
-								<button type="button" 
-									class="actions-tab-button {{#if active}}active{{/if}}" 
-									data-action="select-actions-tab" 
+								<button type="button"
+									class="actions-tab-button {{#if active}}active{{/if}}"
+									data-action="select-actions-tab"
 									data-tab="{{key}}">
 									{{#if icon}}<i class="{{icon}}"></i>{{/if}}
 									{{label}}
@@ -507,9 +507,9 @@
 									{{#each actions}}
 									<div class="action-item">
 										<!-- Cost box -->
-										<div class="action-cost-box clickable" 
-											title="{{costTooltip}}" 
-											data-action="consume-action-cost" 
+										<div class="action-cost-box clickable"
+											title="{{costTooltip}}"
+											data-action="consume-action-cost"
 											data-action-key="{{key}}">
 											<div class="action-cost-title {{#unless canAfford}}insufficient{{/unless}}">COST</div>
 											{{#each costs}}
@@ -543,10 +543,10 @@
 												<div class="parameter-value">{{value}}</div>
 											</div>
 											{{else if (eq type "check")}}
-											<div class="parameter-box check-parameter clickable" 
-												title="{{tooltip}}" 
-												data-action="roll-action-check" 
-												data-action-key="{{../key}}" 
+											<div class="parameter-box check-parameter clickable"
+												title="{{tooltip}}"
+												data-action="roll-action-check"
+												data-action-key="{{../key}}"
 												data-parameter-index="{{@index}}">
 												<div class="parameter-title {{#if hasError}}action-box-error{{/if}}">{{title}}</div>
 												<div class="parameter-value {{#if hasError}}action-box-error{{/if}}">{{value}}<i class="fas fa-dice-d12 dice-icon"></i></div>
@@ -651,8 +651,8 @@
 							<!-- Fundamental Spell Row -->
 							<div class="action-item">
 								<!-- Cost box -->
-								<div class="action-cost-box clickable" 
-									title="{{arcaneData.costTooltip}}" 
+								<div class="action-cost-box clickable"
+									title="{{arcaneData.costTooltip}}"
 									data-action="consume-spell-cost">
 									<div class="action-cost-title {{#unless arcaneData.canAfford}}insufficient{{/unless}}">COST</div>
 									{{#each arcaneData.costs}}
@@ -722,7 +722,7 @@
 
 								<!-- Fundamental Modifier -->
 								<div class="action-parameter">
-									<div class="parameter-box check-parameter clickable" 
+									<div class="parameter-box check-parameter clickable"
 										title="{{arcaneData.fundamentalModifier.description}} • Click for advanced options • Shift+Click for quick roll"
 										data-action="fundamental-spell-roll">
 										<div class="parameter-title">{{arcaneData.fundamentalModifier.name}}</div>
@@ -760,13 +760,13 @@
 												<div class="augmentation-label">{{shortDescription}}</div>
 												{{#if variable}}
 												<div class="augmentation-input-row">
-													<input type="number" 
-														class="augmentation-input" 
-														data-action="set-spell-augmentation" 
+													<input type="number"
+														class="augmentation-input"
+														data-action="set-spell-augmentation"
 														data-spell-key="{{../key}}"
 														data-augmentation-key="{{key}}"
-														value="{{value}}" 
-														min="0" 
+														value="{{value}}"
+														min="0"
 														placeholder="0">
 													<span class="augmentation-equals"> = </span>
 													<span class="augmentation-bonus">{{bonusDescription}}</span>
@@ -781,7 +781,7 @@
 
 									<!-- Final Spell Modifier -->
 									<div class="action-parameter">
-										<div class="parameter-box check-parameter clickable" 
+										<div class="parameter-box check-parameter clickable"
 											title="{{finalModifier.description}} • Click for advanced options • Shift+Click for quick roll"
 											data-action="spell-roll"
 											data-spell-key="{{key}}">

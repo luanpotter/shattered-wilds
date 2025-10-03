@@ -7,15 +7,13 @@
 	"scripts": {
 		"build": "bun run clean && tsc --project tsconfig.json && bun run build:pack",
 		"build:pack": "bun scripts/build.ts",
-		"lint": "eslint . --ext .ts,.tsx,.js,.cjs --config eslint.config.ts --max-warnings 0",
-		"lint:fix": "eslint . --ext .ts,.tsx,.js,.cjs --fix --config eslint.config.ts --max-warnings 0",
-		"lint:html": "eslint templates/**/*.html --max-warnings 0",
-		"lint:html:fix": "eslint templates/**/*.html --fix --max-warnings 0",
+		"lint": "eslint . --ext .ts,.tsx,.js,.cjs,.html --config ../../eslint.config.ts --max-warnings 0",
+		"lint:fix": "eslint . --ext .ts,.tsx,.js,.cjs,.html --fix --config ../../eslint.config.ts --max-warnings 0",
 		"type-check": "tsc --noEmit --incremental false --project tsconfig.json",
 		"prettier:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,css,html}\" --ignore-path .gitignore",
 		"prettier:fix": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,html}\" --ignore-path .gitignore",
-		"check": "bun run lint && bun run lint:html && bun run type-check && bun run prettier:check",
-		"check:fix": "bun run lint:fix && bun run lint:html:fix && bun run type-check && bun run prettier:fix",
+		"check": "bun run lint && bun run type-check && bun run prettier:check",
+		"check:fix": "bun run lint:fix && bun run type-check && bun run prettier:fix",
 		"clean": "rm -rf build/ dist/ node_modules/"
 	},
 	"dependencies": {
@@ -25,5 +23,3 @@
 		"typescript": "~5.7.2"
 	}
 }
-
-
