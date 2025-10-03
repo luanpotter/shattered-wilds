@@ -15,7 +15,7 @@ import { Resource } from '../stats/resources.js';
 import { CircumstanceModifier, ModifierSource, StatModifier } from '../stats/stat-tree.js';
 import { StatType } from '../stats/stat-type.js';
 import { Bonus, Distance } from '../stats/value.js';
-import { firstParagraph, numberToOrdinal } from '../utils/utils.js';
+import { firstParagraph, numberToOrdinal, slugify } from '../utils/utils.js';
 
 export type ArcaneSectionSchoolOption = 'All Schools' | ArcaneSpellSchool;
 export type ArcaneSectionCastingTimeOption = { name: string; value: number; modifier: Bonus; maxFocusCost?: number };
@@ -110,6 +110,7 @@ export class ArcaneSectionSpellAugmentation {
 
 export class ArcaneSectionSpell {
 	key: string;
+	slug: string;
 	name: string;
 	school: ArcaneSpellSchool;
 	traits: Trait[];
@@ -119,6 +120,7 @@ export class ArcaneSectionSpell {
 
 	constructor({
 		key,
+		slug,
 		name,
 		school,
 		traits,
@@ -127,6 +129,7 @@ export class ArcaneSectionSpell {
 		finalModifier,
 	}: {
 		key: string;
+		slug: string;
 		name: string;
 		school: ArcaneSpellSchool;
 		traits: Trait[];
@@ -135,6 +138,7 @@ export class ArcaneSectionSpell {
 		finalModifier: StatModifier;
 	}) {
 		this.key = key;
+		this.slug = slug;
 		this.name = name;
 		this.school = school;
 		this.traits = traits;
@@ -310,6 +314,7 @@ export class ArcaneSection {
 
 			return new ArcaneSectionSpell({
 				key: spell.name,
+				slug: slugify(spell.name),
 				name: spell.name,
 				school: spell.school,
 				traits: spell.traits,
