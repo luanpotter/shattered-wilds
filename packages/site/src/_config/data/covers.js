@@ -1,5 +1,4 @@
-import { COVER_TYPES } from '@shattered-wilds/commons';
-import { slugify } from '../utils.js';
+import { COVER_TYPES, slugify } from '@shattered-wilds/commons';
 
 export const covers = Object.values(COVER_TYPES).map(def => {
 	const slug = `Cover_${slugify(def.type)}`;

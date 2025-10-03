@@ -1,5 +1,4 @@
-import { FEATS } from '@shattered-wilds/commons';
-import { slugify } from '../utils.js';
+import { FEATS, slugify } from '@shattered-wilds/commons';
 
 export const feats = Object.values(FEATS).map(feat => {
 	const slug = slugify(feat.name);

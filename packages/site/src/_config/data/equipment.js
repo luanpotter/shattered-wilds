@@ -1,5 +1,4 @@
-import { BASIC_EQUIPMENT, Weapon, Armor, Shield, ArcaneFocus } from '@shattered-wilds/commons';
-import { slugify } from '../utils.js';
+import { BASIC_EQUIPMENT, Weapon, Armor, Shield, ArcaneFocus, slugify } from '@shattered-wilds/commons';
 
 const computeType = item => {
 	if (item instanceof Weapon) {

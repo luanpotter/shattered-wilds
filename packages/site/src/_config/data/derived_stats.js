@@ -1,5 +1,4 @@
-import { DERIVED_STATS } from '@shattered-wilds/commons';
-import { slugify } from '../utils.js';
+import { DERIVED_STATS, slugify } from '@shattered-wilds/commons';
 
 export const derivedStats = Object.values(DERIVED_STATS).map(stat => {
 	const slug = slugify(stat.name);

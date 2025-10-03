@@ -61,3 +61,12 @@ export const firstParagraph = (text: string): string => {
 		.filter(p => p.length > 0);
 	return paragraphs[0] ?? text;
 };
+
+/**
+ * Converts arbitrary names to wiki page urls.
+ * @param str - The string to convert
+ * @returns The slugified string
+ */
+export const slugify = (str: string): string => {
+	return str.replace(/ /g, '_');
+};
