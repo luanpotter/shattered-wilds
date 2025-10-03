@@ -123,7 +123,21 @@ const ArcaneSectionInner: React.FC<{
 		}
 	};
 
-	const inputValues: ArcaneSectionInputValues = {
+	const arcaneSection = useMemo(() => {
+		const inputValues: ArcaneSectionInputValues = {
+			selectedRange,
+			selectedSchool,
+			selectedAttackOption,
+			selectedCastingTime,
+			selectedFocusCost,
+			selectedSomaticComponent,
+			selectedVerbalComponent,
+			selectedFocalComponent,
+			spellAugmentationValues,
+		};
+		return ArcaneSection.create({ sheet, inputValues });
+	}, [
+		sheet,
 		selectedRange,
 		selectedSchool,
 		selectedAttackOption,
@@ -133,9 +147,7 @@ const ArcaneSectionInner: React.FC<{
 		selectedVerbalComponent,
 		selectedFocalComponent,
 		spellAugmentationValues,
-	};
-
-	const arcaneSection = useMemo(() => ArcaneSection.create({ sheet, inputValues }), [sheet, inputValues]);
+	]);
 
 	const { schoolOptions, castingTimeOptions, attackOptions } = arcaneSection;
 
