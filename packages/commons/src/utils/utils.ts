@@ -47,3 +47,17 @@ export const numberToOrdinal = (number: number): string => {
 				}[number % 10] || 'th';
 	return `${number}${suffix}`;
 };
+
+/**
+ * Extracts the first paragraph from a given text.
+ *
+ * @param text - The text to extract the first paragraph from
+ * @returns The first paragraph of the text
+ */
+export const firstParagraph = (text: string): string => {
+	const paragraphs = text
+		.split(/\n\s*\n/)
+		.map(p => p.trim())
+		.filter(p => p.length > 0);
+	return paragraphs[0] ?? text;
+};

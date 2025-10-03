@@ -15,7 +15,7 @@ import { Resource } from '../stats/resources.js';
 import { CircumstanceModifier, ModifierSource, StatModifier } from '../stats/stat-tree.js';
 import { StatType } from '../stats/stat-type.js';
 import { Bonus, Distance } from '../stats/value.js';
-import { numberToOrdinal } from '../utils/utils.js';
+import { firstParagraph, numberToOrdinal } from '../utils/utils.js';
 
 export type ArcaneSectionSchoolOption = 'All Schools' | ArcaneSpellSchool;
 export type ArcaneSectionCastingTimeOption = { name: string; value: number; modifier: Bonus; maxFocusCost?: number };
@@ -313,7 +313,7 @@ export class ArcaneSection {
 				name: spell.name,
 				school: spell.school,
 				traits: spell.traits,
-				description: spell.description,
+				description: firstParagraph(spell.description),
 				augmentations,
 				finalModifier,
 			});
