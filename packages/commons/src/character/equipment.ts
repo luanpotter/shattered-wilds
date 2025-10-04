@@ -291,6 +291,45 @@ export class Equipment {
 		this.items = items;
 	}
 
+	// typescript hack to filter by class type
+	private ofType<T extends Item>(ctor: new (...args: never[]) => T): T[] {
+		return this.items.filter(item => item instanceof ctor) as T[];
+	}
+
+	shields(): Shield[] {
+		return this.ofType(Shield);
+	}
+
+	shieldOptions(): (Shield | 'None')[] {
+		return ['None', ...this.shields()];
+	}
+
+	armors(): Armor[] {
+		return this.ofType(Armor);
+	}
+
+	armorOptions(): (Armor | 'None')[] {
+		return ['None', ...this.armors()];
+	}
+
+	weapons(): Weapon[] {
+		return this.ofType(Weapon);
+	}
+
+	weaponModes(): WeaponModeOption[] {
+		const hasShield = this.shields().length > 0;
+		const weapons = this.weapons();
+		return [
+			Weapon.unarmed(),
+			...(hasShield ? [Weapon.shieldBash()] : []),
+			...weapons.flatMap(weapon => weapon.modes.map(mode => ({ weapon, mode }))),
+		];
+	}
+
+	arcaneFoci(): ArcaneFocus[] {
+		return this.ofType(ArcaneFocus);
+	}
+
 	static from(prop: string | undefined): Equipment {
 		if (!prop) {
 			return new Equipment();

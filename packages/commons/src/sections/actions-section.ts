@@ -1,5 +1,4 @@
 import { CharacterSheet } from '../character/character-sheet.js';
-import { WeaponModeOption, Armor, Shield } from '../character/equipment.js';
 import {
 	ActionCheckParameter,
 	ActionCost,
@@ -12,13 +11,16 @@ import {
 	IncludeEquipmentModifier,
 	StandardCheck,
 } from '../core/actions.js';
-import { COVER_TYPES, PassiveCoverType } from '../core/cover.js';
 import { DEFENSE_TRAITS, DefenseTrait, Trait } from '../core/traits.js';
-import { Check } from '../index.js';
+import { Check } from '../stats/check.js';
 import { CircumstanceModifier, ModifierSource } from '../stats/stat-tree.js';
 import { StatType } from '../stats/stat-type.js';
 import { Bonus, Distance, Value } from '../stats/value.js';
-import { mapEnumToRecord, numberToOrdinal } from '../utils/utils.js';
+import { mapEnumToRecord } from '../utils/utils.js';
+import { ActionsSectionInputFactory, ActionTabInputValues } from './actions-section-inputs.js';
+import { SectionInput } from './inputs/section-inputs.js';
+
+export { ActionTabInputValues };
 
 /// A pre-computed, tab-grouped breakdown of which actions the a given character sheet
 /// can currently execute, include pre-computed costs and parameters.
@@ -36,12 +38,19 @@ export class ActionsSection {
 		characterSheet,
 		showAll,
 		inputValues,
+		update,
 	}: {
 		characterId: string;
 		characterSheet: CharacterSheet;
 		showAll: boolean;
 		inputValues: ActionTabInputValues;
+		update: (inputValues: ActionTabInputValues) => void;
 	}): ActionsSection {
+		const factory = new ActionsSectionInputFactory({
+			sheet: characterSheet,
+			inputValues,
+			update,
+		});
 		return new ActionsSection({
 			tabs: mapEnumToRecord(ActionType, type => {
 				const actions = Object.values(ACTIONS)
@@ -73,184 +82,32 @@ export class ActionsSection {
 					.filter(actionItem => showAll || (actionItem.cost.canAfford && !actionItem.hasErrors()));
 				return new ActionTab({
 					type: type,
-					parameters: ActionsSection.getParametersForActionType(type, inputValues).filter(e => e !== undefined),
+					inputs: factory.getInputsForActionType(type),
 					actions,
 				});
 			}),
 			inputValues,
 		});
 	}
-
-	static getParametersForActionType(
-		type: ActionType,
-		inputValues: ActionTabInputValues,
-	): (ActionTabInputs | undefined)[] {
-		const hasRangedWeapon = inputValues.selectedWeapon?.mode.rangeType === Trait.Ranged;
-		const isBodyDefense = inputValues.selectedDefenseRealm?.name === 'Body';
-
-		const input = (name: ActionTabInputName) => new ActionTabInputs({ name });
-		const inputIfTrue = (name: ActionTabInputName, condition: boolean) => {
-			return condition ? input(name) : undefined;
-		};
-		const inputIfNotNull = <T>(name: ActionTabInputName, requirement: T | null) => {
-			return inputIfTrue(name, requirement !== null);
-		};
-
-		switch (type) {
-			case ActionType.Movement:
-				return [input(ActionTabInputName.Movement), input(ActionTabInputName.ActionPoints)];
-			case ActionType.Attack:
-				return [
-					input(ActionTabInputName.WeaponMode),
-					...(hasRangedWeapon
-						? [
-								input(ActionTabInputName.RangeIncrement),
-								input(ActionTabInputName.Target),
-								inputIfNotNull(ActionTabInputName.RangeCM, inputValues.selectedRange),
-								input(ActionTabInputName.PassiveCover),
-								input(ActionTabInputName.HeightIncrements),
-								inputIfNotNull(ActionTabInputName.HeightCM, inputValues.heightIncrementsModifier()),
-							]
-						: []),
-				];
-			case ActionType.Defense:
-				return [
-					input(ActionTabInputName.DefenseRealm),
-					inputIfTrue(ActionTabInputName.Armor, isBodyDefense),
-					inputIfTrue(ActionTabInputName.Shield, isBodyDefense),
-				];
-			case ActionType.Support:
-				return [
-					input(ActionTabInputName.ActionPoints),
-					input(ActionTabInputName.VitalityPoints),
-					input(ActionTabInputName.FocusPoints),
-					input(ActionTabInputName.SpiritPoints),
-				];
-			case ActionType.Heroic:
-				return [input(ActionTabInputName.ActionPoints), input(ActionTabInputName.HeroismPoints)];
-			case ActionType.Meta:
-				return [];
-		}
-	}
 }
 
 export class ActionTab {
 	type: ActionType;
-	inputs: ActionTabInputs[];
+	inputs: SectionInput[];
 	actions: ActionTabItem[];
 
 	constructor({
 		type,
-		parameters,
+		inputs: inputs,
 		actions,
 	}: {
 		type: ActionType;
-		parameters: ActionTabInputs[];
+		inputs: SectionInput[];
 		actions: ActionTabItem[];
 	}) {
 		this.type = type;
-		this.inputs = parameters;
+		this.inputs = inputs;
 		this.actions = actions;
-	}
-}
-
-export enum ActionTabInputName {
-	Movement,
-	HeroismPoints,
-	ActionPoints,
-	VitalityPoints,
-	FocusPoints,
-	SpiritPoints,
-	WeaponMode,
-	RangeIncrement,
-	Target,
-	RangeCM,
-	PassiveCover,
-	HeightIncrements,
-	HeightCM,
-	DefenseRealm,
-	Armor,
-	Shield,
-}
-
-export class ActionTabInputValues {
-	selectedWeapon: WeaponModeOption | null;
-	selectedRange: Distance | null;
-	selectedDefenseRealm: StatType;
-	selectedPassiveCover: PassiveCoverType;
-	heightIncrements: string;
-	selectedArmor: Armor | 'None';
-	selectedShield: Shield | 'None';
-
-	constructor({
-		selectedWeapon,
-		selectedRange,
-		selectedDefenseRealm,
-		selectedPassiveCover,
-		heightIncrements,
-		selectedArmor,
-		selectedShield,
-	}: {
-		selectedWeapon: WeaponModeOption | null;
-		selectedRange: Distance | null;
-		selectedDefenseRealm: StatType;
-		selectedPassiveCover: PassiveCoverType;
-		heightIncrements: string;
-		selectedArmor: Armor | 'None';
-		selectedShield: Shield | 'None';
-	}) {
-		this.selectedWeapon = selectedWeapon;
-		this.selectedRange = selectedRange;
-		this.selectedDefenseRealm = selectedDefenseRealm;
-		this.selectedPassiveCover = selectedPassiveCover;
-		this.heightIncrements = heightIncrements;
-		this.selectedArmor = selectedArmor;
-		this.selectedShield = selectedShield;
-	}
-
-	weaponModifier = (): CircumstanceModifier | null => {
-		return this.selectedWeapon ? this.selectedWeapon.weapon.getEquipmentModifier(this.selectedWeapon.mode) : null;
-	};
-
-	rangeIncrementModifier = (): CircumstanceModifier | null => {
-		if (!this.selectedWeapon || !this.selectedRange || this.selectedWeapon.mode.rangeType !== Trait.Ranged) {
-			return null;
-		}
-		const weaponRange = this.selectedWeapon.mode.range;
-		const rangeIncrements = Math.max(0, Math.floor((this.selectedRange.value - 1) / weaponRange.value));
-
-		return new CircumstanceModifier({
-			source: ModifierSource.Circumstance,
-			name: `${numberToOrdinal(rangeIncrements)} Range Increment Penalty`,
-			value: Bonus.of(rangeIncrements * -3),
-		});
-	};
-
-	passiveCoverModifier = (): CircumstanceModifier | null => {
-		if (this.selectedPassiveCover === PassiveCoverType.None) {
-			return null;
-		}
-		return COVER_TYPES[this.selectedPassiveCover].modifier;
-	};
-
-	heightIncrementsModifier = (): CircumstanceModifier | null => {
-		const increments = parseInt(this.heightIncrements);
-		if (!increments || isNaN(increments) || increments === 0) {
-			return null;
-		}
-		return new CircumstanceModifier({
-			source: ModifierSource.Circumstance,
-			name: `Height Increments (${increments})`,
-			value: Bonus.of(increments * -3),
-		});
-	};
-}
-
-export class ActionTabInputs {
-	name: ActionTabInputName;
-
-	constructor({ name }: { name: ActionTabInputName }) {
-		this.name = name;
 	}
 }
 
@@ -394,7 +251,7 @@ export class ActionTabParameter {
 			return statType;
 		}
 
-		const weaponMode = inputValues.selectedWeapon;
+		const weaponMode = inputValues.selectedWeaponMode;
 		switch (statType) {
 			case StandardCheck.BodyAttack: {
 				return weaponMode ? weaponMode.mode.statType : StatType.STR;
@@ -412,15 +269,15 @@ export class ActionTabParameter {
 		switch (includeModifierFor) {
 			case IncludeEquipmentModifier.Weapon: {
 				const modifiers = [];
-				const hasRangedWeapon = inputValues.selectedWeapon?.mode.rangeType === Trait.Ranged;
+				const hasRangedWeapon = inputValues.selectedWeaponMode?.mode.rangeType === Trait.Ranged;
 
 				// Always include weapon modifier if weapon is selected
-				if (inputValues.selectedWeapon) {
+				if (inputValues.selectedWeaponMode) {
 					modifiers.push(inputValues.weaponModifier());
 				}
 
 				// Only include range modifier if RangeCM input should be visible
-				if (hasRangedWeapon && inputValues.selectedRange !== null) {
+				if (hasRangedWeapon && inputValues.selectedRangeValue !== null) {
 					modifiers.push(inputValues.rangeIncrementModifier());
 				}
 
@@ -466,7 +323,7 @@ export class ActionTabParameter {
 		const errors: ActionTabParameterCheckError[] = [];
 
 		if (requireRangeTrait && parameter.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Weapon)) {
-			const currentWeaponRangeTrait = inputValues.selectedWeapon?.mode.rangeType ?? Trait.Melee;
+			const currentWeaponRangeTrait = inputValues.selectedWeaponMode?.mode.rangeType ?? Trait.Melee;
 			if (currentWeaponRangeTrait !== requireRangeTrait) {
 				errors.push({
 					title: `${requireRangeTrait} Required`,

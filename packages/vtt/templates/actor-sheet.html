@@ -404,99 +404,40 @@
 								{{#each actionsData.tabs}}
 								{{#if active}}
 								<div class="actions-tab-content">
-									{{#if header}}
+									{{#if inputs}}
 									<div class="actions-header-section">
 										<div class="actions-header-controls">
-											<!-- Movement display (read-only) -->
-											{{#if header.movement}}
+											{{#each inputs}}
+											{{#if (eq type "fixed")}}
 											<div class="header-input">
-												<label class="header-label">Movement</label>
-												<span class="header-value" title="{{header.movement.description}}">{{header.movement.value.description}}</span>
+												<label class="header-label">{{label}}</label>
+												<span class="header-value" title="{{tooltip}}">{{value}}</span>
 											</div>
-											{{/if}}
-															
-											<!-- Weapon selection -->
-											{{#if header.weaponModes}}
+											{{else if (eq type "number")}}
+											<div class="header-input">
+												<label class="header-label">{{label}}</label>
+												<input type="number"
+													class="header-input-field"
+													data-action="update-input"
+													data-input-key="{{key}}"
+													value="{{value}}"
+													placeholder="0"
+													title="{{tooltip}}">
+											</div>
+											{{else if (eq type "dropdown")}}
 											<div class="header-dropdown">
-												<label class="header-label">Weapon</label>
-												<select data-action="select-weapon" class="header-select">
-													{{#each header.weaponModes}}
-													<option value="{{index}}" {{#if (eq index ../header.selectedWeapon.index)}}selected{{/if}}>{{label}}</option>
+												<label class="header-label">{{label}}</label>
+												<select class="header-select"
+													data-action="update-input"
+													data-input-key="{{key}}"
+													title="{{tooltip}}">
+													{{#each options}}
+													<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
 													{{/each}}
 												</select>
 											</div>
 											{{/if}}
-															
-											<!-- Ranged weapon controls -->
-											{{#if header.hasRangedWeapon}}
-											<div class="header-input">
-												<label class="header-label">Range</label>
-												<span class="header-value">{{header.selectedWeapon.mode.range.description}}</span>
-											</div>
-											<div class="header-input">
-												<label class="header-label">Target (Hexes)</label>
-												<input type="number" class="header-input-field" data-action="set-range" value="{{#if header.selectedRange}}{{header.selectedRange.value}}{{/if}}" placeholder="0">
-											</div>
-											{{#if header.rangeIncrementModifier}}
-											<div class="header-input">
-												<label class="header-label">Range CM</label>
-												<span class="header-value" title="{{header.rangeIncrementModifier.description}}">{{header.rangeIncrementModifier.value.description}}</span>
-											</div>
-											{{/if}}
-											<div class="header-input">
-												<label class="header-label">Height Increments</label>
-												<input type="number" class="header-input-field" data-action="set-height" value="{{header.heightIncrements}}" placeholder="0">
-											</div>
-											{{#if header.heightIncrementsModifier}}
-											<div class="header-input">
-												<label class="header-label">Height CM</label>
-												<span class="header-value" title="{{header.heightIncrementsModifier.description}}">{{header.heightIncrementsModifier.value.description}}</span>
-											</div>
-											{{/if}}
-											<div class="header-dropdown">
-												<label class="header-label">Passive Cover</label>
-												<select data-action="select-passive-cover" class="header-select">
-													{{#each header.passiveCoverOptions}}
-													<option value="{{this.value}}" {{#if (eq this.value ../header.selectedPassiveCover)}}selected{{/if}}>{{this.label}}</option>
-													{{/each}}
-												</select>
-											</div>
-											{{/if}}
-															
-											<!-- Defense realm selection -->
-											{{#if header.defenseRealms}}
-											<div class="header-dropdown">
-												<label class="header-label">Defense Realm</label>
-												<select data-action="select-defense-realm" class="header-select">
-													{{#each header.defenseRealms}}
-													<option value="{{name}}" {{#if (eq name ../header.selectedDefenseRealm.name)}}selected{{/if}}>{{name}}</option>
-													{{/each}}
-												</select>
-											</div>
-											{{/if}}
-															
-											<!-- Armor and Shield selection (only for Body defense) -->
-											{{#if (eq header.selectedDefenseRealm.name "Body")}}
-											<div class="header-dropdown">
-												<label class="header-label">Armor</label>
-												<select data-action="select-armor" class="header-select">
-													<option value="-1" {{#unless header.selectedArmor}}selected{{/unless}}>None</option>
-													{{#each header.armors}}
-													<option value="{{@index}}" {{#if (eq @index ../header.selectedArmor.index)}}selected{{/if}}>{{name}}</option>
-													{{/each}}
-												</select>
-											</div>
-																
-											<div class="header-dropdown">
-												<label class="header-label">Shield</label>
-												<select data-action="select-shield" class="header-select">
-													<option value="-1" {{#unless header.selectedShield}}selected{{/unless}}>None</option>
-													{{#each header.shields}}
-													<option value="{{@index}}" {{#if (eq @index ../header.selectedShield.index)}}selected{{/if}}>{{name}}</option>
-													{{/each}}
-												</select>
-											</div>
-											{{/if}}
+											{{/each}}
 										</div>
 									</div>
 									{{/if}}

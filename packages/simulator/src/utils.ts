@@ -95,3 +95,18 @@ export const axialToPixel = (q: number, r: number): Point => {
 	const y = r * 8.66; // sqrt(3) * 5
 	return { x, y };
 };
+
+/**
+ * Same as `array.indexOf` but uses a predicate function to find the matching item.
+ * @param array the array to search
+ * @param predicate function to test each item
+ * @returns the index of the matching item, or -1 if not found
+ */
+export const indexOfMatching = <T>(array: readonly T[], predicate: (item: T) => boolean): number => {
+	for (let i = 0; i < array.length; i++) {
+		if (predicate(array[i])) {
+			return i;
+		}
+	}
+	return -1;
+};

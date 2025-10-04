@@ -20,4 +20,5 @@ export * from './character/equipment.js';
 export * from './sections/actions-section.js';
 export * from './sections/arcane-section.js';
 export * from './sections/feats-section.js';
+export * from './sections/inputs/section-inputs.js';
 export * from './utils/utils.js';

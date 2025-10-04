@@ -32,6 +32,15 @@ export function getRecordKeys<K extends string | number, T>(record: Record<K, T>
 }
 
 /**
+ * Type-safe function to get all keys of an enum as an array.
+ * @param enumObject the enum object
+ * @returns array of enum keys with proper type of E[] (not string[])
+ */
+export function getEnumKeys<E extends string | number>(enumObject: Record<string, E>): E[] {
+	return Object.values(enumObject);
+}
+
+/**
  * Convert a number to an ordinal string, for example 1 -> "1st", 7 -> "7th" or 22 -> "22nd".
  * @param number - The number to convert
  * @returns The ordinal string

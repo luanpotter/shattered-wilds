@@ -2,7 +2,6 @@ import {
 	ACTIONS,
 	ActionCost,
 	ActionsSection,
-	ActionTabInputName,
 	ActionTabInputValues,
 	ActionTabItem,
 	ActionTabParameter,
@@ -18,7 +17,6 @@ import {
 	CircumstanceModifier,
 	Condition,
 	CONDITIONS,
-	COVER_TYPES,
 	DerivedStatType,
 	Distance,
 	FeatsSection,
@@ -55,6 +53,7 @@ import {
 	getHandlebarsApplicationMixin,
 	showNotification,
 } from './foundry-shim.js';
+import { prepareInputForTemplate } from './input-renderer.js';
 import { configureDefaultTokenBars } from './token-bars.js';
 
 function buildWeaponModeOptions(characterSheet: CharacterSheet): WeaponModeOption[] {
@@ -874,34 +873,79 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		}
 
 		try {
+			const selectedWeapon = this.getSelectedWeapon();
 			const inputValues = new ActionTabInputValues({
-				selectedWeapon: this.getSelectedWeapon(),
-				selectedRange: this.#actionsUIState.selectedRange,
+				selectedWeaponMode: selectedWeapon || Weapon.unarmed(),
+				selectedRangeValue: this.#actionsUIState.selectedRange?.value ?? 0,
 				selectedDefenseRealm: this.#actionsUIState.selectedDefenseRealm,
 				selectedPassiveCover: this.#actionsUIState.selectedPassiveCover,
-				heightIncrements: this.#actionsUIState.heightIncrements,
+				heightIncrements: Number(this.#actionsUIState.heightIncrements) || 0,
 				selectedArmor: this.getSelectedArmor(),
 				selectedShield: this.getSelectedShield(),
 			});
+
 			const actionsSection = ActionsSection.create({
 				characterId: this.getCurrentActorId() || '',
 				characterSheet,
 				showAll: this.#actionsUIState.showAll,
 				inputValues,
+				update: updatedValues => {
+					// Update the UI state with the new values
+					const weaponModes = buildWeaponModeOptions(characterSheet);
+					const weaponIndex = weaponModes.findIndex(
+						w =>
+							w.weapon === updatedValues.selectedWeaponMode.weapon && w.mode === updatedValues.selectedWeaponMode.mode,
+					);
+					if (weaponIndex >= 0) {
+						this.#actionsUIState.selectedWeaponIndex = weaponIndex;
+					}
+
+					this.#actionsUIState.selectedRange = Distance.of(updatedValues.selectedRangeValue);
+					this.#actionsUIState.selectedDefenseRealm = updatedValues.selectedDefenseRealm;
+					this.#actionsUIState.selectedPassiveCover = updatedValues.selectedPassiveCover;
+					this.#actionsUIState.heightIncrements = String(updatedValues.heightIncrements);
+
+					// Update armor and shield indices
+					const armors = characterSheet.equipment.items.filter(item => item instanceof Armor) as Armor[];
+					const shields = characterSheet.equipment.items.filter(item => item instanceof Shield) as Shield[];
+
+					if (updatedValues.selectedArmor !== 'None') {
+						const armorIndex = armors.findIndex(a => a === updatedValues.selectedArmor);
+						if (armorIndex >= 0) {
+							this.#actionsUIState.selectedArmor = armorIndex;
+						}
+					} else {
+						this.#actionsUIState.selectedArmor = null;
+					}
+
+					if (updatedValues.selectedShield !== 'None') {
+						const shieldIndex = shields.findIndex(s => s === updatedValues.selectedShield);
+						if (shieldIndex >= 0) {
+							this.#actionsUIState.selectedShield = shieldIndex;
+						}
+					} else {
+						this.#actionsUIState.selectedShield = null;
+					}
+				},
 			});
 
 			// Prepare action types as tabs for VTT template compatibility
 			const actionTypes = Object.values(ActionType);
-			const actionTabs = actionTypes.map(type => ({
-				key: type,
-				label: type,
-				icon: this.getActionTypeIcon(type),
-				active: this.#actionsUIState.activeTab === type,
-				actions: actionsSection.tabs[type].actions.map(actionTabItem =>
-					this.prepareActionItemFromTabItem(actionTabItem, characterSheet),
-				),
-				header: this.getActionTypeHeader(type, characterSheet, actionsSection),
-			}));
+			const actionTabs = actionTypes.map(type => {
+				const tab = actionsSection.tabs[type];
+
+				// Use generic input renderer for all inputs
+				const inputs = tab.inputs.map(input => prepareInputForTemplate(input)).filter(input => !input.hidden);
+
+				return {
+					key: type,
+					label: type,
+					icon: this.getActionTypeIcon(type),
+					active: this.#actionsUIState.activeTab === type,
+					actions: tab.actions.map(actionTabItem => this.prepareActionItemFromTabItem(actionTabItem, characterSheet)),
+					inputs: inputs.length > 0 ? inputs : null,
+				};
+			});
 
 			return {
 				showAll: this.#actionsUIState.showAll,
@@ -1232,96 +1276,6 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		};
 	}
 
-	private getActionTypeHeader(
-		type: ActionType,
-		characterSheet: CharacterSheet,
-		actionsSection: ActionsSection,
-	): Record<string, unknown> | null {
-		const { inputValues } = actionsSection;
-		const { inputs } = actionsSection.tabs[type];
-		if (inputs.length === 0) {
-			return null;
-		}
-
-		// Prepare common data
-		const weaponModeOptions = buildWeaponModeOptions(characterSheet);
-		const weaponModes = weaponModeOptions.map((option, index) => ({
-			index,
-			label: `${option.weapon.name} - ${option.mode.description}`,
-			weapon: option.weapon,
-			mode: option.mode,
-		}));
-		const equipment = characterSheet.equipment;
-		const armors = equipment.items.filter(item => item instanceof Armor) as Armor[];
-		const shields = equipment.items.filter(item => item instanceof Shield) as Shield[];
-
-		// Build header data based on the inputs from ActionsSection
-		const headerData: Record<string, unknown> = {};
-
-		inputs.forEach(input => {
-			switch (input.name) {
-				case ActionTabInputName.Movement:
-					headerData.movement = characterSheet.getStatTree().getDistance(DerivedStatType.Movement);
-					break;
-				case ActionTabInputName.WeaponMode:
-					headerData.weaponModes = weaponModes;
-					headerData.selectedWeapon = inputValues.selectedWeapon!;
-					break;
-				case ActionTabInputName.RangeIncrement:
-					headerData.hasRangedWeapon = true;
-					headerData.rangeIncrement = inputValues.selectedWeapon!.mode.range;
-					break;
-				case ActionTabInputName.Target:
-					headerData.selectedRange = inputValues.selectedRange!;
-					break;
-				case ActionTabInputName.RangeCM: {
-					headerData.rangeIncrementModifier = inputValues.rangeIncrementModifier()!;
-					break;
-				}
-				case ActionTabInputName.PassiveCover:
-					headerData.passiveCoverOptions = Object.values(PassiveCoverType).map(cover => {
-						const definition = COVER_TYPES[cover];
-						const bonus = definition.bonus.value;
-						return {
-							value: cover,
-							label: bonus === 0 ? cover : `${cover} (${bonus})`,
-						};
-					});
-					headerData.selectedPassiveCover = inputValues.selectedPassiveCover!;
-					break;
-				case ActionTabInputName.HeightIncrements:
-					headerData.heightIncrements = inputValues.heightIncrements!;
-					break;
-				case ActionTabInputName.HeightCM: {
-					headerData.heightIncrementsModifier = inputValues.heightIncrementsModifier()!;
-					break;
-				}
-				case ActionTabInputName.DefenseRealm:
-					headerData.defenseRealms = StatType.realms;
-					headerData.selectedDefenseRealm = inputValues.selectedDefenseRealm!;
-					break;
-				case ActionTabInputName.Armor:
-					headerData.armors = armors;
-					headerData.selectedArmor = inputValues.selectedArmor;
-					break;
-				case ActionTabInputName.Shield:
-					headerData.shields = shields;
-					headerData.selectedShield = inputValues.selectedShield;
-					break;
-				case ActionTabInputName.ActionPoints:
-				case ActionTabInputName.VitalityPoints:
-				case ActionTabInputName.FocusPoints:
-				case ActionTabInputName.SpiritPoints:
-				case ActionTabInputName.HeroismPoints:
-					// Resource inputs are not shown in vtt since they are already in the main section
-					// and the vtt character sheet has limited space
-					break;
-			}
-		});
-
-		return headerData;
-	}
-
 	async _onRender(): Promise<void> {
 		const root = (this as unknown as { element?: HTMLElement }).element ?? undefined;
 		const currentActorId = this.getCurrentActorId();
@@ -1628,77 +1582,78 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			});
 		});
 
-		// Header control handlers
-		const weaponSelects = root.querySelectorAll('[data-action="select-weapon"]') as NodeListOf<HTMLSelectElement>;
-		weaponSelects.forEach(select => {
-			select.addEventListener('change', () => {
-				const weaponIndex = parseInt(select.value);
-				this.#actionsUIState.selectedWeaponIndex = weaponIndex;
-				(this as unknown as { render: (force?: boolean) => void }).render(false);
-			});
-		});
+		// Generic input update handler for all input types
+		const inputElements = root.querySelectorAll('[data-action="update-input"]') as NodeListOf<
+			HTMLInputElement | HTMLSelectElement
+		>;
+		inputElements.forEach(element => {
+			const eventType = element.tagName === 'SELECT' ? 'change' : 'change';
+			element.addEventListener(eventType, () => {
+				const inputKey = element.dataset.inputKey;
+				if (!inputKey) return;
 
-		const defenseRealmSelects = root.querySelectorAll(
-			'[data-action="select-defense-realm"]',
-		) as NodeListOf<HTMLSelectElement>;
-		defenseRealmSelects.forEach(select => {
-			select.addEventListener('change', () => {
-				// Find the StatType by name
-				const realmName = select.value;
-				const realm = StatType.realms.find(r => r.name === realmName);
-				if (realm) {
-					this.#actionsUIState.selectedDefenseRealm = realm;
-					// Clear armor and shield selections when switching away from Body realm
-					if (realm.name !== 'Body') {
-						this.#actionsUIState.selectedArmor = null;
-						this.#actionsUIState.selectedShield = null;
+				const characterSheet = this.getCharacterSheet();
+				if (!characterSheet) return;
+
+				// Update UI state based on input key
+				// Keys are generated in ActionsSectionInputFactory with format: action-inputs-{name}
+				switch (inputKey) {
+					case 'action-inputs-weapon-mode': {
+						// Weapon mode dropdown
+						const weaponIndex = parseInt((element as HTMLSelectElement).value);
+						this.#actionsUIState.selectedWeaponIndex = weaponIndex;
+						break;
 					}
-					(this as unknown as { render: (force?: boolean) => void }).render(false);
+					case 'action-inputs-target': {
+						// Range input (target hexes)
+						const value = parseInt((element as HTMLInputElement).value) || 0;
+						this.#actionsUIState.selectedRange = value > 0 ? Distance.of(value) : null;
+						break;
+					}
+					case 'action-inputs-height-increments': {
+						// Height increments input
+						const value = (element as HTMLInputElement).value;
+						this.#actionsUIState.heightIncrements = value;
+						break;
+					}
+					case 'action-inputs-defense-realm': {
+						// Defense realm dropdown
+						const selectedIndex = parseInt((element as HTMLSelectElement).value);
+						const realm = StatType.realms[selectedIndex];
+						if (realm) {
+							this.#actionsUIState.selectedDefenseRealm = realm;
+							// Clear armor and shield selections when switching away from Body realm
+							if (realm.name !== 'Body') {
+								this.#actionsUIState.selectedArmor = null;
+								this.#actionsUIState.selectedShield = null;
+							}
+						}
+						break;
+					}
+					case 'action-inputs-armor': {
+						// Armor dropdown - index 0 is 'None', actual armors start at index 1
+						const selectedIndex = parseInt((element as HTMLSelectElement).value);
+						// Store as armor index (not including 'None'), so subtract 1, or null for 'None'
+						this.#actionsUIState.selectedArmor = selectedIndex > 0 ? selectedIndex - 1 : null;
+						break;
+					}
+					case 'action-inputs-shield': {
+						// Shield dropdown - index 0 is 'None', actual shields start at index 1
+						const selectedIndex = parseInt((element as HTMLSelectElement).value);
+						// Store as shield index (not including 'None'), so subtract 1, or null for 'None'
+						this.#actionsUIState.selectedShield = selectedIndex > 0 ? selectedIndex - 1 : null;
+						break;
+					}
+					case 'action-inputs-passive-cover': {
+						// Passive cover dropdown
+						const selectedIndex = parseInt((element as HTMLSelectElement).value);
+						const coverOptions = Object.values(PassiveCoverType);
+						this.#actionsUIState.selectedPassiveCover = coverOptions[selectedIndex] || PassiveCoverType.None;
+						break;
+					}
 				}
-			});
-		});
 
-		const passiveCoverSelects = root.querySelectorAll(
-			'[data-action="select-passive-cover"]',
-		) as NodeListOf<HTMLSelectElement>;
-		passiveCoverSelects.forEach(select => {
-			select.addEventListener('change', () => {
-				this.#actionsUIState.selectedPassiveCover = select.value as unknown as PassiveCoverType;
-				(this as unknown as { render: (force?: boolean) => void }).render(false);
-			});
-		});
-
-		const rangeInputs = root.querySelectorAll('[data-action="set-range"]') as NodeListOf<HTMLInputElement>;
-		rangeInputs.forEach(input => {
-			input.addEventListener('change', () => {
-				const value = parseInt(input.value);
-				this.#actionsUIState.selectedRange = value > 0 ? Distance.of(value) : null;
-				(this as unknown as { render: (force?: boolean) => void }).render(false);
-			});
-		});
-
-		const heightInputs = root.querySelectorAll('[data-action="set-height"]') as NodeListOf<HTMLInputElement>;
-		heightInputs.forEach(input => {
-			input.addEventListener('change', () => {
-				this.#actionsUIState.heightIncrements = input.value;
-				(this as unknown as { render: (force?: boolean) => void }).render(false);
-			});
-		});
-
-		const armorSelects = root.querySelectorAll('[data-action="select-armor"]') as NodeListOf<HTMLSelectElement>;
-		armorSelects.forEach(select => {
-			select.addEventListener('change', () => {
-				const armorIndex = parseInt(select.value);
-				this.#actionsUIState.selectedArmor = armorIndex >= 0 ? armorIndex : null;
-				(this as unknown as { render: (force?: boolean) => void }).render(false);
-			});
-		});
-
-		const shieldSelects = root.querySelectorAll('[data-action="select-shield"]') as NodeListOf<HTMLSelectElement>;
-		shieldSelects.forEach(select => {
-			select.addEventListener('change', () => {
-				const shieldIndex = parseInt(select.value);
-				this.#actionsUIState.selectedShield = shieldIndex >= 0 ? shieldIndex : null;
+				// Re-render to update content
 				(this as unknown as { render: (force?: boolean) => void }).render(false);
 			});
 		});
@@ -1966,12 +1921,13 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 				try {
 					// Recreate the actions section with current UI state to get pre-computed data
+					const selectedWeapon = this.getSelectedWeapon();
 					const inputValues = new ActionTabInputValues({
-						selectedWeapon: this.getSelectedWeapon(),
-						selectedRange: this.#actionsUIState.selectedRange,
+						selectedWeaponMode: selectedWeapon || Weapon.unarmed(),
+						selectedRangeValue: this.#actionsUIState.selectedRange?.value ?? 0,
 						selectedDefenseRealm: this.#actionsUIState.selectedDefenseRealm,
 						selectedPassiveCover: this.#actionsUIState.selectedPassiveCover,
-						heightIncrements: this.#actionsUIState.heightIncrements,
+						heightIncrements: Number(this.#actionsUIState.heightIncrements) || 0,
 						selectedArmor: this.getSelectedArmor(),
 						selectedShield: this.getSelectedShield(),
 					});
@@ -1980,6 +1936,9 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 						characterSheet,
 						showAll: this.#actionsUIState.showAll,
 						inputValues,
+						update: () => {
+							// No-op for this read-only usage
+						},
 					});
 
 					// Find the action and parameter in the pre-computed data

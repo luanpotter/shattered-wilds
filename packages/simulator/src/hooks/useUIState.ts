@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction, useMemo } from 'react';
 
 import { useStore } from '../store';
+import { indexOfMatching } from '../utils';
 
 /**
  * A hook that provides useState-like behavior but persists state in Zustand.
@@ -60,7 +61,7 @@ export function useUIStateFactory(baseKey: string) {
 				if (item === undefined) {
 					setSelectedIndex(undefined);
 				} else {
-					const index = array.indexOf(item);
+					const index = indexOfMatching(array, (a: T) => a === item || JSON.stringify(a) === JSON.stringify(item));
 					setSelectedIndex(index >= 0 ? index : undefined);
 				}
 			};

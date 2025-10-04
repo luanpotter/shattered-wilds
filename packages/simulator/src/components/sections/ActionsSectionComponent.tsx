@@ -1,24 +1,21 @@
 import {
 	ActionsSection,
-	ActionTabInputName,
 	ActionTabInputValues,
 	ActionTabParameterCheckData,
 	ActionTabParameterValueData,
 	ActionType,
-	Armor,
 	CharacterSheet,
-	COVER_TYPES,
-	DerivedStatType,
-	Distance,
+	DropdownInput,
+	FixedInput,
 	getRecordKeys,
 	PassiveCoverType,
-	Resource,
-	Shield,
+	ResourceInput,
 	StatType,
+	TextInput,
 	Weapon,
 	WeaponMode,
 } from '@shattered-wilds/commons';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
 import { FaShield } from 'react-icons/fa6';
 
@@ -106,41 +103,32 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 	const [showAll, setShowAll] = useState('showAll', true);
 
 	const character = useStore(state => state.characters.find(c => c.id === characterId))!;
-	const hasShield = sheet.equipment.items.some(item => item instanceof Shield);
-	const weapons = sheet.equipment.items.filter(item => item instanceof Weapon) as Weapon[];
-	const weaponModes = useMemo(
-		() => [
-			Weapon.unarmed(),
-			...(hasShield ? [Weapon.shieldBash()] : []),
-			...weapons.flatMap(weapon => weapon.modes.map(mode => ({ weapon, mode }))),
-		],
-		[hasShield, weapons],
-	);
 
-	const [selectedRange, setSelectedRange] = useState<Distance | null>('selectedRange', null);
+	const [selectedRangeValue, setSelectedRangeValue] = useState<number>('selectedRange', 0);
 	const [selectedDefenseRealm, setSelectedDefenseRealm] = useStateArrayItem(
 		'selectedDefenseRealm',
 		StatType.realms,
 		StatType.Body,
 	);
 	const [selectedPassiveCover, setSelectedPassiveCover] = useState('selectedPassiveCover', PassiveCoverType.None);
-	const [heightIncrements, setHeightIncrements] = useState('heightIncrements', '');
-	const armors = useMemo(
-		() => ['None', ...sheet.equipment.items.filter(item => item instanceof Armor)] as const,
-		[sheet.equipment.items],
-	);
-	const shields = useMemo(
-		() => ['None', ...sheet.equipment.items.filter(item => item instanceof Shield)] as const,
-		[sheet.equipment.items],
+	const [heightIncrements, setHeightIncrements] = useState('heightIncrements', 0);
+
+	const weaponModes = sheet.equipment.weaponModes();
+	const [selectedWeaponMode, setSelectedWeaponMode] = useStateArrayItem(
+		'selectedWeaponMode',
+		weaponModes,
+		weaponModes[0],
 	);
 
-	const [selectedWeapon, setSelectedWeapon] = useStateArrayItem('selectedWeapon', weaponModes, null);
+	const armors = sheet.equipment.armorOptions();
 	const [selectedArmor, setSelectedArmor] = useStateArrayItem('selectedArmor', armors, 'None');
+
+	const shields = sheet.equipment.shieldOptions();
 	const [selectedShield, setSelectedShield] = useStateArrayItem('selectedShield', shields, 'None');
 
 	const inputValues = new ActionTabInputValues({
-		selectedWeapon,
-		selectedRange,
+		selectedWeaponMode,
+		selectedRangeValue,
 		selectedDefenseRealm,
 		selectedPassiveCover,
 		heightIncrements,
@@ -148,33 +136,31 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 		selectedShield,
 	});
 
+	const updateSelectedWeapon = useCallback(
+		(weapon: WeaponModeOption) => {
+			setSelectedWeaponMode(weapon);
+			setSelectedRangeValue(0);
+			setSelectedPassiveCover(PassiveCoverType.None);
+			setHeightIncrements(0);
+		},
+		[setSelectedWeaponMode, setSelectedRangeValue, setSelectedPassiveCover, setHeightIncrements],
+	);
+
 	const actionsSection = ActionsSection.create({
 		characterId,
 		characterSheet: sheet,
 		showAll,
 		inputValues,
-	});
-
-	const updateSelectedWeapon = useCallback(
-		(weapon: WeaponModeOption) => {
-			setSelectedWeapon(weapon);
-			setSelectedRange(null);
-			setSelectedPassiveCover(PassiveCoverType.None);
-			setHeightIncrements('');
+		update: updatedValues => {
+			updateSelectedWeapon(updatedValues.selectedWeaponMode);
+			setSelectedRangeValue(updatedValues.selectedRangeValue);
+			setSelectedDefenseRealm(updatedValues.selectedDefenseRealm);
+			setSelectedPassiveCover(updatedValues.selectedPassiveCover);
+			setHeightIncrements(updatedValues.heightIncrements);
+			setSelectedArmor(updatedValues.selectedArmor);
+			setSelectedShield(updatedValues.selectedShield);
 		},
-		[setSelectedWeapon, setSelectedRange, setSelectedPassiveCover, setHeightIncrements],
-	);
-
-	useEffect(() => {
-		if (weaponModes.length > 0 && !selectedWeapon) {
-			updateSelectedWeapon(weaponModes[0]);
-		}
-	}, [weaponModes, selectedWeapon, updateSelectedWeapon]);
-	useEffect(() => {
-		if (armors.length > 0 && !selectedArmor) {
-			setSelectedArmor(armors[0]);
-		}
-	}, [armors, selectedArmor, setSelectedArmor]);
+	});
 
 	const getTypeIcon = (type: ActionType) => {
 		switch (type) {
@@ -203,161 +189,53 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 	};
 
 	const getHeaderInputsForTab = (type: ActionType): React.ReactNode | null => {
-		const headerDivStyle = { marginBottom: '12px', display: 'flex', gap: '8px' };
-		const resourceInput = (resource: Resource) => {
-			return (
-				<ResourceInputComponent
-					key={`action-inputs-${resource}`}
-					variant='normal'
-					character={character}
-					sheet={sheet}
-					resource={resource}
-				/>
-			);
-		};
-
 		const { inputs } = actionsSection.tabs[type];
-		const reactInputs = inputs.map(input => {
-			switch (input.name) {
-				case ActionTabInputName.ActionPoints:
-					return resourceInput(Resource.ActionPoint);
-				case ActionTabInputName.VitalityPoints:
-					return resourceInput(Resource.VitalityPoint);
-				case ActionTabInputName.FocusPoints:
-					return resourceInput(Resource.FocusPoint);
-				case ActionTabInputName.SpiritPoints:
-					return resourceInput(Resource.SpiritPoint);
-				case ActionTabInputName.HeroismPoints:
-					return resourceInput(Resource.HeroismPoint);
-				case ActionTabInputName.Movement: {
-					const movement = sheet.getStatTree().getDistance(DerivedStatType.Movement);
 
-					return (
-						<LabeledInput
-							key={`action-inputs-${input.name}`}
-							label='Movement'
-							tooltip={movement.description}
-							value={movement.value.description}
-							disabled={true}
-						/>
-					);
-				}
-				case ActionTabInputName.WeaponMode:
-					return (
-						<LabeledDropdown
-							key={`action-inputs-${input.name}`}
-							label='Weapon'
-							value={selectedWeapon}
-							options={weaponModes}
-							describe={weaponMode => `${weaponMode.weapon.name} - ${weaponMode.mode.description}`}
-							onChange={updateSelectedWeapon}
-						/>
-					);
-				case ActionTabInputName.RangeIncrement:
-					return (
-						<LabeledInput label='Range Increment' value={selectedWeapon!.mode.range.description} disabled={true} />
-					);
-				case ActionTabInputName.RangeCM: {
-					const rangeIncrementModifier = inputValues.rangeIncrementModifier();
-					return (
-						<LabeledInput
-							key={`action-inputs-${input.name}`}
-							label='Range CM'
-							disabled={true}
-							tooltip={rangeIncrementModifier!.description}
-							value={rangeIncrementModifier!.value.description}
-						/>
-					);
-				}
-				case ActionTabInputName.Target:
-					return (
-						<LabeledInput
-							key={`action-inputs-${input.name}`}
-							label='Target (Hexes)'
-							value={selectedRange?.value.toString() ?? ''}
-							onChange={value => {
-								setSelectedRange(value && parseInt(value) > 0 ? Distance.of(parseInt(value)) : null);
-							}}
-						/>
-					);
-				case ActionTabInputName.PassiveCover:
-					return (
-						<LabeledDropdown
-							key={`action-inputs-${input.name}`}
-							label='Passive Cover'
-							value={selectedPassiveCover}
-							options={Object.values(PassiveCoverType) as PassiveCoverType[]}
-							describe={cover => {
-								const definition = COVER_TYPES[cover];
-								const bonus = definition.bonus.value;
-								return bonus === 0 ? cover : `${cover} (${bonus})`;
-							}}
-							onChange={cover => setSelectedPassiveCover(cover)}
-						/>
-					);
-				case ActionTabInputName.HeightIncrements: {
-					const heightIncrementsModifier = inputValues.heightIncrementsModifier();
-					return (
-						<LabeledInput
-							key={`action-inputs-${input.name}`}
-							label='Height Increments'
-							value={heightIncrements}
-							tooltip={
-								heightIncrementsModifier
-									? heightIncrementsModifier.description
-									: 'Provide the number of height increments between the attacker and the target.'
-							}
-							onChange={value => setHeightIncrements(value)}
-						/>
-					);
-				}
-				case ActionTabInputName.HeightCM: {
-					const heightIncrementsModifier = inputValues.heightIncrementsModifier();
-					return (
-						<LabeledInput
-							key={`action-inputs-${input.name}`}
-							label='Height CM'
-							disabled={true}
-							tooltip={heightIncrementsModifier!.description}
-							value={heightIncrementsModifier!.value.description}
-						/>
-					);
-				}
-				case ActionTabInputName.DefenseRealm:
-					return (
-						<LabeledDropdown
-							key={`action-inputs-${input.name}`}
-							label='Realm'
-							value={selectedDefenseRealm}
-							options={StatType.realms}
-							describe={realm => realm.name}
-							onChange={realm => setSelectedDefenseRealm(realm)}
-						/>
-					);
-				case ActionTabInputName.Armor:
-					return (
-						<LabeledDropdown<Armor | 'None'>
-							key={`action-inputs-${input.name}`}
-							label='Armor'
-							tooltip='Armor is applied to the any **Body Defense** check.'
-							value={selectedArmor}
-							options={armors}
-							describe={armor => (armor === 'None' ? 'No Armor' : armor.displayText)}
-							onChange={setSelectedArmor}
-						/>
-					);
-				case ActionTabInputName.Shield:
-					return (
-						<LabeledDropdown
-							key={`action-inputs-${input.name}`}
-							label='Shield'
-							value={selectedShield}
-							options={shields}
-							describe={shield => (shield === 'None' ? 'No Shield' : shield.displayText)}
-							onChange={setSelectedShield}
-							disabled={!hasShield}
-						/>
-					);
+		const reactInputs = inputs.map(input => {
+			if (input instanceof FixedInput) {
+				return (
+					<LabeledInput
+						key={input.key}
+						label={input.label}
+						tooltip={input.tooltip}
+						value={input.getAsString()}
+						disabled
+					/>
+				);
+			} else if (input instanceof ResourceInput) {
+				return (
+					<ResourceInputComponent
+						key={`action-inputs-${input.resource}`}
+						variant='normal'
+						character={character}
+						sheet={sheet}
+						resource={input.resource}
+					/>
+				);
+			} else if (input instanceof TextInput) {
+				return (
+					<LabeledInput
+						key={input.key}
+						label={input.label}
+						tooltip={input.tooltip}
+						value={input.getAsRaw()}
+						onBlur={value => input.setFromString(value)}
+					/>
+				);
+			} else if (input instanceof DropdownInput) {
+				return (
+					<LabeledDropdown
+						key={input.key}
+						label={input.label}
+						tooltip={input.tooltip}
+						options={input.options}
+						value={input.getter()}
+						onChange={input.setter}
+						describe={input.describe}
+					/>
+				);
+			} else {
+				throw `Unknown input type: ${input.constructor.name}`;
 			}
 		});
 
@@ -365,6 +243,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 			return null;
 		}
 
+		const headerDivStyle = { marginBottom: '12px', display: 'flex', gap: '8px' };
 		return <div style={headerDivStyle}>{reactInputs}</div>;
 	};
 
