@@ -1,14 +1,14 @@
-import { CharacterSheet } from '../character/character-sheet.js';
-import { Armor, Shield, WeaponModeOption } from '../character/equipment.js';
-import { ActionType } from '../core/actions.js';
-import { COVER_TYPES, PassiveCoverType } from '../core/cover.js';
-import { Trait } from '../core/traits.js';
-import { DerivedStatType } from '../stats/derived-stat.js';
-import { Resource } from '../stats/resources.js';
-import { CircumstanceModifier, ModifierSource } from '../stats/stat-tree.js';
-import { StatType } from '../stats/stat-type.js';
-import { Bonus, Distance } from '../stats/value.js';
-import { getEnumKeys, numberToOrdinal } from '../utils/utils.js';
+import { CharacterSheet } from '../../character/character-sheet.js';
+import { Armor, Shield, WeaponModeOption } from '../../character/equipment.js';
+import { ActionType } from '../../core/actions.js';
+import { COVER_TYPES, PassiveCoverType } from '../../core/cover.js';
+import { Trait } from '../../core/traits.js';
+import { DerivedStatType } from '../../stats/derived-stat.js';
+import { Resource } from '../../stats/resources.js';
+import { CircumstanceModifier, ModifierSource } from '../../stats/stat-tree.js';
+import { StatType } from '../../stats/stat-type.js';
+import { Bonus, Distance } from '../../stats/value.js';
+import { getEnumKeys, numberToOrdinal } from '../../utils/utils.js';
 import {
 	DistanceInput,
 	DropdownInput,
@@ -17,7 +17,7 @@ import {
 	NumberInput,
 	ResourceInput,
 	SectionInput,
-} from './inputs/section-inputs.js';
+} from '../common/section-inputs.js';
 
 export class ActionTabInputValues {
 	selectedWeaponMode: WeaponModeOption;

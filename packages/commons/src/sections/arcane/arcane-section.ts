@@ -1,5 +1,5 @@
-import { CharacterSheet } from '../character/character-sheet.js';
-import { ArcaneFocus } from '../character/equipment.js';
+import { CharacterSheet } from '../../character/character-sheet.js';
+import { ArcaneFocus } from '../../character/equipment.js';
 import {
 	ARCANE_SPELL_COMPONENTS,
 	ArcaneSpellComponentOption,
@@ -7,15 +7,15 @@ import {
 	ArcaneSpellSchool,
 	ArcaneSpellDefinition,
 	PREDEFINED_ARCANE_SPELLS,
-} from '../core/arcane.js';
-import { ActionCost } from '../core/actions.js';
-import { Trait } from '../core/traits.js';
-import { DerivedStatType } from '../stats/derived-stat.js';
-import { Resource } from '../stats/resources.js';
-import { CircumstanceModifier, ModifierSource, StatModifier } from '../stats/stat-tree.js';
-import { StatType } from '../stats/stat-type.js';
-import { Bonus, Distance } from '../stats/value.js';
-import { firstParagraph, numberToOrdinal, slugify } from '../utils/utils.js';
+} from '../../core/arcane.js';
+import { ActionCost } from '../../core/actions.js';
+import { Trait } from '../../core/traits.js';
+import { DerivedStatType } from '../../stats/derived-stat.js';
+import { Resource } from '../../stats/resources.js';
+import { CircumstanceModifier, ModifierSource, StatModifier } from '../../stats/stat-tree.js';
+import { StatType } from '../../stats/stat-type.js';
+import { Bonus, Distance } from '../../stats/value.js';
+import { firstParagraph, numberToOrdinal, slugify } from '../../utils/utils.js';
 
 export type ArcaneSectionSchoolOption = 'All Schools' | ArcaneSpellSchool;
 export type ArcaneSectionCastingTimeOption = { name: string; value: number; modifier: Bonus; maxFocusCost?: number };

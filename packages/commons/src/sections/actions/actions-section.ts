@@ -1,4 +1,4 @@
-import { CharacterSheet } from '../character/character-sheet.js';
+import { CharacterSheet } from '../../character/character-sheet.js';
 import {
 	ActionCheckParameter,
 	ActionCost,
@@ -10,15 +10,15 @@ import {
 	ActionValueUnit,
 	IncludeEquipmentModifier,
 	StandardCheck,
-} from '../core/actions.js';
-import { DEFENSE_TRAITS, DefenseTrait, Trait } from '../core/traits.js';
-import { Check } from '../stats/check.js';
-import { CircumstanceModifier, ModifierSource } from '../stats/stat-tree.js';
-import { StatType } from '../stats/stat-type.js';
-import { Bonus, Distance, Value } from '../stats/value.js';
-import { mapEnumToRecord } from '../utils/utils.js';
+} from '../../core/actions.js';
+import { DEFENSE_TRAITS, DefenseTrait, Trait } from '../../core/traits.js';
+import { Check } from '../../stats/check.js';
+import { CircumstanceModifier, ModifierSource } from '../../stats/stat-tree.js';
+import { StatType } from '../../stats/stat-type.js';
+import { Bonus, Distance, Value } from '../../stats/value.js';
+import { mapEnumToRecord } from '../../utils/utils.js';
 import { ActionsSectionInputFactory, ActionTabInputValues } from './actions-section-inputs.js';
-import { SectionInput } from './inputs/section-inputs.js';
+import { SectionInput } from '../common/section-inputs.js';
 
 export { ActionTabInputValues };
 

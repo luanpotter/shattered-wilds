@@ -1,6 +1,6 @@
 import * as TypeComparator from 'type-comparator';
-import { FeatDefinition, FeatInfo, FEATS, FeatSlot, FeatType } from '../core/feats.js';
-import { CharacterSheet } from '../character/character-sheet.js';
+import { FeatDefinition, FeatInfo, FEATS, FeatSlot, FeatType } from '../../core/feats.js';
+import { CharacterSheet } from '../../character/character-sheet.js';
 
 /// Each precomputed "card" we want to show in the feats section in character sheet; either:
 /// - a core (non-slotted) feat
