@@ -1,11 +1,10 @@
 import {
-	ActionCost,
 	CharacterSheet,
 	Check,
 	CheckMode,
 	CheckNature,
 	DerivedStatType,
-	Resource,
+	DivineSection,
 	StatModifier,
 	StatTree,
 	StatType,
@@ -48,10 +47,10 @@ const DivineSectionInner: React.FC<{
 	const influenceRange = tree.getDistance(DerivedStatType.InfluenceRange);
 	const baseModifier = tree.getModifier(primaryAttribute);
 
-	const costs = [
-		new ActionCost({ resource: Resource.ActionPoint, amount: 2 }),
-		new ActionCost({ resource: Resource.SpiritPoint, amount: 1 }),
-	];
+	const divineSection = DivineSection.create({
+		characterId: character.id,
+		characterSheet: sheet,
+	});
 
 	return (
 		<Block>
@@ -74,7 +73,7 @@ const DivineSectionInner: React.FC<{
 			</div>
 			<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '0 0 12px 0', opacity: 0.3 }} />
 			<div style={{ display: 'flex', gap: '2px' }}>
-				<CostBoxComponent characterId={character.id} sheet={sheet} name='Divine Channeling' actionCosts={costs} />
+				<CostBoxComponent cost={divineSection.cost} />
 				<div
 					style={{
 						flex: 1,

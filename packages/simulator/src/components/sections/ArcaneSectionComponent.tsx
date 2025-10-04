@@ -135,8 +135,9 @@ const ArcaneSectionInner: React.FC<{
 			selectedFocalComponent,
 			spellAugmentationValues,
 		};
-		return ArcaneSection.create({ sheet, inputValues });
+		return ArcaneSection.create({ characterId: character.id, sheet, inputValues });
 	}, [
+		character,
 		sheet,
 		selectedRange,
 		selectedSchool,
@@ -226,12 +227,7 @@ const ArcaneSectionInner: React.FC<{
 			</div>
 			<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '0 0 12px 0', opacity: 0.3 }} />
 			<div style={{ display: 'flex', gap: '2px' }}>
-				<CostBoxComponent
-					characterId={character.id}
-					sheet={sheet}
-					name='Arcane Spell'
-					actionCosts={arcaneSection.costs}
-				/>
+				<CostBoxComponent cost={arcaneSection.fundamentalSpellCost} />
 				<div
 					style={{
 						flex: 1,

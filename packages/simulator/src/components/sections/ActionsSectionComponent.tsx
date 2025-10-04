@@ -266,12 +266,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 					{actions.map(action => {
 						return (
 							<div key={action.key} style={{ display: 'flex', gap: '2px' }}>
-								<CostBoxComponent
-									characterId={action.cost.characterId}
-									sheet={action.cost.characterSheet}
-									name={action.cost.name}
-									actionCosts={action.cost.actionCosts}
-								/>
+								<CostBoxComponent cost={action.cost} />
 
 								<div
 									style={{

@@ -1,4 +1,4 @@
-import { ActionCost, CharacterSheet, RESOURCES } from '@shattered-wilds/commons';
+import { ActionCost, ActionRowCost, CharacterSheet, RESOURCES } from '@shattered-wilds/commons';
 import React from 'react';
 
 import { useModals } from '../hooks/useModals';
@@ -6,6 +6,19 @@ import { useModals } from '../hooks/useModals';
 import { ParameterBoxComponent } from './ParameterBoxComponent';
 
 export const CostBoxComponent: React.FC<{
+	cost: ActionRowCost;
+}> = ({ cost }) => {
+	return (
+		<BaseCostBoxComponent
+			characterId={cost.characterId}
+			sheet={cost.characterSheet}
+			name={cost.name}
+			actionCosts={cost.actionCosts}
+		/>
+	);
+};
+
+const BaseCostBoxComponent: React.FC<{
 	characterId: string;
 	sheet: CharacterSheet;
 	name: string;

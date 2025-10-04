@@ -16,6 +16,7 @@ import { CircumstanceModifier, ModifierSource, StatModifier } from '../../stats/
 import { StatType } from '../../stats/stat-type.js';
 import { Bonus, Distance } from '../../stats/value.js';
 import { firstParagraph, numberToOrdinal, slugify } from '../../utils/utils.js';
+import { ActionRowCost } from '../common/action-row.js';
 
 export type ArcaneSectionSchoolOption = 'All Schools' | ArcaneSpellSchool;
 export type ArcaneSectionCastingTimeOption = { name: string; value: number; modifier: Bonus; maxFocusCost?: number };
@@ -337,7 +338,7 @@ export class ArcaneSection {
 	combinedModifier: StatModifier;
 	fundamentalModifiers: CircumstanceModifier[];
 	fundamentalModifier: StatModifier;
-	costs: ActionCost[];
+	fundamentalSpellCost: ActionRowCost;
 	spells: ArcaneSectionSpell[];
 	primaryAttribute: StatType;
 
@@ -352,7 +353,7 @@ export class ArcaneSection {
 		combinedModifier,
 		fundamentalModifiers,
 		fundamentalModifier,
-		costs,
+		fundamentalSpellCost,
 		spells,
 		primaryAttribute,
 	}: {
@@ -366,7 +367,7 @@ export class ArcaneSection {
 		combinedModifier: StatModifier;
 		fundamentalModifiers: CircumstanceModifier[];
 		fundamentalModifier: StatModifier;
-		costs: ActionCost[];
+		fundamentalSpellCost: ActionRowCost;
 		spells: ArcaneSectionSpell[];
 		primaryAttribute: StatType;
 	}) {
@@ -381,15 +382,17 @@ export class ArcaneSection {
 		this.combinedModifier = combinedModifier;
 		this.fundamentalModifiers = fundamentalModifiers;
 		this.fundamentalModifier = fundamentalModifier;
-		this.costs = costs;
+		this.fundamentalSpellCost = fundamentalSpellCost;
 		this.spells = spells;
 		this.primaryAttribute = primaryAttribute;
 	}
 
 	static create({
+		characterId,
 		sheet,
 		inputValues,
 	}: {
+		characterId: string;
 		sheet: CharacterSheet;
 		inputValues: ArcaneSectionInputValues;
 	}): ArcaneSection {
@@ -436,6 +439,13 @@ export class ArcaneSection {
 			new ActionCost({ resource: Resource.FocusPoint, amount: inputValues.selectedFocusCost.value }),
 		];
 
+		const fundamentalSpellCost = new ActionRowCost({
+			characterId: characterId,
+			characterSheet: sheet,
+			name: 'Arcane Spell',
+			actionCosts: costs,
+		});
+
 		const spells = ArcaneSection.computeSpells({ sheet, inputValues, fundamentalModifiers });
 
 		return new ArcaneSection({
@@ -449,7 +459,7 @@ export class ArcaneSection {
 			combinedModifier,
 			fundamentalModifiers,
 			fundamentalModifier,
-			costs,
+			fundamentalSpellCost,
 			spells,
 			primaryAttribute,
 		});

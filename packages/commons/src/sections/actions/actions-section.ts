@@ -1,7 +1,6 @@
 import { CharacterSheet } from '../../character/character-sheet.js';
 import {
 	ActionCheckParameter,
-	ActionCost,
 	ActionDefinition,
 	ActionParameter,
 	ACTIONS,
@@ -17,8 +16,9 @@ import { CircumstanceModifier, ModifierSource } from '../../stats/stat-tree.js';
 import { StatType } from '../../stats/stat-type.js';
 import { Bonus, Distance, Value } from '../../stats/value.js';
 import { mapEnumToRecord } from '../../utils/utils.js';
-import { ActionsSectionInputFactory, ActionTabInputValues } from './actions-section-inputs.js';
+import { ActionRowCost } from '../common/action-row.js';
 import { SectionInput } from '../common/section-inputs.js';
+import { ActionsSectionInputFactory, ActionTabInputValues } from './actions-section-inputs.js';
 
 export { ActionTabInputValues };
 
@@ -59,7 +59,7 @@ export class ActionsSection {
 						action =>
 							new ActionTabItem({
 								key: action.key,
-								cost: new ActionTabItemCost({
+								cost: new ActionRowCost({
 									characterId,
 									characterSheet,
 									name: action.name,
@@ -113,7 +113,7 @@ export class ActionTab {
 
 export class ActionTabItem {
 	key: string;
-	cost: ActionTabItemCost;
+	cost: ActionRowCost;
 	title: string;
 	traits: Trait[] = [];
 	description: string;
@@ -128,7 +128,7 @@ export class ActionTabItem {
 		parameters: boxes,
 	}: {
 		key: string;
-		cost: ActionTabItemCost;
+		cost: ActionRowCost;
 		title: string;
 		traits: Trait[];
 		description: string;
@@ -494,30 +494,4 @@ export class ActionTabParameter {
 		const data = ActionTabParameter.computeData({ characterSheet, action, parameter, inputValues });
 		return new ActionTabParameter({ key, parameter, data });
 	};
-}
-
-export class ActionTabItemCost {
-	characterId: string;
-	characterSheet: CharacterSheet;
-	name: string;
-	actionCosts: ActionCost[];
-	canAfford: boolean;
-
-	constructor({
-		characterId,
-		characterSheet,
-		name,
-		actionCosts,
-	}: {
-		characterId: string;
-		characterSheet: CharacterSheet;
-		name: string;
-		actionCosts: ActionCost[];
-	}) {
-		this.characterId = characterId;
-		this.characterSheet = characterSheet;
-		this.name = name;
-		this.actionCosts = actionCosts;
-		this.canAfford = actionCosts.every(cost => characterSheet.getResource(cost.resource).current >= cost.amount);
-	}
 }

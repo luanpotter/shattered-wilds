@@ -1019,7 +1019,11 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				spellAugmentationValues: this.#arcaneUIState.spellAugmentationValues,
 			};
 
-			const arcaneSection = ArcaneSection.create({ sheet: characterSheet, inputValues });
+			const arcaneSection = ArcaneSection.create({
+				characterId: this.getCurrentActorId() || '',
+				sheet: characterSheet,
+				inputValues,
+			});
 
 			// Prepare header controls
 			const header = {
@@ -1076,7 +1080,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			};
 
 			// Prepare costs
-			const costs = arcaneSection.costs.map(cost => {
+			const costs = arcaneSection.fundamentalSpellCost.actionCosts.map(cost => {
 				const resource = characterSheet.getResource(cost.resource);
 				const insufficient = resource.current < cost.amount;
 				return {

@@ -19,6 +19,8 @@ export * from './character/race-info.js';
 export * from './character/equipment.js';
 export * from './sections/actions/actions-section.js';
 export * from './sections/arcane/arcane-section.js';
+export * from './sections/divine/divine-section.js';
 export * from './sections/feats/feats-section.js';
+export * from './sections/common/action-row.js';
 export * from './sections/common/section-inputs.js';
 export * from './utils/utils.js';
