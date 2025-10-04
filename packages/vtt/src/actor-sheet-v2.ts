@@ -19,8 +19,11 @@ import {
 	CONDITIONS,
 	DerivedStatType,
 	Distance,
+	DistanceInput,
+	DropdownInput,
 	FeatsSection,
 	NodeStatModifier,
+	NumberInput,
 	OtherItem,
 	PassiveCoverType,
 	PRIMARY_WEAPON_TYPES,
@@ -435,6 +438,72 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			return shield || 'None';
 		}
 		return 'None';
+	}
+
+	private createActionTabInputValues(): ActionTabInputValues {
+		const selectedWeapon = this.getSelectedWeapon();
+		return new ActionTabInputValues({
+			selectedWeaponMode: selectedWeapon || Weapon.unarmed(),
+			selectedRangeValue: this.#actionsUIState.selectedRange?.value ?? 0,
+			selectedDefenseRealm: this.#actionsUIState.selectedDefenseRealm,
+			selectedPassiveCover: this.#actionsUIState.selectedPassiveCover,
+			heightIncrements: Number(this.#actionsUIState.heightIncrements) || 0,
+			selectedArmor: this.getSelectedArmor(),
+			selectedShield: this.getSelectedShield(),
+		});
+	}
+
+	private createActionsSectionUpdateCallback(
+		characterSheet: CharacterSheet,
+	): (updatedValues: ActionTabInputValues) => void {
+		return updatedValues => {
+			// Update the UI state with the new values
+			const weaponModes = buildWeaponModeOptions(characterSheet);
+			const weaponIndex = weaponModes.findIndex(
+				w => w.weapon === updatedValues.selectedWeaponMode.weapon && w.mode === updatedValues.selectedWeaponMode.mode,
+			);
+			if (weaponIndex >= 0) {
+				this.#actionsUIState.selectedWeaponIndex = weaponIndex;
+			}
+
+			this.#actionsUIState.selectedRange = Distance.of(updatedValues.selectedRangeValue);
+			this.#actionsUIState.selectedDefenseRealm = updatedValues.selectedDefenseRealm;
+			this.#actionsUIState.selectedPassiveCover = updatedValues.selectedPassiveCover;
+			this.#actionsUIState.heightIncrements = String(updatedValues.heightIncrements);
+
+			// Update armor and shield indices
+			const armors = characterSheet.equipment.items.filter(item => item instanceof Armor) as Armor[];
+			const shields = characterSheet.equipment.items.filter(item => item instanceof Shield) as Shield[];
+
+			if (updatedValues.selectedArmor !== 'None') {
+				const armorIndex = armors.findIndex(a => a === updatedValues.selectedArmor);
+				if (armorIndex >= 0) {
+					this.#actionsUIState.selectedArmor = armorIndex;
+				}
+			} else {
+				this.#actionsUIState.selectedArmor = null;
+			}
+
+			if (updatedValues.selectedShield !== 'None') {
+				const shieldIndex = shields.findIndex(s => s === updatedValues.selectedShield);
+				if (shieldIndex >= 0) {
+					this.#actionsUIState.selectedShield = shieldIndex;
+				}
+			} else {
+				this.#actionsUIState.selectedShield = null;
+			}
+		};
+	}
+
+	private createActionsSection(characterSheet: CharacterSheet, readOnly: boolean = false): ActionsSection {
+		const inputValues = this.createActionTabInputValues();
+		return ActionsSection.create({
+			characterId: this.getCurrentActorId() || '',
+			characterSheet,
+			showAll: this.#actionsUIState.showAll,
+			inputValues,
+			update: readOnly ? () => {} : this.createActionsSectionUpdateCallback(characterSheet),
+		});
 	}
 
 	constructor(...args: unknown[]) {
@@ -873,61 +942,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		}
 
 		try {
-			const selectedWeapon = this.getSelectedWeapon();
-			const inputValues = new ActionTabInputValues({
-				selectedWeaponMode: selectedWeapon || Weapon.unarmed(),
-				selectedRangeValue: this.#actionsUIState.selectedRange?.value ?? 0,
-				selectedDefenseRealm: this.#actionsUIState.selectedDefenseRealm,
-				selectedPassiveCover: this.#actionsUIState.selectedPassiveCover,
-				heightIncrements: Number(this.#actionsUIState.heightIncrements) || 0,
-				selectedArmor: this.getSelectedArmor(),
-				selectedShield: this.getSelectedShield(),
-			});
-
-			const actionsSection = ActionsSection.create({
-				characterId: this.getCurrentActorId() || '',
-				characterSheet,
-				showAll: this.#actionsUIState.showAll,
-				inputValues,
-				update: updatedValues => {
-					// Update the UI state with the new values
-					const weaponModes = buildWeaponModeOptions(characterSheet);
-					const weaponIndex = weaponModes.findIndex(
-						w =>
-							w.weapon === updatedValues.selectedWeaponMode.weapon && w.mode === updatedValues.selectedWeaponMode.mode,
-					);
-					if (weaponIndex >= 0) {
-						this.#actionsUIState.selectedWeaponIndex = weaponIndex;
-					}
-
-					this.#actionsUIState.selectedRange = Distance.of(updatedValues.selectedRangeValue);
-					this.#actionsUIState.selectedDefenseRealm = updatedValues.selectedDefenseRealm;
-					this.#actionsUIState.selectedPassiveCover = updatedValues.selectedPassiveCover;
-					this.#actionsUIState.heightIncrements = String(updatedValues.heightIncrements);
-
-					// Update armor and shield indices
-					const armors = characterSheet.equipment.items.filter(item => item instanceof Armor) as Armor[];
-					const shields = characterSheet.equipment.items.filter(item => item instanceof Shield) as Shield[];
-
-					if (updatedValues.selectedArmor !== 'None') {
-						const armorIndex = armors.findIndex(a => a === updatedValues.selectedArmor);
-						if (armorIndex >= 0) {
-							this.#actionsUIState.selectedArmor = armorIndex;
-						}
-					} else {
-						this.#actionsUIState.selectedArmor = null;
-					}
-
-					if (updatedValues.selectedShield !== 'None') {
-						const shieldIndex = shields.findIndex(s => s === updatedValues.selectedShield);
-						if (shieldIndex >= 0) {
-							this.#actionsUIState.selectedShield = shieldIndex;
-						}
-					} else {
-						this.#actionsUIState.selectedShield = null;
-					}
-				},
-			});
+			const actionsSection = this.createActionsSection(characterSheet);
 
 			// Prepare action types as tabs for VTT template compatibility
 			const actionTypes = Object.values(ActionType);
@@ -1583,6 +1598,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		});
 
 		// Generic input update handler for all input types
+		// This uses the input's own setter to update state, keeping the VTT code truly generic
 		const inputElements = root.querySelectorAll('[data-action="update-input"]') as NodeListOf<
 			HTMLInputElement | HTMLSelectElement
 		>;
@@ -1595,61 +1611,31 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				const characterSheet = this.getCharacterSheet();
 				if (!characterSheet) return;
 
-				// Update UI state based on input key
-				// Keys are generated in ActionsSectionInputFactory with format: action-inputs-{name}
-				switch (inputKey) {
-					case 'action-inputs-weapon-mode': {
-						// Weapon mode dropdown
-						const weaponIndex = parseInt((element as HTMLSelectElement).value);
-						this.#actionsUIState.selectedWeaponIndex = weaponIndex;
-						break;
-					}
-					case 'action-inputs-target': {
-						// Range input (target hexes)
-						const value = parseInt((element as HTMLInputElement).value) || 0;
-						this.#actionsUIState.selectedRange = value > 0 ? Distance.of(value) : null;
-						break;
-					}
-					case 'action-inputs-height-increments': {
-						// Height increments input
-						const value = (element as HTMLInputElement).value;
-						this.#actionsUIState.heightIncrements = value;
-						break;
-					}
-					case 'action-inputs-defense-realm': {
-						// Defense realm dropdown
+				// Recreate the actions section to get access to input setters
+				const actionsSection = this.createActionsSection(characterSheet);
+
+				// Find the input by key across all action type tabs
+				let foundInput = null;
+				for (const actionType of Object.values(ActionType)) {
+					const tab = actionsSection.tabs[actionType];
+					foundInput = tab.inputs.find(inp => inp.key === inputKey);
+					if (foundInput) break;
+				}
+
+				if (foundInput) {
+					// Call the input's setter with the value from the DOM
+					if (foundInput instanceof DropdownInput) {
 						const selectedIndex = parseInt((element as HTMLSelectElement).value);
-						const realm = StatType.realms[selectedIndex];
-						if (realm) {
-							this.#actionsUIState.selectedDefenseRealm = realm;
-							// Clear armor and shield selections when switching away from Body realm
-							if (realm.name !== 'Body') {
-								this.#actionsUIState.selectedArmor = null;
-								this.#actionsUIState.selectedShield = null;
-							}
+						const selectedValue = foundInput.options[selectedIndex];
+						if (selectedValue !== undefined) {
+							foundInput.setter(selectedValue);
 						}
-						break;
-					}
-					case 'action-inputs-armor': {
-						// Armor dropdown - index 0 is 'None', actual armors start at index 1
-						const selectedIndex = parseInt((element as HTMLSelectElement).value);
-						// Store as armor index (not including 'None'), so subtract 1, or null for 'None'
-						this.#actionsUIState.selectedArmor = selectedIndex > 0 ? selectedIndex - 1 : null;
-						break;
-					}
-					case 'action-inputs-shield': {
-						// Shield dropdown - index 0 is 'None', actual shields start at index 1
-						const selectedIndex = parseInt((element as HTMLSelectElement).value);
-						// Store as shield index (not including 'None'), so subtract 1, or null for 'None'
-						this.#actionsUIState.selectedShield = selectedIndex > 0 ? selectedIndex - 1 : null;
-						break;
-					}
-					case 'action-inputs-passive-cover': {
-						// Passive cover dropdown
-						const selectedIndex = parseInt((element as HTMLSelectElement).value);
-						const coverOptions = Object.values(PassiveCoverType);
-						this.#actionsUIState.selectedPassiveCover = coverOptions[selectedIndex] || PassiveCoverType.None;
-						break;
+					} else if (foundInput instanceof DistanceInput) {
+						const value = parseInt((element as HTMLInputElement).value) || 0;
+						foundInput.setter(Distance.of(value));
+					} else if (foundInput instanceof NumberInput) {
+						const value = parseInt((element as HTMLInputElement).value) || 0;
+						foundInput.setter(value);
 					}
 				}
 
@@ -1921,25 +1907,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 				try {
 					// Recreate the actions section with current UI state to get pre-computed data
-					const selectedWeapon = this.getSelectedWeapon();
-					const inputValues = new ActionTabInputValues({
-						selectedWeaponMode: selectedWeapon || Weapon.unarmed(),
-						selectedRangeValue: this.#actionsUIState.selectedRange?.value ?? 0,
-						selectedDefenseRealm: this.#actionsUIState.selectedDefenseRealm,
-						selectedPassiveCover: this.#actionsUIState.selectedPassiveCover,
-						heightIncrements: Number(this.#actionsUIState.heightIncrements) || 0,
-						selectedArmor: this.getSelectedArmor(),
-						selectedShield: this.getSelectedShield(),
-					});
-					const actionsSection = ActionsSection.create({
-						characterId: this.getCurrentActorId() || '',
-						characterSheet,
-						showAll: this.#actionsUIState.showAll,
-						inputValues,
-						update: () => {
-							// No-op for this read-only usage
-						},
-					});
+					const actionsSection = this.createActionsSection(characterSheet, true);
 
 					// Find the action and parameter in the pre-computed data
 					const paramIndex = parseInt(parameterIndex);
