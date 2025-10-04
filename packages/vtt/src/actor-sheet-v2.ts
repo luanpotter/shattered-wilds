@@ -1,5 +1,6 @@
 import {
 	ACTIONS,
+	ActionCost,
 	ActionsSection,
 	ActionTabInputName,
 	ActionTabInputValues,
@@ -1798,6 +1799,155 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					}
 					this.#arcaneUIState.spellAugmentationValues[spellKey]![augmentationKey] = parseInt(input.value) || 0;
 					(this as unknown as { render: (force?: boolean) => void }).render(false);
+				}
+			});
+		});
+
+		// Arcane spell cost consumption
+		const spellCostBoxes = root.querySelectorAll('[data-action="consume-spell-cost"]') as NodeListOf<HTMLElement>;
+		spellCostBoxes.forEach(box => {
+			box.addEventListener('click', async () => {
+				const characterSheet = this.getCharacterSheet();
+				const actorId = this.getCurrentActorId();
+				if (!characterSheet || !actorId) return;
+
+				try {
+					// Get arcane data to find current cost configuration
+					const arcaneData = this.prepareArcaneData(characterSheet);
+					if (!arcaneData) return;
+
+					// Check if modal is supported
+					if (!ConsumeResourceModal.isSupported()) {
+						showNotification('warn', 'Resource consumption modal not supported in this Foundry version');
+						return;
+					}
+
+					// Open the consume resource modal with spell costs
+					await ConsumeResourceModal.open(
+						characterSheet,
+						arcaneData.costs as ActionCost[],
+						'Fundamental Arcane Spell',
+						actorId,
+					);
+				} catch (error) {
+					console.error('Failed to open spell cost modal:', error);
+					showNotification('error', 'Failed to open spell cost modal');
+				}
+			});
+		});
+
+		// Fundamental spell roll
+		const fundamentalSpellButtons = root.querySelectorAll(
+			'[data-action="fundamental-spell-roll"]',
+		) as NodeListOf<HTMLElement>;
+		fundamentalSpellButtons.forEach(btn => {
+			btn.addEventListener('click', async (event: MouseEvent) => {
+				const characterSheet = this.getCharacterSheet();
+				if (!characterSheet) return;
+
+				try {
+					// Get arcane data to find fundamental spell modifier
+					const arcaneData = this.prepareArcaneData(characterSheet);
+					if (!arcaneData) return;
+
+					const fundamentalModifier = arcaneData.fundamentalModifier as {
+						name: string;
+						value: string;
+						description: string;
+						modifierValue: number;
+					};
+
+					if (event.shiftKey) {
+						// Quick roll
+						const rollRequest: DiceRollRequest = {
+							name: `Fundamental Arcane Spell - ${fundamentalModifier.name}`,
+							characterName: characterSheet.name,
+							modifiers: { [fundamentalModifier.name]: fundamentalModifier.modifierValue },
+							extra: undefined,
+							luck: undefined,
+							targetDC: undefined,
+						};
+						await executeEnhancedRoll(rollRequest);
+					} else {
+						// Open modal for advanced options
+						if (!DiceRollModal.isSupported()) {
+							showNotification('warn', 'Dice modal not supported in this Foundry version');
+							return;
+						}
+
+						await DiceRollModal.open({
+							statType: fundamentalModifier.name,
+							modifier: fundamentalModifier.modifierValue,
+							modifierBreakdown: { [fundamentalModifier.name]: fundamentalModifier.modifierValue },
+							actorId: this.getCurrentActorId()!,
+						});
+					}
+				} catch (error) {
+					console.error('Failed to roll fundamental spell:', error);
+					showNotification('error', 'Failed to roll fundamental spell');
+				}
+			});
+		});
+
+		// Individual spell rolls
+		const spellRollButtons = root.querySelectorAll('[data-action="spell-roll"]') as NodeListOf<HTMLElement>;
+		spellRollButtons.forEach(btn => {
+			btn.addEventListener('click', async (event: MouseEvent) => {
+				const spellKey = btn.dataset.spellKey;
+				if (!spellKey) return;
+
+				const characterSheet = this.getCharacterSheet();
+				if (!characterSheet) return;
+
+				try {
+					// Get arcane data to find the specific spell
+					const arcaneData = this.prepareArcaneData(characterSheet);
+					if (!arcaneData) return;
+
+					const spell = (
+						arcaneData.spells as Array<{
+							key: string;
+							name: string;
+							finalModifier: {
+								name: string;
+								value: string;
+								description: string;
+								modifierValue: number;
+							};
+						}>
+					).find(s => s.key === spellKey);
+					if (!spell) return;
+
+					const spellModifier = spell.finalModifier;
+
+					if (event.shiftKey) {
+						// Quick roll
+						const rollRequest: DiceRollRequest = {
+							name: `${spell.name} - ${spellModifier.name}`,
+							characterName: characterSheet.name,
+							modifiers: { [spellModifier.name]: spellModifier.modifierValue },
+							extra: undefined,
+							luck: undefined,
+							targetDC: undefined,
+						};
+						await executeEnhancedRoll(rollRequest);
+					} else {
+						// Open modal for advanced options
+						if (!DiceRollModal.isSupported()) {
+							showNotification('warn', 'Dice modal not supported in this Foundry version');
+							return;
+						}
+
+						await DiceRollModal.open({
+							statType: spellModifier.name,
+							modifier: spellModifier.modifierValue,
+							modifierBreakdown: { [spellModifier.name]: spellModifier.modifierValue },
+							actorId: this.getCurrentActorId()!,
+						});
+					}
+				} catch (error) {
+					console.error('Failed to roll spell:', error);
+					showNotification('error', 'Failed to roll spell');
 				}
 			});
 		});
