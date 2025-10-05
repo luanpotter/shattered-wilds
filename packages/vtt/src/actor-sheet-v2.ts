@@ -1196,7 +1196,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		const firstParagraph = actionRow.description.split('\n\n')[0] || actionRow.description;
 
 		return {
-			key: actionRow.key,
+			slug: actionRow.slug,
 			name: actionRow.title,
 			description: processDescriptionText(firstParagraph),
 			traits: actionRow.traits,
@@ -1837,10 +1837,10 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		const actionCheckButtons = root.querySelectorAll('[data-action="roll-action-check"]') as NodeListOf<HTMLElement>;
 		actionCheckButtons.forEach(btn => {
 			const handleClick = async (event: MouseEvent) => {
-				const actionKey = btn.dataset.actionKey;
+				const actionSlug = btn.dataset.actionSlug;
 				const parameterIndex = btn.dataset.parameterIndex;
 
-				if (!actionKey || parameterIndex === undefined) return;
+				if (!actionSlug || parameterIndex === undefined) return;
 
 				const characterSheet = this.getCharacterSheet();
 				if (!characterSheet) return;
@@ -1857,7 +1857,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					// Search through all action types to find the matching action and parameter
 					for (const actionType of Object.values(ActionType)) {
 						const tab = actionsSection.tabs[actionType];
-						actionTabItem = tab.actions.find(item => item.key === actionKey);
+						actionTabItem = tab.actions.find(item => item.slug === actionSlug);
 						if (actionTabItem) {
 							actionTabParameter = actionTabItem.boxes[paramIndex];
 							break;

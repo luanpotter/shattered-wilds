@@ -264,7 +264,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 					)}
 					{actions.map(action => {
 						return (
-							<div key={action.key} style={{ display: 'flex', gap: '2px' }}>
+							<div key={action.slug} style={{ display: 'flex', gap: '2px' }}>
 								{action.cost && <CostBoxComponent cost={action.cost} />}
 
 								<div
@@ -278,7 +278,11 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 								>
 									<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
 										<div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-											<span style={{ fontWeight: 'bold' }}>{action.title}</span>
+											<span style={{ fontWeight: 'bold' }}>
+												<a href={`/wiki/${action.slug}`} target='_blank' rel='noreferrer'>
+													{action.title}
+												</a>
+											</span>
 											{action.traits.map(trait => (
 												<span key={trait} className='trait'>
 													{trait}

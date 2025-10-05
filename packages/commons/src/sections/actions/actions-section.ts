@@ -14,7 +14,7 @@ import { Check } from '../../stats/check.js';
 import { CircumstanceModifier } from '../../stats/stat-tree.js';
 import { StatType } from '../../stats/stat-type.js';
 import { Bonus, Distance, Value } from '../../stats/value.js';
-import { mapEnumToRecord } from '../../utils/utils.js';
+import { mapEnumToRecord, slugify } from '../../utils/utils.js';
 import {
 	ActionRow,
 	ActionRowBox,
@@ -64,7 +64,7 @@ export class ActionsSection {
 					.map(
 						action =>
 							new ActionRow({
-								key: action.key,
+								slug: slugify(action.name),
 								cost: new ActionRowCost({
 									characterId,
 									characterSheet,

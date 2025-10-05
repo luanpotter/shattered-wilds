@@ -115,7 +115,7 @@ export class ActionRowBox {
 }
 
 export class ActionRow {
-	key: string;
+	slug: string;
 	cost: ActionRowCost | undefined;
 	title: string;
 	traits: Trait[] = [];
@@ -123,21 +123,21 @@ export class ActionRow {
 	boxes: ActionRowBox[];
 
 	constructor({
-		key,
+		slug,
 		cost,
 		title,
 		traits,
 		description,
 		boxes,
 	}: {
-		key: string;
+		slug: string;
 		cost: ActionRowCost | undefined;
 		title: string;
 		traits: Trait[];
 		description: string;
 		boxes: ActionRowBox[];
 	}) {
-		this.key = key;
+		this.slug = slug;
 		this.cost = cost;
 		this.title = title;
 		this.traits = traits;
