@@ -190,7 +190,7 @@ const processEnhancedShatteredWildsRoll = async (
 		mechanicsHtml += `<div style="color: #666; font-size: 0.9em;">Rolled pair of 1s</div>`;
 	} else {
 		if (critModifiers > 0) {
-			mechanicsHtml += `<div style="color: #f57c00; font-weight: bold;">🎲 Crit Modifiers: +${critModifiers}</div>`;
+			mechanicsHtml += `<div style="color: #f57c00; font-weight: bold; margin-top: 4px; font-size: 1.2em;">🎲 Crit Modifiers: +${critModifiers}</div>`;
 		}
 
 		mechanicsHtml += `<div style="color: #2e7d32; font-weight: bold; margin-top: 4px; font-size: 1.2em;">🎯 Final Total: ${finalTotal}</div>`;
