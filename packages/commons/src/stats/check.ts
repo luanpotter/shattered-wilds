@@ -44,6 +44,8 @@ export class Check {
 		return this.statModifier.statType;
 	}
 
+	// NOTE: we typically try to build the check with all the modifiers it needs at once,
+	// but this is used specifically if the user adds a CM on the "last mile" (i.e. on the Dice Roll dialog itself)
 	withAdditionalCM(cm: CircumstanceModifier): Check {
 		const newStatModifier = this.statModifier.withAdditionalCM(cm);
 		return new Check({

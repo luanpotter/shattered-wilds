@@ -1,7 +1,7 @@
 import { DERIVED_STATS, DerivedStatType } from './derived-stat.js';
 import { FormulaResult } from './formula.js';
 import { Resource, RESOURCES } from './resources.js';
-import { StatHierarchy, StatHierarchyProperties, StatType } from './stat-type.js';
+import { StatHierarchy, StatHierarchyProperties, StatType, StatTypeName } from './stat-type.js';
 import { Bonus, Distance } from './value.js';
 
 export enum ModifierSource {
@@ -328,7 +328,7 @@ export class StatModifier {
 		return Bonus.add([this.baseValue, inherentModifiers]);
 	}
 
-	get name(): string {
+	get name(): StatTypeName | DerivedStatType {
 		if (this.statType instanceof StatType) {
 			return this.statType.name;
 		}
@@ -360,6 +360,8 @@ export class StatModifier {
 		];
 	}
 
+	// NOTE: we typically try to build the check with all the modifiers it needs at once,
+	// but this is used specifically if the user adds a CM on the "last mile" (i.e. on the Dice Roll dialog itself)
 	withAdditionalCM(cm: CircumstanceModifier): StatModifier {
 		return new StatModifier({
 			statType: this.statType,

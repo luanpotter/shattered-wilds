@@ -14,9 +14,7 @@ export function registerChatCommands(): void {
 
 			const prefix = '/d12 ';
 			if (message.startsWith(prefix)) {
-				const command = message.slice(prefix.length).trim();
-
-				if (parseD12Command(command, chatData as Record<string, unknown>)) {
+				if (parseD12Command(message, chatData as Record<string, unknown>)) {
 					return false; // prevents default processing
 				}
 			}

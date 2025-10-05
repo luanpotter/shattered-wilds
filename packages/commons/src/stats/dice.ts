@@ -1,5 +1,7 @@
-import { Check } from './check.js';
-import { CircumstanceModifier, StatModifier } from './stat-tree.js';
+import { Check, CheckMode, CheckNature } from './check.js';
+import { DERIVED_STATS, DerivedStatType } from './derived-stat.js';
+import { CircumstanceModifier, ModifierSource, StatModifier } from './stat-tree.js';
+import { StatType, StatTypeName } from './stat-type.js';
 import { Bonus } from './value.js';
 
 /**
@@ -23,42 +25,106 @@ export interface DiceRoll {
 	targetDC: number | undefined; // the target DC to check if the roll is successful (optional)
 }
 
+// This is an internal, simplified version of DiceRoll used for JSON serialization
+interface DiceRollJson {
+	characterName: string;
+	check: {
+		mode: CheckMode;
+		nature: CheckNature;
+		statModifier: {
+			statTypeName: StatTypeName | DerivedStatType;
+			baseValue: number;
+			appliedModifiers: {
+				name: string;
+				source: ModifierSource;
+				value: number;
+			}[];
+			value: number;
+			overrideDescription: string | undefined;
+		};
+	};
+	extra:
+		| {
+				name: string;
+				value: number;
+		  }
+		| undefined;
+	luck:
+		| {
+				value: number;
+		  }
+		| undefined;
+	targetDC: number | undefined;
+}
+
+/**
+ * We encode dice rolls in the format:
+ * /d12 {json}
+ * But we strip some of the more complex objects (e.g. StatType) into just strings for simplicity.
+ */
 export const DiceRollEncoder = {
 	encode(roll: DiceRoll): string {
-		// encode in the format:
-		// /d12 { ...json... }
-		const json = JSON.stringify(roll);
-		return `/d12 ${json}`;
+		const json = <DiceRollJson>{
+			characterName: roll.characterName,
+			check: {
+				mode: roll.check.mode,
+				nature: roll.check.nature,
+				statModifier: {
+					statTypeName: roll.check.statModifier.name,
+					baseValue: roll.check.statModifier.baseValue.value,
+					appliedModifiers: roll.check.statModifier.appliedModifiers.map(mod => ({
+						name: mod.name,
+						source: mod.source,
+						value: mod.value.value,
+					})),
+					value: roll.check.statModifier.value.value,
+					overrideDescription: roll.check.statModifier.overrideDescription,
+				},
+			},
+			extra: roll.extra
+				? {
+						name: roll.extra.name,
+						value: roll.extra.value,
+					}
+				: undefined,
+			luck: roll.luck
+				? {
+						value: roll.luck.value,
+					}
+				: undefined,
+			targetDC: roll.targetDC,
+		};
+		return `/d12 ${JSON.stringify(json)}`;
 	},
 
 	decode(command: string, { fallbackCharacterName }: { fallbackCharacterName?: string }): DiceRoll {
-		const match = command.match(/^\/d12\s+(.+)$/);
+		const match = command.trim().match(/^\/d12\s+(.+)$/);
 		const data = match ? match[1] : null;
 		if (!data) {
 			throw new Error(`Invalid dice roll command format: ${command}`);
 		}
 
 		try {
-			const json = JSON.parse(data) as DiceRoll;
+			const json = JSON.parse(data) as DiceRollJson;
 			// need to rehydrate the Check instance
-			return {
+			return <DiceRoll>{
 				...json,
 				characterName: json.characterName || fallbackCharacterName || 'Unknown',
 				check: new Check({
 					mode: json.check.mode,
 					nature: json.check.nature,
 					statModifier: new StatModifier({
-						statType: json.check.statModifier.statType,
-						baseValue: Bonus.of(json.check.statModifier.baseValue.value),
+						statType: rehydrateStat(json.check.statModifier.statTypeName),
+						baseValue: Bonus.of(json.check.statModifier.baseValue),
 						appliedModifiers: json.check.statModifier.appliedModifiers.map(
 							mod =>
 								new CircumstanceModifier({
 									name: mod.name,
 									source: mod.source,
-									value: Bonus.of(mod.value.value),
+									value: Bonus.of(mod.value),
 								}),
 						),
-						value: Bonus.of(json.check.statModifier.value.value),
+						value: Bonus.of(json.check.statModifier.value),
 						overrideDescription: json.check.statModifier.overrideDescription,
 					}),
 				}),
@@ -67,4 +133,12 @@ export const DiceRollEncoder = {
 			throw new Error(`Failed to parse dice roll command JSON: ${err}`);
 		}
 	},
+};
+
+const rehydrateStat = (stat: string): StatType | DerivedStatType => {
+	const result = StatType.values.find(s => s.name === stat) ?? DERIVED_STATS[stat as keyof typeof DERIVED_STATS]?.type;
+	if (!result) {
+		throw new Error(`Unknown stat type: ${stat}`);
+	}
+	return result;
 };

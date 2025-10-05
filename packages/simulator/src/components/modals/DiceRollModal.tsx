@@ -6,6 +6,7 @@ import {
 	StatTree,
 	CharacterSheet,
 	StatType,
+	DiceRollEncoder,
 } from '@shattered-wilds/commons';
 import React, { useMemo, useState } from 'react';
 import { FaCheck, FaTimes } from 'react-icons/fa';
@@ -155,17 +156,17 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 		return <div>Character {characterId} not found</div>;
 	}
 
-	const tree = CharacterSheet.from(character.props).getStatTree();
-
 	// Check should now be automatically rehydrated by the store
 	if (!check.modifierValue) {
 		onClose();
 		return <div>Corrupted dice roll modal state</div>;
 	}
 
+	const sheet = CharacterSheet.from(character.props);
+
 	return (
 		<DiceRollModalContent
-			tree={tree}
+			sheet={sheet}
 			check={check}
 			onClose={onClose}
 			onDiceRollComplete={onDiceRollComplete}
@@ -249,12 +250,14 @@ const PentagonDie: React.FC<{
 );
 
 const DiceRollModalContent: React.FC<{
-	tree: StatTree;
+	sheet: CharacterSheet;
 	check: Check;
 	onClose: () => void;
 	onDiceRollComplete: ((result: { total: number; shifts: number }) => void) | undefined;
 	initialTargetDC?: number;
-}> = ({ tree, check, onClose, onDiceRollComplete, initialTargetDC }) => {
+}> = ({ sheet, check, onClose, onDiceRollComplete, initialTargetDC }) => {
+	const tree = sheet.getStatTree();
+
 	const [checkType, setCheckType] = useState<CheckType>(check.type);
 	const [dc, setDc] = useState<number | null>(initialTargetDC ?? null);
 	const [useExtra, setUseExtra] = useState(false);
@@ -284,48 +287,23 @@ const DiceRollModalContent: React.FC<{
 	const handleDcInputChange = (value: string) => setDc(value ? parseInt(value) : null);
 
 	const handleCopyToVTT = () => {
-		// Build /d12 command: /d12 "Check Name" mod:"Source":+value mod:"Source2":+value extra:STAT:value luck:value dc:value
-		const parts: string[] = [`/d12 "${check.name} Check"`];
-
-		// Add modifiers - need to break down the stat modifier
-		if (check.statModifier.appliedModifiers && check.statModifier.appliedModifiers.length > 0) {
-			// Use detailed modifier breakdown if available
-			for (const modifier of check.statModifier.appliedModifiers) {
-				if (modifier.value.value !== 0) {
-					const modName = `${modifier.source} ${modifier.name}`.trim();
-					parts.push(`mod:"${modName}":${modifier.value.value >= 0 ? '+' : ''}${modifier.value.value}`);
-				}
-			}
-
-			// Add base value if any
-			if (check.statModifier.baseValue.value > 0) {
-				parts.push(`mod:"Base":+${check.statModifier.baseValue.value}`);
-			}
-		} else {
-			// Fallback to total modifier if no breakdown available
-			if (check.modifierValue.value !== 0) {
-				parts.push(`mod:"Base":${check.modifierValue.value >= 0 ? '+' : ''}${check.modifierValue.value}`);
-			}
-		}
-
-		// Add extra die if selected
-		if (useExtra) {
-			const extraValue = tree.valueOf(extraSkill).value;
-			parts.push(`extra:${extraSkill.name}:${extraValue}`);
-		}
-
-		// Add luck die if selected
-		if (useLuck) {
-			const fortuneValue = tree.valueOf(StatType.Fortune).value;
-			parts.push(`luck:${fortuneValue}`);
-		}
-
-		// Add DC if set
-		if (dc !== null) {
-			parts.push(`dc:${dc}`);
-		}
-
-		exportDataToClipboard(parts.join(' '));
+		const d12Command = DiceRollEncoder.encode({
+			characterName: sheet.name,
+			check,
+			extra: useExtra
+				? {
+						name: extraSkill.name,
+						value: tree.valueOf(extraSkill).value,
+					}
+				: undefined,
+			luck: useLuck
+				? {
+						value: tree.valueOf(StatType.Fortune).value,
+					}
+				: undefined,
+			targetDC: dc ?? undefined,
+		});
+		exportDataToClipboard(d12Command);
 		onClose();
 	};
 
