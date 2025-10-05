@@ -15,9 +15,18 @@ export function useModals() {
 	const generateModalId = () => window.crypto.randomUUID();
 
 	const addModal = (params: DistributiveOmit<Modal, 'id' | 'position'>) => {
+		const mousePosition = Mouse.getPosition();
+		// Use adjusted position to prevent modals from opening off-screen
+		const adjustedPosition = Mouse.getAdjustedPosition(
+			mousePosition,
+			params.widthPixels && params.heightPixels
+				? { width: params.widthPixels, height: params.heightPixels }
+				: undefined,
+		);
+
 		addModalStore({
 			id: generateModalId(),
-			position: Mouse.getPosition(),
+			position: adjustedPosition,
 			...params,
 		});
 	};
@@ -53,7 +62,7 @@ export function useModals() {
 			title: `${character.props.name}'s Sheet`,
 			type: 'character-sheet',
 			characterId,
-			width: '750px',
+			widthPixels: 750,
 		});
 	};
 
@@ -72,7 +81,7 @@ export function useModals() {
 			title: `${character.props.name}'s Race Setup`,
 			type: 'race-setup',
 			characterId,
-			width: '500px',
+			widthPixels: 500,
 		});
 	};
 
@@ -91,7 +100,7 @@ export function useModals() {
 			title: `${character.props.name}'s Class Setup`,
 			type: 'class-setup',
 			characterId,
-			width: '700px',
+			widthPixels: 700,
 		});
 	};
 
@@ -110,7 +119,7 @@ export function useModals() {
 			title: `${character.props.name}'s Feats`,
 			type: 'feats-setup',
 			characterId,
-			width: '700px',
+			widthPixels: 700,
 		});
 	};
 
@@ -238,7 +247,7 @@ export function useModals() {
 			type: 'feat-selection',
 			characterId,
 			slot,
-			width: '600px',
+			widthPixels: 600,
 		});
 	};
 
@@ -265,7 +274,7 @@ export function useModals() {
 			characterId,
 			slot,
 			baseFeat,
-			width: '500px',
+			widthPixels: 500,
 		});
 	};
 

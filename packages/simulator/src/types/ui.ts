@@ -29,8 +29,8 @@ interface BaseModal {
 	id: string;
 	title: string;
 	position: Point;
-	width?: string;
-	height?: string;
+	widthPixels?: number;
+	heightPixels?: number;
 }
 
 // Modal type discriminated unions
