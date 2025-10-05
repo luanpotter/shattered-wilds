@@ -1,4 +1,5 @@
 import {
+	ActionCost,
 	ActionRow,
 	ActionRowBox,
 	ActionRowCheckBox,
@@ -21,6 +22,7 @@ import {
 	DerivedStatType,
 	Distance,
 	DistanceInput,
+	DivineSection,
 	DropdownInput,
 	FeatsSection,
 	NodeStatModifier,
@@ -684,6 +686,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			equipmentData: this.prepareEquipmentData(characterSheet),
 			actionsData: this.prepareActionsData(characterSheet),
 			arcaneData: this.prepareArcaneData(characterSheet),
+			divineData: this.prepareDivineData(characterSheet),
 			activeTab: this.#activeTab,
 			isStatsTabActive: this.#activeTab === 'stats',
 			isFeatsTabActive: this.#activeTab === 'feats',
@@ -692,6 +695,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			isEquipmentTabActive: this.#activeTab === 'equipment',
 			isActionsTabActive: this.#activeTab === 'actions',
 			isArcaneTabActive: this.#activeTab === 'arcane',
+			isDivineTabActive: this.#activeTab === 'divine',
 			isDebugTabActive: this.#activeTab === 'debug',
 		};
 	}
@@ -1068,6 +1072,48 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		}
 	}
 
+	prepareDivineData(characterSheet: CharacterSheet | undefined) {
+		if (!characterSheet) {
+			return null;
+		}
+
+		try {
+			const divineSection = DivineSection.create({
+				characterId: this.getCurrentActorId() || '',
+				characterSheet,
+			});
+
+			if (!divineSection) {
+				return null;
+			}
+
+			// Prepare header data (base modifier and influence range)
+			const header = {
+				baseModifier: {
+					name: divineSection.baseModifier.name,
+					value: divineSection.baseModifier.value.description,
+					description: divineSection.baseModifier.description,
+				},
+				influenceRange: {
+					value: divineSection.influenceRange.value.description,
+					description: divineSection.influenceRange.description,
+				},
+			};
+
+			// Prepare the pure divine channeling action row
+			const pureDivineChanneling = prepareActionRow(divineSection.pureDivineChanneling, characterSheet);
+
+			return {
+				divineSection,
+				header,
+				pureDivineChanneling,
+			};
+		} catch (err) {
+			console.warn('Failed to prepare divine data:', err);
+			return null;
+		}
+	}
+
 	private getActionTypeIcon(type: ActionType): string {
 		switch (type) {
 			case ActionType.Movement:
@@ -1428,15 +1474,49 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		const costBoxes = root.querySelectorAll('[data-action="consume-action-cost"]') as NodeListOf<HTMLElement>;
 		costBoxes.forEach(box => {
 			box.addEventListener('click', async () => {
-				const actionKey = box.dataset.actionKey;
-				if (!actionKey) return;
-
-				const action = Object.values(ACTIONS).find(a => a.key === actionKey);
-				if (!action) return;
+				const actionSlug = box.dataset.actionSlug;
+				if (!actionSlug) return;
 
 				const characterSheet = this.getCharacterSheet();
 				const actorId = this.getCurrentActorId();
 				if (!characterSheet || !actorId) return;
+
+				// First, try to find in ACTIONS enum (for basic actions)
+				const enumAction = Object.values(ACTIONS).find(a => a.key === actionSlug);
+
+				// If not found in enum, try to find in ActionRow-based items (spells, divine channeling)
+				let actionName: string;
+				let actionCosts: ActionCost[];
+
+				if (enumAction) {
+					actionName = enumAction.name;
+					actionCosts = enumAction.costs;
+				} else {
+					// Look for ActionRow-based items in divine or arcane data
+					const divineData = this.prepareDivineData(characterSheet);
+					const arcaneData = this.prepareArcaneData(characterSheet);
+
+					// Check if it's divine channeling
+					if (divineData && divineData.pureDivineChanneling.slug === actionSlug) {
+						const divineSection = divineData.divineSection;
+						actionName = divineSection.pureDivineChanneling.title;
+						actionCosts = divineSection.pureDivineChanneling.cost?.actionCosts || [];
+					}
+					// Check if it's a spell
+					else if (arcaneData) {
+						const spell = arcaneData.arcaneSection.spells.find((s: ActionRow) => s.slug === actionSlug);
+						if (spell) {
+							actionName = spell.title;
+							actionCosts = spell.cost?.actionCosts || [];
+						} else {
+							console.warn('Action not found:', actionSlug);
+							return;
+						}
+					} else {
+						console.warn('Action not found:', actionSlug);
+						return;
+					}
+				}
 
 				try {
 					// Check if modal is supported
@@ -1446,7 +1526,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					}
 
 					// Open the consume resource modal
-					await ConsumeResourceModal.open(characterSheet, action.costs, action.name, actorId);
+					await ConsumeResourceModal.open(characterSheet, actionCosts, actionName, actorId);
 				} catch (error) {
 					console.error('Failed to open consume resource modal:', error);
 					showNotification('error', 'Failed to open resource consumption modal');
@@ -1698,6 +1778,45 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				} catch (error) {
 					console.error('Failed to roll spell:', error);
 					showNotification('error', 'Failed to roll spell');
+				}
+			});
+		});
+
+		// Divine channeling rolls
+		const divineChannelingButtons = root.querySelectorAll(
+			'[data-action="divine-channeling-roll"]',
+		) as NodeListOf<HTMLElement>;
+		divineChannelingButtons.forEach(btn => {
+			btn.addEventListener('click', async (event: MouseEvent) => {
+				const characterSheet = this.getCharacterSheet();
+				if (!characterSheet) return;
+
+				try {
+					// Get divine data to find channeling check
+					const divineData = this.prepareDivineData(characterSheet);
+					if (!divineData) return;
+
+					// Find the check parameter from the pure divine channeling action row
+					const checkBox = divineData.divineSection.pureDivineChanneling.boxes.find(
+						box => box.data instanceof ActionRowCheckBox,
+					);
+
+					if (!checkBox || !(checkBox.data instanceof ActionRowCheckBox)) {
+						showNotification('warn', 'No check data found for divine channeling');
+						return;
+					}
+
+					const checkData = checkBox.data as ActionRowCheckBox;
+					const useModal = event.shiftKey === false;
+
+					await this.rollDice({
+						check: checkData.check,
+						targetDC: checkData.targetDC,
+						useModal,
+					});
+				} catch (error) {
+					console.error('Failed to roll divine channeling:', error);
+					showNotification('error', 'Failed to roll divine channeling');
 				}
 			});
 		});
