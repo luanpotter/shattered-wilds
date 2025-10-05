@@ -1,6 +1,5 @@
 import {
 	ACTIONS,
-	ActionCost,
 	ActionsSection,
 	ActionTabInputValues,
 	ActionTabItem,
@@ -8,12 +7,15 @@ import {
 	ActionTabParameterCheckData,
 	ActionTabParameterValueData,
 	ActionType,
-	Armor,
 	ArcaneSection,
 	ArcaneSectionDefaults,
 	ArcaneSectionInputValues,
 	ArcaneSpellComponentType,
+	Armor,
 	CharacterSheet,
+	Check,
+	CheckMode,
+	CheckNature,
 	CircumstanceModifier,
 	Condition,
 	CONDITIONS,
@@ -30,6 +32,7 @@ import {
 	Resource,
 	RESOURCES,
 	Shield,
+	StatModifier,
 	StatNode,
 	StatType,
 	Weapon,
@@ -45,8 +48,7 @@ import {
 import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
 import { parseCharacterProps, parseCharacterSheet } from './characters.js';
 import { ConsumeResourceModal } from './consume-resource-modal.js';
-import { DiceRollModal } from './dice-modal.js';
-import { executeEnhancedRoll, type DiceRollRequest } from './dices.js';
+import { rollDice } from './dices.js';
 import {
 	ActorLike,
 	confirmAction,
@@ -58,18 +60,6 @@ import {
 } from './foundry-shim.js';
 import { prepareInputForTemplate } from './input-renderer.js';
 import { configureDefaultTokenBars } from './token-bars.js';
-
-function buildWeaponModeOptions(characterSheet: CharacterSheet): WeaponModeOption[] {
-	const equipment = characterSheet.equipment;
-	const hasShield = equipment.items.some(item => item instanceof Shield);
-	const weapons = equipment.items.filter(item => item instanceof Weapon) as Weapon[];
-
-	return [
-		Weapon.unarmed(),
-		...(hasShield ? [Weapon.shieldBash()] : []),
-		...weapons.flatMap(weapon => weapon.modes.map(mode => ({ weapon, mode }))),
-	];
-}
 
 async function syncResourcesToSystemData(actor: unknown, characterSheet: CharacterSheet): Promise<void> {
 	try {
@@ -391,8 +381,8 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		}));
 	}
 
-	private getCurrentActor(): ActorLike | undefined {
-		return (this as unknown as { actor?: ActorLike }).actor;
+	private getCurrentActor(): ActorLike {
+		return (this as unknown as { actor: ActorLike }).actor;
 	}
 
 	private getCurrentActorId(): string | undefined {
@@ -408,7 +398,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		const characterSheet = this.getCharacterSheet();
 		if (!characterSheet) return null;
 
-		const weaponModes = buildWeaponModeOptions(characterSheet);
+		const weaponModes = characterSheet.equipment.weaponModes();
 		return weaponModes[this.#actionsUIState.selectedWeaponIndex] || null;
 	}
 
@@ -458,7 +448,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 	): (updatedValues: ActionTabInputValues) => void {
 		return updatedValues => {
 			// Update the UI state with the new values
-			const weaponModes = buildWeaponModeOptions(characterSheet);
+			const weaponModes = characterSheet.equipment.weaponModes();
 			const weaponIndex = weaponModes.findIndex(
 				w => w.weapon === updatedValues.selectedWeaponMode.weapon && w.mode === updatedValues.selectedWeaponMode.mode,
 			);
@@ -856,6 +846,11 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				return { isEmpty: true, items: [] };
 			}
 
+			const weaponModes = equipment.weaponModes().map((mode, idx) => ({
+				idx,
+				mode,
+			}));
+
 			const items = equipment.items.map(item => {
 				const baseItem = {
 					name: item.name,
@@ -872,6 +867,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 						weaponModes: item.modes.map(mode => {
 							const weaponTypeDef = PRIMARY_WEAPON_TYPES[mode.type];
 							return {
+								idx: weaponModes.find(wm => wm.mode.weapon === item && wm.mode.mode === mode)?.idx ?? 0,
 								type: mode.description,
 								bonus: mode.bonus.description,
 								bonusValue: mode.bonus.value,
@@ -973,7 +969,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		}
 	}
 
-	prepareArcaneData(characterSheet: CharacterSheet | undefined): Record<string, unknown> | null {
+	prepareArcaneData(characterSheet: CharacterSheet | undefined): ArcaneSection | null {
 		if (!characterSheet) {
 			return null;
 		}
@@ -1094,16 +1090,11 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			const costTooltip = costs.map(c => c.value).join('\n');
 			const canAfford = costs.every(c => !c.insufficient);
 
-			// Prepare fundamental modifier for check box
-			const fundamentalModifier = {
-				name: arcaneSection.fundamentalModifier.name,
-				value: arcaneSection.fundamentalModifier.value.description,
-				description: arcaneSection.fundamentalModifier.description,
-				modifierValue: arcaneSection.fundamentalModifier.value.value,
-			};
+			const fundamentalCheck = arcaneSection.fundamentalCheck;
 
 			// Prepare spells
 			const spells = arcaneSection.spells.map(spell => ({
+				slug: spell.slug,
 				key: spell.key,
 				name: spell.name,
 				school: spell.school,
@@ -1112,28 +1103,27 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				augmentations: spell.augmentations.map(aug => ({
 					key: aug.key,
 					type: aug.type,
+					description: aug.description,
 					shortDescription: aug.shortDescription,
 					tooltip: aug.tooltip,
 					variable: aug.variable,
 					value: aug.value,
+					bonus: aug.bonus,
+					toModifier: aug.toModifier,
 					bonusDescription: aug.bonus.description,
 				})),
-				finalModifier: {
-					name: spell.finalModifier.name,
-					value: spell.finalModifier.value.description,
-					description: spell.finalModifier.description,
-					modifierValue: spell.finalModifier.value.value,
-				},
+				check: spell.check,
 			}));
 
 			return {
+				...arcaneSection,
 				header,
 				costs,
 				costTooltip,
 				canAfford,
-				fundamentalModifier,
+				fundamentalCheck,
 				spells,
-			};
+			} as ArcaneSection;
 		} catch (err) {
 			console.warn('Failed to prepare arcane data:', err);
 			return null;
@@ -1405,17 +1395,17 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		const statButtons = root.querySelectorAll('[data-action="roll-stat"]') as NodeListOf<HTMLElement>;
 		statButtons.forEach(btn => {
 			btn.addEventListener('click', async event => {
-				const statType = btn.dataset.statType;
-				const modifier = parseInt(btn.dataset.modifier || '0');
-				if (statType) {
-					if (event.shiftKey) {
-						// Shift+click does a quick roll
-						await this.handleStatRoll(statType, modifier);
-					} else {
-						// Normal click opens the dice modal
-						await this.handleStatRollModal(statType, modifier);
-					}
+				const statTypeName = btn.dataset.statType;
+				if (!statTypeName) {
+					return;
 				}
+
+				const statType = this.parseStatType(statTypeName);
+				const useModal = event.shiftKey === false;
+				await this.handleRawStatRoll({
+					statType,
+					useModal,
+				});
 			});
 		});
 
@@ -1428,14 +1418,11 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					// Initiative rolls use the initiative modifier
 					const characterSheet = this.getCharacterSheet();
 					if (characterSheet) {
-						const initiative = characterSheet.getStatTree().getModifier(DerivedStatType.Initiative);
-						if (event.shiftKey) {
-							// Shift+click does a quick roll
-							await this.handleStatRoll('initiative', initiative.value.value);
-						} else {
-							// Normal click opens the dice modal
-							await this.handleStatRollModal('initiative', initiative.value.value);
-						}
+						const useModal = event.shiftKey === false;
+						await this.handleRawStatRoll({
+							statType: DerivedStatType.Initiative,
+							useModal,
+						});
 					}
 				}
 			});
@@ -1467,20 +1454,19 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		const weaponAttackButtons = root.querySelectorAll('[data-action="roll-weapon-attack"]') as NodeListOf<HTMLElement>;
 		weaponAttackButtons.forEach(btn => {
 			btn.addEventListener('click', async event => {
-				const weaponName = btn.dataset.weaponName;
-				const modeType = btn.dataset.modeType;
-				const modeBonus = parseInt(btn.dataset.modeBonus || '0');
-				const attackStat = btn.dataset.attackStat;
-
-				if (weaponName && modeType && attackStat) {
-					if (event.shiftKey) {
-						// Shift+click does a quick weapon attack roll
-						await this.handleWeaponAttackRoll(weaponName, attackStat, modeBonus);
-					} else {
-						// Normal click opens the dice modal for weapon attack
-						await this.handleWeaponAttackRollModal(weaponName, attackStat, modeBonus);
-					}
+				const sheet = this.getCharacterSheet();
+				if (!sheet) {
+					showNotification('warn', 'Character sheet data not found');
+					return;
 				}
+				const weaponModeOptionIdx = parseInt(btn.dataset.weaponModeOptionIdx || '0');
+				const weaponMode = sheet.equipment.weaponModes()[weaponModeOptionIdx];
+				if (!weaponMode) {
+					showNotification('warn', `Weapon mode not found for idx ${weaponModeOptionIdx}`);
+					return;
+				}
+				const useModal = event.shiftKey === false;
+				await this.handleWeaponAttack({ weaponMode, useModal });
 			});
 		});
 
@@ -1770,7 +1756,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					// Open the consume resource modal with spell costs
 					await ConsumeResourceModal.open(
 						characterSheet,
-						arcaneData.costs as ActionCost[],
+						arcaneData.fundamentalSpellCost.actionCosts,
 						'Fundamental Arcane Spell',
 						actorId,
 					);
@@ -1795,38 +1781,12 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					const arcaneData = this.prepareArcaneData(characterSheet);
 					if (!arcaneData) return;
 
-					const fundamentalModifier = arcaneData.fundamentalModifier as {
-						name: string;
-						value: string;
-						description: string;
-						modifierValue: number;
-					};
-
-					if (event.shiftKey) {
-						// Quick roll
-						const rollRequest: DiceRollRequest = {
-							name: `Fundamental Arcane Spell - ${fundamentalModifier.name}`,
-							characterName: characterSheet.name,
-							modifiers: { [fundamentalModifier.name]: fundamentalModifier.modifierValue },
-							extra: undefined,
-							luck: undefined,
-							targetDC: undefined,
-						};
-						await executeEnhancedRoll(rollRequest);
-					} else {
-						// Open modal for advanced options
-						if (!DiceRollModal.isSupported()) {
-							showNotification('warn', 'Dice modal not supported in this Foundry version');
-							return;
-						}
-
-						await DiceRollModal.open({
-							statType: fundamentalModifier.name,
-							modifier: fundamentalModifier.modifierValue,
-							modifierBreakdown: { [fundamentalModifier.name]: fundamentalModifier.modifierValue },
-							actorId: this.getCurrentActorId()!,
-						});
-					}
+					const useModal = event.shiftKey === false;
+					await this.rollDice({
+						check: arcaneData.fundamentalCheck,
+						targetDC: 15, // TODO: reconsider
+						useModal,
+					});
 				} catch (error) {
 					console.error('Failed to roll fundamental spell:', error);
 					showNotification('error', 'Failed to roll fundamental spell');
@@ -1849,47 +1809,17 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					const arcaneData = this.prepareArcaneData(characterSheet);
 					if (!arcaneData) return;
 
-					const spell = (
-						arcaneData.spells as Array<{
-							key: string;
-							name: string;
-							finalModifier: {
-								name: string;
-								value: string;
-								description: string;
-								modifierValue: number;
-							};
-						}>
-					).find(s => s.key === spellKey);
+					const spell = arcaneData.spells.find(s => s.key === spellKey);
 					if (!spell) return;
 
-					const spellModifier = spell.finalModifier;
+					const spellCheck = spell.check;
+					const useModal = event.shiftKey === false;
 
-					if (event.shiftKey) {
-						// Quick roll
-						const rollRequest: DiceRollRequest = {
-							name: `${spell.name} - ${spellModifier.name}`,
-							characterName: characterSheet.name,
-							modifiers: { [spellModifier.name]: spellModifier.modifierValue },
-							extra: undefined,
-							luck: undefined,
-							targetDC: undefined,
-						};
-						await executeEnhancedRoll(rollRequest);
-					} else {
-						// Open modal for advanced options
-						if (!DiceRollModal.isSupported()) {
-							showNotification('warn', 'Dice modal not supported in this Foundry version');
-							return;
-						}
-
-						await DiceRollModal.open({
-							statType: spellModifier.name,
-							modifier: spellModifier.modifierValue,
-							modifierBreakdown: { [spellModifier.name]: spellModifier.modifierValue },
-							actorId: this.getCurrentActorId()!,
-						});
-					}
+					await this.rollDice({
+						check: spellCheck,
+						targetDC: 15, // TODO: reconsider
+						useModal,
+					});
 				} catch (error) {
 					console.error('Failed to roll spell:', error);
 					showNotification('error', 'Failed to roll spell');
@@ -1940,33 +1870,14 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					}
 
 					const checkData = actionTabParameter.data;
+					const check = checkData.checkData.check;
 
-					if (event.shiftKey) {
-						// Quick roll - directly execute using pre-computed data
-						const rollRequest: DiceRollRequest = {
-							name: `${actionTabItem.title} - ${checkData.checkData.check.name}`,
-							characterName: characterSheet.name,
-							modifiers: checkData.modifierBreakdown,
-							extra: undefined,
-							luck: undefined,
-							targetDC: checkData.checkData.targetDc,
-						};
-						await executeEnhancedRoll(rollRequest);
-					} else {
-						// Open modal for advanced options using pre-computed data
-						if (!DiceRollModal.isSupported()) {
-							showNotification('warn', 'Dice modal not supported in this Foundry version');
-							return;
-						}
-
-						await DiceRollModal.open({
-							statType: checkData.checkData.check.name,
-							modifier: checkData.checkData.check.modifierValue.value,
-							modifierBreakdown: checkData.modifierBreakdown,
-							actorId: this.getCurrentActorId()!,
-							...(checkData.checkData.targetDc !== undefined && { targetDC: checkData.checkData.targetDc }),
-						});
-					}
+					const useModal = event.shiftKey === false;
+					await this.rollDice({
+						check,
+						targetDC: checkData.checkData.targetDc,
+						useModal,
+					});
 				} catch (err) {
 					console.error('Failed to roll action check:', err);
 					showNotification('error', 'Failed to roll action check');
@@ -2109,205 +2020,93 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		}
 	}
 
-	private async handleStatRoll(statType: string, modifier: number): Promise<void> {
-		// Quick roll with default options using centralized dice system
-		const rollRequest: DiceRollRequest = {
-			name: statType,
-			characterName: this.getCharacterSheet()?.name ?? 'Unknown',
-			modifiers: this.buildModifiersMap(statType, modifier, 0), // modifier + 0 circumstance
-			extra: undefined,
-			luck: undefined,
-			targetDC: undefined,
-		};
-
-		await executeEnhancedRoll(rollRequest);
-	}
-
-	private async handleStatRollModal(statType: string, modifier: number): Promise<void> {
-		if (!DiceRollModal.isSupported()) {
-			showNotification('warn', 'Dice modal not supported in this Foundry version');
-			return this.handleStatRoll(statType, modifier);
+	private async handleRawStatRoll({
+		statType,
+		useModal,
+	}: {
+		statType: StatType | DerivedStatType;
+		useModal: boolean;
+	}): Promise<void> {
+		const statModifier = this.getStatModifier(statType);
+		if (!statModifier) {
+			return showNotification('warn', `Failed to get stat modifier for ${statType}`);
 		}
-
-		await DiceRollModal.open({
-			statType,
-			modifier,
-			actorId: this.getCurrentActorId()!,
-			// Modal handles rolling directly through centralized system now
-			onCancel: () => {
-				// Nothing to do on cancel
-			},
+		await this.rollDice({
+			check: new Check({
+				mode: CheckMode.Static,
+				nature: CheckNature.Active,
+				statModifier,
+			}),
+			targetDC: undefined,
+			useModal: useModal,
 		});
 	}
 
-	private buildModifiersMap(
-		statType: string,
-		_ignoredBaseModifier: number,
-		circumstanceModifier: number,
-	): Record<string, number> {
-		const modifiers: Record<string, number> = {};
-
-		// ALWAYS use the well-tested commons breakdown instead of the passed baseModifier
-		const breakdown = this.getStatBreakdown(statType);
-		if (breakdown) {
-			// Add base points if any
-			if (breakdown.baseValue > 0) {
-				modifiers['Base'] = breakdown.baseValue;
-			}
-
-			// Add individual modifiers from the well-tested commons logic
-			for (const mod of breakdown.modifiers) {
-				modifiers[mod.source] = mod.value;
-			}
-		} else {
-			// This should rarely happen - commons should always provide breakdown
-			console.warn(`Failed to get stat breakdown for ${statType}, this shouldn't happen`);
+	private async handleWeaponAttack({
+		weaponMode,
+		useModal,
+	}: {
+		weaponMode: WeaponModeOption;
+		useModal: boolean;
+	}): Promise<void> {
+		const attackStat = weaponMode.mode.statType;
+		const weaponModifier = weaponMode.getEquipmentModifier();
+		const cms = weaponModifier ? [weaponModifier] : [];
+		const statModifier = this.getStatModifier(attackStat, cms);
+		if (!statModifier) {
+			return showNotification('warn', 'Failed to get stat modifier for weapon attack');
 		}
 
-		// Add circumstance modifier if any
-		if (circumstanceModifier !== 0) {
-			modifiers['Circumstance'] = circumstanceModifier;
-		}
+		const check = new Check({
+			mode: CheckMode.Contested,
+			nature: CheckNature.Active,
+			statModifier,
+		});
 
-		return modifiers;
-	}
-
-	private async handleWeaponAttackRoll(weaponName: string, attackStat: string, weaponBonus: number): Promise<void> {
-		// Quick weapon attack roll using centralized dice system - treat as stat check with weapon modifier
-		const rollRequest: DiceRollRequest = {
-			name: `${attackStat} Check`,
-			characterName: this.getCharacterSheet()?.name ?? 'Unknown',
-			modifiers: this.buildWeaponAttackModifiers(attackStat, weaponBonus, weaponName),
-			extra: undefined,
-			luck: undefined,
+		await this.rollDice({
+			check,
 			targetDC: undefined,
-		};
-
-		await executeEnhancedRoll(rollRequest);
-	}
-
-	private async handleWeaponAttackRollModal(
-		weaponName: string,
-		attackStat: string,
-		weaponBonus: number,
-	): Promise<void> {
-		if (!DiceRollModal.isSupported()) {
-			showNotification('warn', 'Dice modal not supported in this Foundry version');
-			return this.handleWeaponAttackRoll(weaponName, attackStat, weaponBonus);
-		}
-
-		// Get the detailed modifier breakdown for weapon attacks
-		const modifierBreakdown = this.buildWeaponAttackModifiers(attackStat, weaponBonus, weaponName);
-		const totalModifier = Object.values(modifierBreakdown).reduce((sum: number, val: number) => sum + val, 0);
-
-		await DiceRollModal.open({
-			statType: attackStat, // Use the stat name instead of weapon name
-			modifier: totalModifier,
-			modifierBreakdown, // Pass the detailed breakdown
-			actorId: this.getCurrentActorId()!,
-			onCancel: () => {
-				// Nothing to do on cancel
-			},
+			useModal,
 		});
 	}
 
-	private buildWeaponAttackModifiers(
-		attackStat: string,
-		weaponBonus: number,
-		weaponName: string,
-	): Record<string, number> {
-		const modifiers: Record<string, number> = {};
-
-		// Get the stat breakdown to separate base from other modifiers
-		const statBreakdown = this.getStatBreakdown(attackStat);
-		if (statBreakdown) {
-			// Add base stat points as "Base" modifier
-			if (statBreakdown.baseValue > 0) {
-				modifiers['Base'] = statBreakdown.baseValue;
-			}
-
-			// Add individual stat modifiers (feats, equipment, etc.)
-			for (const mod of statBreakdown.modifiers) {
-				modifiers[mod.source] = mod.value;
-			}
-		} else {
-			console.warn(`Failed to get stat breakdown for ${attackStat}`);
-		}
-
-		// Add weapon bonus as a separate equipment modifier
-		if (weaponBonus !== 0) {
-			modifiers[weaponName] = weaponBonus;
-		}
-
-		return modifiers;
-	}
-
-	private getStatBreakdown(
-		statTypeName: string,
-	): { baseValue: number; modifiers: Array<{ source: string; value: number }>; total: number } | undefined {
+	private getStatModifier(
+		stat: StatType | DerivedStatType,
+		cms: CircumstanceModifier[] = [],
+	): StatModifier | undefined {
 		try {
 			const characterSheet = this.getCharacterSheet();
 			if (!characterSheet) return undefined;
 
 			const statTree = characterSheet.getStatTree();
-
-			// Special handling for derived stats like initiative
-			if (statTypeName === 'initiative') {
-				const initiativeModifier = statTree.getModifier(DerivedStatType.Initiative);
-				const awarenessNode = statTree.getNode(StatType.Awareness);
-				const awarenessModifier = statTree.getNodeModifier(awarenessNode);
-				const agilityNode = statTree.getNode(StatType.Agility);
-				const agilityModifier = statTree.getNodeModifier(agilityNode);
-
-				return {
-					baseValue: 0, // Initiative has no base value, it's purely derived
-					modifiers: [
-						{
-							source: 'Awareness',
-							value: awarenessModifier.value.value,
-						},
-						{
-							source: 'Agility',
-							value: agilityModifier.value.value,
-						},
-					],
-					total: initiativeModifier.value.value,
-				};
-			}
-
-			const statType = StatType.values.find(st => st.name === statTypeName);
-
-			if (!statType) return undefined;
-
-			const node = statTree.getNode(statType);
-			const nodeModifier = statTree.getNodeModifier(node);
-
-			// Get the base value (points allocated)
-			const baseValue = nodeModifier.baseValue.value;
-
-			// Get all modifiers
-			const modifiers: Array<{ source: string; value: number }> = [];
-
-			// Add modifiers from the NodeStatModifier
-			if (nodeModifier.appliedModifiers && nodeModifier.appliedModifiers.length > 0) {
-				for (const modifier of nodeModifier.appliedModifiers) {
-					if (modifier.source && modifier.value.value !== 0) {
-						modifiers.push({
-							source: `${modifier.source} ${modifier.name}`,
-							value: modifier.value.value,
-						});
-					}
-				}
-			}
-
-			return {
-				baseValue,
-				modifiers,
-				total: nodeModifier.value.value,
-			};
+			return statTree.getModifier(stat, cms);
 		} catch (err) {
 			console.warn('Failed to get stat breakdown:', err);
 			return undefined;
 		}
+	}
+
+	private parseStatType(statTypeName: string): StatType | DerivedStatType {
+		const stats = StatType.values;
+		const candidate = stats.filter(s => s.name === statTypeName)[0];
+		return candidate ?? (statTypeName as DerivedStatType);
+	}
+
+	private async rollDice({
+		check,
+		targetDC,
+		useModal,
+	}: {
+		check: Check;
+		targetDC: number | undefined;
+		useModal: boolean;
+	}): Promise<void> {
+		await rollDice({
+			actorId: this.getCurrentActorId()!,
+			characterName: this.getCharacterSheet()?.name ?? 'Unknown',
+			check,
+			targetDC,
+			useModal,
+		});
 	}
 }

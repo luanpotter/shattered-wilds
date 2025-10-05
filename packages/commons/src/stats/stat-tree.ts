@@ -1,7 +1,7 @@
 import { DERIVED_STATS, DerivedStatType } from './derived-stat.js';
 import { FormulaResult } from './formula.js';
 import { Resource, RESOURCES } from './resources.js';
-import { StatHierarchy, StatHierarchyProperties, StatType } from './stat-type.js';
+import { StatHierarchy, StatHierarchyProperties, StatType, StatTypeName } from './stat-type.js';
 import { Bonus, Distance } from './value.js';
 
 export enum ModifierSource {
@@ -151,11 +151,12 @@ export class StatTree {
 	getDerivedStatModifier(stat: DerivedStatType, cms: CircumstanceModifier[] = []): StatModifier {
 		const { value, tooltip } = this.computeDerivedStat(stat);
 		const bonus = Bonus.of(value);
+		const nonZeroCms = cms.filter(cm => cm.value.isNotZero);
 		return new StatModifier({
 			statType: stat,
 			baseValue: bonus,
-			appliedModifiers: cms,
-			value: Bonus.add([bonus, ...cms.map(mod => mod.value)]),
+			appliedModifiers: nonZeroCms,
+			value: Bonus.add([bonus, ...nonZeroCms.map(mod => mod.value)]),
 			overrideDescription: tooltip,
 		});
 	}
@@ -166,7 +167,7 @@ export class StatTree {
 		const baseValuePreCap = Bonus.add([selfValue, parentValue]);
 		const wasLevelCapped = node.type.hierarchy !== StatHierarchy.Skill && baseValuePreCap.value > this.level;
 		const baseValue = Bonus.of(wasLevelCapped ? this.level : baseValuePreCap.value);
-		const appliedModifiers = [...this.getApplicableModifiers(node.type), ...cms];
+		const appliedModifiers = [...this.getApplicableModifiers(node.type), ...cms].filter(mod => mod.value.isNotZero);
 		const value = Bonus.add([baseValue, ...appliedModifiers.map(mod => mod.value)]);
 		return new NodeStatModifier({
 			statType: node.type,
@@ -310,7 +311,7 @@ export class StatModifier {
 		baseValue: Bonus;
 		appliedModifiers: CircumstanceModifier[];
 		value: Bonus;
-		overrideDescription?: string;
+		overrideDescription?: string | undefined;
 	}) {
 		this.statType = statType;
 		this.baseValue = baseValue;
@@ -327,7 +328,7 @@ export class StatModifier {
 		return Bonus.add([this.baseValue, inherentModifiers]);
 	}
 
-	get name(): string {
+	get name(): StatTypeName | DerivedStatType {
 		if (this.statType instanceof StatType) {
 			return this.statType.name;
 		}
@@ -350,6 +351,25 @@ export class StatModifier {
 					].join(' + ')
 				: undefined;
 		return `${this.simpleDescription}${breakdown ? ` (${breakdown})` : ''}`;
+	}
+
+	breakdown(): { name: string; value: string }[] {
+		return [
+			{ name: this.name, value: this.baseValue.description },
+			...this.appliedModifiers.map(cm => ({ name: cm.name, value: cm.value.description })),
+		];
+	}
+
+	// NOTE: we typically try to build the check with all the modifiers it needs at once,
+	// but this is used specifically if the user adds a CM on the "last mile" (i.e. on the Dice Roll dialog itself)
+	withAdditionalCM(cm: CircumstanceModifier): StatModifier {
+		return new StatModifier({
+			statType: this.statType,
+			baseValue: this.baseValue,
+			appliedModifiers: [...this.appliedModifiers, cm],
+			value: Bonus.add([this.value, cm.value]),
+			overrideDescription: this.overrideDescription,
+		});
 	}
 }
 
