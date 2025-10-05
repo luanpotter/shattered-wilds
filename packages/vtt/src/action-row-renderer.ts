@@ -3,6 +3,7 @@ import {
 	ActionRowCheckBox,
 	ActionRowValueBox,
 	ActionRowVariableBox,
+	ARCANE_SCHOOLS,
 	CharacterSheet,
 	Resource,
 	RESOURCES,
@@ -83,7 +84,10 @@ export const prepareActionRow = (actionRow: ActionRow, characterSheet: Character
 		slug: actionRow.slug,
 		name: actionRow.title,
 		description: processDescriptionText(firstParagraph),
-		traits: actionRow.traits,
+		traits: actionRow.traits.map(trait => {
+			const type = Object.hasOwn(ARCANE_SCHOOLS, trait) ? 'school' : 'trait';
+			return { type, value: trait };
+		}),
 		costs,
 		costTooltip,
 		canAfford,

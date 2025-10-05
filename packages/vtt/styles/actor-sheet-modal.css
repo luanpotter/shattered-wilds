@@ -1506,8 +1506,7 @@
 }
 
 /* Trait Styling */
-.trait {
-	color: #6bff6b;
+.trait, .school {
 	font-size: 0.8em;
 	padding: 0.1rem 0.3rem;
 	border-radius: 3px;
@@ -1515,6 +1514,14 @@
 	background-color: var(--background-alt);
 	margin-left: 4px;
 	display: inline-block;
+}
+
+.trait {
+	color: #6bff6b;
+}
+
+.school {
+	color: #f06292;
 }
 
 /* Spell-specific styling for arcane tab */
