@@ -1,5 +1,6 @@
 import { CharacterSheet } from '../../character/character-sheet.js';
 import { ActionCost } from '../../core/actions.js';
+import { ArcaneSpellSchool } from '../../core/arcane.js';
 import { Trait } from '../../core/traits.js';
 import { Check } from '../../stats/check.js';
 import { Value } from '../../stats/value.js';
@@ -43,7 +44,13 @@ export class ActionRowValueBox {
 }
 
 export class ActionRowVariableBox {
-	// TODO
+	inputValue: number;
+	value: Value;
+
+	constructor({ inputValue, value }: { inputValue: number; value: Value }) {
+		this.inputValue = inputValue;
+		this.value = value;
+	}
 
 	hasErrors(): boolean {
 		return false;
@@ -112,13 +119,47 @@ export class ActionRowBox {
 	hasErrors(): boolean {
 		return this.data.hasErrors();
 	}
+
+	static fromCheck({
+		key,
+		check,
+		targetDC,
+		errors,
+	}: {
+		key: string;
+		check: Check;
+		targetDC: number | undefined;
+		errors: ActionRowCheckBoxError[];
+	}): ActionRowBox {
+		const tooltip = [
+			`Stat: ${check.statModifier.statType}`,
+			check.statModifier.description,
+			`Check type: ${check.mode}-${check.nature}`,
+			targetDC && `Target DC: ${targetDC}`,
+		]
+			.filter(Boolean)
+			.join('\n');
+
+		const data = new ActionRowCheckBox({ check, targetDC, errors });
+
+		const inherentModifier = check.statModifier.inherentModifier;
+		const name = check.statModifier.statType;
+		const title = `${name} (${inherentModifier.description})`;
+
+		return new ActionRowBox({
+			key,
+			labels: [title],
+			tooltip,
+			data,
+		});
+	}
 }
 
 export class ActionRow {
 	slug: string;
 	cost: ActionRowCost | undefined;
 	title: string;
-	traits: Trait[] = [];
+	traits: (Trait | ArcaneSpellSchool)[] = [];
 	description: string;
 	boxes: ActionRowBox[];
 
@@ -133,7 +174,7 @@ export class ActionRow {
 		slug: string;
 		cost: ActionRowCost | undefined;
 		title: string;
-		traits: Trait[];
+		traits: (Trait | ArcaneSpellSchool)[];
 		description: string;
 		boxes: ActionRowBox[];
 	}) {

@@ -4,7 +4,6 @@ import {
 	ArcaneSectionCastingTimeOption,
 	ArcaneSectionDefaults,
 	ArcaneSectionInputValues,
-	ArcaneSectionSpell,
 	ArcaneSpellComponentType,
 	CharacterSheet,
 	Check,
@@ -19,6 +18,7 @@ import { useModals } from '../../hooks/useModals';
 import { useUIStateFactory } from '../../hooks/useUIState';
 import { useStore } from '../../store';
 import { Character } from '../../types/ui';
+import { ActionRowComponent } from '../ActionRowComponent';
 import { CostBoxComponent } from '../CostBoxComponent';
 import { ParameterBoxComponent } from '../ParameterBoxComponent';
 import Block from '../shared/Block';
@@ -310,11 +310,11 @@ const ArcaneSectionInner: React.FC<{
 			<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '12px 0 12px 0', opacity: 0.3 }} />
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 				{arcaneSection.spells.map(spell => (
-					<SpellBox
-						key={spell.key}
-						character={character}
-						spell={spell}
-						setSpellAugmentationValue={setSpellAugmentationValue}
+					<ActionRowComponent
+						key={spell.slug}
+						actionRow={spell}
+						setBoxParameterValue={(actionSlug, boxKey, value) => setSpellAugmentationValue(actionSlug, boxKey, value)}
+						characterId={character.id}
 					/>
 				))}
 			</div>
@@ -343,82 +343,5 @@ const SpellCheckBox: React.FC<{
 			{modifier.value.description}
 			<FaDice size={12} />
 		</ParameterBoxComponent>
-	);
-};
-
-const SpellBox: React.FC<{
-	character: Character;
-	spell: ArcaneSectionSpell;
-	setSpellAugmentationValue: (spellName: string, key: string, value: number) => void;
-}> = ({ character, spell, setSpellAugmentationValue }) => {
-	return (
-		<div style={{ display: 'flex', gap: '2px' }}>
-			<div
-				style={{
-					flex: 1,
-					padding: '12px',
-					border: '1px solid var(--text)',
-					borderRadius: '4px',
-					backgroundColor: 'var(--background-alt)',
-				}}
-			>
-				<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-					<div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-						<span style={{ fontWeight: 'bold' }}>
-							<a href={`/wiki/${spell.slug}`} target='_blank' rel='noreferrer'>
-								{spell.name}
-							</a>
-						</span>
-						<span className='school'>{spell.school}</span>
-						{spell.traits.map(trait => (
-							<span className='trait' key={trait}>
-								{trait}
-							</span>
-						))}
-					</div>
-				</div>
-				<div style={{ fontSize: '0.9em', color: 'var(--text-secondary)' }}>
-					<RichText>{spell.description}</RichText>
-				</div>
-			</div>
-			{spell.augmentations.map(augmentation => {
-				const value = augmentation.value;
-				return (
-					<ParameterBoxComponent
-						key={augmentation.key}
-						title={
-							<div style={{ display: 'flex', flexDirection: 'column' }}>
-								<span>{`${augmentation.type}:`}</span>
-								<span>{augmentation.shortDescription}</span>
-							</div>
-						}
-						tooltip={augmentation.tooltip}
-					>
-						{augmentation.variable ? (
-							<div style={{ display: 'flex', gap: '4px' }}>
-								<LabeledInput
-									variant='inline'
-									value={`${value}`}
-									onBlur={value => {
-										const parsedValue = (() => {
-											const parsedValue = parseInt(value);
-											if (isNaN(parsedValue) || parsedValue < 0) {
-												return 1;
-											}
-											return parsedValue;
-										})();
-										setSpellAugmentationValue(spell.name, augmentation.key, parsedValue);
-									}}
-								/>
-								<span> = {augmentation.bonus.description}</span>
-							</div>
-						) : (
-							<span>{augmentation.bonus.description}</span>
-						)}
-					</ParameterBoxComponent>
-				);
-			})}
-			<SpellCheckBox character={character} check={spell.check} />
-		</div>
 	);
 };

@@ -15,7 +15,13 @@ import { Resource } from '../../stats/resources.js';
 import { CircumstanceModifier, ModifierSource, StatModifier } from '../../stats/stat-tree.js';
 import { Bonus, Distance } from '../../stats/value.js';
 import { firstParagraph, numberToOrdinal, slugify } from '../../utils/utils.js';
-import { ActionRowCost } from '../common/action-row.js';
+import {
+	ActionRow,
+	ActionRowBox,
+	ActionRowCost,
+	ActionRowValueBox,
+	ActionRowVariableBox,
+} from '../common/action-row.js';
 import { Check, CheckMode, CheckNature } from '../../stats/check.js';
 
 export type ArcaneSectionSchoolOption = 'All Schools' | ArcaneSpellSchool;
@@ -65,9 +71,11 @@ export class ArcaneSectionDefaults {
 	}
 }
 
+// TODO: we should remove this once the migration is complete
 export class ArcaneSectionSpellAugmentation {
 	key: string;
 	type: string;
+	typeValue: string;
 	shortDescription: string;
 	variable: boolean;
 	value: number;
@@ -77,6 +85,7 @@ export class ArcaneSectionSpellAugmentation {
 	constructor({
 		key,
 		type,
+		typeValue,
 		shortDescription,
 		variable,
 		value,
@@ -85,6 +94,7 @@ export class ArcaneSectionSpellAugmentation {
 	}: {
 		key: string;
 		type: string;
+		typeValue: string;
 		shortDescription: string;
 		variable: boolean;
 		value: number;
@@ -93,6 +103,7 @@ export class ArcaneSectionSpellAugmentation {
 	}) {
 		this.key = key;
 		this.type = type;
+		this.typeValue = typeValue;
 		this.shortDescription = shortDescription;
 		this.variable = variable;
 		this.value = value;
@@ -111,45 +122,16 @@ export class ArcaneSectionSpellAugmentation {
 			value: this.bonus,
 		});
 	}
-}
 
-export class ArcaneSectionSpell {
-	key: string;
-	slug: string;
-	name: string;
-	school: ArcaneSpellSchool;
-	traits: Trait[];
-	description: string;
-	augmentations: ArcaneSectionSpellAugmentation[];
-	check: Check;
-
-	constructor({
-		key,
-		slug,
-		name,
-		school,
-		traits,
-		description,
-		augmentations,
-		check,
-	}: {
-		key: string;
-		slug: string;
-		name: string;
-		school: ArcaneSpellSchool;
-		traits: Trait[];
-		description: string;
-		augmentations: ArcaneSectionSpellAugmentation[];
-		check: Check;
-	}) {
-		this.key = key;
-		this.slug = slug;
-		this.name = name;
-		this.school = school;
-		this.traits = traits;
-		this.description = description;
-		this.augmentations = augmentations;
-		this.check = check;
+	toBox(): ActionRowBox {
+		return new ActionRowBox({
+			key: this.key,
+			labels: [`${this.type}:`, this.typeValue],
+			tooltip: this.tooltip,
+			data: this.variable
+				? new ActionRowVariableBox({ value: this.bonus, inputValue: this.value })
+				: new ActionRowValueBox({ value: this.bonus }),
+		});
 	}
 }
 
@@ -293,18 +275,20 @@ export class ArcaneSection {
 		sheet: CharacterSheet;
 		inputValues: ArcaneSectionInputValues;
 		fundamentalModifiers: CircumstanceModifier[];
-	}): ArcaneSectionSpell[] => {
+	}): ActionRow[] => {
 		const tree = sheet.getStatTree();
 		const primaryAttribute = sheet.characterClass.definition.primaryAttribute;
 		const filteredSpells = ArcaneSection.filterSpells(inputValues);
 
 		return filteredSpells.map(spell => {
+			const slug = slugify(spell.name);
 			const augmentations = spell.augmentations.map(augmentation => {
-				const value = inputValues.spellAugmentationValues[spell.name]?.[augmentation.key] ?? 1;
+				const value = inputValues.spellAugmentationValues[slug]?.[augmentation.key] ?? 1;
 				const bonus = Bonus.of(augmentation.computeBonus(value));
 				return new ArcaneSectionSpellAugmentation({
 					key: augmentation.key,
 					type: augmentation.type,
+					typeValue: augmentation.value,
 					shortDescription: augmentation.shortDescription,
 					variable: augmentation.variable,
 					value,
@@ -323,15 +307,21 @@ export class ArcaneSection {
 				statModifier: finalModifier,
 			});
 
-			return new ArcaneSectionSpell({
-				key: spell.name,
-				slug: slugify(spell.name),
-				name: spell.name,
-				school: spell.school,
-				traits: spell.traits,
+			return new ActionRow({
+				slug,
+				title: spell.name,
+				traits: [spell.school, ...spell.traits],
 				description: firstParagraph(spell.description),
-				augmentations,
-				check,
+				cost: undefined, // we only show the cost boxes on the fundamental spell row
+				boxes: [
+					...augmentations.map(aug => aug.toBox()),
+					ActionRowBox.fromCheck({
+						key: 'check',
+						check,
+						targetDC: undefined, // TODO: reconsider
+						errors: [],
+					}),
+				],
 			});
 		});
 	};
@@ -347,7 +337,7 @@ export class ArcaneSection {
 	combinedModifier: StatModifier;
 	fundamentalCheck: Check;
 	fundamentalSpellCost: ActionRowCost;
-	spells: ArcaneSectionSpell[];
+	spells: ActionRow[];
 
 	constructor({
 		schoolOptions,
@@ -370,7 +360,7 @@ export class ArcaneSection {
 		combinedModifier: StatModifier;
 		fundamentalCheck: Check;
 		fundamentalSpellCost: ActionRowCost;
-		spells: ArcaneSectionSpell[];
+		spells: ActionRow[];
 	}) {
 		this.schoolOptions = schoolOptions;
 		this.castingTimeOptions = castingTimeOptions;

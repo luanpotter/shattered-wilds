@@ -672,13 +672,27 @@
 							<!-- Spells List -->
 							<div class="actions-content">
 								{{#each arcaneData.spells}}
-								<div class="action-item spell-item">
-									<!-- Spell details (no cost box) -->
+								<div class="action-item">
+									<!-- Cost box -->
+									{{#if costs.length}}
+									<div class="action-cost-box clickable"
+										title="{{costTooltip}}"
+										data-action="consume-action-cost"
+										data-action-key="{{key}}">
+										<div class="action-cost-title {{#unless canAfford}}insufficient{{/unless}}">COST</div>
+										{{#each costs}}
+										<div class="action-cost-value {{#if insufficient}}insufficient{{/if}}">
+											{{value}}
+										</div>
+										{{/each}}
+									</div>
+									{{/if}}
+
+									<!-- Action details -->
 									<div class="action-details">
 										<div class="action-header">
 											<div class="action-name-traits">
 												<span class="action-name">{{name}}</span>
-												<span class="spell-school">({{school}})</span>
 												{{#each traits}}
 												<span class="trait">{{this}}</span>
 												{{/each}}
@@ -689,44 +703,51 @@
 										</div>
 									</div>
 
-									<!-- Augmentation parameter boxes -->
-									{{#each augmentations}}
+									<!-- Action parameters -->
+									{{#each parameters}}
 									<div class="action-parameter">
-										<div class="parameter-box augmentation-parameter" title="{{tooltip}}">
-											<div class="parameter-title">{{type}}</div>
+										{{#if (eq type "value")}}
+										<div class="parameter-box augmentation-parameter value-parameter" title="{{tooltip}}">
+											{{#each labels}}
+											<span class="parameter-title">{{this}}</span><br/>
+											{{/each}}
+											<div class="parameter-value">{{value}}</div>
+										</div>
+										{{else if (eq type "variable")}}
+										<div class="parameter-box augmentation-parameter value-parameter" title="{{tooltip}}">
+											{{#each labels}}
+											<span class="parameter-title">{{this}}</span><br/>
+											{{/each}}
 											<div class="parameter-content">
-												<div class="augmentation-label">{{shortDescription}}</div>
-												{{#if variable}}
 												<div class="augmentation-input-row">
 													<input type="number"
 														class="augmentation-input"
 														data-action="set-spell-augmentation"
-														data-spell-key="{{../key}}"
+														data-spell-slug="{{../slug}}"
+														data-parameter-index="{{@index}}"
 														data-augmentation-key="{{key}}"
-														value="{{value}}"
+														value="{{inputValue}}"
 														min="0"
 														placeholder="0">
 													<span class="augmentation-equals"> = </span>
 													<span class="augmentation-bonus">{{bonusDescription}}</span>
 												</div>
-												{{else}}
-												<div class="augmentation-bonus">{{bonusDescription}}</div>
-												{{/if}}
 											</div>
 										</div>
+										{{else if (eq type "check")}}
+										<div class="parameter-box check-parameter clickable"
+											title="{{tooltip}}"
+											data-action="spell-roll"
+											data-spell-slug="{{../slug}}"
+											data-parameter-index="{{@index}}">
+											{{#each labels}}
+											<span class="parameter-title {{#if hasError}}action-box-error{{/if}}">{{this}}</span><br/>
+											{{/each}}
+											<div class="parameter-value {{#if hasError}}action-box-error{{/if}}">{{value}}<i class="fas fa-dice-d12 dice-icon"></i></div>
+										</div>
+										{{/if}}
 									</div>
 									{{/each}}
-
-									<!-- Final Spell Modifier -->
-									<div class="action-parameter">
-										<div class="parameter-box check-parameter clickable"
-											title="{{check.statModifier.description}} • Click for advanced options • Shift+Click for quick roll"
-											data-action="spell-roll"
-											data-spell-key="{{key}}">
-											<div class="parameter-title">{{check.statModifier.name}} ({{check.statModifier.baseValue.description}})</div>
-											<div class="parameter-value">{{check.statModifier.value.description}} <i class="fas fa-dice-d12 dice-icon"></i></div>
-										</div>
-									</div>
 								</div>
 								{{/each}}
 							</div>

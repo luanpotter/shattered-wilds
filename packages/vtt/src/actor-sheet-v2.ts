@@ -2,7 +2,6 @@ import {
 	ActionRow,
 	ActionRowBox,
 	ActionRowCheckBox,
-	ActionRowValueBox,
 	ACTIONS,
 	ActionsSection,
 	ActionTabInputValues,
@@ -60,6 +59,7 @@ import {
 } from './foundry-shim.js';
 import { prepareInputForTemplate } from './input-renderer.js';
 import { configureDefaultTokenBars } from './token-bars.js';
+import { processDescriptionText, prepareActionRow } from './action-row-renderer.js';
 
 async function syncResourcesToSystemData(actor: unknown, characterSheet: CharacterSheet): Promise<void> {
 	try {
@@ -114,47 +114,6 @@ const HbsMixin = getHandlebarsApplicationMixin();
 
 if (!V2Base || !HbsMixin) {
 	throw new Error('V2 ActorSheet or HandlebarsApplicationMixin not available');
-}
-
-function processDescriptionText(text: string): string {
-	if (!text) return '';
-
-	let processed = text;
-
-	// First, protect code blocks from other processing
-	const codeBlocks: string[] = [];
-	processed = processed.replace(/`([^`]+)`/g, (_match, code) => {
-		const placeholder = `__CODE_BLOCK_${codeBlocks.length}__`;
-		codeBlocks.push(code);
-		return placeholder;
-	});
-
-	// Process wiki links: [[Link Text]] or [[Link Text | Display Text]]
-	// Keep original case for display, create slug properly for URL
-	processed = processed.replace(/\[\[([^\]|]+)(\|([^\]]+))?\]\]/g, (_match, linkText, _, displayText) => {
-		const display = displayText ? displayText.trim() : linkText.trim();
-		// Create slug: preserve case but replace spaces with underscores, no lowercasing
-		const slug = linkText.trim().replace(/\s+/g, '_');
-		return `<a href="https://d12.nexus/wiki/${slug}" target="_blank" rel="noopener">${display}</a>`;
-	});
-
-	// Process basic markdown - be more careful with underscores to avoid conflicts
-	// Bold: **text** only (avoid __ to prevent conflicts with slugs)
-	processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
-	// Italic: *text* only (avoid _ to prevent conflicts with slugs)
-	processed = processed.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-
-	// Restore code blocks with proper inline styling
-	codeBlocks.forEach((code, index) => {
-		const placeholder = `__CODE_BLOCK_${index}__`;
-		processed = processed.replace(placeholder, `<code>${code}</code>`);
-	});
-
-	// Line breaks
-	processed = processed.replace(/\n/g, '<br>');
-
-	return processed;
 }
 
 const MixedBase = HbsMixin(V2Base) as unknown as (new (...args: unknown[]) => object) & {
@@ -953,7 +912,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					label: type,
 					icon: this.getActionTypeIcon(type),
 					active: this.#actionsUIState.activeTab === type,
-					actions: tab.actions.map(actionTabItem => this.prepareActionItemFromTabItem(actionTabItem, characterSheet)),
+					actions: tab.actions.map(actionTabItem => prepareActionRow(actionTabItem, characterSheet)),
 					inputs: inputs.length > 0 ? inputs : null,
 				};
 			});
@@ -969,7 +928,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		}
 	}
 
-	prepareArcaneData(characterSheet: CharacterSheet | undefined): ArcaneSection | null {
+	prepareArcaneData(characterSheet: CharacterSheet | undefined) {
 		if (!characterSheet) {
 			return null;
 		}
@@ -1092,119 +1051,21 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 			const fundamentalCheck = arcaneSection.fundamentalCheck;
 
-			// Prepare spells
-			const spells = arcaneSection.spells.map(spell => ({
-				slug: spell.slug,
-				key: spell.key,
-				name: spell.name,
-				school: spell.school,
-				traits: spell.traits,
-				description: processDescriptionText(spell.description),
-				augmentations: spell.augmentations.map(aug => ({
-					key: aug.key,
-					type: aug.type,
-					description: aug.description,
-					shortDescription: aug.shortDescription,
-					tooltip: aug.tooltip,
-					variable: aug.variable,
-					value: aug.value,
-					bonus: aug.bonus,
-					toModifier: aug.toModifier,
-					bonusDescription: aug.bonus.description,
-				})),
-				check: spell.check,
-			}));
+			const spells = arcaneSection.spells.map(row => prepareActionRow(row, characterSheet));
 
 			return {
-				...arcaneSection,
+				arcaneSection,
 				header,
 				costs,
 				costTooltip,
 				canAfford,
 				fundamentalCheck,
 				spells,
-			} as ArcaneSection;
+			};
 		} catch (err) {
 			console.warn('Failed to prepare arcane data:', err);
 			return null;
 		}
-	}
-
-	private prepareActionItemFromTabItem(actionRow: ActionRow, characterSheet: CharacterSheet): unknown {
-		// Convert ActionTabItem to VTT format
-		const actionCosts = actionRow.cost?.actionCosts;
-		if (actionCosts === undefined) {
-			throw new Error(`Action "${actionRow.title}" is missing cost information.`);
-		}
-		const costs = actionCosts.map(cost => {
-			const resource = characterSheet.getResource(cost.resource);
-			const insufficient = resource.current < cost.amount;
-			return {
-				resource: cost.resource,
-				amount: cost.amount,
-				value: `${cost.amount} ${RESOURCES[cost.resource as Resource].shortName}`,
-				insufficient,
-			};
-		});
-
-		const costTooltip = costs.map(c => c.value).join('\n');
-		const canAfford = costs.every(c => !c.insufficient);
-
-		const parameters = actionRow.boxes
-			.map(box => {
-				const { data } = box;
-				if (data instanceof ActionRowValueBox) {
-					const { value } = data;
-
-					const title = box.labels.join('\n');
-
-					return {
-						type: 'value',
-						title,
-						tooltip: `${title}\n${value.description}`,
-						value: value.description,
-					};
-				} else if (data instanceof ActionRowCheckBox) {
-					const { check, targetDC, errors } = data;
-
-					// Show error state if there are errors, but still allow clicking
-					const hasErrors = errors.length > 0;
-					if (hasErrors && errors[0]) {
-						const error = errors[0];
-						return {
-							type: 'check',
-							title: error.title,
-							value: error.text,
-							tooltip: `${error.tooltip} • Click for advanced options • Shift+Click for quick roll`,
-							hasError: true, // This will make the text red via CSS (insufficient class)
-						};
-					}
-
-					return {
-						type: 'check',
-						title: box.labels.join('\n'),
-						value: check.statModifier.value.description + (targetDC ? `| DC ${targetDC}` : ''),
-						tooltip: `${check.descriptor} • Click for advanced options • Shift+Click for quick roll`,
-						hasError: false,
-					};
-				}
-				return null;
-			})
-			.filter(Boolean);
-
-		// Show only first paragraph of description
-		const firstParagraph = actionRow.description.split('\n\n')[0] || actionRow.description;
-
-		return {
-			slug: actionRow.slug,
-			name: actionRow.title,
-			description: processDescriptionText(firstParagraph),
-			traits: actionRow.traits,
-			costs,
-			costTooltip,
-			canAfford,
-			parameters,
-		};
 	}
 
 	private getActionTypeIcon(type: ActionType): string {
@@ -1728,13 +1589,15 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		) as NodeListOf<HTMLInputElement>;
 		spellAugmentationInputs.forEach(input => {
 			input.addEventListener('change', () => {
-				const spellKey = input.dataset.spellKey;
+				const spellSlug = input.dataset.spellSlug;
 				const augmentationKey = input.dataset.augmentationKey;
-				if (spellKey && augmentationKey) {
-					if (!this.#arcaneUIState.spellAugmentationValues[spellKey]) {
-						this.#arcaneUIState.spellAugmentationValues[spellKey] = {};
+				console.log(`HERE`, spellSlug, augmentationKey, input.value);
+				if (spellSlug && augmentationKey) {
+					if (!this.#arcaneUIState.spellAugmentationValues[spellSlug]) {
+						this.#arcaneUIState.spellAugmentationValues[spellSlug] = {};
 					}
-					this.#arcaneUIState.spellAugmentationValues[spellKey]![augmentationKey] = parseInt(input.value) || 0;
+					this.#arcaneUIState.spellAugmentationValues[spellSlug]![augmentationKey] = parseInt(input.value) || 0;
+					console.log(this.#arcaneUIState.spellAugmentationValues);
 					(this as unknown as { render: (force?: boolean) => void }).render(false);
 				}
 			});
@@ -1762,7 +1625,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					// Open the consume resource modal with spell costs
 					await ConsumeResourceModal.open(
 						characterSheet,
-						arcaneData.fundamentalSpellCost.actionCosts,
+						arcaneData.arcaneSection.fundamentalSpellCost.actionCosts,
 						'Fundamental Arcane Spell',
 						actorId,
 					);
@@ -1804,8 +1667,8 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		const spellRollButtons = root.querySelectorAll('[data-action="spell-roll"]') as NodeListOf<HTMLElement>;
 		spellRollButtons.forEach(btn => {
 			btn.addEventListener('click', async (event: MouseEvent) => {
-				const spellKey = btn.dataset.spellKey;
-				if (!spellKey) return;
+				const spellSlug = btn.dataset.spellSlug;
+				if (!spellSlug) return;
 
 				const characterSheet = this.getCharacterSheet();
 				if (!characterSheet) return;
@@ -1815,15 +1678,21 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					const arcaneData = this.prepareArcaneData(characterSheet);
 					if (!arcaneData) return;
 
-					const spell = arcaneData.spells.find(s => s.key === spellKey);
+					const spell = arcaneData.arcaneSection.spells.find(s => s.slug === spellSlug);
 					if (!spell) return;
 
-					const spellCheck = spell.check;
+					const spellCheck = spell.boxes.map(box => box.data).find(data => data instanceof ActionRowCheckBox) as
+						| ActionRowCheckBox
+						| undefined;
+					if (spellCheck === undefined) {
+						showNotification('warn', 'No check data found for spell');
+						return;
+					}
 					const useModal = event.shiftKey === false;
 
 					await this.rollDice({
-						check: spellCheck,
-						targetDC: 15, // TODO: reconsider
+						check: spellCheck.check,
+						targetDC: spellCheck.targetDC,
 						useModal,
 					});
 				} catch (error) {

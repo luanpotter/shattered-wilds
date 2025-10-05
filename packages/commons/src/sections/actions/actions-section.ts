@@ -18,7 +18,6 @@ import { mapEnumToRecord, slugify } from '../../utils/utils.js';
 import {
 	ActionRow,
 	ActionRowBox,
-	ActionRowCheckBox,
 	ActionRowCheckBoxError,
 	ActionRowCost,
 	ActionRowValueBox,
@@ -241,19 +240,6 @@ const ActionTabParameterCalculator = {
 
 		const statTree = characterSheet.getStatTree();
 		const statModifier = statTree.getModifier(statType, circumstanceModifiers);
-		const name = statType.name;
-
-		const tooltip = [
-			`Stat: ${statType.name}`,
-			statModifier.description,
-			`Check type: ${parameter.mode}-${parameter.nature}`,
-			parameter.targetDC && `Target DC: ${parameter.targetDC}`,
-		]
-			.filter(Boolean)
-			.join('\n');
-
-		const inherentModifier = statModifier.inherentModifier;
-		const title = `${name} (${inherentModifier.description})`;
 
 		const check = new Check({
 			mode: parameter.mode,
@@ -262,14 +248,7 @@ const ActionTabParameterCalculator = {
 			statModifier: statModifier,
 		});
 
-		const data = new ActionRowCheckBox({ check, targetDC: parameter.targetDC, errors });
-
-		return new ActionRowBox({
-			key,
-			labels: [title],
-			tooltip,
-			data,
-		});
+		return ActionRowBox.fromCheck({ key, check, targetDC: parameter.targetDC, errors });
 	},
 
 	createBoxForValue: ({
