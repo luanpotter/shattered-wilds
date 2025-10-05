@@ -345,9 +345,7 @@ export class ArcaneSection {
 
 	influenceRange: ArcaneSectionInfluenceRange;
 	baseModifier: StatModifier;
-	combinedModifiers: CircumstanceModifier[];
 	combinedModifier: StatModifier;
-	fundamentalModifiers: CircumstanceModifier[];
 	fundamentalCheck: Check;
 	fundamentalSpellCost: ActionRowCost;
 	spells: ArcaneSectionSpell[];
@@ -360,9 +358,7 @@ export class ArcaneSection {
 		componentOptions,
 		influenceRange,
 		baseModifier,
-		combinedModifiers,
 		combinedModifier,
-		fundamentalModifiers,
 		fundamentalCheck,
 		fundamentalSpellCost,
 		spells,
@@ -374,9 +370,7 @@ export class ArcaneSection {
 		componentOptions: Partial<Record<ArcaneSpellComponentType, readonly ArcaneSpellComponentOption[]>>;
 		influenceRange: ArcaneSectionInfluenceRange;
 		baseModifier: StatModifier;
-		combinedModifiers: CircumstanceModifier[];
 		combinedModifier: StatModifier;
-		fundamentalModifiers: CircumstanceModifier[];
 		fundamentalCheck: Check;
 		fundamentalSpellCost: ActionRowCost;
 		spells: ArcaneSectionSpell[];
@@ -389,9 +383,7 @@ export class ArcaneSection {
 		this.attackOptions = ArcaneSection.allAttackOptions;
 		this.influenceRange = influenceRange;
 		this.baseModifier = baseModifier;
-		this.combinedModifiers = combinedModifiers;
 		this.combinedModifier = combinedModifier;
-		this.fundamentalModifiers = fundamentalModifiers;
 		this.fundamentalCheck = fundamentalCheck;
 		this.fundamentalSpellCost = fundamentalSpellCost;
 		this.spells = spells;
@@ -472,9 +464,7 @@ export class ArcaneSection {
 			componentOptions: ArcaneSection.componentsForFlavor({ sheet }),
 			influenceRange,
 			baseModifier,
-			combinedModifiers,
 			combinedModifier,
-			fundamentalModifiers,
 			fundamentalCheck,
 			fundamentalSpellCost,
 			spells,
