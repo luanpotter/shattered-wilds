@@ -117,9 +117,9 @@ const SpellCheckBox: React.FC<{
 					check: new Check({
 						mode: CheckMode.Contested,
 						nature: CheckNature.Active,
+						descriptor: 'Divine Channeling',
 						statModifier: finalModifier,
 					}),
-					title: `Roll ${finalModifier.name} Check`,
 				});
 			}}
 		>

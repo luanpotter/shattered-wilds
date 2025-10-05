@@ -31,6 +31,7 @@ interface DiceRollJson {
 	check: {
 		mode: CheckMode;
 		nature: CheckNature;
+		descriptor: string;
 		statModifier: {
 			statTypeName: StatTypeName | DerivedStatType;
 			baseValue: number;
@@ -64,11 +65,12 @@ interface DiceRollJson {
  */
 export const DiceRollEncoder = {
 	encode(roll: DiceRoll): string {
-		const json = <DiceRollJson>{
+		const json: DiceRollJson = {
 			characterName: roll.characterName,
 			check: {
 				mode: roll.check.mode,
 				nature: roll.check.nature,
+				descriptor: roll.check.descriptor,
 				statModifier: {
 					statTypeName: roll.check.statModifier.name,
 					baseValue: roll.check.statModifier.baseValue.value,
@@ -113,6 +115,7 @@ export const DiceRollEncoder = {
 				check: new Check({
 					mode: json.check.mode,
 					nature: json.check.nature,
+					descriptor: json.check.descriptor,
 					statModifier: new StatModifier({
 						statType: rehydrateStat(json.check.statModifier.statTypeName),
 						baseValue: Bonus.of(json.check.statModifier.baseValue),

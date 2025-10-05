@@ -99,9 +99,9 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 				check: new Check({
 					mode: CheckMode.Contested,
 					nature: CheckNature.Resisted,
+					descriptor: `Basic Defense - ${defender.props.name}`,
 					statModifier: basicDefense,
 				}),
-				title: `Roll Defense - ${defender.props.name}`,
 				onDiceRollComplete: (result: { total: number; shifts: number }) => {
 					setDefenseResult(result);
 					setUsedDodge(false);
@@ -118,9 +118,9 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			check: new Check({
 				mode: CheckMode.Contested,
 				nature: CheckNature.Resisted,
+				descriptor: `Dodge - ${defender.props.name}`,
 				statModifier: dodgeDefense,
 			}),
-			title: `Roll Dodge - ${defender.props.name}`,
 			onDiceRollComplete: (result: { total: number; shifts: number }) => {
 				setDefenseResult(result);
 				setUsedDodge(true);
@@ -136,9 +136,9 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			check: new Check({
 				mode: CheckMode.Contested,
 				nature: CheckNature.Resisted,
+				descriptor: `Shield Block - ${defender.props.name}`,
 				statModifier: shieldDefense,
 			}),
-			title: `Roll Shield Block - ${defender.props.name}`,
 			onDiceRollComplete: (result: { total: number; shifts: number }) => {
 				setDefenseResult(result);
 				setUsedShieldBlock(true);
@@ -159,9 +159,9 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 				check: new Check({
 					mode: CheckMode.Contested,
 					nature: CheckNature.Active,
+					descriptor: `Attack - ${attacker.props.name}`,
 					statModifier: attack.check.statModifier,
 				}),
-				title: `Roll Attack - ${attacker.props.name}`,
 				onDiceRollComplete: (result: { total: number; shifts: number }) => {
 					setAttackResult(result);
 				},

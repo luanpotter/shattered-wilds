@@ -320,6 +320,7 @@ export class ArcaneSection {
 			const check = new Check({
 				mode: CheckMode.Contested,
 				nature: CheckNature.Active,
+				descriptor: spell.name,
 				statModifier: finalModifier,
 			});
 
@@ -446,6 +447,7 @@ export class ArcaneSection {
 		const fundamentalCheck = new Check({
 			mode: CheckMode.Contested,
 			nature: CheckNature.Active,
+			descriptor: 'Fundamental Arcane Spell',
 			statModifier: fundamentalModifier,
 		});
 

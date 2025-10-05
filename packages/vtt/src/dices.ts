@@ -156,7 +156,7 @@ const processEnhancedShatteredWildsRoll = async (
 
 	// Show modifiers breakdown
 	mechanicsHtml += `<div style="margin-bottom: 8px; padding: 6px; background: rgba(0,0,0,0.1); border-radius: 3px;">`;
-	mechanicsHtml += `<strong>${check.name} Modifier Breakdown:</strong>`;
+	mechanicsHtml += `<strong style="font-weight: bold; font-size: 1.8em;">${check.descriptor}</strong>`;
 
 	for (const { name, value } of check.statModifier.breakdown()) {
 		mechanicsHtml += `<br>• ${name}: ${value}`;
@@ -182,6 +182,7 @@ const processEnhancedShatteredWildsRoll = async (
 	}
 
 	mechanicsHtml += `</div>`;
+	mechanicsHtml += `<hr />`;
 
 	// Show mechanics
 	if (autoFail) {
@@ -192,15 +193,15 @@ const processEnhancedShatteredWildsRoll = async (
 			mechanicsHtml += `<div style="color: #f57c00; font-weight: bold;">🎲 Crit Modifiers: +${critModifiers}</div>`;
 		}
 
-		mechanicsHtml += `<div style="color: #2e7d32; font-weight: bold; font-size: 1.1em;">🎯 Final Total: ${finalTotal}</div>`;
+		mechanicsHtml += `<div style="color: #2e7d32; font-weight: bold; margin-top: 4px; font-size: 1.2em;">🎯 Final Total: ${finalTotal}</div>`;
 
 		if (targetDC !== undefined) {
 			const successText = success ? 'SUCCESS' : 'FAILURE';
 			const successColor = success ? '#2e7d32' : '#d32f2f';
-			mechanicsHtml += `<div style="color: ${successColor}; font-weight: bold; margin-top: 4px;">vs DC ${targetDC}: ${successText}</div>`;
+			mechanicsHtml += `<div style="color: ${successColor}; font-weight: bold; margin-top: 4px; font-size: 1.2em;">🆚 DC ${targetDC}: ${successText}</div>`;
 
 			if (success && shifts > 0) {
-				mechanicsHtml += `<div style="color: #ff6f00; font-weight: bold;">⚡ Shifts: ${shifts}</div>`;
+				mechanicsHtml += `<div style="color: #ad00cfff; font-weight: bold; margin-top: 4px; font-size: 1.2em;">⚡ Shifts: ${shifts}</div>`;
 			}
 		}
 	}

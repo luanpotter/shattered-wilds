@@ -31,7 +31,6 @@ export const BasicAttacksModal: React.FC<BasicAttacksModalProps> = ({ attacks, c
 				openDiceRollModal({
 					characterId: character.id,
 					check: attack.check,
-					title: `Roll ${attack.name} Attack`,
 				});
 			}
 		}

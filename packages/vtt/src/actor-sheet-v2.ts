@@ -2035,6 +2035,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			check: new Check({
 				mode: CheckMode.Static,
 				nature: CheckNature.Active,
+				descriptor: statType.toString(),
 				statModifier,
 			}),
 			targetDC: undefined,
@@ -2060,6 +2061,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		const check = new Check({
 			mode: CheckMode.Contested,
 			nature: CheckNature.Active,
+			descriptor: weaponMode.weapon.name,
 			statModifier,
 		});
 

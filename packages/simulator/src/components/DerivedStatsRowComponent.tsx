@@ -49,9 +49,9 @@ export const DerivedStatsRowComponent: React.FC<{ variant: 'normal' | 'inline'; 
 						check: new Check({
 							mode: CheckMode.Contested,
 							nature: CheckNature.Resisted,
+							descriptor: 'Initiative',
 							statModifier: initiative,
 						}),
-						title: `Roll Initiative Check`,
 					});
 				}}
 			/>

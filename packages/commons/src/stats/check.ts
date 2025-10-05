@@ -21,11 +21,23 @@ export const CHECK_TYPES = Object.values(CheckMode).flatMap(mode =>
 export class Check {
 	mode: CheckMode;
 	nature: CheckNature;
+	descriptor: string;
 	statModifier: StatModifier;
 
-	constructor({ mode, nature, statModifier }: { mode: CheckMode; nature: CheckNature; statModifier: StatModifier }) {
+	constructor({
+		mode,
+		descriptor,
+		nature,
+		statModifier,
+	}: {
+		mode: CheckMode;
+		descriptor: string;
+		nature: CheckNature;
+		statModifier: StatModifier;
+	}) {
 		this.mode = mode;
 		this.nature = nature;
+		this.descriptor = descriptor;
 		this.statModifier = statModifier;
 	}
 
@@ -51,6 +63,7 @@ export class Check {
 		return new Check({
 			mode: this.mode,
 			nature: this.nature,
+			descriptor: this.descriptor,
 			statModifier: newStatModifier,
 		});
 	}

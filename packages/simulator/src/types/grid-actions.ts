@@ -87,6 +87,7 @@ export const getBasicAttacksFor = (character: CharacterSheet): BasicAttack[] => 
 					check: new Check({
 						mode: CheckMode.Static,
 						nature: CheckNature.Active,
+						descriptor: name,
 						statModifier: tree.getModifier(mode.statType, [weaponModifier]),
 					}),
 					range: mode.range,
@@ -109,6 +110,7 @@ export const getBasicAttacksFor = (character: CharacterSheet): BasicAttack[] => 
 			check: new Check({
 				mode: CheckMode.Static,
 				nature: CheckNature.Active,
+				descriptor: 'Shield Bash',
 				statModifier: tree.getModifier(StatType.STR, [shieldModifier]),
 			}),
 			range: Distance.melee(),
@@ -122,6 +124,7 @@ export const getBasicAttacksFor = (character: CharacterSheet): BasicAttack[] => 
 		check: new Check({
 			mode: CheckMode.Contested,
 			nature: CheckNature.Active,
+			descriptor: 'Unarmed',
 			statModifier: tree.getModifier(StatType.STR),
 		}),
 		range: Distance.melee(),

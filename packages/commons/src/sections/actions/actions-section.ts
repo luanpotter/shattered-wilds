@@ -380,6 +380,7 @@ export class ActionTabParameter {
 		const check = new Check({
 			mode: parameter.mode,
 			nature: parameter.nature,
+			descriptor: action.name,
 			statModifier: statModifier,
 		});
 

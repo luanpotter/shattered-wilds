@@ -136,17 +136,15 @@ export function useModals() {
 		characterId,
 		check,
 		onDiceRollComplete,
-		title,
 		initialTargetDC,
 	}: {
 		characterId: string;
 		check: Check;
 		onDiceRollComplete?: (result: { total: number; shifts: number }) => void;
-		title?: string;
 		initialTargetDC?: number;
 	}) => {
 		addModal({
-			title: title ?? 'Roll Dice',
+			title: check.descriptor,
 			type: 'dice-roll',
 			characterId,
 			check,

@@ -79,7 +79,6 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ characterId, data }) =>
 				openDiceRollModal({
 					characterId,
 					check: checkData.check,
-					title: checkData.title,
 					...(checkData.targetDc !== undefined && { initialTargetDC: checkData.targetDc }),
 				});
 			}}

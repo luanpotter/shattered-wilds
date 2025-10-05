@@ -61,9 +61,9 @@ export const StatValueComponent: React.FC<StatValueComponentProps> = ({
 					check: new Check({
 						mode: CheckMode.Static,
 						nature: CheckNature.Active,
+						descriptor: attributeName,
 						statModifier: modifier,
 					}),
-					title: `Roll ${attributeName} Check`,
 				});
 			}
 		}

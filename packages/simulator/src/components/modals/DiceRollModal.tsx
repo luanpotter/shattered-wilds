@@ -13,6 +13,7 @@ import { FaCheck, FaTimes } from 'react-icons/fa';
 
 import { useStore } from '../../store';
 import { exportDataToClipboard } from '../../utils/clipboard';
+import Block from '../shared/Block';
 import { Button } from '../shared/Button';
 import { LabeledCheckbox } from '../shared/LabeledCheckbox';
 import LabeledDropdown from '../shared/LabeledDropdown';
@@ -382,8 +383,6 @@ const DiceRollModalContent: React.FC<{
 
 		return (
 			<div style={{ padding: '16px' }}>
-				<h3 style={{ margin: '0 0 16px 0' }}>Roll Results</h3>
-
 				{/* Settings */}
 				<div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
 					<div style={{ flex: 1 }}>
@@ -500,8 +499,6 @@ const DiceRollModalContent: React.FC<{
 	// Render setup form
 	return (
 		<div style={{ padding: '16px' }}>
-			<h3 style={{ margin: '0 0 16px 0' }}>Roll Check</h3>
-
 			{/* Settings */}
 			<div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
 				<div style={{ flex: 1 }}>
@@ -521,9 +518,21 @@ const DiceRollModalContent: React.FC<{
 			</div>
 
 			{/* Base Modifier Info */}
-			<div style={{ marginBottom: '16px' }}>
-				<span title={check.statModifier.description}>Base Modifier: {check.statModifier.simpleDescription}</span>
-			</div>
+			<Block>
+				<div style={{ fontWeight: 'bold', marginBottom: '8px' }}>{check.descriptor}</div>
+				<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '8px 0', opacity: 0.3 }} />
+				{check.statModifier.breakdown().map(({ name, value }) => (
+					<div key={name} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+						<span>{name}</span>
+						<span>{value}</span>
+					</div>
+				))}
+				<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '8px 0', opacity: 0.3 }} />
+				<div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+					<span>Total Modifier</span>
+					<span>{check.modifierValue.value}</span>
+				</div>
+			</Block>
 
 			{/* Extra and Luck Options */}
 			<div style={{ marginBottom: '16px' }}>

@@ -337,7 +337,6 @@ const SpellCheckBox: React.FC<{
 				openDiceRollModal({
 					characterId: character.id,
 					check,
-					title: `Roll ${modifier.name} Check`,
 				});
 			}}
 		>

@@ -83,6 +83,7 @@ async function rollShatteredWildsInitiative(actor: ActorLike): Promise<number | 
 			check: new Check({
 				mode: CheckMode.Contested,
 				nature: CheckNature.Resisted,
+				descriptor: 'Initiative',
 				statModifier: initiativeModifier,
 			}),
 			extra: undefined, // Initiative doesn't use extra dice through the combat tracker

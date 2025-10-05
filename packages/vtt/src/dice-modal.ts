@@ -43,7 +43,7 @@ if (AppV2 && HbsMixin) {
 		constructor(options: DiceRollModalOptions) {
 			super({
 				window: {
-					title: `Roll ${options.check.statModifier.statType} Check`,
+					title: `Roll ${options.check.descriptor} Check`,
 					contentClasses: ['shattered-wilds-dice-modal'],
 				},
 				width: 400,
@@ -121,11 +121,13 @@ if (AppV2 && HbsMixin) {
 						.value
 				: 0;
 
+			const descriptor = check.descriptor;
 			const modifiers = check.statModifier.breakdown();
 			const totalModifier = check.modifierValue.description;
 
 			return {
 				statType,
+				descriptor,
 				totalModifier,
 				check,
 				modifiers,
