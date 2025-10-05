@@ -1,11 +1,11 @@
 import {
+	ActionRow,
+	ActionRowBox,
+	ActionRowCheckBox,
+	ActionRowValueBox,
 	ACTIONS,
 	ActionsSection,
 	ActionTabInputValues,
-	ActionTabItem,
-	ActionTabParameter,
-	ActionTabParameterCheckData,
-	ActionTabParameterValueData,
 	ActionType,
 	ArcaneSection,
 	ArcaneSectionDefaults,
@@ -1130,9 +1130,13 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		}
 	}
 
-	private prepareActionItemFromTabItem(actionTabItem: ActionTabItem, characterSheet: CharacterSheet): unknown {
+	private prepareActionItemFromTabItem(actionRow: ActionRow, characterSheet: CharacterSheet): unknown {
 		// Convert ActionTabItem to VTT format
-		const costs = actionTabItem.cost.actionCosts.map(cost => {
+		const actionCosts = actionRow.cost?.actionCosts;
+		if (actionCosts === undefined) {
+			throw new Error(`Action "${actionRow.title}" is missing cost information.`);
+		}
+		const costs = actionCosts.map(cost => {
 			const resource = characterSheet.getResource(cost.resource);
 			const insufficient = resource.current < cost.amount;
 			return {
@@ -1146,20 +1150,22 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		const costTooltip = costs.map(c => c.value).join('\n');
 		const canAfford = costs.every(c => !c.insufficient);
 
-		const parameters = actionTabItem.parameters
-			.map(param => {
-				const { data } = param;
-				if (data instanceof ActionTabParameterValueData) {
-					const { title, tooltip, description } = data;
+		const parameters = actionRow.boxes
+			.map(box => {
+				const { data } = box;
+				if (data instanceof ActionRowValueBox) {
+					const { value } = data;
+
+					const title = box.labels.join('\n');
 
 					return {
 						type: 'value',
 						title,
-						tooltip,
-						value: description,
+						tooltip: `${title}\n${value.description}`,
+						value: value.description,
 					};
-				} else if (data instanceof ActionTabParameterCheckData) {
-					const { title, tooltip, textTitle, errors } = data;
+				} else if (data instanceof ActionRowCheckBox) {
+					const { check, targetDC, errors } = data;
 
 					// Show error state if there are errors, but still allow clicking
 					const hasErrors = errors.length > 0;
@@ -1176,9 +1182,9 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 					return {
 						type: 'check',
-						title,
-						value: textTitle,
-						tooltip: `${tooltip} • Click for advanced options • Shift+Click for quick roll`,
+						title: box.labels.join('\n'),
+						value: check.statModifier.value.description + (targetDC ? `| DC ${targetDC}` : ''),
+						tooltip: `${check.descriptor} • Click for advanced options • Shift+Click for quick roll`,
 						hasError: false,
 					};
 				}
@@ -1187,13 +1193,13 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			.filter(Boolean);
 
 		// Show only first paragraph of description
-		const firstParagraph = actionTabItem.description.split('\n\n')[0] || actionTabItem.description;
+		const firstParagraph = actionRow.description.split('\n\n')[0] || actionRow.description;
 
 		return {
-			key: actionTabItem.key,
-			name: actionTabItem.title,
+			key: actionRow.key,
+			name: actionRow.title,
 			description: processDescriptionText(firstParagraph),
-			traits: actionTabItem.traits,
+			traits: actionRow.traits,
 			costs,
 			costTooltip,
 			canAfford,
@@ -1845,15 +1851,15 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 					// Find the action and parameter in the pre-computed data
 					const paramIndex = parseInt(parameterIndex);
-					let actionTabItem: ActionTabItem | undefined;
-					let actionTabParameter: ActionTabParameter | undefined;
+					let actionTabItem: ActionRow | undefined;
+					let actionTabParameter: ActionRowBox | undefined;
 
 					// Search through all action types to find the matching action and parameter
 					for (const actionType of Object.values(ActionType)) {
 						const tab = actionsSection.tabs[actionType];
 						actionTabItem = tab.actions.find(item => item.key === actionKey);
 						if (actionTabItem) {
-							actionTabParameter = actionTabItem.parameters[paramIndex];
+							actionTabParameter = actionTabItem.boxes[paramIndex];
 							break;
 						}
 					}
@@ -1864,18 +1870,18 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					}
 
 					// Check if this is actually a check parameter
-					if (!(actionTabParameter.data instanceof ActionTabParameterCheckData)) {
+					if (!(actionTabParameter.data instanceof ActionRowCheckBox)) {
 						console.warn('Parameter is not a check parameter');
 						return;
 					}
 
 					const checkData = actionTabParameter.data;
-					const check = checkData.checkData.check;
+					const { check, targetDC } = checkData;
 
 					const useModal = event.shiftKey === false;
 					await this.rollDice({
 						check,
-						targetDC: checkData.checkData.targetDc,
+						targetDC,
 						useModal,
 					});
 				} catch (err) {

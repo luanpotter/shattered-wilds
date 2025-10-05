@@ -2,7 +2,6 @@ import { CharacterSheet } from '../../character/character-sheet.js';
 import {
 	ActionCheckParameter,
 	ActionDefinition,
-	ActionParameter,
 	ACTIONS,
 	ActionType,
 	ActionValueParameter,
@@ -16,7 +15,14 @@ import { CircumstanceModifier } from '../../stats/stat-tree.js';
 import { StatType } from '../../stats/stat-type.js';
 import { Bonus, Distance, Value } from '../../stats/value.js';
 import { mapEnumToRecord } from '../../utils/utils.js';
-import { ActionRowCost } from '../common/action-row.js';
+import {
+	ActionRow,
+	ActionRowBox,
+	ActionRowCheckBox,
+	ActionRowCheckBoxError,
+	ActionRowCost,
+	ActionRowValueBox,
+} from '../common/action-row.js';
 import { SectionInput } from '../common/section-inputs.js';
 import { ActionsSectionInputFactory, ActionTabInputValues } from './actions-section-inputs.js';
 
@@ -57,7 +63,7 @@ export class ActionsSection {
 					.filter(action => action.type === type)
 					.map(
 						action =>
-							new ActionTabItem({
+							new ActionRow({
 								key: action.key,
 								cost: new ActionRowCost({
 									characterId,
@@ -68,18 +74,27 @@ export class ActionsSection {
 								title: action.name,
 								traits: action.traits,
 								description: action.description,
-								parameters: action.parameters.map((parameter, index) => {
-									return ActionTabParameter.create({
-										key: `${action.name}-${parameter.constructor.name}-${index}`,
-										characterSheet,
-										action,
-										parameter,
-										inputValues,
-									});
+								boxes: action.parameters.map((parameter, index) => {
+									const key = `${action.name}-${parameter}-${index}`;
+									return parameter instanceof ActionCheckParameter
+										? ActionTabParameterCalculator.createBoxForCheck({
+												key,
+												characterSheet,
+												action,
+												parameter,
+												inputValues,
+											})
+										: ActionTabParameterCalculator.createBoxForValue({
+												key,
+												characterSheet,
+												action,
+												parameter: parameter as ActionValueParameter,
+												inputValues,
+											});
 								}),
 							}),
 					)
-					.filter(actionItem => showAll || (actionItem.cost.canAfford && !actionItem.hasErrors()));
+					.filter(actionItem => showAll || !actionItem.hasErrors());
 				return new ActionTab({
 					type: type,
 					inputs: factory.getInputsForActionType(type),
@@ -94,155 +109,17 @@ export class ActionsSection {
 export class ActionTab {
 	type: ActionType;
 	inputs: SectionInput[];
-	actions: ActionTabItem[];
+	actions: ActionRow[];
 
-	constructor({
-		type,
-		inputs: inputs,
-		actions,
-	}: {
-		type: ActionType;
-		inputs: SectionInput[];
-		actions: ActionTabItem[];
-	}) {
+	constructor({ type, inputs: inputs, actions }: { type: ActionType; inputs: SectionInput[]; actions: ActionRow[] }) {
 		this.type = type;
 		this.inputs = inputs;
 		this.actions = actions;
 	}
 }
 
-export class ActionTabItem {
-	key: string;
-	cost: ActionRowCost;
-	title: string;
-	traits: Trait[] = [];
-	description: string;
-	parameters: ActionTabParameter[];
-
-	constructor({
-		key,
-		cost,
-		title,
-		traits,
-		description,
-		parameters: boxes,
-	}: {
-		key: string;
-		cost: ActionRowCost;
-		title: string;
-		traits: Trait[];
-		description: string;
-		parameters: ActionTabParameter[];
-	}) {
-		this.key = key;
-		this.cost = cost;
-		this.title = title;
-		this.traits = traits;
-		this.description = description;
-		this.parameters = boxes;
-	}
-
-	hasErrors(): boolean {
-		return this.parameters.some(param => {
-			if (param.data instanceof ActionTabParameterCheckData) {
-				return param.data.errors.length > 0;
-			}
-			return false;
-		});
-	}
-}
-
-export class ActionTabParameterCheckError {
-	title: string;
-	tooltip: string;
-	text: string;
-
-	constructor({ title, tooltip, text }: { title: string; tooltip: string; text: string }) {
-		this.title = title;
-		this.tooltip = tooltip;
-		this.text = text;
-	}
-}
-
-export class CheckData {
-	title: string;
-	check: Check;
-	targetDc: number | undefined;
-
-	constructor({ title, check, targetDc }: { title: string; check: Check; targetDc: number | undefined }) {
-		this.title = title;
-		this.check = check;
-		this.targetDc = targetDc;
-	}
-}
-
-export class ActionTabParameterCheckData {
-	title: string;
-	tooltip: string;
-	checkData: CheckData;
-	textTitle: string;
-	textSubtitle: string;
-	errors: ActionTabParameterCheckError[];
-
-	constructor({
-		title,
-		tooltip,
-		checkData,
-		textTitle,
-		textSubtitle,
-		errors,
-	}: {
-		title: string;
-		tooltip: string;
-		checkData: CheckData;
-		textTitle: string;
-		textSubtitle: string;
-		errors: ActionTabParameterCheckError[];
-	}) {
-		this.title = title;
-		this.tooltip = tooltip;
-		this.checkData = checkData;
-		this.errors = errors;
-		this.textTitle = textTitle;
-		this.textSubtitle = textSubtitle;
-	}
-}
-
-export class ActionTabParameterValueData {
-	title: string;
-	tooltip: string;
-	description: string;
-
-	constructor({ title, tooltip, description }: { title: string; tooltip: string; description: string }) {
-		this.title = title;
-		this.tooltip = tooltip;
-		this.description = description;
-	}
-}
-
-export class ActionTabParameter {
-	key: string;
-	parameter: ActionParameter;
-	data: ActionTabParameterCheckData | ActionTabParameterValueData;
-
-	constructor({
-		key,
-		parameter,
-		data,
-	}: {
-		key: string;
-		parameter: ActionParameter;
-		data: ActionTabParameterCheckData | ActionTabParameterValueData;
-	}) {
-		this.key = key;
-		this.parameter = parameter;
-		this.data = data;
-	}
-
-	private static computeStatType = (
-		statType: StatType | StandardCheck,
-		inputValues: ActionTabInputValues,
-	): StatType => {
+const ActionTabParameterCalculator = {
+	computeStatType: (statType: StatType | StandardCheck, inputValues: ActionTabInputValues): StatType => {
 		if (statType instanceof StatType) {
 			return statType;
 		}
@@ -256,9 +133,9 @@ export class ActionTabParameter {
 				return inputValues.selectedDefenseRealm;
 			}
 		}
-	};
+	},
 
-	private static computeIncludedModifiers = (
+	computeIncludedModifiers: (
 		includeModifierFor: IncludeEquipmentModifier,
 		inputValues: ActionTabInputValues,
 	): CircumstanceModifier[] => {
@@ -301,28 +178,30 @@ export class ActionTabParameter {
 				return shield !== 'None' ? [shield.getEquipmentModifier()] : [];
 			}
 		}
-	};
+	},
 
-	private static computeDataForCheckParameter = ({
+	createBoxForCheck: ({
+		key,
 		characterSheet,
 		action,
 		parameter,
 		inputValues,
 	}: {
+		key: string;
 		characterSheet: CharacterSheet;
 		action: ActionDefinition;
 		parameter: ActionCheckParameter;
 		inputValues: ActionTabInputValues;
-	}): ActionTabParameterCheckData => {
+	}): ActionRowBox => {
 		const requireRangeTrait = action.traits.filter(trait => trait === Trait.Melee || trait === Trait.Ranged)[0];
 		const defenseTraits = action.traits.filter((trait): trait is DefenseTrait => trait in DEFENSE_TRAITS);
-		const errors: ActionTabParameterCheckError[] = [];
+		const errors: ActionRowCheckBoxError[] = [];
 
 		if (requireRangeTrait && parameter.includeEquipmentModifiers.includes(IncludeEquipmentModifier.Weapon)) {
 			const currentWeaponRangeTrait = inputValues.selectedWeaponMode?.mode.rangeType ?? Trait.Melee;
 			if (currentWeaponRangeTrait !== requireRangeTrait) {
 				errors.push({
-					title: `${requireRangeTrait} Required`,
+					title: `Invalid Weapon`,
 					tooltip: `This action requires a weapon with the ${requireRangeTrait} trait.`,
 					text: `${requireRangeTrait} Required`,
 				});
@@ -354,9 +233,9 @@ export class ActionTabParameter {
 			});
 		}
 
-		const statType = ActionTabParameter.computeStatType(parameter.statType, inputValues);
+		const statType = ActionTabParameterCalculator.computeStatType(parameter.statType, inputValues);
 		const cms = parameter.includeEquipmentModifiers.flatMap(includeModifierFor =>
-			ActionTabParameter.computeIncludedModifiers(includeModifierFor, inputValues),
+			ActionTabParameterCalculator.computeIncludedModifiers(includeModifierFor, inputValues),
 		);
 		const circumstanceModifiers = [parameter.circumstanceModifier, ...cms].filter(e => e !== undefined);
 
@@ -368,13 +247,12 @@ export class ActionTabParameter {
 			`Stat: ${statType.name}`,
 			statModifier.description,
 			`Check type: ${parameter.mode}-${parameter.nature}`,
-			parameter.targetDc && `Target DC: ${parameter.targetDc}`,
+			parameter.targetDC && `Target DC: ${parameter.targetDC}`,
 		]
 			.filter(Boolean)
 			.join('\n');
 
 		const inherentModifier = statModifier.inherentModifier;
-		const targetDcSuffix = parameter.targetDc ? ` | DC ${parameter.targetDc}` : '';
 		const title = `${name} (${inherentModifier.description})`;
 
 		const check = new Check({
@@ -384,30 +262,27 @@ export class ActionTabParameter {
 			statModifier: statModifier,
 		});
 
-		const textTitle = statModifier.value.description;
-		const textSubtitle = targetDcSuffix ? ` ${targetDcSuffix}` : '';
+		const data = new ActionRowCheckBox({ check, targetDC: parameter.targetDC, errors });
 
-		const checkData = new CheckData({ title, check, targetDc: parameter.targetDc });
-
-		return new ActionTabParameterCheckData({
-			title,
+		return new ActionRowBox({
+			key,
+			labels: [title],
 			tooltip,
-			checkData,
-			textTitle,
-			textSubtitle,
-			errors,
+			data,
 		});
-	};
+	},
 
-	private static computeDataForValueParameter = ({
+	createBoxForValue: ({
+		key,
 		characterSheet,
 		parameter,
 	}: {
+		key: string;
 		characterSheet: CharacterSheet;
 		action: ActionDefinition;
 		parameter: ActionValueParameter;
 		inputValues: ActionTabInputValues;
-	}): ActionTabParameterValueData => {
+	}): ActionRowBox => {
 		const computeValueForUnit = (value: number, unit: ActionValueUnit): Value => {
 			switch (unit) {
 				case ActionValueUnit.Modifier:
@@ -420,44 +295,11 @@ export class ActionTabParameter {
 		const result = parameter.compute(statTree);
 		const value = computeValueForUnit(result.value, parameter.unit);
 		const tooltip = [parameter.name, result.tooltip].filter(Boolean).join('\n');
-		return new ActionTabParameterValueData({
-			title: parameter.name,
+		return new ActionRowBox({
+			key,
+			labels: [parameter.name],
 			tooltip,
-			description: value.description,
+			data: new ActionRowValueBox({ value }),
 		});
-	};
-
-	private static computeData = ({
-		characterSheet,
-		action,
-		parameter,
-		inputValues,
-	}: {
-		characterSheet: CharacterSheet;
-		action: ActionDefinition;
-		parameter: ActionParameter;
-		inputValues: ActionTabInputValues;
-	}): ActionTabParameterCheckData | ActionTabParameterValueData => {
-		const args = { characterSheet, action, inputValues };
-		return parameter instanceof ActionCheckParameter
-			? ActionTabParameter.computeDataForCheckParameter({ ...args, parameter })
-			: ActionTabParameter.computeDataForValueParameter({ ...args, parameter });
-	};
-
-	static create = ({
-		key,
-		characterSheet,
-		action,
-		parameter,
-		inputValues,
-	}: {
-		key: string;
-		characterSheet: CharacterSheet;
-		action: ActionDefinition;
-		parameter: ActionParameter;
-		inputValues: ActionTabInputValues;
-	}): ActionTabParameter => {
-		const data = ActionTabParameter.computeData({ characterSheet, action, parameter, inputValues });
-		return new ActionTabParameter({ key, parameter, data });
-	};
-}
+	},
+};

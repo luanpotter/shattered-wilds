@@ -1,8 +1,9 @@
 import {
+	ActionRowBox,
+	ActionRowCheckBox,
+	ActionRowValueBox,
 	ActionsSection,
 	ActionTabInputValues,
-	ActionTabParameterCheckData,
-	ActionTabParameterValueData,
 	ActionType,
 	CharacterSheet,
 	DropdownInput,
@@ -41,26 +42,29 @@ interface ActionsSectionInnerProps {
 }
 
 interface ValueParameterProps {
-	data: ActionTabParameterValueData;
+	box: ActionRowBox;
+	data: ActionRowValueBox;
 }
 
-const ValueParameter: React.FC<ValueParameterProps> = ({ data }) => {
+const ValueParameter: React.FC<ValueParameterProps> = ({ box, data }) => {
 	return (
-		<ParameterBoxComponent title={data.title} tooltip={data.tooltip}>
-			{data.description}
+		<ParameterBoxComponent title={box.labels.join('\n')} tooltip={box.tooltip}>
+			{data.value.description}
 		</ParameterBoxComponent>
 	);
 };
 
 interface CheckParameterProps {
 	characterId: string;
-	data: ActionTabParameterCheckData;
+	box: ActionRowBox;
+	data: ActionRowCheckBox;
 }
 
-const CheckParameter: React.FC<CheckParameterProps> = ({ characterId, data }) => {
+const CheckParameter: React.FC<CheckParameterProps> = ({ characterId, box, data }) => {
 	const { openDiceRollModal } = useModals();
 
-	const { title, tooltip, checkData, textTitle, textSubtitle, errors } = data;
+	const { labels, tooltip } = box;
+	const { check, targetDC, errors } = data;
 
 	const error = errors[0];
 	if (error) {
@@ -71,6 +75,8 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ characterId, data }) =>
 		);
 	}
 
+	const title = labels.join('\n');
+
 	return (
 		<ParameterBoxComponent
 			title={title}
@@ -78,14 +84,14 @@ const CheckParameter: React.FC<CheckParameterProps> = ({ characterId, data }) =>
 			onClick={() => {
 				openDiceRollModal({
 					characterId,
-					check: checkData.check,
-					...(checkData.targetDc !== undefined && { initialTargetDC: checkData.targetDc }),
+					check: check,
+					...(targetDC !== undefined && { initialTargetDC: targetDC }),
 				});
 			}}
 		>
-			{textTitle}
+			{check.statModifier.value.description}
 			<FaDice size={12} />
-			{textSubtitle}
+			{targetDC !== undefined && <span> | DC: {targetDC}</span>}
 		</ParameterBoxComponent>
 	);
 };
@@ -259,7 +265,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 					{actions.map(action => {
 						return (
 							<div key={action.key} style={{ display: 'flex', gap: '2px' }}>
-								<CostBoxComponent cost={action.cost} />
+								{action.cost && <CostBoxComponent cost={action.cost} />}
 
 								<div
 									style={{
@@ -285,12 +291,12 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 									</div>
 								</div>
 
-								{action.parameters.map(actionParameter => {
-									const { key, data } = actionParameter;
-									if (data instanceof ActionTabParameterValueData) {
-										return <ValueParameter key={key} data={data} />;
-									} else if (data instanceof ActionTabParameterCheckData) {
-										return <CheckParameter key={key} characterId={characterId} data={data} />;
+								{action.boxes.map(box => {
+									const { key, data } = box;
+									if (data instanceof ActionRowValueBox) {
+										return <ValueParameter key={key} box={box} data={data} />;
+									} else if (data instanceof ActionRowCheckBox) {
+										return <CheckParameter key={key} characterId={characterId} box={box} data={data} />;
 									}
 									return null;
 								})}

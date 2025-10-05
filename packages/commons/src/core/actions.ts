@@ -49,6 +49,10 @@ export class ActionValueParameter {
 	compute(statTree: StatTree): FormulaResult {
 		return this.formula.compute(statTree);
 	}
+
+	toString(): string {
+		return this.name;
+	}
 }
 
 export enum StandardCheck {
@@ -70,7 +74,7 @@ export class ActionCheckParameter {
 	statType: StatType | StandardCheck;
 	includeEquipmentModifiers: IncludeEquipmentModifier[];
 	circumstanceModifier: CircumstanceModifier | undefined;
-	targetDc: number | undefined;
+	targetDC: number | undefined;
 
 	constructor({
 		mode,
@@ -78,21 +82,25 @@ export class ActionCheckParameter {
 		statType,
 		includeEquipmentModifiers,
 		circumstanceModifier,
-		targetDc,
+		targetDC,
 	}: {
 		mode: CheckMode;
 		nature: CheckNature;
 		statType: StatType | StandardCheck;
 		includeEquipmentModifiers?: IncludeEquipmentModifier[];
 		circumstanceModifier?: CircumstanceModifier | undefined;
-		targetDc?: number | undefined;
+		targetDC?: number | undefined;
 	}) {
 		this.mode = mode;
 		this.nature = nature;
 		this.statType = statType;
 		this.includeEquipmentModifiers = includeEquipmentModifiers ?? [];
 		this.circumstanceModifier = circumstanceModifier ?? undefined;
-		this.targetDc = targetDc ?? undefined;
+		this.targetDC = targetDC ?? undefined;
+	}
+
+	toString(): string {
+		return this.statType.toString();
 	}
 
 	static bodyAttack({
@@ -671,7 +679,7 @@ export const ACTIONS = {
 				mode: CheckMode.Static,
 				nature: CheckNature.Resisted,
 				statType: StatType.Toughness,
-				targetDc: 20,
+				targetDC: 20,
 			}),
 		],
 	}),
@@ -751,7 +759,7 @@ export const ACTIONS = {
 				mode: CheckMode.Static,
 				nature: CheckNature.Resisted,
 				statType: StatType.Stamina,
-				targetDc: 20,
+				targetDC: 20,
 			}),
 		],
 	}),
@@ -770,7 +778,7 @@ export const ACTIONS = {
 				mode: CheckMode.Static,
 				nature: CheckNature.Resisted,
 				statType: StatType.Resolve,
-				targetDc: 20,
+				targetDC: 20,
 			}),
 		],
 	}),
@@ -789,7 +797,7 @@ export const ACTIONS = {
 				mode: CheckMode.Static,
 				nature: CheckNature.Resisted,
 				statType: StatType.Tenacity,
-				targetDc: 20,
+				targetDC: 20,
 			}),
 		],
 	}),
@@ -809,7 +817,7 @@ export const ACTIONS = {
 				mode: CheckMode.Contested,
 				nature: CheckNature.Active,
 				statType: StatType.Empathy,
-				targetDc: 20,
+				targetDC: 20,
 			}),
 			new ActionCheckParameter({
 				mode: CheckMode.Contested,
@@ -892,7 +900,7 @@ export const ACTIONS = {
 				mode: CheckMode.Contested,
 				nature: CheckNature.Active,
 				statType: StatType.FOW,
-				targetDc: 20,
+				targetDC: 20,
 			}),
 		],
 		traits: [Trait.Channel],
