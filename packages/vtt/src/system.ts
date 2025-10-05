@@ -18,7 +18,27 @@ import { registerChatCommands } from './chat-commands.js';
 import { configureDefaultTokenBars, fixUnlinkedTokens } from './token-bars.js';
 import { registerInitiativeHooks } from './initiative.js';
 
-getHooks().once?.('init', () => {
+getHooks().once?.('init', async () => {
+	// Load and register Handlebars partials early
+	try {
+		const Handlebars = (globalThis as { Handlebars?: { registerPartial: (name: string, template: string) => void } })
+			.Handlebars;
+
+		if (Handlebars) {
+			// Fetch the template directly since game.getTemplate might not be available yet
+			const response = await fetch('systems/shattered-wilds/templates/partials/action-row.html');
+			if (response.ok) {
+				const template = await response.text();
+				Handlebars.registerPartial('action-row', template);
+				console.log('Registered action-row partial');
+			} else {
+				console.warn('Failed to fetch action-row partial:', response.status);
+			}
+		}
+	} catch (err) {
+		console.warn('Failed to register action-row partial:', err);
+	}
+
 	// Register V2 ActorSheet with HandlebarsApplicationMixin
 	const ActorCtor = getActorConstructor();
 	getDocumentSheetConfig().registerSheet(ActorCtor, 'shattered-wilds', SWActorSheetV2, {

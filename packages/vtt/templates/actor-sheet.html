@@ -448,55 +448,7 @@
 												
 									{{#if actions}}
 									{{#each actions}}
-									<div class="action-item">
-										<!-- Cost box -->
-										<div class="action-cost-box clickable"
-											title="{{costTooltip}}"
-											data-action="consume-action-cost"
-											data-action-key="{{key}}">
-											<div class="action-cost-title {{#unless canAfford}}insufficient{{/unless}}">COST</div>
-											{{#each costs}}
-											<div class="action-cost-value {{#if insufficient}}insufficient{{/if}}">
-												{{value}}
-											</div>
-											{{/each}}
-										</div>
-
-										<div class="action-details">
-											<div class="action-header">
-												<div class="action-name-traits">
-													<span class="action-name">{{name}}</span>
-													{{#each traits}}
-													<span class="{{type}}">{{value}}</span>
-													{{/each}}
-												</div>
-											</div>
-											<div class="action-description">
-												{{{description}}}
-											</div>
-										</div>
-
-										<!-- Action parameters -->
-										{{#each parameters}}
-										<div class="action-parameter">
-											{{#if (eq type "value")}}
-											<div class="parameter-box value-parameter" title="{{tooltip}}">
-												<div class="parameter-title">{{title}}</div>
-												<div class="parameter-value">{{value}}</div>
-											</div>
-											{{else if (eq type "check")}}
-											<div class="parameter-box check-parameter clickable"
-												title="{{tooltip}}"
-												data-action="roll-action-check"
-												data-action-slug="{{../slug}}"
-												data-parameter-index="{{@index}}">
-												<div class="parameter-title {{#if hasError}}action-box-error{{/if}}">{{title}}</div>
-												<div class="parameter-value {{#if hasError}}action-box-error{{/if}}">{{value}}<i class="fas fa-dice-d12 dice-icon"></i></div>
-											</div>
-											{{/if}}
-										</div>
-										{{/each}}
-									</div>
+									{{> action-row actionRow=this}}
 									{{/each}}
 									{{else}}
 									<div class="actions-empty">
@@ -676,81 +628,7 @@
 							<!-- Spells List -->
 							<div class="actions-content">
 								{{#each arcaneData.spells}}
-								<div class="action-item">
-									<!-- Cost box -->
-									{{#if costs.length}}
-									<div class="action-cost-box clickable"
-										title="{{costTooltip}}"
-										data-action="consume-action-cost"
-										data-action-slug="{{slug}}">
-										<div class="action-cost-title {{#unless canAfford}}insufficient{{/unless}}">COST</div>
-										{{#each costs}}
-										<div class="action-cost-value {{#if insufficient}}insufficient{{/if}}">
-											{{value}}
-										</div>
-										{{/each}}
-									</div>
-									{{/if}}
-									<div class="action-details">
-										<div class="action-header">
-											<div class="action-name-traits">
-												<span class="action-name">{{name}}</span>
-												{{#each traits}}
-												<span class="{{type}}">{{value}}</span>
-												{{/each}}
-											</div>
-										</div>
-										<div class="action-description">
-											{{{description}}}
-										</div>
-									</div>
-
-									<!-- Action parameters -->
-									{{#each parameters}}
-									<div class="action-parameter">
-										{{#if (eq type "value")}}
-										<div class="parameter-box augmentation-parameter value-parameter" title="{{tooltip}}">
-											{{#each labels}}
-											<span class="parameter-title">{{this}}</span><br/>
-											{{/each}}
-											<div class="parameter-value">{{value}}</div>
-										</div>
-										{{else if (eq type "variable")}}
-										<div class="parameter-box augmentation-parameter value-parameter" title="{{tooltip}}">
-											{{#each labels}}
-											<span class="parameter-title">{{this}}</span><br/>
-											{{/each}}
-											<div class="parameter-content">
-												<div class="augmentation-input-row">
-													<input type="number"
-														class="augmentation-input"
-														data-action="set-spell-augmentation"
-														data-spell-slug="{{../slug}}"
-														data-parameter-index="{{@index}}"
-														data-augmentation-key="{{key}}"
-														value="{{inputValue}}"
-														min="0"
-														placeholder="0">
-													<span class="augmentation-equals"> = </span>
-													<span class="augmentation-bonus">{{bonusDescription}}</span>
-												</div>
-											</div>
-										</div>
-										{{else if (eq type "check")}}
-										<div class="parameter-box check-parameter clickable"
-											title="{{tooltip}}"
-											data-action="spell-roll"
-											data-spell-slug="{{../slug}}"
-											data-parameter-index="{{@index}}">
-											{{#each labels}}
-											<span class="parameter-title {{#if hasError}}action-box-error{{/if}}">{{this}}</span><br/>
-											{{/each}}
-											<div class="parameter-value {{#if hasError}}action-box-error{{/if}}">{{value}}<i class="fas fa-dice-d12 dice-icon"></i></div>
-										</div>
-										{{/if}}
-									</div>
-									{{/each}}
-								</div>
+								{{> action-row actionRow=this}}
 								{{/each}}
 							</div>
 						</div>
@@ -789,59 +667,7 @@
 							<hr class="actions-divider">
 							
 							<!-- Pure Divine Channeling Action Row -->
-							<div class="action-item">
-								<!-- Cost box -->
-								{{#if divineData.pureDivineChanneling.costs.length}}
-								<div class="action-cost-box clickable"
-									title="{{divineData.pureDivineChanneling.costTooltip}}"
-									data-action="consume-action-cost"
-									data-action-slug="{{divineData.pureDivineChanneling.slug}}">
-									<div class="action-cost-title {{#unless divineData.pureDivineChanneling.canAfford}}insufficient{{/unless}}">COST</div>
-									{{#each divineData.pureDivineChanneling.costs}}
-									<div class="action-cost-value {{#if insufficient}}insufficient{{/if}}">
-										{{value}}
-									</div>
-									{{/each}}
-								</div>
-								{{/if}}
-								<div class="action-details">
-									<div class="action-header">
-										<div class="action-name-traits">
-											<span class="action-name">{{divineData.pureDivineChanneling.name}}</span>
-											{{#each divineData.pureDivineChanneling.traits}}
-											<span class="{{type}}">{{value}}</span>
-											{{/each}}
-										</div>
-									</div>
-									<div class="action-description">
-										{{{divineData.pureDivineChanneling.description}}}
-									</div>
-								</div>
-
-								<!-- Action parameters -->
-								{{#each divineData.pureDivineChanneling.parameters}}
-								<div class="action-parameter">
-									{{#if (eq type "value")}}
-									<div class="parameter-box value-parameter" title="{{tooltip}}">
-										{{#each labels}}
-										<span class="parameter-title">{{this}}</span><br/>
-										{{/each}}
-										<div class="parameter-value">{{value}}</div>
-									</div>
-									{{else if (eq type "check")}}
-									<div class="parameter-box check-parameter clickable"
-										title="{{tooltip}}"
-										data-action="divine-channeling-roll"
-										data-parameter-index="{{@index}}">
-										{{#each labels}}
-										<span class="parameter-title {{#if hasError}}action-box-error{{/if}}">{{this}}</span><br/>
-										{{/each}}
-										<div class="parameter-value {{#if hasError}}action-box-error{{/if}}">{{value}}<i class="fas fa-dice-d12 dice-icon"></i></div>
-									</div>
-									{{/if}}
-								</div>
-								{{/each}}
-							</div>
+							{{> action-row actionRow=divineData.pureDivineChanneling}}
 						</div>
 						{{else}}
 						<div class="empty-message">

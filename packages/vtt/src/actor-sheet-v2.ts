@@ -1,9 +1,7 @@
 import {
 	ActionCost,
 	ActionRow,
-	ActionRowBox,
 	ActionRowCheckBox,
-	ACTIONS,
 	ActionsSection,
 	ActionTabInputValues,
 	ActionType,
@@ -1055,7 +1053,10 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 			const fundamentalCheck = arcaneSection.fundamentalCheck;
 
-			const spells = arcaneSection.spells.map(row => prepareActionRow(row, characterSheet));
+			const spells = arcaneSection.spells.map(row => {
+				const variableValues = this.#arcaneUIState.spellAugmentationValues[row.slug];
+				return prepareActionRow(row, characterSheet, variableValues ? { variableValues } : {});
+			});
 
 			return {
 				arcaneSection,
@@ -1481,41 +1482,62 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				const actorId = this.getCurrentActorId();
 				if (!characterSheet || !actorId) return;
 
-				// First, try to find in ACTIONS enum (for basic actions)
-				const enumAction = Object.values(ACTIONS).find(a => a.key === actionSlug);
+				let actionName: string | undefined;
+				let actionCosts: ActionCost[] | undefined;
 
-				// If not found in enum, try to find in ActionRow-based items (spells, divine channeling)
-				let actionName: string;
-				let actionCosts: ActionCost[];
+				// Try to find the action in all sections by slug
+				// Check actions tab - note: actions are already prepared for template
+				const actionsData = this.prepareActionsData(characterSheet);
+				if (actionsData) {
+					for (const tab of actionsData.tabs as Array<{
+						key: string;
+						actions: Array<{
+							slug: string;
+							name: string;
+							costs: Array<{ value: string; resource: Resource; insufficient: boolean }>;
+						}>;
+					}>) {
+						const action = tab.actions.find(a => a.slug === actionSlug);
+						if (action) {
+							actionName = action.name;
+							// Need to get the original ActionRow to access cost.actionCosts
+							// Find it in the ActionsSection
+							const actionsSection = this.createActionsSection(characterSheet);
+							const actionType = tab.key as ActionType;
+							const originalAction = actionsSection.tabs[actionType]?.actions.find(
+								(a: ActionRow) => a.slug === actionSlug,
+							);
+							actionCosts = originalAction?.cost?.actionCosts || [];
+							break;
+						}
+					}
+				}
 
-				if (enumAction) {
-					actionName = enumAction.name;
-					actionCosts = enumAction.costs;
-				} else {
-					// Look for ActionRow-based items in divine or arcane data
+				// Check divine tab
+				if (!actionName) {
 					const divineData = this.prepareDivineData(characterSheet);
-					const arcaneData = this.prepareArcaneData(characterSheet);
-
-					// Check if it's divine channeling
 					if (divineData && divineData.pureDivineChanneling.slug === actionSlug) {
 						const divineSection = divineData.divineSection;
 						actionName = divineSection.pureDivineChanneling.title;
 						actionCosts = divineSection.pureDivineChanneling.cost?.actionCosts || [];
 					}
-					// Check if it's a spell
-					else if (arcaneData) {
+				}
+
+				// Check arcane tab
+				if (!actionName) {
+					const arcaneData = this.prepareArcaneData(characterSheet);
+					if (arcaneData) {
 						const spell = arcaneData.arcaneSection.spells.find((s: ActionRow) => s.slug === actionSlug);
 						if (spell) {
 							actionName = spell.title;
 							actionCosts = spell.cost?.actionCosts || [];
-						} else {
-							console.warn('Action not found:', actionSlug);
-							return;
 						}
-					} else {
-						console.warn('Action not found:', actionSlug);
-						return;
 					}
+				}
+
+				if (!actionName || !actionCosts) {
+					console.warn('Action not found:', actionSlug);
+					return;
 				}
 
 				try {
@@ -1664,20 +1686,20 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			});
 		});
 
-		const spellAugmentationInputs = root.querySelectorAll(
-			'[data-action="set-spell-augmentation"]',
+		// Variable parameter inputs (for spell augmentation, etc.)
+		const variableInputs = root.querySelectorAll(
+			'[data-action="set-variable-parameter"]',
 		) as NodeListOf<HTMLInputElement>;
-		spellAugmentationInputs.forEach(input => {
+		variableInputs.forEach(input => {
 			input.addEventListener('change', () => {
-				const spellSlug = input.dataset.spellSlug;
-				const augmentationKey = input.dataset.augmentationKey;
-				console.log(`HERE`, spellSlug, augmentationKey, input.value);
-				if (spellSlug && augmentationKey) {
-					if (!this.#arcaneUIState.spellAugmentationValues[spellSlug]) {
-						this.#arcaneUIState.spellAugmentationValues[spellSlug] = {};
+				const actionSlug = input.dataset.actionSlug;
+				const parameterKey = input.dataset.parameterKey;
+				if (actionSlug && parameterKey) {
+					// Store in arcane state for now (could be extended for other types)
+					if (!this.#arcaneUIState.spellAugmentationValues[actionSlug]) {
+						this.#arcaneUIState.spellAugmentationValues[actionSlug] = {};
 					}
-					this.#arcaneUIState.spellAugmentationValues[spellSlug]![augmentationKey] = parseInt(input.value) || 0;
-					console.log(this.#arcaneUIState.spellAugmentationValues);
+					this.#arcaneUIState.spellAugmentationValues[actionSlug]![parameterKey] = parseInt(input.value) || 0;
 					(this as unknown as { render: (force?: boolean) => void }).render(false);
 				}
 			});
@@ -1743,88 +1765,10 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			});
 		});
 
-		// Individual spell rolls
-		const spellRollButtons = root.querySelectorAll('[data-action="spell-roll"]') as NodeListOf<HTMLElement>;
-		spellRollButtons.forEach(btn => {
+		// Unified check roll handler for all action rows (actions, spells, divine channeling)
+		const checkButtons = root.querySelectorAll('[data-action="roll-check"]') as NodeListOf<HTMLElement>;
+		checkButtons.forEach(btn => {
 			btn.addEventListener('click', async (event: MouseEvent) => {
-				const spellSlug = btn.dataset.spellSlug;
-				if (!spellSlug) return;
-
-				const characterSheet = this.getCharacterSheet();
-				if (!characterSheet) return;
-
-				try {
-					// Get arcane data to find the specific spell
-					const arcaneData = this.prepareArcaneData(characterSheet);
-					if (!arcaneData) return;
-
-					const spell = arcaneData.arcaneSection.spells.find(s => s.slug === spellSlug);
-					if (!spell) return;
-
-					const spellCheck = spell.boxes.map(box => box.data).find(data => data instanceof ActionRowCheckBox) as
-						| ActionRowCheckBox
-						| undefined;
-					if (spellCheck === undefined) {
-						showNotification('warn', 'No check data found for spell');
-						return;
-					}
-					const useModal = event.shiftKey === false;
-
-					await this.rollDice({
-						check: spellCheck.check,
-						targetDC: spellCheck.targetDC,
-						useModal,
-					});
-				} catch (error) {
-					console.error('Failed to roll spell:', error);
-					showNotification('error', 'Failed to roll spell');
-				}
-			});
-		});
-
-		// Divine channeling rolls
-		const divineChannelingButtons = root.querySelectorAll(
-			'[data-action="divine-channeling-roll"]',
-		) as NodeListOf<HTMLElement>;
-		divineChannelingButtons.forEach(btn => {
-			btn.addEventListener('click', async (event: MouseEvent) => {
-				const characterSheet = this.getCharacterSheet();
-				if (!characterSheet) return;
-
-				try {
-					// Get divine data to find channeling check
-					const divineData = this.prepareDivineData(characterSheet);
-					if (!divineData) return;
-
-					// Find the check parameter from the pure divine channeling action row
-					const checkBox = divineData.divineSection.pureDivineChanneling.boxes.find(
-						box => box.data instanceof ActionRowCheckBox,
-					);
-
-					if (!checkBox || !(checkBox.data instanceof ActionRowCheckBox)) {
-						showNotification('warn', 'No check data found for divine channeling');
-						return;
-					}
-
-					const checkData = checkBox.data as ActionRowCheckBox;
-					const useModal = event.shiftKey === false;
-
-					await this.rollDice({
-						check: checkData.check,
-						targetDC: checkData.targetDC,
-						useModal,
-					});
-				} catch (error) {
-					console.error('Failed to roll divine channeling:', error);
-					showNotification('error', 'Failed to roll divine channeling');
-				}
-			});
-		});
-
-		// Action check rolls
-		const actionCheckButtons = root.querySelectorAll('[data-action="roll-action-check"]') as NodeListOf<HTMLElement>;
-		actionCheckButtons.forEach(btn => {
-			const handleClick = async (event: MouseEvent) => {
 				const actionSlug = btn.dataset.actionSlug;
 				const parameterIndex = btn.dataset.parameterIndex;
 
@@ -1834,51 +1778,66 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				if (!characterSheet) return;
 
 				try {
-					// Recreate the actions section with current UI state to get pre-computed data
-					const actionsSection = this.createActionsSection(characterSheet, true);
-
-					// Find the action and parameter in the pre-computed data
+					const useModal = event.shiftKey === false;
 					const paramIndex = parseInt(parameterIndex);
-					let actionTabItem: ActionRow | undefined;
-					let actionTabParameter: ActionRowBox | undefined;
 
-					// Search through all action types to find the matching action and parameter
-					for (const actionType of Object.values(ActionType)) {
-						const tab = actionsSection.tabs[actionType];
-						actionTabItem = tab.actions.find(item => item.slug === actionSlug);
-						if (actionTabItem) {
-							actionTabParameter = actionTabItem.boxes[paramIndex];
-							break;
+					// Try to find the action in different sections
+					let checkData: ActionRowCheckBox | undefined;
+
+					// First, try divine channeling
+					const divineData = this.prepareDivineData(characterSheet);
+					if (divineData && divineData.divineSection.pureDivineChanneling.slug === actionSlug) {
+						const checkBox = divineData.divineSection.pureDivineChanneling.boxes[paramIndex];
+						if (checkBox && checkBox.data instanceof ActionRowCheckBox) {
+							checkData = checkBox.data;
 						}
 					}
 
-					if (!actionTabItem || !actionTabParameter) {
-						console.warn('Could not find action or parameter in pre-computed data');
+					// If not found, try arcane spells
+					if (!checkData) {
+						const arcaneData = this.prepareArcaneData(characterSheet);
+						if (arcaneData) {
+							const spell = arcaneData.arcaneSection.spells.find(s => s.slug === actionSlug);
+							if (spell) {
+								const checkBox = spell.boxes[paramIndex];
+								if (checkBox && checkBox.data instanceof ActionRowCheckBox) {
+									checkData = checkBox.data;
+								}
+							}
+						}
+					}
+
+					// If still not found, try actions section
+					if (!checkData) {
+						const actionsSection = this.createActionsSection(characterSheet, true);
+						for (const actionType of Object.values(ActionType)) {
+							const tab = actionsSection.tabs[actionType];
+							const action = tab.actions.find(item => item.slug === actionSlug);
+							if (action) {
+								const checkBox = action.boxes[paramIndex];
+								if (checkBox && checkBox.data instanceof ActionRowCheckBox) {
+									checkData = checkBox.data;
+									break;
+								}
+							}
+						}
+					}
+
+					if (!checkData) {
+						console.warn('Could not find check data for action:', actionSlug);
 						return;
 					}
 
-					// Check if this is actually a check parameter
-					if (!(actionTabParameter.data instanceof ActionRowCheckBox)) {
-						console.warn('Parameter is not a check parameter');
-						return;
-					}
-
-					const checkData = actionTabParameter.data;
-					const { check, targetDC } = checkData;
-
-					const useModal = event.shiftKey === false;
 					await this.rollDice({
-						check,
-						targetDC,
+						check: checkData.check,
+						targetDC: checkData.targetDC,
 						useModal,
 					});
 				} catch (err) {
-					console.error('Failed to roll action check:', err);
-					showNotification('error', 'Failed to roll action check');
+					console.error('Failed to roll check:', err);
+					showNotification('error', 'Failed to roll check');
 				}
-			};
-
-			btn.addEventListener('click', handleClick);
+			});
 		});
 	}
 

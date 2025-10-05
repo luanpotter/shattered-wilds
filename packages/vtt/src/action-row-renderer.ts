@@ -72,10 +72,21 @@ const processCosts = ({ characterSheet, actionRow }: { characterSheet: Character
 	return { costs, costTooltip, canAfford };
 };
 
-export const prepareActionRow = (actionRow: ActionRow, characterSheet: CharacterSheet) => {
+/**
+ * Prepares an ActionRow for template rendering
+ * This is the single source of truth for how action rows are formatted
+ */
+export const prepareActionRow = (
+	actionRow: ActionRow,
+	characterSheet: CharacterSheet,
+	options: {
+		/** Include variable boxes augmentation values if available */
+		variableValues?: Record<string, number>;
+	} = {},
+) => {
 	const { costs, costTooltip, canAfford } = processCosts({ characterSheet, actionRow });
 
-	const parameters = boxMapping({ actionRow });
+	const parameters = boxMapping({ actionRow, variableValues: options.variableValues || {} });
 
 	// Show only first paragraph of description
 	const firstParagraph = actionRow.description.split('\n\n')[0] || actionRow.description;
@@ -95,7 +106,13 @@ export const prepareActionRow = (actionRow: ActionRow, characterSheet: Character
 	};
 };
 
-const boxMapping = ({ actionRow }: { actionRow: ActionRow }) => {
+const boxMapping = ({
+	actionRow,
+	variableValues = {},
+}: {
+	actionRow: ActionRow;
+	variableValues?: Record<string, number>;
+}) => {
 	return actionRow.boxes
 		.map(box => {
 			const { key, data, labels, tooltip } = box;
@@ -110,16 +127,19 @@ const boxMapping = ({ actionRow }: { actionRow: ActionRow }) => {
 					value: value.description,
 				};
 			} else if (data instanceof ActionRowVariableBox) {
-				const { value, inputValue } = data;
+				// Use provided variable value if available, otherwise use the box's inputValue
+				const inputValue = variableValues[key] ?? data.inputValue;
+				// Note: If inputValue changed, the value in data might be stale
+				// But for rendering purposes, we use what's already computed in the ActionRow
 
 				return {
 					type: 'variable',
 					key,
 					labels,
 					tooltip,
-					value: value.description,
+					value: data.value.description,
 					inputValue,
-					bonusDescription: value.description,
+					bonusDescription: data.value.description,
 				};
 			} else if (data instanceof ActionRowCheckBox) {
 				const { check, targetDC, errors } = data;
@@ -130,7 +150,8 @@ const boxMapping = ({ actionRow }: { actionRow: ActionRow }) => {
 					const error = errors[0];
 					return {
 						type: 'check',
-						title: error.title,
+						key,
+						labels: [error.title],
 						value: error.text,
 						tooltip: `${error.tooltip} • Click for advanced options • Shift+Click for quick roll`,
 						hasError: true, // This will make the text red via CSS (insufficient class)
@@ -141,7 +162,7 @@ const boxMapping = ({ actionRow }: { actionRow: ActionRow }) => {
 					type: 'check',
 					key,
 					labels,
-					value: check.statModifier.value.description + (targetDC ? `| DC ${targetDC}` : ''),
+					value: check.statModifier.value.description + (targetDC !== undefined ? ` | DC ${targetDC}` : ''),
 					tooltip: `${tooltip} • Click for advanced options • Shift+Click for quick roll`,
 					hasError: false,
 				};

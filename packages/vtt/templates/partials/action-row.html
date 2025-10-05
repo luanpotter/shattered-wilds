@@ -1,0 +1,84 @@
+{{!--
+Action Row Partial
+
+Expected context:
+- actionRow: The action row data with slug, name, description, traits, costs, costTooltip, canAfford, parameters
+--}}
+<div class="action-item">
+	{{!-- Cost box (optional) --}}
+	{{#if actionRow.costs.length}}
+	<div class="action-cost-box clickable"
+		title="{{actionRow.costTooltip}}"
+		data-action="consume-action-cost"
+		data-action-slug="{{actionRow.slug}}">
+		<div class="action-cost-title {{#unless actionRow.canAfford}}insufficient{{/unless}}">COST</div>
+		{{#each actionRow.costs}}
+		<div class="action-cost-value {{#if insufficient}}insufficient{{/if}}">
+			{{value}}
+		</div>
+		{{/each}}
+	</div>
+	{{/if}}
+
+	{{!-- Action details --}}
+	<div class="action-details">
+		<div class="action-header">
+			<div class="action-name-traits">
+				<span class="action-name">{{actionRow.name}}</span>
+				{{#each actionRow.traits}}
+				<span class="{{type}}">{{value}}</span>
+				{{/each}}
+			</div>
+		</div>
+		<div class="action-description">
+			{{{actionRow.description}}}
+		</div>
+	</div>
+
+	{{!-- Action parameters --}}
+	{{#each actionRow.parameters}}
+	<div class="action-parameter">
+		{{#if (eq type "value")}}
+		<div class="parameter-box value-parameter" title="{{tooltip}}">
+			{{#each labels}}
+			<span class="parameter-title">{{this}}</span><br/>
+			{{/each}}
+			<div class="parameter-value">{{value}}</div>
+		</div>
+		{{else if (eq type "variable")}}
+		<div class="parameter-box value-parameter" title="{{tooltip}}">
+			{{#each labels}}
+			<span class="parameter-title">{{this}}</span><br/>
+			{{/each}}
+			<div class="parameter-content">
+				<div class="augmentation-input-row">
+					<input type="number"
+						class="augmentation-input"
+						data-action="set-variable-parameter"
+						data-action-slug="{{../actionRow.slug}}"
+						data-parameter-key="{{key}}"
+						value="{{inputValue}}"
+						min="0">
+					<span class="augmentation-equals"> = </span>
+					<span class="augmentation-bonus">{{value}}</span>
+				</div>
+			</div>
+		</div>
+		{{else if (eq type "check")}}
+		<div class="parameter-box check-parameter clickable"
+			title="{{tooltip}}"
+			data-action="roll-check"
+			data-action-slug="{{../actionRow.slug}}"
+			data-parameter-index="{{@index}}">
+			{{#each labels}}
+			<span class="parameter-title {{#if ../hasError}}action-box-error{{/if}}">{{this}}</span><br/>
+			{{/each}}
+			<div class="parameter-value {{#if hasError}}action-box-error{{/if}}">
+				{{value}}
+				<i class="fas fa-dice-d12 dice-icon"></i>
+			</div>
+		</div>
+		{{/if}}
+	</div>
+	{{/each}}
+</div>
