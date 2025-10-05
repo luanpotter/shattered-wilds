@@ -218,9 +218,9 @@ export class ArcaneSpellAugmentation {
 
 	getTooltip(multiplier: number | undefined): string {
 		if (this.variable) {
-			return `${this.bonus.description} per ${this.value} (${multiplier} x ${this.bonus.description} = ${this.computeBonus(multiplier)})`;
+			return `${this.type}: ${this.bonus.description} per ${this.value} (${multiplier} x ${this.bonus.description} = ${this.computeBonus(multiplier)})`;
 		}
-		return `${this.bonus.description}`;
+		return `${this.value}: ${this.bonus.description}`;
 	}
 }
 
