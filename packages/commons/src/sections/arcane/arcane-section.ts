@@ -17,6 +17,7 @@ import { StatType } from '../../stats/stat-type.js';
 import { Bonus, Distance } from '../../stats/value.js';
 import { firstParagraph, numberToOrdinal, slugify } from '../../utils/utils.js';
 import { ActionRowCost } from '../common/action-row.js';
+import { Check, CheckMode, CheckNature } from '../../stats/check.js';
 
 export type ArcaneSectionSchoolOption = 'All Schools' | ArcaneSpellSchool;
 export type ArcaneSectionCastingTimeOption = { name: string; value: number; modifier: Bonus; maxFocusCost?: number };
@@ -100,10 +101,14 @@ export class ArcaneSectionSpellAugmentation {
 		this.tooltip = tooltip;
 	}
 
+	get description(): string {
+		return `Augmentation [${this.type}: ${this.shortDescription}]`;
+	}
+
 	toModifier(): CircumstanceModifier {
 		return new CircumstanceModifier({
 			source: ModifierSource.Augmentation,
-			name: this.tooltip,
+			name: this.description,
 			value: this.bonus,
 		});
 	}
@@ -117,7 +122,7 @@ export class ArcaneSectionSpell {
 	traits: Trait[];
 	description: string;
 	augmentations: ArcaneSectionSpellAugmentation[];
-	finalModifier: StatModifier;
+	check: Check;
 
 	constructor({
 		key,
@@ -127,7 +132,7 @@ export class ArcaneSectionSpell {
 		traits,
 		description,
 		augmentations,
-		finalModifier,
+		check,
 	}: {
 		key: string;
 		slug: string;
@@ -136,7 +141,7 @@ export class ArcaneSectionSpell {
 		traits: Trait[];
 		description: string;
 		augmentations: ArcaneSectionSpellAugmentation[];
-		finalModifier: StatModifier;
+		check: Check;
 	}) {
 		this.key = key;
 		this.slug = slug;
@@ -145,7 +150,7 @@ export class ArcaneSectionSpell {
 		this.traits = traits;
 		this.description = description;
 		this.augmentations = augmentations;
-		this.finalModifier = finalModifier;
+		this.check = check;
 	}
 }
 
@@ -312,6 +317,11 @@ export class ArcaneSection {
 			const spellModifiers = [...fundamentalModifiers, ...augmentations.map(aug => aug.toModifier())];
 
 			const finalModifier = tree.getModifier(primaryAttribute, spellModifiers);
+			const check = new Check({
+				mode: CheckMode.Contested,
+				nature: CheckNature.Active,
+				statModifier: finalModifier,
+			});
 
 			return new ArcaneSectionSpell({
 				key: spell.name,
@@ -321,7 +331,7 @@ export class ArcaneSection {
 				traits: spell.traits,
 				description: firstParagraph(spell.description),
 				augmentations,
-				finalModifier,
+				check,
 			});
 		});
 	};
@@ -337,7 +347,7 @@ export class ArcaneSection {
 	combinedModifiers: CircumstanceModifier[];
 	combinedModifier: StatModifier;
 	fundamentalModifiers: CircumstanceModifier[];
-	fundamentalModifier: StatModifier;
+	fundamentalCheck: Check;
 	fundamentalSpellCost: ActionRowCost;
 	spells: ArcaneSectionSpell[];
 	primaryAttribute: StatType;
@@ -352,7 +362,7 @@ export class ArcaneSection {
 		combinedModifiers,
 		combinedModifier,
 		fundamentalModifiers,
-		fundamentalModifier,
+		fundamentalCheck,
 		fundamentalSpellCost,
 		spells,
 		primaryAttribute,
@@ -366,7 +376,7 @@ export class ArcaneSection {
 		combinedModifiers: CircumstanceModifier[];
 		combinedModifier: StatModifier;
 		fundamentalModifiers: CircumstanceModifier[];
-		fundamentalModifier: StatModifier;
+		fundamentalCheck: Check;
 		fundamentalSpellCost: ActionRowCost;
 		spells: ArcaneSectionSpell[];
 		primaryAttribute: StatType;
@@ -381,7 +391,7 @@ export class ArcaneSection {
 		this.combinedModifiers = combinedModifiers;
 		this.combinedModifier = combinedModifier;
 		this.fundamentalModifiers = fundamentalModifiers;
-		this.fundamentalModifier = fundamentalModifier;
+		this.fundamentalCheck = fundamentalCheck;
 		this.fundamentalSpellCost = fundamentalSpellCost;
 		this.spells = spells;
 		this.primaryAttribute = primaryAttribute;
@@ -433,6 +443,11 @@ export class ArcaneSection {
 		const baseModifier = tree.getModifier(primaryAttribute);
 		const combinedModifier = tree.getModifier(primaryAttribute, combinedModifiers);
 		const fundamentalModifier = tree.getModifier(primaryAttribute, fundamentalModifiers);
+		const fundamentalCheck = new Check({
+			mode: CheckMode.Contested,
+			nature: CheckNature.Active,
+			statModifier: fundamentalModifier,
+		});
 
 		const costs = [
 			new ActionCost({ resource: Resource.ActionPoint, amount: inputValues.selectedCastingTime.value }),
@@ -458,7 +473,7 @@ export class ArcaneSection {
 			combinedModifiers,
 			combinedModifier,
 			fundamentalModifiers,
-			fundamentalModifier,
+			fundamentalCheck,
 			fundamentalSpellCost,
 			spells,
 			primaryAttribute,

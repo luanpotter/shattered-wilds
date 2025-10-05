@@ -1,6 +1,7 @@
 // Chat command system for Shattered Wilds dice rolling
+import { DiceRoll, DiceRollEncoder } from '@shattered-wilds/commons';
+import { executeEnhancedRoll } from './dices.js';
 import { getHooks, showNotification } from './foundry-shim.js';
-import { executeEnhancedRoll, type DiceRollRequest } from './dices.js';
 
 export function registerChatCommands(): void {
 	// Hook into Foundry's chat command system
@@ -23,14 +24,6 @@ export function registerChatCommands(): void {
 			return true; // allows default processing
 		});
 	}
-}
-
-interface D12CommandOptions {
-	name: string;
-	modifiers: Record<string, number>;
-	extra?: { name: string; value: number };
-	luck?: { value: number };
-	targetDC?: number;
 }
 
 function extractCharacterName(chatData: Record<string, unknown>): string {
@@ -62,9 +55,13 @@ function extractCharacterName(chatData: Record<string, unknown>): string {
 
 function parseD12Command(command: string, chatData: Record<string, unknown>): boolean {
 	try {
-		const options = parseD12Parameters(command);
 		const characterName = extractCharacterName(chatData);
-		executeD12Roll(options, characterName);
+		const diceRoll = parseD12Parameters(command, characterName);
+		if (!diceRoll) {
+			return false;
+		}
+
+		executeD12Roll(diceRoll);
 		return true;
 	} catch (err) {
 		console.error('Failed to parse /d12 command:', err);
@@ -73,72 +70,19 @@ function parseD12Command(command: string, chatData: Record<string, unknown>): bo
 	}
 }
 
-function parseD12Parameters(command: string): D12CommandOptions {
-	// Parse: "DEX Check" mod:"Base":+1 mod:"CM":-1 extra:STR:3 luck:4 dc:15
-
-	// Extract quoted name at the beginning
-	const nameMatch = command.match(/^"([^"]+)"\s*(.*)/);
-	if (!nameMatch || !nameMatch[1]) {
-		throw new Error('Command must start with quoted name, e.g. "DEX Check"');
+function parseD12Parameters(command: string, characterName: string): DiceRoll | undefined {
+	try {
+		return DiceRollEncoder.decode(command, { fallbackCharacterName: characterName });
+	} catch (err) {
+		console.error('Failed to decode /d12 command:', err);
+		showNotification('error', `Invalid /d12 command format: ${err instanceof Error ? err.message : 'Unknown error'}`);
+		return undefined;
 	}
-
-	const name = nameMatch[1];
-	const rest = nameMatch[2] || '';
-
-	const options: D12CommandOptions = {
-		name,
-		modifiers: {},
-	};
-
-	// Parse modifiers: mod:"Base":+1 mod:"CM":-1
-	const modMatches = rest.matchAll(/mod:"([^"]+)":([+-]?\d+)/g);
-	for (const match of modMatches) {
-		const modName = match[1];
-		const modValueStr = match[2];
-		if (modName && modValueStr) {
-			const modValue = parseInt(modValueStr);
-			options.modifiers[modName] = modValue;
-		}
-	}
-
-	// Parse extra: extra:STR:3
-	const extraMatch = rest.match(/extra:([A-Z]+):(\d+)/);
-	if (extraMatch && extraMatch[1] && extraMatch[2]) {
-		options.extra = {
-			name: extraMatch[1],
-			value: parseInt(extraMatch[2]),
-		};
-	}
-
-	// Parse luck: luck:4
-	const luckMatch = rest.match(/luck:(\d+)/);
-	if (luckMatch && luckMatch[1]) {
-		options.luck = {
-			value: parseInt(luckMatch[1]),
-		};
-	}
-
-	// Parse DC: dc:15
-	const dcMatch = rest.match(/dc:(\d+)/);
-	if (dcMatch && dcMatch[1]) {
-		options.targetDC = parseInt(dcMatch[1]);
-	}
-
-	return options;
 }
 
-async function executeD12Roll(options: D12CommandOptions, characterName: string): Promise<void> {
+async function executeD12Roll(diceRoll: DiceRoll): Promise<void> {
 	try {
-		const rollRequest: DiceRollRequest = {
-			name: options.name,
-			characterName: characterName,
-			modifiers: options.modifiers,
-			extra: options.extra,
-			luck: options.luck,
-			targetDC: options.targetDC,
-		};
-
-		await executeEnhancedRoll(rollRequest);
+		await executeEnhancedRoll(diceRoll);
 	} catch (err) {
 		console.error('Failed to execute /d12 roll:', err);
 		showNotification('error', 'Failed to execute dice roll');

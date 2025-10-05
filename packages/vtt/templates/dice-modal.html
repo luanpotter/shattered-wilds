@@ -2,8 +2,10 @@
 	<form class="dice-roll-form">
 		<!-- Header Section -->
 		<div class="roll-header">
-			<h3>{{statType}} Check</h3>
-			<p>Modifiers: <strong>{{modifierDisplay}}</strong></p>
+			<h3>{{statType}} Check [{{totalModifier}}]</h3>
+			{{#each modifiers}}
+			<div><strong>{{this.name}}:</strong> {{this.value}}</div>
+			{{/each}}
 		</div>
 
 		<!-- Main Options Section -->
@@ -52,7 +54,7 @@
 			<!-- Target DC Section -->
 			<div class="option-group">
 				<label for="targetDC">Target DC (optional):</label>
-				<input type="number" name="targetDC" placeholder="Leave empty for no target" min="1" max="50" step="1" {{#if targetDC}}value="{{targetDC}}"{{/if}}>
+				<input type="number" name="targetDC" placeholder="Leave empty for no target" min="1" step="1" {{#if targetDC}}value="{{targetDC}}"{{/if}}>
 				<small class="help-text">Difficulty Class to beat</small>
 			</div>
 		</div>

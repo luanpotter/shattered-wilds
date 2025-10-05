@@ -1,4 +1,4 @@
-import { StatModifier } from './stat-tree.js';
+import { CircumstanceModifier, StatModifier } from './stat-tree.js';
 import { StatType } from './stat-type.js';
 import { Bonus } from './value.js';
 
@@ -42,5 +42,14 @@ export class Check {
 			return this.statModifier.statType.name;
 		}
 		return this.statModifier.statType;
+	}
+
+	withAdditionalCM(cm: CircumstanceModifier): Check {
+		const newStatModifier = this.statModifier.withAdditionalCM(cm);
+		return new Check({
+			mode: this.mode,
+			nature: this.nature,
+			statModifier: newStatModifier,
+		});
 	}
 }

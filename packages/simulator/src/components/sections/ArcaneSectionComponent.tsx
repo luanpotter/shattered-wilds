@@ -8,11 +8,8 @@ import {
 	ArcaneSpellComponentType,
 	CharacterSheet,
 	Check,
-	CheckMode,
-	CheckNature,
 	Distance,
 	FUNDAMENTAL_ARCANE_SPELL_DESCRIPTION,
-	StatModifier,
 	StatType,
 } from '@shattered-wilds/commons';
 import React, { useMemo } from 'react';
@@ -308,7 +305,7 @@ const ArcaneSectionInner: React.FC<{
 						onChange={setSelectedAttackOption}
 					/>
 				</div>
-				<SpellCheckBox character={character} finalModifier={arcaneSection.fundamentalModifier} />
+				<SpellCheckBox character={character} check={arcaneSection.fundamentalCheck} />
 			</div>
 			<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '12px 0 12px 0', opacity: 0.3 }} />
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -327,27 +324,24 @@ const ArcaneSectionInner: React.FC<{
 
 const SpellCheckBox: React.FC<{
 	character: Character;
-	finalModifier: StatModifier;
-}> = ({ character, finalModifier }) => {
+	check: Check;
+}> = ({ character, check }) => {
 	const { openDiceRollModal } = useModals();
 
+	const modifier = check.statModifier;
 	return (
 		<ParameterBoxComponent
-			title={`${finalModifier.name} (${finalModifier.value.description})`}
-			tooltip={finalModifier.description}
+			title={`${modifier.name} (${modifier.value.description})`}
+			tooltip={modifier.description}
 			onClick={() => {
 				openDiceRollModal({
 					characterId: character.id,
-					check: new Check({
-						mode: CheckMode.Contested,
-						nature: CheckNature.Active,
-						statModifier: finalModifier,
-					}),
-					title: `Roll ${finalModifier.name} Check`,
+					check,
+					title: `Roll ${modifier.name} Check`,
 				});
 			}}
 		>
-			{finalModifier.value.description}
+			{modifier.value.description}
 			<FaDice size={12} />
 		</ParameterBoxComponent>
 	);
@@ -425,7 +419,7 @@ const SpellBox: React.FC<{
 					</ParameterBoxComponent>
 				);
 			})}
-			<SpellCheckBox character={character} finalModifier={spell.finalModifier} />
+			<SpellCheckBox character={character} check={spell.check} />
 		</div>
 	);
 };

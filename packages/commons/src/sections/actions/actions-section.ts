@@ -12,7 +12,7 @@ import {
 } from '../../core/actions.js';
 import { DEFENSE_TRAITS, DefenseTrait, Trait } from '../../core/traits.js';
 import { Check } from '../../stats/check.js';
-import { CircumstanceModifier, ModifierSource } from '../../stats/stat-tree.js';
+import { CircumstanceModifier } from '../../stats/stat-tree.js';
 import { StatType } from '../../stats/stat-type.js';
 import { Bonus, Distance, Value } from '../../stats/value.js';
 import { mapEnumToRecord } from '../../utils/utils.js';
@@ -183,7 +183,6 @@ export class ActionTabParameterCheckData {
 	textTitle: string;
 	textSubtitle: string;
 	errors: ActionTabParameterCheckError[];
-	modifierBreakdown: Record<string, number>;
 
 	constructor({
 		title,
@@ -192,7 +191,6 @@ export class ActionTabParameterCheckData {
 		textTitle,
 		textSubtitle,
 		errors,
-		modifierBreakdown,
 	}: {
 		title: string;
 		tooltip: string;
@@ -200,7 +198,6 @@ export class ActionTabParameterCheckData {
 		textTitle: string;
 		textSubtitle: string;
 		errors: ActionTabParameterCheckError[];
-		modifierBreakdown: Record<string, number>;
 	}) {
 		this.title = title;
 		this.tooltip = tooltip;
@@ -208,7 +205,6 @@ export class ActionTabParameterCheckData {
 		this.errors = errors;
 		this.textTitle = textTitle;
 		this.textSubtitle = textSubtitle;
-		this.modifierBreakdown = modifierBreakdown;
 	}
 }
 
@@ -392,36 +388,6 @@ export class ActionTabParameter {
 
 		const checkData = new CheckData({ title, check, targetDc: parameter.targetDc });
 
-		// Build modifier breakdown for VTT dice modal
-		const modifierBreakdown: Record<string, number> = {};
-
-		// Get the base stat value (without any circumstance modifiers)
-		const baseStatModifier = statTree.getModifier(statType, []);
-		if (baseStatModifier.value.value !== 0) {
-			modifierBreakdown['Base'] = baseStatModifier.value.value;
-		}
-
-		// Add each circumstance modifier separately
-		for (const cm of circumstanceModifiers) {
-			if (cm.value.value !== 0) {
-				// Use a more descriptive name based on the modifier source
-				let modifierName = cm.name;
-				if (cm.source === ModifierSource.Circumstance) {
-					modifierName = 'CM';
-				} else if (cm.source === ModifierSource.Equipment) {
-					modifierName = 'Equipment';
-				}
-
-				// If we already have a modifier with this name, combine them
-				const existingValue = modifierBreakdown[modifierName];
-				if (existingValue !== undefined) {
-					modifierBreakdown[modifierName] = existingValue + cm.value.value;
-				} else {
-					modifierBreakdown[modifierName] = cm.value.value;
-				}
-			}
-		}
-
 		return new ActionTabParameterCheckData({
 			title,
 			tooltip,
@@ -429,7 +395,6 @@ export class ActionTabParameter {
 			textTitle,
 			textSubtitle,
 			errors,
-			modifierBreakdown,
 		});
 	};
 

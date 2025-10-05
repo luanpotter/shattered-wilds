@@ -325,10 +325,7 @@
 											</div>
 											<button type="button" class="weapon-attack-btn"
 												data-action="roll-weapon-attack"
-												data-weapon-name="{{../name}}"
-												data-mode-type="{{type}}"
-												data-mode-bonus="{{bonusValue}}"
-												data-attack-stat="{{attackStat}}"
+												data-weapon-mode-option-idx="{{idx}}"
 												title="Click for advanced options • Shift+Click for quick {{attackStat}} check roll">
 												<i class="fas fa-dice-d12"></i> {{attackStat}} Check
 											</button>
@@ -664,15 +661,15 @@
 								<!-- Fundamental Modifier -->
 								<div class="action-parameter">
 									<div class="parameter-box check-parameter clickable"
-										title="{{arcaneData.fundamentalModifier.description}} • Click for advanced options • Shift+Click for quick roll"
+										title="{{arcaneData.fundamentalCheck.statModifier.description}} • Click for advanced options • Shift+Click for quick roll"
 										data-action="fundamental-spell-roll">
-										<div class="parameter-title">{{arcaneData.fundamentalModifier.name}}</div>
-										<div class="parameter-value">{{arcaneData.fundamentalModifier.value}} <i class="fas fa-dice-d12 dice-icon"></i></div>
+										<div class="parameter-title">{{arcaneData.fundamentalCheck.statModifier.name}} ({{arcaneData.fundamentalCheck.statModifier.baseValue.description}})</div>
+										<div class="parameter-value">{{arcaneData.fundamentalCheck.statModifier.value.description}} <i class="fas fa-dice-d12 dice-icon"></i></div>
 									</div>
 								</div>
 							</div>
 
-							<!-- Spells List (NO cost boxes) -->
+							<!-- Spells List -->
 							<div class="actions-content">
 								{{#each arcaneData.spells}}
 								<div class="action-item spell-item">
@@ -723,11 +720,11 @@
 									<!-- Final Spell Modifier -->
 									<div class="action-parameter">
 										<div class="parameter-box check-parameter clickable"
-											title="{{finalModifier.description}} • Click for advanced options • Shift+Click for quick roll"
+											title="{{check.statModifier.description}} • Click for advanced options • Shift+Click for quick roll"
 											data-action="spell-roll"
 											data-spell-key="{{key}}">
-											<div class="parameter-title">{{finalModifier.name}}</div>
-											<div class="parameter-value">{{finalModifier.value}} <i class="fas fa-dice-d12 dice-icon"></i></div>
+											<div class="parameter-title">{{check.statModifier.name}} ({{check.statModifier.baseValue.description}})</div>
+											<div class="parameter-value">{{check.statModifier.value.description}} <i class="fas fa-dice-d12 dice-icon"></i></div>
 										</div>
 									</div>
 								</div>

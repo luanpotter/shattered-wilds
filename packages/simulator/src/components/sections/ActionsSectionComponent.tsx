@@ -12,8 +12,7 @@ import {
 	ResourceInput,
 	StatType,
 	TextInput,
-	Weapon,
-	WeaponMode,
+	WeaponModeOption,
 } from '@shattered-wilds/commons';
 import React, { useCallback } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
@@ -39,11 +38,6 @@ interface ActionsSectionProps {
 interface ActionsSectionInnerProps {
 	characterId: string;
 	sheet: CharacterSheet;
-}
-
-interface WeaponModeOption {
-	weapon: Weapon;
-	mode: WeaponMode;
 }
 
 interface ValueParameterProps {

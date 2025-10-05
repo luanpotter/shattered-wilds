@@ -1,15 +1,22 @@
-import { getApplicationV2Ctor, getHandlebarsApplicationMixin, getActorById } from './foundry-shim.js';
-import { CharacterSheet, StatType, StatHierarchy } from '@shattered-wilds/commons';
-import { executeEnhancedRoll, type DiceRollRequest } from './dices.js';
-import { parseCharacterSheet } from './characters.js';
+import {
+	Bonus,
+	CharacterSheet,
+	Check,
+	CircumstanceModifier,
+	DerivedStatType,
+	ModifierSource,
+	StatHierarchy,
+	StatType,
+} from '@shattered-wilds/commons';
 import { getCharacterProps } from './actor-data-manager.js';
+import { parseCharacterSheet } from './characters.js';
+import { executeEnhancedRoll } from './dices.js';
+import { getActorById, getApplicationV2Ctor, getHandlebarsApplicationMixin } from './foundry-shim.js';
 
 export interface DiceRollOptions {
-	statType: string;
-	modifier: number;
+	check: Check;
 	actorId: string;
-	modifierBreakdown?: Record<string, number>;
-	targetDC?: number;
+	targetDC: number | undefined;
 }
 
 export interface DiceRollModalOptions extends DiceRollOptions {
@@ -36,7 +43,7 @@ if (AppV2 && HbsMixin) {
 		constructor(options: DiceRollModalOptions) {
 			super({
 				window: {
-					title: `Roll ${options.statType} Check`,
+					title: `Roll ${options.check.statModifier.statType} Check`,
 					contentClasses: ['shattered-wilds-dice-modal'],
 				},
 				width: 400,
@@ -66,7 +73,8 @@ if (AppV2 && HbsMixin) {
 		};
 
 		async _prepareContext(): Promise<Record<string, unknown>> {
-			const { statType, modifier, actorId, targetDC } = this.#options;
+			const { check, actorId, targetDC } = this.#options;
+			const statType = check.statModifier.statType;
 
 			// Get character data for extra die options
 			const actor = getActorById(actorId);
@@ -113,20 +121,14 @@ if (AppV2 && HbsMixin) {
 						.value
 				: 0;
 
-			// Prepare modifier display text
-			let modifierDisplay = `+${modifier}`;
-			if (this.#options.modifierBreakdown) {
-				// Show detailed breakdown as comma-separated list
-				const modifierParts = Object.entries(this.#options.modifierBreakdown)
-					.filter(([, value]) => value !== 0)
-					.map(([name, value]) => `${name} ${value >= 0 ? '+' : ''}${value}`);
-				modifierDisplay = modifierParts.length > 0 ? modifierParts.join(', ') : `+${modifier}`;
-			}
+			const modifiers = check.statModifier.breakdown();
+			const totalModifier = check.modifierValue.description;
 
 			return {
 				statType,
-				modifier,
-				modifierDisplay,
+				totalModifier,
+				check,
+				modifiers,
 				actorId,
 				attributeOptions,
 				fortuneValue,
@@ -136,32 +138,29 @@ if (AppV2 && HbsMixin) {
 			};
 		}
 
-		private isSkillRoll(statTypeName: string): boolean {
-			try {
-				const statType = StatType.fromString(statTypeName, StatType.Level);
-				return statType.hierarchy === StatHierarchy.Skill;
-			} catch {
+		private isSkillRoll(statType: StatType | DerivedStatType): boolean {
+			return statType instanceof StatType && statType.hierarchy === StatHierarchy.Skill;
+		}
+
+		private isLuckBasedRoll(statType: StatType | DerivedStatType): boolean {
+			if (statType instanceof StatType) {
+				if (statType === StatType.LCK) {
+					return true;
+				}
+				if (statType.parent !== undefined) {
+					return this.isLuckBasedRoll(statType.parent);
+				}
+				return false;
+			} else {
 				return false;
 			}
 		}
 
-		private isLuckBasedRoll(statTypeName: string): boolean {
-			try {
-				const statType = StatType.fromString(statTypeName, StatType.Level);
-				// LCK attribute or any skill that has LCK as parent
-				return statType === StatType.LCK || statType.parent === StatType.LCK;
-			} catch {
-				return false;
-			}
-		}
-
-		private getParentAttribute(skillTypeName: string): string {
-			try {
-				const statType = StatType.fromString(skillTypeName, StatType.Level);
-				// For skills, return the parent attribute name
-				return statType.parent?.name || '';
-			} catch {
-				return '';
+		private getParentAttribute(skillType: StatType | DerivedStatType): string | undefined {
+			if (skillType instanceof StatType) {
+				return skillType.parent?.name;
+			} else {
+				return undefined;
 			}
 		}
 
@@ -186,25 +185,6 @@ if (AppV2 && HbsMixin) {
 			}
 
 			return 0;
-		}
-
-		private async buildModifiersMap(
-			baseModifier: number,
-			circumstanceModifier: number,
-		): Promise<Record<string, number>> {
-			// If we have a detailed breakdown (e.g., for weapon attacks), use that instead
-			if (this.#options.modifierBreakdown) {
-				return {
-					...this.#options.modifierBreakdown,
-					...(circumstanceModifier !== 0 ? { Circumstance: circumstanceModifier } : {}),
-				};
-			}
-
-			// Fallback to simple base + circumstance for regular stat rolls
-			return {
-				Base: baseModifier,
-				...(circumstanceModifier !== 0 ? { Circumstance: circumstanceModifier } : {}),
-			};
 		}
 
 		async _onRender(): Promise<void> {
@@ -245,34 +225,44 @@ if (AppV2 && HbsMixin) {
 			const useExtra = formData.get('useExtra') === 'on';
 			const useLuck = formData.get('useLuck') === 'on';
 			const extraAttribute = (formData.get('extraAttribute') as string) || undefined;
-			const circumstanceModifier = parseInt((formData.get('circumstanceModifier') as string) || '0');
+			const additionalCircumstanceModifier = parseInt((formData.get('circumstanceModifier') as string) || '0');
 			const targetDC = formData.get('targetDC') ? parseInt(formData.get('targetDC') as string) : undefined;
 
 			const actor = getActorById(this.#options.actorId);
 			const characterSheet = actor ? parseCharacterSheet(actor) : undefined;
+			const characterName = characterSheet?.name ?? 'Unknown';
 
-			// Use centralized dice system directly
-			const rollRequest: DiceRollRequest = {
-				name: this.#options.statType,
-				characterName: characterSheet?.name ?? 'Unknown',
-				modifiers: await this.buildModifiersMap(this.#options.modifier, circumstanceModifier),
-				extra:
-					useExtra && extraAttribute
-						? {
-								name: extraAttribute,
-								value: await this.getAttributeValue(extraAttribute),
-							}
-						: undefined,
-				luck: useLuck
+			const extra =
+				useExtra && extraAttribute
 					? {
-							value: await this.getAttributeValue('Fortune'),
+							name: extraAttribute,
+							value: await this.getAttributeValue(extraAttribute),
 						}
-					: undefined,
-				targetDC,
-			};
+					: undefined;
 
-			// Execute the centralized dice roll
-			await executeEnhancedRoll(rollRequest);
+			const luck = useLuck
+				? {
+						value: await this.getAttributeValue('Fortune'),
+					}
+				: undefined;
+
+			const check = additionalCircumstanceModifier
+				? this.#options.check.withAdditionalCM(
+						new CircumstanceModifier({
+							name: 'CM',
+							source: ModifierSource.Circumstance,
+							value: Bonus.of(additionalCircumstanceModifier),
+						}),
+					)
+				: this.#options.check;
+
+			await executeEnhancedRoll({
+				characterName,
+				check,
+				extra,
+				luck,
+				targetDC,
+			});
 
 			this.close();
 		}

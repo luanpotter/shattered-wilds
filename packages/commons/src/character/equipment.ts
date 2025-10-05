@@ -66,9 +66,18 @@ export class WeaponMode {
 	}
 }
 
-export interface WeaponModeOption {
+export class WeaponModeOption {
 	weapon: Weapon;
 	mode: WeaponMode;
+
+	constructor({ weapon, mode }: { weapon: Weapon; mode: WeaponMode }) {
+		this.weapon = weapon;
+		this.mode = mode;
+	}
+
+	getEquipmentModifier(): CircumstanceModifier {
+		return this.weapon.getEquipmentModifier(this.mode);
+	}
 }
 
 export class Weapon implements Item {
@@ -105,7 +114,7 @@ export class Weapon implements Item {
 	getEquipmentModifier(mode: WeaponMode): CircumstanceModifier {
 		return new CircumstanceModifier({
 			source: ModifierSource.Equipment,
-			name: `${this.name} (${mode.description})`,
+			name: `${this.name} / ${mode.description}`,
 			value: mode.bonus,
 		});
 	}
@@ -116,7 +125,7 @@ export class Weapon implements Item {
 			name: 'Unarmed',
 			modes: [mode],
 		});
-		return { weapon, mode };
+		return new WeaponModeOption({ weapon, mode });
 	}
 
 	static shieldBash(): WeaponModeOption {
@@ -125,7 +134,7 @@ export class Weapon implements Item {
 			name: 'Shield Bash',
 			modes: [mode],
 		});
-		return { weapon, mode };
+		return new WeaponModeOption({ weapon, mode });
 	}
 
 	get description(): string {
@@ -322,7 +331,7 @@ export class Equipment {
 		return [
 			Weapon.unarmed(),
 			...(hasShield ? [Weapon.shieldBash()] : []),
-			...weapons.flatMap(weapon => weapon.modes.map(mode => ({ weapon, mode }))),
+			...weapons.flatMap(weapon => weapon.modes.map(mode => new WeaponModeOption({ weapon, mode }))),
 		];
 	}
 
