@@ -13,7 +13,6 @@ import { Trait } from '../../core/traits.js';
 import { DerivedStatType } from '../../stats/derived-stat.js';
 import { Resource } from '../../stats/resources.js';
 import { CircumstanceModifier, ModifierSource, StatModifier } from '../../stats/stat-tree.js';
-import { StatType } from '../../stats/stat-type.js';
 import { Bonus, Distance } from '../../stats/value.js';
 import { firstParagraph, numberToOrdinal, slugify } from '../../utils/utils.js';
 import { ActionRowCost } from '../common/action-row.js';
@@ -349,7 +348,6 @@ export class ArcaneSection {
 	fundamentalCheck: Check;
 	fundamentalSpellCost: ActionRowCost;
 	spells: ArcaneSectionSpell[];
-	primaryAttribute: StatType;
 
 	constructor({
 		schoolOptions,
@@ -362,7 +360,6 @@ export class ArcaneSection {
 		fundamentalCheck,
 		fundamentalSpellCost,
 		spells,
-		primaryAttribute,
 	}: {
 		schoolOptions: readonly ArcaneSectionSchoolOption[];
 		castingTimeOptions: readonly ArcaneSectionCastingTimeOption[];
@@ -374,7 +371,6 @@ export class ArcaneSection {
 		fundamentalCheck: Check;
 		fundamentalSpellCost: ActionRowCost;
 		spells: ArcaneSectionSpell[];
-		primaryAttribute: StatType;
 	}) {
 		this.schoolOptions = schoolOptions;
 		this.castingTimeOptions = castingTimeOptions;
@@ -387,7 +383,6 @@ export class ArcaneSection {
 		this.fundamentalCheck = fundamentalCheck;
 		this.fundamentalSpellCost = fundamentalSpellCost;
 		this.spells = spells;
-		this.primaryAttribute = primaryAttribute;
 	}
 
 	static create({
@@ -468,7 +463,6 @@ export class ArcaneSection {
 			fundamentalCheck,
 			fundamentalSpellCost,
 			spells,
-			primaryAttribute,
 		});
 	}
 }
