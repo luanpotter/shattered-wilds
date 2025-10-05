@@ -2,7 +2,7 @@
 	"id": "shattered-wilds",
 	"title": "Shattered Wilds",
 	"description": "Shattered Wilds game system for Foundry VTT v13",
-	"version": "0.1.17",
+	"version": "0.1.18",
 	"compatibility": {
 		"minimum": "13",
 		"verified": "13"
