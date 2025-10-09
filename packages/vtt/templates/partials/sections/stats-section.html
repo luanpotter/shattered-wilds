@@ -1,0 +1,110 @@
+{{!--
+Stats Tab Section
+
+Expected context:
+- isStatsTabActive: boolean
+- statTreeData: The stat tree data
+--}}
+<div class="tab-panel {{#if isStatsTabActive}}active{{/if}}" data-tab-panel="stats">
+	{{#if statTreeData}}
+	<div class="stat-tree-grid">
+		<!-- Level Section -->
+		<div class="level-section">
+			<div class="level-display">
+				<span class="level-label">Level:</span>
+				<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="Level" data-modifier="{{statTreeData.level.modifier.value.value}}" title="Click for advanced options • Shift+Click for quick roll">
+					<span class="points-circle" title="{{statTreeData.level.tooltip}}">{{statTreeData.level.points}}</span>
+					<span class="modifier-value" title="{{statTreeData.level.tooltip}}">
+						{{statTreeData.level.modifier.value.description}}
+						{{#if statTreeData.level.hasWarning}}
+						<i class="stat-icon warning fas fa-exclamation-triangle" title="{{statTreeData.level.tooltip}}"></i>
+						{{else}}
+						{{#if statTreeData.level.hasTooltip}}
+						<i class="stat-icon info fas fa-info-circle" title="{{statTreeData.level.tooltip}}"></i>
+						{{/if}}
+						{{/if}}
+					</span>
+					<i class="fas fa-dice-d12 dice-icon"></i>
+				</div>
+			</div>
+		</div>
+
+		<!-- Main Grid Layout -->
+		<div class="stat-grid-container">
+			<!-- Vertical Realm Labels -->
+			<div class="realm-labels">
+				{{#each statTreeData.realms}}
+				<div class="realm-label {{type.name}}">
+					<div class="realm-name">{{type.name}}</div>
+					<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="{{type.name}}" data-modifier="{{modifier.value.value}}" title="Click for advanced options • Shift+Click for quick {{type.name}} roll">
+						<span class="points-circle" title="{{tooltip}}">{{points}}</span>
+						<span class="modifier-value" title="{{tooltip}}">
+							{{modifier.value.description}}
+							{{#if hasWarning}}
+							<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
+							{{else}}
+							{{#if hasTooltip}}
+							<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
+							{{/if}}
+							{{/if}}
+						</span>
+						<i class="fas fa-dice-d12 dice-icon"></i>
+					</div>
+				</div>
+				{{/each}}
+			</div>
+
+			<!-- 3x3 Attribute Grid -->
+			<div class="attributes-grid">
+				{{#each statTreeData.realms}}
+				{{#each attributes}}
+				<div class="attribute-panel">
+					<!-- Attribute Header -->
+					<div class="attribute-header">
+						<span class="attribute-name">{{type.name}}</span>
+						<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="{{type.name}}" data-modifier="{{modifier.value.value}}" title="Click for advanced options • Shift+Click for quick {{type.name}} roll">
+							<span class="points-circle" title="{{tooltip}}">{{points}}</span>
+							<span class="modifier-value" title="{{tooltip}}">
+								{{modifier.value.description}}
+								{{#if hasWarning}}
+								<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
+								{{else}}
+								{{#if hasTooltip}}
+								<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
+								{{/if}}
+								{{/if}}
+							</span>
+							<i class="fas fa-dice-d12 dice-icon"></i>
+						</div>
+					</div>
+
+					<!-- Skills List -->
+					<div class="skills-list">
+						{{#each skills}}
+						<div class="skill-row">
+							<span class="skill-name">{{type.name}}</span>
+							<div class="stat-value stat-clickable" data-action="roll-stat" data-stat-type="{{type.name}}" data-modifier="{{modifier.value.value}}" title="Click for advanced options • Shift+Click for quick {{type.name}} roll">
+								<span class="points-circle" title="{{tooltip}}">{{points}}</span>
+								<span class="modifier-value" title="{{tooltip}}">
+									{{modifier.value.description}}
+									{{#if hasWarning}}
+									<i class="stat-icon warning fas fa-exclamation-triangle" title="{{tooltip}}"></i>
+									{{else}}
+									{{#if hasTooltip}}
+									<i class="stat-icon info fas fa-info-circle" title="{{tooltip}}"></i>
+									{{/if}}
+									{{/if}}
+								</span>
+								<i class="fas fa-dice-d12 dice-icon"></i>
+							</div>
+						</div>
+						{{/each}}
+					</div>
+				</div>
+				{{/each}}
+				{{/each}}
+			</div>
+		</div>
+	</div>
+	{{/if}}
+</div>

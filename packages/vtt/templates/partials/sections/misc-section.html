@@ -1,0 +1,28 @@
+{{!--
+Misc Tab Section
+
+Expected context:
+- isMiscTabActive: boolean
+- miscData: The misc data
+--}}
+<div class="tab-panel {{#if isMiscTabActive}}active{{/if}}" data-tab-panel="misc">
+	{{#if miscData}}
+	<div class="misc-section">
+		<div class="misc-header">
+			<h3>Misc Notes</h3>
+		</div>
+		<div class="misc-content">
+			<textarea
+				class="misc-textarea"
+				data-action="update-misc"
+				rows="12"
+				placeholder="Use this space for any additional character notes, backstory details, or other miscellaneous information."
+			>{{miscData.value}}</textarea>
+		</div>
+	</div>
+	{{else}}
+	<div class="misc-loading">
+		<p>Loading misc data...</p>
+	</div>
+	{{/if}}
+</div>

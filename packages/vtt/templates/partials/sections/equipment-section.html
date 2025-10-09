@@ -1,0 +1,84 @@
+{{!--
+Equipment Tab Section
+
+Expected context:
+- isEquipmentTabActive: boolean
+- equipmentData: The equipment data
+--}}
+<div class="tab-panel {{#if isEquipmentTabActive}}active{{/if}}" data-tab-panel="equipment">
+	{{#if equipmentData}}
+	{{#if equipmentData.isEmpty}}
+	<div class="equipment-empty">
+		<p>No equipment found.</p>
+	</div>
+	{{else}}
+	<div class="equipment-list">
+		{{#each equipmentData.items}}
+		<div class="equipment-item" data-item-id="{{@index}}">
+			<div class="equipment-header" data-action="toggle-equipment" data-item-index="{{@index}}">
+				<span class="equipment-name">{{{headerDisplay}}}</span>
+				<span class="equipment-type">{{itemType}}</span>
+				<i class="fas fa-chevron-down equipment-toggle-icon"></i>
+			</div>
+			<div class="equipment-details" style="display: none;">
+				{{#if description}}
+				<div class="equipment-description">{{description}}</div>
+				{{/if}}
+							
+				{{#if weaponModes}}
+				<div class="weapon-modes">
+					<h4>Attack Modes</h4>
+					{{#each weaponModes}}
+					<div class="weapon-mode">
+						<div class="weapon-mode-info">
+							<span class="weapon-mode-type">{{type}}</span>
+							<span class="weapon-mode-bonus">{{bonus}}</span>
+							<span class="weapon-mode-primary">{{primaryAttribute}}</span>
+							{{#if range}}
+							<span class="weapon-mode-range">Range: {{range}}</span>
+							{{/if}}
+						</div>
+						<button type="button" class="weapon-attack-btn"
+							data-action="roll-weapon-attack"
+							data-weapon-mode-option-idx="{{idx}}"
+							title="Click for advanced options • Shift+Click for quick {{attackStat}} check roll">
+							<i class="fas fa-dice-d12"></i> {{attackStat}} Check
+						</button>
+					</div>
+					{{/each}}
+				</div>
+				{{/if}}
+							
+				{{#if armorInfo}}
+				<div class="armor-info">
+					<div class="armor-detail"><strong>Type:</strong> {{armorInfo.type}}</div>
+					<div class="armor-detail"><strong>Bonus:</strong> {{armorInfo.bonus}}</div>
+					{{#if armorInfo.dexPenalty}}
+					<div class="armor-detail"><strong>DEX Penalty:</strong> {{armorInfo.dexPenalty}}</div>
+					{{/if}}
+				</div>
+				{{/if}}
+							
+				{{#if shieldInfo}}
+				<div class="shield-info">
+					<div class="shield-detail"><strong>Type:</strong> {{shieldInfo.type}}</div>
+					<div class="shield-detail"><strong>Bonus:</strong> {{shieldInfo.bonus}}</div>
+				</div>
+				{{/if}}
+							
+				{{#if traits.length}}
+				<div class="equipment-traits">
+					<strong>Traits:</strong> {{#each traits}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+				</div>
+				{{/if}}
+			</div>
+		</div>
+		{{/each}}
+	</div>
+	{{/if}}
+	{{else}}
+	<div class="equipment-loading">
+		<p>Loading equipment...</p>
+	</div>
+	{{/if}}
+</div>

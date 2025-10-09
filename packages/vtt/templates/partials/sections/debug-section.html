@@ -1,0 +1,16 @@
+{{!--
+Debug Tab Section
+
+Expected context:
+- isDebugTabActive: boolean
+- props: All properties for debugging
+--}}
+<div class="tab-panel {{#if isDebugTabActive}}active{{/if}}" data-tab-panel="debug">
+	<div class="debug-section">
+		<ul>
+			{{#each props as |value key|}}
+			<li><code>{{key}}</code>: {{value}}</li>
+			{{/each}}
+		</ul>
+	</div>
+</div>

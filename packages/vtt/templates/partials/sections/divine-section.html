@@ -1,0 +1,42 @@
+{{!--
+Divine Tab Section
+
+Expected context:
+- isDivineTabActive: boolean
+- divineData: The divine data
+--}}
+<div class="tab-panel {{#if isDivineTabActive}}active{{/if}}" data-tab-panel="divine">
+	{{#if divineData}}
+	<div class="actions-section">
+		<!-- Divine Header Controls -->
+		<div class="actions-header-section">
+			<div class="actions-header-controls">
+				<!-- Base Modifier (read-only) -->
+				<div class="header-input">
+					<label class="header-label">Base Modifier</label>
+					<span class="header-value" title="{{divineData.header.baseModifier.description}}">
+						{{divineData.header.baseModifier.name}} ({{divineData.header.baseModifier.value}})
+					</span>
+				</div>
+				
+				<!-- Range Increment (read-only) -->
+				<div class="header-input">
+					<label class="header-label">Range Increment</label>
+					<span class="header-value" title="{{divineData.header.influenceRange.description}}">
+						{{divineData.header.influenceRange.value}}
+					</span>
+				</div>
+			</div>
+		</div>
+		
+		<hr class="actions-divider">
+		
+		<!-- Pure Divine Channeling Action Row -->
+		{{> action-row actionRow=divineData.pureDivineChanneling}}
+	</div>
+	{{else}}
+	<div class="empty-message">
+		<p>This character is not a mystic.</p>
+	</div>
+	{{/if}}
+</div>

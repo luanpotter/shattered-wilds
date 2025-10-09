@@ -1,0 +1,177 @@
+{{!--
+Arcane Tab Section
+
+Expected context:
+- isArcaneTabActive: boolean
+- arcaneData: The arcane data
+--}}
+<div class="tab-panel {{#if isArcaneTabActive}}active{{/if}}" data-tab-panel="arcane">
+	{{#if arcaneData}}
+	<div class="actions-section">
+		<!-- Arcane Header Controls -->
+		<div class="actions-header-section">
+			<!-- First row: Core parameters -->
+			<div class="actions-header-controls">
+				<!-- Base Modifier (read-only) -->
+				<div class="header-input">
+					<label class="header-label">Base Mod</label>
+					<span class="header-value" title="{{arcaneData.header.baseModifier.description}}">{{arcaneData.header.baseModifier.value}}</span>
+				</div>
+							
+				<!-- Range Increment (read-only) -->
+				<div class="header-input">
+					<label class="header-label">Range Inc</label>
+					<span class="header-value" title="{{arcaneData.header.influenceRange.description}}">{{arcaneData.header.influenceRange.value}}</span>
+				</div>
+							
+				<!-- Range Input -->
+				<div class="header-input">
+					<label class="header-label">Target (Hexes)</label>
+					<input type="number" class="header-input-field" data-action="set-arcane-range" value="{{arcaneData.header.selectedRange}}" placeholder="0">
+				</div>
+							
+				<!-- Combined Modifier (read-only) -->
+				<div class="header-input">
+					<label class="header-label">Combined Mod</label>
+					<span class="header-value" title="{{arcaneData.header.combinedModifier.description}}">{{arcaneData.header.combinedModifier.value}}</span>
+				</div>
+			</div>
+			
+			<!-- Second row: Components -->
+			<div class="actions-header-controls">
+				<!-- Somatic Component (if available) -->
+				{{#if arcaneData.header.somaticComponentOptions}}
+				<div class="header-dropdown">
+					<label class="header-label">Somatic</label>
+					<select data-action="select-arcane-somatic-component" class="header-select">
+						{{#each arcaneData.header.somaticComponentOptions}}
+						<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+						{{/each}}
+					</select>
+				</div>
+				{{/if}}
+							
+				<!-- Verbal Component (if available) -->
+				{{#if arcaneData.header.verbalComponentOptions}}
+				<div class="header-dropdown">
+					<label class="header-label">Verbal</label>
+					<select data-action="select-arcane-verbal-component" class="header-select">
+						{{#each arcaneData.header.verbalComponentOptions}}
+						<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+						{{/each}}
+					</select>
+				</div>
+				{{/if}}
+							
+				<!-- Focal Component (if available) -->
+				{{#if arcaneData.header.focalComponentOptions}}
+				<div class="header-dropdown">
+					<label class="header-label">Focal</label>
+					<select data-action="select-arcane-focal-component" class="header-select">
+						{{#each arcaneData.header.focalComponentOptions}}
+						<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+						{{/each}}
+					</select>
+				</div>
+				{{/if}}
+			</div>
+		</div>
+					
+		<hr class="actions-divider">
+					
+		<!-- Fundamental Spell Row -->
+		<div class="action-item">
+			<!-- Cost box -->
+			<div class="action-cost-box clickable"
+				title="{{arcaneData.costTooltip}}"
+				data-action="consume-spell-cost">
+				<div class="action-cost-title {{#unless arcaneData.canAfford}}insufficient{{/unless}}">COST</div>
+				{{#each arcaneData.costs}}
+				<div class="action-cost-value {{#if insufficient}}insufficient{{/if}}">
+					{{value}}
+				</div>
+				{{/each}}
+			</div>
+
+			<!-- Fundamental spell description -->
+			<div class="action-details">
+				<div class="action-header">
+					<div class="action-name-traits">
+						<span class="action-name">Fundamental Arcane Spell</span>
+					</div>
+				</div>
+				<div class="action-description">
+					{{#if arcaneData.header.selectedSchool}}
+					{{#unless (eq arcaneData.header.selectedSchool "All Schools")}}
+					{{{arcaneData.schoolDescription}}}
+					{{else}}
+					{{{arcaneData.fundamentalDescription}}}
+					{{/unless}}
+					{{else}}
+					{{{arcaneData.fundamentalDescription}}}
+					{{/if}}
+				</div>
+			</div>
+
+			<!-- Casting Time & Focus Cost -->
+			<div class="action-parameter">
+				<div class="parameter-box spell-controls">
+					<div class="parameter-title">CASTING</div>
+					<div class="casting-controls">
+						<select data-action="select-arcane-casting-time" class="casting-select">
+							{{#each arcaneData.header.castingTimeOptions}}
+							<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+							{{/each}}
+						</select>
+						<select data-action="select-arcane-focus-cost" class="casting-select">
+							{{#each arcaneData.header.focusCostOptions}}
+							<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+							{{/each}}
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<!-- School & Attack Type Filters -->
+			<div class="action-parameter">
+				<div class="parameter-box spell-controls">
+					<div class="parameter-title">FILTERS</div>
+					<div class="filter-controls">
+						<select data-action="select-arcane-school" class="filter-select">
+							{{#each arcaneData.header.schoolOptions}}
+							<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+							{{/each}}
+						</select>
+						<select data-action="select-arcane-attack-option" class="filter-select">
+							{{#each arcaneData.header.attackOptions}}
+							<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+							{{/each}}
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<!-- Fundamental Modifier -->
+			<div class="action-parameter">
+				<div class="parameter-box check-parameter clickable"
+					title="{{arcaneData.fundamentalCheck.statModifier.description}} • Click for advanced options • Shift+Click for quick roll"
+					data-action="fundamental-spell-roll">
+					<div class="parameter-title">{{arcaneData.fundamentalCheck.statModifier.name}} ({{arcaneData.fundamentalCheck.statModifier.baseValue.description}})</div>
+					<div class="parameter-value">{{arcaneData.fundamentalCheck.statModifier.value.description}} <i class="fas fa-dice-d12 dice-icon"></i></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Spells List -->
+		<div class="actions-content">
+			{{#each arcaneData.spells}}
+			{{> action-row actionRow=this}}
+			{{/each}}
+		</div>
+	</div>
+	{{else}}
+	<div class="empty-message">
+		<p>This character is not a spellcaster.</p>
+	</div>
+	{{/if}}
+</div>

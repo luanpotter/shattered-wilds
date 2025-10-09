@@ -25,18 +25,36 @@ getHooks().once?.('init', async () => {
 			.Handlebars;
 
 		if (Handlebars) {
-			// Fetch the template directly since game.getTemplate might not be available yet
-			const response = await fetch('systems/shattered-wilds/templates/partials/action-row.html');
-			if (response.ok) {
-				const template = await response.text();
-				Handlebars.registerPartial('action-row', template);
-				console.log('Registered action-row partial');
-			} else {
-				console.warn('Failed to fetch action-row partial:', response.status);
+			const partials = [
+				'action-row',
+				'sections/stats-section',
+				'sections/feats-section',
+				'sections/equipment-section',
+				'sections/actions-section',
+				'sections/arcane-section',
+				'sections/divine-section',
+				'sections/personality-section',
+				'sections/misc-section',
+				'sections/debug-section',
+			];
+
+			for (const partial of partials) {
+				try {
+					const response = await fetch(`systems/shattered-wilds/templates/partials/${partial}.html`);
+					if (response.ok) {
+						const template = await response.text();
+						Handlebars.registerPartial(partial, template);
+						console.log(`Registered ${partial} partial`);
+					} else {
+						console.warn(`Failed to fetch ${partial} partial:`, response.status);
+					}
+				} catch (err) {
+					console.warn(`Failed to register ${partial} partial:`, err);
+				}
 			}
 		}
 	} catch (err) {
-		console.warn('Failed to register action-row partial:', err);
+		console.warn('Failed to register partials:', err);
 	}
 
 	// Register V2 ActorSheet with HandlebarsApplicationMixin

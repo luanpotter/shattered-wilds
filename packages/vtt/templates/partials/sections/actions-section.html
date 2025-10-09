@@ -1,0 +1,99 @@
+{{!--
+Actions Tab Section
+
+Expected context:
+- isActionsTabActive: boolean
+- actionsData: The actions data
+--}}
+<div class="tab-panel {{#if isActionsTabActive}}active{{/if}}" data-tab-panel="actions">
+	{{#if actionsData}}
+	<div class="actions-section">
+		<!-- Actions controls -->
+		<div class="actions-controls">
+			<div class="actions-header">
+				<h3>Actions</h3>
+				<label class="actions-show-all">
+					<input type="checkbox" {{#if actionsData.showAll}}checked{{/if}} data-action="toggle-actions-show-all">
+					Show All
+				</label>
+			</div>
+		</div>
+
+		<!-- Actions sub-tabs -->
+		<div class="actions-tabs">
+			{{#each actionsData.tabs}}
+			<button type="button"
+				class="actions-tab-button {{#if active}}active{{/if}}"
+				data-action="select-actions-tab"
+				data-tab="{{key}}">
+				{{#if icon}}<i class="{{icon}}"></i>{{/if}}
+				{{label}}
+			</button>
+			{{/each}}
+		</div>
+
+		<!-- Actions content -->
+		<div class="actions-content">
+			{{#each actionsData.tabs}}
+			{{#if active}}
+			<div class="actions-tab-content">
+				{{#if inputs}}
+				<div class="actions-header-section">
+					<div class="actions-header-controls">
+						{{#each inputs}}
+						{{#if (eq type "fixed")}}
+						<div class="header-input">
+							<label class="header-label">{{label}}</label>
+							<span class="header-value" title="{{tooltip}}">{{value}}</span>
+						</div>
+						{{else if (eq type "number")}}
+						<div class="header-input">
+							<label class="header-label">{{label}}</label>
+							<input type="number"
+								class="header-input-field"
+								data-action="update-input"
+								data-input-key="{{key}}"
+								value="{{value}}"
+								placeholder="0"
+								title="{{tooltip}}">
+						</div>
+						{{else if (eq type "dropdown")}}
+						<div class="header-dropdown">
+							<label class="header-label">{{label}}</label>
+							<select class="header-select"
+								data-action="update-input"
+								data-input-key="{{key}}"
+								title="{{tooltip}}">
+								{{#each options}}
+								<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+								{{/each}}
+							</select>
+						</div>
+						{{/if}}
+						{{/each}}
+					</div>
+				</div>
+				{{/if}}
+							
+				<hr class="actions-divider">
+							
+				{{#if actions}}
+				{{#each actions}}
+				{{> action-row actionRow=this}}
+				{{/each}}
+				{{else}}
+				<div class="actions-empty">
+					<p>No actions available for this category.</p>
+				</div>
+				{{/if}}
+			</div>
+			{{/if}}
+			{{/each}}
+		</div>
+	</div>
+	{{else}}
+	<div class="actions-loading">
+		<p>Loading actions...</p>
+	</div>
+	{{/if}}
+</div>
