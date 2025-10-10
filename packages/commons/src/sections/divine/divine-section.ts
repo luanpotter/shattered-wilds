@@ -2,7 +2,6 @@ import { CharacterSheet } from '../../character/character-sheet.js';
 import { ActionCost } from '../../core/actions.js';
 import { Trait } from '../../core/traits.js';
 import { CheckFactory } from '../../engine/check-factory.js';
-import { CheckMode, CheckNature } from '../../stats/check.js';
 import { DerivedStatType } from '../../stats/derived-stat.js';
 import { Resource } from '../../stats/resources.js';
 import { StatModifier } from '../../stats/stat-tree.js';
@@ -58,12 +57,7 @@ export class DivineSection {
 		});
 
 		const checkFactory = new CheckFactory({ characterSheet });
-		const check = checkFactory.create({
-			mode: CheckMode.Contested,
-			descriptor: 'Divine Channeling',
-			nature: CheckNature.Active,
-			statModifier: baseModifier,
-		});
+		const check = checkFactory.divineChanneling({ baseModifier });
 
 		const key = 'divine-channeling';
 

@@ -64,6 +64,15 @@ export class CheckFactory {
 		});
 	}
 
+	divineChanneling({ baseModifier }: { baseModifier: StatModifier }): Check {
+		return this.create({
+			mode: CheckMode.Contested,
+			descriptor: 'Divine Channeling',
+			nature: CheckNature.Active,
+			statModifier: baseModifier,
+		});
+	}
+
 	stat({
 		mode,
 		nature,
@@ -80,7 +89,7 @@ export class CheckFactory {
 		return this.create({ mode, nature, descriptor, statModifier });
 	}
 
-	create({
+	private create({
 		mode,
 		descriptor,
 		nature,
