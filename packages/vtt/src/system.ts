@@ -19,7 +19,29 @@ import { configureDefaultTokenBars, fixUnlinkedTokens } from './token-bars.js';
 import { registerInitiativeHooks } from './initiative.js';
 
 getHooks().once?.('init', async () => {
+	// Register V2 ActorSheet with HandlebarsApplicationMixin
+	const ActorCtor = getActorConstructor();
+	getDocumentSheetConfig().registerSheet(ActorCtor, 'shattered-wilds', SWActorSheetV2, {
+		label: 'Shattered Wilds Actor Sheet',
+		types: ['character'],
+		makeDefault: true,
+	});
+
+	// Register chat commands for dice rolling
+	registerChatCommands();
+
+	// Register initiative system hooks
+	registerInitiativeHooks();
+
+	// Register status effects for conditions
+	SWActorSheetV2.registerStatusEffects();
+
 	// Load and register Handlebars partials early
+	await registerPartials();
+});
+
+// Function to register Handlebars partials
+const registerPartials = async () => {
 	try {
 		const Handlebars = (globalThis as { Handlebars?: { registerPartial: (name: string, template: string) => void } })
 			.Handlebars;
@@ -28,6 +50,7 @@ getHooks().once?.('init', async () => {
 			const partials = [
 				'action-row',
 				'sections/stats-section',
+				'sections/circumstances-section',
 				'sections/feats-section',
 				'sections/equipment-section',
 				'sections/actions-section',
@@ -56,24 +79,7 @@ getHooks().once?.('init', async () => {
 	} catch (err) {
 		console.warn('Failed to register partials:', err);
 	}
-
-	// Register V2 ActorSheet with HandlebarsApplicationMixin
-	const ActorCtor = getActorConstructor();
-	getDocumentSheetConfig().registerSheet(ActorCtor, 'shattered-wilds', SWActorSheetV2, {
-		label: 'Shattered Wilds Actor Sheet',
-		types: ['character'],
-		makeDefault: true,
-	});
-
-	// Register chat commands for dice rolling
-	registerChatCommands();
-
-	// Register initiative system hooks
-	registerInitiativeHooks();
-
-	// Register status effects for conditions
-	SWActorSheetV2.registerStatusEffects();
-});
+};
 
 // Hook for when actors are created to set up default token bars
 const actorHooks = getHooks();

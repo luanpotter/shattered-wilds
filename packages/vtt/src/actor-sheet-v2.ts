@@ -687,6 +687,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			divineData: this.prepareDivineData(characterSheet),
 			activeTab: this.#activeTab,
 			isStatsTabActive: this.#activeTab === 'stats',
+			isCircumstancesTabActive: this.#activeTab === 'circumstances',
 			isFeatsTabActive: this.#activeTab === 'feats',
 			isPersonalityTabActive: this.#activeTab === 'personality',
 			isMiscTabActive: this.#activeTab === 'misc',

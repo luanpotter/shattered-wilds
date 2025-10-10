@@ -98,6 +98,9 @@
 					<button type="button" class="tab-button {{#if isStatsTabActive}}active{{/if}}" data-tab="stats" title="Stats">
 						<i class="fas fa-sitemap"></i>
 					</button>
+					<button type="button" class="tab-button {{#if isCircumstancesTabActive}}active{{/if}}" data-tab="circumstances" title="Circumstances">
+						<i class="fas fa-sliders"></i>
+					</button>
 					<button type="button" class="tab-button {{#if isFeatsTabActive}}active{{/if}}" data-tab="feats" title="Feats">
 						<i class="fas fa-star"></i>
 					</button>
@@ -132,6 +135,9 @@
 				<div class="tab-content">
 					<!-- Stats Tab -->
 					{{> sections/stats-section}}
+
+					<!-- Circumstances Tab -->
+					{{> sections/circumstances-section}}
 
 					<!-- Feats Tab -->
 					{{> sections/feats-section}}

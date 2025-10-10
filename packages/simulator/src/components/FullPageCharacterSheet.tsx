@@ -11,6 +11,7 @@ import {
 	FaPen,
 	FaShieldAlt,
 	FaSitemap,
+	FaSlidersH,
 	FaStar,
 	FaSun,
 	FaThLarge,
@@ -28,6 +29,7 @@ import { EquipmentSection } from './EquipmentSection';
 import { ResourcesRowComponent } from './ResourcesRowComponent';
 import { ActionsSectionComponent } from './sections/ActionsSectionComponent';
 import { ArcaneSectionComponent } from './sections/ArcaneSectionComponent';
+import { CircumstancesSectionComponent } from './sections/CircumstancesSectionComponent';
 import { DivineSectionComponent } from './sections/DivineSectionComponent';
 import { FeatsSectionComponent } from './sections/FeatsSectionComponent';
 import { MiscSectionComponent } from './sections/MiscSectionComponent';
@@ -76,6 +78,7 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 	type TabKey =
 		| 'all'
 		| 'stats'
+		| 'circumstances'
 		| 'feats'
 		| 'equipment'
 		| 'actions'
@@ -93,6 +96,7 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 	const tabs: { key: TabKey; icon: React.ComponentType; tooltip: string }[] = [
 		{ key: 'all', icon: FaThLarge, tooltip: 'All' },
 		{ key: 'stats', icon: FaSitemap, tooltip: 'Stats' },
+		{ key: 'circumstances', icon: FaSlidersH, tooltip: 'Circumstances' },
 		{ key: 'feats', icon: FaStar, tooltip: 'Feats' },
 		{ key: 'equipment', icon: FaShieldAlt, tooltip: 'Equipment' },
 		{ key: 'actions', icon: FaBolt, tooltip: 'Actions' },
@@ -239,6 +243,9 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 					</Block>
 				)}
 
+				{(resolvedTab === 'all' || resolvedTab === 'circumstances') && (
+					<CircumstancesSectionComponent characterId={characterId} />
+				)}
 				{(resolvedTab === 'all' || resolvedTab === 'feats') && <FeatsSectionComponent characterId={characterId} />}
 				{(resolvedTab === 'all' || resolvedTab === 'equipment') && <EquipmentSection characterId={characterId} />}
 				{(resolvedTab === 'all' || resolvedTab === 'actions') && <ActionsSectionComponent characterId={characterId} />}
