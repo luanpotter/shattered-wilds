@@ -21,6 +21,7 @@ export * from './character/equipment.js';
 export * from './engine/check-factory.js';
 export * from './sections/actions/actions-section.js';
 export * from './sections/arcane/arcane-section.js';
+export * from './sections/circumstances/circumstances-section.js';
 export * from './sections/divine/divine-section.js';
 export * from './sections/feats/feats-section.js';
 export * from './sections/common/action-row.js';

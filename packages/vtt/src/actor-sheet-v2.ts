@@ -16,6 +16,7 @@ import {
 	CheckMode,
 	CheckNature,
 	CircumstanceModifier,
+	CircumstancesSection,
 	Condition,
 	CONDITIONS,
 	DerivedStatType,
@@ -37,6 +38,7 @@ import {
 	Weapon,
 	WeaponModeOption,
 } from '@shattered-wilds/commons';
+import { prepareActionRow, processDescriptionText } from './action-row-renderer.js';
 import {
 	ensureActorDataPersistence,
 	getActorData,
@@ -59,7 +61,6 @@ import {
 } from './foundry-shim.js';
 import { prepareInputForTemplate } from './input-renderer.js';
 import { configureDefaultTokenBars } from './token-bars.js';
-import { processDescriptionText, prepareActionRow } from './action-row-renderer.js';
 
 async function syncResourcesToSystemData(actor: unknown, characterSheet: CharacterSheet): Promise<void> {
 	try {
@@ -685,6 +686,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			actionsData: this.prepareActionsData(characterSheet),
 			arcaneData: this.prepareArcaneData(characterSheet),
 			divineData: this.prepareDivineData(characterSheet),
+			circumstanceData: this.prepareCircumstanceData(characterSheet),
 			activeTab: this.#activeTab,
 			isStatsTabActive: this.#activeTab === 'stats',
 			isCircumstancesTabActive: this.#activeTab === 'circumstances',
@@ -1112,6 +1114,22 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			};
 		} catch (err) {
 			console.warn('Failed to prepare divine data:', err);
+			return null;
+		}
+	}
+
+	prepareCircumstanceData(characterSheet: CharacterSheet | undefined): Record<string, unknown> | null {
+		if (!characterSheet) {
+			return null;
+		}
+
+		try {
+			const circumstanceSection = CircumstancesSection.create({ characterSheet });
+			return {
+				test: circumstanceSection.currentResources.currentResources.HeroismPoint.toString(),
+			};
+		} catch (err) {
+			console.warn('Failed to create circumstances section:', err);
 			return null;
 		}
 	}
