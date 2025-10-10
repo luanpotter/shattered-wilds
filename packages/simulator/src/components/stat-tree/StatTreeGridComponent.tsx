@@ -1,4 +1,4 @@
-import { StatNode, StatTree, StatType } from '@shattered-wilds/commons';
+import { CharacterSheet, StatNode, StatType } from '@shattered-wilds/commons';
 import React from 'react';
 
 import { LevelSection } from './LevelSection';
@@ -7,20 +7,23 @@ import { getRealmBackgroundColor } from './shared-logic';
 import { StatValueComponent } from './StatValueComponent';
 
 interface StatTreeGridComponentProps {
-	tree: StatTree;
+	characterSheet: CharacterSheet;
 	onUpdateCharacterProp: (key: string, value: string) => void;
 	disabled?: boolean;
 	characterId: string;
 }
 
 export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
-	tree,
+	characterSheet,
 	onUpdateCharacterProp,
 	characterId,
 }) => {
+	const tree = characterSheet.getStatTree();
+
 	const StatValue = ({ node }: { node: StatNode }) => {
 		return (
 			<StatValueComponent
+				characterSheet={characterSheet}
 				tree={tree}
 				node={node}
 				onUpdateCharacterProp={onUpdateCharacterProp}

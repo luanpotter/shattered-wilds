@@ -1,4 +1,4 @@
-import { CharacterSheet, Check, CheckMode, CheckNature, DerivedStatType } from '@shattered-wilds/commons';
+import { CharacterSheet, CheckFactory, DerivedStatType } from '@shattered-wilds/commons';
 import React from 'react';
 
 import { useModals } from '../hooks/useModals';
@@ -19,6 +19,8 @@ export const DerivedStatsRowComponent: React.FC<{ variant: 'normal' | 'inline'; 
 	const movement = tree.getDistance(DerivedStatType.Movement);
 	const initiative = tree.getModifier(DerivedStatType.Initiative);
 	const influenceRange = tree.getDistance(DerivedStatType.InfluenceRange);
+
+	const checkFactory = new CheckFactory({ characterSheet: sheet });
 
 	return (
 		<>
@@ -46,12 +48,7 @@ export const DerivedStatsRowComponent: React.FC<{ variant: 'normal' | 'inline'; 
 				onClick={() => {
 					openDiceRollModal({
 						characterId,
-						check: new Check({
-							mode: CheckMode.Contested,
-							nature: CheckNature.Resisted,
-							descriptor: 'Initiative',
-							statModifier: initiative,
-						}),
+						check: checkFactory.initiative(),
 					});
 				}}
 			/>

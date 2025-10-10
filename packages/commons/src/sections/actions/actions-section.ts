@@ -10,6 +10,7 @@ import {
 	StandardCheck,
 } from '../../core/actions.js';
 import { DEFENSE_TRAITS, DefenseTrait, Trait } from '../../core/traits.js';
+import { CheckFactory } from '../../engine/check-factory.js';
 import { Check } from '../../stats/check.js';
 import { CircumstanceModifier } from '../../stats/stat-tree.js';
 import { StatType } from '../../stats/stat-type.js';
@@ -51,11 +52,12 @@ export class ActionsSection {
 		inputValues: ActionTabInputValues;
 		update: (inputValues: ActionTabInputValues) => void;
 	}): ActionsSection {
-		const factory = new ActionsSectionInputFactory({
+		const inputFactory = new ActionsSectionInputFactory({
 			sheet: characterSheet,
 			inputValues,
 			update,
 		});
+		const checkFactory = new CheckFactory({ characterSheet });
 		return new ActionsSection({
 			tabs: mapEnumToRecord(ActionType, type => {
 				const actions = Object.values(ACTIONS)
@@ -78,7 +80,7 @@ export class ActionsSection {
 									return parameter instanceof ActionCheckParameter
 										? ActionTabParameterCalculator.createBoxForCheck({
 												key,
-												characterSheet,
+												checkFactory,
 												action,
 												parameter,
 												inputValues,
@@ -96,7 +98,7 @@ export class ActionsSection {
 					.filter(actionItem => showAll || !actionItem.hasErrors());
 				return new ActionTab({
 					type: type,
-					inputs: factory.getInputsForActionType(type),
+					inputs: inputFactory.getInputsForActionType(type),
 					actions,
 				});
 			}),
@@ -117,7 +119,33 @@ export class ActionTab {
 	}
 }
 
-const ActionTabParameterCalculator = {
+export const ActionTabParameterCalculator = {
+	computeCheck: ({
+		checkFactory,
+		action,
+		parameter,
+		inputValues,
+	}: {
+		checkFactory: CheckFactory;
+		action: ActionDefinition;
+		parameter: ActionCheckParameter;
+		inputValues: ActionTabInputValues;
+	}): Check => {
+		const statType = ActionTabParameterCalculator.computeStatType(parameter.statType, inputValues);
+		const cms = parameter.includeEquipmentModifiers.flatMap(includeModifierFor =>
+			ActionTabParameterCalculator.computeIncludedModifiers(includeModifierFor, inputValues),
+		);
+		const circumstanceModifiers = [parameter.circumstanceModifier, ...cms].filter(e => e !== undefined);
+
+		return checkFactory.action({
+			mode: parameter.mode,
+			descriptor: action.name,
+			nature: parameter.nature,
+			statType,
+			circumstanceModifiers,
+		});
+	},
+
 	computeStatType: (statType: StatType | StandardCheck, inputValues: ActionTabInputValues): StatType => {
 		if (statType instanceof StatType) {
 			return statType;
@@ -181,13 +209,13 @@ const ActionTabParameterCalculator = {
 
 	createBoxForCheck: ({
 		key,
-		characterSheet,
+		checkFactory,
 		action,
 		parameter,
 		inputValues,
 	}: {
 		key: string;
-		characterSheet: CharacterSheet;
+		checkFactory: CheckFactory;
 		action: ActionDefinition;
 		parameter: ActionCheckParameter;
 		inputValues: ActionTabInputValues;
@@ -232,20 +260,11 @@ const ActionTabParameterCalculator = {
 			});
 		}
 
-		const statType = ActionTabParameterCalculator.computeStatType(parameter.statType, inputValues);
-		const cms = parameter.includeEquipmentModifiers.flatMap(includeModifierFor =>
-			ActionTabParameterCalculator.computeIncludedModifiers(includeModifierFor, inputValues),
-		);
-		const circumstanceModifiers = [parameter.circumstanceModifier, ...cms].filter(e => e !== undefined);
-
-		const statTree = characterSheet.getStatTree();
-		const statModifier = statTree.getModifier(statType, circumstanceModifiers);
-
-		const check = new Check({
-			mode: parameter.mode,
-			nature: parameter.nature,
-			descriptor: action.name,
-			statModifier: statModifier,
+		const check = ActionTabParameterCalculator.computeCheck({
+			checkFactory,
+			action,
+			parameter,
+			inputValues,
 		});
 
 		return ActionRowBox.fromCheck({ key, check, targetDC: parameter.targetDC, errors });

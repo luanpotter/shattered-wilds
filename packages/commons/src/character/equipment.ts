@@ -78,6 +78,10 @@ export class WeaponModeOption {
 	getEquipmentModifier(): CircumstanceModifier {
 		return this.weapon.getEquipmentModifier(this.mode);
 	}
+
+	get name(): string {
+		return `${this.weapon.name} / ${this.mode.description}`;
+	}
 }
 
 export class Weapon implements Item {
@@ -337,6 +341,18 @@ export class Equipment {
 
 	arcaneFoci(): ArcaneFocus[] {
 		return this.ofType(ArcaneFocus);
+	}
+
+	defaultWeaponMode(): WeaponModeOption {
+		return this.weaponModes()[0] ?? Weapon.unarmed();
+	}
+
+	defaultArmor(): Armor | 'None' {
+		return this.armors()[0] ?? 'None';
+	}
+
+	defaultShield(): Shield | 'None' {
+		return this.shields()[0] ?? 'None';
 	}
 
 	static from(prop: string | undefined): Equipment {

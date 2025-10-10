@@ -231,7 +231,7 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 				{(resolvedTab === 'all' || resolvedTab === 'stats') && (
 					<Block>
 						<StatTreeGridComponent
-							tree={sheet.getStatTree()}
+							characterSheet={sheet}
 							onUpdateCharacterProp={(key: string, value: string) => updateCharacterProp(character, key, value)}
 							disabled={!editMode}
 							characterId={characterId}

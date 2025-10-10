@@ -1,7 +1,7 @@
-import { Check, CheckMode, CheckNature, DerivedStatType, DiceRoll } from '@shattered-wilds/commons';
+import { CheckFactory, DiceRoll } from '@shattered-wilds/commons';
 import { parseCharacterSheet } from './characters.js';
 import { executeEnhancedRoll } from './dices.js';
-import { ActorLike, getHooks, getCombatCtor } from './foundry-shim.js';
+import { ActorLike, getCombatCtor, getHooks } from './foundry-shim.js';
 
 export function registerInitiativeHooks(): void {
 	const hooks = getHooks();
@@ -73,22 +73,14 @@ async function rollShatteredWildsInitiative(actor: ActorLike): Promise<number | 
 	try {
 		const characterSheet = parseCharacterSheet(actor);
 		if (!characterSheet) return undefined;
-		const statTree = characterSheet.getStatTree();
 
-		const initiativeModifier = statTree.getModifier(DerivedStatType.Initiative);
-
-		// Use centralized dice system for initiative
+		const checkFactory = new CheckFactory({ characterSheet });
 		const rollRequest: DiceRoll = {
 			characterName: characterSheet.name ?? 'Unknown',
-			check: new Check({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Resisted,
-				descriptor: 'Initiative',
-				statModifier: initiativeModifier,
-			}),
-			extra: undefined, // Initiative doesn't use extra dice through the combat tracker
-			luck: undefined, // Initiative doesn't use luck dice through the combat tracker
-			targetDC: undefined, // Initiative never has a target DC
+			check: checkFactory.initiative(),
+			extra: undefined,
+			luck: undefined,
+			targetDC: undefined,
 		};
 
 		return await executeEnhancedRoll(rollRequest);

@@ -1,4 +1,4 @@
-import { StatHierarchy, StatNode, StatTree, StatType } from '@shattered-wilds/commons';
+import { CharacterSheet, StatHierarchy, StatNode, StatType } from '@shattered-wilds/commons';
 import React, { ReactNode, useState } from 'react';
 import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
 
@@ -10,7 +10,7 @@ import { getRealmBackgroundColor } from './shared-logic';
 import { StatValueComponent } from './StatValueComponent';
 
 interface StatTreeToggleComponentProps {
-	tree: StatTree;
+	characterSheet: CharacterSheet;
 	onUpdateCharacterProp: (key: string, value: string) => void;
 	disabled?: boolean;
 	characterId: string;
@@ -83,16 +83,19 @@ const StatBox: React.FC<StatBoxProps> = ({
 };
 
 export const StatTreeToggleComponent: React.FC<StatTreeToggleComponentProps> = ({
-	tree,
+	characterSheet,
 	onUpdateCharacterProp,
 	characterId,
 }) => {
 	const [selectedRealm, setSelectedRealm] = useState<StatType | null>(null);
 	const [selectedBasicAttribute, setSelectedBasicAttribute] = useState<StatType | null>(null);
 
+	const tree = characterSheet.getStatTree();
+
 	const StatValue = ({ node }: { node: StatNode }) => {
 		return (
 			<StatValueComponent
+				characterSheet={characterSheet}
 				tree={tree}
 				node={node}
 				onUpdateCharacterProp={onUpdateCharacterProp}

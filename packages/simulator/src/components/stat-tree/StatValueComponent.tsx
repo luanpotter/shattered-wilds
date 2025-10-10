@@ -1,4 +1,4 @@
-import { Check, CheckMode, CheckNature, StatNode, StatTree } from '@shattered-wilds/commons';
+import { CharacterSheet, CheckFactory, CheckMode, CheckNature, StatNode, StatTree } from '@shattered-wilds/commons';
 import React from 'react';
 import { FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
 
@@ -8,6 +8,7 @@ import { useStore } from '../../store';
 import { useHandleAllocatePoint, useHandleDeallocatePoint } from './shared-logic';
 
 interface StatValueComponentProps {
+	characterSheet: CharacterSheet;
 	tree: StatTree;
 	node: StatNode;
 	characterId?: string;
@@ -16,6 +17,7 @@ interface StatValueComponentProps {
 }
 
 export const StatValueComponent: React.FC<StatValueComponentProps> = ({
+	characterSheet,
 	tree,
 	node,
 	characterId,
@@ -36,7 +38,7 @@ export const StatValueComponent: React.FC<StatValueComponentProps> = ({
 	const modifier = tree.getNodeModifier(node);
 	const value = modifier.value;
 
-	const attributeName = node.type.name;
+	const checkFactory = new CheckFactory({ characterSheet });
 
 	const handleContextMenu = (e: React.MouseEvent) => {
 		// Always prevent default context menu
@@ -58,11 +60,10 @@ export const StatValueComponent: React.FC<StatValueComponentProps> = ({
 			if (characterId) {
 				openDiceRollModal({
 					characterId,
-					check: new Check({
+					check: checkFactory.stat({
 						mode: CheckMode.Static,
 						nature: CheckNature.Active,
-						descriptor: attributeName,
-						statModifier: modifier,
+						statType: node.type,
 					}),
 				});
 			}

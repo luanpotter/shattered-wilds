@@ -1,15 +1,17 @@
 import { CharacterSheet } from '../../character/character-sheet.js';
 import { ArcaneFocus } from '../../character/equipment.js';
+import { ActionCost } from '../../core/actions.js';
 import {
 	ARCANE_SPELL_COMPONENTS,
 	ArcaneSpellComponentOption,
 	ArcaneSpellComponentType,
-	ArcaneSpellSchool,
 	ArcaneSpellDefinition,
+	ArcaneSpellSchool,
 	PREDEFINED_ARCANE_SPELLS,
 } from '../../core/arcane.js';
-import { ActionCost } from '../../core/actions.js';
 import { Trait } from '../../core/traits.js';
+import { CheckFactory } from '../../engine/check-factory.js';
+import { Check } from '../../stats/check.js';
 import { DerivedStatType } from '../../stats/derived-stat.js';
 import { Resource } from '../../stats/resources.js';
 import { CircumstanceModifier, ModifierSource, StatModifier } from '../../stats/stat-tree.js';
@@ -22,7 +24,6 @@ import {
 	ActionRowValueBox,
 	ActionRowVariableBox,
 } from '../common/action-row.js';
-import { Check, CheckMode, CheckNature } from '../../stats/check.js';
 
 export type ArcaneSectionSchoolOption = 'All Schools' | ArcaneSpellSchool;
 export type ArcaneSectionCastingTimeOption = { name: string; value: number; modifier: Bonus; maxFocusCost?: number };
@@ -300,10 +301,9 @@ export class ArcaneSection {
 			const spellModifiers = [...fundamentalModifiers, ...augmentations.map(aug => aug.toModifier())];
 
 			const finalModifier = tree.getModifier(primaryAttribute, spellModifiers);
-			const check = new Check({
-				mode: CheckMode.Contested,
-				nature: CheckNature.Active,
-				descriptor: spell.name,
+			const checkFactory = new CheckFactory({ characterSheet: sheet });
+			const check = checkFactory.spell({
+				spellName: spell.name,
 				statModifier: finalModifier,
 			});
 
@@ -421,10 +421,10 @@ export class ArcaneSection {
 		const baseModifier = tree.getModifier(primaryAttribute);
 		const combinedModifier = tree.getModifier(primaryAttribute, combinedModifiers);
 		const fundamentalModifier = tree.getModifier(primaryAttribute, fundamentalModifiers);
-		const fundamentalCheck = new Check({
-			mode: CheckMode.Contested,
-			nature: CheckNature.Active,
-			descriptor: 'Fundamental Arcane Spell',
+
+		const checkFactory = new CheckFactory({ characterSheet: sheet });
+		const fundamentalCheck = checkFactory.spell({
+			spellName: 'Fundamental Arcane Spell',
 			statModifier: fundamentalModifier,
 		});
 

@@ -18,6 +18,7 @@ export * from './character/character-sheet.js';
 export * from './character/class-info.js';
 export * from './character/race-info.js';
 export * from './character/equipment.js';
+export * from './engine/check-factory.js';
 export * from './sections/actions/actions-section.js';
 export * from './sections/arcane/arcane-section.js';
 export * from './sections/divine/divine-section.js';

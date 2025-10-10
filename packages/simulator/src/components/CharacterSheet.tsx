@@ -118,7 +118,7 @@ export const CharacterSheetModal: React.FC<CharacterSheetModalProps> = ({ charac
 			</div>
 
 			<StatTreeToggleComponent
-				tree={sheet.getStatTree()}
+				characterSheet={sheet}
 				onUpdateCharacterProp={(key, value) => updateCharacterProp(character, key, value)}
 				characterId={characterId}
 			/>

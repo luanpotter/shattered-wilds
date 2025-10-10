@@ -12,6 +12,7 @@ import {
 	Armor,
 	CharacterSheet,
 	Check,
+	CheckFactory,
 	CheckMode,
 	CheckNature,
 	CircumstanceModifier,
@@ -31,7 +32,6 @@ import {
 	Resource,
 	RESOURCES,
 	Shield,
-	StatModifier,
 	StatNode,
 	StatType,
 	Weapon,
@@ -1980,20 +1980,33 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		statType: StatType | DerivedStatType;
 		useModal: boolean;
 	}): Promise<void> {
-		const statModifier = this.getStatModifier(statType);
-		if (!statModifier) {
-			return showNotification('warn', `Failed to get stat modifier for ${statType}`);
+		const check = this.getStatCheck(statType);
+		if (!check) {
+			return showNotification('warn', `Failed to get stat check for ${statType}`);
 		}
+
 		await this.rollDice({
-			check: new Check({
-				mode: CheckMode.Static,
-				nature: CheckNature.Active,
-				descriptor: statType.toString(),
-				statModifier,
-			}),
+			check,
 			targetDC: undefined,
 			useModal: useModal,
 		});
+	}
+
+	private getStatCheck(statType: StatType | DerivedStatType): Check | undefined {
+		try {
+			const characterSheet = this.getCharacterSheet();
+			if (!characterSheet) return undefined;
+
+			const checkFactory = new CheckFactory({ characterSheet });
+			return checkFactory.stat({
+				statType,
+				mode: CheckMode.Static,
+				nature: CheckNature.Active,
+			});
+		} catch (err) {
+			console.warn('Failed to get stat breakdown:', err);
+			return undefined;
+		}
 	}
 
 	private async handleWeaponAttack({
@@ -2003,20 +2016,10 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		weaponMode: WeaponModeOption;
 		useModal: boolean;
 	}): Promise<void> {
-		const attackStat = weaponMode.mode.statType;
-		const weaponModifier = weaponMode.getEquipmentModifier();
-		const cms = weaponModifier ? [weaponModifier] : [];
-		const statModifier = this.getStatModifier(attackStat, cms);
-		if (!statModifier) {
-			return showNotification('warn', 'Failed to get stat modifier for weapon attack');
+		const check = this.getWeaponCheck(weaponMode);
+		if (!check) {
+			return showNotification('warn', `Failed to get weapon check for ${weaponMode.toString()}`);
 		}
-
-		const check = new Check({
-			mode: CheckMode.Contested,
-			nature: CheckNature.Active,
-			descriptor: weaponMode.weapon.name,
-			statModifier,
-		});
 
 		await this.rollDice({
 			check,
@@ -2025,16 +2028,13 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		});
 	}
 
-	private getStatModifier(
-		stat: StatType | DerivedStatType,
-		cms: CircumstanceModifier[] = [],
-	): StatModifier | undefined {
+	private getWeaponCheck(weaponMode: WeaponModeOption): Check | undefined {
 		try {
 			const characterSheet = this.getCharacterSheet();
 			if (!characterSheet) return undefined;
 
-			const statTree = characterSheet.getStatTree();
-			return statTree.getModifier(stat, cms);
+			const checkFactory = new CheckFactory({ characterSheet });
+			return checkFactory.weapon({ weaponMode });
 		} catch (err) {
 			console.warn('Failed to get stat breakdown:', err);
 			return undefined;
