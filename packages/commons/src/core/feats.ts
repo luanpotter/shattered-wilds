@@ -1363,10 +1363,11 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		description:
 			'You can use your [[Devotion]] instead of [[Discipline]] when resisting the temptation of your **Vices**.',
 	}),
+	// TODO: make this a Major feat after current adventure
 	[Feat.PersonalizedBlessing]: new FeatDefinition<void>({
 		key: Feat.PersonalizedBlessing,
 		name: 'Personalized Blessing',
-		type: FeatType.Major,
+		type: FeatType.Minor,
 		sources: [ClassFlavor.Devout],
 		level: 5,
 		description:
