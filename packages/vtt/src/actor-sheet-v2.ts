@@ -1124,9 +1124,9 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		}
 
 		try {
-			const circumstanceSection = CircumstancesSection.create({ characterSheet });
+			const circumstancesSection = CircumstancesSection.create({ characterSheet });
 			return {
-				test: circumstanceSection.currentResources.currentResources.HeroismPoint.toString(),
+				test: circumstancesSection.resources[Resource.HeroismPoint].current,
 			};
 		} catch (err) {
 			console.warn('Failed to create circumstances section:', err);

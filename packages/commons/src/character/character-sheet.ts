@@ -35,7 +35,7 @@ export class CurrentResources {
 		return this.currentResources[resource];
 	}
 
-	get(statTree: StatTree, resource: Resource) {
+	get(statTree: StatTree, resource: Resource): ResourceValue {
 		const max = statTree.computeResource(resource).value;
 		const current = this.getCurrentValue(resource);
 		return {

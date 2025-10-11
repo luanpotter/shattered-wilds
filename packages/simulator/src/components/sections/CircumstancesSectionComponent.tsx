@@ -1,4 +1,4 @@
-import { CharacterSheet, CircumstancesSection } from '@shattered-wilds/commons';
+import { CharacterSheet, CircumstancesSection, Resource } from '@shattered-wilds/commons';
 import React from 'react';
 
 import { useStore } from '../../store';
@@ -15,7 +15,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 			<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 				<h3 style={{ margin: '0 0 8px 0', fontSize: '1.1em' }}>Circumstances</h3>
 			</div>
-			CIRCUMSTANCES :: {circumstancesSection.currentResources.currentResources.HeroismPoint}
+			CIRCUMSTANCES :: {circumstancesSection.resources[Resource.HeroismPoint].current}
 		</Block>
 	);
 };
