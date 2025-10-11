@@ -10,7 +10,7 @@ export class CircumstancesSection {
 	}
 
 	static create({ characterSheet }: { characterSheet: CharacterSheet }): CircumstancesSection {
-		const currentResources = characterSheet.currentResources;
+		const currentResources = characterSheet.circumstances.currentResources;
 		const statTree = characterSheet.getStatTree();
 
 		const resources = mapEnumToRecord(Resource, resource => currentResources.get(statTree, resource));

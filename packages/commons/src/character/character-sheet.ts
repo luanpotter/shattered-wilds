@@ -3,48 +3,10 @@ import { Size } from '../core/size.js';
 import { Resource, RESOURCES, ResourceValue } from '../stats/resources.js';
 import { InherentModifier, ModifierSource, StatNode, StatTree } from '../stats/stat-tree.js';
 import { StatType } from '../stats/stat-type.js';
+import { Circumstances } from './circumstances.js';
 import { ClassInfo } from './class-info.js';
 import { Armor, Equipment } from './equipment.js';
 import { RaceInfo } from './race-info.js';
-
-export class CurrentResources {
-	currentResources: Record<Resource, number>;
-
-	constructor(currentResources: Record<Resource, number>) {
-		this.currentResources = currentResources;
-	}
-
-	static MAX_VALUE = -1;
-
-	static from(props: Record<string, string>): CurrentResources {
-		const parse = (value?: string): number => {
-			return value ? parseInt(value) : CurrentResources.MAX_VALUE;
-		};
-		const currentResources = Object.values(Resource).reduce(
-			(acc, resource) => {
-				acc[resource] = parse(props[resource]);
-				return acc;
-			},
-			<Record<Resource, number>>{},
-		);
-
-		return new CurrentResources(currentResources);
-	}
-
-	private getCurrentValue(resource: Resource): number {
-		return this.currentResources[resource];
-	}
-
-	get(statTree: StatTree, resource: Resource): ResourceValue {
-		const max = statTree.computeResource(resource).value;
-		const current = this.getCurrentValue(resource);
-		return {
-			resource,
-			current: current === CurrentResources.MAX_VALUE ? max : current,
-			max,
-		};
-	}
-}
 
 export class CharacterFeats {
 	featInfos: FeatInfo<string | void>[];
@@ -87,14 +49,6 @@ export class CharacterFeats {
 		return this.featInfos.some(info => info.feat.key === Feat.SpecializedTraining);
 	}
 
-	toProps(): Record<string, string> {
-		return Object.fromEntries(
-			this.getSlottedFeats()
-				.map(info => info.toProp())
-				.filter(e => e !== undefined),
-		);
-	}
-
 	static from(props: Record<string, string>, race: RaceInfo, characterClass: ClassInfo): CharacterFeats {
 		const customCoreFeatParameters = extractCustomCoreParameters(props);
 		const coreFeats = [
@@ -114,7 +68,7 @@ export class CharacterSheet {
 	characterClass: ClassInfo;
 	feats: CharacterFeats;
 	attributeRoot: StatNode;
-	currentResources: CurrentResources;
+	circumstances: Circumstances;
 	equipment: Equipment;
 
 	constructor({
@@ -124,7 +78,7 @@ export class CharacterSheet {
 		feats,
 		attributeRoot,
 		equipment,
-		currentResources,
+		circumstances,
 	}: {
 		name: string;
 		race: RaceInfo;
@@ -132,7 +86,7 @@ export class CharacterSheet {
 		feats: CharacterFeats;
 		attributeRoot: StatNode;
 		equipment: Equipment;
-		currentResources: CurrentResources;
+		circumstances: Circumstances;
 	}) {
 		this.name = name;
 		this.race = race;
@@ -140,7 +94,7 @@ export class CharacterSheet {
 		this.feats = feats;
 		this.attributeRoot = attributeRoot;
 		this.equipment = equipment;
-		this.currentResources = currentResources;
+		this.circumstances = circumstances;
 	}
 
 	get size(): Size {
@@ -167,7 +121,7 @@ export class CharacterSheet {
 	}
 
 	getResource(resource: Resource): ResourceValue {
-		return this.currentResources.get(this.getStatTree(), resource);
+		return this.circumstances.currentResources.get(this.getStatTree(), resource);
 	}
 
 	updateResource(resource: Resource, delta: number): number {
@@ -223,7 +177,7 @@ export class CharacterSheet {
 			feats: CharacterFeats.from(props, race, characterClass),
 			attributeRoot: StatTree.buildRootNode(props),
 			equipment: Equipment.from(props['equipment']),
-			currentResources: CurrentResources.from(props),
+			circumstances: Circumstances.from(props),
 		});
 	}
 

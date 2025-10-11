@@ -16,6 +16,7 @@ export * from './core/cover.js';
 export * from './core/arcane.js';
 export * from './character/character-sheet.js';
 export * from './character/class-info.js';
+export * from './character/circumstances.js';
 export * from './character/race-info.js';
 export * from './character/equipment.js';
 export * from './engine/check-factory.js';
