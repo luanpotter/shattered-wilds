@@ -95,11 +95,13 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 		label,
 		items,
 		handleAdd,
+		addItem,
 		removeItem,
 	}: {
 		label: string;
 		items: { key: string; name: string; ranked: boolean; description: string; rank: number }[];
 		handleAdd: () => void;
+		addItem: (key: string, rank: number) => void;
 		removeItem: (key: string) => void;
 	}) => {
 		return (
@@ -116,8 +118,26 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 								{item.ranked && (
 									<>
 										<hr />
-										<div style={{ marginTop: '8px', fontStyle: 'italic', fontSize: '0.9em' }}>
+										<div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+											<Button
+												variant='inline'
+												icon={FaMinus}
+												tooltip='Decrease Rank'
+												onClick={() => {
+													if (item.rank <= 1) {
+														removeItem(item.key);
+													} else {
+														addItem(item.key, item.rank - 1);
+													}
+												}}
+											/>
 											Current Rank: {item.rank}
+											<Button
+												variant='inline'
+												icon={FaPlus}
+												tooltip='Increase Rank'
+												onClick={() => addItem(item.key, item.rank + 1)}
+											/>
 										</div>
 									</>
 								)}
@@ -200,6 +220,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 					return { key: def.name, rank: c.rank, ...def };
 				}),
 				handleAdd: handleAddCondition,
+				addItem: (key, rank) => addCondition({ name: key as Condition, rank }),
 				removeItem: key => removeCondition(key as Condition),
 			})}
 			<hr />
@@ -210,6 +231,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 					return { key: def.name, rank: c.rank, ...def };
 				}),
 				handleAdd: handleAddConsequence,
+				addItem: (key, rank) => addConsequence({ name: key as Consequence, rank }),
 				removeItem: key => removeConsequence(key as Consequence),
 			})}
 			<hr />

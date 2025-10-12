@@ -1,8 +1,10 @@
+import { asc } from 'type-comparator/build/comparators/index.js';
 import { CharacterSheet } from '../../character/character-sheet.js';
 import { Condition } from '../../core/conditions.js';
 import { Consequence } from '../../core/consequences.js';
 import { Resource, ResourceValue } from '../../stats/resources.js';
 import { mapEnumToRecord } from '../../utils/utils.js';
+import { map } from 'type-comparator';
 
 export type CharacterCondition = {
 	condition: Condition;
@@ -39,8 +41,13 @@ export class CircumstancesSection {
 
 		const resources = mapEnumToRecord(Resource, resource => currentResources.get(statTree, resource));
 
-		const conditions = characterSheet.circumstances.conditions.map(c => ({ condition: c.name, rank: c.rank }));
-		const consequences = characterSheet.circumstances.consequences.map(c => ({ consequence: c.name, rank: c.rank }));
+		const conditions = characterSheet.circumstances.conditions
+			.sort(map(c => c.name, asc))
+			.map(c => ({ condition: c.name, rank: c.rank }));
+
+		const consequences = characterSheet.circumstances.consequences
+			.sort(map(c => c.name, asc))
+			.map(c => ({ consequence: c.name, rank: c.rank }));
 
 		return new CircumstancesSection({
 			resources,
