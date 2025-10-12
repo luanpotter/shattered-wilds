@@ -224,7 +224,13 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 				}}
 			>
 				<div style={{ display: 'flex', alignItems: 'center' }}>Heroism</div>
-				<div style={{ display: 'flex', alignItems: 'bottom' }}>{...resourceDiamonds(Resource.HeroismPoint)}</div>
+				<div style={{ display: 'flex', alignItems: 'bottom', justifyContent: 'space-between' }}>
+					<div style={{ display: 'flex', alignItems: 'bottom' }}>{...resourceDiamonds(Resource.HeroismPoint)}</div>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+						<div>Action</div>
+						{...resourceDiamonds(Resource.ActionPoint)}
+					</div>
+				</div>
 				<div
 					style={{
 						gridRow: 'span 5',
