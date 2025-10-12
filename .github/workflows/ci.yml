@@ -24,5 +24,9 @@ jobs:
 
       - name: Install markdownlint
         run: npm install -g markdownlint-cli
+
+      - name: Run build
+        run: ./scripts/build.sh
+
       - name: Run linting checks
         run: ./scripts/lint.sh
