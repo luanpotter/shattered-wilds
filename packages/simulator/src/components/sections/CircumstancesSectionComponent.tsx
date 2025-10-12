@@ -19,6 +19,7 @@ import { ResourceBar } from '../circumstances/ResourceBar';
 import { ResourceDiamonds } from '../circumstances/ResourceDiamonds';
 import Block from '../shared/Block';
 import { Button } from '../shared/Button';
+import { RichText } from '../shared/RichText';
 
 export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = ({ characterId }) => {
 	const character = useStore(state => state.characters.find(c => c.id === characterId))!;
@@ -90,6 +91,46 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 		];
 	};
 
+	const cards = ({
+		label,
+		items,
+		handleAdd,
+		removeItem,
+	}: {
+		label: string;
+		items: { key: string; name: string; ranked: boolean; description: string; rank: number }[];
+		handleAdd: () => void;
+		removeItem: (key: string) => void;
+	}) => {
+		return (
+			<CardSection
+				title={label}
+				cards={items.map(item => {
+					return {
+						key: item.key,
+						title: `${item.name}${item.ranked ? ` (${item.rank})` : ''}`,
+						tooltip: item.description,
+						children: (
+							<div style={{ textAlign: 'justify' }}>
+								<RichText>{firstParagraph(item.description)}</RichText>
+								{item.ranked && (
+									<>
+										<hr />
+										<div style={{ marginTop: '8px', fontStyle: 'italic', fontSize: '0.9em' }}>
+											Current Rank: {item.rank}
+										</div>
+									</>
+								)}
+							</div>
+						),
+					};
+				})}
+				onAdd={handleAdd}
+				onRemove={removeItem}
+			/>
+		);
+	};
+
 	const handleEndTurn = () => {
 		console.log('End turn');
 	};
@@ -152,36 +193,25 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 				{...resourceBar(Resource.SpiritPoint)}
 			</div>
 			<hr />
-			<CardSection
-				title='Conditions'
-				cards={circumstancesSection.conditions.map(c => {
+			{cards({
+				label: 'Conditions',
+				items: circumstancesSection.conditions.map(c => {
 					const def = CONDITIONS[c.condition];
-					return {
-						key: c.condition,
-						title: `${def.name}${def.ranked ? ` (${c.rank})` : ''}`,
-						tooltip: def.description,
-						description: firstParagraph(def.description),
-					};
-				})}
-				onAdd={handleAddCondition}
-				onRemove={key => removeCondition(key as Condition)}
-			/>
+					return { key: def.name, rank: c.rank, ...def };
+				}),
+				handleAdd: handleAddCondition,
+				removeItem: key => removeCondition(key as Condition),
+			})}
 			<hr />
-			<CardSection
-				title='Consequences'
-				cards={circumstancesSection.consequences.map(c => {
+			{cards({
+				label: 'Consequences',
+				items: circumstancesSection.consequences.map(c => {
 					const def = CONSEQUENCES[c.consequence];
-					return {
-						key: c.consequence,
-						title: `${def.name}${def.ranked ? ` (${c.rank})` : ''}`,
-						tooltip: def.description,
-						description: firstParagraph(def.description),
-					};
-				})}
-				onAdd={handleAddConsequence}
-				onRemove={key => removeConsequence(key as Consequence)}
-			/>
-
+					return { key: def.name, rank: c.rank, ...def };
+				}),
+				handleAdd: handleAddConsequence,
+				removeItem: key => removeConsequence(key as Consequence),
+			})}
 			<hr />
 			<div style={{ marginBottom: '8px' }}>
 				<h4 style={{ margin: '0 0 8px 0', fontSize: '1em' }}>Other Circumstances</h4>

@@ -59,7 +59,9 @@ It can also be inflicted by the a [[Transfiguration]] **Arcane Spell** such as [
 	[Condition.Frightened]: new ConditionDefinition({
 		name: Condition.Frightened,
 		ranked: true,
-		description: `The creature is terrified by a specific source for a given amount of turns (the **Frightened** _rank_). While **Frightened**, a character:
+		description: `The creature is terrified by a specific source for a given amount of turns (the **Frightened** _rank_).
+
+While **Frightened**, a character:
 
 - Suffers a \`-2\` [[Circumstance Modifier | CM]] to any Active [[Check | Checks]].
 - Cannot willingly move closer to the source of their fear (i.e. distance between the Hexes cannot decrease due to movement).

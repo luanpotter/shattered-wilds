@@ -1,13 +1,11 @@
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 
-import { RichText } from '../shared/RichText';
-
 import { RemovableCard } from './RemovableCard';
 
 interface CardSectionProps {
 	title: string;
-	cards: Array<{ key: string; title: string; tooltip: string; description: string }>;
+	cards: Array<{ key: string; title: string; tooltip: string; children: React.ReactNode }>;
 	onAdd: () => void;
 	onRemove?: (key: string) => void;
 }
@@ -24,9 +22,7 @@ export const CardSection: React.FC<CardSectionProps> = ({ title, cards, onAdd, o
 						tooltip={card.tooltip}
 						{...(onRemove ? { onRemove: () => onRemove(card.key) } : {})}
 					>
-						<div style={{ textAlign: 'justify' }}>
-							<RichText>{card.description}</RichText>
-						</div>
+						{card.children}
 					</RemovableCard>
 				))}
 				<button
