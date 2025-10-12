@@ -21,7 +21,6 @@
 		"@html-eslint/eslint-plugin": "^0.47.0",
 		"@html-eslint/parser": "^0.47.0",
 		"@types/bun": "latest",
-		"esbuild": "^0.25.10",
 		"eslint": "^9.36.0",
 		"globals": "^15.15.0",
 		"jiti": "^2.6.1",
