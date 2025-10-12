@@ -1,13 +1,14 @@
-import { CharacterSheet, Condition, Resource } from '@shattered-wilds/commons';
+import { AppliedCircumstance, CharacterSheet, Condition, Consequence, Resource } from '@shattered-wilds/commons';
 
 import { useStore } from '../store';
 import { Character } from '../types/ui';
 
 export type PropUpdates = {
 	updateResource: (resource: Resource, delta: number) => void;
-	updateExhaustion: (delta: number) => void;
-	addCondition: (condition: Condition) => void;
+	addCondition: (condition: AppliedCircumstance<Condition>) => void;
 	removeCondition: (condition: Condition) => void;
+	addConsequence: (consequence: AppliedCircumstance<Consequence>) => void;
+	removeConsequence: (consequence: Consequence) => void;
 };
 
 export const usePropUpdates = (character: Character, sheet: CharacterSheet): PropUpdates => {
@@ -18,25 +19,49 @@ export const usePropUpdates = (character: Character, sheet: CharacterSheet): Pro
 		updateCharacterProp(character, resource, newValue.toString());
 	};
 
-	const addCondition = (condition: Condition) => {
-		const newConditions = Array.from(new Set([...sheet.circumstances.conditions, condition]));
-		updateCharacterProp(character, 'conditions', newConditions.join(','));
+	const serializeConditions = (conditions: AppliedCircumstance<Condition>[]) => {
+		const conditionsProp = conditions.map(c => `${c.name}:${c.rank}`).join(',');
+		updateCharacterProp(character, 'conditions', conditionsProp);
+	};
+
+	const filterConditionOut = (condition: Condition) => {
+		return sheet.circumstances.conditions.filter(c => c.name !== condition);
+	};
+
+	const addCondition = (condition: AppliedCircumstance<Condition>) => {
+		const newConditions = [...filterConditionOut(condition.name), condition];
+		serializeConditions(newConditions);
 	};
 
 	const removeCondition = (condition: Condition) => {
-		const newConditions = sheet.circumstances.conditions.filter(c => c !== condition);
-		updateCharacterProp(character, 'conditions', newConditions.join(','));
+		const newConditions = filterConditionOut(condition);
+		serializeConditions(newConditions);
 	};
 
-	const updateExhaustion = (delta: number) => {
-		const newRank = Math.max(0, sheet.circumstances.exhaustionRank + delta);
-		updateCharacterProp(character, 'exhaustionRank', newRank.toString());
+	const serializeConsequences = (consequences: AppliedCircumstance<Consequence>[]) => {
+		const consequencesProp = consequences.map(c => `${c.name}:${c.rank}`).join(',');
+		updateCharacterProp(character, 'consequences', consequencesProp);
+	};
+
+	const filterConsequenceOut = (consequence: Consequence) => {
+		return sheet.circumstances.consequences.filter(c => c.name !== consequence);
+	};
+
+	const addConsequence = (consequence: AppliedCircumstance<Consequence>) => {
+		const newConsequences = [...filterConsequenceOut(consequence.name), consequence];
+		serializeConsequences(newConsequences);
+	};
+
+	const removeConsequence = (consequence: Consequence) => {
+		const newConsequences = filterConsequenceOut(consequence);
+		serializeConsequences(newConsequences);
 	};
 
 	return {
 		updateResource,
-		updateExhaustion,
 		addCondition,
 		removeCondition,
+		addConsequence,
+		removeConsequence,
 	};
 };

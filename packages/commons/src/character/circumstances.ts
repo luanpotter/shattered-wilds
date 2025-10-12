@@ -1,37 +1,48 @@
 import { Condition } from '../core/conditions.js';
+import { Consequence } from '../core/consequences.js';
 import { Resource, ResourceValue } from '../stats/resources.js';
 import { StatTree } from '../stats/stat-tree.js';
-import { isEnumValue, mapEnumToRecord } from '../utils/utils.js';
+import { mapEnumToRecord } from '../utils/utils.js';
+
+export type AppliedCircumstance<T> = {
+	name: T;
+	rank: number;
+};
 
 export class Circumstances {
 	currentResources: CurrentResources;
-	exhaustionRank: number;
-	conditions: Condition[];
+	conditions: AppliedCircumstance<Condition>[];
+	consequences: AppliedCircumstance<Consequence>[];
 
 	constructor({
 		currentResources,
-		exhaustionRank,
 		conditions,
+		consequences,
 	}: {
 		currentResources: CurrentResources;
-		exhaustionRank: number;
-		conditions: Condition[];
+		conditions: AppliedCircumstance<Condition>[];
+		consequences: AppliedCircumstance<Consequence>[];
 	}) {
 		this.currentResources = currentResources;
-		this.exhaustionRank = exhaustionRank;
 		this.conditions = conditions;
+		this.consequences = consequences;
+	}
+
+	static parse<T>(prop: string | undefined): AppliedCircumstance<T>[] {
+		return (prop ?? '')
+			.split(',')
+			.map(c => c.trim())
+			.filter(c => c.length > 0)
+			.map(c => (c.includes(':') ? (c.split(':', 2) as [string, string]) : ([c, '0'] as const)))
+			.map(([c, r]) => ({ name: c as T, rank: parseInt(r) || 0 }));
 	}
 
 	static from(props: Record<string, string>): Circumstances {
 		const currentResources = CurrentResources.from(props);
-		const exhaustionRank = parseInt(props.exhaustionRank ?? '0') ?? 0;
-		const conditions = (props.conditions ?? '')
-			.split(',')
-			.map(c => c.trim())
-			.filter(c => c.length > 0)
-			.filter(isEnumValue(Condition));
+		const conditions = Circumstances.parse<Condition>(props.conditions ?? '');
+		const consequences = Circumstances.parse<Consequence>(props.consequences ?? '');
 
-		return new Circumstances({ currentResources, exhaustionRank, conditions });
+		return new Circumstances({ currentResources, conditions, consequences });
 	}
 }
 

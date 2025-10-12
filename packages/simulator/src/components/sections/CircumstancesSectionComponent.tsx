@@ -3,17 +3,18 @@ import {
 	CircumstancesSection,
 	Condition,
 	CONDITIONS,
+	Consequence,
+	CONSEQUENCES,
 	firstParagraph,
 	Resource,
 	RESOURCES,
 } from '@shattered-wilds/commons';
 import React, { JSX } from 'react';
-import { FaCoffee, FaMinus, FaMoon, FaPlus } from 'react-icons/fa';
+import { FaCoffee, FaHourglassEnd, FaMinus, FaMoon, FaPlus } from 'react-icons/fa';
 
 import { usePropUpdates } from '../../hooks/usePropUpdates';
 import { useStore } from '../../store';
 import { CardSection } from '../circumstances/CardSection';
-import { RemovableCard } from '../circumstances/RemovableCard';
 import { ResourceBar } from '../circumstances/ResourceBar';
 import { ResourceDiamonds } from '../circumstances/ResourceDiamonds';
 import Block from '../shared/Block';
@@ -24,7 +25,10 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 	const characterSheet = CharacterSheet.from(character.props);
 	const circumstancesSection = CircumstancesSection.create({ characterSheet });
 
-	const { updateResource, updateExhaustion, addCondition, removeCondition } = usePropUpdates(character, characterSheet);
+	const { updateResource, addCondition, removeCondition, addConsequence, removeConsequence } = usePropUpdates(
+		character,
+		characterSheet,
+	);
 
 	const resourceBar = (resource: Resource): JSX.Element[] => {
 		const def = RESOURCES[resource];
@@ -50,6 +54,13 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 		const def = RESOURCES[resource];
 		const label = def.fullName;
 		const value = circumstancesSection.resources[resource];
+		if (value.max === 0) {
+			return [
+				<div key={`${resource}-name`} style={{ textEmphasis: 'italics' }}>
+					No {label}
+				</div>,
+			];
+		}
 		return [
 			<ResourceDiamonds
 				key={`${resource}-diamonds`}
@@ -79,32 +90,8 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 		];
 	};
 
-	const exhaustion = () => {
-		const { rank, cmText } = circumstancesSection.exhaustion;
-		return (
-			<div style={{ height: '100%' }}>
-				<RemovableCard title='Exhaustion' tooltip='Longer term form of tiredness and fatigue'>
-					<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-						<div>Rank: {rank}</div>
-						<div style={{ display: 'flex', gap: '4px' }}>
-							<Button
-								variant='inline'
-								onClick={() => updateExhaustion(-1)}
-								icon={FaMinus}
-								tooltip={`Decrease Exhaustion`}
-							/>
-							<Button
-								variant='inline'
-								onClick={() => updateExhaustion(1)}
-								icon={FaPlus}
-								tooltip={`Increase Exhaustion`}
-							/>
-						</div>
-						<div title='The Exhaustion Circumstance Modifier is applied to all Checks'>{cmText}</div>
-					</div>
-				</RemovableCard>
-			</div>
-		);
+	const handleEndTurn = () => {
+		console.log('End turn');
 	};
 
 	const handleShortRest = () => {
@@ -118,7 +105,15 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 	const handleAddCondition = () => {
 		// TODO: open a modal to select condition
 		const randomCondition = Math.floor(Math.random() * Object.keys(Condition).length);
-		addCondition(Object.values(Condition)[randomCondition]);
+		const rank = Math.floor(Math.random() * 3);
+		addCondition({ name: Object.values(Condition)[randomCondition], rank });
+	};
+
+	const handleAddConsequence = () => {
+		// TODO: open a modal to select consequence
+		const randomConsequence = Math.floor(Math.random() * Object.keys(Consequence).length);
+		const rank = Math.floor(Math.random() * 3);
+		addConsequence({ name: Object.values(Consequence)[randomConsequence], rank });
 	};
 
 	return (
@@ -130,29 +125,29 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 				style={{
 					display: 'grid',
 					gridTemplateRows: '1fr 8px repeat(3, 1fr)',
-					gridTemplateColumns: 'minmax(100px, auto) 1fr 200px',
-					gap: '0 8px',
+					gridTemplateColumns: 'minmax(100px, auto) 1fr auto',
+					gap: '8px',
 				}}
 			>
 				<div style={{ display: 'flex', alignItems: 'center' }}>Heroism</div>
+				<div style={{ display: 'flex', alignItems: 'bottom' }}>{...resourceDiamonds(Resource.HeroismPoint)}</div>
 				<div
 					style={{
+						gridRow: 'span 5',
 						display: 'flex',
-						flexDirection: 'row',
-						justifyContent: 'space-between',
-						alignItems: 'center',
-						gridColumn: 'span 2',
+						flexDirection: 'column',
+						gap: '8px',
+						paddingLeft: '12px',
+						borderLeft: '1px solid var(--text)',
+						justifyContent: 'flex-end',
 					}}
 				>
-					<div style={{ display: 'flex', alignItems: 'bottom' }}>{...resourceDiamonds(Resource.HeroismPoint)}</div>
-					<div style={{ display: 'flex', gap: '8px' }}>
-						<Button variant='normal' title='Short Rest' icon={FaCoffee} onClick={handleShortRest} />
-						<Button variant='normal' title='Long Rest' icon={FaMoon} onClick={handleLongRest} />
-					</div>
+					<Button variant='normal' title='End Turn' icon={FaHourglassEnd} onClick={handleEndTurn} />
+					<Button variant='normal' title='Short Rest' icon={FaCoffee} onClick={handleShortRest} />
+					<Button variant='normal' title='Long Rest' icon={FaMoon} onClick={handleLongRest} />
 				</div>
-				<div style={{ gridColumn: 'span 3' }} />
+				<div style={{ gridColumn: 'span 2' }} />
 				{...resourceBar(Resource.VitalityPoint)}
-				<div style={{ gridRow: 'span 3' }}>{exhaustion()}</div>
 				{...resourceBar(Resource.FocusPoint)}
 				{...resourceBar(Resource.SpiritPoint)}
 			</div>
@@ -160,14 +155,33 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 			<CardSection
 				title='Conditions'
 				cards={circumstancesSection.conditions.map(c => {
-					const def = CONDITIONS[c];
-					return { key: c, title: def.name, tooltip: def.description, description: firstParagraph(def.description) };
+					const def = CONDITIONS[c.condition];
+					return {
+						key: c.condition,
+						title: def.name,
+						tooltip: def.description,
+						description: firstParagraph(def.description),
+					};
 				})}
 				onAdd={handleAddCondition}
 				onRemove={key => removeCondition(key as Condition)}
 			/>
 			<hr />
-			<div>TODO: Consequences</div>
+			<CardSection
+				title='Consequences'
+				cards={circumstancesSection.consequences.map(c => {
+					const def = CONSEQUENCES[c.consequence];
+					return {
+						key: c.consequence,
+						title: def.name,
+						tooltip: def.description,
+						description: firstParagraph(def.description),
+					};
+				})}
+				onAdd={handleAddConsequence}
+				onRemove={key => removeConsequence(key as Consequence)}
+			/>
+
 			<hr />
 			<div style={{ marginBottom: '8px' }}>
 				<h4 style={{ margin: '0 0 8px 0', fontSize: '1em' }}>Other Circumstances</h4>

@@ -1,26 +1,36 @@
 import { CharacterSheet } from '../../character/character-sheet.js';
 import { Condition } from '../../core/conditions.js';
-import { Exhaustion, ExhaustionData } from '../../core/consequences.js';
+import { Consequence } from '../../core/consequences.js';
 import { Resource, ResourceValue } from '../../stats/resources.js';
 import { mapEnumToRecord } from '../../utils/utils.js';
 
+export type CharacterCondition = {
+	condition: Condition;
+	rank: number;
+};
+
+export type CharacterConsequence = {
+	consequence: Consequence;
+	rank: number;
+};
+
 export class CircumstancesSection {
 	resources: Record<Resource, ResourceValue>;
-	exhaustion: ExhaustionData;
-	conditions: Condition[];
+	conditions: CharacterCondition[];
+	consequences: CharacterConsequence[];
 
 	constructor({
 		resources,
-		exhaustion,
 		conditions,
+		consequences,
 	}: {
 		resources: Record<Resource, ResourceValue>;
-		exhaustion: ExhaustionData;
-		conditions: Condition[];
+		conditions: CharacterCondition[];
+		consequences: CharacterConsequence[];
 	}) {
 		this.resources = resources;
-		this.exhaustion = exhaustion;
 		this.conditions = conditions;
+		this.consequences = consequences;
 	}
 
 	static create({ characterSheet }: { characterSheet: CharacterSheet }): CircumstancesSection {
@@ -29,13 +39,13 @@ export class CircumstancesSection {
 
 		const resources = mapEnumToRecord(Resource, resource => currentResources.get(statTree, resource));
 
-		const exhaustion = Exhaustion.fromRank(characterSheet.circumstances.exhaustionRank);
-		const conditions = characterSheet.circumstances.conditions;
+		const conditions = characterSheet.circumstances.conditions.map(c => ({ condition: c.name, rank: c.rank }));
+		const consequences = characterSheet.circumstances.consequences.map(c => ({ consequence: c.name, rank: c.rank }));
 
 		return new CircumstancesSection({
 			resources,
-			exhaustion,
 			conditions,
+			consequences,
 		});
 	}
 }
