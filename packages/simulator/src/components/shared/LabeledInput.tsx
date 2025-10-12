@@ -6,6 +6,7 @@ interface LabeledInputProps {
 	tooltip?: string | undefined;
 	value: string;
 	disabled?: boolean;
+	placeholder?: string;
 	onChange?: ((value: string) => void) | undefined;
 	onBlur?: ((value: string) => void) | undefined;
 	onClick?: (() => void) | undefined;
@@ -18,6 +19,7 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
 	tooltip,
 	value,
 	disabled = false,
+	placeholder,
 	onChange,
 	onBlur,
 	onClick,
@@ -91,6 +93,7 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
 				readOnly={disabled}
 				type='text'
 				value={displayValue}
+				placeholder={placeholder}
 				onChange={e => handleChange?.(e.target.value)}
 				onBlur={handleBlur}
 				style={variant === 'inline' ? inlineStyle : normalStyle}

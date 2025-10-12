@@ -20,19 +20,23 @@ export class CircumstancesSection {
 	resources: Record<Resource, ResourceValue>;
 	conditions: CharacterCondition[];
 	consequences: CharacterConsequence[];
+	otherCircumstances: string[];
 
 	constructor({
 		resources,
 		conditions,
 		consequences,
+		otherCircumstances,
 	}: {
 		resources: Record<Resource, ResourceValue>;
 		conditions: CharacterCondition[];
 		consequences: CharacterConsequence[];
+		otherCircumstances: string[];
 	}) {
 		this.resources = resources;
 		this.conditions = conditions;
 		this.consequences = consequences;
+		this.otherCircumstances = otherCircumstances;
 	}
 
 	static create({ characterSheet }: { characterSheet: CharacterSheet }): CircumstancesSection {
@@ -49,10 +53,13 @@ export class CircumstancesSection {
 			.sort(map(c => c.name, asc))
 			.map(c => ({ consequence: c.name, rank: c.rank }));
 
+		const otherCircumstances = characterSheet.circumstances.otherCircumstances;
+
 		return new CircumstancesSection({
 			resources,
 			conditions,
 			consequences,
+			otherCircumstances,
 		});
 	}
 }

@@ -9,8 +9,8 @@ import {
 	Resource,
 	RESOURCES,
 } from '@shattered-wilds/commons';
-import React, { JSX } from 'react';
-import { FaCoffee, FaHourglassEnd, FaMinus, FaMoon, FaPlus } from 'react-icons/fa';
+import React, { JSX, useState } from 'react';
+import { FaCoffee, FaHourglassEnd, FaMinus, FaMoon, FaPlus, FaTrash } from 'react-icons/fa';
 
 import { useModals } from '../../hooks/useModals';
 import { usePropUpdates } from '../../hooks/usePropUpdates';
@@ -20,12 +20,16 @@ import { ResourceBar } from '../circumstances/ResourceBar';
 import { ResourceDiamonds } from '../circumstances/ResourceDiamonds';
 import Block from '../shared/Block';
 import { Button } from '../shared/Button';
+import LabeledInput from '../shared/LabeledInput';
 import { RichText } from '../shared/RichText';
 
 export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = ({ characterId }) => {
 	const character = useStore(state => state.characters.find(c => c.id === characterId))!;
 	const characterSheet = CharacterSheet.from(character.props);
 	const circumstancesSection = CircumstancesSection.create({ characterSheet });
+	const updateCharacterProp = useStore(state => state.updateCharacterProp);
+
+	const [newOtherCircumstance, setNewOtherCircumstance] = useState('');
 
 	const { updateResource, addCondition, removeCondition, addConsequence, removeConsequence } = usePropUpdates(
 		character,
@@ -183,6 +187,29 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 		});
 	};
 
+	const serializeOtherCircumstances = (circumstances: string[]) => {
+		updateCharacterProp(character, 'otherCircumstances', circumstances.join('\n'));
+	};
+
+	const handleAddOtherCircumstance = () => {
+		if (newOtherCircumstance.trim()) {
+			const newCircumstances = [...circumstancesSection.otherCircumstances, newOtherCircumstance.trim()];
+			serializeOtherCircumstances(newCircumstances);
+			setNewOtherCircumstance('');
+		}
+	};
+
+	const handleUpdateOtherCircumstance = (index: number, value: string) => {
+		const newCircumstances = [...circumstancesSection.otherCircumstances];
+		newCircumstances[index] = value;
+		serializeOtherCircumstances(newCircumstances);
+	};
+
+	const handleRemoveOtherCircumstance = (index: number) => {
+		const newCircumstances = circumstancesSection.otherCircumstances.filter((_, i) => i !== index);
+		serializeOtherCircumstances(newCircumstances);
+	};
+
 	return (
 		<Block>
 			<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
@@ -242,21 +269,48 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 			})}
 			<hr />
 			<div style={{ marginBottom: '8px' }}>
-				<h4 style={{ margin: '0 0 8px 0', fontSize: '1em' }}>Other Circumstances</h4>
-				<textarea
-					style={{
-						width: '100%',
-						minHeight: '80px',
-						backgroundColor: 'var(--background-alt)',
-						border: '1px solid var(--text)',
-						borderRadius: '4px',
-						padding: '8px',
-						fontSize: '0.9em',
-						boxSizing: 'border-box',
-						resize: 'vertical',
-					}}
-					placeholder='Enter miscellaneous circumstances...'
-				/>
+				<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'center' }}>
+					<h4 style={{ margin: 0, fontSize: '1em' }}>Other Circumstances</h4>
+					<div style={{ display: 'flex', gap: '4px', alignItems: 'center', flex: 1, marginLeft: '12px' }}>
+						<LabeledInput
+							variant='inline'
+							value={newOtherCircumstance}
+							onChange={setNewOtherCircumstance}
+							placeholder='Add new circumstance...'
+						/>
+						<Button
+							onClick={handleAddOtherCircumstance}
+							icon={FaPlus}
+							tooltip='Add circumstance'
+							variant='inline'
+							disabled={!newOtherCircumstance.trim()}
+						/>
+					</div>
+				</div>
+				{circumstancesSection.otherCircumstances.map((circumstance, idx) => (
+					<div
+						key={idx}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							marginBottom: '4px',
+							gap: '4px',
+							width: '100%',
+						}}
+					>
+						<LabeledInput
+							variant='inline'
+							value={circumstance}
+							onBlur={value => handleUpdateOtherCircumstance(idx, value)}
+						/>
+						<Button
+							onClick={() => handleRemoveOtherCircumstance(idx)}
+							icon={FaTrash}
+							tooltip='Remove circumstance'
+							variant='inline'
+						/>
+					</div>
+				))}
 			</div>
 		</Block>
 	);

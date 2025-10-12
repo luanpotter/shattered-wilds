@@ -13,19 +13,23 @@ export class Circumstances {
 	currentResources: CurrentResources;
 	conditions: AppliedCircumstance<Condition>[];
 	consequences: AppliedCircumstance<Consequence>[];
+	otherCircumstances: string[];
 
 	constructor({
 		currentResources,
 		conditions,
 		consequences,
+		otherCircumstances,
 	}: {
 		currentResources: CurrentResources;
 		conditions: AppliedCircumstance<Condition>[];
 		consequences: AppliedCircumstance<Consequence>[];
+		otherCircumstances: string[];
 	}) {
 		this.currentResources = currentResources;
 		this.conditions = conditions;
 		this.consequences = consequences;
+		this.otherCircumstances = otherCircumstances ?? [];
 	}
 
 	static parse<T>(prop: string | undefined): AppliedCircumstance<T>[] {
@@ -41,8 +45,12 @@ export class Circumstances {
 		const currentResources = CurrentResources.from(props);
 		const conditions = Circumstances.parse<Condition>(props.conditions ?? '');
 		const consequences = Circumstances.parse<Consequence>(props.consequences ?? '');
+		const otherCircumstances = (props.otherCircumstances ?? '')
+			.split('\n')
+			.map(c => c.trim())
+			.filter(c => c.length > 0);
 
-		return new Circumstances({ currentResources, conditions, consequences });
+		return new Circumstances({ currentResources, conditions, consequences, otherCircumstances });
 	}
 }
 
