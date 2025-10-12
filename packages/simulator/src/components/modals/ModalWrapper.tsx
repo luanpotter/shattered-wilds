@@ -110,7 +110,6 @@ export const ModalWrapper: React.FC<ModalWrapperProps> = ({ modal, children, onS
 					width: modal.widthPixels ? `${modal.widthPixels}px` : 'fit-content',
 					height: modal.heightPixels ? `${modal.heightPixels}px` : 'auto',
 					minWidth: '250px',
-					minHeight: '200px',
 					maxWidth: '95vw',
 					maxHeight: '90vh',
 					backgroundColor: 'var(--background)',

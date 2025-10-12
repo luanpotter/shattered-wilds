@@ -35,7 +35,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 		character,
 		characterSheet,
 	);
-	const { openAddConditionModal, openAddConsequenceModal } = useModals();
+	const { openAddConditionModal, openAddConsequenceModal, openConfirmationModal } = useModals();
 
 	const resourceBar = (resource: Resource): JSX.Element[] => {
 		const def = RESOURCES[resource];
@@ -157,16 +157,40 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 		);
 	};
 
-	const handleEndTurn = () => {
-		console.log('End turn');
+	const handleEndTurn = async () => {
+		const confirmed = await openConfirmationModal({
+			title: 'End Turn',
+			message: 'Are you sure you want to trigger an End of Turn?',
+			confirmText: 'End Turn',
+		});
+		if (confirmed) {
+			console.log('End turn confirmed');
+			// TODO: Implement end turn logic
+		}
 	};
 
-	const handleShortRest = () => {
-		console.log('Short rest');
+	const handleShortRest = async () => {
+		const confirmed = await openConfirmationModal({
+			title: 'Short Rest',
+			message: 'Are you sure you want to trigger a Short Rest?',
+			confirmText: 'Take Short Rest',
+		});
+		if (confirmed) {
+			console.log('Short rest confirmed');
+			// TODO: Implement short rest logic
+		}
 	};
 
-	const handleLongRest = () => {
-		console.log('Long rest');
+	const handleLongRest = async () => {
+		const confirmed = await openConfirmationModal({
+			title: 'Long Rest',
+			message: 'Are you sure you want to trigger a Long Rest?',
+			confirmText: 'Take Long Rest',
+		});
+		if (confirmed) {
+			console.log('Long rest confirmed');
+			// TODO: Implement long rest logic
+		}
 	};
 
 	const handleAddCondition = () => {

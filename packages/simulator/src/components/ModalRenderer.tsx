@@ -16,6 +16,7 @@ import {
 	BasicAttacksModal,
 	CharacterCreationModal,
 	ClassSetupModal,
+	ConfirmationModal,
 	ConsumeResourceModal,
 	DiceRollModal,
 	FeatParameterSetupModal,
@@ -220,6 +221,23 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 					return renderCharacterNotFound(modal.characterId);
 				}
 				return <AddConsequenceModal characterId={modal.characterId} onClose={onClose} onConfirm={modal.onConfirm} />;
+			}
+			case 'confirmation': {
+				return (
+					<ConfirmationModal
+						message={modal.message}
+						{...(modal.confirmText && { confirmText: modal.confirmText })}
+						{...(modal.cancelText && { cancelText: modal.cancelText })}
+						onConfirm={() => {
+							modal.onConfirm();
+							onClose();
+						}}
+						onCancel={() => {
+							modal.onCancel();
+							onClose();
+						}}
+					/>
+				);
 			}
 			default:
 				return <div>Unknown modal type</div>;

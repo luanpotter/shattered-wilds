@@ -113,6 +113,14 @@ export type Modal = BaseModal &
 				characterId: string;
 				onConfirm: (consequence: Consequence, rank: number) => void;
 		  }
+		| {
+				type: 'confirmation';
+				message: string;
+				confirmText?: string;
+				cancelText?: string;
+				onConfirm: () => void;
+				onCancel: () => void;
+		  }
 	);
 
 export interface Character {

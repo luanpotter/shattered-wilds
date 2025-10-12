@@ -327,6 +327,35 @@ export function useModals() {
 		});
 	};
 
+	const openConfirmationModal = ({
+		title,
+		message,
+		confirmText,
+		cancelText,
+	}: {
+		title?: string;
+		message: string;
+		confirmText?: string;
+		cancelText?: string;
+	}): Promise<boolean> => {
+		return new Promise(resolve => {
+			addModal({
+				title: title ?? 'Confirm',
+				type: 'confirmation',
+				message,
+				...(confirmText && { confirmText }),
+				...(cancelText && { cancelText }),
+				onConfirm: () => {
+					resolve(true);
+				},
+				onCancel: () => {
+					resolve(false);
+				},
+				widthPixels: 400,
+			});
+		});
+	};
+
 	const closeModal = (modalId: string) => {
 		removeModal(modalId);
 	};
@@ -355,6 +384,7 @@ export function useModals() {
 		openViewItemModal,
 		openAddConditionModal,
 		openAddConsequenceModal,
+		openConfirmationModal,
 		closeModal,
 		closeAllModals,
 		updateModal,
