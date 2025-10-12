@@ -158,7 +158,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 					const def = CONDITIONS[c.condition];
 					return {
 						key: c.condition,
-						title: def.name,
+						title: `${def.name}${def.ranked ? ` (${c.rank})` : ''}`,
 						tooltip: def.description,
 						description: firstParagraph(def.description),
 					};
@@ -173,7 +173,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 					const def = CONSEQUENCES[c.consequence];
 					return {
 						key: c.consequence,
-						title: def.name,
+						title: `${def.name}${def.ranked ? ` (${c.rank})` : ''}`,
 						tooltip: def.description,
 						description: firstParagraph(def.description),
 					};

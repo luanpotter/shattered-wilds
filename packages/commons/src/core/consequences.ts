@@ -8,10 +8,12 @@ export enum Consequence {
 
 export class ConsequenceDefinition {
 	name: Consequence;
+	ranked: boolean;
 	description: string;
 
-	constructor({ name, description }: { name: Consequence; description: string }) {
+	constructor({ name, ranked, description }: { name: Consequence; ranked: boolean; description: string }) {
 		this.name = name;
+		this.ranked = ranked;
 		this.description = description;
 	}
 }
@@ -55,6 +57,7 @@ export const Exhaustion = {
 export const CONSEQUENCES: Record<Consequence, ConsequenceDefinition> = {
 	[Consequence.Exhaustion]: new ConsequenceDefinition({
 		name: Consequence.Exhaustion,
+		ranked: true,
 		description: `Represents a longer term form of tiredness and fatigue that cannot be healed by a simple [[Short Rest]]. Exhaustion comes in _ranks_, each character starting at 0 _ranks_ of **Exhaustion**.
 
 Several different circumstances can increase the _rank_; initially, just accumulating without causing harm, but further _ranks_ will incur negative consequences. Up to \`3\` ranks of **Exhaustion** are cleared on each [[Long Rest]].
@@ -79,12 +82,14 @@ Exhaustion _ranks_ and their effects:
 	}),
 	[Consequence.Poisoned]: new ConsequenceDefinition({
 		name: Consequence.Poisoned,
+		ranked: true,
 		description: `A non-trivial amount of toxin lingers on your system. Your maximum [[Vitality_Point | VP]] is reduced by your [[Poisoned]] _rank_ (if it reaches \`0\`, you die from the poison).
 
 In order to treat it, a more advanced level of medical care is required than a simple [[Short Rest]], but the exact requirements depend on the nature of the poison. Typically, during a [[Long Rest]], you or someone can attempt to use a Healer's Kit ([[Intuition]] Check DC 20 (Medium)) to reduce the _rank_ of Poisoned by 1 + **Shifts**.`,
 	}),
 	[Consequence.Death]: new ConsequenceDefinition({
 		name: Consequence.Death,
+		ranked: false,
 		description: `Death is the ultimate consequence. In Shattered Wilds, there is no revival - once your [[Soul]] is severed from your [[Body]], they can never go back. That means stakes are always high and some decisions are final (not only regarding the players, but more importantly, NPCs and enemies).
 
 Death doesn't just come from just reaching zero [[Resource | resources]] - and in fact doesn't come (necessarily) from the accumulation of [[Consequence | Consequences]]. However, a totally [[Incapacitated]] creature (thus helpless) could be executed with a _Coup de Grace_, which will still require a contested check (failing will cause severe injuries instead). This is a longer action that cannot be taken during a combat, but it is typically considered that after the danger has passed, the winners will execute the losers, or leave them to die, unless otherwise specified by the victors.`,
