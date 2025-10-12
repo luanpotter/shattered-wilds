@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-import Block from '../shared/Block';
 import { Button } from '../shared/Button';
 import LabeledDropdown from '../shared/LabeledDropdown';
 import LabeledInput from '../shared/LabeledInput';
@@ -43,7 +42,7 @@ export function AddCircumstanceModal<T extends string>({
 	};
 
 	return (
-		<Block>
+		<>
 			<div style={{ marginBottom: '16px' }}>
 				<LabeledDropdown
 					label='Select Item'
@@ -96,6 +95,6 @@ export function AddCircumstanceModal<T extends string>({
 				<Button onClick={handleCancel} title='Cancel' />
 				<Button onClick={handleConfirm} title='Confirm' disabled={!selectedItem} />
 			</div>
-		</Block>
+		</>
 	);
 }
