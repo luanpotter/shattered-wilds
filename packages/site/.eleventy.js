@@ -19,6 +19,7 @@ import { covers } from './src/_config/data/covers.js';
 import { predefinedArcaneSpells } from './src/_config/data/arcane.js';
 import { schools } from './src/_config/data/schools.js';
 import { conditions } from './src/_config/data/conditions.js';
+import { consequences } from './src/_config/data/consequence.js';
 
 export default function (eleventyConfig) {
 	// NOTE: kept to allow for a different prefix in the future
@@ -44,6 +45,7 @@ export default function (eleventyConfig) {
 	eleventyConfig.addGlobalData('predefinedArcaneSpells', predefinedArcaneSpells);
 	eleventyConfig.addGlobalData('schools', schools);
 	eleventyConfig.addGlobalData('conditions', conditions);
+	eleventyConfig.addGlobalData('consequences', consequences);
 
 	const wikiPages = [
 		...lexiconFiles,
@@ -59,6 +61,7 @@ export default function (eleventyConfig) {
 		...predefinedArcaneSpells,
 		...schools,
 		...conditions,
+		...consequences,
 	]
 		.filter(e => e.slug)
 		.sort((a, b) => {

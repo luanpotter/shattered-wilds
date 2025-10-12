@@ -1,5 +1,3 @@
-import { Bonus } from '../stats/value.js';
-
 export enum Condition {
 	Blessed = 'Blessed',
 	Blinded = 'Blinded',
@@ -13,42 +11,6 @@ export enum Condition {
 	Silenced = 'Silenced',
 	Unconscious = 'Unconscious',
 }
-
-export type ExhaustionData = {
-	rank: number;
-	bonus: Bonus;
-	cmText: string;
-};
-
-export const Exhaustion = {
-	fromRank: (rank: number): ExhaustionData => {
-		if (rank >= 10) {
-			return { rank, bonus: Bonus.zero(), cmText: 'Death' };
-		}
-
-		let modifier;
-
-		if (rank < 3) {
-			modifier = 0;
-		} else if (rank === 3) {
-			modifier = -1;
-		} else if (rank === 4) {
-			modifier = -2;
-		} else if (rank === 5) {
-			modifier = -4;
-		} else if (rank === 6) {
-			modifier = -8;
-		} else if (rank === 7) {
-			modifier = -16;
-		} else if (rank === 8) {
-			modifier = -32;
-		} else {
-			modifier = -64;
-		}
-
-		return { rank, bonus: Bonus.of(modifier), cmText: `CM: ${modifier}` };
-	},
-};
 
 export class ConditionDefinition {
 	name: Condition;

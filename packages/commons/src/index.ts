@@ -6,6 +6,7 @@ export * from './stats/dice.js';
 export * from './stats/resources.js';
 export * from './stats/value.js';
 export * from './core/conditions.js';
+export * from './core/consequences.js';
 export * from './core/traits.js';
 export * from './core/size.js';
 export * from './core/races.js';

@@ -1,5 +1,6 @@
 import { CharacterSheet } from '../../character/character-sheet.js';
-import { Condition, Exhaustion, ExhaustionData } from '../../core/conditions.js';
+import { Condition } from '../../core/conditions.js';
+import { Exhaustion, ExhaustionData } from '../../core/consequences.js';
 import { Resource, ResourceValue } from '../../stats/resources.js';
 import { mapEnumToRecord } from '../../utils/utils.js';
 
