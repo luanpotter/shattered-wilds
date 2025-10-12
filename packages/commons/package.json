@@ -28,6 +28,9 @@
     "check:fix": "bun run lint:fix && bun run type-check && bun run prettier:fix",
     "clean": "rm -rf build/ dist/ node_modules/"
   },
+  "dependencies": {
+    "type-comparator": "^0.2.10"
+  },
   "devDependencies": {
     "typescript": "^5.7.2",
     "vitest": "^3.2.4"
