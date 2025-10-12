@@ -7,10 +7,10 @@
  * @param mapper Function that maps each enum value to the desired type T
  * @returns Record<EnumType, T> with all enum values mapped
  */
-export function mapEnumToRecord<E extends string | number, T>(
+export const mapEnumToRecord = <E extends string | number, T>(
 	enumObject: Record<string, E>,
 	mapper: (enumValue: E) => T,
-): Record<E, T> {
+): Record<E, T> => {
 	const result = {} as Record<E, T>;
 
 	for (const enumValue of Object.values(enumObject)) {
@@ -18,7 +18,7 @@ export function mapEnumToRecord<E extends string | number, T>(
 	}
 
 	return result;
-}
+};
 
 /**
  * Type-safe equivalent to Object.keys() for Records with enum keys.
@@ -27,18 +27,18 @@ export function mapEnumToRecord<E extends string | number, T>(
  * @param record A Record<K, T> where K is an enum type
  * @returns Array of keys with type K[] (instead of string[])
  */
-export function getRecordKeys<K extends string | number, T>(record: Record<K, T>): K[] {
+export const getRecordKeys = <K extends string | number, T>(record: Record<K, T>): K[] => {
 	return Object.keys(record) as K[];
-}
+};
 
 /**
  * Type-safe function to get all keys of an enum as an array.
  * @param enumObject the enum object
  * @returns array of enum keys with proper type of E[] (not string[])
  */
-export function getEnumKeys<E extends string | number>(enumObject: Record<string, E>): E[] {
+export const getEnumKeys = <E extends string | number>(enumObject: Record<string, E>): E[] => {
 	return Object.values(enumObject);
-}
+};
 
 /**
  * Convert a number to an ordinal string, for example 1 -> "1st", 7 -> "7th" or 22 -> "22nd".
@@ -78,4 +78,17 @@ export const firstParagraph = (text: string): string => {
  */
 export const slugify = (str: string): string => {
 	return str.replace(/ /g, '_');
+};
+
+/**
+ * Type guard to check if a value is a valid enum value.
+ * Usage:
+ * const myValues = array.filter(isEnumValue(MyEnum));
+ */
+export const isEnumValue = <T extends Record<string, string | number>>(
+	enumObj: T,
+): ((value: unknown) => value is T[keyof T]) => {
+	return (value: unknown): value is T[keyof T] => {
+		return Object.values(enumObj).includes(value as T[keyof T]);
+	};
 };

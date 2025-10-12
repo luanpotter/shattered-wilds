@@ -24,6 +24,7 @@ import {
 	DistanceInput,
 	DivineSection,
 	DropdownInput,
+	Exhaustion,
 	FeatsSection,
 	NodeStatModifier,
 	NumberInput,
@@ -501,7 +502,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 		// Use centralized character parsing logic
 		const resources: Record<string, { current: number; max: number }> = {};
-		let resourcesArray: Array<{ key: string; name: string; shortName: string; current: number; max: number }> = [];
+		let resourcesArray: Array<{ key: string; fullName: string; shortCode: string; current: number; max: number }> = [];
 		let statTreeData: unknown = null;
 
 		try {
@@ -529,8 +530,8 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					const definition = RESOURCES[resource];
 					return {
 						key: resource,
-						name: definition.name,
-						shortName: definition.shortName,
+						fullName: definition.fullName,
+						shortCode: definition.shortCode,
 						current: resourceData.current,
 						max: resourceData.max,
 					};
@@ -1180,25 +1181,6 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		return iconMap[condition] || 'fas fa-exclamation-triangle';
 	}
 
-	private modifierTextForRank(rank: number): { modifier: number; text: string } {
-		if (rank >= 10) {
-			return { modifier: 0, text: 'Death' };
-		}
-
-		let modifier;
-
-		if (rank < 3) modifier = 0;
-		else if (rank === 3) modifier = -1;
-		else if (rank === 4) modifier = -2;
-		else if (rank === 5) modifier = -4;
-		else if (rank === 6) modifier = -8;
-		else if (rank === 7) modifier = -16;
-		else if (rank === 8) modifier = -32;
-		else modifier = -64;
-
-		return { modifier, text: `CM: ${modifier}` };
-	}
-
 	private prepareExhaustionData(): {
 		rank: number;
 		maxRank: number;
@@ -1207,14 +1189,14 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		modifierText: string;
 	} {
 		const rank = this.#exhaustionRank;
-		const { modifier, text } = this.modifierTextForRank(rank);
+		const { bonus, cmText } = Exhaustion.fromRank(rank);
 
 		return {
 			rank,
 			maxRank: 10, // Death at 10+
 			hasRanks: rank > 0,
-			modifier,
-			modifierText: text,
+			modifier: bonus.value,
+			modifierText: cmText,
 		};
 	}
 

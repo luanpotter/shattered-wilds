@@ -28,8 +28,8 @@ const BaseCostBoxComponent: React.FC<{
 
 	const costs = actionCosts.map(cost => {
 		const resource = RESOURCES[cost.resource];
-		const value = `${cost.amount}${cost.variable ? '+' : ''} ${resource.shortName}`;
-		const tooltip = `${cost.amount}${cost.variable ? '+' : ''} ${resource.name}`;
+		const value = `${cost.amount}${cost.variable ? '+' : ''} ${resource.shortCode}`;
+		const tooltip = `${cost.amount}${cost.variable ? '+' : ''} ${resource.fullName}`;
 		const current = sheet.getResource(cost.resource).current;
 		const insufficient = current < cost.amount;
 		return { value, tooltip, insufficient };

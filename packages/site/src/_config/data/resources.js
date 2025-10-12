@@ -1,18 +1,18 @@
 import { RESOURCES, slugify } from '@shattered-wilds/commons';
 
 export const resources = Object.values(RESOURCES).map(resource => {
-	const slug = slugify(resource.name);
+	const slug = slugify(resource.fullName);
 	return {
 		// wiki parameters
 		group: 'Resource',
 		slug,
-		title: resource.name,
+		title: resource.fullName,
 		url: `/wiki/${slug}/`,
 		content: resource.description,
 		metadata: [],
 
 		// other parameters
-		name: resource.name,
+		name: resource.fullName,
 		description: resource.description,
 		formula: resource.formula,
 	};

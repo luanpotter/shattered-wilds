@@ -1,3 +1,5 @@
+import { Bonus } from '../stats/value.js';
+
 export enum Condition {
 	Blessed = 'Blessed',
 	Blinded = 'Blinded',
@@ -11,6 +13,42 @@ export enum Condition {
 	Silenced = 'Silenced',
 	Unconscious = 'Unconscious',
 }
+
+export type ExhaustionData = {
+	rank: number;
+	bonus: Bonus;
+	cmText: string;
+};
+
+export const Exhaustion = {
+	fromRank: (rank: number): ExhaustionData => {
+		if (rank >= 10) {
+			return { rank, bonus: Bonus.zero(), cmText: 'Death' };
+		}
+
+		let modifier;
+
+		if (rank < 3) {
+			modifier = 0;
+		} else if (rank === 3) {
+			modifier = -1;
+		} else if (rank === 4) {
+			modifier = -2;
+		} else if (rank === 5) {
+			modifier = -4;
+		} else if (rank === 6) {
+			modifier = -8;
+		} else if (rank === 7) {
+			modifier = -16;
+		} else if (rank === 8) {
+			modifier = -32;
+		} else {
+			modifier = -64;
+		}
+
+		return { rank, bonus: Bonus.of(modifier), cmText: `CM: ${modifier}` };
+	},
+};
 
 export class ConditionDefinition {
 	name: Condition;
@@ -32,7 +70,9 @@ A character cannot become **Frightened** if they are **Blessed**.
 	}),
 	[Condition.Blinded]: new ConditionDefinition({
 		name: Condition.Blinded,
-		description: `The character's ability to see is temporarily hampered. They are still vaguely aware of their surroundings if they have other senses (such as hearing and smell), specially their immediate surroundings; however, they might not be able to notice or react to specific, heavily sight-reliant events without an [[Awareness]] or [[Perception]] check (to the DM's discretion). Other than that, they can still attempt to perform any [[Action]], but have a \`-6\` [[Circumstance Modifier | CM]] to all [[Action | Actions]] or Checks that require sight (including _Attack Actions_, and the aforementioned [[Awareness]] / [[Perception]] checks), and a \`-3\` [[Circumstance Modifier | CM]] to all [[Body]] Defense Checks.`,
+		description: `The character's ability to see is temporarily hampered. They are still vaguely aware of their surroundings if they have other senses (such as hearing and smell), specially their immediate surroundings; however, they might not be able to notice or react to specific, heavily sight-reliant events without an [[Awareness]] or [[Perception]] Checks (to the DM's discretion).
+
+Other than that, they can still attempt to perform any [[Action]], but have a \`-6\` [[Circumstance Modifier | CM]] to all [[Action | Actions]] or Checks that require sight (including _Attack Actions_, and the aforementioned [[Awareness]] / [[Perception]] checks), and a \`-3\` [[Circumstance Modifier | CM]] to all [[Body]] Defense Checks.`,
 	}),
 	[Condition.Distracted]: new ConditionDefinition({
 		name: Condition.Distracted,
@@ -91,7 +131,7 @@ Incapacitated characters are vulnerable to taking further Consequences.`,
 	}),
 	[Condition.OffGuard]: new ConditionDefinition({
 		name: Condition.OffGuard,
-		description: `The character has reduced defensive awareness and readiness. While **Off-Guard**, a character suffers a -3 [[Circumstance Modifier | CM]] to [[Body]] Defense checks.
+		description: `The character has reduced defensive awareness and readiness. While **Off-Guard**, a character suffers a \`-3\` [[Circumstance Modifier | CM]] to [[Body]] Defense checks.
 
 Off-Guard can be caused by the [[Stun]] action and cleared by the [[Catch_Breath | Catch Breath]] action.`,
 	}),
@@ -114,6 +154,8 @@ While Silenced, a character:
 	}),
 	[Condition.Unconscious]: new ConditionDefinition({
 		name: Condition.Unconscious,
-		description: `The character is not awake, and cannot take any [[Action | Actions]]. Depending on the cause of the unconsciousness, the character can be waken up by different means, and might have fallen [[Prone]].`,
+		description: `The character is not awake, and cannot take any [[Action | Actions]].
+
+		Depending on the cause of the unconsciousness, the character can be waken up by different means, and might have fallen [[Prone]].`,
 	}),
 };

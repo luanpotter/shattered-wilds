@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { mapEnumToRecord, getRecordKeys, numberToOrdinal } from './utils.js';
+import { mapEnumToRecord, getRecordKeys, numberToOrdinal, firstParagraph, isEnumValue } from './utils.js';
 
 describe('mapEnumToRecord', () => {
 	it('should map all enum values to a record', () => {
@@ -79,5 +79,38 @@ describe('numberToOrdinal', () => {
 		expect(numberToOrdinal(102)).toBe('102nd');
 		expect(numberToOrdinal(103)).toBe('103rd');
 		expect(numberToOrdinal(104)).toBe('104th');
+	});
+
+	describe('firstParagraph', () => {
+		it('should extract the first paragraph from text correctly', () => {
+			// Single paragraph
+			expect(firstParagraph('This is a single paragraph.')).toBe('This is a single paragraph.');
+
+			// Multiple paragraphs
+			expect(firstParagraph('First paragraph.\n\nSecond paragraph.\n\nThird paragraph.')).toBe('First paragraph.');
+			expect(firstParagraph('First paragraph.\r\n\r\nSecond paragraph.\r\n\r\nThird paragraph.')).toBe(
+				'First paragraph.',
+			);
+			expect(firstParagraph('First paragraph.\nSecond line of first paragraph.\n\nSecond paragraph.')).toBe(
+				'First paragraph.\nSecond line of first paragraph.',
+			);
+			expect(firstParagraph('First paragraph.\r\nSecond line of first paragraph.\r\n\r\nSecond paragraph.')).toBe(
+				'First paragraph.\r\nSecond line of first paragraph.',
+			);
+		});
+	});
+
+	describe('isEnumValue', () => {
+		it('should correctly identify valid enum values', () => {
+			enum SampleEnum {
+				One = 'one',
+				Two = 'two',
+				Three = 'three',
+			}
+
+			const array = ['one', 'two', 'four', 'five', 1, null, undefined, {}, []];
+			const filtered = array.filter(isEnumValue(SampleEnum));
+			expect(filtered).toEqual(['one', 'two']);
+		});
 	});
 });
