@@ -124,9 +124,19 @@ export class CharacterSheet {
 		return this.circumstances.currentResources.get(this.getStatTree(), resource);
 	}
 
-	updateResource(resource: Resource, delta: number): number {
-		const { current, max } = this.getResource(resource);
-		return Math.max(0, Math.min(max, current + delta));
+	updateResourceToValue(resource: Resource, value: number): number {
+		const { max } = this.getResource(resource);
+		return Math.max(0, Math.min(max, value));
+	}
+
+	updateResourceToMax(resource: Resource): number {
+		const { max } = this.getResource(resource);
+		return this.updateResourceToValue(resource, max);
+	}
+
+	updateResourceByDelta(resource: Resource, delta: number): number {
+		const { current } = this.getResource(resource);
+		return this.updateResourceToValue(resource, current + delta);
 	}
 
 	getStatTree(): StatTree {

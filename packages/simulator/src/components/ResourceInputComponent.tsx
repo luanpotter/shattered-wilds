@@ -21,7 +21,7 @@ export const ResourceInputComponent: React.FC<ResourceInputComponentProps> = ({
 	sheet,
 	resource,
 }) => {
-	const { updateResource } = usePropUpdates(character, sheet);
+	const { updateResourceByDelta } = usePropUpdates(character, sheet);
 
 	const { max, current } = sheet.getResource(resource);
 	const { fullName, shortCode } = RESOURCES[resource];
@@ -37,13 +37,13 @@ export const ResourceInputComponent: React.FC<ResourceInputComponentProps> = ({
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginRight: '12px' }}>
 					<Button
 						variant='inline'
-						onClick={() => updateResource(resource, -1)}
+						onClick={() => updateResourceByDelta(resource, -1)}
 						icon={FaMinus}
 						tooltip={`Decrease ${resource}`}
 					/>
 					<Button
 						variant='inline'
-						onClick={() => updateResource(resource, 1)}
+						onClick={() => updateResourceByDelta(resource, 1)}
 						icon={FaPlus}
 						tooltip={`Increase ${resource}`}
 					/>

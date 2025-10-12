@@ -50,7 +50,7 @@ export async function changeActorResource(actor: ActorLike, resource: Resource, 
 	const characterSheet = CharacterSheet.from(currentProps);
 
 	// Apply the change and get new value
-	const newValue = characterSheet.updateResource(resource, delta);
+	const newValue = characterSheet.updateResourceByDelta(resource, delta);
 
 	// Update with new props
 	const updatedProps = { ...currentProps, [resource]: newValue.toString() };
@@ -102,7 +102,7 @@ export async function consumeActionResources(
 
 	// Apply all costs
 	for (const cost of resourceCosts) {
-		const newValue = characterSheet.updateResource(cost.resource, -cost.amount);
+		const newValue = characterSheet.updateResourceByDelta(cost.resource, -cost.amount);
 		updatedProps[cost.resource] = newValue.toString();
 	}
 

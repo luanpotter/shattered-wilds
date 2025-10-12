@@ -4,19 +4,36 @@ import { useStore } from '../store';
 import { Character } from '../types/ui';
 
 export type PropUpdates = {
-	updateResource: (resource: Resource, delta: number) => void;
+	updateResourceByDelta: (resource: Resource, delta: number) => void;
+	updateResourceToMax: (resource: Resource) => void;
+	updateResourceToValue: (resource: Resource, value: number) => void;
 	addCondition: (condition: AppliedCircumstance<Condition>) => void;
 	removeCondition: (condition: Condition) => void;
 	addConsequence: (consequence: AppliedCircumstance<Consequence>) => void;
+	addToConsequenceRank: (consequence: Consequence, delta: number) => void;
 	removeConsequence: (consequence: Consequence) => void;
 };
 
 export const usePropUpdates = (character: Character, sheet: CharacterSheet): PropUpdates => {
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
 
-	const updateResource = (resource: Resource, delta: number) => {
-		const newValue = sheet.updateResource(resource, delta);
-		updateCharacterProp(character, resource, newValue.toString());
+	const updateResourceProp = (resource: Resource, value: number) => {
+		updateCharacterProp(character, resource, value.toString());
+	};
+
+	const updateResourceToValue = (resource: Resource, value: number) => {
+		const newValue = sheet.updateResourceToValue(resource, value);
+		updateResourceProp(resource, newValue);
+	};
+
+	const updateResourceToMax = (resource: Resource) => {
+		const newValue = sheet.updateResourceToMax(resource);
+		updateResourceProp(resource, newValue);
+	};
+
+	const updateResourceByDelta = (resource: Resource, delta: number) => {
+		const newValue = sheet.updateResourceByDelta(resource, delta);
+		updateResourceProp(resource, newValue);
 	};
 
 	const serializeConditions = (conditions: AppliedCircumstance<Condition>[]) => {
@@ -57,11 +74,22 @@ export const usePropUpdates = (character: Character, sheet: CharacterSheet): Pro
 		serializeConsequences(newConsequences);
 	};
 
+	const addToConsequenceRank = (consequence: Consequence, delta: number) => {
+		const existing = sheet.circumstances.consequences.find(c => c.name === consequence);
+		const newConsequences = existing
+			? [...filterConsequenceOut(consequence), { ...existing, rank: existing.rank + delta }]
+			: [...sheet.circumstances.consequences, { name: consequence, rank: delta }];
+		serializeConsequences(newConsequences);
+	};
+
 	return {
-		updateResource,
+		updateResourceByDelta,
+		updateResourceToMax,
+		updateResourceToValue,
 		addCondition,
 		removeCondition,
 		addConsequence,
+		addToConsequenceRank,
 		removeConsequence,
 	};
 };

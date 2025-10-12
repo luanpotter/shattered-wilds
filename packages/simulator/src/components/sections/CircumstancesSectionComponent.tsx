@@ -31,10 +31,16 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 
 	const [newOtherCircumstance, setNewOtherCircumstance] = useState('');
 
-	const { updateResource, addCondition, removeCondition, addConsequence, removeConsequence } = usePropUpdates(
-		character,
-		characterSheet,
-	);
+	const {
+		updateResourceByDelta,
+		updateResourceToValue,
+		updateResourceToMax,
+		addCondition,
+		removeCondition,
+		addConsequence,
+		addToConsequenceRank,
+		removeConsequence,
+	} = usePropUpdates(character, characterSheet);
 	const { openAddConditionModal, openAddConsequenceModal, openConfirmationModal } = useModals();
 
 	const resourceBar = (resource: Resource): JSX.Element[] => {
@@ -50,8 +56,8 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 					current={value.current}
 					max={value.max}
 					color={def.color}
-					onIncrement={() => updateResource(resource, 1)}
-					onDecrement={() => updateResource(resource, -1)}
+					onIncrement={() => updateResourceByDelta(resource, 1)}
+					onDecrement={() => updateResourceByDelta(resource, -1)}
 				/>
 			</div>,
 		];
@@ -76,20 +82,19 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 				onToggle={index => {
 					const isIndexActive = index < value.current;
 					const newIndex = isIndexActive ? index : index + 1;
-					const delta = newIndex - value.current;
-					updateResource(resource, delta);
+					updateResourceToValue(resource, newIndex);
 				}}
 			/>,
 			<div key={`${resource}-buttons`} style={{ display: 'flex', gap: '4px', marginLeft: '12px' }}>
 				<Button
 					variant='inline'
-					onClick={() => updateResource(resource, -1)}
+					onClick={() => updateResourceByDelta(resource, -1)}
 					icon={FaMinus}
 					tooltip={`Decrease ${label}`}
 				/>
 				<Button
 					variant='inline'
-					onClick={() => updateResource(resource, 1)}
+					onClick={() => updateResourceByDelta(resource, 1)}
 					icon={FaPlus}
 					tooltip={`Increase ${label}`}
 				/>
@@ -160,24 +165,38 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 	const handleEndTurn = async () => {
 		const confirmed = await openConfirmationModal({
 			title: 'End Turn',
-			message: 'Are you sure you want to trigger an End of Turn?',
+			message: [
+				'Are you sure you want to trigger an **End of Turn**?',
+				'That will restore all your [[Action Points]].',
+			].join('\n\n'),
 			confirmText: 'End Turn',
 		});
 		if (confirmed) {
-			console.log('End turn confirmed');
-			// TODO: Implement end turn logic
+			updateResourceToMax(Resource.ActionPoint);
 		}
 	};
 
 	const handleShortRest = async () => {
 		const confirmed = await openConfirmationModal({
 			title: 'Short Rest',
-			message: 'Are you sure you want to trigger a Short Rest?',
+			message: [
+				'Are you sure you want to trigger a **Short Rest**?',
+				'That will:',
+				'- Restore all your [[Vitality Points]], [[Focus Points]], and [[Spirit Points]].',
+				'- Clear all conditions',
+				'- Add 1 rank of [[Exhaustion]]',
+			].join('\n\n'),
 			confirmText: 'Take Short Rest',
 		});
 		if (confirmed) {
-			console.log('Short rest confirmed');
-			// TODO: Implement short rest logic
+			updateResourceToMax(Resource.ActionPoint);
+			updateResourceToMax(Resource.VitalityPoint);
+			updateResourceToMax(Resource.FocusPoint);
+			updateResourceToMax(Resource.SpiritPoint);
+			for (const condition of circumstancesSection.conditions) {
+				removeCondition(condition.condition);
+			}
+			addToConsequenceRank(Consequence.Exhaustion, 1);
 		}
 	};
 
