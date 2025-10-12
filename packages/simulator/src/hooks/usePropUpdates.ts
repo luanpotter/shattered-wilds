@@ -9,6 +9,7 @@ export type PropUpdates = {
 	updateResourceToValue: (resource: Resource, value: number) => void;
 	addCondition: (condition: AppliedCircumstance<Condition>) => void;
 	removeCondition: (condition: Condition) => void;
+	removeAllConditions: () => void;
 	addConsequence: (consequence: AppliedCircumstance<Consequence>) => void;
 	addToConsequenceRank: (consequence: Consequence, delta: number) => void;
 	removeConsequence: (consequence: Consequence) => void;
@@ -55,6 +56,10 @@ export const usePropUpdates = (character: Character, sheet: CharacterSheet): Pro
 		serializeConditions(newConditions);
 	};
 
+	const removeAllConditions = () => {
+		serializeConditions([]);
+	};
+
 	const serializeConsequences = (consequences: AppliedCircumstance<Consequence>[]) => {
 		const consequencesProp = consequences.map(c => `${c.name}:${c.rank}`).join(',');
 		updateCharacterProp(character, 'consequences', consequencesProp);
@@ -93,6 +98,7 @@ export const usePropUpdates = (character: Character, sheet: CharacterSheet): Pro
 		updateResourceToValue,
 		addCondition,
 		removeCondition,
+		removeAllConditions,
 		addConsequence,
 		addToConsequenceRank,
 		removeConsequence,

@@ -37,6 +37,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 		updateResourceToMax,
 		addCondition,
 		removeCondition,
+		removeAllConditions,
 		addConsequence,
 		addToConsequenceRank,
 		removeConsequence,
@@ -167,24 +168,22 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 		[Resource.VitalityPoint, Resource.FocusPoint, Resource.SpiritPoint].forEach(updateResourceToMax);
 	};
 
-	const removeConditions = () => {
-		for (const condition of circumstancesSection.conditions) {
-			removeCondition(condition.condition);
-		}
-	};
-
 	const endTurn = () => {
 		updateResourceToMax(Resource.ActionPoint);
 	};
 
 	const shortRest = () => {
-		removeConditions();
+		(() => {
+			removeAllConditions();
+		})();
 		healAttributePoints();
 		addToConsequenceRank(Consequence.Exhaustion, 1);
 	};
 
 	const longRest = () => {
-		removeConditions();
+		(() => {
+			removeAllConditions();
+		})();
 		healAttributePoints();
 		addToConsequenceRank(Consequence.Exhaustion, -3);
 		updateResourceByDelta(Resource.HeroismPoint, 1);
