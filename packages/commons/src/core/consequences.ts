@@ -58,7 +58,7 @@ export const CONSEQUENCES: Record<Consequence, ConsequenceDefinition> = {
 	[Consequence.Exhaustion]: new ConsequenceDefinition({
 		name: Consequence.Exhaustion,
 		ranked: true,
-		description: `Represents a longer term form of tiredness and fatigue that cannot be healed by a simple [[Short Rest]]. Exhaustion comes in _ranks_, each character starting at 0 _ranks_ of **Exhaustion**.
+		description: `Represents a longer term form of tiredness and fatigue that cannot be healed by a simple [[Short Rest]].
 
 Several different circumstances can increase the _rank_; initially, just accumulating without causing harm, but further _ranks_ will incur negative consequences. Up to \`3\` ranks of **Exhaustion** are cleared on each [[Long Rest]].
 

@@ -12,6 +12,7 @@ import {
 import React, { JSX } from 'react';
 import { FaCoffee, FaHourglassEnd, FaMinus, FaMoon, FaPlus } from 'react-icons/fa';
 
+import { useModals } from '../../hooks/useModals';
 import { usePropUpdates } from '../../hooks/usePropUpdates';
 import { useStore } from '../../store';
 import { CardSection } from '../circumstances/CardSection';
@@ -30,6 +31,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 		character,
 		characterSheet,
 	);
+	const { openAddConditionModal, openAddConsequenceModal } = useModals();
 
 	const resourceBar = (resource: Resource): JSX.Element[] => {
 		const def = RESOURCES[resource];
@@ -164,17 +166,21 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 	};
 
 	const handleAddCondition = () => {
-		// TODO: open a modal to select condition
-		const randomCondition = Math.floor(Math.random() * Object.keys(Condition).length);
-		const rank = Math.floor(Math.random() * 3);
-		addCondition({ name: Object.values(Condition)[randomCondition], rank });
+		openAddConditionModal({
+			characterId,
+			onConfirm: (condition, rank) => {
+				addCondition({ name: condition, rank });
+			},
+		});
 	};
 
 	const handleAddConsequence = () => {
-		// TODO: open a modal to select consequence
-		const randomConsequence = Math.floor(Math.random() * Object.keys(Consequence).length);
-		const rank = Math.floor(Math.random() * 3);
-		addConsequence({ name: Object.values(Consequence)[randomConsequence], rank });
+		openAddConsequenceModal({
+			characterId,
+			onConfirm: (consequence, rank) => {
+				addConsequence({ name: consequence, rank });
+			},
+		});
 	};
 
 	return (

@@ -2,6 +2,8 @@
 export { ModalWrapper } from './ModalWrapper';
 
 // Individual modal components
+export { AddConditionModal } from './AddConditionModal';
+export { AddConsequenceModal } from './AddConsequenceModal';
 export { AttackActionModal } from './AttackActionModal';
 export { BasicAttacksModal } from './BasicAttacksModal';
 export { CharacterCreationModal } from './CharacterCreationModal';

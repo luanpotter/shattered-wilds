@@ -10,6 +10,8 @@ import { Navigator } from '../utils/routes';
 
 import { CharacterSheetModal } from './CharacterSheet';
 import {
+	AddConditionModal,
+	AddConsequenceModal,
 	AttackActionModal,
 	BasicAttacksModal,
 	CharacterCreationModal,
@@ -204,6 +206,20 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 			}
 			case 'item': {
 				return <ItemModal characterId={modal.characterId} itemIndex={modal.itemIndex} onClose={onClose} />;
+			}
+			case 'add-condition': {
+				const character = characters.find(c => c.id === modal.characterId);
+				if (!character) {
+					return renderCharacterNotFound(modal.characterId);
+				}
+				return <AddConditionModal characterId={modal.characterId} onClose={onClose} onConfirm={modal.onConfirm} />;
+			}
+			case 'add-consequence': {
+				const character = characters.find(c => c.id === modal.characterId);
+				if (!character) {
+					return renderCharacterNotFound(modal.characterId);
+				}
+				return <AddConsequenceModal characterId={modal.characterId} onClose={onClose} onConfirm={modal.onConfirm} />;
 			}
 			default:
 				return <div>Unknown modal type</div>;

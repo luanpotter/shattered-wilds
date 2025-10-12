@@ -1,4 +1,4 @@
-import { ActionCost, Check, FeatSlot, FeatDefinition } from '@shattered-wilds/commons';
+import { ActionCost, Check, FeatSlot, FeatDefinition, Condition, Consequence } from '@shattered-wilds/commons';
 
 export interface Point {
 	x: number;
@@ -102,6 +102,16 @@ export type Modal = BaseModal &
 				type: 'item';
 				characterId: string;
 				itemIndex?: number; // if provided, edit/view existing; else create new
+		  }
+		| {
+				type: 'add-condition';
+				characterId: string;
+				onConfirm: (condition: Condition, rank: number) => void;
+		  }
+		| {
+				type: 'add-consequence';
+				characterId: string;
+				onConfirm: (consequence: Consequence, rank: number) => void;
 		  }
 	);
 

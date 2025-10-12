@@ -1,4 +1,4 @@
-import { ActionCost, Check, FeatDefinition, FeatSlot } from '@shattered-wilds/commons';
+import { ActionCost, Check, FeatDefinition, FeatSlot, Condition, Consequence } from '@shattered-wilds/commons';
 
 import { useStore } from '../store';
 import { HexPosition, Modal } from '../types/ui';
@@ -295,6 +295,38 @@ export function useModals() {
 		});
 	};
 
+	const openAddConditionModal = ({
+		characterId,
+		onConfirm,
+	}: {
+		characterId: string;
+		onConfirm: (condition: Condition, rank: number) => void;
+	}) => {
+		addModal({
+			title: 'Add Condition',
+			type: 'add-condition',
+			characterId,
+			onConfirm,
+			widthPixels: 500,
+		});
+	};
+
+	const openAddConsequenceModal = ({
+		characterId,
+		onConfirm,
+	}: {
+		characterId: string;
+		onConfirm: (consequence: Consequence, rank: number) => void;
+	}) => {
+		addModal({
+			title: 'Add Consequence',
+			type: 'add-consequence',
+			characterId,
+			onConfirm,
+			widthPixels: 500,
+		});
+	};
+
 	const closeModal = (modalId: string) => {
 		removeModal(modalId);
 	};
@@ -321,6 +353,8 @@ export function useModals() {
 		openFeatParameterSetupModal,
 		openAddItemModal,
 		openViewItemModal,
+		openAddConditionModal,
+		openAddConsequenceModal,
 		closeModal,
 		closeAllModals,
 		updateModal,
