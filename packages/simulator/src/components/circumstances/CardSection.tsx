@@ -13,7 +13,7 @@ interface CardSectionProps {
 export const CardSection: React.FC<CardSectionProps> = ({ title, cards, onAdd, onRemove }) => {
 	return (
 		<div style={{ marginBottom: '16px' }}>
-			<h4 style={{ margin: '0 0 8px 0', fontSize: '1em' }}>{title}</h4>
+			<h4 style={{ margin: '0 0 8px 0' }}>{title}</h4>
 			<div style={{ display: 'grid', gap: '8px', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
 				{cards.map((card, idx) => (
 					<RemovableCard

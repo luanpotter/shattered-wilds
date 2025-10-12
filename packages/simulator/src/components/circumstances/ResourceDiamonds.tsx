@@ -3,10 +3,11 @@ import React from 'react';
 interface ResourceDiamondsProps {
 	count: number;
 	total: number;
+	color: string;
 	onToggle: (index: number) => void;
 }
 
-export const ResourceDiamonds: React.FC<ResourceDiamondsProps> = ({ count, total, onToggle }) => {
+export const ResourceDiamonds: React.FC<ResourceDiamondsProps> = ({ count, total, color, onToggle }) => {
 	return (
 		<div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
 			{Array.from({ length: total }).map((_, idx) => {
@@ -37,7 +38,7 @@ export const ResourceDiamonds: React.FC<ResourceDiamondsProps> = ({ count, total
 						>
 							<path
 								d='M 10 2 L 18 10 L 10 18 L 2 10 Z'
-								fill={isFilled ? 'var(--text)' : 'transparent'}
+								fill={isFilled ? color : 'transparent'}
 								stroke='var(--text)'
 								strokeWidth='2'
 								style={{

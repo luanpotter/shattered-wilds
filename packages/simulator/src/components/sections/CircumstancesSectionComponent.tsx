@@ -79,6 +79,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 				key={`${resource}-diamonds`}
 				count={value.current}
 				total={value.max}
+				color={def.color}
 				onToggle={index => {
 					const isIndexActive = index < value.current;
 					const newIndex = isIndexActive ? index : index + 1;
@@ -162,6 +163,33 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 		);
 	};
 
+	const healAttributePoints = () => {
+		[Resource.VitalityPoint, Resource.FocusPoint, Resource.SpiritPoint].forEach(updateResourceToMax);
+	};
+
+	const removeConditions = () => {
+		for (const condition of circumstancesSection.conditions) {
+			removeCondition(condition.condition);
+		}
+	};
+
+	const endTurn = () => {
+		updateResourceToMax(Resource.ActionPoint);
+	};
+
+	const shortRest = () => {
+		removeConditions();
+		healAttributePoints();
+		addToConsequenceRank(Consequence.Exhaustion, 1);
+	};
+
+	const longRest = () => {
+		removeConditions();
+		healAttributePoints();
+		addToConsequenceRank(Consequence.Exhaustion, -3);
+		updateResourceByDelta(Resource.HeroismPoint, 1);
+	};
+
 	const handleEndTurn = async () => {
 		const confirmed = await openConfirmationModal({
 			title: 'End Turn',
@@ -172,7 +200,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 			confirmText: 'End Turn',
 		});
 		if (confirmed) {
-			updateResourceToMax(Resource.ActionPoint);
+			endTurn();
 		}
 	};
 
@@ -189,26 +217,25 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 			confirmText: 'Take Short Rest',
 		});
 		if (confirmed) {
-			updateResourceToMax(Resource.ActionPoint);
-			updateResourceToMax(Resource.VitalityPoint);
-			updateResourceToMax(Resource.FocusPoint);
-			updateResourceToMax(Resource.SpiritPoint);
-			for (const condition of circumstancesSection.conditions) {
-				removeCondition(condition.condition);
-			}
-			addToConsequenceRank(Consequence.Exhaustion, 1);
+			shortRest();
 		}
 	};
 
 	const handleLongRest = async () => {
 		const confirmed = await openConfirmationModal({
 			title: 'Long Rest',
-			message: 'Are you sure you want to trigger a Long Rest?',
+			message: [
+				'Are you sure you want to trigger a Long Rest?',
+				'That will:',
+				'- Restore all your [[Vitality Points]], [[Focus Points]], and [[Spirit Points]].',
+				'- Clear all conditions',
+				'- Remove up to 3 ranks of [[Exhaustion]]',
+				'- Regain 1 [[Heroism Point]] (if not at max)',
+			].join('\n\n'),
 			confirmText: 'Take Long Rest',
 		});
 		if (confirmed) {
-			console.log('Long rest confirmed');
-			// TODO: Implement long rest logic
+			longRest();
 		}
 	};
 
@@ -258,6 +285,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 			<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
 				<h3 style={{ margin: 0, fontSize: '1.1em' }}>Circumstances</h3>
 			</div>
+			<h4 style={{ margin: '0 0 8px 0' }}>Resource Points</h4>
 			<div
 				style={{
 					display: 'grid',

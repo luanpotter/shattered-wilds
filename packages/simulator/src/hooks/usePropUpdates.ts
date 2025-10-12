@@ -76,10 +76,15 @@ export const usePropUpdates = (character: Character, sheet: CharacterSheet): Pro
 
 	const addToConsequenceRank = (consequence: Consequence, delta: number) => {
 		const existing = sheet.circumstances.consequences.find(c => c.name === consequence);
-		const newConsequences = existing
-			? [...filterConsequenceOut(consequence), { ...existing, rank: existing.rank + delta }]
-			: [...sheet.circumstances.consequences, { name: consequence, rank: delta }];
-		serializeConsequences(newConsequences);
+		const newRank = (existing?.rank ?? 0) + delta;
+		if (newRank <= 0) {
+			removeConsequence(consequence);
+		} else {
+			const newConsequences = existing
+				? [...filterConsequenceOut(consequence), { ...existing, rank: newRank }]
+				: [...sheet.circumstances.consequences, { name: consequence, rank: newRank }];
+			serializeConsequences(newConsequences);
+		}
 	};
 
 	return {
