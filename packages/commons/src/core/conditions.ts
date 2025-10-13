@@ -43,7 +43,7 @@ Other than that, they can still attempt to perform any [[Action]], but have a \`
 	[Condition.Distracted]: new ConditionDefinition({
 		name: Condition.Distracted,
 		ranked: false,
-		description: `The creature is in mental turmoil and unable to use [[Concentration]] actions.
+		description: `The creature is in mental turmoil and unable to use [[Concentrate]] actions.
 
 This can be caused by the [[Feint]] action and cleared using the [[Focus]] action.`,
 	}),
