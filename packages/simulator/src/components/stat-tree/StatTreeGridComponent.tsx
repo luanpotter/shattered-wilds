@@ -42,7 +42,6 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 					overflow: 'hidden',
 					display: 'flex',
 					flexDirection: 'column',
-					minHeight: '200px',
 				}}
 			>
 				{/* Header */}
@@ -64,8 +63,8 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 				</div>
 
 				{/* Skills */}
-				<div style={{ padding: '0.75rem', flex: 1 }}>
-					{attribute.children.map(skill => (
+				<div style={{ padding: '0.5rem 0.75rem' }}>
+					{attribute.children.map((skill, index) => (
 						<div
 							key={skill.type.name}
 							style={{
@@ -73,7 +72,9 @@ export const StatTreeGridComponent: React.FC<StatTreeGridComponentProps> = ({
 								justifyContent: 'space-between',
 								alignItems: 'center',
 								padding: '0.25rem 0',
-								borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+								...(index < attribute.children.length - 1 && {
+									borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+								}),
 								fontSize: '0.9rem',
 							}}
 						>
