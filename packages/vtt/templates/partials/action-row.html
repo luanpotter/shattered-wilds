@@ -8,7 +8,7 @@ Expected context:
 	{{!-- Cost box (optional) --}}
 	{{#if actionRow.costs.length}}
 	<div class="action-cost-box clickable"
-		title="{{actionRow.costTooltip}}"
+		title="{{{actionRow.costTooltip}}}"
 		data-action="consume-action-cost"
 		data-action-slug="{{actionRow.slug}}">
 		<div class="action-cost-title {{#unless actionRow.canAfford}}insufficient{{/unless}}">COST</div>
@@ -39,14 +39,14 @@ Expected context:
 	{{#each actionRow.parameters}}
 	<div class="action-parameter">
 		{{#if (eq type "value")}}
-		<div class="parameter-box value-parameter" title="{{tooltip}}">
+		<div class="parameter-box value-parameter" title="{{{tooltip}}}">
 			{{#each labels}}
 			<span class="parameter-title">{{this}}</span><br/>
 			{{/each}}
 			<div class="parameter-value">{{value}}</div>
 		</div>
 		{{else if (eq type "variable")}}
-		<div class="parameter-box value-parameter" title="{{tooltip}}">
+		<div class="parameter-box value-parameter" title="{{{tooltip}}}">
 			{{#each labels}}
 			<span class="parameter-title">{{this}}</span><br/>
 			{{/each}}
@@ -66,7 +66,7 @@ Expected context:
 		</div>
 		{{else if (eq type "check")}}
 		<div class="parameter-box check-parameter clickable"
-			title="{{tooltip}}"
+			title="{{{tooltip}}}"
 			data-action="roll-check"
 			data-action-slug="{{../actionRow.slug}}"
 			data-parameter-index="{{@index}}">

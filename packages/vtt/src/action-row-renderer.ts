@@ -67,12 +67,12 @@ const processCosts = ({ characterSheet, actionRow }: { characterSheet: Character
 		return {
 			resource: cost.resource,
 			amount: cost.amount,
-			value: `${cost.amount} ${RESOURCES[cost.resource as Resource].shortName}`,
+			value: `${cost.amount} ${RESOURCES[cost.resource as Resource].shortCode}`,
 			insufficient,
 		};
 	});
 
-	const costTooltip = costs.map(c => c.value).join('\n');
+	const costTooltip = buildTooltip(costs.map(c => c.value).join('\n'));
 	const canAfford = costs.every(c => !c.insufficient);
 
 	return { costs, costTooltip, canAfford };
@@ -112,6 +112,18 @@ export const prepareActionRow = (
 	};
 };
 
+const buildTooltip = (value: string, { includeCheck }: { includeCheck?: boolean } = {}): string => {
+	return [
+		...value
+			.split('\n')
+			.map(line => line.trim())
+			.filter(line => line.length > 0),
+		includeCheck ? 'Click for modal • Shift+Click for quick roll' : undefined,
+	]
+		.filter(e => e !== undefined)
+		.join('&#013;');
+};
+
 const boxMapping = ({
 	actionRow,
 	variableValues = {},
@@ -129,7 +141,7 @@ const boxMapping = ({
 					type: 'value',
 					key,
 					labels,
-					tooltip,
+					tooltip: buildTooltip(tooltip),
 					value: value.description,
 				};
 			} else if (data instanceof ActionRowVariableBox) {
@@ -142,7 +154,7 @@ const boxMapping = ({
 					type: 'variable',
 					key,
 					labels,
-					tooltip,
+					tooltip: buildTooltip(tooltip),
 					value: data.value.description,
 					inputValue,
 					bonusDescription: data.value.description,
@@ -159,7 +171,7 @@ const boxMapping = ({
 						key,
 						labels: [error.title],
 						value: error.text,
-						tooltip: `${error.tooltip} • Click for advanced options • Shift+Click for quick roll`,
+						tooltip: buildTooltip(error.tooltip, { includeCheck: true }),
 						hasError: true, // This will make the text red via CSS (insufficient class)
 					};
 				}
@@ -169,7 +181,7 @@ const boxMapping = ({
 					key,
 					labels,
 					value: check.statModifier.value.description + (targetDC !== undefined ? ` | DC ${targetDC}` : ''),
-					tooltip: `${tooltip} • Click for advanced options • Shift+Click for quick roll`,
+					tooltip: buildTooltip(tooltip, { includeCheck: true }),
 					hasError: false,
 				};
 			}
