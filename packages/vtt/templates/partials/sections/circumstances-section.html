@@ -1,166 +1,163 @@
 {{!--
-Circumstances Tab Sect					<button type="button" class="resource-btn" data-action="resource-change" data-resource="{{key}}" data-delta="-1" title="Decrease {{fullName}}">
-	<i class="fas fa-minus"></i>
-</button>
-<button type="button" class="resource-btn" data-action="resource-change" data-resource="{{key}}" data-delta="1" title="Increase {{fullName}}">
-	<i class="fas fa-plus"></i>
-</button>xpected context:
+Circumstances Tab Section
+
+Expect context:
 - isCircumstancesTabActive: boolean
 - circumstanceData: {
-resources: Array<{key, shortName, fullName, color, current, max, progress}>,
-conditions: Array<{key, name, rank, description, ranked, icon}>,
-consequences: Array<{key, name, rank, description, ranked, descriptionForRank}>,
-otherCircumstances: Array<string>
-	}
-	--}}
-	<div class="tab-panel {{#if isCircumstancesTabActive}}active{{/if}}" data-tab-panel="circumstances">
-		{{#if circumstanceData}}
-		<div class="circumstances-section">
-			<!-- Resource Points -->
-			<div class="circumstances-section-header">
-				<h3>Resource Points</h3>
-			</div>
-			<div class="resource-grid">
-				{{#each circumstanceData.resources}}
-				<div class="resource-row">
-					<div class="resource-label">{{shortName}}</div>
-					<div class="resource-bar-container">
-						<div class="resource-bar" style="--progress: {{progress}}; --color: {{color}};">
-							<div class="resource-bar-fill" style="background-color: {{color}};"></div>
-							<div class="resource-bar-text">{{current}}/{{max}}</div>
-						</div>
-						<button class="resource-btn" data-action="resource-change" data-resource="{{key}}" data-delta="-1" title="Decrease {{fullName}}">
-							<i class="fas fa-minus"></i>
-						</button>
-						<button class="resource-btn" data-action="resource-change" data-resource="{{key}}" data-delta="1" title="Increase {{fullName}}">
-							<i class="fas fa-plus"></i>
-						</button>
+resources: {key, shortName, fullName, color, current, max, progress}[],
+conditions: {key, name, rank, description, ranked, icon}[],
+consequences: {key, name, rank, description, ranked, descriptionForRank}[],
+otherCircumstances: string[],
+}
+--}}
+<div class="tab-panel {{#if isCircumstancesTabActive}}active{{/if}}" data-tab-panel="circumstances">
+	{{#if circumstanceData}}
+	<div class="circumstances-section">
+		<!-- Resource Points -->
+		<div class="circumstances-section-header">
+			<h3>Resource Points</h3>
+		</div>
+		<div class="resource-grid">
+			{{#each circumstanceData.resources}}
+			<div class="resource-row">
+				<div class="resource-label">{{shortName}}</div>
+				<div class="resource-bar-container">
+					<div class="resource-bar" style="--progress: {{progress}}; --color: {{color}};">
+						<div class="resource-bar-fill" style="background-color: {{color}};"></div>
+						<div class="resource-bar-text">{{current}}/{{max}}</div>
 					</div>
-				</div>
-				{{/each}}
-			</div>
-
-			<!-- Rest Buttons -->
-			<div class="rest-buttons">
-				<button type="button" class="rest-button" data-action="end-turn">
-					<i class="fas fa-hourglass-end"></i> End Turn
-				</button>
-				<button type="button" class="rest-button" data-action="short-rest">
-					<i class="fas fa-coffee"></i> Short Rest
-				</button>
-				<button type="button" class="rest-button" data-action="long-rest">
-					<i class="fas fa-moon"></i> Long Rest
-				</button>
-			</div>
-
-			<hr />
-
-			<!-- Conditions -->
-			<div class="circumstances-section-header">
-				<h3>Conditions</h3>
-				<button type="button" class="add-circumstance-btn" data-action="add-condition" title="Add Condition">
-					<i class="fas fa-plus"></i>
-				</button>
-			</div>
-			<div class="circumstance-cards">
-				{{#each circumstanceData.conditions}}
-				<div class="circumstance-card">
-					<div class="circumstance-card-header">
-						<i class="{{icon}}"></i>
-						<span class="circumstance-card-title">{{name}}{{#if ranked}} ({{rank}}){{/if}}</span>
-						<button type="button" class="circumstance-remove-btn" data-action="remove-condition" data-condition="{{key}}" title="Remove">
-							<i class="fas fa-times"></i>
-						</button>
-					</div>
-					{{#if ranked}}
-					<div class="circumstance-rank-controls">
-						<button type="button" class="resource-btn" data-action="adjust-condition-rank" data-condition="{{key}}" data-delta="-1">
-							<i class="fas fa-minus"></i>
-						</button>
-						<span>Rank: {{rank}}</span>
-						<button type="button" class="resource-btn" data-action="adjust-condition-rank" data-condition="{{key}}" data-delta="1">
-							<i class="fas fa-plus"></i>
-						</button>
-					</div>
-					{{/if}}
-					<div class="circumstance-card-body">
-						{{{processDescription description}}}
-					</div>
-				</div>
-				{{/each}}
-				{{#unless circumstanceData.conditions.length}}
-				<div class="no-circumstances">No conditions</div>
-				{{/unless}}
-			</div>
-
-			<hr />
-
-			<!-- Consequences -->
-			<div class="circumstances-section-header">
-				<h3>Consequences</h3>
-				<button type="button" class="add-circumstance-btn" data-action="add-consequence" title="Add Consequence">
-					<i class="fas fa-plus"></i>
-				</button>
-			</div>
-			<div class="circumstance-cards">
-				{{#each circumstanceData.consequences}}
-				<div class="circumstance-card">
-					<div class="circumstance-card-header">
-						<span class="circumstance-card-title">{{name}} ({{rank}})</span>
-						<button type="button" class="circumstance-remove-btn" data-action="remove-consequence" data-consequence="{{key}}" title="Remove">
-							<i class="fas fa-times"></i>
-						</button>
-					</div>
-					{{#if ranked}}
-					<div class="circumstance-rank-controls">
-						<button type="button" class="resource-btn" data-action="adjust-consequence-rank" data-consequence="{{key}}" data-delta="-1">
-							<i class="fas fa-minus"></i>
-						</button>
-						<span>Rank: {{rank}}</span>
-						<button type="button" class="resource-btn" data-action="adjust-consequence-rank" data-consequence="{{key}}" data-delta="1">
-							<i class="fas fa-plus"></i>
-						</button>
-					</div>
-					{{#if descriptionForRank}}
-					<div class="circumstance-rank-description">
-						{{descriptionForRank rank}}
-					</div>
-					{{/if}}
-					{{/if}}
-					<div class="circumstance-card-body">
-						{{{processDescription description}}}
-					</div>
-				</div>
-				{{/each}}
-				{{#unless circumstanceData.consequences.length}}
-				<div class="no-circumstances">No consequences</div>
-				{{/unless}}
-			</div>			<hr />
-
-			<!-- Other Circumstances -->
-			<div class="circumstances-section-header">
-				<h3>Other Circumstances</h3>
-			</div>
-			<div class="other-circumstances">
-				<div class="other-circumstance-input-row">
-					<input type="text" class="other-circumstance-input" data-new-circumstance placeholder="Add new circumstance..." />
-					<button type="button" class="add-circumstance-btn" data-action="add-other-circumstance">
+					<button class="resource-btn" data-action="resource-change" data-resource="{{key}}" data-delta="-1" title="Decrease {{fullName}}">
+						<i class="fas fa-minus"></i>
+					</button>
+					<button class="resource-btn" data-action="resource-change" data-resource="{{key}}" data-delta="1" title="Increase {{fullName}}">
 						<i class="fas fa-plus"></i>
 					</button>
 				</div>
-				{{#each circumstanceData.otherCircumstances}}
-				<div class="other-circumstance-row">
-					<input type="text" class="other-circumstance-input" value="{{this}}" data-circumstance-index="{{@index}}" />
-					<button type="button" class="circumstance-remove-btn" data-action="remove-other-circumstance" data-circumstance-index="{{@index}}">
-						<i class="fas fa-trash"></i>
+			</div>
+			{{/each}}
+		</div>
+
+		<!-- Rest Buttons -->
+		<div class="rest-buttons">
+			<button type="button" class="rest-button" data-action="end-turn">
+				<i class="fas fa-hourglass-end"></i> End Turn
+			</button>
+			<button type="button" class="rest-button" data-action="short-rest">
+				<i class="fas fa-coffee"></i> Short Rest
+			</button>
+			<button type="button" class="rest-button" data-action="long-rest">
+				<i class="fas fa-moon"></i> Long Rest
+			</button>
+		</div>
+
+		<hr />
+
+		<!-- Conditions -->
+		<div class="circumstances-section-header">
+			<h3>Conditions</h3>
+			<button type="button" class="add-circumstance-btn" data-action="add-condition" title="Add Condition">
+				<i class="fas fa-plus"></i>
+			</button>
+		</div>
+		<div class="circumstance-cards">
+			{{#each circumstanceData.conditions}}
+			<div class="circumstance-card">
+				<div class="circumstance-card-header">
+					<i class="{{icon}}"></i>
+					<span class="circumstance-card-title">{{name}}{{#if ranked}} ({{rank}}){{/if}}</span>
+					<button type="button" class="circumstance-remove-btn" data-action="remove-condition" data-condition="{{key}}" title="Remove">
+						<i class="fas fa-times"></i>
 					</button>
 				</div>
-				{{/each}}
+				{{#if ranked}}
+				<div class="circumstance-rank-controls">
+					<button type="button" class="resource-btn" data-action="adjust-condition-rank" data-condition="{{key}}" data-delta="-1">
+						<i class="fas fa-minus"></i>
+					</button>
+					<span>Rank: {{rank}}</span>
+					<button type="button" class="resource-btn" data-action="adjust-condition-rank" data-condition="{{key}}" data-delta="1">
+						<i class="fas fa-plus"></i>
+					</button>
+				</div>
+				{{/if}}
+				<div class="circumstance-card-body">
+					{{{processDescription description}}}
+				</div>
 			</div>
+			{{/each}}
+			{{#unless circumstanceData.conditions.length}}
+			<div class="no-circumstances">No conditions</div>
+			{{/unless}}
 		</div>
-		{{else}}
-		<div class="circumstances-loading">
-			<p>Loading circumstances...</p>
+
+		<hr />
+
+		<!-- Consequences -->
+		<div class="circumstances-section-header">
+			<h3>Consequences</h3>
+			<button type="button" class="add-circumstance-btn" data-action="add-consequence" title="Add Consequence">
+				<i class="fas fa-plus"></i>
+			</button>
 		</div>
-		{{/if}}
+		<div class="circumstance-cards">
+			{{#each circumstanceData.consequences}}
+			<div class="circumstance-card">
+				<div class="circumstance-card-header">
+					<span class="circumstance-card-title">{{name}} ({{rank}})</span>
+					<button type="button" class="circumstance-remove-btn" data-action="remove-consequence" data-consequence="{{key}}" title="Remove">
+						<i class="fas fa-times"></i>
+					</button>
+				</div>
+				{{#if ranked}}
+				<div class="circumstance-rank-controls">
+					<button type="button" class="resource-btn" data-action="adjust-consequence-rank" data-consequence="{{key}}" data-delta="-1">
+						<i class="fas fa-minus"></i>
+					</button>
+					<span>Rank: {{rank}}</span>
+					<button type="button" class="resource-btn" data-action="adjust-consequence-rank" data-consequence="{{key}}" data-delta="1">
+						<i class="fas fa-plus"></i>
+					</button>
+				</div>
+				{{#if descriptionForRank}}
+				<div class="circumstance-rank-description">
+					{{descriptionForRank rank}}
+				</div>
+				{{/if}}
+				{{/if}}
+				<div class="circumstance-card-body">
+					{{{processDescription description}}}
+				</div>
+			</div>
+			{{/each}}
+			{{#unless circumstanceData.consequences.length}}
+			<div class="no-circumstances">No consequences</div>
+			{{/unless}}
+		</div>			<hr />
+
+		<!-- Other Circumstances -->
+		<div class="circumstances-section-header">
+			<h3>Other Circumstances</h3>
+		</div>
+		<div class="other-circumstances">
+			<div class="other-circumstance-input-row">
+				<input type="text" class="other-circumstance-input" data-new-circumstance placeholder="Add new circumstance..." />
+				<button type="button" class="add-circumstance-btn" data-action="add-other-circumstance">
+					<i class="fas fa-plus"></i>
+				</button>
+			</div>
+			{{#each circumstanceData.otherCircumstances}}
+			<div class="other-circumstance-row">
+				<input type="text" class="other-circumstance-input" value="{{this}}" data-circumstance-index="{{@index}}" />
+				<button type="button" class="circumstance-remove-btn" data-action="remove-other-circumstance" data-circumstance-index="{{@index}}">
+					<i class="fas fa-trash"></i>
+				</button>
+			</div>
+			{{/each}}
+		</div>
 	</div>
+	{{else}}
+	<div class="circumstances-loading">
+		<p>Loading circumstances...</p>
+	</div>
+	{{/if}}
+</div>
