@@ -19,13 +19,15 @@ import {
 	CircumstancesSection,
 	Condition,
 	CONDITIONS,
+	CONSEQUENCES,
+	Consequence,
 	DerivedStatType,
 	Distance,
 	DistanceInput,
 	DivineSection,
 	DropdownInput,
-	Exhaustion,
 	FeatsSection,
+	firstParagraph,
 	NodeStatModifier,
 	NumberInput,
 	OtherItem,
@@ -40,13 +42,7 @@ import {
 	WeaponModeOption,
 } from '@shattered-wilds/commons';
 import { prepareActionRow, processDescriptionText } from './action-row-renderer.js';
-import {
-	ensureActorDataPersistence,
-	getActorData,
-	getCharacterConditions,
-	getCharacterProps,
-	getRawCharacterFlags,
-} from './actor-data-manager.js';
+import { ensureActorDataPersistence, getActorData, getCharacterProps } from './actor-data-manager.js';
 import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
 import { parseCharacterProps, parseCharacterSheet } from './characters.js';
 import { ConsumeResourceModal } from './consume-resource-modal.js';
@@ -56,6 +52,8 @@ import {
 	confirmAction,
 	getActorById,
 	getActorSheetV2Ctor,
+	getDialogCtor,
+	getDialogV2Ctor,
 	getFoundryConfig,
 	getHandlebarsApplicationMixin,
 	showNotification,
@@ -152,124 +150,28 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		spellAugmentationValues: {} as Record<string, Record<string, number>>,
 	};
 
-	#conditions = new Set<Condition>();
-	#conditionsLoaded = false;
-	#exhaustionRank = 0;
-	#exhaustionLoaded = false;
-
-	private loadConditionsFromActor(): void {
-		const actor = this.getCurrentActor();
-		if (!actor) return;
-
-		// Only load conditions once per sheet instance
-		if (this.#conditionsLoaded) return;
-
-		// Load from actor flags first
-		const flagConditions = getCharacterConditions(actor);
-
-		// Also check token status effects for initial sync
-		const actorWithStatuses = actor as { statuses?: Set<string> } | undefined;
-		const tokenConditions: Condition[] = [];
-
-		if (actorWithStatuses?.statuses) {
-			for (const statusId of actorWithStatuses.statuses) {
-				if (statusId.startsWith('sw-')) {
-					const conditionName = statusId
-						.replace('sw-', '')
-						.replace(/-/g, ' ')
-						.replace(/\b\w/g, l => l.toUpperCase());
-					const condition = Object.values(Condition).find(
-						c => c === conditionName || c.toLowerCase().replace(/\s+/g, '-') === statusId.replace('sw-', ''),
-					);
-					if (condition) {
-						tokenConditions.push(condition);
-					}
-				}
-			}
-		}
-
-		// Use token conditions if they exist and differ from flags (token is source of truth)
-		const conditionsToLoad = tokenConditions.length > 0 ? tokenConditions : flagConditions;
-
-		this.#conditions.clear();
-		conditionsToLoad.forEach(condition => this.#conditions.add(condition));
-		this.#conditionsLoaded = true;
-
-		// Sync flags if token had different conditions
-		if (
-			tokenConditions.length > 0 &&
-			JSON.stringify([...tokenConditions].sort()) !== JSON.stringify(flagConditions.sort())
-		) {
-			this.saveConditionsToActor().catch(err => console.warn('Failed to sync token conditions to actor flags:', err));
-		}
-	}
-
-	private loadExhaustionFromActor(): void {
-		const actor = this.getCurrentActor();
-		if (!actor) return;
-
-		if (this.#exhaustionLoaded) return;
-
-		const flags = getRawCharacterFlags(actor) as { exhaustionRank?: number } | undefined;
-		this.#exhaustionRank = flags?.exhaustionRank ?? 0;
-		this.#exhaustionLoaded = true;
-	}
-
-	private async saveExhaustionToActor(): Promise<void> {
+	/**
+	 * Syncs conditions from character sheet to token status effects
+	 */
+	private async syncConditionsToToken(characterSheet: CharacterSheet): Promise<void> {
 		const actor = this.getCurrentActor() as
 			| {
-					flags?: Record<string, unknown>;
-					setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
-			  }
-			| undefined;
-
-		if (!actor?.setFlag) {
-			console.warn('Cannot save exhaustion: actor not found or missing setFlag');
-			return;
-		}
-
-		await actor.setFlag('shattered-wilds', 'exhaustionRank', this.#exhaustionRank);
-	}
-
-	private async saveConditionsToActor(): Promise<void> {
-		const actor = this.getCurrentActor() as
-			| {
-					flags?: Record<string, unknown>;
-					setFlag: (scope: string, key: string, value: unknown) => Promise<unknown>;
-			  }
-			| undefined;
-
-		if (!actor?.setFlag) {
-			console.warn('Cannot save conditions: actor not found or missing setFlag');
-			return;
-		}
-
-		const conditionsArray = Array.from(this.#conditions);
-		await actor.setFlag('shattered-wilds', 'conditions', conditionsArray);
-		await this.syncConditionsToToken();
-	}
-
-	private async syncConditionsToToken(): Promise<void> {
-		const actor = this.getCurrentActor() as
-			| {
-					token?: {
-						document?: {
-							update?: (data: Record<string, unknown>) => Promise<unknown>;
-							actor?: {
-								statuses?: Set<string>;
-								toggleStatusEffect?: (statusId: string, options?: { active?: boolean }) => Promise<boolean>;
-							};
-						};
-					};
 					getActiveTokens?: () => Array<{
 						document?: {
-							update?: (data: Record<string, unknown>) => Promise<unknown>;
 							actor?: {
 								statuses?: Set<string>;
 								toggleStatusEffect?: (statusId: string, options?: { active?: boolean }) => Promise<boolean>;
 							};
 						};
 					}>;
+					token?: {
+						document?: {
+							actor?: {
+								statuses?: Set<string>;
+								toggleStatusEffect?: (statusId: string, options?: { active?: boolean }) => Promise<boolean>;
+							};
+						};
+					};
 					statuses?: Set<string>;
 					toggleStatusEffect?: (statusId: string, options?: { active?: boolean }) => Promise<boolean>;
 			  }
@@ -284,6 +186,9 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			// If no tokens, try to update actor directly
 			const targets = tokens.length > 0 ? tokens.map(t => t.document?.actor || actor) : [actor];
 
+			// Get desired conditions from character sheet
+			const desiredConditions = new Set(characterSheet.circumstances.conditions.map(c => c.name));
+
 			for (const target of targets) {
 				if (!target?.toggleStatusEffect) continue;
 
@@ -293,7 +198,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 				// Get desired SW status effects from current conditions
 				const desiredSWStatuses = new Set(
-					Array.from(this.#conditions).map(condition => `sw-${condition.toLowerCase().replace(/\s+/g, '-')}`),
+					Array.from(desiredConditions).map(condition => `sw-${condition.toLowerCase().replace(/\s+/g, '-')}`),
 				);
 
 				// Find differences
@@ -334,12 +239,28 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			return iconMap[condition] || 'icons/svg/aura.svg';
 		};
 
-		CONFIG.statusEffects = Object.values(Condition).map(condition => ({
+		// Remove any existing SW status effects to avoid duplicates
+		const existingSWIds = new Set(
+			(CONFIG.statusEffects || [])
+				.filter((effect: { id?: string }) => effect.id?.startsWith('sw-'))
+				.map((effect: { id?: string }) => effect.id),
+		);
+
+		if (existingSWIds.size > 0) {
+			CONFIG.statusEffects = (CONFIG.statusEffects || []).filter(
+				(effect: { id?: string }) => !effect.id?.startsWith('sw-'),
+			);
+		}
+
+		// Add SW status effects
+		const swStatusEffects = Object.values(Condition).map(condition => ({
 			id: `sw-${condition.toLowerCase().replace(/\s+/g, '-')}`,
 			name: condition,
 			img: getConditionIcon(condition),
 			description: CONDITIONS[condition].description,
 		}));
+
+		CONFIG.statusEffects = [...(CONFIG.statusEffects || []), ...swStatusEffects];
 	}
 
 	private getCurrentActor(): ActorLike {
@@ -513,11 +434,8 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				// Sync resources to actor system data for token bars
 				await syncResourcesToSystemData(actor, characterSheet);
 
-				// Load conditions from actor
-				this.loadConditionsFromActor();
-
-				// Load exhaustion from actor
-				this.loadExhaustionFromActor();
+				// Sync conditions to token status effects
+				await this.syncConditionsToToken(characterSheet);
 
 				// Prepare resources data for template
 				Object.values(Resource).forEach(resource => {
@@ -676,8 +594,6 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			props,
 			resources,
 			resourcesArray,
-			conditionsData: this.prepareConditionsData(),
-			exhaustionData: this.prepareExhaustionData(),
 			derivedStatsData,
 			statTreeData,
 			featsData: this.prepareFeatsData(characterSheet),
@@ -1126,8 +1042,54 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 		try {
 			const circumstancesSection = CircumstancesSection.create({ characterSheet });
+
+			// Prepare resource data
+			const resources = Object.values(Resource).map(resource => {
+				const value = circumstancesSection.resources[resource];
+				const definition = RESOURCES[resource];
+				return {
+					key: resource,
+					shortName: definition.shortName,
+					fullName: definition.fullName,
+					color: definition.color,
+					current: value.current,
+					max: value.max,
+					progress: value.max > 0 ? value.current / value.max : 0,
+				};
+			}); // Prepare conditions data with ranks
+			const conditions = circumstancesSection.conditions.map(c => {
+				const def = CONDITIONS[c.condition];
+				return {
+					key: c.condition,
+					name: c.condition,
+					rank: c.rank,
+					description: firstParagraph(def.description),
+					ranked: def.ranked,
+					icon: this.getConditionIcon(c.condition),
+				};
+			});
+
+			// Prepare consequences data with ranks
+			const consequences = circumstancesSection.consequences.map(c => {
+				const def = CONSEQUENCES[c.consequence];
+				return {
+					key: c.consequence,
+					name: c.consequence,
+					rank: c.rank,
+					description: firstParagraph(def.description),
+					ranked: def.ranked,
+					descriptionForRank: def.descriptionForRank,
+				};
+			});
+
+			// Prepare other circumstances
+			const otherCircumstances = circumstancesSection.otherCircumstances;
+
 			return {
-				test: circumstancesSection.resources[Resource.HeroismPoint].current,
+				resources,
+				conditions,
+				consequences,
+				otherCircumstances,
 			};
 		} catch (err) {
 			console.warn('Failed to create circumstances section:', err);
@@ -1154,16 +1116,6 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		}
 	}
 
-	private prepareConditionsData(): unknown[] {
-		return Object.values(Condition).map(condition => ({
-			key: condition,
-			name: condition,
-			description: CONDITIONS[condition].description,
-			active: this.#conditions.has(condition),
-			icon: this.getConditionIcon(condition),
-		}));
-	}
-
 	private getConditionIcon(condition: Condition): string {
 		const iconMap: Record<Condition, string> = {
 			[Condition.Blessed]: 'fas fa-sun',
@@ -1179,25 +1131,6 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			[Condition.Unconscious]: 'fas fa-bed',
 		};
 		return iconMap[condition] || 'fas fa-exclamation-triangle';
-	}
-
-	private prepareExhaustionData(): {
-		rank: number;
-		maxRank: number;
-		hasRanks: boolean;
-		modifier: number;
-		modifierText: string;
-	} {
-		const rank = this.#exhaustionRank;
-		const { bonus, cmText } = Exhaustion.fromRank(rank);
-
-		return {
-			rank,
-			maxRank: 10, // Death at 10+
-			hasRanks: rank > 0,
-			modifier: bonus.value,
-			modifierText: cmText,
-		};
 	}
 
 	async _onRender(): Promise<void> {
@@ -1235,29 +1168,12 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			});
 		}
 
-		// Add condition toggle handlers
-		const conditionCheckboxes = root.querySelectorAll(
-			'[data-action="toggle-condition"]',
-		) as NodeListOf<HTMLInputElement>;
-		conditionCheckboxes.forEach(checkbox => {
-			checkbox.addEventListener('change', async () => {
-				const condition = checkbox.dataset.condition as Condition;
-				if (!condition) return;
-
-				if (checkbox.checked) {
-					this.#conditions.add(condition);
-				} else {
-					this.#conditions.delete(condition);
-				}
-
-				await this.saveConditionsToActor();
-			});
-		});
-
 		// Add resource change handlers
 		const resourceBtns = root.querySelectorAll('[data-action="resource-change"]') as NodeListOf<HTMLButtonElement>;
 		resourceBtns.forEach(btn => {
-			btn.addEventListener('click', async () => {
+			btn.addEventListener('click', async event => {
+				event.preventDefault();
+				event.stopPropagation();
 				const resource = btn.dataset.resource as Resource;
 				const delta = parseInt(btn.dataset.delta || '0');
 				if (!resource || delta === 0) return;
@@ -1266,9 +1182,21 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			});
 		});
 
+		// Add end turn button handler
+		const endTurnBtn = root.querySelector('[data-action="end-turn"]') as HTMLButtonElement | null;
+		if (endTurnBtn) {
+			endTurnBtn.addEventListener('click', async event => {
+				event.preventDefault();
+				event.stopPropagation();
+				await this.handleEndTurn();
+			});
+		}
+
 		const longRestBtn = root.querySelector('[data-action="long-rest"]') as HTMLButtonElement | null;
 		if (longRestBtn) {
-			longRestBtn.addEventListener('click', async () => {
+			longRestBtn.addEventListener('click', async event => {
+				event.preventDefault();
+				event.stopPropagation();
 				const confirmed = await confirmAction({
 					title: 'Long Rest',
 					message:
@@ -1284,7 +1212,9 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		// Add short rest button handler
 		const shortRestBtn = root.querySelector('[data-action="short-rest"]') as HTMLButtonElement | null;
 		if (shortRestBtn) {
-			shortRestBtn.addEventListener('click', async () => {
+			shortRestBtn.addEventListener('click', async event => {
+				event.preventDefault();
+				event.stopPropagation();
 				const confirmed = await confirmAction({
 					title: 'Short Rest',
 					message:
@@ -1297,12 +1227,124 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			});
 		}
 
-		// Add exhaustion change handlers
-		const exhaustionButtons = root.querySelectorAll('[data-action="exhaustion-change"]') as NodeListOf<HTMLElement>;
-		exhaustionButtons.forEach(btn => {
-			btn.addEventListener('click', async () => {
+		// Add condition handlers
+		const addConditionBtn = root.querySelector('[data-action="add-condition"]') as HTMLButtonElement | null;
+		if (addConditionBtn) {
+			addConditionBtn.addEventListener('click', async event => {
+				event.preventDefault();
+				event.stopPropagation();
+				await this.handleAddCondition();
+			});
+		}
+
+		const removeConditionBtns = root.querySelectorAll(
+			'[data-action="remove-condition"]',
+		) as NodeListOf<HTMLButtonElement>;
+		removeConditionBtns.forEach(btn => {
+			btn.addEventListener('click', async event => {
+				event.preventDefault();
+				event.stopPropagation();
+				const condition = btn.dataset.condition;
+				if (condition) {
+					await this.handleRemoveCondition(condition);
+				}
+			});
+		});
+
+		const adjustConditionRankBtns = root.querySelectorAll(
+			'[data-action="adjust-condition-rank"]',
+		) as NodeListOf<HTMLButtonElement>;
+		adjustConditionRankBtns.forEach(btn => {
+			btn.addEventListener('click', async event => {
+				event.preventDefault();
+				event.stopPropagation();
+				const condition = btn.dataset.condition;
 				const delta = parseInt(btn.dataset.delta || '0');
-				await this.handleExhaustionChange(delta);
+				if (condition && delta !== 0) {
+					await this.handleAdjustConditionRank(condition, delta);
+				}
+			});
+		});
+
+		// Add consequence handlers
+		const addConsequenceBtn = root.querySelector('[data-action="add-consequence"]') as HTMLButtonElement | null;
+		if (addConsequenceBtn) {
+			addConsequenceBtn.addEventListener('click', async event => {
+				event.preventDefault();
+				event.stopPropagation();
+				await this.handleAddConsequence();
+			});
+		}
+
+		const removeConsequenceBtns = root.querySelectorAll(
+			'[data-action="remove-consequence"]',
+		) as NodeListOf<HTMLButtonElement>;
+		removeConsequenceBtns.forEach(btn => {
+			btn.addEventListener('click', async event => {
+				event.preventDefault();
+				event.stopPropagation();
+				const consequence = btn.dataset.consequence;
+				if (consequence) {
+					await this.handleRemoveConsequence(consequence);
+				}
+			});
+		});
+
+		const adjustConsequenceRankBtns = root.querySelectorAll(
+			'[data-action="adjust-consequence-rank"]',
+		) as NodeListOf<HTMLButtonElement>;
+		adjustConsequenceRankBtns.forEach(btn => {
+			btn.addEventListener('click', async event => {
+				event.preventDefault();
+				event.stopPropagation();
+				const consequence = btn.dataset.consequence;
+				const delta = parseInt(btn.dataset.delta || '0');
+				if (consequence && delta !== 0) {
+					await this.handleAdjustConsequenceRank(consequence, delta);
+				}
+			});
+		});
+
+		// Add other circumstances handlers
+		const addOtherCircumstanceBtn = root.querySelector(
+			'[data-action="add-other-circumstance"]',
+		) as HTMLButtonElement | null;
+		if (addOtherCircumstanceBtn) {
+			addOtherCircumstanceBtn.addEventListener('click', async event => {
+				event.preventDefault();
+				event.stopPropagation();
+				const input = root.querySelector('[data-new-circumstance]') as HTMLInputElement | null;
+				if (input?.value.trim()) {
+					await this.handleAddOtherCircumstance(input.value.trim());
+					input.value = '';
+				}
+			});
+		}
+
+		const removeOtherCircumstanceBtns = root.querySelectorAll(
+			'[data-action="remove-other-circumstance"]',
+		) as NodeListOf<HTMLButtonElement>;
+		removeOtherCircumstanceBtns.forEach(btn => {
+			btn.addEventListener('click', async event => {
+				event.preventDefault();
+				event.stopPropagation();
+				const index = parseInt(btn.dataset.circumstanceIndex || '-1');
+				if (index >= 0) {
+					await this.handleRemoveOtherCircumstance(index);
+				}
+			});
+		});
+
+		// Handle other circumstance input changes
+		const otherCircumstanceInputs = root.querySelectorAll(
+			'.other-circumstance-input[data-circumstance-index]',
+		) as NodeListOf<HTMLInputElement>;
+		otherCircumstanceInputs.forEach(input => {
+			input.addEventListener('change', async () => {
+				const index = parseInt(input.dataset.circumstanceIndex || '-1');
+				if (index >= 0) {
+					await this.handleUpdateOtherCircumstance(index, input.value.trim());
+				}
 			});
 		});
 
@@ -1872,6 +1914,33 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		}
 	}
 
+	private async handleEndTurn(): Promise<void> {
+		const actor = this.getCurrentActor();
+		if (!actor) {
+			return showNotification('warn', 'Actor not found');
+		}
+
+		try {
+			// Restore Action Points to max
+			const currentProps = parseCharacterProps(actor);
+			const characterSheet = CharacterSheet.from(currentProps);
+			const { max } = characterSheet.getResource(Resource.ActionPoint);
+
+			const updatedProps = {
+				...currentProps,
+				[Resource.ActionPoint]: max.toString(),
+			};
+
+			const { updateActorResources } = await import('./update-actor-resources.js');
+			await updateActorResources(actor, updatedProps);
+
+			showNotification('info', 'Turn ended: Action Points restored');
+		} catch (err) {
+			console.error('Failed to end turn:', err);
+			showNotification('error', 'Failed to end turn');
+		}
+	}
+
 	private async handleLongRest(): Promise<void> {
 		const actor = this.getCurrentActor();
 		if (!actor) {
@@ -1882,13 +1951,38 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			const { performLongRest } = await import('./update-actor-resources.js');
 			await performLongRest(actor);
 
-			// Clear 3 ranks of exhaustion
-			this.#exhaustionRank = Math.max(0, this.#exhaustionRank - 3);
-			await this.saveExhaustionToActor();
+			// Clear all conditions and adjust Exhaustion
+			const currentProps = parseCharacterProps(actor);
+			const characterSheet = CharacterSheet.from(currentProps);
+			const circumstancesSection = CircumstancesSection.create({ characterSheet });
+
+			// Remove 3 ranks of Exhaustion
+			const newConsequences = circumstancesSection.consequences
+				.map(c => {
+					if (c.consequence === Consequence.Exhaustion) {
+						const newRank = Math.max(0, c.rank - 3);
+						return { ...c, rank: newRank };
+					}
+					return c;
+				})
+				.filter(c => c.rank > 0);
+
+			const updatedProps = {
+				...currentProps,
+				conditions: '', // Clear all conditions
+				consequences: CircumstancesSection.serializeConsequences(
+					newConsequences.map(c => ({ name: c.consequence, rank: c.rank })),
+				),
+			};
+
+			const { updateActorResources } = await import('./update-actor-resources.js');
+			await updateActorResources(actor, updatedProps);
+
+			// Note: Token conditions will be synced automatically when the sheet re-renders
 
 			showNotification(
 				'info',
-				'Long rest complete: all points refilled except heroism, +1 heroism point, -3 exhaustion ranks',
+				'Long rest complete: all points refilled, +1 heroism, cleared conditions, -3 exhaustion',
 			);
 		} catch (err) {
 			console.error('Failed to perform long rest:', err);
@@ -1906,6 +2000,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			// Restore all resources except heroism
 			const currentProps = parseCharacterProps(actor);
 			const characterSheet = CharacterSheet.from(currentProps);
+			const circumstancesSection = CircumstancesSection.create({ characterSheet });
 			const updatedProps = { ...currentProps };
 
 			Object.values(Resource).forEach(resource => {
@@ -1915,45 +2010,538 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				}
 			});
 
+			// Clear all conditions
+			updatedProps.conditions = '';
+
+			// Add 1 rank of Exhaustion
+			const existingExhaustion = circumstancesSection.consequences.find(c => c.consequence === Consequence.Exhaustion);
+			const newConsequences = circumstancesSection.consequences.filter(c => c.consequence !== Consequence.Exhaustion);
+			if (existingExhaustion) {
+				newConsequences.push({ ...existingExhaustion, rank: existingExhaustion.rank + 1 });
+			} else {
+				newConsequences.push({ consequence: Consequence.Exhaustion, rank: 1 });
+			}
+
+			updatedProps.consequences = CircumstancesSection.serializeConsequences(
+				newConsequences.map(c => ({ name: c.consequence, rank: c.rank })),
+			);
+
 			const { updateActorResources } = await import('./update-actor-resources.js');
 			await updateActorResources(actor, updatedProps);
 
-			// Add 1 rank of exhaustion
-			this.#exhaustionRank += 1;
-			await this.saveExhaustionToActor();
+			// Note: Token conditions will be synced automatically when the sheet re-renders
 
-			showNotification('info', 'Short rest complete: all points refilled except heroism, +1 exhaustion rank');
+			showNotification(
+				'info',
+				'Short rest complete: all points refilled except heroism, cleared conditions, +1 exhaustion',
+			);
 		} catch (err) {
 			console.error('Failed to perform short rest:', err);
 			showNotification('error', 'Failed to perform short rest');
 		}
 	}
 
-	private async handleExhaustionChange(delta: number): Promise<void> {
-		const newRank = Math.max(0, this.#exhaustionRank + delta);
-
-		if (newRank === this.#exhaustionRank) {
-			return; // No change needed
+	private async handleAddCondition(): Promise<void> {
+		const actor = this.getCurrentActor();
+		if (!actor) {
+			return showNotification('warn', 'Actor not found');
 		}
 
-		const action = delta > 0 ? 'increase' : 'decrease';
-		const confirmed = await confirmAction({
-			title: `${action === 'increase' ? 'Increase' : 'Decrease'} Exhaustion`,
-			message: `Are you sure you want to ${action} exhaustion from ${this.#exhaustionRank} to ${newRank} ranks?`,
-		});
+		try {
+			const currentProps = parseCharacterProps(actor);
+			const characterSheet = CharacterSheet.from(currentProps);
+			const circumstancesSection = CircumstancesSection.create({ characterSheet });
 
-		if (confirmed) {
-			this.#exhaustionRank = newRank;
-			await this.saveExhaustionToActor();
+			// Get list of conditions not already applied
+			const existingConditions = new Set(circumstancesSection.conditions.map(c => c.condition));
+			const availableConditions = Object.entries(CONDITIONS)
+				.filter(([key]) => !existingConditions.has(key as Condition))
+				.sort((a, b) => a[0].localeCompare(b[0]));
 
-			// Update the UI immediately
-			const root = (this as unknown as { element?: HTMLElement }).element;
-			if (root) {
-				const exhaustionValueElement = root.querySelector('.exhaustion-value');
-				if (exhaustionValueElement) {
-					exhaustionValueElement.textContent = this.#exhaustionRank.toString();
-				}
+			if (availableConditions.length === 0) {
+				return showNotification('warn', 'All conditions already applied');
 			}
+
+			// Build options for select
+			const options = availableConditions
+				.map(([key, def]) => `<option value="${key}">${key}${def.ranked ? ' ★' : ''}</option>`)
+				.join('');
+
+			// Create a simple HTML form
+			const content = `
+				<div style="display: flex; flex-direction: column; gap: 12px; max-width: 400px;">
+					<div>
+						<label style="display: block; margin-bottom: 4px; font-weight: bold;">Condition:</label>
+						<select id="condition-select" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+							${options}
+						</select>
+					</div>
+					<div id="rank-input-group" style="display: none;">
+						<label style="display: block; margin-bottom: 4px; font-weight: bold;">Rank:</label>
+						<input type="number" id="rank-input" value="1" min="0" max="10" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+					</div>
+					<div id="description-box" style="padding: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; font-size: 0.9em; max-height: 200px; overflow-y: auto; line-height: 1.4;"></div>
+				</div>
+			`;
+
+			const Dialog = getDialogV2Ctor() || getDialogCtor();
+			if (!Dialog) {
+				return showNotification('error', 'Dialog not available');
+			}
+
+			const result = await new Promise<{ condition?: string; rank?: number }>(resolve => {
+				const dialogOptions = {
+					window: { title: 'Add Condition' },
+					content,
+					buttons: [
+						{
+							label: 'Add',
+							action: 'add',
+							callback: () => {
+								const selectEl = document.getElementById('condition-select') as HTMLSelectElement | null;
+								const rankEl = document.getElementById('rank-input') as HTMLInputElement | null;
+								if (!selectEl) {
+									resolve({});
+									return;
+								}
+								const key = selectEl.value as Condition;
+								const def = CONDITIONS[key];
+								resolve({
+									condition: key,
+									rank: def.ranked ? parseInt(rankEl?.value || '1') || 1 : 0,
+								});
+							},
+						},
+						{
+							label: 'Cancel',
+							action: 'cancel',
+							callback: () => resolve({}),
+						},
+					],
+				};
+
+				const dialog = new Dialog(dialogOptions as never);
+				dialog.render(true);
+
+				// Setup dynamic behavior after a short delay to ensure DOM is ready
+				setTimeout(() => {
+					const selectEl = document.getElementById('condition-select') as HTMLSelectElement | null;
+					const rankGroup = document.getElementById('rank-input-group') as HTMLDivElement | null;
+					const descBox = document.getElementById('description-box') as HTMLDivElement | null;
+
+					if (!selectEl || !rankGroup || !descBox) return;
+
+					const updateUI = () => {
+						const key = selectEl.value as Condition;
+						const def = CONDITIONS[key];
+						if (def) {
+							descBox.innerHTML = processDescriptionText(def.description);
+							rankGroup.style.display = def.ranked ? 'block' : 'none';
+						}
+					};
+
+					selectEl.addEventListener('change', updateUI);
+					updateUI();
+				}, 100);
+			});
+
+			if (!result.condition) return;
+
+			const conditionKey = result.condition as Condition;
+			const conditionDef = CONDITIONS[conditionKey];
+			const rank = conditionDef.ranked ? Math.max(1, result.rank ?? 1) : 0;
+
+			const newConditions = [...circumstancesSection.conditions, { condition: conditionKey, rank }];
+
+			const updatedProps = {
+				...currentProps,
+				conditions: CircumstancesSection.serializeConditions(
+					newConditions.map(c => ({ name: c.condition, rank: c.rank })),
+				),
+			};
+
+			const { updateActorResources } = await import('./update-actor-resources.js');
+			await updateActorResources(actor, updatedProps);
+
+			showNotification('info', `Added: ${conditionKey}${rank > 0 ? ` (Rank ${rank})` : ''}`);
+		} catch (err) {
+			console.error('Failed to add condition:', err);
+			showNotification('error', 'Failed to add condition');
+		}
+	}
+
+	private async handleRemoveCondition(conditionKey: string): Promise<void> {
+		const actor = this.getCurrentActor();
+		if (!actor) {
+			return showNotification('warn', 'Actor not found');
+		}
+
+		try {
+			const currentProps = parseCharacterProps(actor);
+			const characterSheet = CharacterSheet.from(currentProps);
+			const circumstancesSection = CircumstancesSection.create({ characterSheet });
+
+			const newConditions = circumstancesSection.conditions.filter(c => c.condition !== conditionKey);
+
+			const updatedProps = {
+				...currentProps,
+				conditions: CircumstancesSection.serializeConditions(
+					newConditions.map(c => ({ name: c.condition, rank: c.rank })),
+				),
+			};
+
+			const { updateActorResources } = await import('./update-actor-resources.js');
+			await updateActorResources(actor, updatedProps);
+
+			showNotification('info', `Removed condition: ${conditionKey}`);
+		} catch (err) {
+			console.error('Failed to remove condition:', err);
+			showNotification('error', 'Failed to remove condition');
+		}
+	}
+
+	private async handleAdjustConditionRank(conditionKey: string, delta: number): Promise<void> {
+		const actor = this.getCurrentActor();
+		if (!actor) {
+			return showNotification('warn', 'Actor not found');
+		}
+
+		try {
+			const currentProps = parseCharacterProps(actor);
+			const characterSheet = CharacterSheet.from(currentProps);
+			const circumstancesSection = CircumstancesSection.create({ characterSheet });
+
+			// Find the condition being adjusted
+			let wasRemoved = false;
+			const newConditions = circumstancesSection.conditions
+				.map(c => {
+					if (c.condition === conditionKey) {
+						const newRank = Math.max(0, c.rank + delta);
+						if (newRank === 0) {
+							wasRemoved = true;
+							return null; // Mark for removal
+						}
+						return { ...c, rank: newRank };
+					}
+					return c;
+				})
+				.filter(c => c !== null) as typeof circumstancesSection.conditions;
+
+			const updatedProps = {
+				...currentProps,
+				conditions: CircumstancesSection.serializeConditions(
+					newConditions.map(c => ({ name: c.condition, rank: c.rank })),
+				),
+			};
+
+			const { updateActorResources } = await import('./update-actor-resources.js');
+			await updateActorResources(actor, updatedProps);
+
+			// Show notification
+			if (wasRemoved) {
+				showNotification('info', `Removed: ${conditionKey}`);
+			} else {
+				const updatedCondition = newConditions.find(c => c.condition === conditionKey);
+				showNotification('info', `Updated ${conditionKey} rank to ${updatedCondition?.rank ?? 0}`);
+			}
+		} catch (err) {
+			console.error('Failed to adjust condition rank:', err);
+			showNotification('error', 'Failed to adjust condition rank');
+		}
+	}
+
+	private async handleAddConsequence(): Promise<void> {
+		const actor = this.getCurrentActor();
+		if (!actor) {
+			return showNotification('warn', 'Actor not found');
+		}
+
+		try {
+			const currentProps = parseCharacterProps(actor);
+			const characterSheet = CharacterSheet.from(currentProps);
+			const circumstancesSection = CircumstancesSection.create({ characterSheet });
+
+			// Get list of consequences not already applied
+			const existingConsequences = new Set(circumstancesSection.consequences.map(c => c.consequence));
+			const availableConsequences = Object.entries(CONSEQUENCES)
+				.filter(([key]) => !existingConsequences.has(key as Consequence))
+				.sort((a, b) => a[0].localeCompare(b[0]));
+
+			if (availableConsequences.length === 0) {
+				return showNotification('warn', 'All consequences already applied');
+			}
+
+			// Build options for select
+			const options = availableConsequences
+				.map(([key, def]) => `<option value="${key}">${key}${def.ranked ? ' ★' : ''}</option>`)
+				.join('');
+
+			// Create a simple HTML form
+			const content = `
+				<div style="display: flex; flex-direction: column; gap: 12px; max-width: 400px;">
+					<div>
+						<label style="display: block; margin-bottom: 4px; font-weight: bold;">Consequence:</label>
+						<select id="consequence-select" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+							${options}
+						</select>
+					</div>
+					<div id="rank-input-group" style="display: none;">
+						<label style="display: block; margin-bottom: 4px; font-weight: bold;">Rank:</label>
+						<input type="number" id="rank-input" value="1" min="1" max="10" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+					</div>
+					<div id="description-box" style="padding: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; font-size: 0.9em; max-height: 200px; overflow-y: auto; line-height: 1.4;"></div>
+				</div>
+			`;
+
+			const Dialog = getDialogV2Ctor() || getDialogCtor();
+			if (!Dialog) {
+				return showNotification('error', 'Dialog not available');
+			}
+
+			const result = await new Promise<{ consequence?: string; rank?: number }>(resolve => {
+				const dialogOptions = {
+					window: { title: 'Add Consequence' },
+					content,
+					buttons: [
+						{
+							label: 'Add',
+							action: 'add',
+							callback: () => {
+								const selectEl = document.getElementById('consequence-select') as HTMLSelectElement | null;
+								const rankEl = document.getElementById('rank-input') as HTMLInputElement | null;
+								if (!selectEl) {
+									resolve({});
+									return;
+								}
+								const key = selectEl.value as Consequence;
+								const def = CONSEQUENCES[key];
+								resolve({
+									consequence: key,
+									rank: def.ranked ? parseInt(rankEl?.value || '1') || 1 : 0,
+								});
+							},
+						},
+						{
+							label: 'Cancel',
+							action: 'cancel',
+							callback: () => resolve({}),
+						},
+					],
+				};
+
+				const dialog = new Dialog(dialogOptions as never);
+				dialog.render(true);
+
+				// Setup dynamic behavior after a short delay to ensure DOM is ready
+				setTimeout(() => {
+					const selectEl = document.getElementById('consequence-select') as HTMLSelectElement | null;
+					const rankGroup = document.getElementById('rank-input-group') as HTMLDivElement | null;
+					const descBox = document.getElementById('description-box') as HTMLDivElement | null;
+
+					if (!selectEl || !rankGroup || !descBox) return;
+
+					const updateUI = () => {
+						const key = selectEl.value as Consequence;
+						const def = CONSEQUENCES[key];
+						if (def) {
+							descBox.innerHTML = processDescriptionText(def.description);
+							rankGroup.style.display = def.ranked ? 'block' : 'none';
+						}
+					};
+
+					selectEl.addEventListener('change', updateUI);
+					updateUI();
+				}, 100);
+			});
+
+			if (!result.consequence) return;
+
+			const consequenceKey = result.consequence as Consequence;
+			const consequenceDef = CONSEQUENCES[consequenceKey];
+			const rank = consequenceDef.ranked ? Math.max(1, result.rank ?? 1) : 0;
+
+			const newConsequences = [...circumstancesSection.consequences, { consequence: consequenceKey, rank }];
+
+			const updatedProps = {
+				...currentProps,
+				consequences: CircumstancesSection.serializeConsequences(
+					newConsequences.map(c => ({ name: c.consequence, rank: c.rank })),
+				),
+			};
+
+			const { updateActorResources } = await import('./update-actor-resources.js');
+			await updateActorResources(actor, updatedProps);
+
+			showNotification('info', `Added: ${consequenceKey}${rank > 0 ? ` (Rank ${rank})` : ''}`);
+		} catch (err) {
+			console.error('Failed to add consequence:', err);
+			showNotification('error', 'Failed to add consequence');
+		}
+	}
+
+	private async handleRemoveConsequence(consequenceKey: string): Promise<void> {
+		const actor = this.getCurrentActor();
+		if (!actor) {
+			return showNotification('warn', 'Actor not found');
+		}
+
+		try {
+			const currentProps = parseCharacterProps(actor);
+			const characterSheet = CharacterSheet.from(currentProps);
+			const circumstancesSection = CircumstancesSection.create({ characterSheet });
+
+			const newConsequences = circumstancesSection.consequences.filter(c => c.consequence !== consequenceKey);
+
+			const updatedProps = {
+				...currentProps,
+				consequences: CircumstancesSection.serializeConsequences(
+					newConsequences.map(c => ({ name: c.consequence, rank: c.rank })),
+				),
+			};
+
+			const { updateActorResources } = await import('./update-actor-resources.js');
+			await updateActorResources(actor, updatedProps);
+
+			showNotification('info', `Removed consequence: ${consequenceKey}`);
+		} catch (err) {
+			console.error('Failed to remove consequence:', err);
+			showNotification('error', 'Failed to remove consequence');
+		}
+	}
+
+	private async handleAdjustConsequenceRank(consequenceKey: string, delta: number): Promise<void> {
+		const actor = this.getCurrentActor();
+		if (!actor) {
+			return showNotification('warn', 'Actor not found');
+		}
+
+		try {
+			const currentProps = parseCharacterProps(actor);
+			const characterSheet = CharacterSheet.from(currentProps);
+			const circumstancesSection = CircumstancesSection.create({ characterSheet });
+
+			// Find the consequence being adjusted
+			let wasRemoved = false;
+			const newConsequences = circumstancesSection.consequences
+				.map(c => {
+					if (c.consequence === consequenceKey) {
+						const newRank = Math.max(0, c.rank + delta);
+						if (newRank === 0) {
+							wasRemoved = true;
+							return null; // Mark for removal
+						}
+						return { ...c, rank: newRank };
+					}
+					return c;
+				})
+				.filter(c => c !== null) as typeof circumstancesSection.consequences;
+
+			const updatedProps = {
+				...currentProps,
+				consequences: CircumstancesSection.serializeConsequences(
+					newConsequences.map(c => ({ name: c.consequence, rank: c.rank })),
+				),
+			};
+
+			const { updateActorResources } = await import('./update-actor-resources.js');
+			await updateActorResources(actor, updatedProps);
+
+			// Show notification
+			if (wasRemoved) {
+				showNotification('info', `Removed: ${consequenceKey}`);
+			} else {
+				const updatedConsequence = newConsequences.find(c => c.consequence === consequenceKey);
+				showNotification('info', `Updated ${consequenceKey} rank to ${updatedConsequence?.rank ?? 0}`);
+			}
+		} catch (err) {
+			console.error('Failed to adjust consequence rank:', err);
+			showNotification('error', 'Failed to adjust consequence rank');
+		}
+	}
+
+	private async handleAddOtherCircumstance(value: string): Promise<void> {
+		const actor = this.getCurrentActor();
+		if (!actor) {
+			return showNotification('warn', 'Actor not found');
+		}
+
+		try {
+			const currentProps = parseCharacterProps(actor);
+			const characterSheet = CharacterSheet.from(currentProps);
+			const circumstancesSection = CircumstancesSection.create({ characterSheet });
+
+			const newOtherCircumstances = [...circumstancesSection.otherCircumstances, value];
+
+			const updatedProps = {
+				...currentProps,
+				otherCircumstances: CircumstancesSection.serializeOtherCircumstances(newOtherCircumstances),
+			};
+
+			const { updateActorResources } = await import('./update-actor-resources.js');
+			await updateActorResources(actor, updatedProps);
+
+			showNotification('info', 'Added circumstance');
+		} catch (err) {
+			console.error('Failed to add other circumstance:', err);
+			showNotification('error', 'Failed to add circumstance');
+		}
+	}
+
+	private async handleRemoveOtherCircumstance(index: number): Promise<void> {
+		const actor = this.getCurrentActor();
+		if (!actor) {
+			return showNotification('warn', 'Actor not found');
+		}
+
+		try {
+			const currentProps = parseCharacterProps(actor);
+			const characterSheet = CharacterSheet.from(currentProps);
+			const circumstancesSection = CircumstancesSection.create({ characterSheet });
+
+			const newOtherCircumstances = circumstancesSection.otherCircumstances.filter((_, i) => i !== index);
+
+			const updatedProps = {
+				...currentProps,
+				otherCircumstances: CircumstancesSection.serializeOtherCircumstances(newOtherCircumstances),
+			};
+
+			const { updateActorResources } = await import('./update-actor-resources.js');
+			await updateActorResources(actor, updatedProps);
+
+			showNotification('info', 'Removed circumstance');
+		} catch (err) {
+			console.error('Failed to remove other circumstance:', err);
+			showNotification('error', 'Failed to remove circumstance');
+		}
+	}
+
+	private async handleUpdateOtherCircumstance(index: number, value: string): Promise<void> {
+		const actor = this.getCurrentActor();
+		if (!actor) {
+			return showNotification('warn', 'Actor not found');
+		}
+
+		try {
+			const currentProps = parseCharacterProps(actor);
+			const characterSheet = CharacterSheet.from(currentProps);
+			const circumstancesSection = CircumstancesSection.create({ characterSheet });
+
+			const newOtherCircumstances = circumstancesSection.otherCircumstances.map((item, i) =>
+				i === index ? value : item,
+			);
+
+			const updatedProps = {
+				...currentProps,
+				otherCircumstances: CircumstancesSection.serializeOtherCircumstances(newOtherCircumstances),
+			};
+
+			const { updateActorResources } = await import('./update-actor-resources.js');
+			await updateActorResources(actor, updatedProps);
+
+			showNotification('info', 'Updated circumstance');
+		} catch (err) {
+			console.error('Failed to update other circumstance:', err);
+			showNotification('error', 'Failed to update circumstance');
 		}
 	}
 

@@ -1,3 +1,14 @@
+/* Global inline code styling - applies to all code elements including dialogs */
+code {
+	display: inline !important;
+	background: rgba(255, 255, 255, 0.1);
+	padding: 2px 4px;
+	border-radius: 3px;
+	font-family: 'Courier New', monospace;
+	font-size: 0.9em;
+	color: #f0f0f0;
+}
+
 /* Stat Tree Grid Styling */
 .stat-tree-grid {
 	margin: 6px 0;
@@ -716,131 +727,6 @@
 	background: rgba(0, 120, 255, 0.3);
 	border-color: rgba(0, 120, 255, 0.6);
 	color: #5aa3f0;
-}
-
-/* Exhaustion and rest controls */
-.exhaustion-rest-row {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	margin: 8px 0;
-	padding: 8px;
-	background: rgba(0, 0, 0, 0.2);
-	border-radius: 4px;
-}
-
-.exhaustion-control {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-}
-
-.exhaustion-control label {
-	font-size: 0.9em;
-	font-weight: bold;
-	color: white;
-	margin-right: 8px;
-}
-
-.exhaustion-btn {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 18px;
-	height: 18px;
-	border: 1px solid rgba(255, 255, 255, 0.3);
-	border-radius: 2px;
-	background: rgba(255, 255, 255, 0.1);
-	color: white;
-	cursor: pointer;
-	font-size: 9px;
-	padding: 0;
-}
-
-.exhaustion-btn:hover {
-	background: rgba(255, 255, 255, 0.2);
-	border-color: rgba(255, 255, 255, 0.5);
-}
-
-.exhaustion-btn:active {
-	background: rgba(255, 255, 255, 0.3);
-}
-
-.exhaustion-btn.minus:hover {
-	background: rgba(255, 100, 100, 0.2);
-	border-color: rgba(255, 100, 100, 0.5);
-}
-
-.exhaustion-btn.plus:hover {
-	background: rgba(100, 255, 100, 0.2);
-	border-color: rgba(100, 255, 100, 0.5);
-}
-
-.exhaustion-value {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	min-width: 28px;
-	font-size: 0.8em;
-	font-weight: bold;
-	color: white;
-}
-
-.exhaustion-modifier {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	margin-left: 12px;
-}
-
-.modifier-text {
-	font-size: 0.8em;
-	font-weight: bold;
-	color: white;
-}
-
-.modifier-note {
-	font-size: 0.65em;
-	color: rgba(255, 255, 255, 0.7);
-	font-style: italic;
-}
-
-.rest-controls {
-	display: flex;
-	gap: 8px;
-	margin-left: auto;
-}
-
-.rest-btn {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 4px 8px;
-	border: 1px solid rgba(255, 255, 255, 0.3);
-	border-radius: 4px;
-	background: rgba(0, 100, 200, 0.2);
-	color: #4a90e2;
-	cursor: pointer;
-	font-size: 11px;
-	font-weight: bold;
-	text-transform: uppercase;
-}
-
-.rest-btn:hover {
-	background: rgba(0, 120, 255, 0.3);
-	border-color: rgba(0, 120, 255, 0.6);
-	color: #5aa3f0;
-}
-
-.rest-btn.short-rest {
-	background: rgba(200, 100, 0, 0.2);
-	color: #e2904a;
-}
-
-.rest-btn.short-rest:hover {
-	background: rgba(255, 120, 0, 0.3);
-	border-color: rgba(255, 120, 0, 0.6);
-	color: #f0a35a;
 }
 
 /* Spellcasting section styles */
@@ -1620,3 +1506,306 @@
 	margin-left: 0;
 }
 
+/* ===== CIRCUMSTANCES SECTION STYLES ===== */
+.circumstances-section {
+	padding: 12px;
+}
+
+.circumstances-section-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 12px;
+}
+
+.circumstances-section-header h3 {
+	margin: 0;
+	font-size: 1.1em;
+}
+
+/* Resource Grid */
+.resource-grid {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin-bottom: 12px;
+}
+
+.resource-row {
+	display: grid;
+	grid-template-columns: 60px 1fr;
+	align-items: center;
+	gap: 6px;
+}
+
+.resource-label {
+	font-weight: bold;
+	font-size: 0.85em;
+}
+
+.resource-bar-container {
+	display: flex;
+	align-items: center;
+	gap: 3px;
+}
+
+.resource-bar {
+	flex: 1;
+	height: 20px;
+	background: rgba(0, 0, 0, 0.3);
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	border-radius: 3px;
+	position: relative;
+	overflow: hidden;
+}
+
+.resource-bar-fill {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: calc(var(--progress, 0) * 100%);
+	transition: width 0.3s ease;
+}
+
+.resource-bar-text {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.75em;
+	font-weight: bold;
+	text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+}
+
+.resource-btn {
+	width: 20px;
+	height: 20px;
+	padding: 0;
+	background: rgba(255, 255, 255, 0.08);
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	border-radius: 3px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.15s;
+}
+
+.resource-btn:hover {
+	background: rgba(255, 255, 255, 0.15);
+}
+
+.resource-btn i {
+	font-size: 0.7em;
+}
+
+/* Rest Buttons */
+.rest-buttons {
+	display: flex;
+	gap: 6px;
+	margin: 12px 0;
+}
+
+.rest-button {
+	flex: 1;
+	padding: 6px 8px;
+	background: rgba(255, 255, 255, 0.08);
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	border-radius: 3px;
+	cursor: pointer;
+	font-size: 0.85em;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	transition: all 0.15s;
+}
+
+.rest-button:hover {
+	background: rgba(255, 255, 255, 0.15);
+}
+
+.rest-button i {
+	font-size: 0.9em;
+}
+
+/* Circumstance Cards */
+.circumstance-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	gap: 8px;
+	margin-bottom: 12px;
+}
+
+.circumstance-card {
+	background: rgba(0, 0, 0, 0.2);
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	border-radius: 3px;
+	padding: 6px 8px;
+	font-size: 0.9em;
+}
+
+.circumstance-card-header {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 4px;
+	font-weight: bold;
+	font-size: 0.95em;
+}
+
+.circumstance-card-header i {
+	font-size: 1.1em;
+	opacity: 0.8;
+}
+
+.circumstance-card-title {
+	flex: 1;
+	line-height: 1.2;
+}
+
+.circumstance-remove-btn {
+	width: 20px;
+	height: 20px;
+	padding: 0;
+	background: rgba(255, 0, 0, 0.15);
+	border: 1px solid rgba(255, 0, 0, 0.3);
+	border-radius: 3px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.15s;
+	font-size: 0.7em;
+}
+
+.circumstance-remove-btn:hover {
+	background: rgba(255, 0, 0, 0.35);
+	border-color: rgba(255, 0, 0, 0.5);
+}
+
+.circumstance-card-body {
+	font-size: 0.85em;
+	line-height: 1.3;
+	color: rgba(255, 255, 255, 0.85);
+	max-height: 80px;
+	overflow-y: auto;
+	margin: 4px 0;
+	padding-right: 4px;
+}
+
+.circumstance-card-body code {
+	display: inline;
+	background: rgba(255, 255, 255, 0.1);
+	padding: 2px 4px;
+	border-radius: 3px;
+	font-family: 'Courier New', monospace;
+	font-size: 0.9em;
+	color: #f0f0f0;
+}
+
+.circumstance-card-body::-webkit-scrollbar {
+	width: 4px;
+}
+
+.circumstance-card-body::-webkit-scrollbar-track {
+	background: rgba(0, 0, 0, 0.2);
+	border-radius: 2px;
+}
+
+.circumstance-card-body::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.3);
+	border-radius: 2px;
+}
+
+.circumstance-rank-controls {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	margin: 6px 0;
+	padding: 6px 0;
+	border-top: 1px solid rgba(255, 255, 255, 0.08);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+	font-size: 0.9em;
+}
+
+.circumstance-rank-description {
+	margin-top: 4px;
+	font-style: italic;
+	text-align: center;
+	font-size: 0.8em;
+	color: rgba(255, 255, 255, 0.7);
+	line-height: 1.2;
+}
+
+.add-circumstance-btn {
+	width: 20px;
+	height: 20px;
+	padding: 0;
+	background: rgba(0, 255, 0, 0.15);
+	border: 1px solid rgba(0, 255, 0, 0.3);
+	border-radius: 3px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.15s;
+	font-size: 0.7em;
+}
+
+.add-circumstance-btn:hover {
+	background: rgba(0, 255, 0, 0.3);
+	border-color: rgba(0, 255, 0, 0.5);
+}
+
+.no-circumstances {
+	grid-column: 1 / -1;
+	text-align: center;
+	padding: 12px;
+	color: rgba(255, 255, 255, 0.4);
+	font-style: italic;
+	font-size: 0.9em;
+}
+
+/* Other Circumstances */
+.other-circumstances {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.other-circumstance-input-row,
+.other-circumstance-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.other-circumstance-input {
+	flex: 1;
+	padding: 4px 8px;
+	background: rgba(0, 0, 0, 0.3);
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	border-radius: 3px;
+	color: inherit;
+	font-family: inherit;
+	font-size: 0.9em;
+}
+
+.other-circumstance-input:focus {
+	outline: none;
+	border-color: rgba(255, 255, 255, 0.3);
+	background: rgba(0, 0, 0, 0.4);
+}
+
+.circumstances-loading {
+	text-align: center;
+	padding: 20px;
+	color: rgba(255, 255, 255, 0.6);
+}

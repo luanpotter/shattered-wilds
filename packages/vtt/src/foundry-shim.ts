@@ -112,6 +112,7 @@ export interface DialogV2Ctor {
 			default?: boolean;
 			callback?: (...args: unknown[]) => void;
 		}>;
+		close?: () => void;
 	}): { render: (force: boolean) => void };
 }
 
@@ -128,6 +129,7 @@ export interface DialogCtor {
 				}
 			>;
 			default?: string;
+			close?: () => void;
 		},
 		config?: { jQuery: boolean },
 	): { render: (force: boolean) => void };
@@ -358,6 +360,7 @@ export async function confirmAction({ title, message }: { title: string; message
 							callback: () => resolve(false),
 						},
 					],
+					close: () => resolve(false),
 				});
 				dialog.render(true);
 				return;
@@ -383,6 +386,7 @@ export async function confirmAction({ title, message }: { title: string; message
 						},
 					},
 					default: 'no',
+					close: () => resolve(false),
 				},
 				{ jQuery: true },
 			);

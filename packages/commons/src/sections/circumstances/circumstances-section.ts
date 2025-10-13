@@ -1,10 +1,11 @@
 import { asc } from 'type-comparator/build/comparators/index.js';
+import { map } from 'type-comparator';
+import { AppliedCircumstance } from '../../character/circumstances.js';
 import { CharacterSheet } from '../../character/character-sheet.js';
 import { Condition } from '../../core/conditions.js';
 import { Consequence } from '../../core/consequences.js';
 import { Resource, ResourceValue } from '../../stats/resources.js';
 import { mapEnumToRecord } from '../../utils/utils.js';
-import { map } from 'type-comparator';
 
 export type CharacterCondition = {
 	condition: Condition;
@@ -61,5 +62,17 @@ export class CircumstancesSection {
 			consequences,
 			otherCircumstances,
 		});
+	}
+
+	static serializeConditions(conditions: AppliedCircumstance<Condition>[]): string {
+		return conditions.map(c => `${c.name}:${c.rank}`).join(',');
+	}
+
+	static serializeConsequences(consequences: AppliedCircumstance<Consequence>[]): string {
+		return consequences.map(c => `${c.name}:${c.rank}`).join(',');
+	}
+
+	static serializeOtherCircumstances(circumstances: string[]): string {
+		return circumstances.join('\n');
 	}
 }

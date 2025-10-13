@@ -31,12 +31,18 @@ export const processDescriptionText = (text: string): string => {
 		return `<a href="https://d12.nexus/wiki/${slug}" target="_blank" rel="noopener">${display}</a>`;
 	});
 
-	// Process basic markdown - be more careful with underscores to avoid conflicts
-	// Bold: **text** only (avoid __ to prevent conflicts with slugs)
-	processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+	// Process basic markdown
+	// Important: Process bold BEFORE italic to avoid conflicts with **
+	// Bold: **text**
+	processed = processed.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
-	// Italic: *text* only (avoid _ to prevent conflicts with slugs)
-	processed = processed.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+	// Italic: *text* but NOT **text** (already processed)
+	// Use negative lookahead/lookbehind to avoid matching asterisks from bold
+	processed = processed.replace(/(?<!\*)\*(?!\*)([^*]+)\*(?!\*)/g, '<em>$1</em>');
+
+	// Also support underscore italics: _text_ (but not in the middle of words or slugs)
+	// Use word boundaries to avoid matching underscores in wiki link slugs
+	processed = processed.replace(/\b_([^_]+)_\b/g, '<em>$1</em>');
 
 	// Restore code blocks with proper inline styling
 	codeBlocks.forEach((code, index) => {
