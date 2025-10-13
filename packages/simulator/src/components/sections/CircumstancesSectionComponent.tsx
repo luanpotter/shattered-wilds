@@ -112,7 +112,14 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 		removeItem,
 	}: {
 		label: string;
-		items: { key: string; name: string; ranked: boolean; description: string; rank: number }[];
+		items: {
+			key: string;
+			name: string;
+			ranked: boolean;
+			description: string;
+			rank: number;
+			descriptionForRank?: ((rank: number) => string) | undefined;
+		}[];
 		handleAdd: () => void;
 		addItem: (key: string, rank: number) => void;
 		removeItem: (key: string) => void;
@@ -152,6 +159,11 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 												onClick={() => addItem(item.key, item.rank + 1)}
 											/>
 										</div>
+										{item.descriptionForRank && (
+											<div style={{ marginTop: '8px', fontStyle: 'italic', textAlign: 'center' }}>
+												{item.descriptionForRank(item.rank)}
+											</div>
+										)}
 									</>
 								)}
 							</div>

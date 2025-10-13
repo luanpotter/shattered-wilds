@@ -10,11 +10,23 @@ export class ConsequenceDefinition {
 	name: Consequence;
 	ranked: boolean;
 	description: string;
+	descriptionForRank: ((rank: number) => string) | undefined;
 
-	constructor({ name, ranked, description }: { name: Consequence; ranked: boolean; description: string }) {
+	constructor({
+		name,
+		ranked,
+		description,
+		descriptionForRank,
+	}: {
+		name: Consequence;
+		ranked: boolean;
+		description: string;
+		descriptionForRank?: ((rank: number) => string) | undefined;
+	}) {
 		this.name = name;
 		this.ranked = ranked;
 		this.description = description;
+		this.descriptionForRank = descriptionForRank;
 	}
 }
 
@@ -79,6 +91,7 @@ Exhaustion _ranks_ and their effects:
 * _Ranks_ 8: -32 [[Circumstance Modifier | CM]] to all [[Check | Checks]].
 * _Ranks_ 9: -64 [[Circumstance Modifier | CM]] to all [[Check | Checks]].
 * _Ranks_ 10+: [[Death]].`,
+		descriptionForRank: rank => Exhaustion.fromRank(rank).cmText,
 	}),
 	[Consequence.Poisoned]: new ConsequenceDefinition({
 		name: Consequence.Poisoned,
