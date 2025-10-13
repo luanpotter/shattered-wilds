@@ -5,7 +5,7 @@ import { RemovableCard } from './RemovableCard';
 
 interface CardSectionProps {
 	title: string;
-	cards: Array<{ key: string; title: string; tooltip: string; children: React.ReactNode }>;
+	cards: Array<{ key: string; title: string; tooltip: string; children: React.ReactNode; href?: string }>;
 	onAdd: () => void;
 	onRemove?: (key: string) => void;
 }
@@ -20,6 +20,7 @@ export const CardSection: React.FC<CardSectionProps> = ({ title, cards, onAdd, o
 						key={idx}
 						title={card.title}
 						tooltip={card.tooltip}
+						{...(card.href ? { href: card.href } : {})}
 						{...(onRemove ? { onRemove: () => onRemove(card.key) } : {})}
 					>
 						{card.children}

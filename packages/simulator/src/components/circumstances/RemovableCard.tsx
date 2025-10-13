@@ -6,9 +6,10 @@ interface RemovableCardProps {
 	tooltip: string;
 	children: React.ReactNode;
 	onRemove?: () => void;
+	href?: string;
 }
 
-export const RemovableCard: React.FC<RemovableCardProps> = ({ title, tooltip, children, onRemove }) => {
+export const RemovableCard: React.FC<RemovableCardProps> = ({ title, tooltip, children, onRemove, href }) => {
 	const [showConfirm, setShowConfirm] = useState(false);
 
 	const handleRemoveClick = () => {
@@ -40,7 +41,13 @@ export const RemovableCard: React.FC<RemovableCardProps> = ({ title, tooltip, ch
 			<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
 				<div style={{ flex: 1, display: 'flex', justifyContent: 'start' }}>
 					<div style={{ fontWeight: 'bold' }} title={tooltip}>
-						{title}
+						{href ? (
+							<a href={href} target='_blank' rel='noreferrer'>
+								{title}
+							</a>
+						) : (
+							title
+						)}
 					</div>
 				</div>
 				{onRemove && !showConfirm && (

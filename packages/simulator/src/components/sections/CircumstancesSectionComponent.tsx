@@ -8,6 +8,7 @@ import {
 	firstParagraph,
 	Resource,
 	RESOURCES,
+	slugify,
 } from '@shattered-wilds/commons';
 import React, { JSX, useState } from 'react';
 import { FaCoffee, FaHourglassEnd, FaMinus, FaMoon, FaPlus, FaTrash } from 'react-icons/fa';
@@ -132,6 +133,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 						key: item.key,
 						title: `${item.name}${item.ranked ? ` (${item.rank})` : ''}`,
 						tooltip: item.description,
+						href: `/wiki/${slugify(item.name)}`,
 						children: (
 							<div style={{ textAlign: 'justify' }}>
 								<RichText>{firstParagraph(item.description)}</RichText>
