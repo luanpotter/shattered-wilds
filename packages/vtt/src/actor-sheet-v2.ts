@@ -963,7 +963,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				return {
 					resource: cost.resource,
 					amount: cost.amount,
-					value: `${cost.amount} ${RESOURCES[cost.resource as Resource].shortName}`,
+					value: `${cost.amount} ${RESOURCES[cost.resource as Resource].shortCode}`,
 					insufficient,
 				};
 			});
@@ -1050,6 +1050,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				return {
 					key: resource,
 					shortName: definition.shortName,
+					shortCode: definition.shortCode,
 					fullName: definition.fullName,
 					color: definition.color,
 					current: value.current,
