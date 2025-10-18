@@ -268,6 +268,7 @@ interface FoundryGlobals {
 	DocumentSheetConfig: DocumentSheetConfigLike;
 	Handlebars: {
 		registerHelper(name: string, fn: (...args: unknown[]) => unknown): void;
+		registerPartial(name: string, template: string): Promise<void>;
 	};
 }
 

@@ -32,44 +32,36 @@ Foundry.Hooks.once('init', async () => {
 	await registerPartials();
 });
 
-// Function to register Handlebars partials
 const registerPartials = async () => {
-	try {
-		const Handlebars = (globalThis as { Handlebars?: { registerPartial: (name: string, template: string) => void } })
-			.Handlebars;
+	const Handlebars = Foundry.Handlebars;
 
-		if (Handlebars) {
-			const partials = [
-				'action-row',
-				'sections/stats-section',
-				'sections/circumstances-section',
-				'sections/feats-section',
-				'sections/equipment-section',
-				'sections/actions-section',
-				'sections/arcane-section',
-				'sections/divine-section',
-				'sections/personality-section',
-				'sections/misc-section',
-				'sections/debug-section',
-			];
+	const partials = [
+		'action-row',
+		'sections/stats-section',
+		'sections/circumstances-section',
+		'sections/feats-section',
+		'sections/equipment-section',
+		'sections/actions-section',
+		'sections/arcane-section',
+		'sections/divine-section',
+		'sections/personality-section',
+		'sections/misc-section',
+		'sections/debug-section',
+	];
 
-			for (const partial of partials) {
-				try {
-					const response = await fetch(`systems/shattered-wilds/templates/partials/${partial}.html`);
-					if (response.ok) {
-						const template = await response.text();
-						Handlebars.registerPartial(partial, template);
-						console.log(`Registered ${partial} partial`);
-					} else {
-						console.warn(`Failed to fetch ${partial} partial:`, response.status);
-					}
-				} catch (err) {
-					console.warn(`Failed to register ${partial} partial:`, err);
-				}
+	for (const partial of partials) {
+		try {
+			const response = await fetch(`systems/shattered-wilds/templates/partials/${partial}.html`);
+			if (response.ok) {
+				const template = await response.text();
+				await Handlebars.registerPartial(partial, template);
+				console.log(`Registered ${partial} partial`);
+			} else {
+				console.error(`Failed to fetch ${partial} partial:`, response.status);
 			}
+		} catch (err) {
+			console.error(`Failed to register ${partial} partial:`, err);
 		}
-	} catch (err) {
-		console.warn('Failed to register partials:', err);
 	}
 };
 
