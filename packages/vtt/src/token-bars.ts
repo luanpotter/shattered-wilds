@@ -83,7 +83,6 @@ export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 			}
 		}
 	} catch (err) {
-		// Bar Brawl might not be installed, fail silently
 		console.debug('Failed to configure token bars (Bar Brawl may not be installed):', err);
 	}
 }

@@ -46,7 +46,6 @@ import {
 	ActorLike,
 	confirmAction,
 	createHandlebarsActorSheetBase,
-	Foundry,
 	getActorById,
 	getDialogV2Factory,
 	showNotification,
@@ -216,13 +215,6 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 			inputValues,
 			update: readOnly ? () => {} : this.createActionsSectionUpdateCallback(characterSheet),
 		});
-	}
-
-	constructor(...args: unknown[]) {
-		super(...args);
-
-		Foundry.Handlebars.registerHelper('processDescription', processRichText as (...args: unknown[]) => unknown);
-		Foundry.Handlebars.registerHelper('eq', (a: unknown, b: unknown) => a === b);
 	}
 
 	static override get DEFAULT_OPTIONS() {

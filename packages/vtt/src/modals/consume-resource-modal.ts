@@ -1,5 +1,5 @@
 import { ActionCost, CharacterSheet, RESOURCES } from '@shattered-wilds/commons';
-import { createHandlebarsApplicationBase, getActorById, getHandlebars, showNotification } from '../foundry-shim.js';
+import { createHandlebarsApplicationBase, getActorById, showNotification } from '../foundry-shim.js';
 import { consumeActionResources } from '../helpers/resources.js';
 interface AdjustedCost extends ActionCost {
 	adjustedAmount: number;
@@ -35,24 +35,6 @@ class ConsumeResourceModalImpl extends HandlebarsAppBase {
 			...cost,
 			adjustedAmount: cost.amount,
 		}));
-
-		// Register Handlebars helpers
-		this.registerHelper('eq', (a: unknown, b: unknown) => a === b);
-		this.registerHelper('unless', (...args: unknown[]) => {
-			const condition = args[0];
-			const options = args[1] as { fn: () => string; inverse: () => string };
-			if (!condition) {
-				return options.fn();
-			}
-			return options.inverse();
-		});
-	}
-
-	private registerHelper(name: string, fn: (...args: unknown[]) => unknown) {
-		const handlebars = getHandlebars();
-		if (handlebars) {
-			handlebars.registerHelper(name, fn);
-		}
 	}
 
 	static override get DEFAULT_OPTIONS() {

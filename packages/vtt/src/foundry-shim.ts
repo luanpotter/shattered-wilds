@@ -267,7 +267,7 @@ interface FoundryGlobals {
 	ActorSheet: ActorSheetBaseFactory;
 	DocumentSheetConfig: DocumentSheetConfigLike;
 	Handlebars: {
-		registerHelper(name: string, fn: (...args: unknown[]) => unknown): void;
+		registerHelper(name: string, fn: (...args: unknown[]) => unknown): Promise<void>;
 		registerPartial(name: string, template: string): Promise<void>;
 	};
 }
@@ -418,15 +418,10 @@ export function getTokenDisplayModes(): {
 		ALWAYS: foundryConst?.ALWAYS ?? 40,
 	};
 }
-
-export function getCombatFactory(): CombatFactory {
-	return Foundry.Combat;
-}
-
 export function getHandlebars(): Handlebars {
 	return Foundry.Handlebars;
 }
 
 export function showNotification(type: 'info' | 'warn' | 'error', message: string): void {
-	Foundry.ui.notifications?.[type]?.(message);
+	Foundry.ui.notifications[type]?.(message);
 }

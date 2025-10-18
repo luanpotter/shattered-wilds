@@ -11,6 +11,7 @@ import {
 import { registerInitiativeHooks } from './helpers/initiative.js';
 import { configureDefaultTokenBars } from './token-bars.js';
 import { registerConditionStatusEffects } from './helpers/conditions.js';
+import { processRichText } from './helpers/rich-text.js';
 
 Foundry.Hooks.once('init', async () => {
 	getDocumentSheetConfig().registerSheet(Foundry.Actor, 'shattered-wilds', SWActorSheetV2, {
@@ -28,9 +29,28 @@ Foundry.Hooks.once('init', async () => {
 	// Register status effects for conditions
 	registerConditionStatusEffects();
 
-	// Load and register Handlebars partials early
-	await registerPartials();
+	await configureHandlebars();
 });
+
+const configureHandlebars = async (): Promise<void> => {
+	await registerHelpers();
+	await registerPartials();
+};
+
+const registerHelpers = async (): Promise<void> => {
+	const Handlebars = Foundry.Handlebars;
+
+	await Handlebars.registerHelper('processRichText', (input: unknown) => processRichText(`${input}`));
+	await Handlebars.registerHelper('eq', (a: unknown, b: unknown) => a === b);
+	await Handlebars.registerHelper('unless', (...args: unknown[]) => {
+		const condition = args[0];
+		const options = args[1] as { fn: () => string; inverse: () => string };
+		if (!condition) {
+			return options.fn();
+		}
+		return options.inverse();
+	});
+};
 
 const registerPartials = async () => {
 	const Handlebars = Foundry.Handlebars;
