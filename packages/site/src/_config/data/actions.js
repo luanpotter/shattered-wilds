@@ -11,7 +11,7 @@ export const actions = Object.values(ACTIONS).map(def => {
 
 		return {
 			key: resource,
-			title: RESOURCES[resource].shortName,
+			title: RESOURCES[resource].shortCode,
 			value: cost.variable ? `${amount}+` : amount,
 			cssClass: `metadata-cost`,
 		};
