@@ -159,18 +159,22 @@ export interface FoundryConstants {
 	};
 }
 
+export interface DialogButton {
+	label: string;
+	action: string;
+	default?: boolean;
+	callback?: (...args: unknown[]) => void;
+}
+
+export interface DialogOptions {
+	window: { title: string };
+	content: string;
+	buttons: Array<DialogButton>;
+	close?: () => void;
+}
+
 export interface DialogV2Factory {
-	new (options: {
-		window: { title: string };
-		content: string;
-		buttons: Array<{
-			label: string;
-			action: string;
-			default?: boolean;
-			callback?: (...args: unknown[]) => void;
-		}>;
-		close?: () => void;
-	}): Renderable;
+	new (options: DialogOptions): Renderable;
 }
 
 export interface CombatFactory {
@@ -361,7 +365,7 @@ export async function promptText({ title, label }: { title: string; label: strin
 }
 
 export function getHandlebarsApplicationMixin(): HandlebarsApplicationMixinFn {
-	const mixin = Foundry.foundry?.applications?.api?.HandlebarsApplicationMixin;
+	const mixin = Foundry.foundry.applications.api.HandlebarsApplicationMixin;
 	return (typeof mixin === 'function' ? mixin : undefined) as HandlebarsApplicationMixinFn;
 }
 
