@@ -1,6 +1,7 @@
 import { CharacterSheet, Condition } from '@shattered-wilds/commons';
-import { ActorLike, promptText, showNotification } from '../foundry-shim.js';
+import { ActorLike, showNotification } from '../foundry-shim.js';
 import { configureDefaultTokenBars } from '../token-bars.js';
+import { promptText } from '../modals/modals.js';
 
 export function exportActorPropsToShareString(actor: ActorLike): string {
 	const props = parseCharacterProps(actor);
