@@ -1,20 +1,16 @@
-import { createHexScene, createCharacterWithToken } from './vtt-api.js';
-import {
-	getDocumentSheetConfig,
-	GameLike,
-	ActorLike,
-	getActors,
-	getActorById,
-	TokenDocumentLike,
-	Foundry,
-	getTokenObjectFactory,
-} from './foundry-shim.js';
-import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
-import { newSWCharacterApp } from './character-app.js';
 import { SWActorSheetV2 } from './actor-sheet-v2.js';
 import { registerChatCommands } from './chat-commands.js';
-import { configureDefaultTokenBars } from './token-bars.js';
+import {
+	ActorLike,
+	Foundry,
+	getActorById,
+	getActors,
+	getDocumentSheetConfig,
+	getTokenObjectFactory,
+	TokenDocumentLike,
+} from './foundry-shim.js';
 import { registerInitiativeHooks } from './initiative.js';
+import { configureDefaultTokenBars } from './token-bars.js';
 
 Foundry.Hooks.once('init', async () => {
 	getDocumentSheetConfig().registerSheet(Foundry.Actor, 'shattered-wilds', SWActorSheetV2, {
@@ -157,49 +153,7 @@ Foundry.Hooks.on('updateToken', async (tokenDoc: unknown, changes: unknown) => {
 	}
 });
 
-const game = Foundry.game as GameLike & { shatteredWilds?: unknown };
-
 Foundry.Hooks.once('ready', () => {
-	game.shatteredWilds = {
-		createHexScene,
-		createCharacterWithToken,
-		openCharacterApp: (actorId: string) => {
-			const app = newSWCharacterApp({ actorId });
-			(app as { render: (force?: boolean) => unknown }).render(true);
-		},
-		exportActor: exportActorPropsToShareString,
-		importActor: importActorPropsFromShareString,
-		configureAllCharacterTokenBars: async () => {
-			const actors = getActors().contents || [];
-			for (const actor of actors) {
-				if (actor.type === 'character') {
-					await configureDefaultTokenBars(actor);
-				}
-			}
-		},
-		fixAllUnlinkedTokens: async () => {
-			const actors = getActors().contents || [];
-			let fixedCount = 0;
-
-			for (const actor of actors) {
-				if (actor.type === 'character' && actor.getActiveTokens) {
-					const tokens = actor.getActiveTokens();
-					for (const token of tokens) {
-						if (token.document && !token.document.actorLink && token.document.update) {
-							console.log('Fixing unlinked token for actor:', actor);
-							await token.document.update({ actorLink: true });
-							fixedCount++;
-						}
-					}
-				}
-			}
-
-			console.log(`Fixed ${fixedCount} unlinked character tokens`);
-			return fixedCount;
-		},
-	};
-
-	// Patch Token double-click to open our V2 character sheet (the proper one with data handling)
 	const TokenFactory = getTokenObjectFactory();
 	const original = TokenFactory.prototype._onClickLeft2.bind(TokenFactory.prototype);
 	TokenFactory.prototype._onClickLeft2 = function patched(event: unknown) {
