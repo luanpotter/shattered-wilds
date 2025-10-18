@@ -1,13 +1,13 @@
-import { Condition, CONDITIONS } from '@shattered-wilds/commons';
+import { Condition, CONDITIONS, getRecordValues } from '@shattered-wilds/commons';
 import { getDialogV2Factory, showNotification } from '../foundry-shim';
 import { processRichText } from '../helpers/rich-text';
 
 export const addConditionModal = async (
 	existingConditions: Set<Condition>,
 ): Promise<{ condition?: string; rank?: number } | undefined> => {
-	const availableConditions = Object.entries(CONDITIONS)
-		.filter(([key]) => !existingConditions.has(key as Condition))
-		.sort((a, b) => a[0].localeCompare(b[0]));
+	const availableConditions = getRecordValues(CONDITIONS)
+		.filter(def => !existingConditions.has(def.name))
+		.sort((a, b) => a.name.localeCompare(b.name));
 
 	if (availableConditions.length === 0) {
 		showNotification('warn', 'All conditions already applied');
@@ -15,7 +15,7 @@ export const addConditionModal = async (
 	}
 
 	const options = availableConditions
-		.map(([key, def]) => `<option value="${key}">${key}${def.ranked ? ' ★' : ''}</option>`)
+		.map(def => `<option value="${def.name}">${def.name}${def.ranked ? ' ★' : ''}</option>`)
 		.join('');
 
 	const content = `
@@ -30,7 +30,9 @@ export const addConditionModal = async (
 						<label style="display: block; margin-bottom: 4px; font-weight: bold;">Rank:</label>
 						<input type="number" id="rank-input" value="1" min="0" max="10" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
 					</div>
-					<div id="description-box" style="padding: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; font-size: 0.9em; max-height: 200px; overflow-y: auto; line-height: 1.4;"></div>
+					<div id="description-box" style="padding: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; font-size: 0.9em; max-height: 200px; overflow-y: auto; line-height: 1.4;">
+						${processRichText(CONDITIONS[availableConditions[0]!.name].description)}}
+					</div>
 				</div>
 			`;
 

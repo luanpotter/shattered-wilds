@@ -32,6 +32,17 @@ export const getRecordKeys = <K extends string | number, T>(record: Record<K, T>
 };
 
 /**
+ * Type-safe equivalent to Object.values() for Records.
+ * Returns the values with their proper type instead of unknown[].
+ *
+ * @param record A Record<K, T>
+ * @returns Array of values with type T[]
+ */
+export const getRecordValues = <K extends string | number, T>(record: Record<K, T>): T[] => {
+	return Object.values(record) as T[];
+};
+
+/**
  * Type-safe function to get all keys of an enum as an array.
  * @param enumObject the enum object
  * @returns array of enum keys with proper type of E[] (not string[])
