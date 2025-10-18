@@ -1,4 +1,4 @@
-import { createHandlebarsApplicationBase, getActorById, getHandlebars, showNotification } from './foundry-shim.js';
+import { createHandlebarsApplicationBase, getActorById, getHandlebars, showNotification } from '../foundry-shim.js';
 import { ActionCost, CharacterSheet, RESOURCES } from '@shattered-wilds/commons';
 
 interface AdjustedCost extends ActionCost {
@@ -186,7 +186,7 @@ class ConsumeResourceModalImpl extends HandlebarsAppBase {
 			}));
 
 		// Use the centralized consumption function
-		const { consumeActionResources } = await import('./update-actor-resources.js');
+		const { consumeActionResources } = await import('../helpers/resources.js');
 		await consumeActionResources(actor, resourceCosts);
 	}
 }

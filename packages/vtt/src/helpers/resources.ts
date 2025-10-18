@@ -1,6 +1,6 @@
-import { ActorLike, Foundry } from './foundry-shim.js';
+import { ActorLike, Foundry } from '../foundry-shim.js';
 import { CharacterSheet, Resource } from '@shattered-wilds/commons';
-import { sanitizeProps, parseCharacterProps } from './characters.js';
+import { parseCharacterProps, sanitizeProps } from './character.js';
 
 /**
  * Centralized resource management for all resource updates.
@@ -46,7 +46,7 @@ export async function changeActorResource(actor: ActorLike, resource: Resource, 
 	if (!actor) throw new Error('Actor not found');
 
 	// Get current props and create character sheet
-	const currentProps = getCurrentActorProps(actor);
+	const currentProps = parseCharacterProps(actor);
 	const characterSheet = CharacterSheet.from(currentProps);
 
 	// Apply the change and get new value
@@ -65,7 +65,7 @@ export async function changeActorResource(actor: ActorLike, resource: Resource, 
 export async function performLongRest(actor: ActorLike): Promise<void> {
 	if (!actor) throw new Error('Actor not found');
 
-	const currentProps = getCurrentActorProps(actor);
+	const currentProps = parseCharacterProps(actor);
 	const characterSheet = CharacterSheet.from(currentProps);
 	const updatedProps = { ...currentProps };
 
@@ -88,7 +88,7 @@ export async function consumeActionResources(
 ): Promise<void> {
 	if (!actor) throw new Error('Actor not found');
 
-	const currentProps = getCurrentActorProps(actor);
+	const currentProps = parseCharacterProps(actor);
 	const characterSheet = CharacterSheet.from(currentProps);
 	const updatedProps = { ...currentProps };
 
@@ -107,13 +107,6 @@ export async function consumeActionResources(
 	}
 
 	await updateActorResources(actor, updatedProps);
-}
-
-/**
- * Get current actor props with proper fallback handling
- */
-function getCurrentActorProps(actor: ActorLike): Record<string, string> {
-	return parseCharacterProps(actor);
 }
 
 /**

@@ -1,4 +1,4 @@
-import { SWActorSheetV2 } from './actor-sheet-v2.js';
+import { SWActorSheetV2 } from './modals/actor-sheet-modal.js';
 import { registerChatCommands } from './chat-commands.js';
 import {
 	ActorLike,
@@ -9,7 +9,7 @@ import {
 	getTokenObjectFactory,
 	TokenDocumentLike,
 } from './foundry-shim.js';
-import { registerInitiativeHooks } from './initiative.js';
+import { registerInitiativeHooks } from './helpers/initiative.js';
 import { configureDefaultTokenBars } from './token-bars.js';
 
 Foundry.Hooks.once('init', async () => {

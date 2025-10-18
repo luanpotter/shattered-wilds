@@ -8,10 +8,9 @@ import {
 	StatHierarchy,
 	StatType,
 } from '@shattered-wilds/commons';
-import { getCharacterProps } from './actor-data-manager.js';
-import { parseCharacterSheet } from './characters.js';
-import { executeEnhancedRoll } from './dices.js';
-import { getActorById, createHandlebarsApplicationBase } from './foundry-shim.js';
+import { executeEnhancedRoll } from '../helpers/dice.js';
+import { getActorById, createHandlebarsApplicationBase } from '../foundry-shim.js';
+import { getCharacterProps, parseCharacterSheet } from '../helpers/character.js';
 
 export interface DiceRollOptions {
 	check: Check;

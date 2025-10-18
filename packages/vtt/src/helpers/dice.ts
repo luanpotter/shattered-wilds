@@ -1,6 +1,6 @@
 import { Check, DiceRoll } from '@shattered-wilds/commons';
-import { FoundryRoll, getRollCtor } from './foundry-shim';
-import { DiceRollModal } from './dice-modal';
+import { FoundryRoll, getRollCtor } from '../foundry-shim';
+import { DiceRollModal } from '../modals/dice-modal';
 
 export type ExtraDiceParams = { value: number; valid?: boolean; label?: string };
 
