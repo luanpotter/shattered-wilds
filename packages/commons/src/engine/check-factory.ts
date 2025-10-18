@@ -6,11 +6,11 @@ import { CircumstanceModifier, StatModifier, StatTree } from '../stats/stat-tree
 import { StatType } from '../stats/stat-type.js';
 
 export class CheckFactory {
-	// private characterSheet: CharacterSheet;
+	private characterSheet: CharacterSheet;
 	private statTree: StatTree;
 
 	constructor({ characterSheet }: { characterSheet: CharacterSheet }) {
-		// this.characterSheet = characterSheet;
+		this.characterSheet = characterSheet;
 		this.statTree = characterSheet.getStatTree();
 	}
 
@@ -100,11 +100,12 @@ export class CheckFactory {
 		nature: CheckNature;
 		statModifier: StatModifier;
 	}): Check {
+		const finalModifier = this.characterSheet.circumstances.applyCircumstanceModifiers(statModifier);
 		return new Check({
 			mode,
 			descriptor,
 			nature,
-			statModifier,
+			statModifier: finalModifier,
 		});
 	}
 }

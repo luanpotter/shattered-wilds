@@ -1,7 +1,7 @@
 import { Condition } from '../core/conditions.js';
-import { Consequence } from '../core/consequences.js';
+import { Consequence, Exhaustion } from '../core/consequences.js';
 import { Resource, ResourceValue } from '../stats/resources.js';
-import { StatTree } from '../stats/stat-tree.js';
+import { CircumstanceModifier, ModifierSource, StatModifier, StatTree } from '../stats/stat-tree.js';
 import { mapEnumToRecord } from '../utils/utils.js';
 
 export type AppliedCircumstance<T> = {
@@ -30,6 +30,24 @@ export class Circumstances {
 		this.conditions = conditions;
 		this.consequences = consequences;
 		this.otherCircumstances = otherCircumstances ?? [];
+	}
+
+	applyCircumstanceModifiers(statModifier: StatModifier): StatModifier {
+		// TODO: implement other circumstances; for now, we will only consider Exhaustion
+		const exhaustionRank = this.consequences.find(c => c.name === Consequence.Exhaustion)?.rank ?? 0;
+		const exhaustionBonus = Exhaustion.fromRank(exhaustionRank).bonus;
+
+		if (exhaustionBonus == null || exhaustionBonus.isZero) {
+			return statModifier;
+		}
+
+		const exhaustionModifier = new CircumstanceModifier({
+			source: ModifierSource.Circumstance,
+			name: `Exhaustion (${exhaustionRank})`,
+			value: exhaustionBonus,
+		});
+
+		return statModifier.withAdditionalCM(exhaustionModifier);
 	}
 
 	static parse<T>(prop: string | undefined): AppliedCircumstance<T>[] {
