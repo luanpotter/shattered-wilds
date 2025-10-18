@@ -16,6 +16,7 @@ export interface ActorLike {
 	getActiveTokens?: () => TokenLike[];
 	token?: TokenLike;
 	sheet?: Renderable;
+	system?: { resources?: Record<string, { value: number; max: number }> };
 }
 
 export interface TokenLike {

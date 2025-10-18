@@ -66,7 +66,7 @@ import { prepareInputForTemplate } from '../input-renderer.js';
 import { configureDefaultTokenBars } from '../token-bars.js';
 import { ConsumeResourceModal } from './consume-resource-modal.js';
 
-async function syncResourcesToSystemData(actor: unknown, characterSheet: CharacterSheet): Promise<void> {
+async function syncResourcesToSystemData(actor: ActorLike, characterSheet: CharacterSheet): Promise<void> {
 	try {
 		const resourceData: Record<string, { value: number; max: number }> = {};
 
@@ -88,12 +88,7 @@ async function syncResourcesToSystemData(actor: unknown, characterSheet: Charact
 			};
 		}
 
-		// Type check and update actor system data if it has changed
-		const actorWithSystem = actor as {
-			system?: { resources?: Record<string, { value: number; max: number }> };
-			update?: (data: Record<string, unknown>) => Promise<unknown>;
-		};
-		const currentSystemData = actorWithSystem.system?.resources || {};
+		const currentSystemData = actor.system?.resources || {};
 		let needsUpdate = false;
 
 		for (const [key, data] of Object.entries(resourceData)) {
@@ -104,8 +99,8 @@ async function syncResourcesToSystemData(actor: unknown, characterSheet: Charact
 			}
 		}
 
-		if (needsUpdate && actorWithSystem.update) {
-			await actorWithSystem.update({
+		if (needsUpdate && actor.update) {
+			await actor.update({
 				'system.resources': resourceData,
 			});
 		}
