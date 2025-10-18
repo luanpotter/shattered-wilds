@@ -88,6 +88,36 @@ export interface DocumentSheetConfigLike {
 	unregisterSheet: (documentClass: unknown, scope: string, sheetClass?: unknown) => void;
 }
 
+// ApplicationV2 types
+export interface ApplicationV2Instance {
+	close(): void;
+	element?: HTMLElement;
+	render(force?: boolean): Promise<unknown>;
+}
+
+export interface ApplicationV2Ctor {
+	new (options?: Record<string, unknown>): ApplicationV2Instance;
+	DEFAULT_OPTIONS?: Record<string, unknown>;
+}
+
+export type HandlebarsApplicationMixinFn = <T extends ApplicationV2Ctor>(
+	base: T,
+) => T & {
+	new (options?: Record<string, unknown>): ApplicationV2Instance & {
+		_prepareContext?(): Promise<Record<string, unknown>>;
+		_onRender?(): Promise<void>;
+	};
+};
+
+export interface HandlebarsApplicationBase extends ApplicationV2Instance {
+	_prepareContext?(): Promise<Record<string, unknown>>;
+	_onRender?(): Promise<void>;
+}
+
+export interface HandlebarsActorSheetBase extends HandlebarsApplicationBase {
+	actor: ActorLike;
+}
+
 export interface CombatLike {
 	combatants: Array<{
 		id: string;
@@ -476,6 +506,54 @@ export function getHandlebarsApplicationMixin(): ((base: unknown) => unknown) | 
 	const globals = getFoundryGlobals();
 	const mixin = globals.foundry?.applications?.api?.HandlebarsApplicationMixin;
 	return (typeof mixin === 'function' ? mixin : undefined) as ((base: unknown) => unknown) | undefined;
+}
+
+/**
+ * Creates a properly typed base class for Handlebars ApplicationV2 modals/apps.
+ * This eliminates the need for unsafe type casting in modal implementations.
+ *
+ * @returns A typed base class that can be extended
+ * @throws Error if V2 APIs aren't available
+ */
+export function createHandlebarsApplicationBase(): (new (
+	options?: Record<string, unknown>,
+) => HandlebarsApplicationBase) & {
+	DEFAULT_OPTIONS?: Record<string, unknown>;
+} {
+	const AppV2Ctor = getApplicationV2Ctor() as ApplicationV2Ctor | undefined;
+	const HbsMixin = getHandlebarsApplicationMixin() as HandlebarsApplicationMixinFn | undefined;
+
+	if (!AppV2Ctor || !HbsMixin) {
+		throw new Error('Foundry V2 ApplicationV2 and HandlebarsApplicationMixin are required but not available');
+	}
+
+	return HbsMixin(AppV2Ctor) as (new (options?: Record<string, unknown>) => HandlebarsApplicationBase) & {
+		DEFAULT_OPTIONS?: Record<string, unknown>;
+	};
+}
+
+/**
+ * Creates a properly typed base class for Handlebars ActorSheetV2.
+ * This eliminates the need for unsafe type casting in actor sheet implementations.
+ *
+ * @returns A typed base class that can be extended
+ * @throws Error if V2 APIs aren't available
+ */
+export function createHandlebarsActorSheetBase(): (new (...args: unknown[]) => HandlebarsActorSheetBase) & {
+	DEFAULT_OPTIONS?: Record<string, unknown>;
+} {
+	const ActorSheetV2Ctor = getActorSheetV2Ctor() as { new (...args: unknown[]): { actor: ActorLike } } | undefined;
+	const HbsMixin = getHandlebarsApplicationMixin() as HandlebarsApplicationMixinFn | undefined;
+
+	if (!ActorSheetV2Ctor || !HbsMixin) {
+		throw new Error('Foundry V2 ActorSheet and HandlebarsApplicationMixin are required but not available');
+	}
+
+	return HbsMixin(ActorSheetV2Ctor as unknown as ApplicationV2Ctor) as (new (
+		...args: unknown[]
+	) => HandlebarsActorSheetBase) & {
+		DEFAULT_OPTIONS?: Record<string, unknown>;
+	};
 }
 
 export function getTokenObjectCtor(): { prototype: TokenLike & { _onClickLeft2: (event: unknown) => void } } {
