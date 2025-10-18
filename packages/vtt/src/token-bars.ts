@@ -1,4 +1,4 @@
-import { getTokenDisplayModes } from './foundry-shim.js';
+import { Foundry } from './foundry-shim.js';
 
 // Helper function to configure default token bars for Bar Brawl
 export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
@@ -15,8 +15,7 @@ export async function configureDefaultTokenBars(actor: unknown): Promise<void> {
 		};
 
 		// Configure Bar Brawl resource bars
-		// Bar Brawl expects Foundry CONST.TOKEN_DISPLAY_MODES constants
-		const DISPLAY_MODES = getTokenDisplayModes();
+		const DISPLAY_MODES = Foundry.CONST.TOKEN_DISPLAY_MODES;
 
 		const defaultBarsObject = {
 			bar1: {

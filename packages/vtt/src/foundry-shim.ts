@@ -141,8 +141,22 @@ export interface CombatLike {
 }
 
 export interface FoundryConstants {
-	GRID_TYPES?: { HEXODD?: number };
-	TOKEN_DISPLAY_MODES?: Record<string, number>;
+	GRID_TYPES: {
+		GRIDLESS: 0;
+		HEXEVENQ: 5;
+		HEXEVENR: 3;
+		HEXODDQ: 4;
+		HEXODDR: 2;
+		SQUARE: 1;
+	};
+	TOKEN_DISPLAY_MODES: {
+		ALWAYS: 50;
+		CONTROL: 10;
+		HOVER: 30;
+		NONE: 0;
+		OWNER: 40;
+		OWNER_HOVER: 20;
+	};
 }
 
 export interface DialogV2Factory {
@@ -346,14 +360,6 @@ export async function promptText({ title, label }: { title: string; label: strin
 	});
 }
 
-export function getApplicationV2Ctor(): ApplicationV2Factory {
-	const ApplicationV2 = Foundry.foundry?.applications?.api?.ApplicationV2;
-	if (!ApplicationV2) {
-		throw new Error('Foundry V2 ApplicationV2 class not found');
-	}
-	return ApplicationV2;
-}
-
 export function getHandlebarsApplicationMixin(): HandlebarsApplicationMixinFn {
 	const mixin = Foundry.foundry?.applications?.api?.HandlebarsApplicationMixin;
 	return (typeof mixin === 'function' ? mixin : undefined) as HandlebarsApplicationMixinFn;
@@ -364,17 +370,16 @@ export function getHandlebarsApplicationMixin(): HandlebarsApplicationMixinFn {
  * This eliminates the need for unsafe type casting in modal implementations.
  *
  * @returns A typed base class that can be extended
- * @throws Error if V2 APIs aren't available
  */
 export function createHandlebarsApplicationBase(): (new (
 	options?: Record<string, unknown>,
 ) => HandlebarsApplicationBase) & {
 	DEFAULT_OPTIONS?: Record<string, unknown>;
 } {
-	const AppV2Ctor = getApplicationV2Ctor();
+	const ApplicationV2 = Foundry.foundry.applications.api.ApplicationV2;
 	const HbsMixin = getHandlebarsApplicationMixin();
 
-	return HbsMixin(AppV2Ctor) as (new (options?: Record<string, unknown>) => HandlebarsApplicationBase) & {
+	return HbsMixin(ApplicationV2) as (new (options?: Record<string, unknown>) => HandlebarsApplicationBase) & {
 		DEFAULT_OPTIONS?: Record<string, unknown>;
 	};
 }
@@ -384,42 +389,20 @@ export function createHandlebarsApplicationBase(): (new (
  * This eliminates the need for unsafe type casting in actor sheet implementations.
  *
  * @returns A typed base class that can be extended
- * @throws Error if V2 APIs aren't available
  */
 export function createHandlebarsActorSheetBase(): (new (...args: unknown[]) => HandlebarsActorSheetBase) & {
 	DEFAULT_OPTIONS?: Record<string, unknown>;
 } {
-	const ActorSheetV2Ctor = Foundry.foundry.applications.sheets.ActorSheet;
+	const ActorSheetV2 = Foundry.foundry.applications.sheets.ActorSheet;
 	const HbsMixin = getHandlebarsApplicationMixin();
 
-	return HbsMixin(ActorSheetV2Ctor) as (new (...args: unknown[]) => HandlebarsActorSheetBase) & {
+	return HbsMixin(ActorSheetV2) as (new (...args: unknown[]) => HandlebarsActorSheetBase) & {
 		DEFAULT_OPTIONS?: Record<string, unknown>;
 	};
 }
 
 export function getTokenObjectFactory(): TokenFactory {
 	return Foundry.foundry.canvas.placeables.Token;
-}
-
-export function getTokenDisplayModes(): {
-	NONE: number;
-	CONTROL: number;
-	OWNER: number;
-	HOVER: number;
-	ALWAYS: number;
-} {
-	const foundryConst = Foundry.CONST.TOKEN_DISPLAY_MODES;
-
-	return {
-		NONE: foundryConst?.NONE ?? 0,
-		CONTROL: foundryConst?.CONTROL ?? 10,
-		OWNER: foundryConst?.OWNER ?? 20,
-		HOVER: foundryConst?.HOVER ?? 30,
-		ALWAYS: foundryConst?.ALWAYS ?? 40,
-	};
-}
-export function getHandlebars(): Handlebars {
-	return Foundry.Handlebars;
 }
 
 export function showNotification(type: 'info' | 'warn' | 'error', message: string): void {
