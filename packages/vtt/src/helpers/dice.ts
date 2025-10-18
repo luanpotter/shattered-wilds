@@ -1,5 +1,5 @@
 import { Check, DiceRoll } from '@shattered-wilds/commons';
-import { FoundryRoll, getRollCtor } from '../foundry-shim';
+import { Foundry, FoundryRoll } from '../foundry-shim';
 import { DiceRollModal } from '../modals/dice-modal';
 
 export type ExtraDiceParams = { value: number; valid?: boolean; label?: string };
@@ -37,7 +37,7 @@ export const executeEnhancedRoll = async (roll: DiceRoll): Promise<number> => {
 
 	const diceCount = 2 + (extra ? 1 : 0) + (luck ? 1 : 0);
 
-	const rolls = await getRollCtor().create(`${diceCount}d12`);
+	const rolls = await Foundry.Roll.create(`${diceCount}d12`);
 	await rolls.evaluate();
 
 	const extraDice: { extra: ExtraDiceParams | undefined; luck: ExtraDiceParams | undefined } = {

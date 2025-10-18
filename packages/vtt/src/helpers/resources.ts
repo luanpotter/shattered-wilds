@@ -7,7 +7,7 @@ import { parseCharacterProps, sanitizeProps } from './character.js';
  * This is the single source of truth for resource changes.
  * Handles actor flags, system data, token synchronization, and cache invalidation.
  */
-export async function updateActorResources(actor: ActorLike, updatedProps: Record<string, string>): Promise<void> {
+export async function updateActorProps(actor: ActorLike, updatedProps: Record<string, string>): Promise<void> {
 	if (!actor) return;
 
 	try {
@@ -39,6 +39,49 @@ export async function updateActorResources(actor: ActorLike, updatedProps: Recor
 	}
 }
 
+export async function syncResourcesToSystemData(actor: ActorLike, characterSheet: CharacterSheet): Promise<void> {
+	try {
+		const resourceData: Record<string, { value: number; max: number }> = {};
+
+		// Map our resources to the system data structure
+		const resourceMapping = {
+			hp: Resource.HeroismPoint,
+			vp: Resource.VitalityPoint,
+			fp: Resource.FocusPoint,
+			sp: Resource.SpiritPoint,
+			ap: Resource.ActionPoint,
+		};
+
+		// Get current resource values from character sheet
+		for (const [systemKey, resourceEnum] of Object.entries(resourceMapping)) {
+			const resourceInfo = characterSheet.getResource(resourceEnum);
+			resourceData[systemKey] = {
+				value: resourceInfo.current,
+				max: resourceInfo.max,
+			};
+		}
+
+		const currentSystemData = actor.system?.resources || {};
+		let needsUpdate = false;
+
+		for (const [key, data] of Object.entries(resourceData)) {
+			const current = currentSystemData[key];
+			if (!current || current.value !== data.value || current.max !== data.max) {
+				needsUpdate = true;
+				break;
+			}
+		}
+
+		if (needsUpdate && actor.update) {
+			await actor.update({
+				'system.resources': resourceData,
+			});
+		}
+	} catch (err) {
+		console.warn('Failed to sync resources to system data:', err);
+	}
+}
+
 /**
  * Simplified resource change function for common operations like +/- buttons
  */
@@ -54,7 +97,7 @@ export async function changeActorResource(actor: ActorLike, resource: Resource, 
 
 	// Update with new props
 	const updatedProps = { ...currentProps, [resource]: newValue.toString() };
-	await updateActorResources(actor, updatedProps);
+	await updateActorProps(actor, updatedProps);
 
 	return newValue;
 }
@@ -76,7 +119,7 @@ export async function performLongRest(actor: ActorLike): Promise<void> {
 		updatedProps[resource] = updatedValue.toString();
 	});
 
-	await updateActorResources(actor, updatedProps);
+	await updateActorProps(actor, updatedProps);
 }
 
 /**
@@ -106,7 +149,7 @@ export async function consumeActionResources(
 		updatedProps[cost.resource] = newValue.toString();
 	}
 
-	await updateActorResources(actor, updatedProps);
+	await updateActorProps(actor, updatedProps);
 }
 
 /**

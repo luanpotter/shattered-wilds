@@ -5,7 +5,7 @@ import { parseCharacterSheet } from './character.js';
 
 export function registerInitiativeHooks(): void {
 	// Override Combat.rollInitiative method entirely to prevent Foundry from using its formula
-	Foundry.Hooks.once?.('ready', () => {
+	Foundry.Hooks.once('ready', () => {
 		const Combat = Foundry.Combat;
 
 		// Store the original method

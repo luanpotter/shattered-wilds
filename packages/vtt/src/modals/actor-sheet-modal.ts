@@ -46,9 +46,9 @@ import {
 	ActorLike,
 	confirmAction,
 	createHandlebarsActorSheetBase,
+	Foundry,
 	getActorById,
 	getDialogV2Factory,
-	getFoundryConfig,
 	showNotification,
 } from '../foundry-shim.js';
 import {
@@ -60,59 +60,21 @@ import {
 	parseCharacterSheet,
 } from '../helpers/character.js';
 import { rollDice } from '../helpers/dice.js';
-import { changeActorResource, updateActorResources, performLongRest } from '../helpers/resources.js';
+import {
+	changeActorResource,
+	updateActorProps,
+	performLongRest,
+	syncResourcesToSystemData,
+} from '../helpers/resources.js';
 import { processRichText } from '../helpers/rich-text.js';
 import { prepareInputForTemplate } from '../input-renderer.js';
 import { configureDefaultTokenBars } from '../token-bars.js';
 import { ConsumeResourceModal } from './consume-resource-modal.js';
-
-async function syncResourcesToSystemData(actor: ActorLike, characterSheet: CharacterSheet): Promise<void> {
-	try {
-		const resourceData: Record<string, { value: number; max: number }> = {};
-
-		// Map our resources to the system data structure
-		const resourceMapping = {
-			hp: Resource.HeroismPoint,
-			vp: Resource.VitalityPoint,
-			fp: Resource.FocusPoint,
-			sp: Resource.SpiritPoint,
-			ap: Resource.ActionPoint,
-		};
-
-		// Get current resource values from character sheet
-		for (const [systemKey, resourceEnum] of Object.entries(resourceMapping)) {
-			const resourceInfo = characterSheet.getResource(resourceEnum);
-			resourceData[systemKey] = {
-				value: resourceInfo.current,
-				max: resourceInfo.max,
-			};
-		}
-
-		const currentSystemData = actor.system?.resources || {};
-		let needsUpdate = false;
-
-		for (const [key, data] of Object.entries(resourceData)) {
-			const current = currentSystemData[key];
-			if (!current || current.value !== data.value || current.max !== data.max) {
-				needsUpdate = true;
-				break;
-			}
-		}
-
-		if (needsUpdate && actor.update) {
-			await actor.update({
-				'system.resources': resourceData,
-			});
-		}
-	} catch (err) {
-		console.warn('Failed to sync resources to system data:', err);
-	}
-}
+import { syncConditionsToTokens } from '../helpers/conditions.js';
 
 const HandlebarsActorSheetBase = createHandlebarsActorSheetBase();
 
 export class SWActorSheetV2 extends HandlebarsActorSheetBase {
-	// Remove cached actor ID - always get from context to prevent cross-contamination
 	#activeTab: string = 'stats'; // Store the current active tab
 
 	// Actions-specific UI state
@@ -141,119 +103,6 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 		spellAugmentationValues: {} as Record<string, Record<string, number>>,
 	};
 
-	/**
-	 * Syncs conditions from character sheet to token status effects
-	 */
-	private async syncConditionsToToken(characterSheet: CharacterSheet): Promise<void> {
-		const actor = this.getCurrentActor() as
-			| {
-					getActiveTokens?: () => Array<{
-						document?: {
-							actor?: {
-								statuses?: Set<string>;
-								toggleStatusEffect?: (statusId: string, options?: { active?: boolean }) => Promise<boolean>;
-							};
-						};
-					}>;
-					token?: {
-						document?: {
-							actor?: {
-								statuses?: Set<string>;
-								toggleStatusEffect?: (statusId: string, options?: { active?: boolean }) => Promise<boolean>;
-							};
-						};
-					};
-					statuses?: Set<string>;
-					toggleStatusEffect?: (statusId: string, options?: { active?: boolean }) => Promise<boolean>;
-			  }
-			| undefined;
-
-		if (!actor) return;
-
-		try {
-			// Get all tokens for this actor
-			const tokens = actor.getActiveTokens?.() || (actor.token?.document ? [actor.token] : []);
-
-			// If no tokens, try to update actor directly
-			const targets = tokens.length > 0 ? tokens.map(t => t.document?.actor || actor) : [actor];
-
-			// Get desired conditions from character sheet
-			const desiredConditions = new Set(characterSheet.circumstances.conditions.map(c => c.name));
-
-			for (const target of targets) {
-				if (!target?.toggleStatusEffect) continue;
-
-				// Get current SW status effects on the token
-				const currentStatuses = target.statuses || new Set<string>();
-				const currentSWStatuses = new Set(Array.from(currentStatuses).filter(statusId => statusId.startsWith('sw-')));
-
-				// Get desired SW status effects from current conditions
-				const desiredSWStatuses = new Set(
-					Array.from(desiredConditions).map(condition => `sw-${condition.toLowerCase().replace(/\s+/g, '-')}`),
-				);
-
-				// Find differences
-				const statusesToRemove = Array.from(currentSWStatuses).filter(statusId => !desiredSWStatuses.has(statusId));
-				const statusesToAdd = Array.from(desiredSWStatuses).filter(statusId => !currentSWStatuses.has(statusId));
-
-				// Apply only the changes needed
-				for (const statusId of statusesToRemove) {
-					await target.toggleStatusEffect(statusId, { active: false });
-				}
-
-				for (const statusId of statusesToAdd) {
-					await target.toggleStatusEffect(statusId, { active: true });
-				}
-			}
-		} catch (err) {
-			console.warn('Failed to sync conditions to token:', err);
-		}
-	}
-
-	static registerStatusEffects(): void {
-		const CONFIG = getFoundryConfig();
-
-		const getConditionIcon = (condition: Condition): string => {
-			const iconMap: Record<Condition, string> = {
-				[Condition.Blessed]: 'icons/svg/angel.svg',
-				[Condition.Blinded]: 'icons/svg/blind.svg',
-				[Condition.Distracted]: 'icons/svg/daze.svg',
-				[Condition.Distraught]: 'icons/svg/aura.svg',
-				[Condition.Frightened]: 'icons/svg/terror.svg',
-				[Condition.Immobilized]: 'icons/svg/net.svg',
-				[Condition.Incapacitated]: 'icons/svg/skull.svg',
-				[Condition.OffGuard]: 'icons/svg/downgrade.svg',
-				[Condition.Prone]: 'icons/svg/falling.svg',
-				[Condition.Silenced]: 'icons/svg/silenced.svg',
-				[Condition.Unconscious]: 'icons/svg/unconscious.svg',
-			};
-			return iconMap[condition] || 'icons/svg/aura.svg';
-		};
-
-		// Remove any existing SW status effects to avoid duplicates
-		const existingSWIds = new Set(
-			(CONFIG.statusEffects || [])
-				.filter((effect: { id?: string }) => effect.id?.startsWith('sw-'))
-				.map((effect: { id?: string }) => effect.id),
-		);
-
-		if (existingSWIds.size > 0) {
-			CONFIG.statusEffects = (CONFIG.statusEffects || []).filter(
-				(effect: { id?: string }) => !effect.id?.startsWith('sw-'),
-			);
-		}
-
-		// Add SW status effects
-		const swStatusEffects = Object.values(Condition).map(condition => ({
-			id: `sw-${condition.toLowerCase().replace(/\s+/g, '-')}`,
-			name: condition,
-			img: getConditionIcon(condition),
-			description: CONDITIONS[condition].description,
-		}));
-
-		CONFIG.statusEffects = [...(CONFIG.statusEffects || []), ...swStatusEffects];
-	}
-
 	private getCurrentActor(): ActorLike {
 		return this.actor;
 	}
@@ -280,7 +129,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 		if (!characterSheet) return 'None';
 
 		const equipment = characterSheet.equipment;
-		const armors = equipment.items.filter(item => item instanceof Armor) as Armor[];
+		const armors = equipment.armors();
 
 		if (this.#actionsUIState.selectedArmor !== null && this.#actionsUIState.selectedArmor < armors.length) {
 			const armor = armors[this.#actionsUIState.selectedArmor];
@@ -294,7 +143,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 		if (!characterSheet) return 'None';
 
 		const equipment = characterSheet.equipment;
-		const shields = equipment.items.filter(item => item instanceof Shield) as Shield[];
+		const shields = equipment.shields();
 
 		if (this.#actionsUIState.selectedShield !== null && this.#actionsUIState.selectedShield < shields.length) {
 			const shield = shields[this.#actionsUIState.selectedShield];
@@ -335,8 +184,8 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 			this.#actionsUIState.heightIncrements = String(updatedValues.heightIncrements);
 
 			// Update armor and shield indices
-			const armors = characterSheet.equipment.items.filter(item => item instanceof Armor) as Armor[];
-			const shields = characterSheet.equipment.items.filter(item => item instanceof Shield) as Shield[];
+			const armors = characterSheet.equipment.armors();
+			const shields = characterSheet.equipment.shields();
 
 			if (updatedValues.selectedArmor !== 'None') {
 				const armorIndex = armors.findIndex(a => a === updatedValues.selectedArmor);
@@ -372,20 +221,8 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 	constructor(...args: unknown[]) {
 		super(...args);
 
-		// Register Handlebars helpers
-		this.registerHelper('processDescription', processRichText as (...args: unknown[]) => unknown);
-		this.registerHelper('eq', (a: unknown, b: unknown) => a === b);
-	}
-
-	private registerHelper(name: string, fn: (...args: unknown[]) => unknown) {
-		const Handlebars = (
-			globalThis as unknown as {
-				Handlebars?: { registerHelper(name: string, fn: (...args: unknown[]) => unknown): void };
-			}
-		).Handlebars;
-		if (Handlebars) {
-			Handlebars.registerHelper(name, fn);
-		}
+		Foundry.Handlebars.registerHelper('processDescription', processRichText as (...args: unknown[]) => unknown);
+		Foundry.Handlebars.registerHelper('eq', (a: unknown, b: unknown) => a === b);
 	}
 
 	static override get DEFAULT_OPTIONS() {
@@ -425,7 +262,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				await syncResourcesToSystemData(actor, characterSheet);
 
 				// Sync conditions to token status effects
-				await this.syncConditionsToToken(characterSheet);
+				syncConditionsToTokens(actor, characterSheet);
 
 				// Prepare resources data for template
 				Object.values(Resource).forEach(resource => {
@@ -485,7 +322,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 
 				statTreeData = {
 					level: prepareNodeData(statTree.root, statTree.getNodeModifier(statTree.root)),
-					realms: [StatType.Body, StatType.Mind, StatType.Soul].map(realmType => {
+					realms: StatType.realms.map(realmType => {
 						const realmNode = statTree.getNode(realmType);
 						const realmModifier = statTree.getNodeModifier(realmNode);
 						return {
@@ -1913,7 +1750,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				[Resource.ActionPoint]: max.toString(),
 			};
 
-			await updateActorResources(actor, updatedProps);
+			await updateActorProps(actor, updatedProps);
 
 			showNotification('info', 'Turn ended: Action Points restored');
 		} catch (err) {
@@ -1955,7 +1792,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				),
 			};
 
-			await updateActorResources(actor, updatedProps);
+			await updateActorProps(actor, updatedProps);
 
 			// Note: Token conditions will be synced automatically when the sheet re-renders
 
@@ -2005,7 +1842,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				newConsequences.map(c => ({ name: c.consequence, rank: c.rank })),
 			);
 
-			await updateActorResources(actor, updatedProps);
+			await updateActorProps(actor, updatedProps);
 
 			// Note: Token conditions will be synced automatically when the sheet re-renders
 
@@ -2063,9 +1900,6 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 			`;
 
 			const Dialog = getDialogV2Factory();
-			if (!Dialog) {
-				return showNotification('error', 'Dialog not available');
-			}
 
 			const result = await new Promise<{ condition?: string; rank?: number }>(resolve => {
 				const dialogOptions = {
@@ -2098,7 +1932,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 					],
 				};
 
-				const dialog = new Dialog(dialogOptions as never);
+				const dialog = new Dialog(dialogOptions);
 				dialog.render(true);
 
 				// Setup dynamic behavior after a short delay to ensure DOM is ready
@@ -2138,7 +1972,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				),
 			};
 
-			await updateActorResources(actor, updatedProps);
+			await updateActorProps(actor, updatedProps);
 
 			showNotification('info', `Added: ${conditionKey}${rank > 0 ? ` (Rank ${rank})` : ''}`);
 		} catch (err) {
@@ -2167,7 +2001,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				),
 			};
 
-			await updateActorResources(actor, updatedProps);
+			await updateActorProps(actor, updatedProps);
 
 			showNotification('info', `Removed condition: ${conditionKey}`);
 		} catch (err) {
@@ -2210,7 +2044,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				),
 			};
 
-			await updateActorResources(actor, updatedProps);
+			await updateActorProps(actor, updatedProps);
 
 			// Show notification
 			if (wasRemoved) {
@@ -2341,7 +2175,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				),
 			};
 
-			await updateActorResources(actor, updatedProps);
+			await updateActorProps(actor, updatedProps);
 
 			showNotification('info', `Added: ${consequenceKey}${rank > 0 ? ` (Rank ${rank})` : ''}`);
 		} catch (err) {
@@ -2370,7 +2204,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				),
 			};
 
-			await updateActorResources(actor, updatedProps);
+			await updateActorProps(actor, updatedProps);
 
 			showNotification('info', `Removed consequence: ${consequenceKey}`);
 		} catch (err) {
@@ -2413,7 +2247,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				),
 			};
 
-			await updateActorResources(actor, updatedProps);
+			await updateActorProps(actor, updatedProps);
 
 			// Show notification
 			if (wasRemoved) {
@@ -2446,7 +2280,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				otherCircumstances: CircumstancesSection.serializeOtherCircumstances(newOtherCircumstances),
 			};
 
-			await updateActorResources(actor, updatedProps);
+			await updateActorProps(actor, updatedProps);
 
 			showNotification('info', 'Added circumstance');
 		} catch (err) {
@@ -2473,7 +2307,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				otherCircumstances: CircumstancesSection.serializeOtherCircumstances(newOtherCircumstances),
 			};
 
-			await updateActorResources(actor, updatedProps);
+			await updateActorProps(actor, updatedProps);
 
 			showNotification('info', 'Removed circumstance');
 		} catch (err) {
@@ -2502,7 +2336,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				otherCircumstances: CircumstancesSection.serializeOtherCircumstances(newOtherCircumstances),
 			};
 
-			await updateActorResources(actor, updatedProps);
+			await updateActorProps(actor, updatedProps);
 
 			showNotification('info', 'Updated circumstance');
 		} catch (err) {
@@ -2520,7 +2354,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 		try {
 			const currentProps = parseCharacterProps(actor);
 			const updatedProps = { ...currentProps, misc: value.trim() };
-			await updateActorResources(actor, updatedProps);
+			await updateActorProps(actor, updatedProps);
 		} catch (err) {
 			console.error('Failed to update misc:', err);
 			showNotification('error', 'Failed to update misc notes');

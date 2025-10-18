@@ -8,15 +8,20 @@ export interface ActorLike {
 	id: string;
 	name: string;
 	type: string;
-	flags?: Record<string, unknown>;
-	update?: (data: Record<string, unknown>) => Promise<void>;
-	getFlag?: (scope: string, key: string) => void;
-	setFlag: (scope: string, key: string, value: unknown) => Promise<void>;
-	unsetFlag?: (scope: string, key: string) => Promise<void>;
 	getActiveTokens?: () => TokenLike[];
 	token?: TokenLike;
 	sheet?: Renderable;
 	system?: { resources?: Record<string, { value: number; max: number }> };
+
+	update?: (data: Record<string, unknown>) => Promise<void>;
+
+	flags?: Record<string, unknown>;
+	getFlag?: (scope: string, key: string) => void;
+	setFlag: (scope: string, key: string, value: unknown) => Promise<void>;
+	unsetFlag?: (scope: string, key: string) => Promise<void>;
+
+	statuses: Set<string>;
+	toggleStatusEffect: (statusId: string, options?: { active?: boolean }) => Promise<boolean>;
 }
 
 export interface TokenLike {
@@ -25,6 +30,7 @@ export interface TokenLike {
 	actor?: ActorLike;
 	document?: {
 		update?: (data: Record<string, unknown>) => Promise<void>;
+		actor?: ActorLike;
 		actorId?: string;
 		actorLink?: boolean;
 	};
@@ -267,53 +273,16 @@ interface FoundryGlobals {
 
 export const Foundry = globalThis as unknown as FoundryGlobals;
 
-export function getActors(): { contents?: ActorLike[] } {
-	return Foundry.foundry?.documents?.collections?.Actors;
-}
-
-function getActorSheetV2Factory(): ActorSheetV2Factory {
-	return Foundry.foundry.applications.sheets.ActorSheet;
-}
-
-function getUI(): UILike {
-	return Foundry.ui;
-}
-
 export function getActorById(id: string): ActorLike | undefined {
 	return Foundry.game.actors.get(id);
-}
-
-export function getFoundryConfig(): FoundryConfig {
-	return Foundry.CONFIG;
 }
 
 export function getDocumentSheetConfig(): DocumentSheetConfigLike {
 	return Foundry.foundry.applications.apps.DocumentSheetConfig;
 }
 
-export function getSceneFactory(): SceneFactory {
-	return Foundry.Scene;
-}
-
-export function getConst(): FoundryConstants {
-	return Foundry.CONST;
-}
-
-export async function createTokenInScene(scene: SceneLike, tokenData: Record<string, unknown>): Promise<unknown> {
-	const docs = await scene.createEmbeddedDocuments?.('Token', [tokenData]);
-	return docs?.[0];
-}
-
 export function getDialogV2Factory(): DialogV2Factory {
 	return Foundry.foundry.applications.api.DialogV2;
-}
-
-export function getRollCtor(): FoundryRollFactory {
-	return Foundry.Roll;
-}
-
-export function getChatMessage(): FoundryChatMessage {
-	return Foundry.ChatMessage;
 }
 
 export async function confirmAction({ title, message }: { title: string; message: string }): Promise<boolean> {
@@ -419,7 +388,7 @@ export function createHandlebarsApplicationBase(): (new (
 export function createHandlebarsActorSheetBase(): (new (...args: unknown[]) => HandlebarsActorSheetBase) & {
 	DEFAULT_OPTIONS?: Record<string, unknown>;
 } {
-	const ActorSheetV2Ctor = getActorSheetV2Factory();
+	const ActorSheetV2Ctor = Foundry.foundry.applications.sheets.ActorSheet;
 	const HbsMixin = getHandlebarsApplicationMixin();
 
 	return HbsMixin(ActorSheetV2Ctor) as (new (...args: unknown[]) => HandlebarsActorSheetBase) & {
@@ -438,7 +407,7 @@ export function getTokenDisplayModes(): {
 	HOVER: number;
 	ALWAYS: number;
 } {
-	const foundryConst = getConst()?.TOKEN_DISPLAY_MODES;
+	const foundryConst = Foundry.CONST.TOKEN_DISPLAY_MODES;
 
 	return {
 		NONE: foundryConst?.NONE ?? 0,
@@ -458,6 +427,5 @@ export function getHandlebars(): Handlebars {
 }
 
 export function showNotification(type: 'info' | 'warn' | 'error', message: string): void {
-	const ui = getUI();
-	ui.notifications?.[type]?.(message);
+	Foundry.ui.notifications?.[type]?.(message);
 }

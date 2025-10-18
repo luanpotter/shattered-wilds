@@ -4,13 +4,13 @@ import {
 	ActorLike,
 	Foundry,
 	getActorById,
-	getActors,
 	getDocumentSheetConfig,
 	getTokenObjectFactory,
 	TokenDocumentLike,
 } from './foundry-shim.js';
 import { registerInitiativeHooks } from './helpers/initiative.js';
 import { configureDefaultTokenBars } from './token-bars.js';
+import { registerConditionStatusEffects } from './helpers/conditions.js';
 
 Foundry.Hooks.once('init', async () => {
 	getDocumentSheetConfig().registerSheet(Foundry.Actor, 'shattered-wilds', SWActorSheetV2, {
@@ -26,7 +26,7 @@ Foundry.Hooks.once('init', async () => {
 	registerInitiativeHooks();
 
 	// Register status effects for conditions
-	SWActorSheetV2.registerStatusEffects();
+	registerConditionStatusEffects();
 
 	// Load and register Handlebars partials early
 	await registerPartials();
@@ -172,35 +172,5 @@ Foundry.Hooks.once('ready', () => {
 		return original(event);
 	};
 
-	console.log('Shattered Wilds system ready (V4)');
-
-	// Auto-fix unlinked tokens on world startup
-	setTimeout(async () => {
-		console.log('Shattered Wilds: Checking for unlinked character tokens...');
-		try {
-			const actors = getActors().contents || [];
-			let fixedCount = 0;
-
-			for (const actor of actors) {
-				if (actor.type === 'character' && actor.getActiveTokens) {
-					const tokens = actor.getActiveTokens();
-					for (const token of tokens) {
-						if (token.document && !token.document.actorLink && token.document.update) {
-							console.log('Fixing unlinked token:', token);
-							await token.document.update({ actorLink: true });
-							fixedCount++;
-						}
-					}
-				}
-			}
-
-			if (fixedCount > 0) {
-				console.log(`Shattered Wilds: Fixed ${fixedCount} unlinked character tokens`);
-			} else {
-				console.log('Shattered Wilds: All character tokens are properly linked');
-			}
-		} catch (err) {
-			console.warn('Shattered Wilds: Failed to check/fix unlinked tokens:', err);
-		}
-	}, 2000); // Wait 2 seconds after ready to ensure all data is loaded
+	console.log('Shattered Wilds system ready [V5]');
 });
