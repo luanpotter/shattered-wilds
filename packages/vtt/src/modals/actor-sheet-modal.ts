@@ -60,10 +60,11 @@ import {
 	parseCharacterSheet,
 } from '../helpers/character.js';
 import { rollDice } from '../helpers/dice.js';
+import { changeActorResource, updateActorResources, performLongRest } from '../helpers/resources.js';
+import { processRichText } from '../helpers/rich-text.js';
 import { prepareInputForTemplate } from '../input-renderer.js';
 import { configureDefaultTokenBars } from '../token-bars.js';
 import { ConsumeResourceModal } from './consume-resource-modal.js';
-import { processRichText } from '../helpers/rich-text.js';
 
 async function syncResourcesToSystemData(actor: unknown, characterSheet: CharacterSheet): Promise<void> {
 	try {
@@ -1878,7 +1879,6 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 		}
 
 		try {
-			const { changeActorResource } = await import('../helpers/resources.js');
 			const newValue = await changeActorResource(actor, resource, delta);
 
 			// Update the resource value directly in the DOM for instant feedback
@@ -1918,7 +1918,6 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				[Resource.ActionPoint]: max.toString(),
 			};
 
-			const { updateActorResources } = await import('../helpers/resources.js');
 			await updateActorResources(actor, updatedProps);
 
 			showNotification('info', 'Turn ended: Action Points restored');
@@ -1935,7 +1934,6 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 		}
 
 		try {
-			const { performLongRest } = await import('../helpers/resources.js');
 			await performLongRest(actor);
 
 			// Clear all conditions and adjust Exhaustion
@@ -1962,7 +1960,6 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				),
 			};
 
-			const { updateActorResources } = await import('../helpers/resources.js');
 			await updateActorResources(actor, updatedProps);
 
 			// Note: Token conditions will be synced automatically when the sheet re-renders
@@ -2013,7 +2010,6 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				newConsequences.map(c => ({ name: c.consequence, rank: c.rank })),
 			);
 
-			const { updateActorResources } = await import('../helpers/resources.js');
 			await updateActorResources(actor, updatedProps);
 
 			// Note: Token conditions will be synced automatically when the sheet re-renders
@@ -2147,7 +2143,6 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				),
 			};
 
-			const { updateActorResources } = await import('../helpers/resources.js');
 			await updateActorResources(actor, updatedProps);
 
 			showNotification('info', `Added: ${conditionKey}${rank > 0 ? ` (Rank ${rank})` : ''}`);
@@ -2177,7 +2172,6 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				),
 			};
 
-			const { updateActorResources } = await import('../helpers/resources.js');
 			await updateActorResources(actor, updatedProps);
 
 			showNotification('info', `Removed condition: ${conditionKey}`);
@@ -2221,7 +2215,6 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				),
 			};
 
-			const { updateActorResources } = await import('../helpers/resources.js');
 			await updateActorResources(actor, updatedProps);
 
 			// Show notification
@@ -2353,7 +2346,6 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				),
 			};
 
-			const { updateActorResources } = await import('../helpers/resources.js');
 			await updateActorResources(actor, updatedProps);
 
 			showNotification('info', `Added: ${consequenceKey}${rank > 0 ? ` (Rank ${rank})` : ''}`);
@@ -2383,7 +2375,6 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				),
 			};
 
-			const { updateActorResources } = await import('../helpers/resources.js');
 			await updateActorResources(actor, updatedProps);
 
 			showNotification('info', `Removed consequence: ${consequenceKey}`);
@@ -2427,7 +2418,6 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				),
 			};
 
-			const { updateActorResources } = await import('../helpers/resources.js');
 			await updateActorResources(actor, updatedProps);
 
 			// Show notification
@@ -2461,7 +2451,6 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				otherCircumstances: CircumstancesSection.serializeOtherCircumstances(newOtherCircumstances),
 			};
 
-			const { updateActorResources } = await import('../helpers/resources.js');
 			await updateActorResources(actor, updatedProps);
 
 			showNotification('info', 'Added circumstance');
@@ -2489,7 +2478,6 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				otherCircumstances: CircumstancesSection.serializeOtherCircumstances(newOtherCircumstances),
 			};
 
-			const { updateActorResources } = await import('../helpers/resources.js');
 			await updateActorResources(actor, updatedProps);
 
 			showNotification('info', 'Removed circumstance');
@@ -2519,7 +2507,6 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				otherCircumstances: CircumstancesSection.serializeOtherCircumstances(newOtherCircumstances),
 			};
 
-			const { updateActorResources } = await import('../helpers/resources.js');
 			await updateActorResources(actor, updatedProps);
 
 			showNotification('info', 'Updated circumstance');
@@ -2536,7 +2523,6 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 		}
 
 		try {
-			const { updateActorResources } = await import('../helpers/resources.js');
 			const currentProps = parseCharacterProps(actor);
 			const updatedProps = { ...currentProps, misc: value.trim() };
 			await updateActorResources(actor, updatedProps);
