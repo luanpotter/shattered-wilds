@@ -32,7 +32,7 @@ export const addConsequenceModal = async (
 						<label style="display: block; margin-bottom: 4px; font-weight: bold;">Rank:</label>
 						<input type="number" id="rank-input" value="1" min="1" max="10" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
 					</div>
-					<div id="description-box" style="padding: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; font-size: 0.9em; max-height: 200px; overflow-y: auto; line-height: 1.4;">
+					<div id="description-box" style="padding: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; max-height: 200px; overflow-y: auto;">
 						${processRichText(CONSEQUENCES[availableConsequences[0]!.name].description)}}
 					</div>
 				</div>
