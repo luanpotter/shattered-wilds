@@ -1,27 +1,23 @@
 // Chat command system for Shattered Wilds dice rolling
 import { DiceRoll, DiceRollEncoder } from '@shattered-wilds/commons';
 import { executeEnhancedRoll } from './dices.js';
-import { getHooks, showNotification } from './foundry-shim.js';
+import { Foundry, showNotification } from './foundry-shim.js';
 
 export function registerChatCommands(): void {
-	// Hook into Foundry's chat command system
-	const hooks = getHooks();
-	if (hooks?.on) {
-		hooks.on('chatMessage', (...args: unknown[]) => {
-			const [, message, chatData] = args;
-			if (typeof message !== 'string') return true;
-			if (!chatData || typeof chatData !== 'object') return true;
+	Foundry.Hooks.on('chatMessage', (...args: unknown[]) => {
+		const [, message, chatData] = args;
+		if (typeof message !== 'string') return true;
+		if (!chatData || typeof chatData !== 'object') return true;
 
-			const prefix = '/d12 ';
-			if (message.startsWith(prefix)) {
-				if (parseD12Command(message, chatData as Record<string, unknown>)) {
-					return false; // prevents default processing
-				}
+		const prefix = '/d12 ';
+		if (message.startsWith(prefix)) {
+			if (parseD12Command(message, chatData as Record<string, unknown>)) {
+				return false; // prevents default processing
 			}
+		}
 
-			return true; // allows default processing
-		});
-	}
+		return true; // allows default processing
+	});
 }
 
 function extractCharacterName(chatData: Record<string, unknown>): string {

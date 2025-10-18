@@ -1,12 +1,4 @@
-import {
-	createTokenInScene,
-	getActorCtor,
-	getConst,
-	getGame,
-	getSceneCtor,
-	SceneLike,
-	GameLike,
-} from './foundry-shim.js';
+import { createTokenInScene, getConst, SceneLike, getSceneFactory, Foundry } from './foundry-shim.js';
 
 export async function createHexScene(params?: { name?: string; gridSize?: number }) {
 	const name = params?.name ?? 'Shattered Wilds Hex Map';
@@ -26,14 +18,14 @@ export async function createHexScene(params?: { name?: string; gridSize?: number
 		},
 	};
 
-	const scene = await getSceneCtor().create(sceneData, { render: true });
+	const scene = await getSceneFactory().create(sceneData, { render: true });
 	return scene;
 }
 
 export async function createCharacterWithToken(params: { name: string; sceneId?: string; x?: number; y?: number }) {
-	const actor = await getActorCtor().create({ name: params.name, type: 'character' });
-	const game = getGame() as GameLike;
-	const scenes = game.scenes;
+	const ActorFactory = Foundry.Actor;
+	const actor = await ActorFactory.create({ name: params.name, type: 'character' });
+	const scenes = Foundry.game.scenes;
 	const targetScene: SceneLike | undefined = params.sceneId
 		? scenes?.get?.(params.sceneId)
 		: (scenes?.active ?? scenes?.contents?.[0]);

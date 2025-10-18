@@ -42,7 +42,7 @@ import {
 	WeaponModeOption,
 } from '@shattered-wilds/commons';
 import { prepareActionRow, processDescriptionText } from './action-row-renderer.js';
-import { ensureActorDataPersistence, getActorData, getCharacterProps } from './actor-data-manager.js';
+import { ensureActorDataPersistence, getCharacterProps } from './actor-data-manager.js';
 import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
 import { parseCharacterProps, parseCharacterSheet } from './characters.js';
 import { ConsumeResourceModal } from './consume-resource-modal.js';
@@ -52,8 +52,7 @@ import {
 	confirmAction,
 	createHandlebarsActorSheetBase,
 	getActorById,
-	getDialogCtor,
-	getDialogV2Ctor,
+	getDialogV2Factory,
 	getFoundryConfig,
 	showNotification,
 } from './foundry-shim.js';
@@ -399,7 +398,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 		const actorLike = this.actor;
 		const currentActorId = actorLike?.id;
 
-		const actor = actorLike || getActorData(currentActorId);
+		const actor = actorLike || getActorById(currentActorId);
 
 		// Get character props using robust method with multiple fallbacks
 		const props = actor ? parseCharacterProps(actor) : {};
@@ -632,7 +631,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 		// Get the actor to access props
 		const actorLike = this.actor;
 		const currentActorId = actorLike?.id;
-		const actor = actorLike || getActorData(currentActorId);
+		const actor = actorLike || getActorById(currentActorId);
 
 		if (!actor) {
 			return null;
@@ -690,7 +689,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 		// Get the actor to access props
 		const actorLike = this.actor;
 		const currentActorId = actorLike?.id;
-		const actor = actorLike || getActorData(currentActorId);
+		const actor = actorLike || getActorById(currentActorId);
 
 		if (!actor) {
 			return null;
@@ -2066,7 +2065,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				</div>
 			`;
 
-			const Dialog = getDialogV2Ctor() || getDialogCtor();
+			const Dialog = getDialogV2Factory();
 			if (!Dialog) {
 				return showNotification('error', 'Dialog not available');
 			}
@@ -2275,10 +2274,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				</div>
 			`;
 
-			const Dialog = getDialogV2Ctor() || getDialogCtor();
-			if (!Dialog) {
-				return showNotification('error', 'Dialog not available');
-			}
+			const Dialog = getDialogV2Factory();
 
 			const result = await new Promise<{ consequence?: string; rank?: number }>(resolve => {
 				const dialogOptions = {

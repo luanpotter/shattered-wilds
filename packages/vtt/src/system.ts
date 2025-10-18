@@ -1,27 +1,23 @@
 import { createHexScene, createCharacterWithToken } from './vtt-api.js';
 import {
-	getGame,
-	getHooks,
-	getTokenObjectCtor,
 	getDocumentSheetConfig,
-	getActorConstructor,
 	GameLike,
 	ActorLike,
 	getActors,
 	getActorById,
 	TokenDocumentLike,
+	Foundry,
+	getTokenObjectFactory,
 } from './foundry-shim.js';
 import { exportActorPropsToShareString, importActorPropsFromShareString } from './actor-io.js';
 import { newSWCharacterApp } from './character-app.js';
 import { SWActorSheetV2 } from './actor-sheet-v2.js';
 import { registerChatCommands } from './chat-commands.js';
-import { configureDefaultTokenBars, fixUnlinkedTokens } from './token-bars.js';
+import { configureDefaultTokenBars } from './token-bars.js';
 import { registerInitiativeHooks } from './initiative.js';
 
-getHooks().once?.('init', async () => {
-	// Register V2 ActorSheet with HandlebarsApplicationMixin
-	const ActorCtor = getActorConstructor();
-	getDocumentSheetConfig().registerSheet(ActorCtor, 'shattered-wilds', SWActorSheetV2, {
+Foundry.Hooks.once('init', async () => {
+	getDocumentSheetConfig().registerSheet(Foundry.Actor, 'shattered-wilds', SWActorSheetV2, {
 		label: 'Shattered Wilds Actor Sheet',
 		types: ['character'],
 		makeDefault: true,
@@ -82,141 +78,89 @@ const registerPartials = async () => {
 };
 
 // Hook for when actors are created to set up default token bars
-const actorHooks = getHooks();
-if (actorHooks?.on) {
-	actorHooks.on('createActor', async (actor: unknown) => {
-		try {
-			const actorData = actor as ActorLike;
-			if (actorData.type === 'character') {
-				// Small delay to ensure actor is fully created
-				setTimeout(async () => {
-					await configureDefaultTokenBars(actor);
-				}, 100);
-			}
-		} catch (err) {
-			console.debug('Failed to configure default token bars for new actor:', err);
+Foundry.Hooks.on('createActor', async (actor: unknown) => {
+	try {
+		const actorData = actor as ActorLike;
+		if (actorData.type === 'character') {
+			// Small delay to ensure actor is fully created
+			setTimeout(async () => {
+				await configureDefaultTokenBars(actor);
+			}, 100);
 		}
-	});
-
-	// Hook for when tokens are created to configure token bars
-	actorHooks.on('createToken', async (tokenDoc: unknown) => {
-		try {
-			const token = tokenDoc as TokenDocumentLike;
-			if (token.actor && token.actor.type === 'character') {
-				// Ensure the actor has proper token bar configuration
-				setTimeout(async () => {
-					await configureDefaultTokenBars(token.actor);
-				}, 100);
-			}
-		} catch (err) {
-			console.debug('Failed to configure token bars for new token:', err);
-		}
-	});
-
-	// Hook for when actors are updated to sync token resources
-	actorHooks.on('updateActor', async (actor: unknown, changes: unknown) => {
-		try {
-			const actorData = actor as ActorLike;
-			const updateData = changes as { system?: { resources?: unknown } };
-
-			if (actorData.type === 'character' && updateData.system?.resources) {
-				// Sync resources to all active tokens for this actor
-				const tokens = actorData.getActiveTokens?.() || [];
-				for (const token of tokens) {
-					try {
-						if (token.document?.update) {
-							await token.document.update({
-								'actorData.system.resources': updateData.system.resources,
-							});
-						}
-					} catch (err) {
-						console.debug('Failed to sync token resources:', err);
-					}
-				}
-			}
-		} catch (err) {
-			console.debug('Failed to sync actor update to tokens:', err);
-		}
-	});
-
-	// Hook to prevent character tokens from becoming unlinked
-	actorHooks.on('updateToken', async (tokenDoc: unknown, changes: unknown) => {
-		try {
-			const tokenData = tokenDoc as TokenDocumentLike;
-			const updateData = changes as { actorLink?: boolean };
-
-			// If a character token is being updated to unlink, force it back to linked
-			if (tokenData.actor?.type === 'character' && updateData.actorLink === false) {
-				console.log('Preventing character token from becoming unlinked');
-				setTimeout(async () => {
-					try {
-						if (tokenData.update) {
-							await tokenData.update({ actorLink: true });
-						}
-					} catch (err) {
-						console.warn('Failed to re-link character token:', err);
-					}
-				}, 100); // Small delay to avoid infinite loops
-			}
-		} catch (err) {
-			console.debug('Failed to monitor token update:', err);
-		}
-	});
-}
-
-getHooks().once?.('ready', () => {
-	(getGame() as GameLike & { shatteredWilds?: unknown }).shatteredWilds = {
-		createHexScene,
-		createCharacterWithToken,
-		openCharacterApp: (actorId: string) => {
-			const app = newSWCharacterApp({ actorId });
-			(app as { render: (force?: boolean) => unknown }).render(true);
-		},
-		exportActor: exportActorPropsToShareString,
-		importActor: importActorPropsFromShareString,
-		fixUnlinkedTokens,
-		fixAllUnlinkedTokens: async () => {
-			const actors = getActors().contents || [];
-			for (const actor of actors) {
-				if (actor.type === 'character') {
-					await fixUnlinkedTokens(actor);
-				}
-			}
-		},
-		configureAllCharacterTokenBars: async () => {
-			const actors = getActors().contents || [];
-			for (const actor of actors) {
-				if (actor.type === 'character') {
-					await configureDefaultTokenBars(actor);
-				}
-			}
-		},
-	};
-
-	// Patch Token double-click to open our V2 character sheet (the proper one with data handling)
-	const TokenCtor = getTokenObjectCtor();
-	const original = TokenCtor.prototype._onClickLeft2.bind(TokenCtor.prototype);
-	TokenCtor.prototype._onClickLeft2 = function patched(event: unknown) {
-		try {
-			const actorId: string | undefined = this.document?.actorId ?? this.actor?.id;
-			if (actorId) {
-				const actor = getActorById(actorId);
-				if (actor?.sheet?.render) {
-					actor.sheet.render(true);
-					return;
-				}
-			}
-		} catch (err) {
-			console.debug('Failed to open actor sheet from token double-click:', err);
-		}
-
-		// Fallback to original behavior
-		original.call(this, event);
-	};
+	} catch (err) {
+		console.debug('Failed to configure default token bars for new actor:', err);
+	}
 });
 
-getHooks().once?.('ready', () => {
-	(getGame() as GameLike & { shatteredWilds?: unknown }).shatteredWilds = {
+// Hook for when tokens are created to configure token bars
+Foundry.Hooks.on('createToken', async (tokenDoc: unknown) => {
+	try {
+		const token = tokenDoc as TokenDocumentLike;
+		if (token.actor && token.actor.type === 'character') {
+			// Ensure the actor has proper token bar configuration
+			setTimeout(async () => {
+				await configureDefaultTokenBars(token.actor);
+			}, 100);
+		}
+	} catch (err) {
+		console.debug('Failed to configure token bars for new token:', err);
+	}
+});
+
+// Hook for when actors are updated to sync token resources
+Foundry.Hooks.on('updateActor', async (actor: unknown, changes: unknown) => {
+	try {
+		const actorData = actor as ActorLike;
+		const updateData = changes as { system?: { resources?: unknown } };
+
+		if (actorData.type === 'character' && updateData.system?.resources) {
+			// Sync resources to all active tokens for this actor
+			const tokens = actorData.getActiveTokens?.() || [];
+			for (const token of tokens) {
+				try {
+					if (token.document?.update) {
+						await token.document.update({
+							'actorData.system.resources': updateData.system.resources,
+						});
+					}
+				} catch (err) {
+					console.debug('Failed to sync token resources:', err);
+				}
+			}
+		}
+	} catch (err) {
+		console.debug('Failed to sync actor update to tokens:', err);
+	}
+});
+
+// Hook to prevent character tokens from becoming unlinked
+Foundry.Hooks.on('updateToken', async (tokenDoc: unknown, changes: unknown) => {
+	try {
+		const tokenData = tokenDoc as TokenDocumentLike;
+		const updateData = changes as { actorLink?: boolean };
+
+		// If a character token is being updated to unlink, force it back to linked
+		if (tokenData.actor?.type === 'character' && updateData.actorLink === false) {
+			console.log('Preventing character token from becoming unlinked');
+			setTimeout(async () => {
+				try {
+					if (tokenData.update) {
+						await tokenData.update({ actorLink: true });
+					}
+				} catch (err) {
+					console.warn('Failed to re-link character token:', err);
+				}
+			}, 100); // Small delay to avoid infinite loops
+		}
+	} catch (err) {
+		console.debug('Failed to monitor token update:', err);
+	}
+});
+
+const game = Foundry.game as GameLike & { shatteredWilds?: unknown };
+
+Foundry.Hooks.once('ready', () => {
+	game.shatteredWilds = {
 		createHexScene,
 		createCharacterWithToken,
 		openCharacterApp: (actorId: string) => {
@@ -256,16 +200,15 @@ getHooks().once?.('ready', () => {
 	};
 
 	// Patch Token double-click to open our V2 character sheet (the proper one with data handling)
-	const TokenCtor = getTokenObjectCtor();
-	const original = TokenCtor.prototype._onClickLeft2.bind(TokenCtor.prototype);
-	TokenCtor.prototype._onClickLeft2 = function patched(event: unknown) {
+	const TokenFactory = getTokenObjectFactory();
+	const original = TokenFactory.prototype._onClickLeft2.bind(TokenFactory.prototype);
+	TokenFactory.prototype._onClickLeft2 = function patched(event: unknown) {
 		try {
 			const actorId: string | undefined = this.document?.actorId ?? this.actor?.id;
 			if (actorId) {
 				const actor = getActorById(actorId);
-
 				if (actor?.sheet?.render) {
-					actor.sheet.render(true);
+					actor.sheet?.render(true);
 					return; // do not call legacy sheet
 				}
 			}

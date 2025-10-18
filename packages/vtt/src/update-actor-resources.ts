@@ -1,4 +1,4 @@
-import { ActorLike, getUI } from './foundry-shim.js';
+import { ActorLike, Foundry } from './foundry-shim.js';
 import { CharacterSheet, Resource } from '@shattered-wilds/commons';
 import { sanitizeProps, parseCharacterProps } from './characters.js';
 
@@ -120,21 +120,13 @@ function getCurrentActorProps(actor: ActorLike): Record<string, string> {
  * Force refresh any open actor sheets to reflect the updated data
  */
 async function refreshActorSheets(actor: ActorLike): Promise<void> {
-	try {
-		// Get all rendered applications and find ones for this actor
-		const ui = getUI();
-		const apps = ui.windows;
-		if (!apps) return;
+	// Get all rendered applications and find ones for this actor
+	const windows = Foundry.ui.windows;
 
-		for (const app of Object.values(apps)) {
-			// Check if this is an actor sheet for our actor
-			if (app.actor?.id === actor.id && app.render) {
-				// Force a render to refresh the data
-				await app.render(false);
-			}
+	for (const window of Object.values(windows)) {
+		if (window.actor?.id === actor.id) {
+			await window.render(false);
 		}
-	} catch (error) {
-		console.warn('Failed to refresh actor sheets:', error);
 	}
 }
 
@@ -184,23 +176,11 @@ async function syncTokenResources(
  * Force refresh any open token sheets to reflect the updated data
  */
 async function refreshTokenSheets(actor: ActorLike): Promise<void> {
-	try {
-		const ui = getUI();
-		const apps = ui.windows;
-		if (!apps) return;
-
-		for (const app of Object.values(apps)) {
-			// Check if this is a token sheet for our actor
-			const tokenApp = app as {
-				token?: { actor?: { id?: string } };
-				render?: (force?: boolean) => Promise<unknown>;
-			};
-			if (tokenApp.token?.actor?.id === actor.id && tokenApp.render) {
-				await tokenApp.render(false);
-			}
+	const windows = Foundry.ui.windows;
+	for (const window of Object.values(windows)) {
+		if (window.token?.actor?.id === actor.id) {
+			await window.render(false);
 		}
-	} catch (error) {
-		console.warn('Failed to refresh token sheets:', error);
 	}
 }
 

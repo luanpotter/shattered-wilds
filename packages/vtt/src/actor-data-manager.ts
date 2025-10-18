@@ -1,5 +1,5 @@
 import { Condition } from '@shattered-wilds/commons';
-import { ActorLike, getGame } from './foundry-shim.js';
+import { ActorLike } from './foundry-shim.js';
 
 export async function ensureActorDataPersistence(actor: ActorLike): Promise<void> {
 	try {
@@ -13,20 +13,6 @@ export async function ensureActorDataPersistence(actor: ActorLike): Promise<void
 		}
 	} catch (err) {
 		console.warn('Failed to ensure actor data persistence:', err);
-	}
-}
-
-export function getActorData(actorId: string | undefined): ActorLike | undefined {
-	if (!actorId) {
-		return undefined;
-	}
-
-	try {
-		const game = getGame();
-		return game.actors?.get?.(actorId);
-	} catch (err) {
-		console.warn('Failed to retrieve actor data:', err);
-		return undefined;
 	}
 }
 

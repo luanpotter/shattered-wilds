@@ -1,16 +1,12 @@
 import { CheckFactory, DiceRoll } from '@shattered-wilds/commons';
 import { parseCharacterSheet } from './characters.js';
 import { executeEnhancedRoll } from './dices.js';
-import { ActorLike, getCombatCtor, getHooks } from './foundry-shim.js';
+import { ActorLike, Foundry } from './foundry-shim.js';
 
 export function registerInitiativeHooks(): void {
-	const hooks = getHooks();
-	if (!hooks?.on) return;
-
 	// Override Combat.rollInitiative method entirely to prevent Foundry from using its formula
-	hooks.once?.('ready', () => {
-		const Combat = getCombatCtor();
-		if (!Combat) return;
+	Foundry.Hooks.once?.('ready', () => {
+		const Combat = Foundry.Combat;
 
 		// Store the original method
 		const originalRollInitiative = Combat.prototype.rollInitiative;
