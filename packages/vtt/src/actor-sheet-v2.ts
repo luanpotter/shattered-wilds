@@ -50,12 +50,11 @@ import { rollDice } from './dices.js';
 import {
 	ActorLike,
 	confirmAction,
+	createHandlebarsActorSheetBase,
 	getActorById,
-	getActorSheetV2Ctor,
 	getDialogCtor,
 	getDialogV2Ctor,
 	getFoundryConfig,
-	getHandlebarsApplicationMixin,
 	showNotification,
 } from './foundry-shim.js';
 import { prepareInputForTemplate } from './input-renderer.js';
@@ -109,18 +108,9 @@ async function syncResourcesToSystemData(actor: unknown, characterSheet: Charact
 	}
 }
 
-const V2Base = getActorSheetV2Ctor();
-const HbsMixin = getHandlebarsApplicationMixin();
+const HandlebarsActorSheetBase = createHandlebarsActorSheetBase();
 
-if (!V2Base || !HbsMixin) {
-	throw new Error('V2 ActorSheet or HandlebarsApplicationMixin not available');
-}
-
-const MixedBase = HbsMixin(V2Base) as unknown as (new (...args: unknown[]) => object) & {
-	DEFAULT_OPTIONS?: Record<string, unknown>;
-};
-
-export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => object) {
+export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 	// Remove cached actor ID - always get from context to prevent cross-contamination
 	#activeTab: string = 'stats'; // Store the current active tab
 
@@ -264,7 +254,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 	}
 
 	private getCurrentActor(): ActorLike {
-		return (this as unknown as { actor: ActorLike }).actor;
+		return this.actor;
 	}
 
 	private getCurrentActorId(): string | undefined {
@@ -397,17 +387,16 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		}
 	}
 
-	static get DEFAULT_OPTIONS() {
-		const base = (MixedBase as { DEFAULT_OPTIONS?: Record<string, unknown> }).DEFAULT_OPTIONS ?? {};
-		return { ...base, window: { title: 'Shattered Wilds' } } as Record<string, unknown>;
+	static override get DEFAULT_OPTIONS() {
+		return { window: { title: 'Shattered Wilds' } } as Record<string, unknown>;
 	}
 
 	static PARTS = {
 		content: { template: 'systems/shattered-wilds/templates/actor-sheet.html' },
 	};
 
-	async _prepareContext(): Promise<Record<string, unknown>> {
-		const actorLike = (this as unknown as { actor?: ActorLike }).actor;
+	override async _prepareContext(): Promise<Record<string, unknown>> {
+		const actorLike = this.actor;
 		const currentActorId = actorLike?.id;
 
 		const actor = actorLike || getActorData(currentActorId);
@@ -641,7 +630,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		}
 
 		// Get the actor to access props
-		const actorLike = (this as unknown as { actor?: ActorLike }).actor;
+		const actorLike = this.actor;
 		const currentActorId = actorLike?.id;
 		const actor = actorLike || getActorData(currentActorId);
 
@@ -699,7 +688,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		}
 
 		// Get the actor to access props
-		const actorLike = (this as unknown as { actor?: ActorLike }).actor;
+		const actorLike = this.actor;
 		const currentActorId = actorLike?.id;
 		const actor = actorLike || getActorData(currentActorId);
 
@@ -1134,8 +1123,8 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		return iconMap[condition] || 'fas fa-exclamation-triangle';
 	}
 
-	async _onRender(): Promise<void> {
-		const root = (this as unknown as { element?: HTMLElement }).element ?? undefined;
+	override async _onRender(): Promise<void> {
+		const root = this.element;
 		const currentActorId = this.getCurrentActorId();
 		if (!root || !currentActorId) return;
 
@@ -1151,7 +1140,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 				await importActorPropsFromShareString(actor);
 				// Re-render the sheet to show updated data
-				(this as unknown as { render: (force?: boolean) => void }).render(false);
+				this.render(false);
 			});
 		}
 		const exportBtn = root.querySelector('[data-action="sw-export"]') as HTMLButtonElement | null;
@@ -1501,7 +1490,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				this.#actionsUIState.activeTab = tabKey;
 
 				// Re-render to update content (preserve main tab state)
-				(this as unknown as { render: (force?: boolean) => void }).render(false);
+				this.render(false);
 			});
 		});
 
@@ -1511,7 +1500,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			showAllCheckbox.addEventListener('change', () => {
 				this.#actionsUIState.showAll = showAllCheckbox.checked;
 				// Re-render to update filtered actions
-				(this as unknown as { render: (force?: boolean) => void }).render(false);
+				this.render(false);
 			});
 		}
 
@@ -1586,10 +1575,6 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 
 				try {
 					// Check if modal is supported
-					if (!ConsumeResourceModal.isSupported()) {
-						showNotification('warn', 'Resource consumption modal not supported in this Foundry version');
-						return;
-					}
 
 					// Open the consume resource modal
 					await ConsumeResourceModal.open(characterSheet, actionCosts, actionName, actorId);
@@ -1643,7 +1628,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				}
 
 				// Re-render to update content
-				(this as unknown as { render: (force?: boolean) => void }).render(false);
+				this.render(false);
 			});
 		});
 
@@ -1654,7 +1639,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		arcaneSchoolSelects.forEach(select => {
 			select.addEventListener('change', () => {
 				this.#arcaneUIState.selectedSchoolIndex = parseInt(select.value);
-				(this as unknown as { render: (force?: boolean) => void }).render(false);
+				this.render(false);
 			});
 		});
 
@@ -1664,7 +1649,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		arcaneAttackOptionSelects.forEach(select => {
 			select.addEventListener('change', () => {
 				this.#arcaneUIState.selectedAttackOptionIndex = parseInt(select.value);
-				(this as unknown as { render: (force?: boolean) => void }).render(false);
+				this.render(false);
 			});
 		});
 
@@ -1677,7 +1662,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 				this.#arcaneUIState.selectedCastingTimeIndex = newIndex;
 				// Reset focus cost index when casting time changes (available options may have changed)
 				this.#arcaneUIState.selectedFocusCostIndex = 0;
-				(this as unknown as { render: (force?: boolean) => void }).render(false);
+				this.render(false);
 			});
 		});
 
@@ -1687,7 +1672,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		arcaneFocusCostSelects.forEach(select => {
 			select.addEventListener('change', () => {
 				this.#arcaneUIState.selectedFocusCostIndex = parseInt(select.value);
-				(this as unknown as { render: (force?: boolean) => void }).render(false);
+				this.render(false);
 			});
 		});
 
@@ -1696,7 +1681,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			input.addEventListener('change', () => {
 				const value = parseInt(input.value);
 				this.#arcaneUIState.selectedRange = Distance.of(value);
-				(this as unknown as { render: (force?: boolean) => void }).render(false);
+				this.render(false);
 			});
 		});
 
@@ -1706,7 +1691,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		arcaneSomaticSelects.forEach(select => {
 			select.addEventListener('change', () => {
 				this.#arcaneUIState.selectedSomaticComponentIndex = parseInt(select.value);
-				(this as unknown as { render: (force?: boolean) => void }).render(false);
+				this.render(false);
 			});
 		});
 
@@ -1716,7 +1701,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		arcaneVerbalSelects.forEach(select => {
 			select.addEventListener('change', () => {
 				this.#arcaneUIState.selectedVerbalComponentIndex = parseInt(select.value);
-				(this as unknown as { render: (force?: boolean) => void }).render(false);
+				this.render(false);
 			});
 		});
 
@@ -1726,7 +1711,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 		arcaneFocalSelects.forEach(select => {
 			select.addEventListener('change', () => {
 				this.#arcaneUIState.selectedFocalComponentIndex = parseInt(select.value);
-				(this as unknown as { render: (force?: boolean) => void }).render(false);
+				this.render(false);
 			});
 		});
 
@@ -1744,7 +1729,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 						this.#arcaneUIState.spellAugmentationValues[actionSlug] = {};
 					}
 					this.#arcaneUIState.spellAugmentationValues[actionSlug]![parameterKey] = parseInt(input.value) || 0;
-					(this as unknown as { render: (force?: boolean) => void }).render(false);
+					this.render(false);
 				}
 			});
 		});
@@ -1763,10 +1748,6 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 					if (!arcaneData) return;
 
 					// Check if modal is supported
-					if (!ConsumeResourceModal.isSupported()) {
-						showNotification('warn', 'Resource consumption modal not supported in this Foundry version');
-						return;
-					}
 
 					// Open the consume resource modal with spell costs
 					await ConsumeResourceModal.open(
@@ -1896,7 +1877,7 @@ export class SWActorSheetV2 extends (MixedBase as new (...args: unknown[]) => ob
 			const newValue = await changeActorResource(actor, resource, delta);
 
 			// Update the resource value directly in the DOM for instant feedback
-			const root = (this as unknown as { element?: HTMLElement }).element ?? undefined;
+			const root = this.element;
 			if (root) {
 				const resourceValueElement = root
 					.querySelector(`[data-resource="${resource}"]`)
