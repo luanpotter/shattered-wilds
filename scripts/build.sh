@@ -22,6 +22,7 @@ function build_project() {
 }
 
 build_project "commons"
+build_project "hexagons"
 build_project "site"
 build_project "simulator"
 build_project "vtt"
