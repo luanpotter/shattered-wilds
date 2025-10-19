@@ -1,0 +1,68 @@
+name: Release Hexagons Module
+
+on:
+  push:
+    tags: ['hexagons-v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.2.23
+
+      - name: Install root dependencies
+        run: bun install
+
+      - name: Build Hexagons Module
+        run: ./scripts/build.sh
+
+      - name: Create release archive
+        run: |
+          cd packages/hexagons/dist
+          zip -r hexagons.zip hexagons/
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#hexagons-v}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: "Hexagons Module v${{ steps.version.outputs.VERSION }}"
+          tag_name: ${{ github.ref_name }}
+          files: |
+            packages/hexagons/dist/hexagons.zip
+            packages/hexagons/module.json
+          body: |
+            ## Hexagons Module v${{ steps.version.outputs.VERSION }}
+
+            ### Installation
+            1. **Automatic**: Install through Foundry's module browser (search for "Hexagons")
+            2. **Manual**: Download the ZIP file and extract it to your Foundry `Data/modules/` folder
+
+            ### Requirements
+            - Foundry VTT v13 or later
+
+            ### Installation URL
+            ```
+            https://github.com/luanpotter/shattered-wilds/releases/latest/download/hexagons.json
+            ```
+
+            ### Features
+            - Hex-based drawing tools
+
+            ---
+
+            For more information, visit the [Shattered Wilds project](https://github.com/luanpotter/shattered-wilds).
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
