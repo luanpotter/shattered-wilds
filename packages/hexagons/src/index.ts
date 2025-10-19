@@ -580,7 +580,6 @@ class HexLineTool {
 			}
 
 			// End the drag
-			console.log('Finished drag');
 			this.startVertex = null;
 			this.clearPreview();
 		}
@@ -745,7 +744,6 @@ class HexLineTool {
 		const closestVertex = findClosestVertex(scenePos, vertices);
 
 		if (closestVertex) {
-			console.log('Started drag at vertex:', closestVertex);
 			this.startVertex = closestVertex;
 		}
 
