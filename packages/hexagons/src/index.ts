@@ -31,13 +31,22 @@ const createHexagonControls = (visible: boolean): SceneControls.Control => {
 		icon: 'fas fa-hexagon',
 		order: 95,
 		visible,
-		activeTool: 'hexagons:line',
+		activeTool: 'hexagons:select',
 		tools: {
+			'hexagons:select': {
+				name: 'hexagons:select',
+				title: 'Select',
+				icon: 'fas fa-mouse-pointer',
+				order: 1,
+				onChange: (_, active: boolean) => {
+					toggleSelectTool(active);
+				},
+			},
 			'hexagons:line': {
 				name: 'hexagons:line',
 				title: 'Trace Line',
 				icon: 'fas fa-hexagon-nodes',
-				order: 1,
+				order: 2,
 				onChange: (_, active: boolean) => {
 					toggleHexLineTool(active);
 				},
@@ -71,20 +80,18 @@ const toggleHexLineTool = (active: boolean, { refresh = true }: { refresh?: bool
 		if (canvas?.drawings?.active) {
 			canvas.drawings.deactivate();
 		}
-	} else {
-		if (activeHexLineTool) {
-			activeHexLineTool.destroy();
-			activeHexLineTool = null;
-		}
-		// Re-activate the drawings layer if it was previously active
-		if (canvas?.drawings) {
-			canvas.drawings.activate();
-		}
+	} else if (activeHexLineTool) {
+		activeHexLineTool.destroy();
+		activeHexLineTool = null;
 	}
 
 	if (refresh) {
 		rerenderSceneControls();
 	}
+};
+
+const toggleSelectTool = (active: boolean): void => {
+	console.log(`[${MODULE_ID}] toggling select tool`, { active });
 };
 
 const toScenePosition = (event: FederatedPointerEvent): PIXI.Point | null => {
