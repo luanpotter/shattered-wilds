@@ -1,0 +1,22 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"outDir": "./build",
+		"rootDir": "./src",
+		"declaration": true,
+		"declarationMap": true,
+		"sourceMap": true,
+		"noEmit": false,
+		"allowImportingTsExtensions": false,
+		"moduleResolution": "bundler",
+		"module": "ESNext",
+		"verbatimModuleSyntax": false,
+		"moduleDetection": "force",
+		"isolatedModules": true,
+		"lib": ["ES2024", "DOM", "DOM.Iterable"],
+		"types": ["fvtt-types"],
+        "target": "esnext",
+	},
+	"include": ["src/**/*", "module.json"],
+	"exclude": ["dist", "node_modules"]
+}

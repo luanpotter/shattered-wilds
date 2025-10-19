@@ -14,13 +14,13 @@ while [[ $# -gt 0 ]]; do
             FIX_MODE=true
             shift
             ;;
-        simulator|site|commons|vtt)
+        simulator|site|commons|vtt|hexagons)
             PROJECTS_TO_RUN+=("$1")
             shift
             ;;
         *)
-            echo "❌ Error: Unknown argument '$1'. Valid arguments are: --fix, simulator, site, commons, vtt"
-            echo "Usage: $0 [--fix] [simulator|site|commons|vtt...]"
+            echo "❌ Error: Unknown argument '$1'. Valid arguments are: --fix, simulator, site, commons, vtt, hexagons"
+            echo "Usage: $0 [--fix] [simulator|site|commons|vtt|hexagons...]"
             exit 1
             ;;
     esac
@@ -28,7 +28,7 @@ done
 
 # If no projects specified, run all
 if [ ${#PROJECTS_TO_RUN[@]} -eq 0 ]; then
-    PROJECTS_TO_RUN=("simulator" "site" "commons" "vtt")
+    PROJECTS_TO_RUN=("simulator" "site" "commons" "vtt" "hexagons")
 fi
 
 echo "🔍 Linting projects: ${PROJECTS_TO_RUN[*]}..."
@@ -173,12 +173,19 @@ SIMULATOR_FAILED=false
 SITE_FAILED=false
 COMMONS_FAILED=false
 VTT_FAILED=false
+HEXAGONS_FAILED=false
 
 # Run checks for each project
 if should_run_project "commons"; then
     run_project_checks "commons" "packages/commons" "COMMONS_FAILED"
 else
     print_status "33" "⏭️  Skipping commons project"
+fi
+
+if should_run_project "hexagons"; then
+    run_project_checks "hexagons" "packages/hexagons" "HEXAGONS_FAILED"
+else
+    print_status "33" "⏭️  Skipping hexagons project"
 fi
 
 if should_run_project "site"; then
@@ -276,6 +283,16 @@ else
     print_status "33" "⏭️  Commons: Skipped"
 fi
 
+if should_run_project "hexagons"; then
+    if [ "$HEXAGONS_FAILED" = true ]; then
+        print_status "31" "❌ Hexagons: Failed"
+    else
+        print_status "32" "✅ Hexagons: Passed"
+    fi
+else
+    print_status "33" "⏭️  Hexagons: Skipped"
+fi
+
 if should_run_project "vtt"; then
     if [ "$VTT_FAILED" = true ]; then
         print_status "31" "❌ VTT: Failed"
@@ -293,7 +310,7 @@ else
 fi
 
 # Exit with error if any project failed
-if [ "$SIMULATOR_FAILED" = true ] || [ "$SITE_FAILED" = true ] || [ "$COMMONS_FAILED" = true ] || [ "$VTT_FAILED" = true ] || [ "$MARKDOWN_FAILED" = true ]; then
+if [ "$SIMULATOR_FAILED" = true ] || [ "$SITE_FAILED" = true ] || [ "$COMMONS_FAILED" = true ] || [ "$VTT_FAILED" = true ] || [ "$HEXAGONS_FAILED" = true ] || [ "$MARKDOWN_FAILED" = true ]; then
     echo ""
     print_status "31" "❌ Linting failed! Please fix the issues above."
     exit 1
