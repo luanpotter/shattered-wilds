@@ -67,9 +67,19 @@ const toggleHexLineTool = (active: boolean, { refresh = true }: { refresh?: bool
 		if (!activeHexLineTool) {
 			activeHexLineTool = new HexLineTool();
 		}
-	} else if (activeHexLineTool) {
-		activeHexLineTool.destroy();
-		activeHexLineTool = null;
+		// Disable the default drawing tool behavior by deactivating the layer
+		if (canvas?.drawings?.active) {
+			canvas.drawings.deactivate();
+		}
+	} else {
+		if (activeHexLineTool) {
+			activeHexLineTool.destroy();
+			activeHexLineTool = null;
+		}
+		// Re-activate the drawings layer if it was previously active
+		if (canvas?.drawings) {
+			canvas.drawings.activate();
+		}
 	}
 
 	if (refresh) {
@@ -581,10 +591,26 @@ class HexLineTool {
 			return;
 		}
 
-		// Convert path to shape points format [x1, y1, x2, y2, ...]
+		// Find bounding box (AABB) to set the drawing's origin and dimensions
+		let minX = Infinity;
+		let minY = Infinity;
+		let maxX = -Infinity;
+		let maxY = -Infinity;
+
+		for (const vertex of path) {
+			minX = Math.min(minX, vertex.x);
+			minY = Math.min(minY, vertex.y);
+			maxX = Math.max(maxX, vertex.x);
+			maxY = Math.max(maxY, vertex.y);
+		}
+
+		const width = maxX - minX;
+		const height = maxY - minY;
+
+		// Convert path to shape points format [x1, y1, x2, y2, ...], relative to the origin
 		const points: number[] = [];
 		for (const vertex of path) {
-			points.push(vertex.x, vertex.y);
+			points.push(vertex.x - minX, vertex.y - minY);
 		}
 
 		// Create the drawing document
@@ -592,14 +618,20 @@ class HexLineTool {
 			shape: {
 				type: 'p' as const, // polygon/polyline
 				points: points,
+				width: width,
+				height: height,
 			},
-			x: 0,
-			y: 0,
+			x: minX,
+			y: minY,
 			strokeWidth: 4,
 			strokeColor: '#ff8800',
-			strokeAlpha: 1,
+			strokeAlpha: 1.0,
 			fillType: CONST.DRAWING_FILL_TYPES.NONE,
+			fillColor: '#ff8800',
+			fillAlpha: 0,
 			bezierFactor: 0,
+			locked: false,
+			hidden: false,
 		};
 
 		try {
