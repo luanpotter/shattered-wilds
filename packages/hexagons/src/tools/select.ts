@@ -20,6 +20,16 @@ export const SelectTool = {
 };
 
 class HexSelectTool {
+	private handleKeyDown = (event: KeyboardEvent) => {
+		if (event.key === 'Delete' || event.key === 'Backspace') {
+			if (this.selected.size > 0) {
+				const ids = Array.from(this.selected);
+				this.selected.clear();
+				this.updateHighlight(this.selected);
+				void canvas!.scene!.deleteEmbeddedDocuments('Drawing', ids);
+			}
+		}
+	};
 	private dragging = false;
 	private dragStart: PIXI.Point | null = null;
 	private dragRect: PIXI.Graphics | null = null;
@@ -33,12 +43,14 @@ class HexSelectTool {
 		canvas!.stage!.on('pointerdown', this.onPointerDown);
 		canvas!.stage!.on('pointermove', this.onPointerMove);
 		canvas!.stage!.on('pointerup', this.onPointerUp);
+		window.addEventListener('keydown', this.handleKeyDown);
 	}
 
 	destroy() {
 		canvas!.stage!.off('pointerdown', this.onPointerDown);
 		canvas!.stage!.off('pointermove', this.onPointerMove);
 		canvas!.stage!.off('pointerup', this.onPointerUp);
+		window.removeEventListener('keydown', this.handleKeyDown);
 		this.clearDragRect();
 		if (highlightLayer && highlightLayer.parent) {
 			highlightLayer.parent.removeChild(highlightLayer);
