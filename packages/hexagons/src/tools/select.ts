@@ -30,6 +30,7 @@ class HexSelectTool {
 			}
 		}
 	};
+
 	private dragging = false;
 	private dragStart: PIXI.Point | null = null;
 	private dragRect: PIXI.Graphics | null = null;
@@ -84,23 +85,31 @@ class HexSelectTool {
 				if (drawing) {
 					this.moveStart[id] = { x: drawing.x, y: drawing.y };
 
-					// Compute lattice vertices for each point in the line
 					const shape = drawing.shape;
-					if (shape?.type === 'p') {
+					if (shape.points.length > 0) {
+						// Polygon: compute lattice points for all vertices
 						const points = shape.points;
 						const lattice: { x: number; y: number }[] = [];
 						for (let i = 0; i < points.length; i += 2) {
 							const px = points[i]! + drawing.x;
 							const py = points[i + 1]! + drawing.y;
+
 							const vertices = getHexVertices({ x: px, y: py });
 							const closest = findClosestVertex({ x: px, y: py }, vertices);
-							if (closest) {
-								lattice.push(closest);
-							} else {
-								lattice.push({ x: px, y: py });
-							}
+							lattice.push(closest ?? { x: px, y: py });
 						}
 						this.moveLattice[id] = { lattice, origin: { x: drawing.x, y: drawing.y } };
+					} else {
+						// Icon: always snap to the center of the hex containing the icon's center
+						const cx = drawing.x + (shape.width ?? 0) / 2;
+						const cy = drawing.y + (shape.height ?? 0) / 2;
+						const vertices = getHexVertices({ x: cx, y: cy });
+
+						// The center of the hex is the average of its vertices
+						const hexCenter = vertices.reduce((acc, v) => ({ x: acc.x + v.x, y: acc.y + v.y }), { x: 0, y: 0 });
+						hexCenter.x /= vertices.length;
+						hexCenter.y /= vertices.length;
+						this.moveLattice[id] = { lattice: [hexCenter], origin: { x: drawing.x, y: drawing.y } };
 					}
 				}
 			}
@@ -131,30 +140,40 @@ class HexSelectTool {
 			for (const id of this.selected) {
 				const drawing = canvas!.scene!.drawings.get(id);
 				const latticeInfo = this.moveLattice[id];
-				if (drawing && latticeInfo) {
-					// Compute new origin by moving the first lattice vertex by the drag delta,
-					// snapping to the nearest lattice vertex
-					const origLattice = latticeInfo.lattice;
-					if (origLattice.length === 0) {
-						continue;
-					}
+				if (!drawing || !latticeInfo) {
+					continue;
+				}
+				const origin = latticeInfo.lattice[0];
+				if (!origin) {
+					continue;
+				}
 
-					const origFirst = origLattice[0];
-					if (!origFirst) {
-						continue;
-					}
+				const moved = { x: origin.x + dx, y: origin.y + dy };
+				const vertices = getHexVertices(moved);
 
-					const movedFirst = { x: origFirst.x + dx, y: origFirst.y + dy };
-					const vertices = getHexVertices(movedFirst);
-					const snappedFirst = findClosestVertex(movedFirst, vertices) ?? movedFirst;
+				const shape = drawing.shape;
+				if (shape.points.length > 0) {
+					// Polygon: align to the nearest hex vertex
+					const snapped = findClosestVertex(moved, vertices) ?? moved;
+					const offsetX = snapped.x - origin.x;
+					const offsetY = snapped.y - origin.y;
+					const newOrigin = {
+						x: latticeInfo.origin.x + offsetX,
+						y: latticeInfo.origin.y + offsetY,
+					};
+					drawing.update(newOrigin);
+				} else {
+					// Icon: move center to center of nearest hex
+					const center = vertices.reduce((acc, v) => ({ x: acc.x + v.x, y: acc.y + v.y }), { x: 0, y: 0 });
 
-					// Compute offset between snappedFirst and origFirst
-					const offsetX = snappedFirst.x - origFirst.x;
-					const offsetY = snappedFirst.y - origFirst.y;
-
-					// Move the drawing so all lattice points are offset by the same amount
-					const newOrigin = { x: latticeInfo.origin.x + offsetX, y: latticeInfo.origin.y + offsetY };
-					drawing.update({ x: newOrigin.x, y: newOrigin.y });
+					// Move so that the center of the icon is at hexCenter
+					const width = shape.width ?? 0;
+					const height = shape.height ?? 0;
+					const newOrigin = {
+						x: center.x / vertices.length - width / 2,
+						y: center.y / vertices.length - height / 2,
+					};
+					drawing.update(newOrigin);
 				}
 			}
 		}
@@ -187,25 +206,14 @@ class HexSelectTool {
 	};
 
 	private getDrawingAt(pos: PIXI.IPointData): DrawingDocument | null {
-		for (const d of this.getAllHexDrawings()) {
-			const shape = d.shape;
-			if (shape?.type === 'p') {
-				const points = shape.points;
-				let minX = Infinity,
-					minY = Infinity,
-					maxX = -Infinity,
-					maxY = -Infinity;
-				for (let i = 0; i < points.length; i += 2) {
-					const x = points[i]! + d.x;
-					const y = points[i + 1]! + d.y;
-					if (x < minX) minX = x;
-					if (y < minY) minY = y;
-					if (x > maxX) maxX = x;
-					if (y > maxY) maxY = y;
-				}
-				if (pos.x >= minX && pos.x <= maxX && pos.y >= minY && pos.y <= maxY) {
-					return d;
-				}
+		for (const drawing of this.getAllHexDrawings()) {
+			const { x, y } = drawing;
+			const { width, height } = drawing.shape;
+			if (!width || !height) {
+				continue;
+			}
+			if (pos.x >= x && pos.x <= x + width && pos.y >= y && pos.y <= y + height) {
+				return drawing;
 			}
 		}
 		return null;
@@ -265,12 +273,9 @@ class HexSelectTool {
 			if (!drawing) {
 				continue;
 			}
-			const shape = drawing.shape;
-			if (shape?.type === 'p' && Array.isArray(shape.points)) {
-				const points = shape.points as number[];
-				highlightLayer.lineStyle(6, 0x00aaff, 0.7);
-				highlightLayer.drawPolygon(points.map((v, i) => (i % 2 === 0 ? v + drawing.x : v + drawing.y)));
-			}
+			const points = drawing.shape.points;
+			highlightLayer.lineStyle(6, 0x00aaff, 0.7);
+			highlightLayer.drawPolygon(points.map((v, i) => (i % 2 === 0 ? v! + drawing.x : v! + drawing.y)));
 		}
 	}
 }

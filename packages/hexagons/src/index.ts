@@ -5,6 +5,7 @@ import { isHexGrid, rerenderSceneControls } from './utils/vtt';
 import { SelectTool } from './tools/select';
 import { HexagonsSettings } from './utils/settings';
 import { PaintTool } from './tools/paint';
+import { StampTool } from './tools/stamp';
 
 const createHexagonControls = (visible: boolean): SceneControls.Control => {
 	return {
@@ -40,6 +41,15 @@ const createHexagonControls = (visible: boolean): SceneControls.Control => {
 				order: 3,
 				onChange: (_, active: boolean) => {
 					PaintTool.toggle(active);
+				},
+			},
+			'hexagons:stamp': {
+				name: 'hexagons:stamp',
+				title: 'Stamp Hex',
+				icon: 'fas fa-stamp',
+				order: 4,
+				onChange: (_, active: boolean) => {
+					StampTool.toggle(active);
 				},
 			},
 			'hexagons:config': {
