@@ -20,7 +20,9 @@ function main() {
 	safeMkdir(outDir);
 	safeMkdir(moduleOut);
 
-	cpSync(join(root, 'module.json'), join(moduleOut, 'module.json'));
+		cpSync(join(root, 'module.json'), join(moduleOut, 'module.json'));
+		// Also copy module.json to dist/hexagons.json for manifest URL
+		cpSync(join(root, 'module.json'), join(outDir, 'hexagons.json'));
 
 	const entry = join(buildDir, 'index.js');
 	execSync(
