@@ -155,7 +155,7 @@ export class HexLineTool {
 			hidden: false,
 			flags: {
 				hexagons: {
-					isHexLine: true,
+					isHexagonsDrawing: true,
 				},
 			},
 		};

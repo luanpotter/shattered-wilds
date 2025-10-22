@@ -202,7 +202,7 @@ class HexSelectTool {
 	private getAllHexDrawings(): DrawingDocument[] {
 		return canvas!.scene!.drawings.filter(
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			(drawing: DrawingDocument) => (drawing as any).getFlag?.('hexagons', 'isHexLine') === true,
+			(drawing: DrawingDocument) => (drawing as any).getFlag?.('hexagons', 'isHexagonsDrawing') === true,
 		);
 	}
 

@@ -4,6 +4,7 @@ import { HexLine } from './tools/line';
 import { isHexGrid, rerenderSceneControls } from './utils/vtt';
 import { SelectTool } from './tools/select';
 import { HexagonsSettings } from './utils/settings';
+import { PaintTool } from './tools/paint';
 
 const createHexagonControls = (visible: boolean): SceneControls.Control => {
 	return {
@@ -30,6 +31,15 @@ const createHexagonControls = (visible: boolean): SceneControls.Control => {
 				order: 2,
 				onChange: (_, active: boolean) => {
 					HexLine.toggle(active);
+				},
+			},
+			'hexagons:paint': {
+				name: 'hexagons:paint',
+				title: 'Paint Hex',
+				icon: 'fas fa-fill-drip',
+				order: 3,
+				onChange: (_, active: boolean) => {
+					PaintTool.toggle(active);
 				},
 			},
 			'hexagons:config': {

@@ -14,13 +14,21 @@ export const HexagonsSettings = {
 			type: String,
 			default: '#ff8800',
 		});
+		settings().register(MODULE_ID, 'fillColor', {
+			name: 'Fill Color',
+			hint: 'Color used for hex paint fill.',
+			scope: 'client',
+			config: false,
+			type: String,
+			default: '#00aaff',
+		});
 	},
 
-	get(key: 'lineColor'): string {
+	get(key: 'lineColor' | 'fillColor'): string {
 		return settings().get(MODULE_ID, key) as string;
 	},
 
-	set(key: 'lineColor', value: string): void {
+	set(key: 'lineColor' | 'fillColor', value: string): void {
 		settings().set(MODULE_ID, key, value);
 	},
 };
