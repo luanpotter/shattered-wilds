@@ -72,7 +72,6 @@ class HexSelectTool {
 
 		const hit = this.getDrawingAt(pos);
 		if (hit) {
-			// Start moving selected drawings
 			if (hit && !this.selected.has(hit.id!)) {
 				this.selected.clear();
 				this.selected.add(hit.id!);
@@ -105,7 +104,6 @@ class HexSelectTool {
 						const cy = drawing.y + (shape.height ?? 0) / 2;
 						const vertices = getHexVertices({ x: cx, y: cy });
 
-						// The center of the hex is the average of its vertices
 						const hexCenter = vertices.reduce((acc, v) => ({ x: acc.x + v.x, y: acc.y + v.y }), { x: 0, y: 0 });
 						hexCenter.x /= vertices.length;
 						hexCenter.y /= vertices.length;
@@ -114,7 +112,6 @@ class HexSelectTool {
 				}
 			}
 		} else {
-			// Start box selection
 			this.dragging = true;
 			this.dragStart = pos;
 			this.clearDragRect();
@@ -153,7 +150,7 @@ class HexSelectTool {
 
 				const shape = drawing.shape;
 				if (shape.points.length > 0) {
-					// Polygon: align to the nearest hex vertex
+					// Polygon: align to the nearest lattice vertex
 					const snapped = findClosestVertex(moved, vertices) ?? moved;
 					const offsetX = snapped.x - origin.x;
 					const offsetY = snapped.y - origin.y;
@@ -166,7 +163,6 @@ class HexSelectTool {
 					// Icon: move center to center of nearest hex
 					const center = vertices.reduce((acc, v) => ({ x: acc.x + v.x, y: acc.y + v.y }), { x: 0, y: 0 });
 
-					// Move so that the center of the icon is at hexCenter
 					const width = shape.width ?? 0;
 					const height = shape.height ?? 0;
 					const newOrigin = {
@@ -273,9 +269,19 @@ class HexSelectTool {
 			if (!drawing) {
 				continue;
 			}
-			const points = drawing.shape.points;
+			const shape = drawing.shape;
 			highlightLayer.lineStyle(6, 0x00aaff, 0.7);
-			highlightLayer.drawPolygon(points.map((v, i) => (i % 2 === 0 ? v! + drawing.x : v! + drawing.y)));
+			if (shape.points.length > 0) {
+				// Polygon: highlight the shape
+				highlightLayer.drawPolygon(shape.points.map((v, i) => (i % 2 === 0 ? v! + drawing.x : v! + drawing.y)));
+			} else {
+				// Icon: highlight the aabb
+				const x = drawing.x;
+				const y = drawing.y;
+				const w = shape.width ?? 0;
+				const h = shape.height ?? 0;
+				highlightLayer.drawRect(x, y, w, h);
+			}
 		}
 	}
 }
