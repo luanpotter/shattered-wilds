@@ -201,8 +201,8 @@ class HexSelectTool {
 
 	private getAllHexDrawings(): DrawingDocument[] {
 		return canvas!.scene!.drawings.filter(
-			(d: DrawingDocument) =>
-				d.shape?.type === 'p' && d.strokeWidth === 4 && d.fillType === CONST.DRAWING_FILL_TYPES.NONE,
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			(drawing: DrawingDocument) => (drawing as any).getFlag?.('hexagons', 'isHexLine') === true,
 		);
 	}
 

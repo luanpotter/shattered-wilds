@@ -2,6 +2,7 @@ import { MODULE_ID } from '../consts';
 import { FederatedPointerEvent } from 'pixi.js';
 import { isHexGrid, rerenderSceneControls, toScenePosition } from '../utils/vtt';
 import { findClosestVertex, findVertexPath, getHexVertices } from '../utils/hexes';
+import { HexagonsSettings } from '../utils/settings';
 
 let activeHexLineTool: HexLineTool | null = null;
 
@@ -131,6 +132,8 @@ export class HexLineTool {
 			points.push(vertex.x - minX, vertex.y - minY);
 		}
 
+		const lineColor = HexagonsSettings.get('lineColor');
+
 		// Create the drawing document
 		const drawingData = {
 			shape: {
@@ -142,20 +145,24 @@ export class HexLineTool {
 			x: minX,
 			y: minY,
 			strokeWidth: 4,
-			// @ts-expect-error: custom module setting key is valid at runtime
-			strokeColor: game.settings.get(MODULE_ID, 'lineColor') as string,
+			strokeColor: lineColor,
 			strokeAlpha: 1.0,
 			fillType: CONST.DRAWING_FILL_TYPES.NONE,
-			// @ts-expect-error: custom module setting key is valid at runtime
-			fillColor: game.settings.get(MODULE_ID, 'lineColor') as string,
+			fillColor: lineColor,
 			fillAlpha: 0,
 			bezierFactor: 0,
 			locked: false,
 			hidden: false,
+			flags: {
+				hexagons: {
+					isHexLine: true,
+				},
+			},
 		};
 
 		try {
-			await canvas.scene.createEmbeddedDocuments('Drawing', [drawingData]);
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			await canvas.scene.createEmbeddedDocuments('Drawing', [drawingData as any]);
 		} catch (error) {
 			console.error('Failed to create drawing:', error);
 		}
