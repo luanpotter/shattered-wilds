@@ -1,4 +1,4 @@
-name: Unified Release
+name: Release VTT
 
 on:
   push:
@@ -21,11 +21,6 @@ jobs:
 
       - name: Install root dependencies
         run: bun install
-
-      - name: Run release script
-        run: |
-          VERSION="${GITHUB_REF_NAME#vtt-v}"
-          ./scripts/release.sh "$VERSION"
 
       - name: Zip release artifacts
         run: |
