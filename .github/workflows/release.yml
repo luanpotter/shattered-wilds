@@ -1,0 +1,68 @@
+name: Unified Release
+
+on:
+  push:
+    tags: ['vtt-v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.2.23
+
+      - name: Install root dependencies
+        run: bun install
+
+      - name: Run release script
+        run: |
+          VERSION="${GITHUB_REF_NAME#vtt-v}"
+          ./scripts/release.sh "$VERSION"
+
+      - name: Zip release artifacts
+        run: |
+          cd packages/vtt/dist
+          zip -r ../../../_release/shattered-wilds.zip shattered-wilds/
+          cd ../../../packages/hexagons/dist
+          zip -r ../../../_release/hexagons.zip hexagons/
+          cd ../../../
+
+      - name: Upload Artifacts
+        uses: softprops/action-gh-release@v1
+        with:
+          name: "Shattered Wilds & Hexagons v${{ github.ref_name }}"
+          tag_name: ${{ github.ref_name }}
+          files: |
+            _release/shattered-wilds.json
+            _release/shattered-wilds.zip
+            _release/hexagons.json
+            _release/hexagons.zip
+          body: |
+            ## Shattered Wilds & Hexagons v${{ github.ref_name }}
+
+            ### Installation
+            - **Shattered Wilds Game System:**
+              - Automatic: Foundry system browser (search for "Shattered Wilds")
+              - Manual: Download shattered-wilds.zip and extract to `Data/systems/`
+              - Manifest: https://github.com/luanpotter/shattered-wilds/releases/latest/download/shattered-wilds.json
+            - **Hexagons Addon Module:**
+              - Automatic: Foundry module browser (search for "Hexagons")
+              - Manual: Download hexagons.zip and extract to `Data/modules/`
+              - Manifest: https://github.com/luanpotter/shattered-wilds/releases/latest/download/hexagons.json
+
+            ### Requirements
+            - Foundry VTT v13 or later
+
+            ---
+
+            For more information, visit the [Shattered Wilds project](https://github.com/luanpotter/shattered-wilds).
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

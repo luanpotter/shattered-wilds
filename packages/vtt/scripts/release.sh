@@ -50,13 +50,3 @@ git tag "vtt-v$VERSION"
 
 echo "⬆️  Pushing to origin..."
 git push origin master
-git push origin "vtt-v$VERSION"
-
-echo ""
-echo "🎉 Release initiated!"
-echo "📍 Tag: vtt-v$VERSION"
-echo "🔗 Check release progress at: https://github.com/luanpotter/shattered-wilds/actions"
-echo "📦 Release will be available at: https://github.com/luanpotter/shattered-wilds/releases"
-echo ""
-echo "📋 Installation URL for users:"
-echo "https://github.com/luanpotter/shattered-wilds/releases/latest/download/system.json"
