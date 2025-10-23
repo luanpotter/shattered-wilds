@@ -93,6 +93,11 @@ class HexStampTool {
 
 	private openIconModal(center: { x: number; y: number }, vertices: { x: number; y: number }[]) {
 		const emojis = [
+			'🌳',
+			'🌲',
+			'🌴',
+			'🌵',
+			'🌿',
 			'☠️',
 			'⭐',
 			'❤️',
