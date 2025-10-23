@@ -10,7 +10,7 @@
 	"authors": [{ "name": "Luan Nico" }],
 	"url": "https://github.com/luanpotter/shattered-wilds",
 	"license": "MIT",
-	"manifest": "https://github.com/luanpotter/shattered-wilds/releases/latest/download/system.json",
+	"manifest": "https://github.com/luanpotter/shattered-wilds/releases/latest/download/shattered-wilds.json",
 	"download": "https://github.com/luanpotter/shattered-wilds/releases/latest/download/shattered-wilds.zip",
 	"esmodules": ["system.js"],
 	"styles": [
