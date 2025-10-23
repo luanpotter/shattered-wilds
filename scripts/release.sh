@@ -13,7 +13,7 @@ fi
 
 # Go to repo root
 dirname=$(dirname "$0")
-cd "$dirname"
+cd "$dirname/.."
 
 function sed_in_place() {
     if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -28,10 +28,10 @@ version_regex="s/\"version\": \".*\"/\"version\": \"$VERSION\"/"
 function shattered_wilds_release() {
     cd packages/vtt
 
-    sed_in_place version_regex src/system.json
-    sed_in_place version_regex package.json
+    sed_in_place "$version_regex" system.json
+    sed_in_place "$version_regex" package.json
 
-    git add src/system.json package.json
+    git add system.json package.json
 
     cd ../..
 }
@@ -39,8 +39,8 @@ function shattered_wilds_release() {
 function hexagons_release() {
     cd packages/hexagons
 
-    sed_in_place version_regex module.json
-    sed_in_place version_regex package.json
+    sed_in_place "$version_regex" module.json
+    sed_in_place "$version_regex" package.json
 
     git add module.json package.json
 
