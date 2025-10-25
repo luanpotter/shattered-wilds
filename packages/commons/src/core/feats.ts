@@ -960,7 +960,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		level: 4,
 		description: `Whenever a creature misses a **Melee Basic Attack** against you, you can spend 1 [[Focus_Point | FP]] to perform the [[Opportunity_Attack | Opportunity Attack]] reaction against them; you still pay the [[Action_Point | AP]] (and any other) cost.
 
-			For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Action_Points | AP]] and 1 [[Focus_Point | FP]] in total.`,
+For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Action_Points | AP]] and 1 [[Focus_Point | FP]] in total.`,
 	}),
 	[Feat.KnowThyEnemy]: new FeatDefinition<void>({
 		key: Feat.KnowThyEnemy,
