@@ -390,6 +390,8 @@ export enum Feat {
 	Numberphile = 'Numberphile',
 	UnreliableMemory = 'UnreliableMemory',
 	GirthCompensation = 'GirthCompensation',
+	SavvyBarterer = 'SavvyBarterer',
+	UnassumingPresence = 'UnassumingPresence',
 	BlindSense = 'BlindSense',
 	SkillSpecialization = 'SkillSpecialization',
 	// Class
@@ -589,10 +591,26 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 	[Feat.GirthCompensation]: new FeatDefinition<void>({
 		key: Feat.GirthCompensation,
 		name: 'Girth Compensation',
-		type: FeatType.Major,
+		type: FeatType.Minor,
 		sources: [StaticFeatSource.General],
 		level: 1,
 		description: 'You can use [[STR]] as the **Primary Attribute** for **Light Melee** weapons.',
+	}),
+	[Feat.SavvyBarterer]: new FeatDefinition<void>({
+		key: Feat.SavvyBarterer,
+		name: 'Savvy Barterer',
+		type: FeatType.Minor,
+		sources: [StaticFeatSource.General],
+		level: 1,
+		description: `You have a knack for getting good deals. When you are buying or selling goods or services and engage in haggling, you can have your target roll a contested [[Resolve]] check against your [[Presence]] to get a better deal. You can spend 1 [[Focus_Point | FP]] to gain a +3 [[Circumstance Modifier | CM]] to your [[Presence]] check for this purpose.`,
+	}),
+	[Feat.UnassumingPresence]: new FeatDefinition<void>({
+		key: Feat.UnassumingPresence,
+		name: 'Unassuming Presence',
+		type: FeatType.Minor,
+		sources: [StaticFeatSource.General],
+		level: 1,
+		description: `You often pass unnoticed in a crowd. You gain a +3 [[Circumstance Modifier | CM]] to [[Finesse]] checks made to avoid being noticed in a crowd when you are not causing any disturbance.`,
 	}),
 	[Feat.BlindSense]: new FeatDefinition<void>({
 		key: Feat.BlindSense,
