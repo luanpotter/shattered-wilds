@@ -2,15 +2,15 @@ import { CharacterSheet } from '@shattered-wilds/commons';
 import React, { useEffect, useRef, useState } from 'react';
 import { FaArrowLeft, FaChevronDown, FaClipboard, FaEye, FaPlus, FaTrash } from 'react-icons/fa';
 
-import { useModals } from '../hooks/useModals';
-import { useStore } from '../store';
-import { Character } from '../types/ui';
-import { findNextEmptyHexPosition } from '../utils';
-import { importCharacterDataFromClipboard } from '../utils/clipboard';
-import { Navigator } from '../utils/routes';
+import { useModals } from '../../hooks/useModals';
+import { useStore } from '../../store';
+import { Character } from '../../types/ui';
+import { findNextEmptyHexPosition } from '../../utils';
+import { importCharacterDataFromClipboard } from '../../utils/clipboard';
+import { Navigator } from '../../utils/routes';
+import { Button } from '../shared/Button';
 
 import { FullPageCharacterSheet } from './FullPageCharacterSheet';
-import { Button } from './shared/Button';
 
 interface CharacterSheetsPageProps {
 	onNavigateToCharacterSheet: (characterId: string) => void;

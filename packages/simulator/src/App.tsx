@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { FaUsers, FaCrosshairs, FaTimes, FaEdit, FaPlay, FaHome } from 'react-icons/fa';
 
-import { CharacterSheetsPage } from './components/CharacterSheetsPage';
 import { BattleGrid } from './components/HexGrid';
 import { ModalRenderer } from './components/ModalRenderer';
-import { OnboardingPage } from './components/OnboardingPage';
 import { CharacterSheetPrintPage } from './components/pages/CharacterSheetPrintPage';
+import { CharacterSheetsPage } from './components/pages/CharacterSheetsPage';
 import { NotFoundPage } from './components/pages/NotFoundPage';
+import { OnboardingPage } from './components/pages/OnboardingPage';
 import { Button } from './components/shared/Button';
 import { useModals } from './hooks/useModals';
 import { useStore } from './store';

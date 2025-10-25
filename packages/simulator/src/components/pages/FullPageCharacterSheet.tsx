@@ -18,27 +18,26 @@ import {
 	FaThLarge,
 } from 'react-icons/fa';
 
-import { useModals } from '../hooks/useModals';
-import { useUIStateFactory } from '../hooks/useUIState';
-import { useStore } from '../store';
-import { copyCharacterDataToClipboard } from '../utils/clipboard';
-import { Navigator } from '../utils/routes';
-
-import { DebugSection } from './DebugSection';
-import { DerivedStatsRowComponent } from './DerivedStatsRowComponent';
-import { EquipmentSection } from './EquipmentSection';
-import { ResourcesRowComponent } from './ResourcesRowComponent';
-import { ActionsSectionComponent } from './sections/ActionsSectionComponent';
-import { ArcaneSectionComponent } from './sections/ArcaneSectionComponent';
-import { CircumstancesSectionComponent } from './sections/CircumstancesSectionComponent';
-import { DivineSectionComponent } from './sections/DivineSectionComponent';
-import { FeatsSectionComponent } from './sections/FeatsSectionComponent';
-import { MiscSectionComponent } from './sections/MiscSectionComponent';
-import { PersonalitySectionComponent } from './sections/PersonalitySectionComponent';
-import Block from './shared/Block';
-import { Button } from './shared/Button';
-import LabeledInput from './shared/LabeledInput';
-import { StatTreeGridComponent } from './stat-tree/StatTreeGridComponent';
+import { useModals } from '../../hooks/useModals';
+import { useUIStateFactory } from '../../hooks/useUIState';
+import { useStore } from '../../store';
+import { copyCharacterDataToClipboard } from '../../utils/clipboard';
+import { Navigator } from '../../utils/routes';
+import { DerivedStatsRowComponent } from '../DerivedStatsRowComponent';
+import { ResourcesRowComponent } from '../ResourcesRowComponent';
+import { ActionsSectionComponent } from '../sections/ActionsSectionComponent';
+import { ArcaneSectionComponent } from '../sections/ArcaneSectionComponent';
+import { CircumstancesSectionComponent } from '../sections/CircumstancesSectionComponent';
+import { DebugSection } from '../sections/DebugSection';
+import { DivineSectionComponent } from '../sections/DivineSectionComponent';
+import { EquipmentSection } from '../sections/EquipmentSection';
+import { FeatsSectionComponent } from '../sections/FeatsSectionComponent';
+import { MiscSectionComponent } from '../sections/MiscSectionComponent';
+import { PersonalitySectionComponent } from '../sections/PersonalitySectionComponent';
+import Block from '../shared/Block';
+import { Button } from '../shared/Button';
+import LabeledInput from '../shared/LabeledInput';
+import { StatTreeGridComponent } from '../stat-tree/StatTreeGridComponent';
 
 interface FullPageCharacterSheetProps {
 	characterId: string;

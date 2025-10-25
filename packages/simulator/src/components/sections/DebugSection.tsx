@@ -1,8 +1,7 @@
 import React from 'react';
 
-import { useStore } from '../store';
-
-import Block from './shared/Block';
+import { useStore } from '../../store';
+import Block from '../shared/Block';
 
 interface DebugSectionProps {
 	characterId: string;

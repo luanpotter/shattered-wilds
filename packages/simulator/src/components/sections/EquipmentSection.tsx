@@ -2,12 +2,11 @@ import { CharacterSheet, Equipment } from '@shattered-wilds/commons';
 import React from 'react';
 import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 
-import { useModals } from '../hooks/useModals';
-import { useStore } from '../store';
-
-import Block from './shared/Block';
-import { Button } from './shared/Button';
-import LabeledInput from './shared/LabeledInput';
+import { useModals } from '../../hooks/useModals';
+import { useStore } from '../../store';
+import Block from '../shared/Block';
+import { Button } from '../shared/Button';
+import LabeledInput from '../shared/LabeledInput';
 
 interface EquipmentSectionProps {
 	characterId: string;

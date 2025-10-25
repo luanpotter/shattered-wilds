@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 
-import { Button } from './shared/Button';
+import { Button } from '../shared/Button';
 
 interface OnboardingPageProps {
 	onNavigateToCharacterSheets: () => void;
