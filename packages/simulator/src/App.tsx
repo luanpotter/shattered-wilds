@@ -5,6 +5,8 @@ import { CharacterSheetsPage } from './components/CharacterSheetsPage';
 import { BattleGrid } from './components/HexGrid';
 import { ModalRenderer } from './components/ModalRenderer';
 import { OnboardingPage } from './components/OnboardingPage';
+import { CharacterSheetPrintPage } from './components/pages/CharacterSheetPrintPage';
+import { NotFoundPage } from './components/pages/NotFoundPage';
 import { Button } from './components/shared/Button';
 import { useModals } from './hooks/useModals';
 import { useStore } from './store';
@@ -154,6 +156,10 @@ const App = (): React.ReactElement => {
 		closeAllModals();
 	};
 
+	const hasHeader = (view: ViewType): boolean => {
+		return !['onboarding', 'print-sheet'].includes(view);
+	};
+
 	return (
 		<div
 			style={{
@@ -168,7 +174,7 @@ const App = (): React.ReactElement => {
 			onMouseDown={handleMouseDown}
 			onMouseLeave={() => setDragState({ type: 'none' })}
 		>
-			{currentView !== 'onboarding' && (
+			{hasHeader(currentView) && (
 				<header
 					style={{
 						padding: '1rem',
@@ -220,6 +226,7 @@ const App = (): React.ReactElement => {
 						boxSizing: 'border-box',
 					}}
 				>
+					{currentView === '404' && <NotFoundPage />}
 					{currentView === 'simulator' && (
 						<BattleGrid
 							disabled={dragState.type !== 'none'}
@@ -235,6 +242,7 @@ const App = (): React.ReactElement => {
 						/>
 					)}
 					{currentView === 'onboarding' && <OnboardingPage onNavigateToCharacterSheets={Navigator.toCharacterSheets} />}
+					{currentView === 'print-sheet' && <CharacterSheetPrintPage characterId={initialCharacterId!} />}
 				</div>
 			</main>
 			{currentView !== 'onboarding' && (

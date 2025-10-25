@@ -9,6 +9,7 @@ import {
 	FaExclamationTriangle,
 	FaMagic,
 	FaPen,
+	FaPrint,
 	FaShieldAlt,
 	FaSitemap,
 	FaSlidersH,
@@ -153,6 +154,7 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 					<h2 style={{ margin: 0, fontSize: '1.5rem' }}>{character.props.name}&apos;s Character Sheet</h2>
 				</div>
 				<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+					<Button onClick={() => Navigator.toPrintView(character.id)} icon={FaPrint} title='Print Version' />
 					<Button onClick={() => copyCharacterDataToClipboard(character)} icon={FaCopy} title='Export' />
 				</div>
 			</div>

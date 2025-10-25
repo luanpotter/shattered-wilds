@@ -1,4 +1,4 @@
-export type ViewType = 'simulator' | 'character-sheets' | 'onboarding';
+export type ViewType = '404' | 'simulator' | 'character-sheets' | 'onboarding' | 'print-sheet';
 
 export interface RouteState {
 	view: ViewType;
@@ -10,8 +10,19 @@ export const Navigator = {
 		const hash = window.location.hash.slice(1); // Remove the # prefix
 
 		if (hash === '/characters' || hash.startsWith('/characters/')) {
-			const match = hash.match(/^\/characters\/(.+)$/);
-			return match ? { view: 'character-sheets', characterId: match[1] } : { view: 'character-sheets' };
+			const matchPrint = hash.match(/^\/characters\/(.+)\/print$/);
+			if (matchPrint) {
+				return { view: 'print-sheet', characterId: matchPrint[1] };
+			}
+			const matchSheet = hash.match(/^\/characters\/(.+)$/);
+			if (matchSheet) {
+				return { view: 'character-sheets', characterId: matchSheet[1] };
+			}
+			const matchList = hash.match(/^\/characters$/);
+			if (matchList) {
+				return { view: 'character-sheets' };
+			}
+			return { view: '404' };
 		}
 
 		if (hash === '/onboarding') {
@@ -31,6 +42,10 @@ export const Navigator = {
 
 	toCharacterSheet(characterId: string): void {
 		window.location.hash = `#/characters/${characterId}`;
+	},
+
+	toPrintView(characterId: string): void {
+		window.location.hash = `#/characters/${characterId}/print`;
 	},
 
 	toOnboarding(): void {
