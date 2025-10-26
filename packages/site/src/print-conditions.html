@@ -1,0 +1,105 @@
+---
+layout: minimal
+permalink: '/print/conditions/'
+---
+
+{% assign pages = conditions | per_page: 6 %} {% for page in pages %}
+<div class="print-cards">
+	{% for condition in page %}
+	<div class="mtg-card">
+		<div class="card-title">{{ condition.title }}</div>
+		<div class="card-content">{{ condition.content | mdb }}</div>
+	</div>
+	{% endfor %}
+</div>
+<div class="page-break"></div>
+{% endfor %}
+
+<style>
+	.print-cards {
+		justify-content: center;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 8px;
+	}
+
+	.mtg-card {
+		width: 63mm;
+		height: 88mm;
+		border: 1px solid #333;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+		padding: 8px;
+		background: #fff;
+		color: black;
+		font-size: 12px;
+		display: 'flex';
+		flex-direction: column;
+		justify-content: flex-start;
+		page-break-inside: avoid;
+	}
+
+	.card-title {
+		font-size: 1.1em;
+		font-weight: bold;
+		margin-bottom: 6px;
+		width: 100%;
+		border-bottom: 1px solid black;
+	}
+
+	.card-content p {
+		margin: 0;
+		padding: 0;
+	}
+
+	.card-content {
+		line-height: 1em;
+		strong {
+			color: black !important;
+			text-decoration: underline;
+			text-decoration-style: dotted;
+			font-weight: normal;
+		}
+		code {
+			color: black !important;
+			background-color: #ffb300;
+		}
+		a {
+			color: black !important;
+			text-decoration: underline;
+			text-decoration-style: dotted;
+		}
+		ul {
+			padding-left: 8px;
+		}
+	}
+
+	.page-break {
+		flex-basis: 100%;
+		height: 16px;
+		page-break-after: always;
+		width: 100%;
+		margin-top: 10px dotted white;
+	}
+
+	@media print {
+		body {
+			background: none;
+		}
+
+		.print-cards {
+			gap: 0;
+		}
+
+		.mtg-card {
+			box-shadow: none;
+			border: 1px solid #000;
+			margin: 0;
+		}
+
+		.page-break {
+			display: block;
+			margin-top: 0;
+			height: 0;
+		}
+	}
+</style>

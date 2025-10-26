@@ -144,6 +144,14 @@ export default function (eleventyConfig) {
 	eleventyConfig.addDataExtension('yaml', contents => yaml.load(contents));
 	eleventyConfig.addLiquidFilter('mdb', text => processor.processMarkdown(text, { inline: false }));
 	eleventyConfig.addLiquidFilter('mdi', text => processor.processMarkdown(text, { inline: true }));
+	eleventyConfig.addLiquidFilter('per_page', function (arr, size) {
+		if (!Array.isArray(arr) || !size || size < 1) return [];
+		const result = [];
+		for (let i = 0; i < arr.length; i += size) {
+			result.push(arr.slice(i, i + size));
+		}
+		return result;
+	});
 
 	// Register shortcodes using the processor's shortcodes field
 	eleventyConfig.addShortcode('item', processor.shortcodes.item);
