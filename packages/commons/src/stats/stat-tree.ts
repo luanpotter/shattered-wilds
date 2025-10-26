@@ -89,7 +89,7 @@ export class StatTree {
 			attr(StatType.Soul, [
 				attr(StatType.DIV, [attr(StatType.Devotion), attr(StatType.Aura), attr(StatType.Attunement)]),
 				attr(StatType.FOW, [attr(StatType.Discipline), attr(StatType.Tenacity), attr(StatType.Resolve)]),
-				attr(StatType.LCK, [attr(StatType.Karma), attr(StatType.Fortune), attr(StatType.Serendipity)]),
+				attr(StatType.LCK, [attr(StatType.Fortune), attr(StatType.Karma), attr(StatType.Serendipity)]),
 			]),
 		]);
 	};
