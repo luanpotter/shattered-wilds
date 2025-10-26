@@ -612,7 +612,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Minor,
 		sources: [StaticFeatSource.General],
 		level: 1,
-		description: `You have a knack for getting good deals. When you are buying or selling goods or services and engage in haggling, you can have your target roll a contested [[Resolve]] check against your [[Presence]] to get a better deal. You can spend 1 [[Focus_Point | FP]] to gain a +3 [[Circumstance Modifier | CM]] to your [[Presence]] check for this purpose.`,
+		description: `You have a knack for getting good deals. When you are buying or selling goods or services and engage in haggling, you can have your target roll a contested [[Resolve]] check against your [[Presence]] to get a better deal. You can spend 1 [[Focus_Point | FP]] to gain a \`+3\` [[Circumstance Modifier | CM]] to your [[Presence]] check for this purpose.`,
 	}),
 	[Feat.UnassumingPresence]: new FeatDefinition<void>({
 		key: Feat.UnassumingPresence,
@@ -1116,6 +1116,9 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		level: 1,
 		description:
 			'You have fully committed all the details of a specific form of the Fundamental Arcane Spell (such as from the [[Predefined_Arcane_Spells | Predefined Spells]] list); you have a `+3` to cast that exact spell.',
+		fullDescription: info => {
+			return `You have fully committed all the details of **${info.parameter}**; you have a \`+3\` to cast that exact spell without any additional augmentations.`;
+		},
 		parameter: {
 			id: 'spell',
 			name: 'Spell',

@@ -1,7 +1,18 @@
-import { CharacterSheet, DerivedStatType, FeatInfo, FeatsSection } from '@shattered-wilds/commons';
+import {
+	ArcaneSection,
+	ArcaneSectionDefaults,
+	Bonus,
+	CharacterSheet,
+	DerivedStatType,
+	DivineSection,
+	FeatInfo,
+	FeatsSection,
+	StatType,
+} from '@shattered-wilds/commons';
 import { asc, map } from 'type-comparator';
 
 import { useStore } from '../../store';
+import { Box } from '../printer-friendly-commons';
 import { PrintFriendlyEquipment } from '../PrintFriendlyEquipment';
 import { PrintFriendlyTree } from '../PrintFriendlyTree';
 import { RichText } from '../shared/RichText';
@@ -13,10 +24,26 @@ export const CharacterSheetPrintPage = ({ characterId }: { characterId: string }
 	}
 	const sheet = CharacterSheet.from(character.props);
 
-	return <CharacterSheetPrintContent sheet={sheet} />;
+	return <CharacterSheetPrintContent characterId={characterId} sheet={sheet} />;
 };
 
-export const CharacterSheetPrintContent = ({ sheet }: { sheet: CharacterSheet }) => {
+const maybeCreateArcaneSection = ({
+	characterId,
+	sheet,
+}: {
+	characterId: string;
+	sheet: CharacterSheet;
+}): ArcaneSection | null => {
+	const { primaryAttribute } = sheet.characterClass.definition;
+	if (!StatType.mindAttributes.includes(primaryAttribute.name)) {
+		return null; // not a caster
+	}
+
+	const inputValues = ArcaneSectionDefaults.createDefaultInputValues(ArcaneSection.getComponentsForFlavor(sheet));
+	return ArcaneSection.create({ characterId, sheet, inputValues });
+};
+
+export const CharacterSheetPrintContent = ({ characterId, sheet }: { characterId: string; sheet: CharacterSheet }) => {
 	const statTree = sheet.getStatTree();
 
 	const featsSection = FeatsSection.create(sheet);
@@ -27,11 +54,21 @@ export const CharacterSheetPrintContent = ({ sheet }: { sheet: CharacterSheet })
 		.filter(info => !info.feat.hideForPrint)
 		.sort(map((info: FeatInfo<void>) => (info.feat.isGeneral ? 0 : 1), asc));
 
+	const arcaneSection = maybeCreateArcaneSection({ characterId, sheet });
+	const divineSection = DivineSection.create({ characterId, characterSheet: sheet });
+
 	const baseStyle = {
 		color: 'black',
 	};
 	const Bold = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => (
 		<strong style={{ color: 'black', ...style }}>{children}</strong>
+	);
+
+	const PartialComponent = ({ label, value }: { label: string; value: Bonus }) => (
+		<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+			<Box>{value.description}</Box>
+			<span style={{ fontSize: '0.6em' }}>{label}</span>
+		</div>
 	);
 
 	const Blocks = ({ children }: { children: React.ReactNode }) => {
@@ -116,9 +153,9 @@ export const CharacterSheetPrintContent = ({ sheet }: { sheet: CharacterSheet })
 						</div>
 						<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', margin: '8px' }}>
 							{feats.map((feat, idx) => (
-								<div key={idx} className='rich-text' style={{ borderLeft: '2px solid #217be2ff', paddingLeft: '4px' }}>
+								<div key={idx} style={{ borderLeft: '2px solid #217be2ff', paddingLeft: '4px' }}>
 									<Bold>{feat.name}</Bold>
-									<div style={{ textAlign: 'justify', fontSize: '0.75em' }}>
+									<div className='rich-text' style={{ textAlign: 'justify', fontSize: '0.75em' }}>
 										<RichText>{feat.description}</RichText>
 									</div>
 								</div>
@@ -126,6 +163,41 @@ export const CharacterSheetPrintContent = ({ sheet }: { sheet: CharacterSheet })
 						</div>
 					</div>
 				</div>
+				{arcaneSection && (
+					<div style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem' }}>
+						<div style={{ width: '100%', border: '1px solid black' }}>
+							<div style={{ textAlign: 'center', borderBottom: '1px dotted black', margin: '0 1em' }}>
+								<Bold>Arcane Casting</Bold>
+							</div>
+							<div style={{ display: 'flex', gap: '0.5rem', margin: '8px', justifyContent: 'center' }}>
+								<PartialComponent label='Base Modifier' value={arcaneSection.baseModifier.value} />
+								{Object.entries(arcaneSection.componentOptions).map(([key, options]) => {
+									const option = options[options.length - 1]!;
+									return (
+										<>
+											<span>+</span>
+											<PartialComponent key={key} label={option.name} value={option.toComponentModifier().value} />
+										</>
+									);
+								})}
+								<span>=</span>
+								<PartialComponent label='Total' value={arcaneSection.fundamentalCheck.statModifier.value} />
+							</div>
+						</div>
+					</div>
+				)}
+				{divineSection && (
+					<div style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem' }}>
+						<div style={{ width: '100%', border: '1px solid black' }}>
+							<div style={{ textAlign: 'center', borderBottom: '1px dotted black', margin: '0 1em' }}>
+								<Bold>Divine Channeling</Bold>
+							</div>
+							<div style={{ display: 'flex', gap: '0.5rem', margin: '8px', justifyContent: 'center' }}>
+								<PartialComponent label='Base Modifier' value={divineSection.baseModifier.value} />
+							</div>
+						</div>
+					</div>
+				)}
 			</Blocks>
 		</>
 	);

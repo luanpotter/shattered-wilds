@@ -103,3 +103,16 @@ export const isEnumValue = <T extends Record<string, string | number>>(
 		return Object.values(enumObj).includes(value as T[keyof T]);
 	};
 };
+
+/**
+ * Returns the last element of an array, or null if the array is empty.
+ */
+export const lastOrNull = <T>(array?: readonly T[]): T | null => {
+	if (!array) {
+		return null;
+	}
+	if (array.length === 0) {
+		return null;
+	}
+	return array[array.length - 1] ?? null;
+};

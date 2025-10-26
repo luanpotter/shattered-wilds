@@ -16,7 +16,7 @@ import { DerivedStatType } from '../../stats/derived-stat.js';
 import { Resource } from '../../stats/resources.js';
 import { CircumstanceModifier, ModifierSource, StatModifier } from '../../stats/stat-tree.js';
 import { Bonus, Distance } from '../../stats/value.js';
-import { firstParagraph, numberToOrdinal, slugify } from '../../utils/utils.js';
+import { firstParagraph, lastOrNull, numberToOrdinal, slugify } from '../../utils/utils.js';
 import {
 	ActionRow,
 	ActionRowBox,
@@ -64,9 +64,9 @@ export class ArcaneSectionDefaults {
 			selectedAttackOption: ArcaneSectionDefaults.INITIAL_ATTACK_OPTION,
 			selectedCastingTime: ArcaneSection.allCastingTimeOptions[ArcaneSectionDefaults.INITIAL_CASTING_TIME_INDEX]!,
 			selectedFocusCost: ArcaneSection.allFocusCostOptions[ArcaneSectionDefaults.INITIAL_FOCUS_COST_INDEX]!,
-			selectedSomaticComponent: componentOptions[ArcaneSpellComponentType.Somatic]?.[0] ?? null,
-			selectedVerbalComponent: componentOptions[ArcaneSpellComponentType.Verbal]?.[0] ?? null,
-			selectedFocalComponent: componentOptions[ArcaneSpellComponentType.Focal]?.[0] ?? null,
+			selectedSomaticComponent: lastOrNull(componentOptions[ArcaneSpellComponentType.Somatic]),
+			selectedVerbalComponent: lastOrNull(componentOptions[ArcaneSpellComponentType.Verbal]),
+			selectedFocalComponent: lastOrNull(componentOptions[ArcaneSpellComponentType.Focal]),
 			spellAugmentationValues: {},
 		};
 	}

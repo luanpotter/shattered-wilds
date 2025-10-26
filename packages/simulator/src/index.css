@@ -129,6 +129,9 @@ body {
 .print-container .rich-text {
 	strong {
 		color: black !important;
+		text-decoration: underline;
+		text-decoration-style: dotted;
+		font-weight: normal;
 	}
 	code {
 		color: black !important;

@@ -15,15 +15,7 @@ import { Bold, Box, Dash } from './printer-friendly-commons';
 export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: CharacterSheet }) => {
 	const wrapTraits = (traits: string[]) => {
 		return traits.map(trait => (
-			<span
-				key={trait}
-				style={{
-					marginLeft: '0.25em',
-					textDecoration: 'underline',
-					textDecorationStyle: 'double',
-					textDecorationColor: '#6bff6b',
-				}}
-			>
+			<span key={trait} style={{ marginLeft: '0.25em', backgroundColor: '#6bff6b' }}>
 				[{trait}]
 			</span>
 		));
