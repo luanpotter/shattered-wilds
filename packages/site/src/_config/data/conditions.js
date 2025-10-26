@@ -5,6 +5,7 @@ export const conditions = Object.values(CONDITIONS).map(def => {
 	return {
 		// wiki parameters
 		group: 'Condition',
+		groupSlug: 'Condition',
 		slug,
 		title: `${def.name}`,
 		url: `/wiki/${slug}/`,

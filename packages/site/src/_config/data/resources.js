@@ -5,6 +5,7 @@ export const resources = Object.values(RESOURCES).map(resource => {
 	return {
 		// wiki parameters
 		group: 'Resource',
+		groupSlug: 'Resource',
 		slug,
 		title: resource.fullName,
 		url: `/wiki/${slug}/`,

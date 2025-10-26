@@ -5,6 +5,7 @@ export const upbringings = Object.values(UPBRINGING_DEFINITIONS).map(def => {
 	return {
 		// wiki parameters
 		group: 'Upbringings',
+		groupSlug: 'Upbringings',
 		slug,
 		title: `${def.name}`,
 		url: `/wiki/${slug}/`,

@@ -5,7 +5,7 @@ import {
 	ClassRealm,
 	ClassRole,
 	ClassFlavor,
-	CLASS_ROLE_PRIMARY_ATTRIBUTE,
+	CLASS_ROLES,
 	extractCustomCoreParameters,
 	FeatOrSlot,
 } from '@shattered-wilds/commons';
@@ -86,7 +86,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({ character, onC
 								<td
 									style={{ border: '1px solid var(--text)', padding: '8px', fontWeight: 'bold', width: firstColWidth }}
 								>
-									{role} ({CLASS_ROLE_PRIMARY_ATTRIBUTE[role].name})
+									{role} ({CLASS_ROLES[role].primaryAttribute.name})
 								</td>
 								{flavors.map(flavor => {
 									const classForCell = Object.values(CharacterClass).find(cls => {

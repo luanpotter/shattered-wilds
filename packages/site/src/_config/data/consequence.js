@@ -5,6 +5,7 @@ export const consequences = Object.values(CONSEQUENCES).map(def => {
 	return {
 		// wiki parameters
 		group: 'Consequence',
+		groupSlug: 'Consequence',
 		slug,
 		title: `${def.name}`,
 		url: `/wiki/${slug}/`,

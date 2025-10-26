@@ -63,16 +63,74 @@ export enum ClassRole {
 	Inspired = 'Inspired',
 }
 
-export const CLASS_ROLE_PRIMARY_ATTRIBUTE: Record<ClassRole, StatType> = {
-	[ClassRole.Melee]: StatType.STR,
-	[ClassRole.Ranged]: StatType.DEX,
-	[ClassRole.Tank]: StatType.CON,
-	[ClassRole.Erudite]: StatType.INT,
-	[ClassRole.Intuitive]: StatType.WIS,
-	[ClassRole.Innate]: StatType.CHA,
-	[ClassRole.Disciple]: StatType.DIV,
-	[ClassRole.Adept]: StatType.FOW,
-	[ClassRole.Inspired]: StatType.LCK,
+export interface ClassRoleDefinition {
+	name: ClassRole;
+	realm: ClassRealm;
+	primaryAttribute: StatType;
+	description: string;
+}
+
+export const CLASS_ROLES: Record<ClassRole, ClassRoleDefinition> = {
+	[ClassRole.Melee]: {
+		name: ClassRole.Melee,
+		realm: ClassRealm.Warrior,
+		primaryAttribute: StatType.STR,
+		description:
+			'_Melee Warriors_ focus on [[STR | Strength]], and thus are favored to use **Heavy Melee** or **Thrown** weapons.',
+	},
+	[ClassRole.Ranged]: {
+		name: ClassRole.Ranged,
+		realm: ClassRealm.Warrior,
+		primaryAttribute: StatType.DEX,
+		description:
+			'_Ranged Warriors_ focus on [[DEX | Dexterity]], and thus are favored to use **Light Melee** or **Ranged** weapons.',
+	},
+	[ClassRole.Tank]: {
+		name: ClassRole.Tank,
+		realm: ClassRealm.Warrior,
+		primaryAttribute: StatType.CON,
+		description:
+			'_Tank Warriors_ focus on [[CON | Constitution]], and thus are focused on defense and therefore do not have a specific weapon-type focus.',
+	},
+	[ClassRole.Erudite]: {
+		name: ClassRole.Erudite,
+		realm: ClassRealm.Caster,
+		primaryAttribute: StatType.INT,
+		description:
+			'The _Erudite_ caster has studied the science of the Arcane and has an actual understanding of how it works. They use their [[INT | Intelligence]] to figure out what precise sequence of movements are required to cast their spells.',
+	},
+	[ClassRole.Intuitive]: {
+		name: ClassRole.Intuitive,
+		realm: ClassRealm.Caster,
+		primaryAttribute: StatType.WIS,
+		description:
+			'The _Intuitive_ caster has an intuitive knowledge of the Arcane, relying on instinct and second-nature to guide their spellcasting. Through trial and error they have honed their ability to wield magic using their [[WIS | Wisdom]].',
+	},
+	[ClassRole.Innate]: {
+		name: ClassRole.Innate,
+		realm: ClassRealm.Caster,
+		primaryAttribute: StatType.CHA,
+		description:
+			'The _Innate_ caster has a natural talent for the Arcane, and has learned to listen to their own body and emotions to discern the necessary movements to cast spells. Their [[CHA | Charisma]] allows them to better understand and connect with their own inner selves.',
+	},
+	[ClassRole.Disciple]: {
+		name: ClassRole.Disciple,
+		realm: ClassRealm.Mystic,
+		primaryAttribute: StatType.DIV,
+		description: `The **Disciple** is a **Mystic** who either has (1) submitted, (2) a contract, or (3) a bond with a specific higher power in the **Aether** - i.e., a **Protean**. The nature of their connection can be varied, from an abstract concept and blind devotion to a more personal touch towards an Avatar (see the **Archetypes** section in [Divine](/rules/divine)).`,
+	},
+	[ClassRole.Adept]: {
+		name: ClassRole.Adept,
+		realm: ClassRealm.Mystic,
+		primaryAttribute: StatType.FOW,
+		description: `The **Adept** is a **Mystic** who is able to channel the power within their **Soul** into the Material World. They are still finely connected and attuned to the **Aether**, but they are not bound to a specific **Protean**, but rather strengthen the connection with their own **Soul**. Therefore, they are uniquely equipped to fight with their own power-unlocked Body.`,
+	},
+	[ClassRole.Inspired]: {
+		name: ClassRole.Inspired,
+		realm: ClassRealm.Mystic,
+		primaryAttribute: StatType.LCK,
+		description: `The **Inspired** is a **Mystic** who is able to receive their [[LCK]] through an unexplainable connection to the **Aether** (and possibly beyond). If the typical channeling power is vague and abstract, the origin of the good fortune of the **Inspired** is completely beyond comprehension.`,
+	},
 };
 
 export enum ClassFlavor {
@@ -115,7 +173,7 @@ export class ClassDefinition {
 	}
 
 	get primaryAttribute(): StatType {
-		return CLASS_ROLE_PRIMARY_ATTRIBUTE[this.role];
+		return CLASS_ROLES[this.role].primaryAttribute;
 	}
 
 	get description(): string {

@@ -1,0 +1,14 @@
+---js
+{
+    permalink: "/{{ pagination.items[0].url }}/index.html",
+    pagination: {
+        data: "roles",
+        alias: "lexicon",
+        size: 1,
+    }
+}
+---
+
+{% include 'wiki-header.liquid' %}
+
+{{ lexicon.content | mdb }}

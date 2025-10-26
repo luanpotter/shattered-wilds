@@ -8,6 +8,7 @@ export const stats = StatType.values
 		return {
 			// wiki parameters
 			group: 'Stat',
+			groupSlug: 'Stat',
 			slug,
 			title: stat.name,
 			url: `/wiki/${slug}/`,

@@ -1,26 +1,27 @@
 import { HtmlBasePlugin } from '@11ty/eleventy';
+import eleventyGoogleFonts from 'eleventy-google-fonts';
+import yaml from 'js-yaml';
 import markdownIt from 'markdown-it';
 import markdownItAnchor from 'markdown-it-anchor';
 import markdownItAttrs from 'markdown-it-attrs';
 import markdownItWiki from 'markdown-it-wikilinks';
-import yaml from 'js-yaml';
-import eleventyGoogleFonts from 'eleventy-google-fonts';
 import { actions } from './src/_config/data/actions.js';
-import { stats } from './src/_config/data/stats.js';
-import { derivedStats } from './src/_config/data/derived_stats.js';
-import { resources } from './src/_config/data/resources.js';
-import { feats } from './src/_config/data/feats.js';
-import { equipment } from './src/_config/data/equipment.js';
-import { classes } from './src/_config/data/classes.js';
-import { traits } from './src/_config/data/traits.js';
-import { parseLexicon } from './src/_config/lexicon.js';
-import { TextProcessor } from './src/_config/TextProcessor.js';
-import { covers } from './src/_config/data/covers.js';
 import { predefinedArcaneSpells } from './src/_config/data/arcane.js';
-import { schools } from './src/_config/data/schools.js';
+import { classes } from './src/_config/data/classes.js';
 import { conditions } from './src/_config/data/conditions.js';
 import { consequences } from './src/_config/data/consequence.js';
+import { covers } from './src/_config/data/covers.js';
+import { derivedStats } from './src/_config/data/derived_stats.js';
+import { equipment } from './src/_config/data/equipment.js';
+import { feats } from './src/_config/data/feats.js';
+import { resources } from './src/_config/data/resources.js';
+import { roles } from './src/_config/data/roles.js';
+import { schools } from './src/_config/data/schools.js';
+import { stats } from './src/_config/data/stats.js';
+import { traits } from './src/_config/data/traits.js';
 import { upbringings } from './src/_config/data/upbringings.js';
+import { parseLexicon } from './src/_config/lexicon.js';
+import { TextProcessor } from './src/_config/TextProcessor.js';
 
 export default function (eleventyConfig) {
 	// NOTE: kept to allow for a different prefix in the future
@@ -48,6 +49,7 @@ export default function (eleventyConfig) {
 	eleventyConfig.addGlobalData('conditions', conditions);
 	eleventyConfig.addGlobalData('consequences', consequences);
 	eleventyConfig.addGlobalData('upbringings', upbringings);
+	eleventyConfig.addGlobalData('roles', roles);
 
 	const wikiPages = [
 		...lexiconFiles,
@@ -65,6 +67,7 @@ export default function (eleventyConfig) {
 		...conditions,
 		...consequences,
 		...upbringings,
+		...roles,
 	]
 		.filter(e => e.slug)
 		.sort((a, b) => {

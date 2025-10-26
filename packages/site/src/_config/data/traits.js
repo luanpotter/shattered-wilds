@@ -5,6 +5,7 @@ export const traits = Object.values(TRAITS).map(def => {
 	return {
 		// wiki parameters
 		group: 'Trait',
+		groupSlug: 'Trait',
 		slug,
 		title: `${def.name}`,
 		url: `/wiki/${slug}/`,

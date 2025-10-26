@@ -24,7 +24,7 @@ The **Role** will also define your **Primary Attribute** (STR, DEX or CON) for t
 
 ### Melee Warriors
 
-Melee Warriors focus on Strength, and thus are favored to use **Heavy Melee** or **Thrown** weapons (see a Weapons breakdown under [Equipment](rules/equipment)).
+_Melee Warriors_ focus on [[STR | Strength]], and thus are favored to use **Heavy Melee** or **Thrown** weapons (see a Weapons breakdown under [Equipment](rules/equipment)).
 
 <details>
   <summary>Melee Warriors Feats</summary>
@@ -33,7 +33,7 @@ Melee Warriors focus on Strength, and thus are favored to use **Heavy Melee** or
 
 ### Ranged Warriors
 
-Ranged Warriors focus on Dexterity, and thus are favored to use **Light Melee** or **Ranged** weapons (or both).
+_Ranged Warriors_ focus on [[DEX | Dexterity]], and thus are favored to use **Light Melee** or **Ranged** weapons (or both).
 
 <details>
   <summary>Ranged Warriors Feats</summary>
@@ -42,7 +42,7 @@ Ranged Warriors focus on Dexterity, and thus are favored to use **Light Melee** 
 
 ### Tank Warriors
 
-Tank Warriors focus on Constitution, and thus are focused on defense and therefore do not have a specific weapon focus.
+_Tank Warriors_ focus on [[CON | Constitution]], and thus are focused on defense and therefore do not have a specific weapon-type focus.
 
 <details>
   <summary>Tank Warriors Feats</summary>
@@ -144,16 +144,15 @@ The realm of the **Divine** can produce effects much different than that of the 
 
 However, differently from the **Casters** table, this matrix is a bit more diverse; each **Role** will have access to different tools and abilities (though some form of **Channeling** will always connect all **Mystics**):
 
-* **The Adept**: Employ their [[DIV]] to submit to a specific **Protean** and channel their power.
-* **The Disciple**: Leverage their [[FOW]] and self-control to connect to the **Aether** and channel the true power of their own Soul.
+* **The Disciple**: Employ their [[DIV]] to submit to a specific **Protean** and channel their power.
+* **The Adept**: Leverage their [[FOW]] and self-control to connect to the **Aether** and channel the true power of their own Soul.
 * **The Inspired**: Receive their [[LCK]] through a literally unexplainable connection to beyond the **Aether**.
 
 Therefore, much like it is for the **Warriors**, your **Role** will define your **Core Major Feat**, while your **Flavor** will define your **Core Minor Feat**.
 
 ## The Disciple
 
-The **Disciple** is a **Mystic** who either has (1) submitted, (2) a contract, or (3) a bond with a specific higher power in the **Aether** - i.e., a **Protean**.
-The nature of their connection can be varied, from an abstract concept and blind devotion to a more personal touch towards an Avatar (see the **Archetypes** section in [Divine](/rules/divine)).
+The **Disciple** is a **Mystic** who either has (1) submitted, (2) a contract, or (3) a bond with a specific higher power in the **Aether** - i.e., a **Protean**. The nature of their connection can be varied, from an abstract concept and blind devotion to a more personal touch towards an Avatar (see the **Archetypes** section in [Divine](/rules/divine)).
 
 Regardless of the nature of their connection, the **Disciple** can:
 

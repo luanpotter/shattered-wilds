@@ -19,6 +19,7 @@ export const actions = Object.values(ACTIONS).map(def => {
 	return {
 		// wiki parameters
 		group: 'Action',
+		groupSlug: 'Actions',
 		slug,
 		title: `${def.name}`,
 		url: `/wiki/${slug}/`,

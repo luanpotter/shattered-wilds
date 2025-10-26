@@ -1,4 +1,4 @@
-import { CLASS_ROLE_PRIMARY_ATTRIBUTE, ClassDefinition, ClassFlavor, ClassRealm, ClassRole } from './classes.js';
+import { CLASS_ROLES, ClassDefinition, ClassFlavor, ClassRealm, ClassRole } from './classes.js';
 import { Race, RACE_DEFINITIONS, RacialStatModifier, Upbringing } from './races.js';
 import { InherentModifier, ModifierSource } from '../stats/stat-tree.js';
 import { StatType } from '../stats/stat-type.js';
@@ -673,11 +673,11 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 			values: Object.values(ClassRole),
 		},
 		fullDescription: info => {
-			const primaryAttribute = CLASS_ROLE_PRIMARY_ATTRIBUTE[info.parameter];
+			const primaryAttribute = CLASS_ROLES[info.parameter].primaryAttribute;
 			return `Class Specialization modifier for ${info.parameter}: +1 ${primaryAttribute}.`;
 		},
 		effects: info => {
-			const primaryAttribute = CLASS_ROLE_PRIMARY_ATTRIBUTE[info.parameter];
+			const primaryAttribute = CLASS_ROLES[info.parameter].primaryAttribute;
 			return [new FeatStatModifier(primaryAttribute, Bonus.of(1))];
 		},
 	}),
