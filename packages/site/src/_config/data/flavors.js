@@ -1,12 +1,12 @@
-import { CLASS_ROLES, CLASS_REALMS, slugify } from '@shattered-wilds/commons';
+import { CLASS_FLAVORS, CLASS_REALMS, slugify } from '@shattered-wilds/commons';
 
-export const roles = Object.values(CLASS_ROLES).map(def => {
+export const flavors = Object.values(CLASS_FLAVORS).map(def => {
 	const title = `${def.name} ${def.realm}`;
 	const slug = slugify(title);
 
 	return {
 		// wiki parameters
-		group: 'Class Roles',
+		group: 'Class Flavors',
 		groupSlug: 'Classes',
 		slug,
 		title,
@@ -19,16 +19,9 @@ export const roles = Object.values(CLASS_ROLES).map(def => {
 				value: `${def.realm} (${CLASS_REALMS[def.realm].realm})`,
 				cssClass: 'metadata-type',
 			},
-			{
-				key: 'role',
-				title: 'Primary Attribute',
-				value: `${def.primaryAttribute}`,
-				cssClass: 'metadata-source',
-			},
 		],
 
 		// other parameters
 		realm: def.realm,
-		primaryAttribute: def.primaryAttribute,
 	};
 });

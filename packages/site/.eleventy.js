@@ -16,6 +16,7 @@ import { equipment } from './src/_config/data/equipment.js';
 import { feats } from './src/_config/data/feats.js';
 import { resources } from './src/_config/data/resources.js';
 import { roles } from './src/_config/data/roles.js';
+import { flavors } from './src/_config/data/flavors.js';
 import { schools } from './src/_config/data/schools.js';
 import { stats } from './src/_config/data/stats.js';
 import { traits } from './src/_config/data/traits.js';
@@ -50,6 +51,7 @@ export default function (eleventyConfig) {
 	eleventyConfig.addGlobalData('consequences', consequences);
 	eleventyConfig.addGlobalData('upbringings', upbringings);
 	eleventyConfig.addGlobalData('roles', roles);
+	eleventyConfig.addGlobalData('flavors', flavors);
 
 	const wikiPages = [
 		...lexiconFiles,
@@ -68,6 +70,7 @@ export default function (eleventyConfig) {
 		...consequences,
 		...upbringings,
 		...roles,
+		...flavors,
 	]
 		.filter(e => e.slug)
 		.sort((a, b) => {

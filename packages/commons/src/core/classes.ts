@@ -48,6 +48,26 @@ export enum ClassRealm {
 	Mystic = 'Mystic',
 }
 
+export interface ClassRealmDefinition {
+	name: ClassRealm;
+	realm: StatType;
+}
+
+export const CLASS_REALMS: Record<ClassRealm, ClassRealmDefinition> = {
+	[ClassRealm.Warrior]: {
+		name: ClassRealm.Warrior,
+		realm: StatType.Body,
+	},
+	[ClassRealm.Caster]: {
+		name: ClassRealm.Caster,
+		realm: StatType.Mind,
+	},
+	[ClassRealm.Mystic]: {
+		name: ClassRealm.Mystic,
+		realm: StatType.Soul,
+	},
+};
+
 export enum ClassRole {
 	// Warriors
 	Melee = 'Melee',
@@ -148,6 +168,73 @@ export enum ClassFlavor {
 	Mixed = 'Mixed',
 	Crusader = 'Crusader',
 }
+
+export interface ClassFlavorDefinition {
+	name: ClassFlavor;
+	realm: ClassRealm;
+	description: string;
+}
+
+export const CLASS_FLAVORS: Record<ClassFlavor, ClassFlavorDefinition> = {
+	[ClassFlavor.Martial]: {
+		name: ClassFlavor.Martial,
+		realm: ClassRealm.Warrior,
+		description:
+			'The _Martial Warrior_ focus on combat training, the art of the war, and discipline. They can [[Exert_Authority | exert their authority]] on the battlefield and control the flow of battle.',
+	},
+	[ClassFlavor.Survivalist]: {
+		name: ClassFlavor.Survivalist,
+		realm: ClassRealm.Warrior,
+		description:
+			'The _Survivalist Warrior_ channels their inner [[Rage]] and primal instincts to succeed in combat. They are seasoned by the Wilds, able to track, forage and survive in harsh environments.',
+	},
+	[ClassFlavor.Scoundrel]: {
+		name: ClassFlavor.Scoundrel,
+		realm: ClassRealm.Warrior,
+		description:
+			'The _Scoundrel Warrior_ relies on agility, cunning, and guile to outsmart their opponents and other obstacles. They can be masters of trickery, maneuvering the battlefield with their [[Fancy Footwork]], and exploiting weaknesses of their foes.',
+	},
+	[ClassFlavor.Arcanist]: {
+		name: ClassFlavor.Arcanist,
+		realm: ClassRealm.Caster,
+		description:
+			'The _Arcanist Caster_ is the generalist **Caster**; they are able to use all types of **Spell Components**, but are not particularly proficient in any of them.',
+	},
+	[ClassFlavor.Mechanist]: {
+		name: ClassFlavor.Mechanist,
+		realm: ClassRealm.Caster,
+		description:
+			'The _Mechanist Caster_ is able to use tools and devices that they can devise to assist with the execution of **Somatic Spell Components**. In contrast, they are unable to use **Verbal** or **Focal** components.',
+	},
+	[ClassFlavor.Naturalist]: {
+		name: ClassFlavor.Naturalist,
+		realm: ClassRealm.Caster,
+		description:
+			'The _Naturalist Caster_ is able to use the natural world around them to assist with the execution of **Somatic Spell Components**. In contrast, they are unable to use **Verbal** or **Focal** components.',
+	},
+	[ClassFlavor.Musicist]: {
+		name: ClassFlavor.Musicist,
+		realm: ClassRealm.Caster,
+		description:
+			'The _Musicist Caster_ is able to use music and instruments to assist with the execution of **Verbal Spell Components**. In contrast, they are unable to use **Somatic** or **Focal** components.',
+	},
+	[ClassFlavor.Devout]: {
+		name: ClassFlavor.Devout,
+		realm: ClassRealm.Mystic,
+		description:
+			'The _Devout Mystic_ is able to channel their faith and devotion into their spells, gaining unique benefits from their connection to the divine. They are unable to use **Somatic** or **Focal** components.',
+	},
+	[ClassFlavor.Mixed]: {
+		name: ClassFlavor.Mixed,
+		realm: ClassRealm.Mystic,
+		description: 'The _Mixed Mystic_ will be somewhere in between the Devout and the Crusader.',
+	},
+	[ClassFlavor.Crusader]: {
+		name: ClassFlavor.Crusader,
+		realm: ClassRealm.Mystic,
+		description: `Amongst the _Mystics_, The _Crusader_ will have the most secondary focus martial expertise, while remaining primary focus on their channeling. They are able to more directly apply their channeling into combat.`,
+	},
+};
 
 export class ClassDefinition {
 	name: CharacterClass;

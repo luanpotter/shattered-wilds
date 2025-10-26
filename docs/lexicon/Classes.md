@@ -51,6 +51,8 @@ The **Role** will also define your **Primary Attribute** (STR, DEX or CON) for t
 
 ### Martial Warriors
 
+{% text "Martial_Warrior" %}
+
 <details>
   <summary>Martial Warriors Feats</summary>
   {% list_feats_for_source "Martial" %}
@@ -58,12 +60,16 @@ The **Role** will also define your **Primary Attribute** (STR, DEX or CON) for t
 
 ### Survivalist Warriors
 
+{% text "Survivalist_Warrior" %}
+
 <details>
   <summary>Survivalist Warriors Feats</summary>
   {% list_feats_for_source "Survivalist" %}
 </details>
 
 ### Scoundrel Warriors
+
+{% text "Scoundrel_Warrior" %}
 
 <details>
   <summary>Scoundrel Warriors Feats</summary>
@@ -115,7 +121,7 @@ See [Arcane Spellcasting](/rules/arcane) for a detailed breakdown of what each *
 
 ### The Arcanist
 
-The Arcanist is the generalist **Caster**; they are able to use all types of **Spell Components**, but are not particularly proficient in any of them.
+{% text "Arcanist_Caster" %}
 
 <details>
   <summary>Arcanist Feats</summary>
@@ -124,7 +130,7 @@ The Arcanist is the generalist **Caster**; they are able to use all types of **S
 
 ### The Mechanist
 
-The Mechanist is able to use tools and devices that they can devise to assist with the execution of **Somatic Spell Components**. In contrast, they are unable to use **Verbal** or **Focal** components.
+{% text "Mechanist_Caster" %}
 
 <details>
   <summary>Mechanist Feats</summary>
@@ -133,7 +139,7 @@ The Mechanist is able to use tools and devices that they can devise to assist wi
 
 ### The Naturalist
 
-The Naturalist is able to use the natural world around them to assist with the execution of **Somatic Spell Components**. In contrast, they are unable to use **Verbal** or **Focal** components.
+{% text "Naturalist_Caster" %}
 
 <details>
   <summary>Naturalist Feats</summary>
@@ -142,7 +148,7 @@ The Naturalist is able to use the natural world around them to assist with the e
 
 ### The Musicist
 
-The Musicist is able to use music and instruments to assist with the execution of **Verbal Spell Components**. In contrast, they are unable to use **Somatic** or **Focal** components.
+{% text "Musicist_Caster" %}
 
 <details>
   <summary>Musicist Feats</summary>
@@ -218,9 +224,7 @@ A character can attempt to **Pray** on any longer moments of peace and quiet (li
 
 ## Flavor: Devout
 
-The **Devout** will be completely focused on their channeling, instead of diverging into more martial-focused faculties.
-
-If they are not already an **Adept**, they will be able to pick the [[Lesser Divine Channeling]] feat at Level 2 to unlock the [Divine](/rules/divine) (creating some justification with the DM).
+{% text "Devout_Mystic" %}
 
 <details>
   <summary>Devout Feats</summary>
@@ -229,13 +233,13 @@ If they are not already an **Adept**, they will be able to pick the [[Lesser Div
 
 ## Flavor: Mixed
 
-The **Mixed** will be in between the Devout and the Crusader.
+{% text "Mixed_Mystic" %}
 
 > <mark>WIP</mark> The **Mixed** is still being developed and is not available as an option yet.
 
 ## Flavor: Crusader
 
-Of the three **Flavors**, the **Crusader** will have the most focus on martial expertise, but still being primarily focused on their channeling.
+{% text "Crusader_Mystic" %}
 
 <details>
   <summary>Crusader Feats</summary>
