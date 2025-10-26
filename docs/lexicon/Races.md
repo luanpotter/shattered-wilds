@@ -32,17 +32,11 @@ A character gets the size of their primary race and they can decide to get the c
 
 ## Upbringings
 
-Your upbringing grants you three **Core Feats**:
-
-* **Upbringing Modifiers**: A pair of [[Mind]]/[[Soul]] Realms modifiers (`+1` in one Attribute, `-1` in another), which will also bypass level cap.
-* The [[Level]] 0 **Core Feat** from your chosen **Upbringing**
-* The **[[Specialized_Knowledge | Specialized Knowledge]]** feat associated with your **Upbringing** (You have `+3` to [[Knowledge]] or [[Intuition]] Checks about aspects related to your upbringing environment).
-
-Players are welcome to craft their own **Upbringings** with their DMs, but there are five pre-defined options to choose from. You can still choose any attributes for the modifiers, but you should choose a pair of modifiers that make sense with your backstory. If your class is a **Caster** or **Mystic**, choosing your the `+1` modifier to go to your **Primary Attribute** is usually inherently justifiable.
+{% include "docs/lexicon/Upbringings.md" %}
 
 ### Urban
 
-This character lived their childhood in a medium-sized village or town (much larger cities are extremely rare and hard to find). **Human** and **Elven** communities are often **Urban**.
+{% text "Urban" %}
 
 * {% item "Specialized_Training" "source" %}
 * Typical choices for **Upbringing Modifiers**: + [[INT]]/[[CHA]]/[[LCK]], - [[WIS]]/[[DIV]]/[[FOW]]
@@ -50,9 +44,7 @@ This character lived their childhood in a medium-sized village or town (much lar
 
 ### Nomadic
 
-This character grew up as a nomad, traveling in a small party, family or group venturing through the Wilds (either you'd need to have had strong members to protect you, or somehow have a reason you managed to survive on your own). They are somewhat familiar with the ways of the Wilds. **Human** (often by choice to fulfill their dreams of exploration), **Orc** and **Goblin** (often neglected by their peers or other races) are often **Nomadic**.
-
-A typical scenario is a small group of low-level adventurers, that eventually have (or encounter) a child, and now must find a way to raise them until they can find the next safe village to drop them off (which can be rare to find depending on where they are).
+{% text "Nomadic" %}
 
 * {% item "Nomadic_Alertness" "source" %}
 * Typical choices for **Upbringing Modifiers**: + [[WIS]]/[[FOW]]/[[LCK]], - [[INT]]/[[CHA]]/[[DIV]]
@@ -60,7 +52,7 @@ A typical scenario is a small group of low-level adventurers, that eventually ha
 
 ### Tribal
 
-This character grew up in a settlement with a strong tribal structure, with hierarchies and clans. **Dwarven**, **Fey** and **Goliath** communities are often **Tribal**.
+{% text "Tribal" %}
 
 * {% item "Tribal_Endurance" "source" %}
 * Typical choices for **Upbringing Modifiers**: + [[CHA]]/[[DIV]]/[[FOW]], - [[INT]]/[[WIS]]/[[LCK]]
@@ -68,7 +60,7 @@ This character grew up in a settlement with a strong tribal structure, with hier
 
 ### Sylvan
 
-This character grew up in very small settlement embedded deep within the woods. **Elven**, **Fey**, and **Goblin** communities are often **Sylvan**.
+{% text "Sylvan" %}
 
 * {% item "Light_Feet" "source" %}
 * Typical choices for **Upbringing Modifiers**: + [[WIS]]/[[DIV]]/[[FOW]], - [[INT]]/[[CHA]]/[[LCK]]
@@ -76,7 +68,7 @@ This character grew up in very small settlement embedded deep within the woods. 
 
 ### Telluric
 
-This character grew up in a cave-dwelling settlement, deep within cave systems. **Dwarven**, **Orc** and **Goliath** communities are often **Telluric**.
+{% text "Telluric" %}
 
 * {% item "Dark_Vision" "source" %}
 * Typical choices for **Upbringing Modifiers**: + [[INT]]/[[CHA]]/[[LCK]], - [[WIS]]/[[DIV]]/[[FOW]]
