@@ -1,12 +1,15 @@
-import { CharacterSheet } from '@shattered-wilds/commons';
+import { CharacterSheet, getRecordValues } from '@shattered-wilds/commons';
 import React, { useEffect, useRef, useState } from 'react';
+import { IconType } from 'react-icons';
 import { FaArrowLeft, FaChevronDown, FaClipboard, FaEye, FaPlus, FaTrash } from 'react-icons/fa';
+import { FaCirclePlay } from 'react-icons/fa6';
 
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
-import { Character } from '../../types/ui';
+import { Character, createNewCharacter } from '../../types/ui';
 import { findNextEmptyHexPosition } from '../../utils';
 import { importCharacterDataFromClipboard } from '../../utils/clipboard';
+import { PREDEFINED_CHARACTERS } from '../../utils/predefined-characters';
 import { Navigator } from '../../utils/routes';
 import { Button } from '../shared/Button';
 
@@ -89,6 +92,19 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 		}
 	};
 
+	const handlePredefinedCharacterImport = async () => {
+		const currentCharacters = [...characters];
+		getRecordValues(PREDEFINED_CHARACTERS).map(data => {
+			const characterProps = CharacterSheet.parsePropsFromShareString(data);
+			if (currentCharacters.find(c => c.props.name === characterProps.name)) {
+				return;
+			}
+			const character = createNewCharacter({ characters: currentCharacters, props: characterProps });
+			currentCharacters.push(character); // make sure the next character gets a fresh position
+			addCharacter(character);
+		});
+	};
+
 	const handleDeleteCharacter = (character: Character) => {
 		setConfirmDelete(character.id);
 	};
@@ -109,9 +125,26 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 		return <FullPageCharacterSheet characterId={selectedCharacterId} onBack={handleBackToList} />;
 	}
 
+	const DropdownButton = ({ onClick, icon: Icon, title }: { onClick: () => void; icon: IconType; title: string }) => {
+		return (
+			<button
+				onClick={onClick}
+				style={{
+					width: '100%',
+					textAlign: 'left',
+					padding: '0.75rem 1rem',
+					border: 'none',
+					backgroundColor: 'transparent',
+					borderBottom: '1px solid var(--text)',
+				}}
+			>
+				<Icon /> {title}
+			</button>
+		);
+	};
+
 	return (
 		<div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-			{/* Main Content - No header since we're in a full page context */}
 			<main
 				style={{
 					flex: 1,
@@ -190,13 +223,12 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 						<h2 style={{ margin: 0 }}>Character Sheets</h2>
 					</div>
 					<div style={{ display: 'flex', gap: '1rem' }}>
-						<Button onClick={() => void handleImportFromClipboard()} icon={FaClipboard} title='Import Character' />
 						<div ref={dropdownRef} style={{ position: 'relative' }}>
 							<button
 								onClick={() => setShowCreateDropdown(!showCreateDropdown)}
 								style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
 							>
-								<FaPlus /> Create New Character <FaChevronDown />
+								<FaPlus /> Add Character <FaChevronDown />
 							</button>
 							{showCreateDropdown && (
 								<div
@@ -207,36 +239,23 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 										backgroundColor: 'var(--background)',
 										border: '1px solid var(--text)',
 										borderRadius: '4px',
-										minWidth: '200px',
+										minWidth: '320px',
 										zIndex: 1000,
 										marginTop: '2px',
 									}}
 								>
-									<button
-										onClick={handleEmptyCharacterCreation}
-										style={{
-											width: '100%',
-											textAlign: 'left',
-											padding: '0.75rem 1rem',
-											border: 'none',
-											backgroundColor: 'transparent',
-											borderBottom: '1px solid var(--text)',
-										}}
-									>
-										<FaPlus /> Empty
-									</button>
-									<button
-										onClick={handleOnboardingCharacterCreation}
-										style={{
-											width: '100%',
-											textAlign: 'left',
-											padding: '0.75rem 1rem',
-											border: 'none',
-											backgroundColor: 'transparent',
-										}}
-									>
-										<FaPlus /> Onboarding
-									</button>
+									<DropdownButton
+										onClick={() => void handlePredefinedCharacterImport()}
+										icon={FaCirclePlay}
+										title='Predefined Characters'
+									/>
+									<DropdownButton
+										onClick={() => void handleImportFromClipboard()}
+										icon={FaClipboard}
+										title='Import Character'
+									/>
+									<DropdownButton onClick={handleEmptyCharacterCreation} icon={FaPlus} title='Empty' />
+									<DropdownButton onClick={handleOnboardingCharacterCreation} icon={FaPlus} title='Onboarding' />
 								</div>
 							)}
 						</div>
@@ -244,66 +263,27 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 				</div>
 
 				{characters.length === 0 ? (
-					<div style={{ textAlign: 'center', marginTop: '4rem' }}>
-						<h2>No Characters Found</h2>
-						<p>Create your first character or import one from clipboard to get started!</p>
-						<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-							<Button onClick={() => void handleImportFromClipboard()} icon={FaClipboard} title='Import Character' />
-							<div style={{ position: 'relative' }}>
-								<button
-									onClick={() => setShowCreateDropdown(!showCreateDropdown)}
-									style={{
-										display: 'flex',
-										alignItems: 'center',
-										gap: '0.5rem',
-										padding: '1rem 2rem',
-										fontSize: '1.1em',
-									}}
-								>
-									<FaPlus /> Create New Character <FaChevronDown />
-								</button>
-								{showCreateDropdown && (
-									<div
-										style={{
-											position: 'absolute',
-											top: '100%',
-											left: '50%',
-											transform: 'translateX(-50%)',
-											backgroundColor: 'var(--background)',
-											border: '1px solid var(--text)',
-											borderRadius: '4px',
-											minWidth: '200px',
-											zIndex: 1000,
-											marginTop: '2px',
-										}}
-									>
-										<button
-											onClick={handleEmptyCharacterCreation}
-											style={{
-												width: '100%',
-												textAlign: 'left',
-												padding: '0.75rem 1rem',
-												border: 'none',
-												backgroundColor: 'transparent',
-												borderBottom: '1px solid var(--text)',
-											}}
-										>
-											<FaPlus /> Empty
-										</button>
-										<button
-											onClick={handleOnboardingCharacterCreation}
-											style={{
-												width: '100%',
-												textAlign: 'left',
-												padding: '0.75rem 1rem',
-												border: 'none',
-												backgroundColor: 'transparent',
-											}}
-										>
-											<FaPlus /> Onboarding
-										</button>
-									</div>
-								)}
+					<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+						<div
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'center',
+								justifyContent: 'center',
+								width: '50%',
+							}}
+						>
+							<h2>No Characters Found</h2>
+							<p>Create your first character or import one from clipboard to get started!</p>
+							<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: '1rem' }}>
+								<Button
+									onClick={handlePredefinedCharacterImport}
+									icon={FaCirclePlay}
+									title='Add Predefined Characters'
+								/>
+								<Button onClick={handleImportFromClipboard} icon={FaClipboard} title='Import Character' />
+								<Button onClick={handleEmptyCharacterCreation} icon={FaPlus} title='Empty' />
+								<Button onClick={handleOnboardingCharacterCreation} icon={FaPlus} title='Onboarding' />
 							</div>
 						</div>
 					</div>

@@ -191,7 +191,7 @@ export class CharacterSheet {
 		});
 	}
 
-	static parsePropsFromShareString(shareString: string): Record<string, string> {
+	static parsePropsFromShareString(shareString: string): Record<string, string> & { name: string } {
 		const props: Record<string, string> = {};
 		const lines = atob(shareString).split('\n');
 
@@ -208,7 +208,8 @@ export class CharacterSheet {
 			props[key] = value;
 		}
 
-		return props;
+		const fallbackName = 'Imported Character';
+		return { name: fallbackName, ...props };
 	}
 
 	static toShareString(props: Record<string, string>): string {

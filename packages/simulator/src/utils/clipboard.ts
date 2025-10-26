@@ -1,7 +1,6 @@
 import { CharacterSheet } from '@shattered-wilds/commons';
 
-import { Character } from '../types/ui';
-import { findNextEmptyHexPosition } from '../utils';
+import { Character, createNewCharacter } from '../types/ui';
 
 export const copyCharacterDataToClipboard = (character: Character) => {
 	const shareString = CharacterSheet.toShareString(character.props);
@@ -16,13 +15,7 @@ export const importCharacterDataFromClipboard = async (characters: Character[]):
 		}
 
 		const props = CharacterSheet.parsePropsFromShareString(clipboardText);
-
-		return <Character>{
-			id: window.crypto.randomUUID(),
-			props: props as { name: string } & Record<string, string>,
-			position: findNextEmptyHexPosition(characters),
-			automaticMode: false,
-		};
+		return createNewCharacter({ characters, props });
 	} catch {
 		return 'Failed to import from clipboard. Make sure you have clipboard permissions.';
 	}

@@ -1,5 +1,7 @@
 import { ActionCost, Check, FeatSlot, FeatDefinition, Condition, Consequence } from '@shattered-wilds/commons';
 
+import { findNextEmptyHexPosition } from '../utils';
+
 export interface Point {
 	x: number;
 	y: number;
@@ -129,6 +131,21 @@ export interface Character {
 	automaticMode?: boolean;
 	props: { name: string } & Record<string, string>;
 }
+
+export const createNewCharacter = ({
+	characters,
+	props,
+}: {
+	characters: Character[];
+	props: Record<string, string>;
+}): Character => {
+	return {
+		id: window.crypto.randomUUID(),
+		props: props as { name: string } & Record<string, string>,
+		position: findNextEmptyHexPosition(characters),
+		automaticMode: false,
+	};
+};
 
 export function getCharacterInitials(character: { props: { name: string } }): string {
 	const words = character.props.name.split(' ');
