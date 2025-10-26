@@ -173,7 +173,6 @@ const App = (): React.ReactElement => {
 				flexDirection: 'column',
 				margin: 0,
 				padding: 0,
-				overflow: 'hidden',
 				width: '100%',
 			}}
 			onMouseDown={handleMouseDown}
@@ -252,18 +251,17 @@ const App = (): React.ReactElement => {
 			{hasHeaderAndFooter(currentView) && (
 				<footer
 					style={{
-						padding: '1rem',
 						borderTop: '1px solid var(--text)',
 						flexShrink: 0,
-						marginTop: '-8px',
 						width: '1200px',
 						margin: '0 auto',
 						fontSize: '12px',
+						display: 'flex',
+						justifyContent: 'right',
+						marginBottom: '8px',
 					}}
 				>
-					<div style={{ margin: '0 auto', textAlign: 'right' }}>
-						<p style={{ margin: 0, paddingBottom: '8px' }}>&copy; 2025 Shattered Wilds - Luan Nico</p>
-					</div>
+					<p style={{ margin: 0, padding: 0 }}>&copy; 2025 Shattered Wilds - Luan Nico</p>
 				</footer>
 			)}
 			{modals.map(modal => (
