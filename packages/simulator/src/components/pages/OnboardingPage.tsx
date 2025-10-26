@@ -1,4 +1,5 @@
 import {
+	firstParagraph,
 	getRecordValues,
 	joinHumanReadableList,
 	Race,
@@ -6,6 +7,7 @@ import {
 	RacialStatModifier,
 	StatType,
 	StatTypeName,
+	UPBRINGING_DEFINITIONS,
 } from '@shattered-wilds/commons';
 import React, { useState } from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
@@ -254,33 +256,12 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 		};
 	});
 
-	const upbringings = [
-		{
-			key: 'Urban',
-			description:
-				'Lived in a medium-sized village or town. Gains Specialized Training (2 Minor Feats). Familiar with politics, commerce, and urban life.',
-		},
-		{
-			key: 'Nomadic',
-			description:
-				'Grew up traveling through the Wilds in a small group. Gains Nomadic Alertness for spotting danger while sleeping. Skilled in survival and tracking.',
-		},
-		{
-			key: 'Tribal',
-			description:
-				'Raised in a settlement with strong tribal structure and hierarchies. Gains Tribal Endurance to reduce exhaustion through duty. Understands clan dynamics.',
-		},
-		{
-			key: 'Sylvan',
-			description:
-				'Grew up in small settlements deep within the woods. Gains Light Feet to ignore natural difficult terrain. Knowledgeable about fauna and flora.',
-		},
-		{
-			key: 'Telluric',
-			description:
-				'Raised in cave-dwelling settlements deep underground. Gains Dark Vision to see in black-and-white in darkness. Expert in caves, mining, and ores.',
-		},
-	];
+	const upbringings = getRecordValues(UPBRINGING_DEFINITIONS).map(def => {
+		return {
+			key: def.name,
+			description: firstParagraph(def.description),
+		};
+	});
 
 	const steps = [
 		<div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center' }} key={1}>
@@ -472,10 +453,10 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 				{`While typical upbringings for **${options['race']}** are ${races.find(r => r.key === (options['race'] ?? Race.Human))!.typicalUpbringings},\n\nyou can pick any option according to your character's backstory.`}
 			</RichText>
 			<div style={{ height: '2rem' }} />
-			<Columns amount={2}>
+			<Columns amount={1}>
 				{upbringings.map((upbringing, idx) => {
 					return (
-						<Column key={upbringing.key} idx={idx % 2}>
+						<Column key={upbringing.key} idx={idx % 1}>
 							<Bold>{upbringing.key}</Bold>
 							<RichText>{upbringing.description}</RichText>
 							<StepButton onClick={nextStep({ upbringing: upbringing.key })} text={`${upbringing.key}`} />
