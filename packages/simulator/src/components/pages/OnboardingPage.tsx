@@ -450,7 +450,11 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 						<Column key={characterClass.key} idx={idx}>
 							<Bold>{characterClass.key}</Bold>
 							<RichText>{characterClass.description}</RichText>
-							<StepButton onClick={nextStep({ class: characterClass.key })} text={`Choose ${characterClass.key}`} />
+							<StepButton
+								onClick={nextStep({ class: characterClass.key })}
+								text={`${characterClass.key}`}
+								style={{ fontSize: '1em' }}
+							/>
 						</Column>
 					);
 				})}
@@ -528,7 +532,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 	);
 };
 
-const StepButton = ({ text, onClick }: { text: string; onClick: () => void }) => {
+const StepButton = ({ text, onClick, style }: { text: string; onClick: () => void; style?: React.CSSProperties }) => {
 	return (
 		<button
 			style={{
@@ -536,6 +540,7 @@ const StepButton = ({ text, onClick }: { text: string; onClick: () => void }) =>
 				textTransform: 'uppercase',
 				backgroundColor: 'var(--primary)',
 				color: 'var(--text)',
+				...style,
 			}}
 			onClick={onClick}
 		>
@@ -563,7 +568,7 @@ const StepWrapper = ({
 		<div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 			<header
 				style={{
-					margin: '2rem',
+					margin: '0.5em 2em',
 					display: 'flex',
 					alignItems: 'center',
 					justifyContent: 'right',
