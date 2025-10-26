@@ -764,7 +764,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		description:
 			'You have `+3` to [[Knowledge]] or [[Intuition]] Checks about aspects related to a specific area of expertise.',
 		fullDescription: info => {
-			return `You have \`+3\` to **Knowledge** or **Intuition** Checks about aspects related to **${info.parameter}**.`;
+			return `You have \`+3\` to **Knowledge** or **Intuition** Checks about aspects related to **${info.parameter}** Knowledge.`;
 		},
 		parameter: {
 			id: 'upbringing',
