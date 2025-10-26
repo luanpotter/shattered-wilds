@@ -348,7 +348,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 				>
 					<strong style={{ margin: '0' }}>Crit Modifiers</strong>
 					<p style={{ margin: '0' }}>
-						If you roll at least one <code>12</code>, you get a <code>+6</code>.
+						If you roll a <code>12</code>, you get a <code>+6</code>.
 					</p>
 					<p style={{ margin: '0' }}>
 						If you roll a pair, you get a <code>+6</code>.
