@@ -1,3 +1,18 @@
+const Column = ({ idx, children }: { idx: number; children: React.ReactNode }) => (
+	<div
+		style={{
+			display: 'flex',
+			flexDirection: 'column',
+			justifyContent: 'space-between',
+			gap: '1rem',
+			borderLeft: idx > 0 ? '1px solid var(--text)' : undefined,
+			height: '100%',
+			padding: '1rem',
+		}}
+	>
+		{children}
+	</div>
+);
 import {
 	firstParagraph,
 	getRecordValues,
@@ -43,35 +58,47 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 		<strong style={{ fontWeight: 'bold', borderBottom: '1px solid white' }}>{children}</strong>
 	);
 
-	const Column = ({ idx, children }: { idx: number; children: React.ReactNode }) => (
-		<div
-			style={{
-				display: 'flex',
-				flexDirection: 'column',
-				justifyContent: 'space-between',
-				gap: '1rem',
-				borderLeft: idx > 0 ? '1px solid var(--text)' : undefined,
-				height: '100%',
-				padding: '1rem',
-			}}
-		>
-			{children}
-		</div>
-	);
+	const Columns = ({ amount, children }: { amount: number; children: React.ReactNode }) => {
+		// Convert children to array for easier manipulation
+		const childArray = React.Children.toArray(children);
+		// Group children into rows
+		const rows: React.ReactNode[][] = [];
+		for (let i = 0; i < childArray.length; i += amount) {
+			rows.push(childArray.slice(i, i + amount));
+		}
 
-	const Columns = ({ amount, children }: { amount: number; children: React.ReactNode }) => (
-		<div
-			style={{
-				display: 'grid',
-				alignItems: 'center',
-				justifyContent: 'center',
-				gap: '2rem 0',
-				gridTemplateColumns: `repeat(${amount}, 1fr)`,
-			}}
-		>
-			{children}
-		</div>
-	);
+		return (
+			<div style={{ display: 'flex', flexDirection: 'column', gap: '2rem 0', width: '100%' }}>
+				{rows.map((row, rowIdx) => {
+					const isFullRow = row.length === amount;
+					return (
+						<div
+							key={rowIdx}
+							style={{
+								display: 'flex',
+								flexDirection: 'row',
+								gap: '0 2rem',
+								justifyContent: isFullRow ? 'center' : 'center',
+								width: '100%',
+							}}
+						>
+							{row.map((child, colIdx) => (
+								<div
+									key={colIdx}
+									style={{
+										flex: isFullRow ? `1 1 0` : `1 1 ${100 / row.length}%`,
+										minWidth: 0,
+									}}
+								>
+									{child}
+								</div>
+							))}
+						</div>
+					);
+				})}
+			</div>
+		);
+	};
 
 	const getClassesByAttribute = (attribute: string) => {
 		const classes = {
@@ -433,10 +460,10 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 			<p>
 				You chose <strong>{options['class']}</strong> as your class. Now choose your <strong>Race</strong>:
 			</p>
-			<Columns amount={3}>
+			<Columns amount={4}>
 				{races.map((race, idx) => {
 					return (
-						<Column key={race.key} idx={idx % 3}>
+						<Column key={race.key} idx={idx % 4}>
 							<Bold>{race.key}</Bold>
 							<RichText>{race.description}</RichText>
 							<StepButton onClick={nextStep({ race: race.key })} text={`${race.key}`} />
@@ -453,10 +480,10 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 				{`While typical upbringings for **${options['race']}** are ${races.find(r => r.key === (options['race'] ?? Race.Human))!.typicalUpbringings},\n\nyou can pick any option according to your character's backstory.`}
 			</RichText>
 			<div style={{ height: '2rem' }} />
-			<Columns amount={1}>
+			<Columns amount={2}>
 				{upbringings.map((upbringing, idx) => {
 					return (
-						<Column key={upbringing.key} idx={idx % 1}>
+						<Column key={upbringing.key} idx={idx % 2}>
 							<Bold>{upbringing.key}</Bold>
 							<RichText>{upbringing.description}</RichText>
 							<StepButton onClick={nextStep({ upbringing: upbringing.key })} text={`${upbringing.key}`} />
