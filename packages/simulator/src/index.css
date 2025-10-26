@@ -115,6 +115,8 @@ body {
 	}
 	body {
 		background: white !important;
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
 	}
 	.print-container {
 		margin: 0 auto !important;
