@@ -20,7 +20,7 @@ There are 9 Warrior classes, which are divided in a `3x3` matrix of **Roles** an
 | Ranged (DEX)  | [[Marksman]]| [[Hunter]]      | [[Rogue]]        |
 | Tank (CON)    | [[Guardian]]| [[Barbarian]]   | [[Scout]]        |
 
-The **Role** will also define your **Primary Attribute** (STR, DEX or CON) for the **Core Class Modifier**.
+The **Role** will also define your **Primary Attribute** ([[STR]], [[DEX]] or [[CON]]) for the **Core Class Modifier**.
 
 ### Melee Warriors
 
