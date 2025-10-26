@@ -24,7 +24,7 @@ The **Role** will also define your **Primary Attribute** (STR, DEX or CON) for t
 
 ### Melee Warriors
 
-_Melee Warriors_ focus on [[STR | Strength]], and thus are favored to use **Heavy Melee** or **Thrown** weapons (see a Weapons breakdown under [Equipment](rules/equipment)).
+{% text "Melee_Warrior" %}
 
 <details>
   <summary>Melee Warriors Feats</summary>
@@ -33,7 +33,7 @@ _Melee Warriors_ focus on [[STR | Strength]], and thus are favored to use **Heav
 
 ### Ranged Warriors
 
-_Ranged Warriors_ focus on [[DEX | Dexterity]], and thus are favored to use **Light Melee** or **Ranged** weapons (or both).
+{% text "Ranged_Warrior" %}
 
 <details>
   <summary>Ranged Warriors Feats</summary>
@@ -42,7 +42,7 @@ _Ranged Warriors_ focus on [[DEX | Dexterity]], and thus are favored to use **Li
 
 ### Tank Warriors
 
-_Tank Warriors_ focus on [[CON | Constitution]], and thus are focused on defense and therefore do not have a specific weapon-type focus.
+{% text "Tank_Warrior" %}
 
 <details>
   <summary>Tank Warriors Feats</summary>
@@ -85,6 +85,33 @@ The **Core Major Feat** for all **Casters** is:
 {% item "Arcane_Casting" %}
 
 See [Arcane Spellcasting](/rules/arcane) for a detailed breakdown of what each **Role** and **Flavor** entails and how the **Arcane** magic system works.
+
+### The Erudite
+
+{% text "Erudite_Caster" %}
+
+<details>
+  <summary>Erudite Feats</summary>
+  {% list_feats_for_source "Erudite" %}
+</details>
+
+### The Intuitive
+
+{% text "Intuitive_Caster" %}
+
+<details>
+  <summary>Intuitive Feats</summary>
+  {% list_feats_for_source "Intuitive" %}
+</details>
+
+### The Innate
+
+{% text "Innate_Caster" %}
+
+<details>
+  <summary>Innate Feats</summary>
+  {% list_feats_for_source "Innate" %}
+</details>
 
 ### The Arcanist
 
@@ -152,7 +179,7 @@ Therefore, much like it is for the **Warriors**, your **Role** will define your 
 
 ## The Disciple
 
-The **Disciple** is a **Mystic** who either has (1) submitted, (2) a contract, or (3) a bond with a specific higher power in the **Aether** - i.e., a **Protean**. The nature of their connection can be varied, from an abstract concept and blind devotion to a more personal touch towards an Avatar (see the **Archetypes** section in [Divine](/rules/divine)).
+{% text "Disciple_Mystic" %}
 
 Regardless of the nature of their connection, the **Disciple** can:
 
@@ -173,7 +200,7 @@ A character can attempt to **Pray** on any longer moments of peace and quiet (li
 
 ## The Adept
 
-The **Adept** is a **Mystic** who is able to channel the power within their **Soul** into the Material World. They are still finely connected and attuned to the **Aether**, but they are not bound to a specific **Protean**, but rather strengthen the connection with their own **Soul**. Therefore, they are uniquely equipped to fight with their own power-unlocked Body.
+{% text "Adept_Mystic" %}
 
 <details>
   <summary>Adept Feats</summary>
@@ -182,7 +209,7 @@ The **Adept** is a **Mystic** who is able to channel the power within their **So
 
 ## The Inspired
 
-The **Inspired** is a **Mystic** who is able to receive their [[LCK]] through an unexplainable connection to the **Aether** (and possibly beyond). If the typical channeling power is vague and abstract, the origin of the good fortune of the **Inspired** is completely beyond comprehension.
+{% text "Inspired_Mystic" %}
 
 <details>
   <summary>Inspired Feats</summary>
