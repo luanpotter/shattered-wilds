@@ -1,7 +1,17 @@
+import {
+	getRecordValues,
+	joinHumanReadableList,
+	Race,
+	RACE_DEFINITIONS,
+	RacialStatModifier,
+	StatType,
+	StatTypeName,
+} from '@shattered-wilds/commons';
 import React, { useState } from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 
 import { Button } from '../shared/Button';
+import { RichText } from '../shared/RichText';
 
 interface OnboardingPageProps {
 	onNavigateToCharacterSheets: () => void;
@@ -17,60 +27,49 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 		};
 	};
 
-	const getAttributesByRealm = (realm: string) => {
-		const attributes = {
-			body: [
-				{
-					key: 'STR',
-					description: 'Strength is a measure of the power of the Body. Think punch hard, big muscles, heavy lifting.',
-				},
-				{
-					key: 'DEX',
-					description: 'Dexterity is a measure of speed of the Body. Think reflexes, quickness, agility, precision.',
-				},
-				{
-					key: 'CON',
-					description:
-						'Constitution is a measure of the resilience of the Body. Think how much it can take, both from external sources or self-exhaustion.',
-				},
-			],
-			mind: [
-				{
-					key: 'INT',
-					description:
-						"Intelligence is a measure of the Mind's ability to learn, reason, and understand. Think logic, reasoning, and knowledge.",
-				},
-				{
-					key: 'WIS',
-					description:
-						"Wisdom is a measure of the Mind's ability to perceive and interpret the world around you. Think perception, awareness, and intuition.",
-				},
-				{
-					key: 'CHA',
-					description:
-						"Charisma is a measure of the Mind's ability to influence, persuade, inspire, and connect with others, as well as understand emotions.",
-				},
-			],
-			spirit: [
-				{
-					key: 'DIV',
-					description:
-						"Divinity is a measure of the Soul's ability to connect with the Aether. It determines the conviction of your faith and devotion in the unknown.",
-				},
-				{
-					key: 'FOW',
-					description:
-						"Force of Will is a measure of the Soul's ability to resist temptations, vices, and instant gratification. Think willpower, determination, and psychological resilience.",
-				},
-				{
-					key: 'LCK',
-					description:
-						"Luck is a measure of the Soul's connection with forces even beyond the Aether, measuring a person's unexplainable connection with Luck as a concept.",
-				},
-			],
-		};
-		return attributes[realm as keyof typeof attributes] || [];
+	const getAttributeInfo = (attribute: StatType): { key: string; description: string } => {
+		return { key: attribute.name, description: attribute.description };
 	};
+
+	const getRealmInfo = (realm: StatType): [StatTypeName, { key: string; description: string }[]] => {
+		return [realm.name, StatType.childrenOf(realm).map(getAttributeInfo)];
+	};
+
+	const attributesByRealm = Object.fromEntries(StatType.realms.map(getRealmInfo));
+
+	const Bold = ({ children }: { children: React.ReactNode }) => (
+		<strong style={{ fontWeight: 'bold', borderBottom: '1px solid white' }}>{children}</strong>
+	);
+
+	const Column = ({ idx, children }: { idx: number; children: React.ReactNode }) => (
+		<div
+			style={{
+				display: 'flex',
+				flexDirection: 'column',
+				justifyContent: 'space-between',
+				gap: '1rem',
+				borderLeft: idx > 0 ? '1px solid var(--text)' : undefined,
+				height: '100%',
+				padding: '1rem',
+			}}
+		>
+			{children}
+		</div>
+	);
+
+	const Columns = ({ amount, children }: { amount: number; children: React.ReactNode }) => (
+		<div
+			style={{
+				display: 'grid',
+				alignItems: 'center',
+				justifyContent: 'center',
+				gap: '2rem 0',
+				gridTemplateColumns: `repeat(${amount}, 1fr)`,
+			}}
+		>
+			{children}
+		</div>
+	);
 
 	const getClassesByAttribute = (attribute: string) => {
 		const classes = {
@@ -226,98 +225,89 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 		return classes[attribute as keyof typeof classes] || [];
 	};
 
-	const getRaces = () => {
-		return [
-			{
-				key: 'Human',
-				description: 'Neutral modifiers. Medium size. Typical upbringings: Urban, Nomadic.',
-			},
-			{
-				key: 'Elf',
-				description: '+DEX, -CON. Medium size. Typical upbringings: Urban, Sylvan.',
-			},
-			{
-				key: 'Dwarf',
-				description: '+CON, -DEX. Small size. Typical upbringings: Tribal, Telluric.',
-			},
-			{
-				key: 'Orc',
-				description: '+STR, -DEX. Large size. Typical upbringings: Nomadic, Telluric.',
-			},
-			{
-				key: 'Fey',
-				description: '+DEX, -STR. Small size. Typical upbringings: Tribal, Sylvan.',
-			},
-			{
-				key: 'Goliath',
-				description: '+STR, -CON. Large size. Typical upbringings: Tribal, Telluric.',
-			},
-			{
-				key: 'Goblin',
-				description: '+CON, -STR. Small size. Typical upbringings: Nomadic, Sylvan.',
-			},
-		];
+	const modifiersToString = (modifiers: RacialStatModifier[]) => {
+		if (modifiers.length === 0) {
+			return 'Neutral';
+		}
+		const toSign = (value: number): string => {
+			if (value === 1) {
+				return '+';
+			} else if (value === -1) {
+				return '-';
+			} else {
+				throw new Error(`Unexpected modifier value: ${value}`);
+			}
+		};
+		return modifiers.map(mod => `${toSign(mod.value.value)}[[${mod.statType}]]`).join(', ');
 	};
 
-	const getUpbringings = () => {
-		return [
-			{
-				key: 'Urban',
-				description:
-					'Lived in a medium-sized village or town. Gains Specialized Training (2 Minor Feats). Familiar with politics, commerce, and urban life.',
-			},
-			{
-				key: 'Nomadic',
-				description:
-					'Grew up traveling through the Wilds in a small group. Gains Nomadic Alertness for spotting danger while sleeping. Skilled in survival and tracking.',
-			},
-			{
-				key: 'Tribal',
-				description:
-					'Raised in a settlement with strong tribal structure and hierarchies. Gains Tribal Endurance to reduce exhaustion through duty. Understands clan dynamics.',
-			},
-			{
-				key: 'Sylvan',
-				description:
-					'Grew up in small settlements deep within the woods. Gains Light Feet to ignore natural difficult terrain. Knowledgeable about fauna and flora.',
-			},
-			{
-				key: 'Telluric',
-				description:
-					'Raised in cave-dwelling settlements deep underground. Gains Dark Vision to see in black-and-white in darkness. Expert in caves, mining, and ores.',
-			},
-		];
-	};
+	const races = getRecordValues(RACE_DEFINITIONS).map(def => {
+		const typicalUpbringings = def.typicalUpbringings.map(upbringing => `[[${upbringing}]]`);
+		return {
+			key: def.name,
+			typicalUpbringings: joinHumanReadableList(typicalUpbringings),
+			description: [
+				`**Modifiers**: ${modifiersToString(def.modifiers)}`,
+				`**Size**: ${def.size}`,
+				`**Typical Upbringings**: ${typicalUpbringings.join(', ')}`,
+			].join('\n\n'),
+		};
+	});
+
+	const upbringings = [
+		{
+			key: 'Urban',
+			description:
+				'Lived in a medium-sized village or town. Gains Specialized Training (2 Minor Feats). Familiar with politics, commerce, and urban life.',
+		},
+		{
+			key: 'Nomadic',
+			description:
+				'Grew up traveling through the Wilds in a small group. Gains Nomadic Alertness for spotting danger while sleeping. Skilled in survival and tracking.',
+		},
+		{
+			key: 'Tribal',
+			description:
+				'Raised in a settlement with strong tribal structure and hierarchies. Gains Tribal Endurance to reduce exhaustion through duty. Understands clan dynamics.',
+		},
+		{
+			key: 'Sylvan',
+			description:
+				'Grew up in small settlements deep within the woods. Gains Light Feet to ignore natural difficult terrain. Knowledgeable about fauna and flora.',
+		},
+		{
+			key: 'Telluric',
+			description:
+				'Raised in cave-dwelling settlements deep underground. Gains Dark Vision to see in black-and-white in darkness. Expert in caves, mining, and ores.',
+		},
+	];
 
 	const steps = [
-		<>
-			<p>
-				Welcome, <strong>Hero</strong>, to <strong>Shattered Wilds</strong>, a work-in-progress base setting for a new{' '}
-				<strong>TTRPG</strong> system based on <strong>D12</strong> dice rolls. Heavily inspired by{' '}
-				<strong>D&D 5e</strong>, accidentally similar to <strong>Pathfinder 2e</strong>, with some elements of{' '}
-				<strong>Fate</strong>, <strong>D&D 3.5</strong>, and some original ideas.
-			</p>
-			<p>
-				In <strong>Shattered Wilds</strong>, the world is ever-shifting. Not fast enough that you could see - but within
-				a few weeks or months, routes between settlements could be lost; rivers could change course, mountains could
-				start to emerge or dwindle back into the ground; forests could wander, and trails could lead to new places and
-				ruins that had not been seen for ages. The only constants are the settlements, villages, towns, cities or any
-				sufficient congregation of people - those are stable and do not move. But the routes between them are always
-				changing, compasses are useless (always spinning seemingly at random), and maps become outdated quickly after
-				they are drawn.
-			</p>
-			<p>
+		<div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center' }} key={1}>
+			<RichText>
+				Welcome, **Hero**, to **Shattered Wilds**, a work-in-progress base setting for a new **TTRPG** system based on
+				**D12** dice rolls. Heavily inspired by **D&D 5e**, accidentally similar to **Pathfinder 2e**, with some
+				elements of **Fate**, **D&D 3.5**, and some original ideas.
+			</RichText>
+			<RichText>
+				In **Shattered Wilds**, the world is ever-shifting. Not fast enough that you could see - but within a few weeks
+				or months, routes between settlements could be lost; rivers could change course, mountains could start to emerge
+				or dwindle back into the ground; forests could wander, and trails could lead to new places and ruins that had
+				not been seen for ages. The only constants are the settlements, villages, towns, cities or any sufficient
+				congregation of people - those are stable and do not move. But the routes between them are always changing,
+				compasses are useless (always spinning seemingly at random), and maps become outdated quickly after they are
+				drawn.
+			</RichText>
+			<RichText>
 				Travel, therefore, is a risky proposition. The Wilds, when uncharted, are perilous, presenting harsh conditions
-				for the unprepared, and filled with dangerous creatures - both beasts and people - and of course, the{' '}
-				<strong>Hollow</strong>. Adventurers double as cartographers, and venture forth into the wild to establish new
-				temporary routes, to allow for bursts of commerce and passage for the common folk, at least for a brief period
-				of time. Some strong enough to withstand the Wilds choose to live by themselves; others form parties to explore
-				and learn more about the world.
-			</p>
-			<p>
-				<StepButton onClick={nextStep()}>Continue</StepButton>
-			</p>
-		</>,
+				for the unprepared, and filled with dangerous creatures - both beasts and people - and of course, the
+				**Hollow**. Adventurers double as cartographers, and venture forth into the wild to establish new temporary
+				routes, to allow for bursts of commerce and passage for the common folk, at least for a brief period of time.
+				Some strong enough to withstand the **Wilds** choose to live by themselves; others form parties to explore and
+				learn more about the world.
+			</RichText>
+			<StepButton onClick={nextStep()} text='Venture the Wilds' />
+		</div>,
 		<>
 			<p>
 				In the <strong>D12</strong> system, Checks are determined by a <code>2d12 + Modifiers</code> roll.
@@ -405,7 +395,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 				</div>
 			</div>
 			<p>
-				<StepButton onClick={nextStep()}>Continue</StepButton>
+				<StepButton onClick={nextStep()} text='Got it!' />
 			</p>
 		</>,
 		<>
@@ -413,231 +403,86 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 				<strong>Stats</strong> are the core of your character. They are divided into three <strong>Realms</strong>:
 			</p>
 
-			<div
-				style={{
-					display: 'grid',
-					alignItems: 'center',
-					justifyContent: 'center',
-					gap: '2rem 0',
-					gridTemplateColumns: '1fr 1fr 1fr',
-				}}
-			>
-				<div
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						alignItems: 'center',
-						justifyContent: 'end',
-						gap: '1rem',
-						paddingRight: '2rem',
-						borderRight: '1px solid var(--text)',
-						padding: '1rem',
-						height: '100%',
-					}}
-				>
-					<p>
-						<strong>Body</strong>: The realm of physical capabilities, representing your character&apos;s bodily
-						strength, agility, and endurance.
-					</p>
-					<StepButton onClick={nextStep({ realm: 'body' })}>Choose Body</StepButton>
-				</div>
-				<div
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						alignItems: 'center',
-						justifyContent: 'end',
-						gap: '1rem',
-						paddingRight: '2rem',
-						borderRight: '1px solid var(--text)',
-						padding: '1rem',
-						height: '100%',
-					}}
-				>
-					<p>
-						<strong>Mind</strong>: The realm of mental capabilities, representing your character&apos;s wisdom,
-						perception, and creativity.
-					</p>
-					<StepButton onClick={nextStep({ realm: 'mind' })}>Choose Mind</StepButton>
-				</div>
-				<div
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						alignItems: 'center',
-						justifyContent: 'end',
-						gap: '1rem',
-						paddingRight: '2rem',
-						padding: '1rem',
-						height: '100%',
-					}}
-				>
-					<p>
-						<strong>Spirit</strong>: The realm of spiritual capabilities, representing your character&apos;s connection
-						to the divine, your own Soul, and Luck itself.
-					</p>
-					<StepButton onClick={nextStep({ realm: 'spirit' })}>Choose Spirit</StepButton>
-				</div>
-			</div>
+			<Columns amount={3}>
+				{StatType.realms.map((realm, idx) => (
+					<Column key={realm.name} idx={idx}>
+						<Bold>{realm.name}</Bold>
+						<RichText>{realm.description}</RichText>
+						<StepButton onClick={nextStep({ realm: realm.name })} text={`Choose ${realm.name}`} />
+					</Column>
+				))}
+			</Columns>
 		</>,
 		<>
 			<p>
 				You chose <strong>{options['realm']}</strong> as your Realm. Now choose your <strong>Primary Attribute</strong>:
 			</p>
-			<div
-				style={{
-					display: 'grid',
-					alignItems: 'center',
-					justifyContent: 'center',
-					gap: '2rem 0',
-					gridTemplateColumns: '1fr 1fr 1fr',
-				}}
-			>
-				{getAttributesByRealm(options['realm']).map((attribute, index) => {
-					const isLast = index === 2;
+
+			<Columns amount={3}>
+				{attributesByRealm[options.realm ?? StatType.Body.name].map((attribute, idx) => {
 					return (
-						<div
-							key={attribute.key}
-							style={{
-								display: 'flex',
-								flexDirection: 'column',
-								alignItems: 'center',
-								justifyContent: 'end',
-								gap: '1rem',
-								paddingRight: '2rem',
-								borderRight: isLast ? undefined : '1px solid var(--text)',
-								padding: '1rem',
-								height: '100%',
-							}}
-						>
-							<div style={{ textAlign: 'center' }}>
-								<strong style={{ fontSize: '1.5rem' }}>{attribute.key}</strong>
-								<p style={{ margin: '1rem 0' }}>{attribute.description}</p>
-							</div>
-							<StepButton onClick={nextStep({ attribute: attribute.key })}>Choose {attribute.key}</StepButton>
-						</div>
+						<Column key={attribute.key} idx={idx}>
+							<Bold>{attribute.key}</Bold>
+							<RichText>{attribute.description}</RichText>
+							<StepButton onClick={nextStep({ attribute: attribute.key })} text={`Choose ${attribute.key}`} />
+						</Column>
 					);
 				})}
-			</div>
+			</Columns>
 		</>,
 		<>
 			<p>
 				You chose <strong>{options['attribute']}</strong> as your primary attribute. Now choose your{' '}
 				<strong>Class</strong>:
 			</p>
-			<div
-				style={{
-					display: 'grid',
-					alignItems: 'center',
-					justifyContent: 'center',
-					gap: '2rem',
-					gridTemplateColumns:
-						getClassesByAttribute(options['attribute']).length === 4 ? '1fr 1fr 1fr 1fr' : '1fr 1fr 1fr',
-				}}
-			>
-				{getClassesByAttribute(options['attribute']).map((characterClass, index) => {
-					const isLast = index === getClassesByAttribute(options['attribute']).length - 1;
+
+			<Columns amount={getClassesByAttribute(options['attribute']).length}>
+				{getClassesByAttribute(options['attribute']).map((characterClass, idx) => {
 					return (
-						<div
-							key={characterClass.key}
-							style={{
-								display: 'flex',
-								flexDirection: 'column',
-								alignItems: 'center',
-								justifyContent: 'end',
-								gap: '1rem',
-								padding: '1rem',
-								height: '100%',
-								borderRight: isLast ? undefined : '1px solid var(--text)',
-							}}
-						>
-							<div style={{ textAlign: 'center' }}>
-								<strong style={{ fontSize: '1.5rem' }}>{characterClass.key}</strong>
-								<p style={{ margin: '1rem 0' }}>{characterClass.description}</p>
-							</div>
-							<StepButton onClick={nextStep({ class: characterClass.key })}>Choose {characterClass.key}</StepButton>
-						</div>
+						<Column key={characterClass.key} idx={idx}>
+							<Bold>{characterClass.key}</Bold>
+							<RichText>{characterClass.description}</RichText>
+							<StepButton onClick={nextStep({ class: characterClass.key })} text={`Choose ${characterClass.key}`} />
+						</Column>
 					);
 				})}
-			</div>
+			</Columns>
 		</>,
 		<>
 			<p>
 				You chose <strong>{options['class']}</strong> as your class. Now choose your <strong>Race</strong>:
 			</p>
-			<div
-				style={{
-					display: 'grid',
-					alignItems: 'center',
-					justifyContent: 'center',
-					gap: '2rem',
-					gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-				}}
-			>
-				{getRaces().map((race, index) => {
-					const isLast = index === getRaces().length - 1;
+			<Columns amount={3}>
+				{races.map((race, idx) => {
 					return (
-						<div
-							key={race.key}
-							style={{
-								display: 'flex',
-								flexDirection: 'column',
-								alignItems: 'center',
-								justifyContent: 'end',
-								gap: '1rem',
-								padding: '1rem',
-								height: '100%',
-								borderRight: isLast ? undefined : '1px solid var(--text)',
-							}}
-						>
-							<div style={{ textAlign: 'center' }}>
-								<strong style={{ fontSize: '1.5rem' }}>{race.key}</strong>
-								<p style={{ margin: '1rem 0' }}>{race.description}</p>
-							</div>
-							<StepButton onClick={nextStep({ race: race.key })}>Choose {race.key}</StepButton>
-						</div>
+						<Column key={race.key} idx={idx % 3}>
+							<Bold>{race.key}</Bold>
+							<RichText>{race.description}</RichText>
+							<StepButton onClick={nextStep({ race: race.key })} text={`${race.key}`} />
+						</Column>
 					);
 				})}
-			</div>
+			</Columns>
 		</>,
 		<>
 			<p>
 				You chose <strong>{options['race']}</strong> as your race. Now choose your <strong>Upbringing</strong>:
 			</p>
-			<div
-				style={{
-					display: 'grid',
-					alignItems: 'center',
-					justifyContent: 'center',
-					gap: '2rem',
-					gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-				}}
-			>
-				{getUpbringings().map((upbringing, index) => {
-					const isLast = index === getUpbringings().length - 1;
+			<RichText>
+				{`While typical upbringings for **${options['race']}** are ${races.find(r => r.key === (options['race'] ?? Race.Human))!.typicalUpbringings},\n\nyou can pick any option according to your character's backstory.`}
+			</RichText>
+			<div style={{ height: '2rem' }} />
+			<Columns amount={2}>
+				{upbringings.map((upbringing, idx) => {
 					return (
-						<div
-							key={upbringing.key}
-							style={{
-								display: 'flex',
-								flexDirection: 'column',
-								alignItems: 'center',
-								justifyContent: 'end',
-								gap: '1rem',
-								padding: '1rem',
-								height: '100%',
-								borderRight: isLast ? undefined : '1px solid var(--text)',
-							}}
-						>
-							<div style={{ textAlign: 'center' }}>
-								<strong style={{ fontSize: '1.5rem' }}>{upbringing.key}</strong>
-								<p style={{ margin: '1rem 0' }}>{upbringing.description}</p>
-							</div>
-							<StepButton onClick={nextStep({ upbringing: upbringing.key })}>Choose {upbringing.key}</StepButton>
-						</div>
+						<Column key={upbringing.key} idx={idx % 2}>
+							<Bold>{upbringing.key}</Bold>
+							<RichText>{upbringing.description}</RichText>
+							<StepButton onClick={nextStep({ upbringing: upbringing.key })} text={`${upbringing.key}`} />
+						</Column>
 					);
 				})}
-			</div>
+			</Columns>
 		</>,
 		<>
 			<p>Perfect! Here&apos;s your character summary:</p>
@@ -659,7 +504,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 				</div>
 			</div>
 			<p>
-				<StepButton onClick={onNavigateToCharacterSheets}>Create Character</StepButton>
+				<StepButton onClick={onNavigateToCharacterSheets} text='Create Character' />
 			</p>
 		</>,
 	];
@@ -675,19 +520,20 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 	);
 };
 
-const StepButton = ({ children, onClick }: { children: React.ReactNode; onClick: () => void }) => {
+const StepButton = ({ text, onClick }: { text: string; onClick: () => void }) => {
 	return (
 		<button
 			style={{
 				fontSize: '4rem',
-				padding: '2rem 8rem',
 				textTransform: 'uppercase',
 				backgroundColor: 'var(--primary)',
 				color: 'var(--text)',
 			}}
 			onClick={onClick}
 		>
-			{children}
+			<div style={{ padding: '2rem', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+				{text}
+			</div>
 		</button>
 	);
 };
@@ -727,10 +573,8 @@ const StepWrapper = ({
 					flex: 1,
 					padding: '2rem',
 					overflow: 'auto',
-					maxWidth: step === 5 || step === 6 ? 'none' : '1600px',
-					margin: step === 5 || step === 6 ? '0' : '0 auto',
-					width: '100%',
-					boxSizing: 'border-box',
+					maxWidth: '1600px',
+					margin: '0 auto',
 					fontSize: '2rem',
 					textAlign: 'center',
 				}}

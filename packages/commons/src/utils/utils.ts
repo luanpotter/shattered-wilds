@@ -116,3 +116,26 @@ export const lastOrNull = <T>(array?: readonly T[]): T | null => {
 	}
 	return array[array.length - 1] ?? null;
 };
+
+/**
+ * Joins a list of strings into a human-readable list in the format "A, B, and C".
+ * @param items - The list of strings to join
+ * @returns The human-readable list
+ */
+export const joinHumanReadableList = (items: string[]): string => {
+	return items
+		.map((str, idx, arr) => {
+			if (arr.length === 1) {
+				return str;
+			} else if (idx === 0) {
+				return str;
+			} else if (idx === arr.length - 1 && arr.length === 2) {
+				return ` and ${str}`;
+			} else if (idx === arr.length - 1) {
+				return `, and ${str}`;
+			} else {
+				return `, ${str}`;
+			}
+		})
+		.join('');
+};

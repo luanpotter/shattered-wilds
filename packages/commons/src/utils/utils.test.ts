@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { mapEnumToRecord, getRecordKeys, numberToOrdinal, firstParagraph, isEnumValue } from './utils.js';
+import {
+	mapEnumToRecord,
+	getRecordKeys,
+	numberToOrdinal,
+	firstParagraph,
+	isEnumValue,
+	lastOrNull,
+	joinHumanReadableList,
+} from './utils.js';
 
 describe('mapEnumToRecord', () => {
 	it('should map all enum values to a record', () => {
@@ -111,6 +119,25 @@ describe('numberToOrdinal', () => {
 			const array = ['one', 'two', 'four', 'five', 1, null, undefined, {}, []];
 			const filtered = array.filter(isEnumValue(SampleEnum));
 			expect(filtered).toEqual(['one', 'two']);
+		});
+	});
+
+	describe('lastOrNull', () => {
+		it('should return the last element of an array or null if empty', () => {
+			expect(lastOrNull([1, 2, 3])).toBe(3);
+			expect(lastOrNull(['a', 'b', 'c'])).toBe('c');
+			expect(lastOrNull([])).toBeNull();
+			expect(lastOrNull()).toBeNull();
+		});
+	});
+
+	describe('joinHumanReadableList', () => {
+		it('should join lists into human-readable strings correctly', () => {
+			expect(joinHumanReadableList(['Apple'])).toBe('Apple');
+			expect(joinHumanReadableList(['Apple', 'Banana'])).toBe('Apple and Banana');
+			expect(joinHumanReadableList(['Apple', 'Banana', 'Cherry'])).toBe('Apple, Banana, and Cherry');
+			expect(joinHumanReadableList(['Apple', 'Banana', 'Cherry', 'Date'])).toBe('Apple, Banana, Cherry, and Date');
+			expect(joinHumanReadableList([])).toBe('');
 		});
 	});
 });

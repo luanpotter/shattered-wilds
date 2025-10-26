@@ -29,13 +29,15 @@ export interface RaceDefinition {
 	name: Race;
 	size: Size;
 	modifiers: RacialStatModifier[];
+	typicalUpbringings: Upbringing[];
 }
 
 export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 	[Race.Human]: {
 		name: Race.Human,
-		modifiers: [], // Neutral - no modifiers
+		modifiers: [],
 		size: Size.M,
+		typicalUpbringings: [Upbringing.Urban, Upbringing.Nomadic],
 	},
 	[Race.Elf]: {
 		name: Race.Elf,
@@ -44,6 +46,7 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 			{ statType: StatType.CON, value: Bonus.of(-1) },
 		],
 		size: Size.M,
+		typicalUpbringings: [Upbringing.Urban, Upbringing.Sylvan],
 	},
 	[Race.Dwarf]: {
 		name: Race.Dwarf,
@@ -52,6 +55,7 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 			{ statType: StatType.DEX, value: Bonus.of(-1) },
 		],
 		size: Size.S,
+		typicalUpbringings: [Upbringing.Tribal, Upbringing.Telluric],
 	},
 	[Race.Orc]: {
 		name: Race.Orc,
@@ -60,6 +64,7 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 			{ statType: StatType.DEX, value: Bonus.of(-1) },
 		],
 		size: Size.L,
+		typicalUpbringings: [Upbringing.Nomadic, Upbringing.Telluric],
 	},
 	[Race.Fey]: {
 		name: Race.Fey,
@@ -68,6 +73,7 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 			{ statType: StatType.STR, value: Bonus.of(-1) },
 		],
 		size: Size.S,
+		typicalUpbringings: [Upbringing.Tribal, Upbringing.Sylvan],
 	},
 	[Race.Goliath]: {
 		name: Race.Goliath,
@@ -76,6 +82,7 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 			{ statType: StatType.CON, value: Bonus.of(-1) },
 		],
 		size: Size.L,
+		typicalUpbringings: [Upbringing.Tribal, Upbringing.Telluric],
 	},
 	[Race.Goblin]: {
 		name: Race.Goblin,
@@ -84,5 +91,6 @@ export const RACE_DEFINITIONS: Record<Race, RaceDefinition> = {
 			{ statType: StatType.STR, value: Bonus.of(-1) },
 		],
 		size: Size.S,
+		typicalUpbringings: [Upbringing.Nomadic, Upbringing.Sylvan],
 	},
 };
