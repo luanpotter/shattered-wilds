@@ -1,8 +1,18 @@
-import { ArcaneFocus, Armor, CharacterSheet, Item, OtherItem, Shield, Weapon } from '@shattered-wilds/commons';
+import {
+	ArcaneFocus,
+	Armor,
+	CharacterSheet,
+	CheckFactory,
+	Item,
+	OtherItem,
+	Shield,
+	Weapon,
+	WeaponModeOption,
+} from '@shattered-wilds/commons';
 
 import { Bold, Box, Dash } from './printer-friendly-commons';
 
-export const PrintFriendlyEquipment = ({ sheet }: { sheet: CharacterSheet }) => {
+export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: CharacterSheet }) => {
 	const wrapTraits = (traits: string[]) => {
 		return traits.map(trait => (
 			<span key={trait} style={{ marginLeft: '0.25em' }}>
@@ -10,6 +20,10 @@ export const PrintFriendlyEquipment = ({ sheet }: { sheet: CharacterSheet }) => 
 			</span>
 		));
 	};
+
+	const checkFactory = new CheckFactory({ characterSheet });
+
+	const defaultArmor = characterSheet.equipment.defaultArmor();
 
 	const renderItem = (item: Item) => {
 		if (item instanceof Weapon) {
@@ -25,7 +39,12 @@ export const PrintFriendlyEquipment = ({ sheet }: { sheet: CharacterSheet }) => 
 								{wrapTraits(item.traits)}
 							</div>
 							<Dash />
-							<Box>{mode.bonus.description}</Box>
+							<Box>
+								{
+									checkFactory.weapon({ weaponMode: new WeaponModeOption({ weapon: item, mode }) }).modifierValue
+										.description
+								}
+							</Box>
 						</div>
 					))}
 				</div>
@@ -37,12 +56,12 @@ export const PrintFriendlyEquipment = ({ sheet }: { sheet: CharacterSheet }) => 
 						<Bold>{item.name}</Bold>
 						&nbsp;
 						<span>
-							[{item.type} {item.bonus.description}, Dex Penalty: {item.dexPenalty.description}]
+							[{item.type} {item.bonus.description}, DEX Penalty: {item.dexPenalty.description}]
 						</span>
 						{wrapTraits(item.traits)}
 					</div>
 					<Dash />
-					<Box>{item.bonus.description}</Box>
+					<Box>{checkFactory.armor({ armor: item }).modifierValue.description}</Box>
 				</>
 			);
 		} else if (item instanceof Shield) {
@@ -57,7 +76,7 @@ export const PrintFriendlyEquipment = ({ sheet }: { sheet: CharacterSheet }) => 
 						{wrapTraits(item.traits)}
 					</div>
 					<Dash />
-					<Box>{item.bonus.description}</Box>
+					<Box>{checkFactory.shield({ armor: defaultArmor, shield: item }).modifierValue.description}</Box>
 				</>
 			);
 		} else if (item instanceof ArcaneFocus) {
@@ -87,7 +106,7 @@ export const PrintFriendlyEquipment = ({ sheet }: { sheet: CharacterSheet }) => 
 
 	return (
 		<>
-			{sheet.equipment.items.map((item, idx) => {
+			{characterSheet.equipment.items.map((item, idx) => {
 				return (
 					<div key={idx} style={{ display: 'flex', width: '100%' }}>
 						{renderItem(item)}

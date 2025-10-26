@@ -99,10 +99,10 @@ export const CharacterSheetPrintContent = ({ sheet }: { sheet: CharacterSheet })
 				<div style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem' }}>
 					<div style={{ flex: 1, border: '1px solid black' }}>
 						<div style={{ textAlign: 'center', borderBottom: '1px dotted black', margin: '0 1em' }}>
-							<Bold>Inventory</Bold>
+							<Bold>Equipment</Bold>
 						</div>
 						<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', margin: '8px' }}>
-							<PrintFriendlyEquipment sheet={sheet} />
+							<PrintFriendlyEquipment characterSheet={sheet} />
 						</div>
 					</div>
 				</div>
