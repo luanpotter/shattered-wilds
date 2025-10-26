@@ -27,11 +27,11 @@ Derived Stats are based on formulae over the primary stats.
 
 You have 5 [[Resource | Resource Points]] that are derived from your stats:
 
-* {% item "Heroism_Point" %}
-* {% item "Action_Point" %}
-* {% item "Vitality_Point" %}
-* {% item "Focus_Point" %}
-* {% item "Spirit_Point" %}
+* {% item "Heroism_Points" %}
+* {% item "Action_Points" %}
+* {% item "Vitality_Points" %}
+* {% item "Focus_Points" %}
+* {% item "Spirit_Points" %}
 
 Other derived stats include:
 
