@@ -29,6 +29,8 @@
 
 {% include "docs/lexicon/Consequence.md" %}
 
+The list below is a non-exhaustive example of some possible Consequences that can be incurred.
+
 <details>
     <summary>Consequences</summary>
     <ul>
