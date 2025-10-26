@@ -27,6 +27,8 @@ import {
 import React, { useState } from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 
+import { useStore } from '../../store';
+import { createNewCharacter } from '../../types/ui';
 import { Button } from '../shared/Button';
 import { RichText } from '../shared/RichText';
 
@@ -35,6 +37,9 @@ interface OnboardingPageProps {
 }
 
 export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToCharacterSheets }) => {
+	const characters = useStore(state => state.characters);
+	const addCharacter = useStore(state => state.addCharacter);
+
 	const [step, setStep] = useState(1);
 	const [options, setOptions] = useState<Record<string, string>>({});
 	const nextStep = (options?: Record<string, string>) => {
@@ -42,6 +47,13 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 			setOptions(current => ({ ...current, ...options }));
 			setStep(step + 1);
 		};
+	};
+
+	const createCharacter = () => {
+		const props = { name: '--New Character--', ...options };
+		const character = createNewCharacter({ characters, props });
+		addCharacter(character);
+		onNavigateToCharacterSheets();
 	};
 
 	const getAttributeInfo = (attribute: StatType): { key: string; description: string } => {
@@ -516,7 +528,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 				</div>
 			</div>
 			<p>
-				<StepButton onClick={onNavigateToCharacterSheets} text='Create Character' />
+				<StepButton onClick={createCharacter} text='Create Character' />
 			</p>
 		</>,
 	];
