@@ -156,9 +156,14 @@ const App = (): React.ReactElement => {
 		closeAllModals();
 	};
 
-	const hasHeader = (view: ViewType): boolean => {
+	const hasHeaderAndFooter = (view: ViewType): boolean => {
 		return !['onboarding', 'print-sheet'].includes(view);
 	};
+
+	if (currentView === 'print-sheet') {
+		// we need a completely custom style for printing
+		return <CharacterSheetPrintPage characterId={initialCharacterId!} />;
+	}
 
 	return (
 		<div
@@ -174,7 +179,7 @@ const App = (): React.ReactElement => {
 			onMouseDown={handleMouseDown}
 			onMouseLeave={() => setDragState({ type: 'none' })}
 		>
-			{hasHeader(currentView) && (
+			{hasHeaderAndFooter(currentView) && (
 				<header
 					style={{
 						padding: '1rem',
@@ -242,10 +247,9 @@ const App = (): React.ReactElement => {
 						/>
 					)}
 					{currentView === 'onboarding' && <OnboardingPage onNavigateToCharacterSheets={Navigator.toCharacterSheets} />}
-					{currentView === 'print-sheet' && <CharacterSheetPrintPage characterId={initialCharacterId!} />}
 				</div>
 			</main>
-			{currentView !== 'onboarding' && (
+			{hasHeaderAndFooter(currentView) && (
 				<footer
 					style={{
 						padding: '1rem',

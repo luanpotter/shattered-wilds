@@ -1,5 +1,4 @@
-import { asc } from 'type-comparator/build/comparators/index.js';
-import { map } from 'type-comparator';
+import { map, asc } from 'type-comparator';
 import { AppliedCircumstance } from '../../character/circumstances.js';
 import { CharacterSheet } from '../../character/character-sheet.js';
 import { Condition } from '../../core/conditions.js';

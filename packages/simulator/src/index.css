@@ -108,3 +108,19 @@ body {
 	min-height: 100vh;
 	overflow: hidden;
 }
+
+@media print {
+	@page {
+		size: a4;
+		margin: 0;
+	}
+	body {
+		background: white !important;
+	}
+	.print-container {
+		margin: 0 auto !important;
+		box-sizing: border-box;
+		width: 210mm !important;
+		max-width: 100vw !important;
+	}
+}

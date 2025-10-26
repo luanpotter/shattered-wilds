@@ -56,6 +56,7 @@ export class FeatDefinition<T extends string | void> {
 	type: FeatType;
 	sources: FeatSource[];
 	level: number;
+	hideForPrint: boolean;
 	description: string;
 	parameter: FeatParameter<T> | undefined;
 	fullDescription: ((info: FeatInfo<T>) => string) | undefined;
@@ -67,6 +68,7 @@ export class FeatDefinition<T extends string | void> {
 		type,
 		sources,
 		level,
+		hideForPrint,
 		description,
 		parameter,
 		fullDescription,
@@ -77,6 +79,7 @@ export class FeatDefinition<T extends string | void> {
 		type: FeatType;
 		sources: FeatSource[];
 		level: number;
+		hideForPrint?: boolean;
 		description: string;
 		parameter?: FeatParameter<T>;
 		fullDescription?: (info: FeatInfo<T>) => string;
@@ -87,6 +90,7 @@ export class FeatDefinition<T extends string | void> {
 		this.type = type;
 		this.sources = sources;
 		this.level = level;
+		this.hideForPrint = hideForPrint ?? false;
 		this.description = description;
 		this.parameter = parameter ?? undefined;
 		this.fullDescription = fullDescription;
@@ -654,6 +658,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Core,
 		sources: [StaticFeatSource.ClassRole],
 		level: 1,
+		hideForPrint: true,
 		description: `+1 Attribute Modifier to the class's primary attribute`,
 		parameter: {
 			id: 'class-role',
@@ -677,6 +682,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Core,
 		sources: [StaticFeatSource.Race],
 		level: 0,
+		hideForPrint: true,
 		description: '+1/-1 Racial Modifiers',
 		parameter: {
 			id: 'race',
@@ -703,6 +709,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Core,
 		sources: [StaticFeatSource.Upbringing],
 		level: 0,
+		hideForPrint: true,
 		description: '+1 Upbringing Modifier',
 		parameter: {
 			id: 'upbringing-favored-modifier',
@@ -725,6 +732,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Core,
 		sources: [StaticFeatSource.Upbringing],
 		level: 0,
+		hideForPrint: true,
 		description: '-1 Upbringing Modifier',
 		parameter: {
 			id: 'upbringing-disfavored-modifier',
@@ -762,6 +770,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Core,
 		sources: [Upbringing.Urban],
 		level: 0,
+		hideForPrint: true,
 		description: 'You gain two additional **Minor Feat** slots at Level 1.',
 	}),
 	[Feat.NomadicAlertness]: new FeatDefinition<void>({
