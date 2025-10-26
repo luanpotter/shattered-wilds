@@ -59,7 +59,7 @@ export const CharacterSheetPrintContent = ({ sheet }: { sheet: CharacterSheet })
 		<>
 			<Blocks>
 				<div style={{ borderBottom: '1px solid black' }}>
-					<span>{sheet.name}</span>
+					<Bold>{sheet.name}</Bold>
 					<span style={{ float: 'right' }}>
 						Level {sheet.level} {sheet.race.toString()} {sheet.characterClass.toString()}
 					</span>
