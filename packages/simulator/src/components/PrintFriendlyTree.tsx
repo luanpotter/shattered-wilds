@@ -9,30 +9,15 @@ import {
 } from '@shattered-wilds/commons';
 import React from 'react';
 
+import { Bold, Box, Dash } from './printer-friendly-commons';
+
 export const PrintFriendlyTree = ({ characterSheet }: { characterSheet: CharacterSheet }) => {
 	const statTree: StatTree = characterSheet.getStatTree();
 	const circumstancesSection = CircumstancesSection.create({ characterSheet });
 
-	const Bold = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => (
-		<strong style={{ color: 'black', ...style }}>{children}</strong>
-	);
-
 	const ModifierBox = ({ statNode }: { statNode: StatNode }) => {
 		const modifier = statTree.getModifier(statNode.type);
-		return (
-			<div
-				style={{
-					border: '1px dotted black',
-					width: '32px',
-					height: '32px',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-				}}
-			>
-				<span>{modifier.value.description}</span>
-			</div>
-		);
+		return <Box>{modifier.value.description}</Box>;
 	};
 
 	const RealmLabel: React.FC<{ statType: StatType; resource: Resource }> = ({ statType, resource }) => {
@@ -114,17 +99,8 @@ export const PrintFriendlyTree = ({ characterSheet }: { characterSheet: Characte
 						alignItems: 'center',
 					}}
 				>
-					<Bold style={{ marginRight: '2px' }}>{statType.name}</Bold>
-					<div style={{ flex: 1 }}>
-						<hr
-							style={{
-								borderTop: '1px dotted black',
-								borderBottom: 'none',
-								borderLeft: 'none',
-								borderRight: 'none',
-							}}
-						/>
-					</div>
+					<Bold>{statType.name}</Bold>
+					<Dash />
 					<ModifierBox statNode={node} />
 				</div>
 
@@ -139,17 +115,8 @@ export const PrintFriendlyTree = ({ characterSheet }: { characterSheet: Characte
 								padding: '0.1em 0',
 							}}
 						>
-							<span style={{ marginRight: '2px' }}>{skill.type.name}</span>
-							<div style={{ flex: 1 }}>
-								<hr
-									style={{
-										borderTop: '1px dotted black',
-										borderBottom: 'none',
-										borderLeft: 'none',
-										borderRight: 'none',
-									}}
-								/>
-							</div>
+							<span>{skill.type.name}</span>
+							<Dash />
 							<ModifierBox statNode={skill} />
 						</div>
 					))}

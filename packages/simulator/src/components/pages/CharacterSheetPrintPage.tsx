@@ -1,7 +1,8 @@
 import { CharacterSheet, DerivedStatType, FeatInfo, FeatsSection } from '@shattered-wilds/commons';
-import { map, asc } from 'type-comparator';
+import { asc, map } from 'type-comparator';
 
 import { useStore } from '../../store';
+import { PrintFriendlyEquipment } from '../PrintFriendlyEquipment';
 import { PrintFriendlyTree } from '../PrintFriendlyTree';
 
 export const CharacterSheetPrintPage = ({ characterId }: { characterId: string }) => {
@@ -96,14 +97,12 @@ export const CharacterSheetPrintContent = ({ sheet }: { sheet: CharacterSheet })
 				</div>
 				<hr />
 				<div style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem' }}>
-					<div style={{ width: '100%', border: '1px solid black' }}>
+					<div style={{ flex: 1, border: '1px solid black' }}>
 						<div style={{ textAlign: 'center', borderBottom: '1px dotted black', margin: '0 1em' }}>
 							<Bold>Inventory</Bold>
 						</div>
-						<div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.5rem', margin: '8px' }}>
-							{sheet.equipment.items.map((item, idx) => (
-								<div key={idx}>{item.name}</div>
-							))}
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', margin: '8px' }}>
+							<PrintFriendlyEquipment sheet={sheet} />
 						</div>
 					</div>
 				</div>
