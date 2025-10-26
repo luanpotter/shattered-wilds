@@ -15,7 +15,15 @@ import { Bold, Box, Dash } from './printer-friendly-commons';
 export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: CharacterSheet }) => {
 	const wrapTraits = (traits: string[]) => {
 		return traits.map(trait => (
-			<span key={trait} style={{ marginLeft: '0.25em' }}>
+			<span
+				key={trait}
+				style={{
+					marginLeft: '0.25em',
+					textDecoration: 'underline',
+					textDecorationStyle: 'double',
+					textDecorationColor: '#6bff6b',
+				}}
+			>
 				[{trait}]
 			</span>
 		));
@@ -28,36 +36,43 @@ export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: Cha
 	const renderItem = (item: Item) => {
 		if (item instanceof Weapon) {
 			return (
-				<div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+				<div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
 					<Bold>{item.name}</Bold>
-					{item.modes.map((mode, idx) => (
-						<div key={idx} style={{ display: 'flex', marginLeft: '1em' }}>
-							<div>
-								<span>
-									[{mode.type} {mode.bonus.description}, Range: {mode.range.description}]
-								</span>
-								{wrapTraits(item.traits)}
+					{item.modes.map((mode, idx) => {
+						const parts = [
+							`${mode.type} ${mode.bonus.description}`,
+							mode.range.isMelee() ? undefined : `Range: ${mode.range.description}`,
+						].filter(e => e !== undefined);
+						return (
+							<div key={idx} style={{ display: 'flex', marginLeft: '1em' }}>
+								<div>
+									<span>[{parts.join(', ')}]</span>
+									{wrapTraits(item.traits)}
+								</div>
+								<Dash />
+								<Box>
+									{
+										checkFactory.weapon({ weaponMode: new WeaponModeOption({ weapon: item, mode }) }).modifierValue
+											.description
+									}
+								</Box>
 							</div>
-							<Dash />
-							<Box>
-								{
-									checkFactory.weapon({ weaponMode: new WeaponModeOption({ weapon: item, mode }) }).modifierValue
-										.description
-								}
-							</Box>
-						</div>
-					))}
+						);
+					})}
 				</div>
 			);
 		} else if (item instanceof Armor) {
+			const parts = [
+				item.type,
+				item.bonus.description,
+				item.dexPenalty.isNotZero ? `DEX Penalty: ${item.dexPenalty.description}` : undefined,
+			].filter(e => e !== undefined);
 			return (
 				<>
 					<div>
 						<Bold>{item.name}</Bold>
 						&nbsp;
-						<span>
-							[{item.type} {item.bonus.description}, DEX Penalty: {item.dexPenalty.description}]
-						</span>
+						<span>[{parts.join(' ')}]</span>
 						{wrapTraits(item.traits)}
 					</div>
 					<Dash />
@@ -104,11 +119,23 @@ export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: Cha
 		}
 	};
 
+	const getColorForItemType = (item: Item) => {
+		if (item instanceof Weapon) {
+			return '#c62828ff';
+		} else if (item instanceof Armor) {
+			return '#2e7d32ff';
+		} else if (item instanceof Shield) {
+			return '#1565c0ff';
+		}
+		return '#6d4c41ff';
+	};
+
 	return (
 		<>
 			{characterSheet.equipment.items.map((item, idx) => {
+				const color = getColorForItemType(item);
 				return (
-					<div key={idx} style={{ display: 'flex', width: '100%' }}>
+					<div key={idx} style={{ display: 'flex', borderLeft: `2px solid ${color}`, paddingLeft: '4px' }}>
 						{renderItem(item)}
 					</div>
 				);

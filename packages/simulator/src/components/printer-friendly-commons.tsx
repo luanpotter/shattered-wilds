@@ -30,9 +30,10 @@ export const Box: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'center',
+				color: 'black',
 			}}
 		>
-			<span>{children}</span>
+			<span style={{ backgroundColor: '#ffb300' }}>{children}</span>
 		</div>
 	);
 };

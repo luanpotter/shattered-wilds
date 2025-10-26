@@ -4,6 +4,7 @@ import { asc, map } from 'type-comparator';
 import { useStore } from '../../store';
 import { PrintFriendlyEquipment } from '../PrintFriendlyEquipment';
 import { PrintFriendlyTree } from '../PrintFriendlyTree';
+import { RichText } from '../shared/RichText';
 
 export const CharacterSheetPrintPage = ({ characterId }: { characterId: string }) => {
 	const character = useStore(state => state.characters.find(c => c.id === characterId));
@@ -113,9 +114,14 @@ export const CharacterSheetPrintContent = ({ sheet }: { sheet: CharacterSheet })
 						<div style={{ textAlign: 'center', borderBottom: '1px dotted black', margin: '0 1em' }}>
 							<Bold>Feats</Bold>
 						</div>
-						<div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.5rem', margin: '8px' }}>
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', margin: '8px' }}>
 							{feats.map((feat, idx) => (
-								<div key={idx}>{feat.name}</div>
+								<div key={idx} className='rich-text' style={{ borderLeft: '2px solid #217be2ff', paddingLeft: '4px' }}>
+									<Bold>{feat.name}</Bold>
+									<div style={{ textAlign: 'justify', fontSize: '0.75em' }}>
+										<RichText>{feat.description}</RichText>
+									</div>
+								</div>
 							))}
 						</div>
 					</div>

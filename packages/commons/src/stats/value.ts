@@ -51,6 +51,10 @@ export class Distance implements Value {
 		}
 	}
 
+	isMelee(): boolean {
+		return this.value === 1;
+	}
+
 	static of(value: number): Distance {
 		return new Distance({ value });
 	}

@@ -10,6 +10,7 @@ import {
 import React from 'react';
 
 import { Bold, Box, Dash } from './printer-friendly-commons';
+import { getRealmColorWithAlpha } from './stat-tree/shared-logic';
 
 export const PrintFriendlyTree = ({ characterSheet }: { characterSheet: CharacterSheet }) => {
 	const statTree: StatTree = characterSheet.getStatTree();
@@ -54,6 +55,8 @@ export const PrintFriendlyTree = ({ characterSheet }: { characterSheet: Characte
 							alignItems: 'center',
 							gap: '0.5rem',
 							transform: 'rotate(180deg)',
+							textDecoration: 'underline',
+							textDecorationColor: getRealmColorWithAlpha(statType, 1),
 						}}
 					>
 						<span>{statType.name}</span>

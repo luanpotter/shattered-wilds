@@ -25,13 +25,17 @@ export const useHandleDeallocatePoint = (
 };
 
 export const getRealmBackgroundColor = (realmType: StatType): string => {
+	return getRealmColorWithAlpha(realmType, 0.1);
+};
+
+export const getRealmColorWithAlpha = (realmType: StatType, alpha: number): string => {
 	switch (realmType) {
 		case StatType.Body:
-			return 'rgba(255, 100, 100, 0.1)';
+			return `rgba(255, 100, 100, ${alpha})`;
 		case StatType.Mind:
-			return 'rgba(100, 100, 255, 0.1)';
+			return `rgba(100, 100, 255, ${alpha})`;
 		case StatType.Soul:
-			return 'rgba(100, 255, 100, 0.1)';
+			return `rgba(100, 255, 100, ${alpha})`;
 		default:
 			throw new Error(`Unhandled realm type: ${realmType}`);
 	}

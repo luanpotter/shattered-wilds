@@ -535,6 +535,9 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		level: 1,
 		description:
 			'You are acquainted with a specific trade, allowing you to perform basic tasks associated with it, such as a Blacksmith, Bookbinder, Carpenter, Cartographer, Chandler, Clothier, Cook, Farmer, Fisher, Fletcher, Herbalist, Jeweler, Locksmith, Mason, Miner, Potter, Tanner, Weaver, Weaver, Woodcutter, etc. You can pick this Feat multiple times for different trades.',
+		fullDescription: info => {
+			return `You are acquainted with the **${info.parameter}** trade, allowing you to perform basic tasks associated with it.`;
+		},
 		parameter: {
 			id: 'trade',
 			name: 'Trade',
@@ -550,6 +553,9 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		level: 1,
 		description:
 			'You are proficient with a specific tool, granting you a `+3` [[Circumstance Modifier | CM]] when performing appropriate tasks using it. You can pick this Feat multiple times for different tools.',
+		fullDescription: info => {
+			return `You are proficient with a **${info.parameter}**, granting you a \`+3\` Circumstance Modifier (CM) when performing appropriate tasks using it.`;
+		},
 		parameter: {
 			id: 'tool',
 			name: 'Tool',
@@ -757,6 +763,9 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		level: 0,
 		description:
 			'You have `+3` to [[Knowledge]] or [[Intuition]] Checks about aspects related to a specific area of expertise.',
+		fullDescription: info => {
+			return `You have \`+3\` to **Knowledge** or **Intuition** Checks about aspects related to **${info.parameter}**.`;
+		},
 		parameter: {
 			id: 'upbringing',
 			name: 'Upbringing',
