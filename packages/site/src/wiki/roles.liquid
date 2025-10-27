@@ -12,3 +12,8 @@
 {% include 'wiki-header.liquid' %}
 
 {{ lexicon.content | mdb }}
+
+<h2>Feats</h2>
+
+{% list_feats_for_source lexicon.name %}
+

@@ -22,6 +22,7 @@ export const flavors = Object.values(CLASS_FLAVORS).map(def => {
 		],
 
 		// other parameters
+		name: def.name,
 		realm: def.realm,
 	};
 });

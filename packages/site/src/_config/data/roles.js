@@ -22,12 +22,14 @@ export const roles = Object.values(CLASS_ROLES).map(def => {
 			{
 				key: 'role',
 				title: 'Primary Attribute',
-				value: `${def.primaryAttribute}`,
+				slug: slugify(def.primaryAttribute.name),
+				value: def.primaryAttribute.name,
 				cssClass: 'metadata-source',
 			},
 		],
 
 		// other parameters
+		name: def.name,
 		realm: def.realm,
 		primaryAttribute: def.primaryAttribute,
 	};

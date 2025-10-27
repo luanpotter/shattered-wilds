@@ -20,12 +20,14 @@ export const classes = Object.values(CLASS_DEFINITIONS).map(def => {
 			{
 				key: 'role',
 				title: 'Role',
+				slug: slugify(`${def.role} ${def.realm}`),
 				value: `${def.role} (${def.primaryAttribute})`,
 				cssClass: 'metadata-source',
 			},
 			{
 				key: 'flavor',
 				title: 'Flavor',
+				slug: slugify(`${def.flavor} ${def.realm}`),
 				value: def.flavor,
 				cssClass: 'metadata-source',
 			},

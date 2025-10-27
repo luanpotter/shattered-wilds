@@ -328,28 +328,33 @@ div.pagination p {
 	border: 1px solid var(--border);
 }
 
-.metadata-type {
-	color: #4ecdc4;
+.metadata-type,
+.metadata-type a {
+	color: #4ecdc4 !important;
 }
 
 .metadata-cost,
-.metadata-level {
-	color: #ff6b6b;
+.metadata-cost a,
+.metadata-level,
+.metadata-level a {
+	color: #ff6b6b !important;
 }
 
 .metadata-trait,
 .metadata-trait a {
-	color: #6bff6b;
+	color: #6bff6b !important;
 }
 
 .metadata-school,
 .metadata-school a {
-	color: #f06292;
+	color: #f06292 !important;
 }
 
 .metadata-category,
-.metadata-source {
-	color: #abad30;
+.metadata-category a,
+.metadata-source,
+.metadata-source a {
+	color: #abad30 !important;
 }
 
 /* Breadcrumb styles */

@@ -5,7 +5,11 @@
 		<div class='item-metadata'>
 			{% for meta in lexicon.metadata %}
 				{% if meta.value %}
-					<span class='{{ meta.cssClass }}'>{{ meta.title }}: {{ meta.value }}</span>
+					{% if meta.slug %}
+						<span class='{{ meta.cssClass }}'>{{ meta.title }}: <a href="/wiki/{{ meta.slug }}">{{ meta.value }}</a></span>
+					{% else %}
+						<span class='{{ meta.cssClass }}'>{{ meta.title }}: {{ meta.value }}</span>
+					{% endif %}
 				{% else %}
 					<span class='{{ meta.cssClass }}'>
 						<a href='/wiki/{{ meta.key }}/'>{{ meta.title }}</a>
