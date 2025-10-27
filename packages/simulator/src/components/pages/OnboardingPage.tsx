@@ -228,8 +228,8 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 				drawn.
 			</RichText>
 			<RichText>
-				Travel, therefore, is a risky proposition. The Wilds, when uncharted, are perilous, presenting harsh conditions
-				for the unprepared, and filled with dangerous creatures - both beasts and people - and of course, the
+				Travel, therefore, is a risky proposition. The **Wilds**, when uncharted, are perilous, presenting harsh
+				conditions for the unprepared, and filled with dangerous creatures - both beasts and people - and of course, the
 				**Hollow**. Adventurers double as cartographers, and venture forth into the wild to establish new temporary
 				routes, to allow for bursts of commerce and passage for the common folk, at least for a brief period of time.
 				Some strong enough to withstand the **Wilds** choose to live by themselves; others form parties to explore and

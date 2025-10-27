@@ -186,7 +186,7 @@ export const CLASS_FLAVORS: Record<ClassFlavor, ClassFlavorDefinition> = {
 		name: ClassFlavor.Survivalist,
 		realm: ClassRealm.Warrior,
 		description:
-			'The _Survivalist Warrior_ channels their inner [[Rage]] and primal instincts to succeed in combat. They are seasoned by the Wilds, able to track, forage and survive in harsh environments.',
+			'The _Survivalist Warrior_ channels their inner [[Rage]] and primal instincts to succeed in combat. They are seasoned by the Wilds, able to track, forage, and survive in harsh environments.',
 	},
 	[ClassFlavor.Scoundrel]: {
 		name: ClassFlavor.Scoundrel,
