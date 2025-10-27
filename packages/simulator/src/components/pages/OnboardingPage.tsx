@@ -1,18 +1,3 @@
-const Column = ({ idx, children }: { idx: number; children: React.ReactNode }) => (
-	<div
-		style={{
-			display: 'flex',
-			flexDirection: 'column',
-			justifyContent: 'space-between',
-			gap: '1rem',
-			borderLeft: idx > 0 ? '1px solid var(--text)' : undefined,
-			height: '100%',
-			padding: '1rem',
-		}}
-	>
-		{children}
-	</div>
-);
 import {
 	firstParagraph,
 	getRecordValues,
@@ -27,6 +12,7 @@ import {
 import React, { useState } from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 
+import CritsImage from '../../assets/crits.svg';
 import { useStore } from '../../store';
 import { createNewCharacter } from '../../types/ui';
 import { Button } from '../shared/Button';
@@ -68,6 +54,22 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 
 	const Bold = ({ children }: { children: React.ReactNode }) => (
 		<strong style={{ fontWeight: 'bold', borderBottom: '1px solid white' }}>{children}</strong>
+	);
+
+	const Column = ({ idx, children }: { idx: number; children: React.ReactNode }) => (
+		<div
+			style={{
+				display: 'flex',
+				flexDirection: 'column',
+				justifyContent: 'space-between',
+				gap: '1rem',
+				borderLeft: idx > 0 ? '1px solid var(--text)' : undefined,
+				height: '100%',
+				padding: '1rem',
+			}}
+		>
+			{children}
+		</div>
 	);
 
 	const Columns = ({ amount, children }: { amount: number; children: React.ReactNode }) => {
@@ -365,7 +367,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 					<p style={{ margin: '0' }}>
 						If you roll a pair, you get a <code>+6</code>.
 					</p>
-					<img src='/src/assets/crits.svg' alt='Crit Modifier' width={200} style={{ margin: '0' }} />
+					<img src={CritsImage} alt='Crit Modifier' width={200} style={{ margin: '0' }} />
 				</div>
 				<div
 					style={{
