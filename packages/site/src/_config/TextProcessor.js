@@ -97,10 +97,10 @@ export class TextProcessor {
 					.map(tag => {
 						const isKeyword = tag.value === undefined;
 						const title = isKeyword ? `<a href="/wiki/${tag.key}/">${tag.title}</a>` : tag.title;
-						const value = isKeyword ? '' : `: ${tag.value}`;
 						const aWrapBefore = tag.slug ? `<a href="/wiki/${tag.slug}/">` : '';
 						const aWrapAfter = tag.slug ? `</a>` : '';
-						return `<span class="${tag.cssClass}">${aWrapBefore}${title}${value}${aWrapAfter}</span>`;
+						const value = isKeyword ? '' : `: ${aWrapBefore}${tag.value}${aWrapAfter}`;
+						return `<span class="${tag.cssClass}">${title}${value}</span>`;
 					})
 					.join(' ') +
 				'</span> '
