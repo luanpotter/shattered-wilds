@@ -98,7 +98,9 @@ export class TextProcessor {
 						const isKeyword = tag.value === undefined;
 						const title = isKeyword ? `<a href="/wiki/${tag.key}/">${tag.title}</a>` : tag.title;
 						const value = isKeyword ? '' : `: ${tag.value}`;
-						return `<span class="${tag.cssClass}">${title}${value}</span>`;
+						const aWrapBefore = tag.slug ? `<a href="/wiki/${tag.slug}/">` : '';
+						const aWrapAfter = tag.slug ? `</a>` : '';
+						return `<span class="${tag.cssClass}">${aWrapBefore}${title}${value}${aWrapAfter}</span>`;
 					})
 					.join(' ') +
 				'</span> '

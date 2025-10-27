@@ -285,7 +285,6 @@ div.pagination p {
 .group-list-item a {
 	color: var(--accent);
 	text-decoration: none;
-	font-weight: bold;
 }
 
 .group-list-item a:hover {
