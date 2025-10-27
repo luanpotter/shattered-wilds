@@ -1209,7 +1209,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassFlavor.Musicist],
 		level: 2,
 		description:
-			'As a reaction to an ally performing an action, you can spend a [[Spirit_Point | SP]] to give them a +1 [[Circumstance Modifier | CM]] to a Check associated with their action. You can only do this once per action, the action must not be a reaction, and you cannot do this to yourself.',
+			'As a reaction to an ally that can hear you performing an action, you can spend 1 [[Action_Point | AP]] and 1 [[Spirit_Point | SP]] to give them a +1 [[Circumstance Modifier | CM]] to a Check associated with their action. You can only do this once per action, the action must not be a reaction, and you cannot do this to yourself.',
 	}),
 	[Feat.TheresMoreToThisSong]: new FeatDefinition<void>({
 		key: Feat.TheresMoreToThisSong,
