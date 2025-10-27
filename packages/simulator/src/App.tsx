@@ -126,7 +126,12 @@ const App = (): React.ReactElement => {
 
 	const handleMouseDown = (e: React.MouseEvent) => {
 		if (e.button === 1) {
-			// Middle click for grid
+			// Only block middle click if NOT on a link or interactive element
+			const tag = (e.target as HTMLElement).tagName.toLowerCase();
+			if (tag === 'a' || tag === 'button' || tag === 'input' || tag === 'textarea' || tag === 'select') {
+				// Let browser handle middle click
+				return;
+			}
 			e.preventDefault();
 			e.stopPropagation();
 			setDragState({ type: 'grid' });

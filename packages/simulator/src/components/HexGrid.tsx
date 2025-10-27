@@ -253,13 +253,11 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 	};
 
 	const handleMouseDown = (e: React.MouseEvent) => {
-		if (e.button === 1) {
-			// Middle click
-			e.preventDefault(); // Prevent the scroll markers from appearing
-		} else if (e.button === 2) {
-			// Right click
-			e.preventDefault(); // Prevent context menu
+		if (e.button === 0) {
+			// Left click: allow drag, block default
+			e.preventDefault();
 		}
+		// For middle and right click, do not block default behavior
 	};
 
 	// Function to get all hexes within range
