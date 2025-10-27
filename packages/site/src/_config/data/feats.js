@@ -1,7 +1,20 @@
-import { FEATS, slugify } from '@shattered-wilds/commons';
+import { CLASS_FLAVORS, CLASS_ROLES, FEATS, slugify } from '@shattered-wilds/commons';
 
 export const feats = Object.values(FEATS).map(feat => {
 	const slug = slugify(feat.name);
+
+	const sourceToSlug = source => {
+		const maybeFlavor = CLASS_FLAVORS[source];
+		if (maybeFlavor) {
+			return `${maybeFlavor.name} ${maybeFlavor.realm}`;
+		}
+		const maybeRole = CLASS_ROLES[source];
+		if (maybeRole) {
+			return `${maybeRole.name} ${maybeRole.realm}`;
+		}
+		return source;
+	};
+
 	return {
 		// wiki parameters
 		group: 'Feat',
@@ -26,6 +39,7 @@ export const feats = Object.values(FEATS).map(feat => {
 			...feat.sources.map(source => ({
 				key: 'source',
 				title: 'Source',
+				slug: slugify(sourceToSlug(source)),
 				value: source,
 				cssClass: 'metadata-source',
 			})),
