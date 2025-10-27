@@ -1,4 +1,9 @@
 import {
+	CLASS_DEFINITIONS,
+	CLASS_FLAVORS,
+	CLASS_REALMS,
+	CLASS_ROLES,
+	ClassDefinition,
 	firstParagraph,
 	getRecordValues,
 	joinHumanReadableList,
@@ -16,6 +21,7 @@ import CritsImage from '../../assets/crits.svg';
 import { useStore } from '../../store';
 import { createNewCharacter } from '../../types/ui';
 import { Button } from '../shared/Button';
+import LabeledInput from '../shared/LabeledInput';
 import { RichText } from '../shared/RichText';
 
 interface OnboardingPageProps {
@@ -27,7 +33,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 	const addCharacter = useStore(state => state.addCharacter);
 
 	const [step, setStep] = useState(1);
-	const [options, setOptions] = useState<Record<string, string>>({});
+	const [options, setOptions] = useState<Record<string, string> & { name: string }>({ name: '--New Character--' });
 	const nextStep = (options?: Record<string, string>) => {
 		return () => {
 			setOptions(current => ({ ...current, ...options }));
@@ -36,8 +42,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 	};
 
 	const createCharacter = () => {
-		const props = { name: '--New Character--', ...options };
-		const character = createNewCharacter({ characters, props });
+		const character = createNewCharacter({ characters, props: options });
 		addCharacter(character);
 		onNavigateToCharacterSheets();
 	};
@@ -54,6 +59,16 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 
 	const Bold = ({ children }: { children: React.ReactNode }) => (
 		<strong style={{ fontWeight: 'bold', borderBottom: '1px solid white' }}>{children}</strong>
+	);
+
+	const Bar = () => (
+		<div
+			style={{
+				width: '100%',
+				height: '0',
+				borderBottom: '1px dotted var(--text)',
+			}}
+		/>
 	);
 
 	const Column = ({ idx, children }: { idx: number; children: React.ReactNode }) => (
@@ -114,158 +129,25 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 		);
 	};
 
-	const getClassesByAttribute = (attribute: string) => {
-		const classes = {
-			STR: [
-				{
-					key: 'Fighter',
-					description:
-						'A martial warrior specialized in melee combat. Gains Sweep Attack ability to strike multiple adjacent enemies.',
-				},
-				{
-					key: 'Berserker',
-					description:
-						'A survivalist warrior who channels primal rage. Gains Rage ability for enhanced combat prowess.',
-				},
-				{
-					key: 'Swashbuckler',
-					description: 'A scoundrel warrior with finesse and flair. Gains Fancy Footwork to avoid opportunity attacks.',
-				},
-			],
-			DEX: [
-				{
-					key: 'Marksman',
-					description: 'A martial warrior specialized in ranged combat. Gains Take Aim ability for precise shots.',
-				},
-				{
-					key: 'Hunter',
-					description: 'A survivalist warrior who thrives in the wilderness. Gains Rage ability and sylvan knowledge.',
-				},
-				{
-					key: 'Rogue',
-					description:
-						'A scoundrel warrior skilled in stealth and trickery. Gains Fancy Footwork and thieving abilities.',
-				},
-			],
-			CON: [
-				{
-					key: 'Guardian',
-					description:
-						'A martial warrior focused on protection and defense. Gains Improved Taunt to draw enemy attention.',
-				},
-				{
-					key: 'Barbarian',
-					description:
-						'A survivalist warrior who endures through toughness. Gains Rage ability and wilderness survival.',
-				},
-				{
-					key: 'Scout',
-					description: 'A scoundrel warrior skilled in reconnaissance. Gains Fancy Footwork and scouting abilities.',
-				},
-			],
-			INT: [
-				{
-					key: 'Wizard',
-					description:
-						'An arcanist caster who masters all spell components. Gains Arcane Casting and a Signature Spell.',
-				},
-				{
-					key: 'Engineer',
-					description:
-						'A mechanist caster who uses tools and contraptions. Gains Arcane Casting and Tool-Assisted Casting.',
-				},
-				{
-					key: 'Alchemist',
-					description: 'A naturalist caster who bonds with nature. Gains Arcane Casting and Focal Connection.',
-				},
-				{
-					key: 'Storyteller',
-					description: 'A musicist caster who weaves magic through words. Gains Arcane Casting and Lyrical Resonance.',
-				},
-			],
-			WIS: [
-				{
-					key: 'Mage',
-					description: 'An arcanist caster guided by intuition. Gains Arcane Casting and a Signature Spell.',
-				},
-				{
-					key: 'Artificer',
-					description: 'A mechanist caster who crafts magical items. Gains Arcane Casting and Tool-Assisted Casting.',
-				},
-				{
-					key: 'Druid',
-					description: 'A naturalist caster connected to the natural world. Gains Arcane Casting and Focal Connection.',
-				},
-				{
-					key: 'Minstrel',
-					description: 'A musicist caster who channels magic through song. Gains Arcane Casting and Lyrical Resonance.',
-				},
-			],
-			CHA: [
-				{
-					key: 'Sorcerer',
-					description: 'An arcanist caster with innate magical power. Gains Arcane Casting and a Signature Spell.',
-				},
-				{
-					key: 'Machinist',
-					description:
-						'A mechanist caster who operates magical machines. Gains Arcane Casting and Tool-Assisted Casting.',
-				},
-				{
-					key: 'Shaman',
-					description: 'A naturalist caster who communes with spirits. Gains Arcane Casting and Focal Connection.',
-				},
-				{
-					key: 'Bard',
-					description:
-						'A musicist caster who inspires through performance. Gains Arcane Casting and Lyrical Resonance.',
-				},
-			],
-			DIV: [
-				{
-					key: 'Cleric',
-					description:
-						'A pure mystic devoted to a higher power. Gains Divine Channeling to invoke divine intervention.',
-				},
-				{
-					key: 'Warlock',
-					description: 'A mixed mystic with otherworldly pacts. (Currently in development)',
-				},
-				{
-					key: 'Paladin',
-					description: 'A martial mystic who fights with divine power. Gains Divine Smite for empowered attacks.',
-				},
-			],
-			FOW: [
-				{
-					key: 'Sage',
-					description: 'A pure mystic who channels inner strength. Gains Divine Channeling through willpower.',
-				},
-				{
-					key: 'Monk',
-					description: 'A mixed mystic balancing combat and spirituality. (Currently in development)',
-				},
-				{
-					key: 'Ranger',
-					description: 'A martial mystic who protects the wilderness. Gains Divine Smite and natural abilities.',
-				},
-			],
-			LCK: [
-				{
-					key: 'Wanderer',
-					description: 'A pure mystic guided by fortune. Gains Divine Channeling through luck itself.',
-				},
-				{
-					key: 'Wayfarer',
-					description: 'A mixed mystic who travels by chance. (Currently in development)',
-				},
-				{
-					key: 'Warden',
-					description: 'A martial mystic who guards through fortune. Gains Divine Smite and protective abilities.',
-				},
-			],
-		};
-		return classes[attribute as keyof typeof classes] || [];
+	const getClassDefinitionFor = (attribute: StatTypeName, flavor: string): ClassDefinition => {
+		return getRecordValues(CLASS_DEFINITIONS).find(
+			role => role.primaryAttribute.name === attribute && role.flavor === flavor,
+		)!;
+	};
+
+	const getClassesByAttribute = (attribute: StatTypeName) => {
+		const realm = StatType.fromName(attribute).parent!.name;
+		return getRecordValues(CLASS_FLAVORS)
+			.filter(flavor => CLASS_REALMS[flavor.realm].realm.name === realm)
+			.map(flavor => {
+				const def = getClassDefinitionFor(attribute, flavor.name);
+				return {
+					key: def.name,
+					role: def.role,
+					flavor: flavor.name,
+					description: flavor.description,
+				};
+			});
 	};
 
 	const modifiersToString = (modifiers: RacialStatModifier[]) => {
@@ -303,6 +185,31 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 			description: firstParagraph(def.description),
 		};
 	});
+
+	const renderClassChoices = () => {
+		const classes = getClassesByAttribute((options['attribute'] as StatTypeName) ?? StatTypeName.STR);
+		return (
+			<Columns amount={classes.length}>
+				{classes.map((characterClass, idx) => {
+					return (
+						<Column key={characterClass.key} idx={idx}>
+							<Bold>{characterClass.key}</Bold>
+							<div>
+								<RichText>{`**Role**: ${characterClass.role}\n\n**Flavor**: ${characterClass.flavor}`}</RichText>
+							</div>
+							<Bar />
+							<RichText>{characterClass.description}</RichText>
+							<StepButton
+								onClick={nextStep({ class: characterClass.key })}
+								text={`${characterClass.key}`}
+								style={{ fontSize: '1em' }}
+							/>
+						</Column>
+					);
+				})}
+			</Columns>
+		);
+	};
 
 	const steps = [
 		<div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center' }} key={1}>
@@ -446,6 +353,10 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 						<Column key={attribute.key} idx={idx}>
 							<Bold>{attribute.key}</Bold>
 							<RichText>{attribute.description}</RichText>
+							<Bar />
+							<RichText>
+								{getRecordValues(CLASS_ROLES).find(role => role.primaryAttribute.name === attribute.key)!.description}
+							</RichText>
 							<StepButton onClick={nextStep({ attribute: attribute.key })} text={`Choose ${attribute.key}`} />
 						</Column>
 					);
@@ -458,21 +369,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 				<strong>Class</strong>:
 			</p>
 
-			<Columns amount={getClassesByAttribute(options['attribute']).length}>
-				{getClassesByAttribute(options['attribute']).map((characterClass, idx) => {
-					return (
-						<Column key={characterClass.key} idx={idx}>
-							<Bold>{characterClass.key}</Bold>
-							<RichText>{characterClass.description}</RichText>
-							<StepButton
-								onClick={nextStep({ class: characterClass.key })}
-								text={`${characterClass.key}`}
-								style={{ fontSize: '1em' }}
-							/>
-						</Column>
-					);
-				})}
-			</Columns>
+			{renderClassChoices()}
 		</>,
 		<>
 			<p>
@@ -528,6 +425,10 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 				<div style={{ fontSize: '1.5rem', margin: '1rem 0' }}>
 					<strong>Upbringing:</strong> {options['upbringing']}
 				</div>
+			</div>
+			<div>
+				Now you just have to name your character! You can always change it later:
+				<LabeledInput label='Character Name' value={options.name} onChange={name => setOptions({ ...options, name })} />
 			</div>
 			<p>
 				<StepButton onClick={createCharacter} text='Create Character' />
