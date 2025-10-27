@@ -16,6 +16,7 @@ import {
 } from '@shattered-wilds/commons';
 import React, { useState } from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
+import { map, desc } from 'type-comparator';
 
 import CritsImage from '../../assets/crits.svg';
 import { useStore } from '../../store';
@@ -75,6 +76,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 		<div
 			style={{
 				display: 'flex',
+				fontSize: '0.9em',
 				flexDirection: 'column',
 				justifyContent: 'space-between',
 				gap: '1rem',
@@ -179,12 +181,14 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 		};
 	});
 
-	const upbringings = getRecordValues(UPBRINGING_DEFINITIONS).map(def => {
-		return {
-			key: def.name,
-			description: firstParagraph(def.description),
-		};
-	});
+	const upbringings = getRecordValues(UPBRINGING_DEFINITIONS)
+		.sort(map(c => c.name, desc))
+		.map(def => {
+			return {
+				key: def.name,
+				description: firstParagraph(def.description),
+			};
+		});
 
 	const renderClassChoices = () => {
 		const classes = getClassesByAttribute((options['attribute'] as StatTypeName) ?? StatTypeName.STR);
@@ -395,10 +399,10 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 				{`While typical upbringings for **${options['race']}** are ${races.find(r => r.key === (options['race'] ?? Race.Human))!.typicalUpbringings},\n\nyou can pick any option according to your character's backstory.`}
 			</RichText>
 			<div style={{ height: '2rem' }} />
-			<Columns amount={2}>
+			<Columns amount={3}>
 				{upbringings.map((upbringing, idx) => {
 					return (
-						<Column key={upbringing.key} idx={idx % 2}>
+						<Column key={upbringing.key} idx={idx % 3}>
 							<Bold>{upbringing.key}</Bold>
 							<RichText>{upbringing.description}</RichText>
 							<StepButton onClick={nextStep({ upbringing: upbringing.key })} text={`${upbringing.key}`} />
@@ -410,21 +414,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 		<>
 			<p>Perfect! Here&apos;s your character summary:</p>
 			<div style={{ textAlign: 'center', margin: '2rem 0' }}>
-				<div style={{ fontSize: '1.5rem', margin: '1rem 0' }}>
-					<strong>Realm:</strong> {options['realm']}
-				</div>
-				<div style={{ fontSize: '1.5rem', margin: '1rem 0' }}>
-					<strong>Primary Attribute:</strong> {options['attribute']}
-				</div>
-				<div style={{ fontSize: '1.5rem', margin: '1rem 0' }}>
-					<strong>Class:</strong> {options['class']}
-				</div>
-				<div style={{ fontSize: '1.5rem', margin: '1rem 0' }}>
-					<strong>Race:</strong> {options['race']}
-				</div>
-				<div style={{ fontSize: '1.5rem', margin: '1rem 0' }}>
-					<strong>Upbringing:</strong> {options['upbringing']}
-				</div>
+				<RichText>{`Level 0 [[${options['race']}]] ([[${options['upbringing']}]]) [[${options['class']}]]`}</RichText>
 			</div>
 			<div>
 				Now you just have to name your character! You can always change it later:
