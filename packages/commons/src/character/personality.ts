@@ -36,14 +36,26 @@ export class Personality {
 
 	static from(props: Record<string, string>): Personality {
 		return new Personality({
-			calling: props['calling'],
-			vice: props['vice'],
-			aversion: props['aversion'],
-			tenet: props['tenet'],
-			leanings: props['leanings'],
+			calling: parse(props, 'calling'),
+			vice: parse(props, 'vice'),
+			aversion: parse(props, 'aversion'),
+			tenet: parse(props, 'tenet'),
+			leanings: parse(props, 'leanings'),
 			protean: Protean.fromProps(props),
-			backstory: props['backstory'],
+			backstory: parse(props, 'backstory'),
 		});
+	}
+
+	hasAny(): boolean {
+		return !!(
+			this.calling ||
+			this.vice ||
+			this.aversion ||
+			this.tenet ||
+			this.leanings ||
+			this.protean ||
+			this.backstory
+		);
 	}
 }
 
@@ -67,13 +79,16 @@ export class Protean {
 	}
 
 	static fromProps(props: Record<string, string>): Protean | undefined {
-		const proteanName = props['protean.name'];
+		const proteanName = parse(props, 'protean.name');
 		if (!proteanName) {
 			return undefined;
 		}
 
-		const connection = props['protean.connection'];
-		const domains = JSON.parse(props['protean.domains'] || '[]') as { name: string; details?: string }[];
+		const connection = parse(props, 'protean.connection');
+		const domains = JSON.parse(parse(props, 'protean.domains') ?? '[]') as {
+			name: string;
+			details?: string;
+		}[];
 
 		return new Protean({
 			name: proteanName,
@@ -92,3 +107,11 @@ export class ProteanDomain {
 		this.details = details;
 	}
 }
+
+const parse = (props: Record<string, string>, key: string): string | undefined => {
+	const value = props[key]?.trim();
+	if (value === '' || value === undefined || value === null) {
+		return undefined;
+	}
+	return value;
+};

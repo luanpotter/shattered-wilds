@@ -14,6 +14,7 @@ import { useStore } from '../../store';
 import { PartialComponent, PrintRichText, ValueBox } from '../print/print-friendly-commons';
 import { PrintFriendlyArcane } from '../print/PrintFriendlyArcane';
 import { PrintFriendlyEquipment } from '../print/PrintFriendlyEquipment';
+import { PrintFriendlyPersonality } from '../print/PrintFriendlyPersonality';
 import { PrintFriendlyTree } from '../print/PrintFriendlyTree';
 
 export const PrintFriendlyCharacterSheetPage = ({ characterId }: { characterId: string }) => {
@@ -174,6 +175,7 @@ export const CharacterSheetPrintContent = ({ characterId, sheet }: { characterId
 						</div>
 					</div>
 				)}
+				<PrintFriendlyPersonality personality={sheet.personality} />
 			</Blocks>
 		</>
 	);
