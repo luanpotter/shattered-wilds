@@ -7,6 +7,7 @@ export const PrintFriendlyArcane = ({ arcaneSection }: { arcaneSection: ArcaneSe
 		<div
 			style={{
 				margin: '0.25em',
+				fontSize: '0.75em',
 				display: 'flex',
 				justifyContent: 'space-between',
 				alignItems: 'center',
