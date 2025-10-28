@@ -21,6 +21,14 @@ export const PersonalitySectionComponent: React.FC<PersonalitySectionProps> = ({
 			<h3 style={{ margin: '0 0 8px 0', fontSize: '1.1em' }}>Personality</h3>
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
 				<LabeledTextArea
+					label='Backstory'
+					value={personality.backstory ?? ''}
+					rows={4}
+					onBlur={value => updateCharacterProp(character, 'backstory', value)}
+					disabled={!editMode}
+				/>
+				<hr style={{ width: '100%', color: 'white' }} />
+				<LabeledTextArea
 					label='Calling'
 					value={personality.calling ?? ''}
 					rows={2}
@@ -53,13 +61,6 @@ export const PersonalitySectionComponent: React.FC<PersonalitySectionProps> = ({
 					value={personality.leanings ?? ''}
 					rows={2}
 					onBlur={value => updateCharacterProp(character, 'leanings', value)}
-					disabled={!editMode}
-				/>
-				<LabeledTextArea
-					label='Backstory'
-					value={personality.backstory ?? ''}
-					rows={4}
-					onBlur={value => updateCharacterProp(character, 'backstory', value)}
 					disabled={!editMode}
 				/>
 			</div>
