@@ -65,28 +65,33 @@ export enum ArcaneSpellComponentType {
 
 export type ArcaneSpellComponentOption = {
 	name: string;
+	cost?: string | undefined;
 	toComponentModifier(): CircumstanceModifier;
 };
 
 export class ArcaneSpellComponentDefinition implements ArcaneSpellComponentOption {
 	type: ArcaneSpellComponentType;
 	name: string;
+	cost?: string | undefined;
 	flavors: ClassFlavor[];
 	bonus: Bonus;
 
 	constructor({
 		type,
 		name,
+		cost,
 		flavors,
 		bonus,
 	}: {
 		type: ArcaneSpellComponentType;
 		name: string;
+		cost?: string | undefined;
 		flavors: ClassFlavor[];
 		bonus: Bonus;
 	}) {
 		this.type = type;
 		this.name = name;
+		this.cost = cost;
 		this.flavors = flavors;
 		this.bonus = bonus;
 	}
@@ -112,6 +117,7 @@ export const ARCANE_SPELL_COMPONENTS: ArcaneSpellComponentDefinition[] = [
 	new ArcaneSpellComponentDefinition({
 		type: ArcaneSpellComponentType.Somatic,
 		name: 'Basic Gesturing',
+		cost: 'Not [[Immobilized]]',
 		flavors: [ClassFlavor.Arcanist, ClassFlavor.Mechanist],
 		bonus: Bonus.of(1),
 	}),
@@ -136,6 +142,7 @@ export const ARCANE_SPELL_COMPONENTS: ArcaneSpellComponentDefinition[] = [
 	new ArcaneSpellComponentDefinition({
 		type: ArcaneSpellComponentType.Verbal,
 		name: 'Basic Chanting',
+		cost: 'Not [[Silenced]]',
 		flavors: [ClassFlavor.Arcanist, ClassFlavor.Musicist],
 		bonus: Bonus.of(1),
 	}),

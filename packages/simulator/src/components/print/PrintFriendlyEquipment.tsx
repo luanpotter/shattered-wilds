@@ -10,12 +10,12 @@ import {
 	WeaponModeOption,
 } from '@shattered-wilds/commons';
 
-import { Bold, Box, Dash } from './printer-friendly-commons';
+import { Bold, Dash, ValueBox } from './print-friendly-commons';
 
 export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: CharacterSheet }) => {
 	const wrapTraits = (traits: string[]) => {
 		return traits.map(trait => (
-			<span key={trait} style={{ marginLeft: '0.25em', backgroundColor: '#6bff6b' }}>
+			<span key={trait} style={{ marginLeft: '0.25em', backgroundColor: '#6bffeeff' }}>
 				[{trait}]
 			</span>
 		));
@@ -42,12 +42,11 @@ export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: Cha
 									{wrapTraits(item.traits)}
 								</div>
 								<Dash />
-								<Box>
-									{
+								<ValueBox
+									value={
 										checkFactory.weapon({ weaponMode: new WeaponModeOption({ weapon: item, mode }) }).modifierValue
-											.description
 									}
-								</Box>
+								/>
 							</div>
 						);
 					})}
@@ -68,7 +67,7 @@ export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: Cha
 						{wrapTraits(item.traits)}
 					</div>
 					<Dash />
-					<Box>{checkFactory.armor({ armor: item }).modifierValue.description}</Box>
+					<ValueBox value={checkFactory.armor({ armor: item }).modifierValue} />
 				</>
 			);
 		} else if (item instanceof Shield) {
@@ -83,7 +82,7 @@ export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: Cha
 						{wrapTraits(item.traits)}
 					</div>
 					<Dash />
-					<Box>{checkFactory.shield({ armor: defaultArmor, shield: item }).modifierValue.description}</Box>
+					<ValueBox value={checkFactory.shield({ armor: defaultArmor, shield: item }).modifierValue} />
 				</>
 			);
 		} else if (item instanceof ArcaneFocus) {
@@ -94,7 +93,7 @@ export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: Cha
 					<span>[{item.description}]</span>
 					{wrapTraits(item.traits)}
 					<Dash />
-					<Box>{item.bonus.description}</Box>
+					<ValueBox value={item.bonus} />
 				</>
 			);
 		} else if (item instanceof OtherItem) {

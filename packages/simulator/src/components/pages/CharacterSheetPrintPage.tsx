@@ -1,7 +1,6 @@
 import {
 	ArcaneSection,
 	ArcaneSectionDefaults,
-	Bonus,
 	CharacterSheet,
 	DerivedStatType,
 	DivineSection,
@@ -12,10 +11,10 @@ import {
 import { asc, map } from 'type-comparator';
 
 import { useStore } from '../../store';
-import { Box } from '../printer-friendly-commons';
-import { PrintFriendlyEquipment } from '../PrintFriendlyEquipment';
-import { PrintFriendlyTree } from '../PrintFriendlyTree';
-import { RichText } from '../shared/RichText';
+import { PartialComponent, PrintRichText, ValueBox } from '../print/print-friendly-commons';
+import { PrintFriendlyArcane } from '../print/PrintFriendlyArcane';
+import { PrintFriendlyEquipment } from '../print/PrintFriendlyEquipment';
+import { PrintFriendlyTree } from '../print/PrintFriendlyTree';
 
 export const CharacterSheetPrintPage = ({ characterId }: { characterId: string }) => {
 	const character = useStore(state => state.characters.find(c => c.id === characterId));
@@ -64,13 +63,6 @@ export const CharacterSheetPrintContent = ({ characterId, sheet }: { characterId
 		<strong style={{ color: 'black', ...style }}>{children}</strong>
 	);
 
-	const PartialComponent = ({ label, value }: { label: string; value: Bonus }) => (
-		<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-			<Box>{value.description}</Box>
-			<span style={{ fontSize: '0.6em' }}>{label}</span>
-		</div>
-	);
-
 	const Blocks = ({ children }: { children: React.ReactNode }) => {
 		return (
 			<div
@@ -102,22 +94,30 @@ export const CharacterSheetPrintContent = ({ characterId, sheet }: { characterId
 						Level {sheet.level} {sheet.race.toString()} {sheet.characterClass.toString()}
 					</span>
 				</div>
-				<div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', marginBottom: '1rem' }}>
-					<span>
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+						marginTop: '0.5rem',
+						marginBottom: '1rem',
+					}}
+				>
+					<div style={{ display: 'flex', gap: '0.2rem', alignItems: 'center' }}>
 						<Bold>Size:</Bold> {sheet.size.toString()}
-					</span>
-					<span>
+					</div>
+					<div style={{ display: 'flex', gap: '0.2rem', alignItems: 'center' }}>
 						<Bold>Movement: </Bold>
-						{statTree.getDistance(DerivedStatType.Movement).value.description}
-					</span>
-					<span>
+						<ValueBox value={statTree.getDistance(DerivedStatType.Movement).value} />
+					</div>
+					<div style={{ display: 'flex', gap: '0.2rem', alignItems: 'center' }}>
 						<Bold>Influence Range: </Bold>
-						{statTree.getDistance(DerivedStatType.InfluenceRange).value.description}
-					</span>
-					<span>
+						<ValueBox value={statTree.getDistance(DerivedStatType.InfluenceRange).value} />
+					</div>
+					<div style={{ display: 'flex', gap: '0.2rem', alignItems: 'center' }}>
 						<Bold>Initiative: </Bold>
-						{statTree.getModifier(DerivedStatType.Initiative).value.description}
-					</span>
+						<ValueBox value={statTree.valueOf(DerivedStatType.Initiative)} />
+					</div>
 				</div>
 				<PrintFriendlyTree characterSheet={sheet} />
 				<hr />
@@ -155,37 +155,13 @@ export const CharacterSheetPrintContent = ({ characterId, sheet }: { characterId
 							{feats.map((feat, idx) => (
 								<div key={idx} style={{ borderLeft: '2px solid #217be2ff', paddingLeft: '4px' }}>
 									<Bold>{feat.name}</Bold>
-									<div className='rich-text' style={{ textAlign: 'justify', fontSize: '0.75em' }}>
-										<RichText>{feat.description}</RichText>
-									</div>
+									<PrintRichText>{feat.description}</PrintRichText>
 								</div>
 							))}
 						</div>
 					</div>
 				</div>
-				{arcaneSection && (
-					<div style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem' }}>
-						<div style={{ width: '100%', border: '1px solid black' }}>
-							<div style={{ textAlign: 'center', borderBottom: '1px dotted black', margin: '0 1em' }}>
-								<Bold>Arcane Casting</Bold>
-							</div>
-							<div style={{ display: 'flex', gap: '0.5rem', margin: '8px', justifyContent: 'center' }}>
-								<PartialComponent label='Base Modifier' value={arcaneSection.baseModifier.value} />
-								{Object.entries(arcaneSection.componentOptions).map(([key, options]) => {
-									const option = options[options.length - 1]!;
-									return (
-										<>
-											<span>+</span>
-											<PartialComponent key={key} label={option.name} value={option.toComponentModifier().value} />
-										</>
-									);
-								})}
-								<span>=</span>
-								<PartialComponent label='Total' value={arcaneSection.fundamentalCheck.statModifier.value} />
-							</div>
-						</div>
-					</div>
-				)}
+				{arcaneSection && <PrintFriendlyArcane arcaneSection={arcaneSection} />}
 				{divineSection && (
 					<div style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem' }}>
 						<div style={{ width: '100%', border: '1px solid black' }}>

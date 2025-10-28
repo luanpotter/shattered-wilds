@@ -1,5 +1,4 @@
 import { CharacterSheet } from '../../character/character-sheet.js';
-import { ArcaneFocus } from '../../character/equipment.js';
 import { ActionCost } from '../../core/actions.js';
 import {
 	ARCANE_SPELL_COMPONENTS,
@@ -183,7 +182,7 @@ export class ArcaneSection {
 			return [];
 		}
 
-		const arcaneFoci = sheet.equipment.items.filter(item => item instanceof ArcaneFocus) as ArcaneFocus[];
+		const arcaneFoci = sheet.equipment.arcaneFoci();
 
 		return [
 			{
@@ -192,6 +191,7 @@ export class ArcaneSection {
 			},
 			...arcaneFoci.map(focus => ({
 				name: focus.name,
+				cost: focus.spCost ? `${focus.spCost} SP` : undefined,
 				toComponentModifier: () => focus.getEquipmentModifier(),
 			})),
 		];

@@ -51,6 +51,10 @@ export class Distance implements Value {
 		}
 	}
 
+	times(factor: number): Distance {
+		return Distance.of(this.value * factor);
+	}
+
 	isMelee(): boolean {
 		return this.value === 1;
 	}

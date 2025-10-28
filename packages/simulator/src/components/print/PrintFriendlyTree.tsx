@@ -9,8 +9,9 @@ import {
 } from '@shattered-wilds/commons';
 import React from 'react';
 
-import { Bold, Box, Dash } from './printer-friendly-commons';
-import { getRealmColorWithAlpha } from './stat-tree/shared-logic';
+import { getRealmColorWithAlpha } from '../stat-tree/shared-logic';
+
+import { Bold, Dash, ValueBox } from './print-friendly-commons';
 
 export const PrintFriendlyTree = ({ characterSheet }: { characterSheet: CharacterSheet }) => {
 	const statTree: StatTree = characterSheet.getStatTree();
@@ -18,7 +19,7 @@ export const PrintFriendlyTree = ({ characterSheet }: { characterSheet: Characte
 
 	const ModifierBox = ({ statNode }: { statNode: StatNode }) => {
 		const modifier = statTree.getModifier(statNode.type);
-		return <Box>{modifier.value.description}</Box>;
+		return <ValueBox value={modifier.value} />;
 	};
 
 	const RealmLabel: React.FC<{ statType: StatType; resource: Resource }> = ({ statType, resource }) => {
