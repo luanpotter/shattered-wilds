@@ -14,7 +14,7 @@ For roleplaying purposes, your character should have at least one **Vice** - an 
 
 ## Aversion
 
-Similarly, your character should have at least one **Aversion** - something they cannot bring themselves to do, either because of a moral edict, an intense dislike, fear or disgust, or some other reason. Depending on the type of **Aversion**, the character might also need to roll a [[Discipline]] Check if they are attempting to go against their **Aversion**.
+For roleplaying purposes, your character should have at least one **Aversion** - something they cannot bring themselves to do, either because of a moral edict, an intense dislike, fear or disgust, or some other reason. Depending on the type of **Aversion**, the character might also need to roll a [[Discipline]] Check if they are attempting to go against their **Aversion**.
 
 Note that for **Mystics**, and in particular, **Disciples**, some **Aversions** can be inherited or shared with their **Protean's** codes and rules. If they share an **Aversion**, they can roll [[Devotion]] instead of [[Discipline]] for the Check.
 
