@@ -1,3 +1,4 @@
+import { CharacterSheet } from '@shattered-wilds/commons';
 import React from 'react';
 
 import { useStore } from '../../store';
@@ -11,6 +12,8 @@ interface PersonalitySectionProps {
 export const PersonalitySectionComponent: React.FC<PersonalitySectionProps> = ({ characterId }) => {
 	const editMode = useStore(state => state.editMode);
 	const character = useStore(state => state.characters.find(c => c.id === characterId))!;
+	const sheet = CharacterSheet.from(character.props);
+	const personality = sheet.personality;
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
 
 	return (
@@ -19,37 +22,44 @@ export const PersonalitySectionComponent: React.FC<PersonalitySectionProps> = ({
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
 				<LabeledTextArea
 					label='Calling'
-					value={character.props['calling'] ?? ''}
+					value={personality.calling ?? ''}
 					rows={2}
 					onBlur={value => updateCharacterProp(character, 'calling', value)}
 					disabled={!editMode}
 				/>
 				<LabeledTextArea
 					label='Vice'
-					value={character.props['vice'] ?? ''}
+					value={personality.vice ?? ''}
 					rows={2}
 					onBlur={value => updateCharacterProp(character, 'vice', value)}
 					disabled={!editMode}
 				/>
 				<LabeledTextArea
 					label='Aversion'
-					value={character.props['aversion'] ?? ''}
+					value={personality.aversion ?? ''}
 					rows={2}
 					onBlur={value => updateCharacterProp(character, 'aversion', value)}
 					disabled={!editMode}
 				/>
 				<LabeledTextArea
 					label='Tenet'
-					value={character.props['tenet'] ?? ''}
+					value={personality.tenet ?? ''}
 					rows={2}
 					onBlur={value => updateCharacterProp(character, 'tenet', value)}
 					disabled={!editMode}
 				/>
 				<LabeledTextArea
 					label='Leanings'
-					value={character.props['leanings'] ?? ''}
+					value={personality.leanings ?? ''}
 					rows={2}
 					onBlur={value => updateCharacterProp(character, 'leanings', value)}
+					disabled={!editMode}
+				/>
+				<LabeledTextArea
+					label='Backstory'
+					value={personality.backstory ?? ''}
+					rows={4}
+					onBlur={value => updateCharacterProp(character, 'backstory', value)}
 					disabled={!editMode}
 				/>
 			</div>

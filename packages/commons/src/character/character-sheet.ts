@@ -6,6 +6,7 @@ import { StatType } from '../stats/stat-type.js';
 import { Circumstances } from './circumstances.js';
 import { ClassInfo } from './class-info.js';
 import { Armor, Equipment } from './equipment.js';
+import { Personality } from './personality.js';
 import { RaceInfo } from './race-info.js';
 
 export class CharacterFeats {
@@ -70,6 +71,7 @@ export class CharacterSheet {
 	attributeRoot: StatNode;
 	circumstances: Circumstances;
 	equipment: Equipment;
+	personality: Personality;
 
 	constructor({
 		name,
@@ -79,6 +81,7 @@ export class CharacterSheet {
 		attributeRoot,
 		equipment,
 		circumstances,
+		personality,
 	}: {
 		name: string;
 		race: RaceInfo;
@@ -87,6 +90,7 @@ export class CharacterSheet {
 		attributeRoot: StatNode;
 		equipment: Equipment;
 		circumstances: Circumstances;
+		personality: Personality;
 	}) {
 		this.name = name;
 		this.race = race;
@@ -95,6 +99,7 @@ export class CharacterSheet {
 		this.attributeRoot = attributeRoot;
 		this.equipment = equipment;
 		this.circumstances = circumstances;
+		this.personality = personality;
 	}
 
 	get size(): Size {
@@ -188,6 +193,7 @@ export class CharacterSheet {
 			attributeRoot: StatTree.buildRootNode(props),
 			equipment: Equipment.from(props['equipment']),
 			circumstances: Circumstances.from(props),
+			personality: Personality.from(props),
 		});
 	}
 
