@@ -16,7 +16,7 @@ import { PrintFriendlyArcane } from '../print/PrintFriendlyArcane';
 import { PrintFriendlyEquipment } from '../print/PrintFriendlyEquipment';
 import { PrintFriendlyTree } from '../print/PrintFriendlyTree';
 
-export const CharacterSheetPrintPage = ({ characterId }: { characterId: string }) => {
+export const PrintFriendlyCharacterSheetPage = ({ characterId }: { characterId: string }) => {
 	const character = useStore(state => state.characters.find(c => c.id === characterId));
 	if (!character) {
 		return <div style={{ color: 'var(--error-color)', width: '100%', textAlign: 'center' }}>Character not found</div>;

@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { FaUsers, FaCrosshairs, FaTimes, FaEdit, FaPlay, FaHome } from 'react-icons/fa';
+import React, { useEffect, useState } from 'react';
+import { FaCrosshairs, FaEdit, FaHome, FaPlay, FaTimes, FaUsers } from 'react-icons/fa';
 
 import { BattleGrid } from './components/HexGrid';
 import { ModalRenderer } from './components/ModalRenderer';
-import { CharacterSheetPrintPage } from './components/pages/CharacterSheetPrintPage';
 import { CharacterSheetsPage } from './components/pages/CharacterSheetsPage';
 import { NotFoundPage } from './components/pages/NotFoundPage';
 import { OnboardingPage } from './components/pages/OnboardingPage';
+import { PrintFriendlyCharacterSheetPage } from './components/pages/PrintFriendlyCharacterSheetPage';
 import { Button } from './components/shared/Button';
 import { useModals } from './hooks/useModals';
 import { useStore } from './store';
-import { Point, Character, DragState } from './types/ui';
+import { Character, DragState, Point } from './types/ui';
 import { Navigator, type ViewType } from './utils/routes';
 
 const App = (): React.ReactElement => {
@@ -167,7 +167,7 @@ const App = (): React.ReactElement => {
 
 	if (currentView === 'print-sheet') {
 		// we need a completely custom style for printing
-		return <CharacterSheetPrintPage characterId={initialCharacterId!} />;
+		return <PrintFriendlyCharacterSheetPage characterId={initialCharacterId!} />;
 	}
 
 	return (
