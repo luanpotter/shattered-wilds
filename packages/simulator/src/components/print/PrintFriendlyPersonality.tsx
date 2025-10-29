@@ -13,8 +13,11 @@ export const PrintFriendlyPersonality: React.FC<{ personality: Personality }> = 
 			return null;
 		}
 		return (
-			<div style={{ marginBottom: '0.5rem' }}>
-				<PrintRichText>{`*${label}:* ${content}`}</PrintRichText>
+			<div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+				<div style={{ textAlign: 'center', borderBottom: '1px dotted black', margin: '0 1em' }}>{label}</div>
+				<div style={{ padding: '0 16px' }}>
+					<PrintRichText>{content}</PrintRichText>
+				</div>
 			</div>
 		);
 	};
@@ -25,7 +28,8 @@ export const PrintFriendlyPersonality: React.FC<{ personality: Personality }> = 
 				<div style={{ textAlign: 'center', borderBottom: '1px dotted black', margin: '0 1em' }}>
 					<Bold>Personality</Bold>
 				</div>
-				<div style={{ display: 'flex', gap: '0.5rem', margin: '8px', justifyContent: 'center' }}>
+
+				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem', margin: '8px', justifyContent: 'stretch' }}>
 					<Entry label='Backstory' content={personality.backstory} />
 					<Entry label='Calling' content={personality.calling} />
 					<Entry label='Vice' content={personality.vice} />
