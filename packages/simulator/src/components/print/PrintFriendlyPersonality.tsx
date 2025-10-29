@@ -29,7 +29,15 @@ export const PrintFriendlyPersonality: React.FC<{ personality: Personality }> = 
 					<Bold>Personality</Bold>
 				</div>
 
-				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem', margin: '8px', justifyContent: 'stretch' }}>
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: 'repeat(2, 1fr)',
+						gap: '0.5rem',
+						margin: '8px',
+						justifyContent: 'stretch',
+					}}
+				>
 					<Entry label='Backstory' content={personality.backstory} />
 					<Entry label='Calling' content={personality.calling} />
 					<Entry label='Vice' content={personality.vice} />
