@@ -197,9 +197,21 @@ export class CharacterSheet {
 		});
 	}
 
+	private static encode(value: string): string {
+		const bytes = new TextEncoder().encode(value);
+		const bin = Array.from(bytes, byte => String.fromCodePoint(byte)).join('');
+		return btoa(bin);
+	}
+
+	private static decode(value: string): string {
+		const bin = atob(value);
+		const bytes = Uint8Array.from(bin, char => char.codePointAt(0)!);
+		return new TextDecoder().decode(bytes);
+	}
+
 	static parsePropsFromShareString(shareString: string): Record<string, string> & { name: string } {
 		const props: Record<string, string> = {};
-		const lines = atob(shareString).split('\n');
+		const lines = this.decode(shareString).split('\n');
 
 		for (const line of lines) {
 			const trimmedLine = line.trim();
@@ -225,7 +237,7 @@ export class CharacterSheet {
 			.filter(([, value]) => value !== '')
 			.map(([key, value]) => `${key}: ${value}`)
 			.join('\n');
-		return btoa(keyValuePairs);
+		return this.encode(keyValuePairs);
 	}
 }
 
