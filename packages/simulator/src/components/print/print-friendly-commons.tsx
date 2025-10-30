@@ -43,7 +43,7 @@ export const Box: React.FC<{ type: 'bonus' | 'distance' | 'other'; children: Rea
 		<div
 			style={{
 				border: '1px dotted black',
-				fontSize: type === 'distance' ? '0.8em' : '1em',
+				fontSize: type === 'distance' ? '0.8rem' : '1rem',
 				width: type === 'distance' ? '64px' : '32px',
 				height: '32px',
 				display: 'flex',
