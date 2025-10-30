@@ -6,7 +6,6 @@ export const PrintFriendlyArcane = ({ arcaneSection }: { arcaneSection: ArcaneSe
 	const ColumnItem = ({ label, value }: { label: string; value: Value }) => (
 		<div
 			style={{
-				margin: '0.25em',
 				fontSize: '0.75em',
 				display: 'flex',
 				justifyContent: 'space-between',

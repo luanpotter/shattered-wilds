@@ -5,10 +5,11 @@ import { RichText } from '../shared/RichText';
 
 export const Dash = () => {
 	return (
-		<div style={{ flex: 1 }}>
+		<div style={{ flex: 1, display: 'flex', justifyContent: 'stretch', alignItems: 'center' }}>
 			<hr
 				style={{
 					borderTop: '1px dotted black',
+					flex: 1,
 					borderBottom: 'none',
 					borderLeft: 'none',
 					borderRight: 'none',

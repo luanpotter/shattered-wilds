@@ -37,16 +37,19 @@ export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: Cha
 						].filter(e => e !== undefined);
 						return (
 							<div key={idx} style={{ display: 'flex', marginLeft: '1em' }}>
-								<div>
+								<div style={{ display: 'flex', alignItems: 'center' }}>
 									<span>[{parts.join(', ')}]</span>
 									{wrapTraits(item.traits)}
 								</div>
 								<Dash />
-								<ValueBox
-									value={
-										checkFactory.weapon({ weaponMode: new WeaponModeOption({ weapon: item, mode }) }).modifierValue
-									}
-								/>
+								<div style={{ display: 'flex', gap: '0.1em' }}>
+									{mode.range.isMelee() ? undefined : <ValueBox value={mode.range} />}
+									<ValueBox
+										value={
+											checkFactory.weapon({ weaponMode: new WeaponModeOption({ weapon: item, mode }) }).modifierValue
+										}
+									/>
+								</div>
 							</div>
 						);
 					})}
@@ -60,7 +63,7 @@ export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: Cha
 			].filter(e => e !== undefined);
 			return (
 				<>
-					<div>
+					<div style={{ display: 'flex', alignItems: 'center' }}>
 						<Bold>{item.name}</Bold>
 						&nbsp;
 						<span>[{parts.join(' ')}]</span>
@@ -73,7 +76,7 @@ export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: Cha
 		} else if (item instanceof Shield) {
 			return (
 				<>
-					<div>
+					<div style={{ display: 'flex', alignItems: 'center' }}>
 						<Bold>{item.name}</Bold>
 						&nbsp;
 						<span>
@@ -88,10 +91,12 @@ export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: Cha
 		} else if (item instanceof ArcaneFocus) {
 			return (
 				<>
-					<Bold>{item.name}</Bold>
-					&nbsp;
-					<span>[{item.description}]</span>
-					{wrapTraits(item.traits)}
+					<div style={{ display: 'flex', alignItems: 'center' }}>
+						<Bold>{item.name}</Bold>
+						&nbsp;
+						<span>[{item.description}]</span>
+						{wrapTraits(item.traits)}
+					</div>
 					<Dash />
 					<ValueBox value={item.bonus} />
 				</>

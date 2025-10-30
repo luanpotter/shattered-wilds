@@ -69,7 +69,9 @@ export const CharacterSheetPrintContent = ({ characterId, sheet }: { characterId
 					marginBottom: '1em',
 					display: 'flex',
 					flexDirection: 'column',
+					gap: '0.25em',
 					color: 'black',
+					height: '100%',
 				}}
 			>
 				{children}
@@ -91,8 +93,6 @@ export const CharacterSheetPrintContent = ({ characterId, sheet }: { characterId
 						display: 'flex',
 						justifyContent: 'space-between',
 						alignItems: 'center',
-						marginTop: '0.5rem',
-						marginBottom: '1rem',
 					}}
 				>
 					<div style={{ display: 'flex', gap: '0.2rem', alignItems: 'center' }}>
@@ -112,8 +112,7 @@ export const CharacterSheetPrintContent = ({ characterId, sheet }: { characterId
 					</div>
 				</div>
 				<PrintFriendlyTree characterSheet={sheet} />
-				<hr />
-				<div style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem', flex: 1, minHeight: '120px' }}>
+				<div style={{ display: 'flex', gap: '2rem', flex: 1, minHeight: '64px' }}>
 					<div style={{ width: '50%', border: '1px solid black' }}>
 						<div style={{ textAlign: 'center', borderBottom: '1px dotted black', margin: '0 1em' }}>
 							<Bold>Conditions</Bold>
@@ -125,8 +124,7 @@ export const CharacterSheetPrintContent = ({ characterId, sheet }: { characterId
 						</div>
 					</div>
 				</div>
-				<hr />
-				<div style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem' }}>
+				<div style={{ display: 'flex', gap: '2rem' }}>
 					<div style={{ flex: 1, border: '1px solid black' }}>
 						<div style={{ textAlign: 'center', borderBottom: '1px dotted black', margin: '0 1em' }}>
 							<Bold>Equipment</Bold>
@@ -138,7 +136,7 @@ export const CharacterSheetPrintContent = ({ characterId, sheet }: { characterId
 				</div>
 			</Blocks>
 			<Blocks>
-				<div style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem' }}>
+				<div style={{ display: 'flex', gap: '2rem' }}>
 					<div style={{ width: '100%', border: '1px solid black' }}>
 						<div style={{ textAlign: 'center', borderBottom: '1px dotted black', margin: '0 1em' }}>
 							<Bold>Feats</Bold>
@@ -155,7 +153,7 @@ export const CharacterSheetPrintContent = ({ characterId, sheet }: { characterId
 				</div>
 				{arcaneSection && <PrintFriendlyArcane arcaneSection={arcaneSection} />}
 				{divineSection && (
-					<div style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem' }}>
+					<div style={{ display: 'flex', gap: '2rem' }}>
 						<div style={{ width: '100%', border: '1px solid black' }}>
 							<div style={{ textAlign: 'center', borderBottom: '1px dotted black', margin: '0 1em' }}>
 								<Bold>Divine Channeling</Bold>
@@ -167,7 +165,7 @@ export const CharacterSheetPrintContent = ({ characterId, sheet }: { characterId
 					</div>
 				)}
 				<PrintFriendlyPersonality personality={sheet.personality} />
-				<div style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem', flex: 1, minHeight: '120px' }}>
+				<div style={{ display: 'flex', gap: '2rem', flex: 1, minHeight: '64px' }}>
 					<div style={{ width: '100%', border: '1px solid black' }}>
 						<div style={{ textAlign: 'center', borderBottom: '1px dotted black', margin: '0 1em' }}>
 							<Bold>Notes</Bold>
