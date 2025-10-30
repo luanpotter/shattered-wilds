@@ -167,6 +167,13 @@ export const CharacterSheetPrintContent = ({ characterId, sheet }: { characterId
 					</div>
 				)}
 				<PrintFriendlyPersonality personality={sheet.personality} />
+				<div style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem', flex: 1, minHeight: '120px' }}>
+					<div style={{ width: '100%', border: '1px solid black' }}>
+						<div style={{ textAlign: 'center', borderBottom: '1px dotted black', margin: '0 1em' }}>
+							<Bold>Notes</Bold>
+						</div>
+					</div>
+				</div>
 			</Blocks>
 		</>
 	);
