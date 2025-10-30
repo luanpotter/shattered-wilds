@@ -2,7 +2,7 @@
 	"id": "hexagons",
 	"title": "Hexagons",
 	"description": "Hex-based drawing tools for Foundry VTT",
-	"version": "0.2.5",
+	"version": "0.2.6",
 	"compatibility": {
 		"minimum": "13",
 		"verified": "13"
