@@ -113,16 +113,38 @@ body {
 		size: a4;
 		margin: 0;
 	}
+	html {
+		height: 100% !important;
+		margin: 0 !important;
+		margin-top: 32px !important;
+	}
 	body {
+		height: 100% !important;
+		margin: 0 !important;
 		background: white !important;
 		-webkit-print-color-adjust: exact;
 		print-color-adjust: exact;
+		padding: 0 !important;
+		margin-left: auto !important;
+		margin-right: auto !important;
+	}
+	#root {
+		height: 100% !important;
+		overflow: visible !important;
+		width: 100vw !important;
+		margin: 0 !important;
+	}
+	* {
+		box-sizing: border-box !important;
 	}
 	.print-container {
-		margin: 0 auto !important;
-		box-sizing: border-box;
-		width: 210mm !important;
-		max-width: 100vw !important;
+		padding: 0 !important;
+		margin-bottom: 0 !important;
+		width: 100vw !important;
+		page-break-after: always;
+	}
+	.print-container:last-child {
+		page-break-after: auto;
 	}
 }
 

@@ -65,12 +65,10 @@ export const CharacterSheetPrintContent = ({ characterId, sheet }: { characterId
 					background: 'white',
 					padding: '1rem',
 					width: '210mm',
-					overflow: 'scroll',
-					maxWidth: '794px',
 					margin: '0 auto',
 					marginBottom: '1em',
-					pageBreakAfter: 'always',
-					display: 'block',
+					display: 'flex',
+					flexDirection: 'column',
 					color: 'black',
 				}}
 			>
@@ -115,13 +113,13 @@ export const CharacterSheetPrintContent = ({ characterId, sheet }: { characterId
 				</div>
 				<PrintFriendlyTree characterSheet={sheet} />
 				<hr />
-				<div style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem' }}>
-					<div style={{ width: '50%', height: '120px', border: '1px solid black' }}>
+				<div style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem', flex: 1, minHeight: '120px' }}>
+					<div style={{ width: '50%', border: '1px solid black' }}>
 						<div style={{ textAlign: 'center', borderBottom: '1px dotted black', margin: '0 1em' }}>
 							<Bold>Conditions</Bold>
 						</div>
 					</div>
-					<div style={{ width: '50%', height: '120px', border: '1px solid black' }}>
+					<div style={{ width: '50%', border: '1px solid black' }}>
 						<div style={{ textAlign: 'center', borderBottom: '1px dotted black', margin: '0 1em' }}>
 							<Bold>Consequences</Bold>
 						</div>
