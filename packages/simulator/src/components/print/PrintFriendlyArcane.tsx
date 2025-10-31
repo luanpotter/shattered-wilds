@@ -31,11 +31,15 @@ export const PrintFriendlyArcane = ({ arcaneSection }: { arcaneSection: ArcaneSe
 					<PartialComponent label='Base Modifier' value={arcaneSection.baseModifier.value} />
 					{Object.entries(arcaneSection.componentOptions).map(([key, options]) => {
 						const option = options[options.length - 1]!;
+						const modifier = option.toComponentModifier();
+						if (modifier.value.isZero) {
+							return null;
+						}
 						return (
 							<>
 								<span>+</span>
 								<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }} key={key}>
-									<PartialComponent key={key} label={option.name} value={option.toComponentModifier().value} />
+									<PartialComponent key={key} label={option.name} value={modifier.value} />
 									{option.cost && <PrintRichText style={{ fontSize: '0.5em' }}>{`[${option.cost}]`}</PrintRichText>}
 								</div>
 							</>

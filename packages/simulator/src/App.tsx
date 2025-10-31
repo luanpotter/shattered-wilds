@@ -6,6 +6,7 @@ import { ModalRenderer } from './components/ModalRenderer';
 import { CharacterSheetsPage } from './components/pages/CharacterSheetsPage';
 import { NotFoundPage } from './components/pages/NotFoundPage';
 import { OnboardingPage } from './components/pages/OnboardingPage';
+import { PrintFriendlyActions } from './components/pages/PrintFriendlyActions';
 import { PrintFriendlyCharacterSheetPage } from './components/pages/PrintFriendlyCharacterSheetPage';
 import { Button } from './components/shared/Button';
 import { useModals } from './hooks/useModals';
@@ -165,9 +166,11 @@ const App = (): React.ReactElement => {
 		return !['onboarding', 'print-sheet'].includes(view);
 	};
 
+	// we need a completely custom style for printing
 	if (currentView === 'print-sheet') {
-		// we need a completely custom style for printing
 		return <PrintFriendlyCharacterSheetPage characterId={initialCharacterId!} />;
+	} else if (currentView === 'print-actions') {
+		return <PrintFriendlyActions />;
 	}
 
 	return (

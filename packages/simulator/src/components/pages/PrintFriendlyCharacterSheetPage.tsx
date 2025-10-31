@@ -11,7 +11,7 @@ import {
 import { asc, map } from 'type-comparator';
 
 import { useStore } from '../../store';
-import { Bold, PartialComponent, PrintRichText, ValueBox } from '../print/print-friendly-commons';
+import { Blocks, Bold, PartialComponent, PrintRichText, ValueBox } from '../print/print-friendly-commons';
 import { PrintFriendlyArcane } from '../print/PrintFriendlyArcane';
 import { PrintFriendlyEquipment } from '../print/PrintFriendlyEquipment';
 import { PrintFriendlyPersonality } from '../print/PrintFriendlyPersonality';
@@ -56,28 +56,6 @@ export const CharacterSheetPrintContent = ({ characterId, sheet }: { characterId
 
 	const arcaneSection = maybeCreateArcaneSection({ characterId, sheet });
 	const divineSection = DivineSection.create({ characterId, characterSheet: sheet });
-
-	const Blocks = ({ children }: { children: React.ReactNode }) => {
-		return (
-			<div
-				className='print-container'
-				style={{
-					background: 'white',
-					padding: '1rem',
-					width: '210mm',
-					margin: '0 auto',
-					marginBottom: '1em',
-					display: 'flex',
-					flexDirection: 'column',
-					gap: '0.25em',
-					color: 'black',
-					height: '100%',
-				}}
-			>
-				{children}
-			</div>
-		);
-	};
 
 	return (
 		<>

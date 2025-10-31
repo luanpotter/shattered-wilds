@@ -1,4 +1,4 @@
-export type ViewType = '404' | 'simulator' | 'character-sheets' | 'onboarding' | 'print-sheet';
+export type ViewType = '404' | 'simulator' | 'character-sheets' | 'onboarding' | 'print-sheet' | 'print-actions';
 
 export interface RouteState {
 	view: ViewType;
@@ -23,6 +23,10 @@ export const Navigator = {
 				return { view: 'character-sheets' };
 			}
 			return { view: '404' };
+		}
+
+		if (hash === '/print/actions') {
+			return { view: 'print-actions' };
 		}
 
 		if (hash === '/onboarding') {
