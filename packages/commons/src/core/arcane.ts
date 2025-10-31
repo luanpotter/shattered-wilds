@@ -484,6 +484,13 @@ export const PREDEFINED_ARCANE_SPELLS: Record<PredefinedArcaneSpell, ArcaneSpell
 		school: ArcaneSpellSchool.Command,
 		description: `Command self-deprecating thoughts into a target's mind, to be used as a **Mind Attack** against **Soul Defense**.`,
 		traits: [Trait.MindAttack],
+		augmentations: [
+			new ArcaneSpellAugmentation({
+				type: ArcaneSpellAugmentationType.Specificity,
+				value: 'Message',
+				bonus: Bonus.of(-2),
+			}),
+		],
 	}),
 	[PredefinedArcaneSpell.MessageBeing]: new ArcaneSpellDefinition({
 		name: PredefinedArcaneSpell.MessageBeing,
