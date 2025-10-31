@@ -488,7 +488,7 @@ export const PREDEFINED_ARCANE_SPELLS: Record<PredefinedArcaneSpell, ArcaneSpell
 	[PredefinedArcaneSpell.MessageBeing]: new ArcaneSpellDefinition({
 		name: PredefinedArcaneSpell.MessageBeing,
 		school: ArcaneSpellSchool.Command,
-		description: `Command a small (few words) message into a target's mind. The target can resist with a [[Resolve]] Check if desired. If they fail, they will hear the message as a command, but will not feel compelled to follow it. The DM will adjudicate the complexity of the message and apply the appropriate circumstantial modifiers (min: \`-3\` for a "single-word" message; words are just being used as a proxy for complexity; DM has the final say).`,
+		description: `Command a small (few words) message into a target's mind. The target can resist with a [[Resolve]] Check if desired. The DM will adjudicate the complexity of the message and apply the appropriate circumstantial modifiers (min: \`-3\` for a "single-word" message; words are just being used as a proxy for complexity; DM has the final say).`,
 		augmentations: [
 			new ArcaneSpellAugmentation({
 				type: ArcaneSpellAugmentationType.Specificity,
