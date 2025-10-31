@@ -1,4 +1,11 @@
-import { ACTIONS, ActionType, firstParagraph, getRecordValues, RESOURCES } from '@shattered-wilds/commons';
+import {
+	ACTIONS,
+	ActionType,
+	firstParagraph,
+	getRecordValues,
+	PREDEFINED_ARCANE_SPELLS,
+	RESOURCES,
+} from '@shattered-wilds/commons';
 
 import { Blocks, Bold, InfoBox, PrintRichText } from '../print/print-friendly-commons';
 
@@ -13,6 +20,7 @@ export const PrintFriendlyActions = () => {
 	};
 
 	const actionsPerType = Object.groupBy(getRecordValues(ACTIONS), action => action.type);
+	const spellsPerSchool = Object.groupBy(getRecordValues(PREDEFINED_ARCANE_SPELLS), spell => spell.school);
 
 	return (
 		<>
@@ -53,6 +61,39 @@ export const PrintFriendlyActions = () => {
 										))}
 									</div>
 									<PrintRichText>{firstParagraph(action.description)}</PrintRichText>
+								</div>
+							))}
+						</div>
+					</div>
+				</Blocks>
+			))}
+			{Object.entries(spellsPerSchool).map(([school, spells]) => (
+				<Blocks key={school}>
+					<div style={{ display: 'flex', gap: '2rem', flex: 1, minHeight: '64px' }}>
+						<div style={{ width: '100%', border: '1px solid black' }}>
+							<div style={{ textAlign: 'center', borderBottom: '1px dotted black', margin: '0 1em' }}>
+								<Bold>Predefined {school} Spells</Bold>
+							</div>
+							{spells.map(spell => (
+								<div
+									key={spell.name}
+									style={{
+										borderLeft: `2px solid #e28b21ff`,
+										paddingLeft: '4px',
+										margin: '8px',
+									}}
+								>
+									<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+										<Bold>{spell.name}</Bold>
+										<InfoBox>{spell.school}</InfoBox>
+										{spell.traits.map(trait => (
+											<InfoBox key={trait}>{trait}</InfoBox>
+										))}
+										{spell.augmentations.map(augmentation => (
+											<InfoBox key={augmentation.type}>{augmentation.description}</InfoBox>
+										))}
+									</div>
+									<PrintRichText>{firstParagraph(spell.description)}</PrintRichText>
 								</div>
 							))}
 						</div>
