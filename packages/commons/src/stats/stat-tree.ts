@@ -71,7 +71,8 @@ export class StatTree {
 
 	static buildRootNode = (props: Record<string, string> = {}): StatNode => {
 		const attr = (type: StatType, children: StatNode[] = []): StatNode => {
-			const value = parseInt(props[type.name] ?? '0');
+			const parsed = parseInt(props[type.name] || '0', 10);
+			const value = isNaN(parsed) ? 0 : parsed;
 			return new StatNode(type, value, children);
 		};
 

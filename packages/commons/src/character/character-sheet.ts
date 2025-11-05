@@ -223,6 +223,9 @@ export class CharacterSheet {
 			const key = trimmedLine.substring(0, colonIndex).trim();
 			const value = trimmedLine.substring(colonIndex + 1).trim();
 
+			// Skip empty values to avoid parsing issues
+			if (value === '') continue;
+
 			props[key] = value;
 		}
 
