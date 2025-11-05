@@ -70,6 +70,7 @@ const HandlebarsActorSheetBase = createHandlebarsActorSheetBase();
 
 export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 	#activeTab: string = 'stats'; // Store the current active tab
+	#context: Record<string, unknown> | null = null; // Cache the prepared context
 
 	// Actions-specific UI state
 	#actionsUIState = {
@@ -401,7 +402,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 			});
 		}
 
-		return {
+		const context = {
 			actor,
 			flags: actor?.flags ?? {},
 			characterSheet,
@@ -430,6 +431,8 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 			isDivineTabActive: this.#activeTab === 'divine',
 			isDebugTabActive: this.#activeTab === 'debug',
 		};
+		this.#context = context;
+		return context;
 	}
 
 	prepareFeatsData(characterSheet: CharacterSheet | undefined): Record<string, unknown> | null {
@@ -523,7 +526,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 
 		// Extract misc prop
 		const props = parseCharacterProps(actor);
-		const miscValue = props['misc']?.trim() ?? '';
+		const miscValue = props['misc'] ?? '';
 
 		return {
 			value: miscValue,
@@ -1273,6 +1276,11 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 		// Add misc textarea event handler
 		const miscTextarea = root.querySelector('[data-action="update-misc"]') as HTMLTextAreaElement;
 		if (miscTextarea) {
+			// Get the value from the prepared context
+			const miscData = this.#context?.miscData as { value: string } | undefined;
+			if (miscData?.value !== undefined) {
+				miscTextarea.value = miscData.value;
+			}
 			miscTextarea.addEventListener('blur', async () => {
 				await this.handleMiscUpdate(miscTextarea.value);
 			});
