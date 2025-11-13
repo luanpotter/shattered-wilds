@@ -19,5 +19,8 @@
 	"devDependencies": {
 		"fvtt-types": "npm:@league-of-foundry-developers/foundry-vtt-types",
 		"typescript": "~5.7.2"
+	},
+	"dependencies": {
+		"emojilib": "^4.0.2"
 	}
 }
