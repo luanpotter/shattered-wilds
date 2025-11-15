@@ -150,7 +150,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 	private createActionTabInputValues(): ActionTabInputValues {
 		const selectedWeapon = this.getSelectedWeapon();
 		return new ActionTabInputValues({
-			selectedWeaponMode: selectedWeapon || Weapon.unarmed(),
+			selectedWeaponMode: selectedWeapon || Weapon.unarmed,
 			selectedRangeValue: this.#actionsUIState.selectedRange?.value ?? 0,
 			selectedDefenseRealm: this.#actionsUIState.selectedDefenseRealm,
 			selectedPassiveCover: this.#actionsUIState.selectedPassiveCover,

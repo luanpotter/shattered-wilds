@@ -88,6 +88,8 @@ export class Weapon implements Item {
 	name: string;
 	modes: WeaponMode[];
 	traits: Trait[];
+	static readonly unarmed: WeaponModeOption = Weapon.buildUnarmed();
+	static readonly shieldBash: WeaponModeOption = Weapon.buildShieldBash();
 
 	constructor({ name, modes, traits = [] }: { name: string; modes: WeaponMode[]; traits?: Trait[] }) {
 		this.name = name;
@@ -123,7 +125,7 @@ export class Weapon implements Item {
 		});
 	}
 
-	static unarmed(): WeaponModeOption {
+	private static buildUnarmed(): WeaponModeOption {
 		const mode = new WeaponMode({ type: PrimaryWeaponType.Unarmed, bonus: Bonus.of(0) });
 		const weapon = new Weapon({
 			name: 'Unarmed',
@@ -132,7 +134,7 @@ export class Weapon implements Item {
 		return new WeaponModeOption({ weapon, mode });
 	}
 
-	static shieldBash(): WeaponModeOption {
+	private static buildShieldBash(): WeaponModeOption {
 		const mode = new WeaponMode({ type: PrimaryWeaponType.Unarmed, bonus: Bonus.of(1) });
 		const weapon = new Weapon({
 			name: 'Shield Bash',
@@ -333,8 +335,8 @@ export class Equipment {
 		const hasShield = this.shields().length > 0;
 		const weapons = this.weapons();
 		return [
-			Weapon.unarmed(),
-			...(hasShield ? [Weapon.shieldBash()] : []),
+			Weapon.unarmed,
+			...(hasShield ? [Weapon.shieldBash] : []),
 			...weapons.flatMap(weapon => weapon.modes.map(mode => new WeaponModeOption({ weapon, mode }))),
 		];
 	}
@@ -344,7 +346,7 @@ export class Equipment {
 	}
 
 	defaultWeaponMode(): WeaponModeOption {
-		return this.weaponModes()[0] ?? Weapon.unarmed();
+		return this.weaponModes()[0] ?? Weapon.unarmed;
 	}
 
 	defaultArmor(): Armor | 'None' {
