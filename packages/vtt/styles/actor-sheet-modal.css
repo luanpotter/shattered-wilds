@@ -938,6 +938,16 @@ code {
 	margin-top: 12px;
 }
 
+.shield-actions {
+	display: flex;
+	gap: 8px;
+	margin-top: 8px;
+}
+
+.shield-actions .weapon-attack-btn {
+	flex: 0 0 auto;
+}
+
 .armor-detail,
 .shield-detail {
 	display: flex;

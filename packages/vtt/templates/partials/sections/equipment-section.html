@@ -64,6 +64,22 @@ Expected context:
 					<div class="shield-detail"><strong>Type:</strong> {{shieldInfo.type}}</div>
 					<div class="shield-detail"><strong>Bonus:</strong> {{shieldInfo.bonus}}</div>
 				</div>
+				<div class="shield-actions">
+					<button type="button"
+						class="weapon-attack-btn"
+						data-action="roll-shield-block"
+						data-item-index="{{@index}}"
+						title="Click for modal • Shift+Click for quick Body check roll">
+						<i class="fas fa-shield-alt"></i> Shield Block
+					</button>
+					<button type="button"
+						class="weapon-attack-btn"
+						data-action="roll-shield-bash"
+						data-item-index="{{@index}}"
+						title="Click for modal • Shift+Click for quick Shield Bash attack roll">
+						<i class="fas fa-fist-raised"></i> Shield Bash
+					</button>
+				</div>
 				{{/if}}
 							
 				{{#if traits.length}}

@@ -1245,6 +1245,41 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 			});
 		});
 
+		// Add shield block roll handlers
+		const shieldBlockButtons = root.querySelectorAll('[data-action="roll-shield-block"]') as NodeListOf<HTMLElement>;
+		shieldBlockButtons.forEach(btn => {
+			btn.addEventListener('click', async event => {
+				const sheet = this.getCharacterSheet();
+				if (!sheet) {
+					showNotification('warn', 'Character sheet data not found');
+					return;
+				}
+				const parentItem = btn.closest('.equipment-item') as HTMLElement | null;
+				const indexAttr = btn.dataset.itemIndex ?? parentItem?.dataset.itemId;
+				const itemIndex = indexAttr ? parseInt(indexAttr, 10) : NaN;
+				if (Number.isNaN(itemIndex)) {
+					showNotification('warn', 'Shield not found for this entry');
+					return;
+				}
+				const item = sheet.equipment.items[itemIndex];
+				if (!(item instanceof Shield)) {
+					showNotification('warn', 'Selected item is not a shield');
+					return;
+				}
+				const useModal = event.shiftKey === false;
+				await this.handleShieldBlock({ shield: item, useModal });
+			});
+		});
+
+		// Add shield bash roll handlers
+		const shieldBashButtons = root.querySelectorAll('[data-action="roll-shield-bash"]') as NodeListOf<HTMLElement>;
+		shieldBashButtons.forEach(btn => {
+			btn.addEventListener('click', async event => {
+				const useModal = event.shiftKey === false;
+				await this.handleShieldBash({ useModal });
+			});
+		});
+
 		// Add tab switching handlers
 		// Add Actions-specific event handlers
 		this.addActionsEventHandlers(root);
@@ -2221,6 +2256,28 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 			console.warn('Failed to get stat breakdown:', err);
 			return undefined;
 		}
+	}
+
+	private async handleShieldBlock({ shield, useModal }: { shield: Shield; useModal: boolean }): Promise<void> {
+		const characterSheet = this.getCharacterSheet();
+		if (!characterSheet) {
+			showNotification('warn', 'Character sheet data not found');
+			return;
+		}
+
+		const checkFactory = new CheckFactory({ characterSheet });
+		const armor = this.getSelectedArmor();
+		const check = checkFactory.shield({ armor, shield });
+
+		await this.rollDice({
+			check,
+			targetDC: undefined,
+			useModal,
+		});
+	}
+
+	private async handleShieldBash({ useModal }: { useModal: boolean }): Promise<void> {
+		await this.handleWeaponAttack({ weaponMode: Weapon.shieldBash, useModal });
 	}
 
 	private async handleWeaponAttack({
