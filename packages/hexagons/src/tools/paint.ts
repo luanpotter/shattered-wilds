@@ -72,6 +72,7 @@ class HexPaintTool {
 		const width = Math.max(...vertices.map(v => v.x)) - minX;
 		const height = Math.max(...vertices.map(v => v.y)) - minY;
 		const fillColor = HexagonsSettings.get('fillColor');
+		const lineWidth = HexagonsSettings.get('lineWidth');
 		const drawingData = {
 			shape: {
 				type: 'p' as const,
@@ -81,7 +82,7 @@ class HexPaintTool {
 			},
 			x: minX,
 			y: minY,
-			strokeWidth: 2,
+			strokeWidth: lineWidth,
 			strokeColor: fillColor,
 			strokeAlpha: 1.0,
 			fillType: CONST.DRAWING_FILL_TYPES.SOLID,

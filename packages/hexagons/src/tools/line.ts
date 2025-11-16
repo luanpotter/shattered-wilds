@@ -133,6 +133,7 @@ export class HexLineTool {
 		}
 
 		const lineColor = HexagonsSettings.get('lineColor');
+		const lineWidth = HexagonsSettings.get('lineWidth');
 
 		// Create the drawing document
 		const drawingData = {
@@ -144,7 +145,7 @@ export class HexLineTool {
 			},
 			x: minX,
 			y: minY,
-			strokeWidth: 4,
+			strokeWidth: lineWidth,
 			strokeColor: lineColor,
 			strokeAlpha: 1.0,
 			fillType: CONST.DRAWING_FILL_TYPES.NONE,
@@ -319,7 +320,8 @@ export class HexLineTool {
 
 		// Draw the path
 		if (path.length > 1) {
-			preview.lineStyle?.(4, 0xff8800, 0.9);
+			const width = HexagonsSettings.get('lineWidth');
+			preview.lineStyle?.(width, 0xff8800, 0.9);
 			preview.moveTo?.(path[0]!.x, path[0]!.y);
 			for (let i = 1; i < path.length; i++) {
 				preview.lineTo?.(path[i]!.x, path[i]!.y);

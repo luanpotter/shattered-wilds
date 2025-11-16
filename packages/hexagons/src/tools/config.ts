@@ -6,6 +6,7 @@ export const ConfigModal = {
 	open(): void {
 		const lineColor = HexagonsSettings.get('lineColor');
 		const fillColor = HexagonsSettings.get('fillColor');
+		const lineWidth = HexagonsSettings.get('lineWidth');
 		new foundry.applications.api.DialogV2({
 			window: {
 				title: 'Hexagons Configuration',
@@ -15,6 +16,10 @@ export const ConfigModal = {
 			<div class="form-group" style="width: 320px;">
 				<label for="hexagons-line-color">Line Color</label>
 				<input type="color" id="hexagons-line-color" name="lineColor" value="${lineColor}">
+			</div>
+			<div class="form-group" style="width: 320px;">
+				<label for="hexagons-line-width">Line Width</label>
+				<input type="number" id="hexagons-line-width" name="lineWidth" value="${lineWidth}" min="1" step="0.5">
 			</div>
 			<div class="form-group" style="width: 320px;">
 				<label for="hexagons-fill-color">Fill Color</label>
@@ -32,11 +37,15 @@ export const ConfigModal = {
 						const lineColor = lineColorInput.value;
 						HexagonsSettings.set('lineColor', lineColor);
 
+						const lineWidthInput = form.lineWidth as HTMLInputElement;
+						const lineWidth = sanitizeLineWidth(lineWidthInput.value);
+						HexagonsSettings.set('lineWidth', lineWidth);
+
 						const fillColorInput = form.fillColor as HTMLInputElement;
 						const fillColor = fillColorInput.value;
 						HexagonsSettings.set('fillColor', fillColor);
 
-						await updateSelectedDrawingColors({ lineColor, fillColor });
+						await updateSelectedDrawings({ lineColor, fillColor, lineWidth });
 					},
 				},
 				{
@@ -49,12 +58,22 @@ export const ConfigModal = {
 	},
 };
 
-const updateSelectedDrawingColors = async ({
+const sanitizeLineWidth = (value: string): number => {
+	const parsed = Number.parseFloat(value);
+	if (!Number.isFinite(parsed) || parsed <= 0) {
+		return 1;
+	}
+	return parsed;
+};
+
+const updateSelectedDrawings = async ({
 	lineColor,
 	fillColor,
+	lineWidth,
 }: {
 	lineColor: string;
 	fillColor: string;
+	lineWidth: number;
 }): Promise<void> => {
 	if (!canvas?.scene) {
 		return;
@@ -77,11 +96,13 @@ const updateSelectedDrawingColors = async ({
 		if (isLineDrawing(drawing)) {
 			updateData.strokeColor = lineColor;
 			updateData.fillColor = lineColor;
+			updateData.strokeWidth = lineWidth;
 			shouldUpdate = true;
 		}
 		if (isFilledHex(drawing)) {
 			updateData.strokeColor = fillColor;
 			updateData.fillColor = fillColor;
+			updateData.strokeWidth = lineWidth;
 			shouldUpdate = true;
 		}
 		if (shouldUpdate) {
