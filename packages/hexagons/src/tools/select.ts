@@ -1,6 +1,7 @@
 import { FederatedPointerEvent } from 'pixi.js';
 import { isHexGrid, toScenePosition } from '../utils/vtt';
 import { getHexVertices, findClosestVertex } from '../utils/hexes';
+import { getAllHexagonsDrawings } from '../utils/drawings';
 
 let highlightLayer: PIXI.Graphics | null = null;
 
@@ -16,6 +17,14 @@ export const SelectTool = {
 			activeTool.destroy();
 			activeTool = null;
 		}
+	},
+
+	getSelectedDrawings(): DrawingDocument[] {
+		return activeTool?.getSelectedDrawings() ?? [];
+	},
+
+	refreshHighlight(): void {
+		activeTool?.refreshHighlight();
 	},
 };
 
@@ -184,7 +193,7 @@ class HexSelectTool {
 		if (this.dragging && this.dragStart) {
 			this.selected.clear();
 			const rect = this.getRect(this.dragStart, pos);
-			for (const d of this.getAllHexDrawings()) {
+			for (const d of getAllHexagonsDrawings()) {
 				if (this.drawingInRect(d, rect)) {
 					this.selected.add(d.id!);
 				}
@@ -202,7 +211,7 @@ class HexSelectTool {
 	};
 
 	private getDrawingAt(pos: PIXI.IPointData): DrawingDocument | null {
-		for (const drawing of this.getAllHexDrawings()) {
+		for (const drawing of getAllHexagonsDrawings()) {
 			const { x, y } = drawing;
 			const { width, height } = drawing.shape;
 			if (!width || !height) {
@@ -213,13 +222,6 @@ class HexSelectTool {
 			}
 		}
 		return null;
-	}
-
-	private getAllHexDrawings(): DrawingDocument[] {
-		return canvas!.scene!.drawings.filter(
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			(drawing: DrawingDocument) => (drawing as any).getFlag?.('hexagons', 'isHexagonsDrawing') === true,
-		);
 	}
 
 	private drawingInRect(d: DrawingDocument, rect: { x: number; y: number; width: number; height: number }): boolean {
@@ -283,5 +285,23 @@ class HexSelectTool {
 				highlightLayer.drawRect(x, y, w, h);
 			}
 		}
+	}
+
+	getSelectedDrawings(): DrawingDocument[] {
+		if (!canvas?.scene) {
+			return [];
+		}
+		const drawings: DrawingDocument[] = [];
+		for (const id of this.selected) {
+			const drawing = canvas.scene.drawings.get(id);
+			if (drawing) {
+				drawings.push(drawing);
+			}
+		}
+		return drawings;
+	}
+
+	refreshHighlight(): void {
+		this.updateHighlight(this.selected);
 	}
 }
