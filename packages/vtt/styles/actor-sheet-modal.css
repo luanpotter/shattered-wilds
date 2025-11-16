@@ -782,6 +782,32 @@ code {
 	color: #666;
 }
 
+.equipment-toolbar {
+	display: flex;
+	justify-content: flex-end;
+	margin-bottom: 8px;
+	gap: 8px;
+}
+
+.equipment-add-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 10px;
+	font-size: 0.75em;
+	border: 1px solid #4a9eff;
+	border-radius: 3px;
+	background: rgba(74, 158, 255, 0.1);
+	color: #4a9eff;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.equipment-add-btn:hover {
+	background: rgba(74, 158, 255, 0.2);
+	color: #7fc0ff;
+}
+
 .equipment-list {
 	display: flex;
 	flex-direction: column;
@@ -938,6 +964,10 @@ code {
 	margin-top: 12px;
 }
 
+.arcane-focus-info {
+	margin-top: 12px;
+}
+
 .shield-actions {
 	display: flex;
 	gap: 8px;
@@ -949,7 +979,8 @@ code {
 }
 
 .armor-detail,
-.shield-detail {
+.shield-detail,
+.arcane-focus-detail {
 	display: flex;
 	justify-content: space-between;
 	font-size: 0.85em;
@@ -958,12 +989,14 @@ code {
 }
 
 .armor-detail:last-child,
-.shield-detail:last-child {
+.shield-detail:last-child,
+.arcane-focus-detail:last-child {
 	border-bottom: none;
 }
 
 .armor-detail strong,
-.shield-detail strong {
+.shield-detail strong,
+.arcane-focus-detail strong {
 	color: #ddd;
 }
 
@@ -978,6 +1011,32 @@ code {
 
 .equipment-traits strong {
 	color: #ddd;
+}
+
+.equipment-item-actions {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 12px;
+}
+
+.equipment-edit-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 8px;
+	font-size: 0.7em;
+	border-radius: 3px;
+	border: 1px solid #888;
+	background: rgba(255, 255, 255, 0.05);
+	color: #ddd;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.equipment-edit-btn:hover {
+	background: rgba(255, 255, 255, 0.12);
+	border-color: #bbb;
+	color: #fff;
 }
 
 /* ===== FEATS SECTION ===== */

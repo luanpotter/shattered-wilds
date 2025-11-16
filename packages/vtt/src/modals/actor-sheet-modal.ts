@@ -9,6 +9,7 @@ import {
 	ArcaneSectionDefaults,
 	ArcaneSectionInputValues,
 	ArcaneSpellComponentType,
+	ArcaneFocus,
 	Armor,
 	CharacterSheet,
 	Check,
@@ -65,6 +66,7 @@ import { syncConditionsToTokens } from '../helpers/conditions.js';
 import { confirmAction } from './modals.js';
 import { addConditionModal } from './condition-modal.js';
 import { addConsequenceModal } from './consequence-modal.js';
+import { EquipmentEditorModal } from './equipment-editor-modal.js';
 
 const HandlebarsActorSheetBase = createHandlebarsActorSheetBase();
 
@@ -549,11 +551,12 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				mode,
 			}));
 
-			const items = equipment.items.map(item => {
+			const items = equipment.items.map((item, index) => {
 				const baseItem = {
+					index,
 					name: item.name,
 					description: item.displayText,
-					traits: [],
+					traits: [] as string[],
 				};
 
 				if (item instanceof Weapon) {
@@ -600,6 +603,20 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 						shieldInfo: {
 							type: item.type,
 							bonus: item.bonus.description,
+						},
+					};
+				}
+
+				if (item instanceof ArcaneFocus) {
+					return {
+						...baseItem,
+						itemType: 'Arcane Focus',
+						headerDisplay: `<strong>${item.name}</strong> - ${item.description}`,
+						traits: item.traits,
+						arcaneFocusInfo: {
+							bonus: item.bonus.description,
+							spCost: item.spCost,
+							details: item.details || null,
 						},
 					};
 				}
@@ -1277,6 +1294,28 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 			btn.addEventListener('click', async event => {
 				const useModal = event.shiftKey === false;
 				await this.handleShieldBash({ useModal });
+			});
+		});
+
+		const addEquipmentButton = root.querySelector('[data-action="add-equipment-item"]') as HTMLButtonElement | null;
+		if (addEquipmentButton) {
+			addEquipmentButton.addEventListener('click', async () => {
+				await this.openEquipmentEditor();
+			});
+		}
+
+		const editEquipmentButtons = root.querySelectorAll(
+			'[data-action="edit-equipment-item"]',
+		) as NodeListOf<HTMLButtonElement>;
+		editEquipmentButtons.forEach(btn => {
+			btn.addEventListener('click', async () => {
+				const indexAttr = btn.dataset.itemIndex;
+				const itemIndex = indexAttr ? parseInt(indexAttr, 10) : NaN;
+				if (Number.isNaN(itemIndex)) {
+					showNotification('warn', 'Could not determine equipment entry to edit');
+					return;
+				}
+				await this.openEquipmentEditor(itemIndex);
 			});
 		});
 
@@ -2278,6 +2317,27 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 
 	private async handleShieldBash({ useModal }: { useModal: boolean }): Promise<void> {
 		await this.handleWeaponAttack({ weaponMode: Weapon.shieldBash, useModal });
+	}
+
+	private async openEquipmentEditor(itemIndex?: number): Promise<void> {
+		const actorId = this.getCurrentActorId();
+		if (!actorId) {
+			showNotification('warn', 'Actor not found');
+			return;
+		}
+
+		try {
+			await EquipmentEditorModal.open({
+				actorId,
+				...(itemIndex !== undefined ? { itemIndex } : {}),
+				onUpdate: () => {
+					void this.render(false);
+				},
+			});
+		} catch (error) {
+			console.error('Failed to open equipment editor modal:', error);
+			showNotification('error', 'Failed to open equipment editor');
+		}
 	}
 
 	private async handleWeaponAttack({

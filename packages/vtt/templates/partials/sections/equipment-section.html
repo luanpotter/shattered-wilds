@@ -6,6 +6,11 @@ Expected context:
 - equipmentData: The equipment data
 --}}
 <div class="tab-panel {{#if isEquipmentTabActive}}active{{/if}}" data-tab-panel="equipment">
+	<div class="equipment-toolbar">
+		<button type="button" class="equipment-add-btn" data-action="add-equipment-item">
+			<i class="fas fa-plus"></i> Add Item
+		</button>
+	</div>
 	{{#if equipmentData}}
 	{{#if equipmentData.isEmpty}}
 	<div class="equipment-empty">
@@ -24,7 +29,7 @@ Expected context:
 				{{#if description}}
 				<div class="equipment-description">{{description}}</div>
 				{{/if}}
-							
+
 				{{#if weaponModes}}
 				<div class="weapon-modes">
 					<h4>Attack Modes</h4>
@@ -81,12 +86,30 @@ Expected context:
 					</button>
 				</div>
 				{{/if}}
-							
+
+				{{#if arcaneFocusInfo}}
+				<div class="arcane-focus-info">
+					<div class="arcane-focus-detail"><strong>Bonus:</strong> {{arcaneFocusInfo.bonus}}</div>
+					<div class="arcane-focus-detail"><strong>SP Cost:</strong> {{arcaneFocusInfo.spCost}}</div>
+					{{#if arcaneFocusInfo.details}}
+					<div class="arcane-focus-detail"><strong>Details:</strong> {{arcaneFocusInfo.details}}</div>
+					{{/if}}
+				</div>
+				{{/if}}
+
 				{{#if traits.length}}
 				<div class="equipment-traits">
 					<strong>Traits:</strong> {{#each traits}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
 				</div>
 				{{/if}}
+				<div class="equipment-item-actions">
+					<button type="button"
+						class="equipment-edit-btn"
+						data-action="edit-equipment-item"
+						data-item-index="{{@index}}">
+						<i class="fas fa-pen"></i> Edit Item
+					</button>
+				</div>
 			</div>
 		</div>
 		{{/each}}

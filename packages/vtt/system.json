@@ -16,7 +16,8 @@
 	"styles": [
 		"styles/actor-sheet-modal.css",
 		"styles/consume-resource-modal.css",
-		"styles/dice-modal.css"
+		"styles/dice-modal.css",
+		"styles/equipment-editor-modal.css"
 
 	],
 	"documentTypes": {
