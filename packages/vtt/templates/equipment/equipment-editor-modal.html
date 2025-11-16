@@ -1,13 +1,13 @@
 <div class="sw-equipment-editor-modal">
-	<div class="sw-equipment-editor-body">
-		<div class="sw-field">
+	<div class="sw-modal__body">
+		<div class="sw-form-field">
 			<label for="equipment-name">Name</label>
-			<input id="equipment-name" type="text" value="{{name}}" data-field="name" autocomplete="off" />
+			<input id="equipment-name" class="sw-input" type="text" value="{{name}}" data-field="name" autocomplete="off" />
 		</div>
 
-		<div class="sw-field">
+		<div class="sw-form-field">
 			<label for="equipment-kind">Item Type</label>
-			<select id="equipment-kind" data-field="kind">
+			<select id="equipment-kind" class="sw-select" data-field="kind">
 				{{#each kindOptions}}
 				<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
 				{{/each}}
@@ -15,11 +15,11 @@
 		</div>
 
 		{{#if hasTraits}}
-		<div class="sw-field">
+		<div class="sw-form-field">
 			<label>Traits</label>
-			<div class="sw-trait-grid">
+			<div class="sw-checkbox-list">
 				{{#each traitOptions}}
-				<label class="sw-trait-option">
+				<label class="sw-checkbox-chip">
 					<input type="checkbox" data-action="toggle-trait" data-trait="{{value}}" {{#if checked}}checked{{/if}} />
 					<span>{{label}}</span>
 				</label>
@@ -29,33 +29,33 @@
 		{{/if}}
 
 		{{#if isWeapon}}
-		<div class="sw-section">
-			<div class="sw-section-header">
-				<h3>Weapon Modes</h3>
-				<button type="button" class="sw-button secondary" data-action="add-weapon-mode">
+		<div class="sw-panel">
+			<div class="sw-panel__header">
+				<h3 class="sw-panel__title">Weapon Modes</h3>
+				<button type="button" class="sw-button" data-action="add-weapon-mode">
 					<i class="fas fa-plus"></i> Add Mode
 				</button>
 			</div>
-			<div class="sw-section-body">
+			<div class="sw-panel__body">
 				{{#each weaponModes}}
 				<div class="sw-weapon-mode-row">
-					<div class="sw-field">
+					<div class="sw-form-field">
 						<label>Type</label>
-						<select data-mode-field="type" data-mode-index="{{index}}">
+						<select class="sw-select" data-mode-field="type" data-mode-index="{{index}}">
 							{{#each typeOptions}}
 							<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
 							{{/each}}
 						</select>
 					</div>
-					<div class="sw-field">
+					<div class="sw-form-field">
 						<label>Bonus</label>
-						<input type="number" data-mode-field="bonus" data-mode-index="{{index}}" value="{{bonus}}" />
+						<input class="sw-input" type="number" data-mode-field="bonus" data-mode-index="{{index}}" value="{{bonus}}" />
 					</div>
-					<div class="sw-field">
+					<div class="sw-form-field">
 						<label>Range</label>
-						<input type="number" min="1" data-mode-field="range" data-mode-index="{{index}}" value="{{range}}" />
+						<input class="sw-input" type="number" min="1" data-mode-field="range" data-mode-index="{{index}}" value="{{range}}" />
 					</div>
-					<button type="button" class="sw-button icon danger" data-action="remove-weapon-mode" data-mode-index="{{index}}">
+					<button type="button" class="sw-button sw-button--icon sw-button--danger" data-action="remove-weapon-mode" data-mode-index="{{index}}">
 						<i class="fas fa-trash"></i>
 					</button>
 				</div>
@@ -65,95 +65,95 @@
 		{{/if}}
 
 		{{#if isArmor}}
-		<div class="sw-section">
-			<h3>Armor Details</h3>
-			<div class="sw-grid">
-				<div class="sw-field">
+		<div class="sw-panel">
+			<h3 class="sw-panel__title">Armor Details</h3>
+			<div class="sw-form-grid sw-form-grid--cols-auto">
+				<div class="sw-form-field">
 					<label>Type</label>
-					<select data-field="armorType">
+					<select class="sw-select" data-field="armorType">
 						{{#each armorOptions.typeOptions}}
 						<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
 						{{/each}}
 					</select>
 				</div>
-				<div class="sw-field">
+				<div class="sw-form-field">
 					<label>Bonus</label>
-					<input type="number" data-field="armorBonus" value="{{armorOptions.bonus}}" />
+					<input class="sw-input" type="number" data-field="armorBonus" value="{{armorOptions.bonus}}" />
 				</div>
-				<div class="sw-field">
+				<div class="sw-form-field">
 					<label>DEX Penalty</label>
-					<input type="number" data-field="armorDexPenalty" value="{{armorOptions.dexPenalty}}" />
+					<input class="sw-input" type="number" data-field="armorDexPenalty" value="{{armorOptions.dexPenalty}}" />
 				</div>
 			</div>
 		</div>
 		{{/if}}
 
 		{{#if isShield}}
-		<div class="sw-section">
-			<h3>Shield Details</h3>
-			<div class="sw-grid">
-				<div class="sw-field">
+		<div class="sw-panel">
+			<h3 class="sw-panel__title">Shield Details</h3>
+			<div class="sw-form-grid sw-form-grid--cols-auto">
+				<div class="sw-form-field">
 					<label>Type</label>
-					<select data-field="shieldType">
+					<select class="sw-select" data-field="shieldType">
 						{{#each shieldOptions.typeOptions}}
 						<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
 						{{/each}}
 					</select>
 				</div>
-				<div class="sw-field">
+				<div class="sw-form-field">
 					<label>Bonus</label>
-					<input type="number" data-field="shieldBonus" value="{{shieldOptions.bonus}}" />
+					<input class="sw-input" type="number" data-field="shieldBonus" value="{{shieldOptions.bonus}}" />
 				</div>
 			</div>
 		</div>
 		{{/if}}
 
 		{{#if isArcaneFocus}}
-		<div class="sw-section">
-			<h3>Arcane Focus</h3>
-			<div class="sw-grid">
-				<div class="sw-field">
+		<div class="sw-panel">
+			<h3 class="sw-panel__title">Arcane Focus</h3>
+			<div class="sw-form-grid sw-form-grid--cols-auto">
+				<div class="sw-form-field">
 					<label>Bonus</label>
-					<input type="number" data-field="focusBonus" value="{{arcaneFocusOptions.bonus}}" />
+					<input class="sw-input" type="number" data-field="focusBonus" value="{{arcaneFocusOptions.bonus}}" />
 				</div>
-				<div class="sw-field">
+				<div class="sw-form-field">
 					<label>SP Cost</label>
-					<input type="number" min="0" data-field="focusSpCost" value="{{arcaneFocusOptions.spCost}}" />
+					<input class="sw-input" type="number" min="0" data-field="focusSpCost" value="{{arcaneFocusOptions.spCost}}" />
 				</div>
 			</div>
-			<div class="sw-field">
+			<div class="sw-form-field">
 				<label>Details</label>
-				<input type="text" data-field="focusDetails" value="{{arcaneFocusOptions.details}}" placeholder="Optional description" />
+				<input class="sw-input" type="text" data-field="focusDetails" value="{{arcaneFocusOptions.details}}" placeholder="Optional description" />
 			</div>
 		</div>
 		{{/if}}
 
 		{{#if isOther}}
-		<div class="sw-section">
-			<h3>Item Details</h3>
-			<div class="sw-field">
+		<div class="sw-panel">
+			<h3 class="sw-panel__title">Item Details</h3>
+			<div class="sw-form-field">
 				<label>Details</label>
-				<input type="text" data-field="otherDetails" value="{{otherDetails}}" placeholder="Optional description" />
+				<input class="sw-input" type="text" data-field="otherDetails" value="{{otherDetails}}" placeholder="Optional description" />
 			</div>
 		</div>
 		{{/if}}
 	</div>
 
-	<div class="sw-equipment-editor-validation" data-role="validation-message" {{#unless validationMessage}}style="display: none;"{{/unless}}>
+	<div class="sw-inline-message" data-variant="warning" data-role="validation-message" {{#unless validationMessage}}style="display: none;"{{/unless}}>
 		{{validationMessage}}
 	</div>
 
-	<div class="sw-equipment-editor-error" data-role="submission-error" {{#unless submissionError}}style="display: none;"{{/unless}}>
+	<div class="sw-inline-message" data-variant="error" data-role="submission-error" {{#unless submissionError}}style="display: none;"{{/unless}}>
 		{{submissionError}}
 	</div>
 
-	<footer class="sw-equipment-editor-footer">
+	<footer class="sw-modal__footer">
 		{{#if canDelete}}
-		<button type="button" class="sw-button danger" data-action="delete">
+		<button type="button" class="sw-button sw-button--danger" data-action="delete">
 			<i class="fas fa-trash"></i> Delete
 		</button>
 		{{/if}}
-		<button type="button" class="sw-button secondary" data-action="cancel">Cancel</button>
-		<button type="button" class="sw-button primary" data-action="submit" {{#unless canSubmit}}disabled{{/unless}}>{{submitLabel}}</button>
+		<button type="button" class="sw-button" data-action="cancel">Cancel</button>
+		<button type="button" class="sw-button sw-button--primary" data-action="submit" {{#unless canSubmit}}disabled{{/unless}}>{{submitLabel}}</button>
 	</footer>
 </div>
