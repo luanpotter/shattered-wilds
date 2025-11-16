@@ -63,16 +63,16 @@ It can also be inflicted by the a [[Transfiguration]] **Arcane Spell** such as [
 
 While **Frightened**, a character:
 
-- Suffers a \`-2\` [[Circumstance Modifier | CM]] to any Active [[Check | Checks]].
+- Suffers a \`-3\` [[Circumstance Modifier | CM]] to any Active [[Check | Checks]].
 - Cannot willingly move closer to the source of their fear (i.e. distance between the Hexes cannot decrease due to movement).
 
-The condition is considered **Active** if the creature can see the source of fear _or_ if they have reason to believe that the source of fear can see them.
+The condition is considered **Intensified** if the creature can see the source of fear _or_ if they have reason to believe that the source of fear can see them.
 
-The creature can attempt to dispel the fear by using 1 [[Action_Point | AP]] and 1 [[Focus_Point | FP]] to roll a (Passive) Contested [[Discipline]] Check against the original DC + the current **Frightened** _rank_. If the Fear is not active, they get a \`+3\` [[Circumstance Modifier | CM]] to the Check.
+The creature can use a **Dispel** action to attempt to dispel the fear by using 1 [[Action_Point | AP]] and 1 [[Focus_Point | FP]] to roll a (Passive) Contested [[Discipline]] Check against the original DC + the current **Frightened** _rank_. If the Fear is not **Intensified**, they get a \`+3\` [[Circumstance Modifier | CM]] to the Check.
 
-If the Fear is not active, at the end of the turn, decrease the **Frightened** _rank_ by 1.
+If the Fear is not **Intensified** at the end of the turn, decrease the **Frightened** _rank_ by 1.
 
-A character cannot become **Blessed** if they are **Frightened**.
+A character cannot become **Blessed** if they are **Frightened**. If they were to become **Blessed** while **Frightened**, they can instead roll a free **Dispel** action (same rules as above), but they do not become Blessed even if they succeed.
 `,
 	}),
 	[Condition.Immobilized]: new ConditionDefinition({
