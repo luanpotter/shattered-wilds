@@ -26,9 +26,19 @@ Expected context:
 				<i class="fas fa-chevron-down equipment-toggle-icon"></i>
 			</div>
 			<div class="equipment-details" style="display: none;">
-				{{#if description}}
-				<div class="equipment-description">{{description}}</div>
-				{{/if}}
+				<div class="equipment-details-header">
+					{{#if description}}
+					<div class="equipment-description">{{description}}</div>
+					{{else}}
+					<div class="equipment-description equipment-description--placeholder"></div>
+					{{/if}}
+					<button type="button"
+						class="equipment-edit-btn"
+						data-action="edit-equipment-item"
+						data-item-index="{{@index}}">
+						<i class="fas fa-pen"></i> Edit Item
+					</button>
+				</div>
 
 				{{#if weaponModes}}
 				<div class="weapon-modes">
@@ -102,14 +112,6 @@ Expected context:
 					<strong>Traits:</strong> {{#each traits}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
 				</div>
 				{{/if}}
-				<div class="equipment-item-actions">
-					<button type="button"
-						class="equipment-edit-btn"
-						data-action="edit-equipment-item"
-						data-item-index="{{@index}}">
-						<i class="fas fa-pen"></i> Edit Item
-					</button>
-				</div>
 			</div>
 		</div>
 		{{/each}}

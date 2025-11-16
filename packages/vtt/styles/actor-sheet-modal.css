@@ -866,6 +866,23 @@ code {
 	background: rgba(0, 0, 0, 0.05);
 }
 
+.equipment-details-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
+.equipment-details-header .equipment-description {
+	margin-bottom: 0;
+	flex: 1;
+}
+
+.equipment-description--placeholder {
+	min-height: 1px;
+}
+
 .equipment-description {
 	font-size: 0.85em;
 	color: #bbb;
@@ -1011,12 +1028,6 @@ code {
 
 .equipment-traits strong {
 	color: #ddd;
-}
-
-.equipment-item-actions {
-	display: flex;
-	justify-content: flex-end;
-	margin-top: 12px;
 }
 
 .equipment-edit-btn {
