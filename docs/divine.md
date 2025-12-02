@@ -15,7 +15,7 @@ As such, there is no pre-defined "spell list"; the **Mystic** can choose to cast
 The exact nature and capabilities of **Divine Channeling** are vague and flexible. Effect types that are covered by the **Arcane** are usually beyond the domain of the **Divine**. In contrast, effects from the list below are known to be possible:
 
 * Healing of [[Vitality_Point | VP]] or [[Focus_Point | FP]] (the **Divine** cannot heal [[Spirit_Point | SP]]);
-* Damaging of [[Vitality_Point | VP]] or [[Spirit_Point | SP]] (the **Divine** cannot harm [[Focus_Point | FP]]);
+* Damaging of [[Vitality_Point | VP]], [[Focus_Point | FP]], and [[Spirit_Point | SP]]
 * Infliction or removal of [[Condition | Conditions]], notably [[Blessed]] and [[Frightened]];
 * Imbuement of items (temporarily), granting boons or extra powers (often requiring [[Spirit_Point | SP]] to activate);
 * Divination of the possible futures, the present or the past (note: this is the vaguest type of **Channeling**, and asking for very specific questions is extremely hard; also no **Protean** is omniscient);
