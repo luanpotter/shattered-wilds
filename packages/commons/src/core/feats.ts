@@ -1270,7 +1270,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassRole.Intuitive],
 		level: 1,
 		description:
-			'"Blasting" is just second nature to you. Whenever you use a 2 [[Action_Point | AP]]/1 [[Focus_Point | FP]] **Fundamental Arcane Spell** of any school without any augmentations with the intent of dealing damage to a single target, you don\t spend 1 [[Focus_Point | FP]] if you succeed.',
+			'"Blasting" is just second nature to you. Whenever you use a 2 [[Action_Point | AP]]/1 [[Focus_Point | FP]] **Fundamental Arcane Spell** of any school without any augmentations with the intent of dealing damage to a single target, you don\'t need to spend the 1 [[Focus_Point | FP]] cost if you succeed.',
 	}),
 	// Innate
 	[Feat.InnateEmpathy]: new FeatDefinition<void>({
