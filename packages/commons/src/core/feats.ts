@@ -427,6 +427,7 @@ export enum Feat {
 	QuickBash = 'QuickBash',
 	ArmorFamiliarity = 'ArmorFamiliarity',
 	BulkyFrame = 'BulkyFrame',
+	ToughSkin = 'ToughSkin',
 	GreaterCoverUp = 'GreaterCoverUp',
 	StoutMetabolism = 'StoutMetabolism',
 	// Martial
@@ -467,6 +468,10 @@ export enum Feat {
 	OtherworldlyFocus = 'OtherworldlyFocus',
 	CognitiveResilience = 'CognitiveResilience',
 	IReadAboutThat = 'IReadAboutThat',
+	// Intuitive
+	IntuitiveBlasting = 'IntuitiveBlasting',
+	// Innate
+	InnateEmpathy = 'InnateEmpathy',
 	// Disciple
 	DivineChanneling = 'DivineChanneling',
 	SacredCalm = 'SacredCalm',
@@ -943,6 +948,15 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		description:
 			'You have a `+6` [[Circumstance Modifier | CM]] to your [[Stance]] Checks to resist opponents of your size or larger attempting to [[Pass Through]] you.',
 	}),
+	[Feat.ToughSkin]: new FeatDefinition<void>({
+		key: Feat.ToughSkin,
+		name: 'Tough Skin',
+		type: FeatType.Major,
+		sources: [ClassRole.Tank],
+		level: 2,
+		description:
+			'You can use your [[CON]] modifier instead of [[Body]] for Basic Body Defenses against **Melee Attacks**.',
+	}),
 	[Feat.GreaterCoverUp]: new FeatDefinition<void>({
 		key: Feat.GreaterCoverUp,
 		name: 'Greater Cover-Up',
@@ -1247,6 +1261,26 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		level: 5,
 		description:
 			'While researching within a significant body of text (such as libraries), you can roll [[Knowledge]] instead of [[Serendipity]] when using the [[Write History]] action to establish that a specific answer can be encountered.',
+	}),
+	// Intuitive
+	[Feat.IntuitiveBlasting]: new FeatDefinition<void>({
+		key: Feat.IntuitiveBlasting,
+		name: 'Intuitive Blasting',
+		type: FeatType.Core,
+		sources: [ClassRole.Intuitive],
+		level: 1,
+		description:
+			'"Blasting" is just second nature to you. Whenever you use a 2 [[Action_Point | AP]]/1 [[Focus_Point | FP]] **Fundamental Arcane Spell** of any school without any augmentations with the intent of dealing damage to a single target, you don\t spend 1 [[Focus_Point | FP]] if you succeed.',
+	}),
+	// Innate
+	[Feat.InnateEmpathy]: new FeatDefinition<void>({
+		key: Feat.InnateEmpathy,
+		name: 'Innate Empathy',
+		type: FeatType.Core,
+		sources: [ClassRole.Innate],
+		level: 1,
+		description:
+			'Whenever rolling your [[CHA]] Check for Arcane Spellcasting using **Being** as the noun ([[Transfiguration]] or [[Command]]), targeting a single creature you can clearly see, you get a `+2` [[Circumstance Modifier | CM]]. If you are acquainted with the **Being** in question (i.e. spent several days with them), you get a `+3` [[Circumstance Modifier | CM]] instead.',
 	}),
 	//Disciple
 	[Feat.DivineChanneling]: new FeatDefinition<void>({
