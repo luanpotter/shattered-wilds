@@ -1240,7 +1240,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		name: 'Otherworldly Focus',
 		type: FeatType.Major,
 		sources: [ClassRole.Erudite],
-		level: 4,
+		level: 2,
 		description:
 			'Whenever you would spend [[Spirit_Point | SP]] to activate a wand or stave, you can spend [[Focus_Point | FP]] instead (the action still has the [[Channel]] trait).',
 	}),
@@ -1249,7 +1249,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		name: 'Cognitive Resilience',
 		type: FeatType.Major,
 		sources: [ClassRole.Erudite],
-		level: 4,
+		level: 2,
 		description:
 			'Whenever you become [[Distracted]] while you are concentrating, you can spend 1 [[Focus_Point | FP]] to avoid losing your concentration. You still become [[Distracted]], which affects any future actions.',
 	}),
@@ -1258,7 +1258,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		name: 'I Read About That',
 		type: FeatType.Minor,
 		sources: [ClassRole.Erudite],
-		level: 5,
+		level: 3,
 		description:
 			'While researching within a significant body of text (such as libraries), you can roll [[Knowledge]] instead of [[Serendipity]] when using the [[Write History]] action to establish that a specific answer can be encountered.',
 	}),
@@ -1266,9 +1266,9 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 	[Feat.IntuitiveBlasting]: new FeatDefinition<void>({
 		key: Feat.IntuitiveBlasting,
 		name: 'Intuitive Blasting',
-		type: FeatType.Core,
+		type: FeatType.Major,
 		sources: [ClassRole.Intuitive],
-		level: 1,
+		level: 2,
 		description:
 			'"Blasting" is just second nature to you. Whenever you use a 2 [[Action_Point | AP]]/1 [[Focus_Point | FP]] **Fundamental Arcane Spell** of any school without any augmentations with the intent of dealing damage to a single target, you don\'t need to spend the 1 [[Focus_Point | FP]] cost if you succeed.',
 	}),
@@ -1276,9 +1276,9 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 	[Feat.InnateEmpathy]: new FeatDefinition<void>({
 		key: Feat.InnateEmpathy,
 		name: 'Innate Empathy',
-		type: FeatType.Core,
+		type: FeatType.Major,
 		sources: [ClassRole.Innate],
-		level: 1,
+		level: 2,
 		description:
 			'Whenever rolling your [[CHA]] Check for Arcane Spellcasting using **Being** as the noun ([[Transfiguration]] or [[Command]]), targeting a single creature you can clearly see, you get a `+2` [[Circumstance Modifier | CM]]. If you are acquainted with the **Being** in question (i.e. spent several days with them), you get a `+3` [[Circumstance Modifier | CM]] instead.',
 	}),
