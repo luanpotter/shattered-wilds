@@ -1103,7 +1103,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassFlavor.Scoundrel],
 		level: 3,
 		description:
-			'You can use a [[Focus_Point | FP]] to pay for a [[Luck_Die | Luck Die]] for a Check of a Skill you do not have any points invested in.',
+			'You can use a [[Spirit_Point | SP]] (instead of a [[Heroism_Point | Heroism Point]]) to pay for a [[Luck_Die | Luck Die]] for a Check of a Skill you do not have any points invested in.',
 	}),
 	// Caster
 	[Feat.ArcaneCasting]: new FeatDefinition<MindAttributes>({
