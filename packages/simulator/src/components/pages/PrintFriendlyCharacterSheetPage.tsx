@@ -4,6 +4,7 @@ import {
 	CharacterSheet,
 	DerivedStatType,
 	DivineSection,
+	Exhaustion,
 	FeatInfo,
 	FeatsSection,
 	StatType,
@@ -56,6 +57,13 @@ export const CharacterSheetPrintContent = ({ characterId, sheet }: { characterId
 
 	const arcaneSection = maybeCreateArcaneSection({ characterId, sheet });
 	const divineSection = DivineSection.create({ characterId, characterSheet: sheet });
+	const exhaustionBoxes = Array.from({ length: 10 }, (_, idx) => {
+		const { bonus } = Exhaustion.fromRank(idx);
+		return {
+			rank: idx + 1,
+			label: bonus.value === 0 ? '' : `${bonus.value}`,
+		};
+	});
 
 	return (
 		<>
@@ -99,6 +107,37 @@ export const CharacterSheetPrintContent = ({ characterId, sheet }: { characterId
 					<div style={{ width: '50%', border: '1px solid black' }}>
 						<div style={{ textAlign: 'center', borderBottom: '1px dotted black', margin: '0 1em' }}>
 							<Bold>Consequences</Bold>
+						</div>
+						<div
+							style={{
+								display: 'flex',
+								flexWrap: 'nowrap',
+								alignItems: 'center',
+								justifyContent: 'center',
+								gap: '0.3rem',
+								padding: '3px 6px',
+							}}
+						>
+							<Bold style={{ fontSize: '0.7rem' }}>Exhaustion</Bold>
+							<div style={{ display: 'flex', gap: '0.15rem' }}>
+								{exhaustionBoxes.map(({ rank, label }) => (
+									<div
+										key={rank}
+										style={{
+											width: '22px',
+											height: '18px',
+											border: '1px dotted black',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											fontSize: '0.5rem',
+											color: 'black',
+										}}
+									>
+										{label}
+									</div>
+								))}
+							</div>
 						</div>
 					</div>
 				</div>
