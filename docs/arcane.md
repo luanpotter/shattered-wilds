@@ -10,7 +10,7 @@ Within the domain of the **Arcane**, the bodies of **Beings** are not just mater
 
 Casting a spell typically will require (see **Fundamental Arcane Spell** below):
 
-* a certain amount of **AP** ([[Action_Point | Action Points]]) and **FP** ([[Focus_Point | Focus Points]]) to be spent;
+* a certain amount of **AP** ([[Action_Points | Action Points]]) and **FP** ([[Focus_Points | Focus Points]]) to be spent;
 * executing some non-zero amount of **Spell Components**;
 * rolling a [[Check]] using the Spellcaster's Base Attribute:
 
@@ -53,7 +53,7 @@ That does not mean your influence cannot expand further; however it will get har
 
 ## Basic Spell Attacks
 
-Regardless of specific narrative flavor (see **Predefined Spells** below for inspiration), a **Caster** can use a **Fundamental Arcane Spell** (2 [[Action_Point | AP]], 1 [[Focus_Point | FP]]), range of 1 **Range Increment**, with **Spell DC 15** to harm an enemy within 1m as a Basic Attack against a target's Body or Soul ([[Vitality_Point | VP]] or [[Spirit_Point | SP]] damage). The most typical **Augmentations** for a Basic Spell Attack are _Range_, _Multi-target_, and _Casting Time_.
+Regardless of specific narrative flavor (see **Predefined Spells** below for inspiration), a **Caster** can use a **Fundamental Arcane Spell** (2 [[Action_Points | AP]], 1 [[Focus_Points | FP]]), range of 1 **Range Increment**, with **Spell DC 15** to harm an enemy within 1m as a Basic Attack against a target's Body or Soul ([[Vitality_Points | VP]] or [[Spirit_Points | SP]] damage). The most typical **Augmentations** for a Basic Spell Attack are _Range_, _Multi-target_, and _Casting Time_.
 
 ## Shifts
 
@@ -99,7 +99,7 @@ The execution of Somatic components require a baseline freedom of movement; so t
 
 The **Focal Component** is an [[Imbued Item]] that uses power from the **Aether** to manipulate the vibrations on the **Material Plane** to assist in creating **Arcane Spell Components**. Essentially it is using Divine power to assist on the executing of casting Arcane Spells. **Wands**, **Staves** and other types of [[Imbued Item | Imbued Items]] can be considered **Foci**, with different bonuses (similar to weapon bonuses).
 
-However, as any [[Imbued Item]], using a **Focal Component** requires spending a certain number of [[Spirit_Point | Spirit Points]] to activate (typically 1 [[Spirit_Point | SP]]). Essentially, the **Caster** is connecting (a very weak form of **Channeling**) to the **Focal Component** to activate it in the correct way. That still requires mental concentration, as the **Foci** need to be instructed on the exact nature of the required vibrations, and therefore cannot be used by non-Casters. That also cannot be done while [[Distraught]], as it does require [[Channeling]].
+However, as any [[Imbued Item]], using a **Focal Component** requires spending a certain number of [[Spirit_Points | Spirit Points]] to activate (typically 1 [[Spirit_Points | SP]]). Essentially, the **Caster** is connecting (a very weak form of **Channeling**) to the **Focal Component** to activate it in the correct way. That still requires mental concentration, as the **Foci** need to be instructed on the exact nature of the required vibrations, and therefore cannot be used by non-Casters. That also cannot be done while [[Distraught]], as it does require [[Channeling]].
 
 Therefore, as with other [[Imbued Item | Imbued Items]], the usages of a **Focal Component** require touching, concentrating, and possibly very minor manipulation of the **Focus**; and the [[Disarm]] action can be used to try to remove the **Focal Component** from a **Caster**'s hand.
 
@@ -134,7 +134,7 @@ That means a Level 1 **Caster**, with typically a `+3` primary attribute bonus, 
 
 ### Focus Cost
 
-The typical focus cost of the Fundamental Arcane Spell is **1 [[Focus_Point | FP]]**. Each additional [[Focus_Point | FP]] will add a `+2` modifier, up to twice the number of [[Action_Point | AP]] used (one can't just cram that much focus into too little time). If the spell is being cast as a **Ritual**, there is no limit on the amount of [[Focus_Point | FP]] that can be spent.
+The typical focus cost of the Fundamental Arcane Spell is **1 [[Focus_Points | FP]]**. Each additional [[Focus_Points | FP]] will add a `+2` modifier, up to twice the number of [[Action_Points | AP]] used (one can't just cram that much focus into too little time). If the spell is being cast as a **Ritual**, there is no limit on the amount of [[Focus_Points | FP]] that can be spent.
 
 ### Duration
 

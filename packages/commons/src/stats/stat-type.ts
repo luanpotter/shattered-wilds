@@ -276,7 +276,7 @@ On top of these types of actions, the different Skills can still be used for oth
 		description: `Breath, how much exertion can be sustained in a short period of time; continued athleticism.`,
 		exampleUsages: [
 			`A Check can be used to perform a [[Catch_Breath | Catch Breath]] action.`,
-			`A Check is required to avoid losing a [[Vitality_Point | VP]] when performing the [[Run]] action.`,
+			`A Check is required to avoid losing a [[Vitality_Points | VP]] when performing the [[Run]] action.`,
 			`A Check can be used to push your limits in physical activities, such as running, climbing, etc.`,
 		],
 	});

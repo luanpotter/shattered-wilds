@@ -68,7 +68,7 @@ While **Frightened**, a character:
 
 The condition is considered **Intensified** if the creature can see the source of fear _or_ if they have reason to believe that the source of fear can see them.
 
-The creature can use a **Dispel** action to attempt to dispel the fear by using 1 [[Action_Point | AP]] and 1 [[Focus_Point | FP]] to roll a (Passive) Contested [[Discipline]] Check against the original DC + the current **Frightened** _rank_. If the Fear is not **Intensified**, they get a \`+3\` [[Circumstance Modifier | CM]] to the Check.
+The creature can use a **Dispel** action to attempt to dispel the fear by using 1 [[Action_Points | AP]] and 1 [[Focus_Points | FP]] to roll a (Passive) Contested [[Discipline]] Check against the original DC + the current **Frightened** _rank_. If the Fear is not **Intensified**, they get a \`+3\` [[Circumstance Modifier | CM]] to the Check.
 
 If the Fear is not **Intensified** at the end of the turn, decrease the **Frightened** _rank_ by 1.
 
@@ -90,7 +90,7 @@ While **Immobilized**, a character:
 	[Condition.Incapacitated]: new ConditionDefinition({
 		name: Condition.Incapacitated,
 		ranked: false,
-		description: `The creature is severely incapacitated when their [[Vitality_Point | VP]], [[Focus_Point | FP]] or [[Spirit_Point | SP]] reaches \`0\`.
+		description: `The creature is severely incapacitated when their [[Vitality_Points | VP]], [[Focus_Points | FP]] or [[Spirit_Points | SP]] reaches \`0\`.
 
 When Incapacitated, a character is:
 

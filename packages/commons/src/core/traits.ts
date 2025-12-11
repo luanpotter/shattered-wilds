@@ -65,7 +65,7 @@ export const TRAITS: Record<Trait, TraitDefinition> = {
 		target: TraitTarget.Action,
 		key: Trait.Reaction,
 		name: 'Reaction',
-		description: `These are actions that can be taken at any time in combat, often in response to a specific event or situation. Unlike other systems, a character can take as many Reactions as they want, as long as they have the [[Action_Point | AP]] to afford them.
+		description: `These are actions that can be taken at any time in combat, often in response to a specific event or situation. Unlike other systems, a character can take as many Reactions as they want, as long as they have the [[Action_Points | AP]] to afford them.
 
 Since your **AP** is replenished at the end of your turn, you do not need to decide whether to "save" **AP** for reactions.`,
 	}),

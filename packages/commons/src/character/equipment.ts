@@ -695,6 +695,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 				bonus: Bonus.of(2),
 				costs: [],
 			}),
+		alternativeNames: ['Horn', 'Bell', 'Simple Flute'],
 	}),
 	[BasicEquipmentType.Lyre]: new BasicEquipmentDefinition({
 		generator: () =>
@@ -706,5 +707,6 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 				traits: [Trait.TwoHanded],
 				costs: [],
 			}),
+		alternativeNames: ['Lute', 'Harp'],
 	}),
 };

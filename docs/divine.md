@@ -4,7 +4,7 @@ _This is the choice for players who want a more loosey-goosey, less mechanical m
 
 The domain of the **Divine** also includes [[Imbued Item | Imbued Items]], as they work by leveraging powers from the **Aether**.
 
-**Mystics** with the [[Divine Channeling]] **Feat** can spend 2 [[Action_Point | AP]] and 1 [[Spirit_Point | SP]] to perform a specific **Divine Channeling** action (with the [Channeling] trait) to essentially "cast a divine spell". Roll a [[DIV]] Check (regardless of **Class**) and the DM will determine the effect based on the result.
+**Mystics** with the [[Divine Channeling]] **Feat** can spend 2 [[Action_Points | AP]] and 1 [[Spirit_Points | SP]] to perform a specific **Divine Channeling** action (with the [Channeling] trait) to essentially "cast a divine spell". Roll a [[DIV]] Check (regardless of **Class**) and the DM will determine the effect based on the result.
 
 ## Domains
 
@@ -14,10 +14,10 @@ As such, there is no pre-defined "spell list"; the **Mystic** can choose to cast
 
 The exact nature and capabilities of **Divine Channeling** are vague and flexible. Effect types that are covered by the **Arcane** are usually beyond the domain of the **Divine**. In contrast, effects from the list below are known to be possible:
 
-* Healing of [[Vitality_Point | VP]] or [[Focus_Point | FP]] (the **Divine** cannot heal [[Spirit_Point | SP]]);
-* Damaging of [[Vitality_Point | VP]], [[Focus_Point | FP]], and [[Spirit_Point | SP]]
+* Healing of [[Vitality_Points | VP]] or [[Focus_Points | FP]] (the **Divine** cannot heal [[Spirit_Points | SP]]);
+* Damaging of [[Vitality_Points | VP]], [[Focus_Points | FP]], and [[Spirit_Points | SP]]
 * Infliction or removal of [[Condition | Conditions]], notably [[Blessed]] and [[Frightened]];
-* Imbuement of items (temporarily), granting boons or extra powers (often requiring [[Spirit_Point | SP]] to activate);
+* Imbuement of items (temporarily), granting boons or extra powers (often requiring [[Spirit_Points | SP]] to activate);
 * Divination of the possible futures, the present or the past (note: this is the vaguest type of **Channeling**, and asking for very specific questions is extremely hard; also no **Protean** is omniscient);
 * Creation of illusions, such as the **Minor Illusion** spell in D&D; in combat, barriers, camouflage or even forms of invisibility are possible (the latter being particularly hard).
 

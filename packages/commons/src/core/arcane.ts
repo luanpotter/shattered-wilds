@@ -287,7 +287,7 @@ export const PREDEFINED_ARCANE_SPELLS: Record<PredefinedArcaneSpell, ArcaneSpell
 		name: PredefinedArcaneSpell.RockSmash,
 		school: ArcaneSpellSchool.Conjuration,
 		description:
-			'Conjures a medium-sized boulder of weak rock above the target, which can be used as a **Mind Attack** against **Body Defense** to avoid being hit by the falling debris and receiving 1 [[Vitality_Point | VP]] of damage.',
+			'Conjures a medium-sized boulder of weak rock above the target, which can be used as a **Mind Attack** against **Body Defense** to avoid being hit by the falling debris and receiving 1 [[Vitality_Points | VP]] of damage.',
 		augmentations: [
 			new ArcaneSpellAugmentation({
 				type: ArcaneSpellAugmentationType.Volume,
@@ -301,7 +301,7 @@ export const PREDEFINED_ARCANE_SPELLS: Record<PredefinedArcaneSpell, ArcaneSpell
 		name: PredefinedArcaneSpell.ConjureDebris,
 		school: ArcaneSpellSchool.Conjuration,
 		description:
-			'Conjures loose weak rocks, pebbles and/or gravel over an area, causing it to count as **Difficult Terrain**. Each Hex of debris can be cleared gradually with 4 [[Action_Point | AP]] worth of actions.',
+			'Conjures loose weak rocks, pebbles and/or gravel over an area, causing it to count as **Difficult Terrain**. Each Hex of debris can be cleared gradually with 4 [[Action_Points | AP]] worth of actions.',
 		augmentations: [
 			new ArcaneSpellAugmentation({
 				type: ArcaneSpellAugmentationType.Area,
@@ -403,7 +403,7 @@ export const PREDEFINED_ARCANE_SPELLS: Record<PredefinedArcaneSpell, ArcaneSpell
 	[PredefinedArcaneSpell.MagicShove]: new ArcaneSpellDefinition({
 		name: PredefinedArcaneSpell.MagicShove,
 		school: ArcaneSpellSchool.Telekinesis,
-		description: `Telekinetically controls a gust of wind towards a target, shoving them back by 1 Hex. The target can resist with a [[Stance]] check. **Shifts** can be used to push the target further back, make them [[Prone]], or deal [[Vitality_Point | VP]] damage.`,
+		description: `Telekinetically controls a gust of wind towards a target, shoving them back by 1 Hex. The target can resist with a [[Stance]] check. **Shifts** can be used to push the target further back, make them [[Prone]], or deal [[Vitality_Points | VP]] damage.`,
 		traits: [Trait.SpecialAttack],
 		augmentations: [
 			new ArcaneSpellAugmentation({
@@ -450,7 +450,7 @@ export const PREDEFINED_ARCANE_SPELLS: Record<PredefinedArcaneSpell, ArcaneSpell
 	[PredefinedArcaneSpell.HideousVisage]: new ArcaneSpellDefinition({
 		name: PredefinedArcaneSpell.HideousVisage,
 		school: ArcaneSpellSchool.Transfiguration,
-		description: `Transfigures a desired surface-level aspect of a target's appearance, making it hideous and slightly repulsive. The target can resist the transformation itself with a [[Toughness]] Check. If successful, the target then must resist again with a [[Tenacity]] check or take 1 [[Spirit_Point | SP]] and become [[Distraught]] while transformed. Regardless of their self-perception, they will get a \`-6\` [[Circumstance_Modifier | CM]] to any [[Presence]] Checks.`,
+		description: `Transfigures a desired surface-level aspect of a target's appearance, making it hideous and slightly repulsive. The target can resist the transformation itself with a [[Toughness]] Check. If successful, the target then must resist again with a [[Tenacity]] check or take 1 [[Spirit_Points | SP]] and become [[Distraught]] while transformed. Regardless of their self-perception, they will get a \`-6\` [[Circumstance_Modifier | CM]] to any [[Presence]] Checks.`,
 		augmentations: [
 			new ArcaneSpellAugmentation({
 				type: ArcaneSpellAugmentationType.Specificity,

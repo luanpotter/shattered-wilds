@@ -43,7 +43,7 @@ Different types of Casters can use different types of equipments to aid in their
 
 Regardless of using arcane-assisting equipment or not, casting the spell still requires mental concentration, as the equipment needs to be manipulated in the exact way to produce the required vibrations, and therefore they cannot be used (for the purposes of spell casting) by non-Casters.
 
-* The [[Arcanist]] and [[Naturalist]] can use **Arcane Foci** as **Focal Components**. As with any **Imbued Items**, they might require spending a certain number of [[Spirit_Point | Spirit Points]] to activate (typically 1 [[Spirit_Point | SP]]). Essentially, the **Caster** is connecting (a very weak form of **Channeling**) to the **Focal Component**, and thus also cannot be done while [[Distraught]], as it does require [[Channeling]].
+* The [[Arcanist]] and [[Naturalist]] can use **Arcane Foci** as **Focal Components**. As with any **Imbued Items**, they might require spending a certain number of [[Spirit_Points | Spirit Points]] to activate (typically 1 [[Spirit_Points | SP]]). Essentially, the **Caster** is connecting (a very weak form of **Channeling**) to the **Focal Component**, and thus also cannot be done while [[Distraught]], as it does require [[Channeling]].
 * The [[Mechanist]] can engineer and use mechanical tools and contraptions as **Somatic Components**. The [[Arcanist]] can use simple hand gestures but not mechanical tools.
 * The [[Musicist]] can use musical instruments as **Verbal Components**. The [[Arcanist]] can use basic chanting but not musical instruments.
 

@@ -1,6 +1,6 @@
 Actions are the fundamental building blocks of combat and interaction in **Shattered Wilds**.
 
-Each character has a limited number of [[Action_Point | Action Points]] (AP) per turn that they can spend to perform actions (including reactions).
+Each character has a limited number of [[Action_Points | Action Points]] (AP) per turn that they can spend to perform actions (including reactions).
 
 ## Traits
 
@@ -30,7 +30,7 @@ If a hex has Difficult Terrain, it counts as 2 hexes for the purposes of **Movem
 
 ### Type: Attack
 
-These are actions in which the intent is to inflict damage (either to [[Vitality_Point | VP]], [[Focus_Point | FP]] or [[Spirit_Point | SP]]) to an opponent. Attack Actions are an active contested check against the target's Defense (which depends on the nature of the Attack).
+These are actions in which the intent is to inflict damage (either to [[Vitality_Points | VP]], [[Focus_Points | FP]] or [[Spirit_Points | SP]]) to an opponent. Attack Actions are an active contested check against the target's Defense (which depends on the nature of the Attack).
 
 Attack Actions can be either **Basic** or **Special**. Basic Attack actions are always an Attribute Check ([[STR]] or [[DEX]] for Physical attacks or the Spellcasting Attribute for Spell Attacks) contested by the target's Realm as Defense (for example, a [[STR]] check against a target's [[Body]]). Basic Attacks typically cause one damage when they succeed, and Shifts cause extra damage points.
 
@@ -78,7 +78,7 @@ In situations where the attacker and the target are not at the same elevation, c
 
 ## Type: Defense
 
-These are actions that are used to defend against attacks. The most basic defense is the [[Basic_Defense | Basic Defense]] reaction, which costs no [[Action_Point | AP]] and thus can be done in response to any applicable attack.
+These are actions that are used to defend against attacks. The most basic defense is the [[Basic_Defense | Basic Defense]] reaction, which costs no [[Action_Points | AP]] and thus can be done in response to any applicable attack.
 
 Note that you can only use a single **Defense** reaction in response to each attack; so for example you cannot both [[Dodge]] and [[Shield_Block | Shield Block]] in response to the same attack - you must choose one way to react.
 

@@ -617,7 +617,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Minor,
 		sources: [StaticFeatSource.General],
 		level: 1,
-		description: `You have a knack for getting good deals. When you are buying or selling goods or services and engage in haggling, you can have your target roll a contested [[Resolve]] check against your [[Presence]] to get a better deal. You can spend 1 [[Focus_Point | FP]] to gain a \`+3\` [[Circumstance Modifier | CM]] to your [[Presence]] check for this purpose.`,
+		description: `You have a knack for getting good deals. When you are buying or selling goods or services and engage in haggling, you can have your target roll a contested [[Resolve]] check against your [[Presence]] to get a better deal. You can spend 1 [[Focus_Points | FP]] to gain a \`+3\` [[Circumstance Modifier | CM]] to your [[Presence]] check for this purpose.`,
 	}),
 	[Feat.UnassumingPresence]: new FeatDefinition<void>({
 		key: Feat.UnassumingPresence,
@@ -634,7 +634,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [StaticFeatSource.General],
 		level: 2,
 		description:
-			'Your strong connection to your Soul Realm allows you to expand your sense of hearing and smell. You can spend 1 [[Action_Point | AP]] and 2 [[Spirit_Point | SP]] to know the positions of any creature you are aware of within `6 Hexes` as well as if you could see them clearly. If they are explicitly trying to sneak, you get `+6` [[Circumstance Modifier | CM]] to your [[Perception]] Check.',
+			'Your strong connection to your Soul Realm allows you to expand your sense of hearing and smell. You can spend 1 [[Action_Points | AP]] and 2 [[Spirit_Points | SP]] to know the positions of any creature you are aware of within `6 Hexes` as well as if you could see them clearly. If they are explicitly trying to sneak, you get `+6` [[Circumstance Modifier | CM]] to your [[Perception]] Check.',
 	}),
 	[Feat.SkillSpecialization]: new FeatDefinition<Skills>({
 		key: Feat.SkillSpecialization,
@@ -803,7 +803,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [Upbringing.Tribal],
 		level: 0,
 		description:
-			'Pay 1 [[Heroism_Point | Heroism Point]] to reduce your [[Exhaustion]] _rank_ by 1 if you can directly tie a current task to your personal sense of duty towards your tribe.',
+			'Pay 1 [[Heroism_Points | Heroism Point]] to reduce your [[Exhaustion]] _rank_ by 1 if you can directly tie a current task to your personal sense of duty towards your tribe.',
 	}),
 	[Feat.LightFeet]: new FeatDefinition<void>({
 		key: Feat.LightFeet,
@@ -838,7 +838,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassRole.Melee],
 		level: 2,
 		description:
-			'You can spend `1` [[Spirit_Point | SP]] to reduce by `1` (min `1`) the amount of [[Action_Point | AP]] you would spend to perform the [[Opportunity_Attack | Opportunity Attack]] reaction.',
+			'You can spend `1` [[Spirit_Points | SP]] to reduce by `1` (min `1`) the amount of [[Action_Points | AP]] you would spend to perform the [[Opportunity_Attack | Opportunity Attack]] reaction.',
 	}),
 	[Feat.SpinAttack]: new FeatDefinition<void>({
 		key: Feat.SpinAttack,
@@ -866,7 +866,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassRole.Ranged],
 		level: 3,
 		description:
-			'Spend 2 [[Spirit_Points | SP]] (and the [[Action_Point | AP]] that it would cost) to use a [[Strike]] action for **Basic Ranged Attack** as a reaction; it loses the [[Concentrate]] trait.',
+			'Spend 2 [[Spirit_Points | SP]] (and the [[Action_Points | AP]] that it would cost) to use a [[Strike]] action for **Basic Ranged Attack** as a reaction; it loses the [[Concentrate]] trait.',
 	}),
 	[Feat.PinningShot]: new FeatDefinition<void>({
 		key: Feat.PinningShot,
@@ -883,7 +883,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassRole.Ranged],
 		level: 3,
 		description:
-			'If you have at least one hand free, you can spend 1 [[Focus_Point | FP]] to draw a **Light Melee Weapon** without spending an action.',
+			'If you have at least one hand free, you can spend 1 [[Focus_Points | FP]] to draw a **Light Melee Weapon** without spending an action.',
 	}),
 	[Feat.DoubleShot]: new FeatDefinition<void>({
 		key: Feat.DoubleShot,
@@ -900,7 +900,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Major,
 		sources: [ClassRole.Ranged],
 		level: 4,
-		description: `While performing a **Ranged Attack** with a weapon you are familiar with, you can spend 1 [[Spirit_Point | SP]] to ignore the [[Concentrate]] trait.
+		description: `While performing a **Ranged Attack** with a weapon you are familiar with, you can spend 1 [[Spirit_Points | SP]] to ignore the [[Concentrate]] trait.
 
 			You are "familiar" with a weapon that you have used at least twice each in at least two encounters in at least two distinct days; or you can spend a 1 hour during your daily downtime for at least a few days getting accustomed to it - to DM's discretion.`,
 	}),
@@ -921,7 +921,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassRole.Tank],
 		level: 1,
 		description:
-			'You can spend an additional 1 [[Spirit_Point | SP]] as you perform a [[Taunt]] action to get a +6 [[Circumstance Modifier | CM]] to your [[Presence]] Check.',
+			'You can spend an additional 1 [[Spirit_Points | SP]] as you perform a [[Taunt]] action to get a +6 [[Circumstance Modifier | CM]] to your [[Presence]] Check.',
 	}),
 	[Feat.QuickBash]: new FeatDefinition<void>({
 		key: Feat.QuickBash,
@@ -929,7 +929,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Major,
 		sources: [ClassRole.Tank],
 		level: 2,
-		description: 'You only need to spend 1 [[Action_Point | AP]] (instead of 2) to perform a **Shield Bash** .',
+		description: 'You only need to spend 1 [[Action_Points | AP]] (instead of 2) to perform a **Shield Bash** .',
 	}),
 	[Feat.ArmorFamiliarity]: new FeatDefinition<void>({
 		key: Feat.ArmorFamiliarity,
@@ -964,7 +964,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassRole.Tank],
 		level: 4,
 		description:
-			'When a creature performs a **Ranged Attack** involving firing a projectile at a target other than you, you can pay 1 [[Action_Point | AP]] to react by jumping (at most `1 Hex`) onto the path of the incoming projectile. The original target gains [[Cover_Greater | Greater Cover]] against the attack, but if it misses by no more than -1 Shifts, you are hit instead.',
+			'When a creature performs a **Ranged Attack** involving firing a projectile at a target other than you, you can pay 1 [[Action_Points | AP]] to react by jumping (at most `1 Hex`) onto the path of the incoming projectile. The original target gains [[Cover_Greater | Greater Cover]] against the attack, but if it misses by no more than -1 Shifts, you are hit instead.',
 	}),
 	[Feat.StoutMetabolism]: new FeatDefinition<void>({
 		key: Feat.StoutMetabolism,
@@ -982,7 +982,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassFlavor.Martial],
 		level: 1,
 		description:
-			'Spend 1 [[Action_Point | AP]] and 1 [[Spirit_Point | SP]] to authoritatively command a creature that can see and hear you clearly to perform a specific 1 [[Action_Point | AP]] action of your choice. If the creature wishes to follow your command, they can perform the action immediately without spending the [[Action_Point | AP]].',
+			'Spend 1 [[Action_Points | AP]] and 1 [[Spirit_Points | SP]] to authoritatively command a creature that can see and hear you clearly to perform a specific 1 [[Action_Points | AP]] action of your choice. If the creature wishes to follow your command, they can perform the action immediately without spending the [[Action_Points | AP]].',
 	}),
 	[Feat.DistributedShifts]: new FeatDefinition<void>({
 		key: Feat.DistributedShifts,
@@ -1000,7 +1000,7 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		sources: [ClassFlavor.Martial],
 		level: 3,
 		description:
-			'You can spend an hour and 1 [[Spirit_Point | SP]] to hone and carefully refine your weapon to your personal style, preferences and needs, creating a unique connection between you and it. This connection will last until the end of the day, as it fades away in your memory, but while it lasts, the weapon will concede an additional `+1` Equipment Modifier bonus to your [[Strike]] actions. You can do this as a downtime activity during a [[Long Rest]].',
+			'You can spend an hour and 1 [[Spirit_Points | SP]] to hone and carefully refine your weapon to your personal style, preferences and needs, creating a unique connection between you and it. This connection will last until the end of the day, as it fades away in your memory, but while it lasts, the weapon will concede an additional `+1` Equipment Modifier bonus to your [[Strike]] actions. You can do this as a downtime activity during a [[Long Rest]].',
 	}),
 	[Feat.OpportuneRetaliation]: new FeatDefinition<void>({
 		key: Feat.OpportuneRetaliation,
@@ -1008,9 +1008,9 @@ export const FEATS: Record<Feat, FeatDefinition<any>> = {
 		type: FeatType.Major,
 		sources: [ClassFlavor.Martial],
 		level: 4,
-		description: `Whenever a creature misses a **Melee Basic Attack** against you, you can spend 1 [[Focus_Point | FP]] to perform the [[Opportunity_Attack | Opportunity Attack]] reaction against them; you still pay the [[Action_Point | AP]] (and any other) cost.
+		description: `Whenever a creature misses a **Melee Basic Attack** against you, you can spend 1 [[Focus_Points | FP]] to perform the [[Opportunity_Attack | Opportunity Attack]] reaction against them; you still pay the [[Action_Points | AP]] (and any other) cost.
 
-For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Action_Points | AP]] and 1 [[Focus_Point | FP]] in total.`,
+For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Action_Points | AP]] and 1 [[Focus_Points | FP]] in total.`,
 	}),
 	[Feat.KnowThyEnemy]: new FeatDefinition<void>({
 		key: Feat.KnowThyEnemy,
@@ -1028,7 +1028,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassFlavor.Survivalist],
 		level: 1,
 		description:
-			'You can spend 1 [[Action_Point | AP]] and 1 [[Spirit_Point | SP]] to become **Enraged**: reduce your [[Focus_Point | Focus Points]] to `1`, and it cannot be further reduced while you are **Enraged**; you cannot [[Concentrate]] while **Enraged**; and you gain a [[Circumstance Modifier | CM]] to your **Body Attacks** while **Enraged** that starts with `+6` and is reduced by `1` each time it is used. When the bonus reaches `0`, or you fail to perform at least on **Basic Attack** in your turn, you are no longer **Enraged**.',
+			'You can spend 1 [[Action_Points | AP]] and 1 [[Spirit_Points | SP]] to become **Enraged**: reduce your [[Focus_Points | Focus Points]] to `1`, and it cannot be further reduced while you are **Enraged**; you cannot [[Concentrate]] while **Enraged**; and you gain a [[Circumstance Modifier | CM]] to your **Body Attacks** while **Enraged** that starts with `+6` and is reduced by `1` each time it is used. When the bonus reaches `0`, or you fail to perform at least on **Basic Attack** in your turn, you are no longer **Enraged**.',
 	}),
 	[Feat.InstinctiveTracking]: new FeatDefinition<void>({
 		key: Feat.InstinctiveTracking,
@@ -1037,7 +1037,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassFlavor.Survivalist, ClassFlavor.Naturalist],
 		level: 2,
 		description:
-			'You get a `+3` [[Circumstance Modifier | CM]] to Checks you make related to tracking creatures (following footprints, etc), and you can spend 1 [[Focus_Point | FP]] to gain an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).',
+			'You get a `+3` [[Circumstance Modifier | CM]] to Checks you make related to tracking creatures (following footprints, etc), and you can spend 1 [[Focus_Points | FP]] to gain an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).',
 	}),
 	[Feat.DisregardCover]: new FeatDefinition<void>({
 		key: Feat.DisregardCover,
@@ -1055,7 +1055,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassFlavor.Survivalist, ClassFlavor.Naturalist, ClassFlavor.Devout],
 		level: 3,
 		description:
-			'You can spend a few hours to forage for ingredients on the appropriate environment with an [[Intuition]] Check. You can also spend a few hours and 1 [[Spirit_Point | SP]] to brew a salve that can be used to heal an amount of points (determined by a [[Knowledge]] Check) of either [[Vitality_Point | VP]], [[Focus_Point | FP]] or [[Spirit_Point | SP]] (your choice). The salve will lose potency and expire after a few days.',
+			'You can spend a few hours to forage for ingredients on the appropriate environment with an [[Intuition]] Check. You can also spend a few hours and 1 [[Spirit_Points | SP]] to brew a salve that can be used to heal an amount of points (determined by a [[Knowledge]] Check) of either [[Vitality_Points | VP]], [[Focus_Points | FP]] or [[Spirit_Points | SP]] (your choice). The salve will lose potency and expire after a few days.',
 	}),
 	[Feat.ControlledRage]: new FeatDefinition<void>({
 		key: Feat.ControlledRage,
@@ -1063,9 +1063,9 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		type: FeatType.Major,
 		sources: [ClassFlavor.Survivalist],
 		level: 4,
-		description: `When using the [[Rage]] action, you can spend additional [[Spirit_Point | SPs]] to keep more of your [[Focus_Point | FP]]: for each additional [[Spirit_Point | SP]] you spend, you can keep an additional [[Focus_Point | FP]].
+		description: `When using the [[Rage]] action, you can spend additional [[Spirit_Points | SPs]] to keep more of your [[Focus_Points | FP]]: for each additional [[Spirit_Points | SP]] you spend, you can keep an additional [[Focus_Points | FP]].
 
-			For example, you can spend 1 [[Action_Point | AP]] and 3 [[Spirit_Point | SP]] in total to become **Enraged** while keeping 3 [[Focus_Point | FP]].`,
+			For example, you can spend 1 [[Action_Points | AP]] and 3 [[Spirit_Points | SP]] in total to become **Enraged** while keeping 3 [[Focus_Points | FP]].`,
 	}),
 	// Scoundrel
 	[Feat.FancyFootwork]: new FeatDefinition<void>({
@@ -1084,7 +1084,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassFlavor.Scoundrel],
 		level: 2,
 		description:
-			'You get a `+3` [[Circumstance Modifier | CM]] to any Checks you perform associated with lock picking or trap disarming. You can spend 1 [[Focus_Point | FP]] to get an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).',
+			'You get a `+3` [[Circumstance Modifier | CM]] to any Checks you perform associated with lock picking or trap disarming. You can spend 1 [[Focus_Points | FP]] to get an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).',
 	}),
 	[Feat.Leverage]: new FeatDefinition<void>({
 		key: Feat.Leverage,
@@ -1092,9 +1092,9 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		type: FeatType.Major,
 		sources: [ClassFlavor.Scoundrel],
 		level: 2,
-		description: `If you would inflict additional damage through a **Basic Strike** to an enemy via **Crit Shifts**, you can instead spend any number of [[Spirit_Point | SP]] (up to your level) to inflict that many additional [[Vitality_Point | VP]] of damage.
+		description: `If you would inflict additional damage through a **Basic Strike** to an enemy via **Crit Shifts**, you can instead spend any number of [[Spirit_Points | SP]] (up to your level) to inflict that many additional [[Vitality_Points | VP]] of damage.
 
-			For example, if you get 2 **Shifts** for an attack (normal damage of 3), you can spend 2 [[Spirit_Point | SP]] to inflict 2 additional [[Vitality_Point | VP]] of damage (total damage of 5).`,
+			For example, if you get 2 **Shifts** for an attack (normal damage of 3), you can spend 2 [[Spirit_Points | SP]] to inflict 2 additional [[Vitality_Points | VP]] of damage (total damage of 5).`,
 	}),
 	[Feat.BeginnersLuck]: new FeatDefinition<void>({
 		key: Feat.BeginnersLuck,
@@ -1103,7 +1103,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassFlavor.Scoundrel],
 		level: 3,
 		description:
-			'You can use a [[Spirit_Point | SP]] (instead of a [[Heroism_Point | Heroism Point]]) to pay for a [[Luck_Die | Luck Die]] for a Check of a Skill you do not have any points invested in.',
+			'You can use a [[Spirit_Points | SP]] (instead of a [[Heroism_Points | Heroism Point]]) to pay for a [[Luck_Die | Luck Die]] for a Check of a Skill you do not have any points invested in.',
 	}),
 	// Caster
 	[Feat.ArcaneCasting]: new FeatDefinition<MindAttributes>({
@@ -1148,7 +1148,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassFlavor.Arcanist],
 		level: 2,
 		description:
-			'You can spend 1 [[Heroism Point]] to cast a standard 2 [[Action_Point | AP]] / 1 [[Focus_Point | FP]] spell as a reaction.',
+			'You can spend 1 [[Heroism Point]] to cast a standard 2 [[Action_Points | AP]] / 1 [[Focus_Points | FP]] spell as a reaction.',
 	}),
 	[Feat.CantripCasting]: new FeatDefinition<void>({
 		key: Feat.CantripCasting,
@@ -1157,7 +1157,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassFlavor.Arcanist],
 		level: 3,
 		description:
-			'When not in the pressure of an **Encounter**, you can spend a few minutes to cast a standard 2 [[Action_Point | AP]] / 1 [[Focus_Point | FP]] spell without spending a [[Focus Point]].',
+			'When not in the pressure of an **Encounter**, you can spend a few minutes to cast a standard 2 [[Action_Points | AP]] / 1 [[Focus_Points | FP]] spell without spending a [[Focus Point]].',
 	}),
 	// Mechanist
 	[Feat.ToolAssistedCasting]: new FeatDefinition<void>({
@@ -1176,7 +1176,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassFlavor.Mechanist],
 		level: 2,
 		description:
-			'You can spend a few hours and 1+ [[Focus_Point | FP]] to attempt to concoct a mechanical contraption to achieve any specific simple goal (use a Check of your primary attribute). Think gears, belts, pulleys, etc in a small pocket sized creation. As an example, you could craft a music box, a clock, a small mechanical hinge to open a door. The DM will adjudicate the complexity and feasibility of the project.',
+			'You can spend a few hours and 1+ [[Focus_Points | FP]] to attempt to concoct a mechanical contraption to achieve any specific simple goal (use a Check of your primary attribute). Think gears, belts, pulleys, etc in a small pocket sized creation. As an example, you could craft a music box, a clock, a small mechanical hinge to open a door. The DM will adjudicate the complexity and feasibility of the project.',
 	}),
 	[Feat.EyeForContraptions]: new FeatDefinition<void>({
 		key: Feat.EyeForContraptions,
@@ -1185,7 +1185,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassFlavor.Mechanist],
 		level: 3,
 		description:
-			'You are particularly good at analyzing and assessing the functionality of mechanical contraptions, such as mechanical devices, locks, and traps. You have a `+3` [[Circumstance Modifier | CM]] to [[IQ]] Checks to discern information from such contraptions, and can spend `1` [[Focus_Point | FP]] to get an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).',
+			'You are particularly good at analyzing and assessing the functionality of mechanical contraptions, such as mechanical devices, locks, and traps. You have a `+3` [[Circumstance Modifier | CM]] to [[IQ]] Checks to discern information from such contraptions, and can spend `1` [[Focus_Points | FP]] to get an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).',
 	}),
 	// Naturalist
 	[Feat.FocalConnection]: new FeatDefinition<void>({
@@ -1223,7 +1223,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassFlavor.Musicist],
 		level: 2,
 		description:
-			'As a reaction to an ally that can hear you performing an action, you can spend 1 [[Action_Point | AP]] and 1 [[Spirit_Point | SP]] to give them a +1 [[Circumstance Modifier | CM]] to a Check associated with their action. You can only do this once per action, the action must not be a reaction, and you cannot do this to yourself.',
+			'As a reaction to an ally that can hear you performing an action, you can spend 1 [[Action_Points | AP]] and 1 [[Spirit_Points | SP]] to give them a +1 [[Circumstance Modifier | CM]] to a Check associated with their action. You can only do this once per action, the action must not be a reaction, and you cannot do this to yourself.',
 	}),
 	[Feat.TheresMoreToThisSong]: new FeatDefinition<void>({
 		key: Feat.TheresMoreToThisSong,
@@ -1242,7 +1242,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassRole.Erudite],
 		level: 2,
 		description:
-			'Whenever you would spend [[Spirit_Point | SP]] to activate a wand or stave, you can spend [[Focus_Point | FP]] instead (the action still has the [[Channel]] trait).',
+			'Whenever you would spend [[Spirit_Points | SP]] to activate a wand or stave, you can spend [[Focus_Points | FP]] instead (the action still has the [[Channel]] trait).',
 	}),
 	[Feat.CognitiveResilience]: new FeatDefinition<void>({
 		key: Feat.CognitiveResilience,
@@ -1251,7 +1251,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassRole.Erudite],
 		level: 2,
 		description:
-			'Whenever you become [[Distracted]] while you are concentrating, you can spend 1 [[Focus_Point | FP]] to avoid losing your concentration. You still become [[Distracted]], which affects any future actions.',
+			'Whenever you become [[Distracted]] while you are concentrating, you can spend 1 [[Focus_Points | FP]] to avoid losing your concentration. You still become [[Distracted]], which affects any future actions.',
 	}),
 	[Feat.IReadAboutThat]: new FeatDefinition<void>({
 		key: Feat.IReadAboutThat,
@@ -1270,7 +1270,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassRole.Intuitive],
 		level: 2,
 		description:
-			'"Blasting" is just second nature to you. Whenever you use a 2 [[Action_Point | AP]]/1 [[Focus_Point | FP]] **Fundamental Arcane Spell** of any school without any augmentations with the intent of dealing damage to a single target, you don\'t need to spend the 1 [[Focus_Point | FP]] cost if you succeed.',
+			'"Blasting" is just second nature to you. Whenever you use a 2 [[Action_Points | AP]]/1 [[Focus_Points | FP]] **Fundamental Arcane Spell** of any school without any augmentations with the intent of dealing damage to a single target, you don\'t need to spend the 1 [[Focus_Points | FP]] cost if you succeed.',
 	}),
 	// Innate
 	[Feat.InnateEmpathy]: new FeatDefinition<void>({
@@ -1299,7 +1299,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassRole.Disciple],
 		level: 2,
 		description:
-			'You can perform the [[Calm]] action on an ally that you can touch. You can spend an additional 1 [[Focus_Point | FP]] to get a `+6` [[Circumstance Modifier | CM]] when performing the [[Calm]] action.',
+			'You can perform the [[Calm]] action on an ally that you can touch. You can spend an additional 1 [[Focus_Points | FP]] to get a `+6` [[Circumstance Modifier | CM]] when performing the [[Calm]] action.',
 	}),
 	[Feat.FocusedReach]: new FeatDefinition<void>({
 		key: Feat.FocusedReach,
@@ -1308,7 +1308,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassRole.Disciple],
 		level: 2,
 		description:
-			'You can spend 1 [[Action_Point | AP]] and 1 [[Focus_Point | FP]] to double your [[Influence Range]] until the start of your next turn.',
+			'You can spend 1 [[Action_Points | AP]] and 1 [[Focus_Points | FP]] to double your [[Influence Range]] until the start of your next turn.',
 	}),
 	[Feat.ReligiousRites]: new FeatDefinition<void>({
 		key: Feat.ReligiousRites,
@@ -1317,7 +1317,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassRole.Disciple],
 		level: 3,
 		description:
-			'You are particularly knowledgeable about the specific rites, rituals, the nature of your contract, or whatever are the details of your connection with your Protean. You get a `+3` to [[Knowledge]] Checks related to these topics, and can spend `1` [[Focus_Point | FP]] to get an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).',
+			'You are particularly knowledgeable about the specific rites, rituals, the nature of your contract, or whatever are the details of your connection with your Protean. You get a `+3` to [[Knowledge]] Checks related to these topics, and can spend `1` [[Focus_Points | FP]] to get an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).',
 	}),
 	[Feat.DivineInspiration]: new FeatDefinition<void>({
 		key: Feat.DivineInspiration,
@@ -1326,7 +1326,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassRole.Disciple],
 		level: 4,
 		description:
-			'You can roll [[Devotion]] instead of [[Empathy]] when using the [[Inspire]] action; additionally, you can spend 1 [[Focus_Point | FP]] to gain a +3 [[Circumstance Modifier | CM]] to the Check.',
+			'You can roll [[Devotion]] instead of [[Empathy]] when using the [[Inspire]] action; additionally, you can spend 1 [[Focus_Points | FP]] to gain a +3 [[Circumstance Modifier | CM]] to the Check.',
 	}),
 	//Adept
 	[Feat.FlurryOfBlows]: new FeatDefinition<void>({
@@ -1336,7 +1336,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassRole.Adept],
 		level: 1,
 		description:
-			'You can spend 1 [[Spirit_Point | SP]] to make an unarmed [[Strike]] cost only 1 [[Action_Point | AP]].',
+			'You can spend 1 [[Spirit_Points | SP]] to make an unarmed [[Strike]] cost only 1 [[Action_Points | AP]].',
 	}),
 	[Feat.ChannelingFists]: new FeatDefinition<void>({
 		key: Feat.ChannelingFists,
@@ -1344,7 +1344,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		type: FeatType.Major,
 		sources: [ClassRole.Adept],
 		level: 2,
-		description: `You can spend 1 [[Spirit_Point | SP]] to get a +1 [[Circumstance Modifier | CM]] to an unarmed Attack Check. You _can_ stack this effect on the same attack.`,
+		description: `You can spend 1 [[Spirit_Points | SP]] to get a +1 [[Circumstance Modifier | CM]] to an unarmed Attack Check. You _can_ stack this effect on the same attack.`,
 	}),
 	[Feat.CallousFists]: new FeatDefinition<void>({
 		key: Feat.CallousFists,
@@ -1388,7 +1388,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassRole.Inspired],
 		level: 2,
 		description:
-			'You can spend 1 [[Focus_Point | FP]] as you take a **Movement Action** to ignore **Difficult Terrain** for this movement.',
+			'You can spend 1 [[Focus_Points | FP]] as you take a **Movement Action** to ignore **Difficult Terrain** for this movement.',
 	}),
 	// Devout
 	[Feat.LesserDivineChanneling]: new FeatDefinition<void>({
@@ -1407,7 +1407,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassFlavor.Devout],
 		level: 1,
 		description:
-			'Whenever you would spend [[Spirit_Point | Spirit Points]] to use an **Imbued Item** that would otherwise not require an [[Attunement]] Check, you can make an [[Attunement]] Check (DC 15) to spend one (plus any **Shifts**) less [[Spirit_Point | SP]] (min 0).',
+			'Whenever you would spend [[Spirit_Points | Spirit Points]] to use an **Imbued Item** that would otherwise not require an [[Attunement]] Check, you can make an [[Attunement]] Check (DC 15) to spend one (plus any **Shifts**) less [[Spirit_Points | SP]] (min 0).',
 	}),
 	[Feat.FocusedChanneling]: new FeatDefinition<void>({
 		key: Feat.FocusedChanneling,
@@ -1444,7 +1444,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassFlavor.Devout],
 		level: 5,
 		description:
-			'When [Divine Channeling](/rules/divine) with the intent of [[Blessed | blessing]] others, you can pay 1 [[Focus_Point | FP]] to include a personalized inspirational speech related to the targets; while their are [[Blessed]] by you, they can choose a **Skill** of your choice (related to your speech) other than [[Fortune]] for their free [[Luck Die]].',
+			'When [Divine Channeling](/rules/divine) with the intent of [[Blessed | blessing]] others, you can pay 1 [[Focus_Points | FP]] to include a personalized inspirational speech related to the targets; while their are [[Blessed]] by you, they can choose a **Skill** of your choice (related to your speech) other than [[Fortune]] for their free [[Luck Die]].',
 	}),
 	// Mixed - WIP
 	// Crusader
@@ -1455,7 +1455,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassFlavor.Crusader],
 		level: 1,
 		description:
-			'You can spend 2 [[Spirit_Point | SP]] when striking with a weapon to get a `+3` [[Circumstance Modifier | CM]] as you channel raw power into it, making it acquire a distinct glow as you lift it to strike. The attack gains the [[Channel]] trait.',
+			'You can spend 2 [[Spirit_Points | SP]] when striking with a weapon to get a `+3` [[Circumstance Modifier | CM]] as you channel raw power into it, making it acquire a distinct glow as you lift it to strike. The attack gains the [[Channel]] trait.',
 	}),
 	[Feat.SpiritualArmor]: new FeatDefinition<void>({
 		key: Feat.SpiritualArmor,
@@ -1473,7 +1473,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassFlavor.Crusader],
 		level: 3,
 		description:
-			"If you witness someone performing an action that directly contradicts your (or your Protean's) **Tenets**, you get a `+3` to any [[CHA]]-based Checks attempting to stop or dissuade this behavior (such as intimidation, persuasion, deception, etc), and can spend `1` [[Focus_Point | FP]] to get an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).",
+			"If you witness someone performing an action that directly contradicts your (or your Protean's) **Tenets**, you get a `+3` to any [[CHA]]-based Checks attempting to stop or dissuade this behavior (such as intimidation, persuasion, deception, etc), and can spend `1` [[Focus_Points | FP]] to get an additional `+3` [[Circumstance Modifier | CM]] (must be decided before rolling).",
 	}),
 };
 

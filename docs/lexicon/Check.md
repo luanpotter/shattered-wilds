@@ -31,7 +31,7 @@ If an **Active Check** succeeds, finally any excesses can be converted back into
 
 So for a few examples, a character attacks the enemy and rolls a 10 and 7, and have a total modifier of `+3`. That will be a 20 without any Crit Modifier from the roll; however, if the opponent contests rolling a total of 12, since the **Active Check** is at an advantage of 8 points, they get 1 **Crit Shift**.
 
-What does this "Shift" mean? The effect of a **Crit Shift** will depend on the nature of the check. If it is a **Body Attack**, that means additional damage to the enemy's [[Vitality_Point | Vitality Points]]. If it is some other form of contest, it means an advantage to be determined by the DM. For example, if you are trying to influence an ally to do you a favor, they might not just do it but somehow consider it as you doing them a favor for the honor of asking them. This is similar to how Shifts work on _Core FATE_. If it is a **Static Check**, it is possible that **Crit Shifts** are not applicable, though they could, depending on the context. It is up to the DM to decide the effects of **Crit Shifts** for each interaction.
+What does this "Shift" mean? The effect of a **Crit Shift** will depend on the nature of the check. If it is a **Body Attack**, that means additional damage to the enemy's [[Vitality_Points | Vitality Points]]. If it is some other form of contest, it means an advantage to be determined by the DM. For example, if you are trying to influence an ally to do you a favor, they might not just do it but somehow consider it as you doing them a favor for the honor of asking them. This is similar to how Shifts work on _Core FATE_. If it is a **Static Check**, it is possible that **Crit Shifts** are not applicable, though they could, depending on the context. It is up to the DM to decide the effects of **Crit Shifts** for each interaction.
 
 In essence, the **Crits** are two-folded; if you would otherwise be below target, they can help you get over, and if you are already over, they can give you extra **Crit Shifts**.
 
@@ -45,7 +45,7 @@ The probability of an Auto Fail, if rolling two dice, is of 0.69% (though that i
 
 It is possible to roll an additional d12 when doing a **Check** by invoking the [[Extra_Die | Extra Die]] mechanic. You can do that when you are in a situation in which you can leverage a different **Attribute** to perform a **Skill Check**.
 
-For example, imagine you are trying to deceive a guard with a [[Speechcraft]] check, but you have a high [[WIS]]. You can leverage your **Wisdom score** to complement your **Speechcraft Check** by paying 1 [[Heroism_Point | Heroism Point]]. You then roll an extra, visually distinct d12 for the **Check** (check the [[CHA]] attribute for more examples of Extras).
+For example, imagine you are trying to deceive a guard with a [[Speechcraft]] check, but you have a high [[WIS]]. You can leverage your **Wisdom score** to complement your **Speechcraft Check** by paying 1 [[Heroism_Points | Heroism Point]]. You then roll an extra, visually distinct d12 for the **Check** (check the [[CHA]] attribute for more examples of Extras).
 
 In order for this extra die to be valid, it must be less or equal than the Attribute chosen for the Extra. If it is, that is a valid Extra die that can be picked as one of the two for the final total. Note that, regardless if you pick the extra die or even if it is valid or not, it still counts for **Crit Modifiers** and **Auto Fail** when applicable.
 
@@ -53,4 +53,4 @@ The **Extra Die** (and **Luck Die**) must be invoked before the roll is made.
 
 ### Luck Die
 
-Similarly (and potentially additionally) to **Extra Die** mechanic, you can invoke your supernatural [[Fortune]] to aid you in any roll by invoking the [[Luck_Die | Luck Die]] mechanic. You similarly must pay 1 [[Heroism_Point | Heroism Point]], and add one distinct Luck d12 to the pool. The result of it must be below your Fortune score. Exact rules as for the Extra die apply, including the extended chance of **Crit Modifiers** and **Auto Fail**. Pushing your luck goes both ways.
+Similarly (and potentially additionally) to **Extra Die** mechanic, you can invoke your supernatural [[Fortune]] to aid you in any roll by invoking the [[Luck_Die | Luck Die]] mechanic. You similarly must pay 1 [[Heroism_Points | Heroism Point]], and add one distinct Luck d12 to the pool. The result of it must be below your Fortune score. Exact rules as for the Extra die apply, including the extended chance of **Crit Modifiers** and **Auto Fail**. Pushing your luck goes both ways.

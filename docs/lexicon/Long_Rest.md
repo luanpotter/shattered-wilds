@@ -1,6 +1,6 @@
 Can be performed at the end of the day by resting for about 8 hours. During this downtime period, characters can:
 
-* Recover their [[Resource | Resource Points]] (except for [[Heroism_Point | Heroism Points]], of which you regain 1).
+* Recover their [[Resource | Resource Points]] (except for [[Heroism_Points | Heroism Points]], of which you regain 1).
 * Clear up to `3` _ranks_ of [[Exhaustion]].
 * Advance one of their personal projects.
 
