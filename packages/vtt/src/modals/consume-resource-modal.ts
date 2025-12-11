@@ -1,13 +1,13 @@
-import { ActionCost, CharacterSheet, RESOURCES } from '@shattered-wilds/commons';
+import { CharacterSheet, ResourceCost, RESOURCES } from '@shattered-wilds/commons';
 import { createHandlebarsApplicationBase, getActorById, showNotification } from '../foundry-shim.js';
 import { consumeActionResources } from '../helpers/resources.js';
-interface AdjustedCost extends ActionCost {
+interface AdjustedCost extends ResourceCost {
 	adjustedAmount: number;
 }
 
 interface ConsumeResourceModalOptions {
 	characterSheet: CharacterSheet;
-	actionCosts: ActionCost[];
+	costs: ResourceCost[];
 	actionName: string;
 	actorId: string;
 	onConfirm?: () => void;
@@ -31,7 +31,7 @@ class ConsumeResourceModalImpl extends HandlebarsAppBase {
 		this.#options = options;
 
 		// Initialize adjusted costs
-		this.adjustedCosts = options.actionCosts.map(cost => ({
+		this.adjustedCosts = options.costs.map(cost => ({
 			...cost,
 			adjustedAmount: cost.amount,
 		}));
@@ -174,7 +174,7 @@ class ConsumeResourceModalImpl extends HandlebarsAppBase {
 export class ConsumeResourceModal {
 	static async open(
 		characterSheet: CharacterSheet,
-		actionCosts: ActionCost[],
+		costs: ResourceCost[],
 		actionName: string,
 		actorId: string,
 		options: {
@@ -183,7 +183,7 @@ export class ConsumeResourceModal {
 	): Promise<ConsumeResourceModalImpl> {
 		const modal = new ConsumeResourceModalImpl({
 			characterSheet,
-			actionCosts,
+			costs,
 			actionName,
 			actorId,
 			...(options.onConfirm && { onConfirm: options.onConfirm }),

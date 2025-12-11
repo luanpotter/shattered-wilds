@@ -1,5 +1,4 @@
 import { CharacterSheet } from '../../character/character-sheet.js';
-import { ActionCost } from '../../core/actions.js';
 import {
 	ARCANE_SPELL_COMPONENTS,
 	ArcaneSpellComponentOption,
@@ -12,7 +11,7 @@ import { Trait } from '../../core/traits.js';
 import { CheckFactory } from '../../engine/check-factory.js';
 import { Check } from '../../stats/check.js';
 import { DerivedStatType } from '../../stats/derived-stat.js';
-import { Resource } from '../../stats/resources.js';
+import { Resource, ResourceCost } from '../../stats/resources.js';
 import { CircumstanceModifier, ModifierSource, StatModifier } from '../../stats/stat-tree.js';
 import { Bonus, Distance } from '../../stats/value.js';
 import { firstParagraph, lastOrNull, numberToOrdinal, slugify } from '../../utils/utils.js';
@@ -429,8 +428,8 @@ export class ArcaneSection {
 		});
 
 		const costs = [
-			new ActionCost({ resource: Resource.ActionPoint, amount: inputValues.selectedCastingTime.value }),
-			new ActionCost({ resource: Resource.FocusPoint, amount: inputValues.selectedFocusCost.value }),
+			new ResourceCost({ resource: Resource.ActionPoint, amount: inputValues.selectedCastingTime.value }),
+			new ResourceCost({ resource: Resource.FocusPoint, amount: inputValues.selectedFocusCost.value }),
 		];
 
 		const fundamentalSpellCost = new ActionRowCost({

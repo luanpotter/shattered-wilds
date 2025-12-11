@@ -1,4 +1,4 @@
-import { ActionCost, Check, FeatSlot, FeatDefinition, Condition, Consequence } from '@shattered-wilds/commons';
+import { Check, FeatSlot, FeatDefinition, Condition, Consequence, ResourceCost } from '@shattered-wilds/commons';
 
 import { findNextEmptyHexPosition } from '../utils';
 
@@ -87,7 +87,7 @@ export type Modal = BaseModal &
 		| {
 				type: 'consume-resource';
 				characterId: string;
-				actionCosts: ActionCost[];
+				costs: ResourceCost[];
 		  }
 		| {
 				type: 'feat-selection';

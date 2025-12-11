@@ -1,15 +1,15 @@
 import { CharacterSheet } from '../../character/character-sheet.js';
-import { ActionCost } from '../../core/actions.js';
 import { ArcaneSpellSchool } from '../../core/arcane.js';
 import { Trait } from '../../core/traits.js';
 import { Check } from '../../stats/check.js';
+import { ResourceCost } from '../../stats/resources.js';
 import { Value } from '../../stats/value.js';
 
 export class ActionRowCost {
 	characterId: string;
 	characterSheet: CharacterSheet;
 	name: string;
-	actionCosts: ActionCost[];
+	actionCosts: ResourceCost[];
 	canAfford: boolean;
 
 	constructor({
@@ -21,7 +21,7 @@ export class ActionRowCost {
 		characterId: string;
 		characterSheet: CharacterSheet;
 		name: string;
-		actionCosts: ActionCost[];
+		actionCosts: ResourceCost[];
 	}) {
 		this.characterId = characterId;
 		this.characterSheet = characterSheet;

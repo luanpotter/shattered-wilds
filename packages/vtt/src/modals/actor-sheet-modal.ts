@@ -1,5 +1,4 @@
 import {
-	ActionCost,
 	ActionRow,
 	ActionRowCheckBox,
 	ActionsSection,
@@ -41,6 +40,7 @@ import {
 	StatType,
 	Weapon,
 	WeaponModeOption,
+	ResourceCost,
 } from '@shattered-wilds/commons';
 import { prepareActionRow } from '../action-row-renderer.js';
 import { ActorLike, createHandlebarsActorSheetBase, getActorById, showNotification } from '../foundry-shim.js';
@@ -1423,7 +1423,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 				if (!characterSheet || !actorId) return;
 
 				let actionName: string | undefined;
-				let actionCosts: ActionCost[] | undefined;
+				let actionCosts: ResourceCost[] | undefined;
 
 				// Try to find the action in all sections by slug
 				// Check actions tab - note: actions are already prepared for template

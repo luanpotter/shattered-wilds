@@ -9,6 +9,18 @@ export enum Resource {
 	ActionPoint = 'ActionPoint',
 }
 
+export class ResourceCost {
+	resource: Resource;
+	amount: number;
+	variable: boolean;
+
+	constructor({ resource, amount, variable = false }: { resource: Resource; amount: number; variable?: boolean }) {
+		this.resource = resource;
+		this.amount = amount;
+		this.variable = variable;
+	}
+}
+
 export class ResourceDefinition {
 	key: Resource;
 	fullName: string;

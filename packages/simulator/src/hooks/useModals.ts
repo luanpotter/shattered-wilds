@@ -1,4 +1,4 @@
-import { ActionCost, Check, FeatDefinition, FeatSlot, Condition, Consequence } from '@shattered-wilds/commons';
+import { Check, FeatDefinition, FeatSlot, Condition, Consequence, ResourceCost } from '@shattered-wilds/commons';
 
 import { useStore } from '../store';
 import { HexPosition, Modal } from '../types/ui';
@@ -214,11 +214,11 @@ export function useModals() {
 
 	const openConsumeResourceModal = ({
 		characterId,
-		actionCosts,
+		costs,
 		title,
 	}: {
 		characterId: string;
-		actionCosts: ActionCost[];
+		costs: ResourceCost[];
 		title?: string;
 	}) => {
 		const character = characters.find(c => c.id === characterId);
@@ -231,7 +231,7 @@ export function useModals() {
 			title: title ?? 'Consume Resources',
 			type: 'consume-resource',
 			characterId,
-			actionCosts,
+			costs,
 		});
 	};
 

@@ -190,7 +190,7 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 				if (!character) {
 					return renderCharacterNotFound(modal.characterId);
 				}
-				return <ConsumeResourceModal character={character} costs={modal.actionCosts} onClose={onClose} />;
+				return <ConsumeResourceModal character={character} costs={modal.costs} onClose={onClose} />;
 			}
 			case 'feat-selection': {
 				return <FeatSelectionModal characterId={modal.characterId} slot={modal.slot} onClose={onClose} />;

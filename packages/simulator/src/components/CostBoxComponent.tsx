@@ -1,4 +1,4 @@
-import { ActionCost, ActionRowCost, CharacterSheet, RESOURCES } from '@shattered-wilds/commons';
+import { ActionRowCost, CharacterSheet, ResourceCost, RESOURCES } from '@shattered-wilds/commons';
 import React from 'react';
 
 import { useModals } from '../hooks/useModals';
@@ -13,7 +13,7 @@ export const CostBoxComponent: React.FC<{
 			characterId={cost.characterId}
 			sheet={cost.characterSheet}
 			name={cost.name}
-			actionCosts={cost.actionCosts}
+			resourceCosts={cost.actionCosts}
 		/>
 	);
 };
@@ -22,11 +22,11 @@ const BaseCostBoxComponent: React.FC<{
 	characterId: string;
 	sheet: CharacterSheet;
 	name: string;
-	actionCosts: ActionCost[];
-}> = ({ characterId, sheet, name, actionCosts }) => {
+	resourceCosts: ResourceCost[];
+}> = ({ characterId, sheet, name, resourceCosts }) => {
 	const { openConsumeResourceModal } = useModals();
 
-	const costs = actionCosts.map(cost => {
+	const costs = resourceCosts.map(cost => {
 		const resource = RESOURCES[cost.resource];
 		const value = `${cost.amount}${cost.variable ? '+' : ''} ${resource.shortCode}`;
 		const tooltip = `${cost.amount}${cost.variable ? '+' : ''} ${resource.fullName}`;
@@ -42,7 +42,7 @@ const BaseCostBoxComponent: React.FC<{
 			onClick={() => {
 				openConsumeResourceModal({
 					characterId,
-					actionCosts: actionCosts,
+					costs: resourceCosts,
 					title: `Consume Resources - ${name}`,
 				});
 			}}

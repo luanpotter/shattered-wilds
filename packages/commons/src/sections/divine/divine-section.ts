@@ -1,9 +1,8 @@
 import { CharacterSheet } from '../../character/character-sheet.js';
-import { ActionCost } from '../../core/actions.js';
 import { Trait } from '../../core/traits.js';
 import { CheckFactory } from '../../engine/check-factory.js';
 import { DerivedStatType } from '../../stats/derived-stat.js';
-import { Resource } from '../../stats/resources.js';
+import { Resource, ResourceCost } from '../../stats/resources.js';
 import { StatModifier } from '../../stats/stat-tree.js';
 import { StatType } from '../../stats/stat-type.js';
 import { Distance } from '../../stats/value.js';
@@ -45,8 +44,8 @@ export class DivineSection {
 		const baseModifier = tree.getModifier(primaryAttribute);
 
 		const costs = [
-			new ActionCost({ resource: Resource.ActionPoint, amount: 2 }),
-			new ActionCost({ resource: Resource.SpiritPoint, amount: 1 }),
+			new ResourceCost({ resource: Resource.ActionPoint, amount: 2 }),
+			new ResourceCost({ resource: Resource.SpiritPoint, amount: 1 }),
 		];
 
 		const cost = new ActionRowCost({

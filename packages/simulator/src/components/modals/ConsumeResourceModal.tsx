@@ -1,4 +1,4 @@
-import { ActionCost, CharacterSheet, Resource, RESOURCES } from '@shattered-wilds/commons';
+import { CharacterSheet, Resource, ResourceCost, RESOURCES } from '@shattered-wilds/commons';
 import React, { useState } from 'react';
 import { FaCoins, FaMinus, FaPlus, FaTimes, FaCheck } from 'react-icons/fa';
 
@@ -8,7 +8,7 @@ import { Button } from '../shared/Button';
 
 interface ConsumeResourceModalProps {
 	character: Character;
-	costs: ActionCost[];
+	costs: ResourceCost[];
 	onClose: () => void;
 }
 
