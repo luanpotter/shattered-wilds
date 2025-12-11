@@ -1148,7 +1148,7 @@ For example, if you choose a [[Strike]] as your reaction, you will pay 2 [[Actio
 		sources: [ClassFlavor.Arcanist],
 		level: 2,
 		description:
-			'You can spend 1 [[Heroism Point]] to cast a standard 2 [[Action_Points | AP]] / 1 [[Focus_Points | FP]] spell as a reaction.',
+			'You can spend 1 [[Heroism Points | Heroism Point]] to cast a standard 2 [[Action_Points | AP]] / 1 [[Focus_Points | FP]] spell as a reaction.',
 	}),
 	[Feat.CantripCasting]: new FeatDefinition<void>({
 		key: Feat.CantripCasting,
