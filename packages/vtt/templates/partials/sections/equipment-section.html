@@ -27,11 +27,6 @@ Expected context:
 			</div>
 			<div class="equipment-details" style="display: none;">
 				<div class="equipment-details-header">
-					{{#if description}}
-					<div class="equipment-description">{{description}}</div>
-					{{else}}
-					<div class="equipment-description equipment-description--placeholder"></div>
-					{{/if}}
 					<button type="button"
 						class="equipment-edit-btn"
 						data-action="edit-equipment-item"
@@ -40,70 +35,88 @@ Expected context:
 					</button>
 				</div>
 
-				{{#if weaponModes}}
-				<div class="weapon-modes">
-					<h4>Attack Modes</h4>
-					{{#each weaponModes}}
-					<div class="weapon-mode">
-						<div class="weapon-mode-info">
-							<span class="weapon-mode-type">{{type}}</span>
-							<span class="weapon-mode-bonus">{{bonus}}</span>
-							<span class="weapon-mode-primary">{{primaryAttribute}}</span>
+				{{#if modes.length}}
+				<div class="equipment-modes">
+					<h4>Modes</h4>
+					{{#each modes}}
+					{{#if (eq modeType "weapon")}}
+					<div class="equipment-mode equipment-mode--weapon">
+						<div class="equipment-mode-info">
+							<span class="equipment-mode-type">{{type}}</span>
+							<span class="equipment-mode-bonus">{{bonus}}</span>
+							<span class="equipment-mode-primary">{{primaryAttribute}}</span>
 							{{#if range}}
-							<span class="weapon-mode-range">Range: {{range}}</span>
+							<span class="equipment-mode-range">Range: {{range}}</span>
 							{{/if}}
 						</div>
-						<button type="button" class="weapon-attack-btn"
+						<button type="button" class="equipment-mode-action-btn"
 							data-action="roll-weapon-attack"
 							data-weapon-mode-option-idx="{{idx}}"
 							title="Click for modal • Shift+Click for quick {{attackStat}} check roll">
 							<i class="fas fa-dice-d12"></i> {{attackStat}} Check
 						</button>
 					</div>
+					{{/if}}
+					{{#if (eq modeType "armor")}}
+					<div class="equipment-mode equipment-mode--armor">
+						<div class="equipment-mode-info">
+							<span class="equipment-mode-type">{{type}}</span>
+							<span class="equipment-mode-bonus">{{bonus}}</span>
+							{{#if dexPenalty}}
+							<span class="equipment-mode-detail">DEX Penalty: {{dexPenalty}}</span>
+							{{/if}}
+						</div>
+					</div>
+					{{/if}}
+					{{#if (eq modeType "shield")}}
+					<div class="equipment-mode equipment-mode--shield">
+						<div class="equipment-mode-info">
+							<span class="equipment-mode-type">{{type}}</span>
+							<span class="equipment-mode-bonus">{{bonus}}</span>
+						</div>
+						<div class="equipment-mode-actions">
+							<button type="button"
+								class="equipment-mode-action-btn"
+								data-action="roll-shield-block"
+								data-item-index="{{@../index}}"
+								title="Click for modal • Shift+Click for quick Body check roll">
+								<i class="fas fa-shield-alt"></i> Block
+							</button>
+							<button type="button"
+								class="equipment-mode-action-btn"
+								data-action="roll-shield-bash"
+								data-item-index="{{@../index}}"
+								title="Click for modal • Shift+Click for quick Shield Bash attack roll">
+								<i class="fas fa-fist-raised"></i> Bash
+							</button>
+						</div>
+					</div>
+					{{/if}}
+					{{#if (eq modeType "arcane")}}
+					<div class="equipment-mode equipment-mode--arcane">
+						<div class="equipment-mode-info">
+							<span class="equipment-mode-type">{{componentType}}</span>
+							<span class="equipment-mode-bonus">{{bonus}}</span>
+							{{#if costs}}
+							<span class="equipment-mode-detail">{{costs}}</span>
+							{{/if}}
+							{{#if category}}
+							<span class="equipment-mode-detail">{{category}}</span>
+							{{/if}}
+						</div>
+					</div>
+					{{/if}}
+					{{#if (eq modeType "generic")}}
+					<div class="equipment-mode equipment-mode--generic">
+						<div class="equipment-mode-info">
+							<span class="equipment-mode-type">{{description}}</span>
+							{{#if costs}}
+							<span class="equipment-mode-detail">{{costs}}</span>
+							{{/if}}
+						</div>
+					</div>
+					{{/if}}
 					{{/each}}
-				</div>
-				{{/if}}
-							
-				{{#if armorInfo}}
-				<div class="armor-info">
-					<div class="armor-detail"><strong>Type:</strong> {{armorInfo.type}}</div>
-					<div class="armor-detail"><strong>Bonus:</strong> {{armorInfo.bonus}}</div>
-					{{#if armorInfo.dexPenalty}}
-					<div class="armor-detail"><strong>DEX Penalty:</strong> {{armorInfo.dexPenalty}}</div>
-					{{/if}}
-				</div>
-				{{/if}}
-							
-				{{#if shieldInfo}}
-				<div class="shield-info">
-					<div class="shield-detail"><strong>Type:</strong> {{shieldInfo.type}}</div>
-					<div class="shield-detail"><strong>Bonus:</strong> {{shieldInfo.bonus}}</div>
-				</div>
-				<div class="shield-actions">
-					<button type="button"
-						class="weapon-attack-btn"
-						data-action="roll-shield-block"
-						data-item-index="{{@index}}"
-						title="Click for modal • Shift+Click for quick Body check roll">
-						<i class="fas fa-shield-alt"></i> Shield Block
-					</button>
-					<button type="button"
-						class="weapon-attack-btn"
-						data-action="roll-shield-bash"
-						data-item-index="{{@index}}"
-						title="Click for modal • Shift+Click for quick Shield Bash attack roll">
-						<i class="fas fa-fist-raised"></i> Shield Bash
-					</button>
-				</div>
-				{{/if}}
-
-				{{#if arcaneFocusInfo}}
-				<div class="arcane-focus-info">
-					<div class="arcane-focus-detail"><strong>Bonus:</strong> {{arcaneFocusInfo.bonus}}</div>
-					<div class="arcane-focus-detail"><strong>SP Cost:</strong> {{arcaneFocusInfo.spCost}}</div>
-					{{#if arcaneFocusInfo.details}}
-					<div class="arcane-focus-detail"><strong>Details:</strong> {{arcaneFocusInfo.details}}</div>
-					{{/if}}
 				</div>
 				{{/if}}
 

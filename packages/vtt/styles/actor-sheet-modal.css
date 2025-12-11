@@ -890,7 +890,123 @@ code {
 	line-height: 1.4;
 }
 
-/* Weapon Modes Section */
+/* Equipment Modes Section (Unified) */
+.equipment-modes {
+	margin-top: 12px;
+}
+
+.equipment-modes h4 {
+	margin: 0 0 8px 0;
+	font-size: 0.9em;
+	color: #ddd;
+	font-weight: bold;
+	text-transform: uppercase;
+}
+
+.equipment-mode {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 6px 8px;
+	margin-bottom: 4px;
+	border: 1px solid #444;
+	border-radius: 3px;
+	background: rgba(255, 255, 255, 0.01);
+}
+
+.equipment-mode:last-child {
+	margin-bottom: 0;
+}
+
+.equipment-mode-info {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex: 1;
+}
+
+.equipment-mode-type {
+	font-weight: bold;
+	font-size: 0.8em;
+	color: #ddd;
+	min-width: 60px;
+}
+
+.equipment-mode-bonus {
+	font-size: 0.75em;
+	color: #aaa;
+	min-width: 30px;
+}
+
+.equipment-mode-primary {
+	font-size: 0.7em;
+	color: #888;
+	font-style: italic;
+	min-width: 60px;
+}
+
+.equipment-mode-range {
+	font-size: 0.75em;
+	color: #aaa;
+}
+
+.equipment-mode-detail {
+	font-size: 0.75em;
+	color: #aaa;
+}
+
+.equipment-mode-actions {
+	display: flex;
+	gap: 4px;
+}
+
+.equipment-mode-action-btn {
+	display: flex;
+	align-items: center;
+	gap: 3px;
+	padding: 3px 6px;
+	border: 1px solid #666;
+	border-radius: 3px;
+	background: rgba(255, 179, 0, 0.1);
+	color: #ffb300;
+	cursor: pointer;
+	font-size: 0.7em;
+	transition: all 0.2s ease;
+}
+
+.equipment-mode-action-btn:hover {
+	background: rgba(255, 179, 0, 0.2);
+	border-color: #ffb300;
+	color: #ffc933;
+	transform: scale(1.05);
+}
+
+.equipment-mode-action-btn:active {
+	transform: scale(0.95);
+}
+
+/* Mode type variants */
+.equipment-mode--weapon {
+	border-color: #555;
+}
+
+.equipment-mode--armor {
+	border-color: #555;
+}
+
+.equipment-mode--shield {
+	border-color: #555;
+}
+
+.equipment-mode--arcane {
+	border-color: #555;
+}
+
+.equipment-mode--generic {
+	border-color: #555;
+}
+
+/* Legacy styles (for backward compatibility) */
 .weapon-modes {
 	margin-top: 12px;
 }
@@ -975,7 +1091,7 @@ code {
 	transform: scale(0.95);
 }
 
-/* Armor/Shield Info Sections */
+/* Armor/Shield Info Sections (Legacy) */
 .armor-info,
 .shield-info {
 	margin-top: 12px;
