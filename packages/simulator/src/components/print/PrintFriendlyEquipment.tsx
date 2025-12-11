@@ -34,6 +34,34 @@ export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: Cha
 		// Weapon item (all modes are weapon modes)
 		if (itemType === ModeType.Weapon) {
 			const weaponModes = item.modes as WeaponMode[];
+
+			// Single weapon mode - render inline
+			if (weaponModes.length === 1) {
+				const mode = weaponModes[0]!;
+				const parts = [
+					`${mode.type} ${mode.bonus.description}`,
+					mode.range.isMelee() ? undefined : `Range: ${mode.range.description}`,
+				].filter(e => e !== undefined);
+				return (
+					<>
+						<div style={{ display: 'flex', alignItems: 'center' }}>
+							<Bold>{item.name}</Bold>
+							&nbsp;
+							<span>[{parts.join(', ')}]</span>
+							{wrapTraits(item.traits)}
+						</div>
+						<Dash />
+						<div style={{ display: 'flex', gap: '0.1em' }}>
+							{mode.range.isMelee() ? undefined : <ValueBox value={mode.range} />}
+							<ValueBox
+								value={checkFactory.weapon({ weaponMode: new WeaponModeOption({ item, mode }) }).modifierValue}
+							/>
+						</div>
+					</>
+				);
+			}
+
+			// Multiple weapon modes - render as sub-list
 			return (
 				<div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
 					<Bold>{item.name}</Bold>
