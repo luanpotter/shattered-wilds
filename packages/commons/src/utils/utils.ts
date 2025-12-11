@@ -52,6 +52,16 @@ export const getEnumKeys = <E extends string | number>(enumObject: Record<string
 };
 
 /**
+ * Filters a list to only include instances of a specific class/constructor.
+ * @param list - The list to filter
+ * @param ctor - The class/constructor to filter by
+ * @returns A new list containing only instances of the specified class
+ */
+export const filterInstanceOf = <T>(list: unknown[], ctor: new (...args: never[]) => T): T[] => {
+	return list.filter(item => item instanceof ctor) as T[];
+};
+
+/**
  * Convert a number to an ordinal string, for example 1 -> "1st", 7 -> "7th" or 22 -> "22nd".
  * @param number - The number to convert
  * @returns The ordinal string

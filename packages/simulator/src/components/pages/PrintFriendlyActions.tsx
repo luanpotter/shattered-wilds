@@ -4,7 +4,6 @@ import {
 	firstParagraph,
 	getRecordValues,
 	PREDEFINED_ARCANE_SPELLS,
-	RESOURCES,
 } from '@shattered-wilds/commons';
 
 import { Blocks, Bold, InfoBox, PrintRichText } from '../print/print-friendly-commons';
@@ -51,10 +50,7 @@ export const PrintFriendlyActions = () => {
 											{action.type}
 										</InfoBox>
 										{action.costs.map(cost => (
-											<InfoBox key={cost.resource}>
-												{cost.amount}
-												{cost.variable ? '+' : ''} {RESOURCES[cost.resource].shortCode}
-											</InfoBox>
+											<InfoBox key={cost.resource}>{cost.shortDescription}</InfoBox>
 										))}
 										{action.traits.map(trait => (
 											<InfoBox key={trait}>{trait}</InfoBox>

@@ -1,19 +1,23 @@
 import {
-	ArcaneFocus,
-	Armor,
+	ArcaneComponentMode,
+	ArcaneSpellComponentType,
+	ArmorMode,
 	ArmorType,
 	Bonus,
 	Distance,
 	Equipment,
 	Item,
-	OtherItem,
+	ItemMode,
+	MODE_TYPE_LABELS,
+	ModeType,
 	PrimaryWeaponType,
-	Shield,
+	Resource,
+	ResourceCost,
+	ShieldMode,
 	ShieldType,
 	Trait,
 	TraitTarget,
 	TRAITS,
-	Weapon,
 	WeaponMode,
 } from '@shattered-wilds/commons';
 import { createHandlebarsApplicationBase, getActorById, showNotification } from '../foundry-shim.js';
@@ -21,73 +25,62 @@ import { parseCharacterProps } from '../helpers/character.js';
 import { updateActorProps } from '../helpers/resources.js';
 import { confirmAction } from './modals.js';
 
-type EquipmentKind = 'weapon' | 'armor' | 'shield' | 'arcaneFocus' | 'other';
+// =============================================================================
+// Type Definitions
+// =============================================================================
 
+const MODE_TYPE_VALUES = Object.values(ModeType) as ModeType[];
+
+// Form state for each mode type - use string literals that match ModeType enum values
 type WeaponModeFormState = {
+	modeType: 'weapon';
 	type: PrimaryWeaponType;
 	bonus: string;
 	range: string;
 };
 
-type WeaponFormState = {
-	kind: 'weapon';
-	name: string;
-	traits: Trait[];
-	modes: WeaponModeFormState[];
-};
-
-type ArmorFormState = {
-	kind: 'armor';
-	name: string;
-	traits: Trait[];
+type ArmorModeFormState = {
+	modeType: 'armor';
 	type: ArmorType;
 	bonus: string;
 	dexPenalty: string;
 };
 
-type ShieldFormState = {
-	kind: 'shield';
-	name: string;
-	traits: Trait[];
+type ShieldModeFormState = {
+	modeType: 'shield';
 	type: ShieldType;
 	bonus: string;
 };
 
-type ArcaneFocusFormState = {
-	kind: 'arcaneFocus';
-	name: string;
-	traits: Trait[];
+type ArcaneComponentModeFormState = {
+	modeType: 'arcane';
+	componentType: ArcaneSpellComponentType;
+	category: string;
 	bonus: string;
 	spCost: string;
-	details: string;
 };
 
-type OtherFormState = {
-	kind: 'other';
+type ModeFormState = WeaponModeFormState | ArmorModeFormState | ShieldModeFormState | ArcaneComponentModeFormState;
+
+type EquipmentFormState = {
 	name: string;
-	details: string;
+	traits: Trait[];
+	modes: ModeFormState[];
 };
-
-type EquipmentFormState = WeaponFormState | ArmorFormState | ShieldFormState | ArcaneFocusFormState | OtherFormState;
 
 type ValidationResult = {
 	valid: boolean;
 	errors: string[];
 };
 
-const EQUIPMENT_KIND_VALUES: EquipmentKind[] = ['weapon', 'armor', 'shield', 'arcaneFocus', 'other'];
-
-const EQUIPMENT_KIND_LABELS: Record<EquipmentKind, string> = {
-	weapon: 'Weapon',
-	armor: 'Armor',
-	shield: 'Shield',
-	arcaneFocus: 'Arcane Focus',
-	other: 'Other',
-};
+// =============================================================================
+// Constants
+// =============================================================================
 
 const PRIMARY_WEAPON_TYPE_VALUES = Object.values(PrimaryWeaponType) as PrimaryWeaponType[];
 const ARMOR_TYPE_VALUES = Object.values(ArmorType) as ArmorType[];
 const SHIELD_TYPE_VALUES = Object.values(ShieldType) as ShieldType[];
+const ARCANE_COMPONENT_TYPE_VALUES = Object.values(ArcaneSpellComponentType) as ArcaneSpellComponentType[];
 
 const EQUIPMENT_TRAITS = (Object.values(Trait) as Trait[]).filter(
 	trait => TRAITS[trait]?.target === TraitTarget.Equipment,
@@ -97,19 +90,14 @@ const EQUIPMENT_TRAIT_SET = new Set<Trait>(EQUIPMENT_TRAITS);
 const PRIMARY_WEAPON_TYPE_OPTIONS = PRIMARY_WEAPON_TYPE_VALUES.map(value => ({ value, label: value }));
 const ARMOR_TYPE_OPTIONS = ARMOR_TYPE_VALUES.map(value => ({ value, label: value }));
 const SHIELD_TYPE_OPTIONS = SHIELD_TYPE_VALUES.map(value => ({ value, label: value }));
+const ARCANE_COMPONENT_TYPE_OPTIONS = ARCANE_COMPONENT_TYPE_VALUES.map(value => ({ value, label: value }));
 
-const HandlebarsAppBase = createHandlebarsApplicationBase();
+// =============================================================================
+// Type Guards
+// =============================================================================
 
-interface EquipmentEditorModalInternalOptions {
-	actorId: string;
-	mode: 'create' | 'edit';
-	itemIndex?: number;
-	initialState: EquipmentFormState;
-	onUpdate?: () => void;
-}
-
-function isEquipmentKind(value: string): value is EquipmentKind {
-	return EQUIPMENT_KIND_VALUES.includes(value as EquipmentKind);
+function isModeType(value: string): value is ModeType {
+	return MODE_TYPE_VALUES.includes(value as ModeType);
 }
 
 function isPrimaryWeaponType(value: string): value is PrimaryWeaponType {
@@ -124,138 +112,120 @@ function isShieldType(value: string): value is ShieldType {
 	return SHIELD_TYPE_VALUES.includes(value as ShieldType);
 }
 
+function isArcaneComponentType(value: string): value is ArcaneSpellComponentType {
+	return ARCANE_COMPONENT_TYPE_VALUES.includes(value as ArcaneSpellComponentType);
+}
+
 function isEquipmentTrait(value: string): value is Trait {
 	return EQUIPMENT_TRAIT_SET.has(value as Trait);
 }
 
-function isWeaponState(state: EquipmentFormState): state is WeaponFormState {
-	return state.kind === 'weapon';
-}
+// =============================================================================
+// State Creation
+// =============================================================================
 
-function isArmorState(state: EquipmentFormState): state is ArmorFormState {
-	return state.kind === 'armor';
-}
-
-function isShieldState(state: EquipmentFormState): state is ShieldFormState {
-	return state.kind === 'shield';
-}
-
-function isArcaneFocusState(state: EquipmentFormState): state is ArcaneFocusFormState {
-	return state.kind === 'arcaneFocus';
-}
-
-function stateSupportsTraits(
-	state: EquipmentFormState,
-): state is WeaponFormState | ArmorFormState | ShieldFormState | ArcaneFocusFormState {
-	return state.kind !== 'other';
-}
-
-function createDefaultState(kind: EquipmentKind, name = ''): EquipmentFormState {
-	switch (kind) {
-		case 'weapon':
+function createDefaultModeState(modeType: ModeType): ModeFormState {
+	switch (modeType) {
+		case ModeType.Weapon:
 			return {
-				kind,
-				name,
-				traits: [],
-				modes: [
-					{
-						type: PrimaryWeaponType.LightMelee,
-						bonus: '0',
-						range: '1',
-					},
-				],
+				modeType: 'weapon',
+				type: PrimaryWeaponType.LightMelee,
+				bonus: '0',
+				range: '1',
 			};
-		case 'armor':
+		case ModeType.Armor:
 			return {
-				kind,
-				name,
-				traits: [],
+				modeType: 'armor',
 				type: ArmorType.LightArmor,
 				bonus: '0',
 				dexPenalty: '0',
 			};
-		case 'shield':
+		case ModeType.Shield:
 			return {
-				kind,
-				name,
-				traits: [],
+				modeType: 'shield',
 				type: ShieldType.SmallShield,
 				bonus: '0',
 			};
-		case 'arcaneFocus':
+		case ModeType.Arcane:
 			return {
-				kind,
-				name,
-				traits: [],
+				modeType: 'arcane',
+				componentType: ArcaneSpellComponentType.Focal,
+				category: '',
 				bonus: '0',
 				spCost: '0',
-				details: '',
-			};
-		case 'other':
-		default:
-			return {
-				kind: 'other',
-				name,
-				details: '',
 			};
 	}
 }
 
+function createDefaultState(name = ''): EquipmentFormState {
+	return {
+		name,
+		traits: [],
+		modes: [createDefaultModeState(ModeType.Weapon)],
+	};
+}
+
+/**
+ * Convert a domain ItemMode to form state
+ */
+function modeToFormState(mode: ItemMode): ModeFormState {
+	if (mode instanceof WeaponMode) {
+		return {
+			modeType: 'weapon',
+			type: mode.type,
+			bonus: mode.bonus.value.toString(),
+			range: mode.range?.value?.toString() ?? '1',
+		};
+	}
+	if (mode instanceof ArmorMode) {
+		return {
+			modeType: 'armor',
+			type: mode.type,
+			bonus: mode.bonus.value.toString(),
+			dexPenalty: mode.dexPenalty.value.toString(),
+		};
+	}
+	if (mode instanceof ShieldMode) {
+		return {
+			modeType: 'shield',
+			type: mode.type,
+			bonus: mode.bonus.value.toString(),
+		};
+	}
+	if (mode instanceof ArcaneComponentMode) {
+		const spCost = mode.costs.find(c => c.resource === Resource.SpiritPoint)?.amount ?? 0;
+		return {
+			modeType: 'arcane',
+			componentType: mode.component,
+			category: mode.category,
+			bonus: mode.bonus.value.toString(),
+			spCost: spCost.toString(),
+		};
+	}
+	// Fallback - should never happen
+	return createDefaultModeState(ModeType.Weapon);
+}
+
 function createStateFromItem(item: Item): EquipmentFormState {
-	if (item instanceof Weapon) {
-		return {
-			kind: 'weapon',
-			name: item.name,
-			traits: [...item.traits],
-			modes: item.modes.map(mode => ({
-				type: mode.type,
-				bonus: mode.bonus.value.toString(),
-				range: mode.range?.value ? mode.range.value.toString() : '1',
-			})),
-		};
-	}
+	return {
+		name: item.name,
+		traits: [...item.traits],
+		modes: item.modes.length > 0 ? item.modes.map(modeToFormState) : [createDefaultModeState(ModeType.Weapon)],
+	};
+}
 
-	if (item instanceof Armor) {
-		return {
-			kind: 'armor',
-			name: item.name,
-			traits: [...item.traits],
-			type: item.type,
-			bonus: item.bonus.value.toString(),
-			dexPenalty: item.dexPenalty.value.toString(),
-		};
-	}
+// =============================================================================
+// Modal Implementation
+// =============================================================================
 
-	if (item instanceof Shield) {
-		return {
-			kind: 'shield',
-			name: item.name,
-			traits: [...item.traits],
-			type: item.type,
-			bonus: item.bonus.value.toString(),
-		};
-	}
+const HandlebarsAppBase = createHandlebarsApplicationBase();
 
-	if (item instanceof ArcaneFocus) {
-		return {
-			kind: 'arcaneFocus',
-			name: item.name,
-			traits: [...item.traits],
-			bonus: item.bonus.value.toString(),
-			spCost: item.spCost.toString(),
-			details: item.details ?? '',
-		};
-	}
-
-	if (item instanceof OtherItem) {
-		return {
-			kind: 'other',
-			name: item.name,
-			details: item.details ?? '',
-		};
-	}
-
-	return createDefaultState('other', item.name);
+interface EquipmentEditorModalInternalOptions {
+	actorId: string;
+	mode: 'create' | 'edit';
+	itemIndex?: number;
+	initialState: EquipmentFormState;
+	onUpdate?: () => void;
 }
 
 class EquipmentEditorModalImpl extends HandlebarsAppBase {
@@ -300,88 +270,89 @@ class EquipmentEditorModalImpl extends HandlebarsAppBase {
 		const validation = this.validateState(state);
 		const showValidation = this.#submitAttempted && !validation.valid;
 
-		const supportsTraits = stateSupportsTraits(state);
-		const traitState = supportsTraits
-			? (state as WeaponFormState | ArmorFormState | ShieldFormState | ArcaneFocusFormState)
-			: null;
-		const weaponState = isWeaponState(state) ? state : null;
-		const armorState = isArmorState(state) ? state : null;
-		const shieldState = isShieldState(state) ? state : null;
-		const arcaneFocusState = isArcaneFocusState(state) ? state : null;
+		const traitOptions = EQUIPMENT_TRAITS.map(trait => ({
+			value: trait,
+			label: trait,
+			checked: state.traits.includes(trait),
+		}));
 
-		const traitOptions = traitState
-			? EQUIPMENT_TRAITS.map(trait => ({
-					value: trait,
-					label: trait,
-					checked: traitState.traits.includes(trait),
-				}))
-			: [];
+		// Build modes list for template - each mode knows its own type
+		const modes = state.modes.map((mode, index) => {
+			const baseModeData = {
+				index,
+				modeType: mode.modeType,
+				modeTypeLabel: MODE_TYPE_LABELS[mode.modeType as ModeType],
+				isWeapon: mode.modeType === 'weapon',
+				isArmor: mode.modeType === 'armor',
+				isShield: mode.modeType === 'shield',
+				isArcane: mode.modeType === 'arcane',
+			};
 
-		const weaponModes = weaponState
-			? weaponState.modes.map((mode, index) => ({
-					index,
-					bonus: mode.bonus,
-					range: mode.range,
-					typeOptions: PRIMARY_WEAPON_TYPE_OPTIONS.map(option => ({
-						value: option.value,
-						label: option.label,
-						selected: option.value === mode.type,
-					})),
-				}))
-			: [];
+			switch (mode.modeType) {
+				case 'weapon':
+					return {
+						...baseModeData,
+						bonus: mode.bonus,
+						range: mode.range,
+						typeOptions: PRIMARY_WEAPON_TYPE_OPTIONS.map(option => ({
+							value: option.value,
+							label: option.label,
+							selected: option.value === mode.type,
+						})),
+					};
+				case 'armor':
+					return {
+						...baseModeData,
+						bonus: mode.bonus,
+						dexPenalty: mode.dexPenalty,
+						typeOptions: ARMOR_TYPE_OPTIONS.map(option => ({
+							value: option.value,
+							label: option.label,
+							selected: option.value === mode.type,
+						})),
+					};
+				case 'shield':
+					return {
+						...baseModeData,
+						bonus: mode.bonus,
+						typeOptions: SHIELD_TYPE_OPTIONS.map(option => ({
+							value: option.value,
+							label: option.label,
+							selected: option.value === mode.type,
+						})),
+					};
+				case 'arcane':
+					return {
+						...baseModeData,
+						category: mode.category,
+						bonus: mode.bonus,
+						spCost: mode.spCost,
+						componentTypeOptions: ARCANE_COMPONENT_TYPE_OPTIONS.map(option => ({
+							value: option.value,
+							label: option.label,
+							selected: option.value === mode.componentType,
+						})),
+					};
+				default:
+					return baseModeData;
+			}
+		});
 
-		const armorOptions = armorState
-			? {
-					typeOptions: ARMOR_TYPE_OPTIONS.map(option => ({
-						value: option.value,
-						label: option.label,
-						selected: option.value === armorState.type,
-					})),
-					bonus: armorState.bonus,
-					dexPenalty: armorState.dexPenalty,
-				}
-			: null;
-
-		const shieldOptions = shieldState
-			? {
-					typeOptions: SHIELD_TYPE_OPTIONS.map(option => ({
-						value: option.value,
-						label: option.label,
-						selected: option.value === shieldState.type,
-					})),
-					bonus: shieldState.bonus,
-				}
-			: null;
-
-		const arcaneFocusOptions = arcaneFocusState
-			? {
-					bonus: arcaneFocusState.bonus,
-					spCost: arcaneFocusState.spCost,
-					details: arcaneFocusState.details,
-				}
-			: null;
+		// Mode type options for the "Add Mode" dropdown
+		const modeTypeOptions = MODE_TYPE_VALUES.map(value => ({
+			value,
+			label: MODE_TYPE_LABELS[value],
+		}));
 
 		return {
 			mode: this.#options.mode,
 			isEditMode: this.#options.mode === 'edit',
-			kindOptions: EQUIPMENT_KIND_VALUES.map(value => ({
-				value,
-				label: EQUIPMENT_KIND_LABELS[value],
-				selected: state.kind === value,
-			})),
 			name: state.name,
-			hasTraits: Boolean(traitState),
+			hasTraits: true,
 			traitOptions,
-			isWeapon: Boolean(weaponState),
-			weaponModes,
-			isArmor: Boolean(armorOptions),
-			armorOptions,
-			isShield: Boolean(shieldOptions),
-			shieldOptions,
-			isArcaneFocus: Boolean(arcaneFocusOptions),
-			arcaneFocusOptions,
-			isOther: state.kind === 'other',
-			otherDetails: state.kind === 'other' ? state.details : '',
+			modes,
+			hasModes: modes.length > 0,
+			modeTypeOptions,
 			canSubmit: validation.valid,
 			submitLabel: this.#options.mode === 'edit' ? 'Save Item' : 'Add Item',
 			canDelete: this.#options.mode === 'edit',
@@ -421,14 +392,17 @@ class EquipmentEditorModalImpl extends HandlebarsAppBase {
 		const actionElement = target.closest<HTMLElement>('[data-action]');
 		if (!actionElement) return;
 
-		switch (actionElement.dataset.action) {
-			case 'add-weapon-mode':
+		const action = actionElement.dataset.action;
+		const modeIndex = parseInt(actionElement.dataset.modeIndex ?? '-1', 10);
+
+		switch (action) {
+			case 'add-mode':
 				event.preventDefault();
-				this.addWeaponMode();
+				this.addMode();
 				break;
-			case 'remove-weapon-mode':
+			case 'remove-mode':
 				event.preventDefault();
-				this.removeWeaponMode(parseInt(actionElement.dataset.modeIndex ?? '-1', 10));
+				this.removeMode(modeIndex);
 				break;
 			case 'submit':
 				event.preventDefault();
@@ -458,11 +432,7 @@ class EquipmentEditorModalImpl extends HandlebarsAppBase {
 		}
 
 		if (target.dataset.modeField) {
-			this.updateWeaponModeField(
-				parseInt(target.dataset.modeIndex ?? '-1', 10),
-				target.dataset.modeField,
-				target.value,
-			);
+			this.updateModeField(parseInt(target.dataset.modeIndex ?? '-1', 10), target.dataset.modeField, target.value);
 			return;
 		}
 
@@ -474,8 +444,8 @@ class EquipmentEditorModalImpl extends HandlebarsAppBase {
 	private handleChange(event: Event): void {
 		const target = event.target;
 		if (target instanceof HTMLSelectElement) {
-			if (target.dataset.field === 'kind') {
-				this.handleKindChange(target.value);
+			if (target.dataset.field === 'newModeType') {
+				// Just store the selected mode type for the next "add mode" action
 				return;
 			}
 
@@ -485,11 +455,7 @@ class EquipmentEditorModalImpl extends HandlebarsAppBase {
 			}
 
 			if (target.dataset.modeField) {
-				this.updateWeaponModeField(
-					parseInt(target.dataset.modeIndex ?? '-1', 10),
-					target.dataset.modeField,
-					target.value,
-				);
+				this.updateModeField(parseInt(target.dataset.modeIndex ?? '-1', 10), target.dataset.modeField, target.value);
 			}
 			return;
 		}
@@ -506,24 +472,9 @@ class EquipmentEditorModalImpl extends HandlebarsAppBase {
 			}
 
 			if (target.dataset.modeField) {
-				this.updateWeaponModeField(
-					parseInt(target.dataset.modeIndex ?? '-1', 10),
-					target.dataset.modeField,
-					target.value,
-				);
+				this.updateModeField(parseInt(target.dataset.modeIndex ?? '-1', 10), target.dataset.modeField, target.value);
 			}
 		}
-	}
-
-	private handleKindChange(value: string): void {
-		if (!isEquipmentKind(value)) {
-			return;
-		}
-
-		this.#state = createDefaultState(value, this.#state.name);
-		this.#submitAttempted = false;
-		this.#submissionError = null;
-		void this.render(false);
 	}
 
 	private updateField(field: string, rawValue: string): void {
@@ -531,60 +482,7 @@ class EquipmentEditorModalImpl extends HandlebarsAppBase {
 
 		switch (field) {
 			case 'name':
-				this.#state = { ...this.#state, name: value } as EquipmentFormState;
-				break;
-			case 'armorType':
-				if (isArmorState(this.#state) && isArmorType(value)) {
-					const nextState: ArmorFormState = { ...this.#state, type: value };
-					this.#state = nextState;
-				}
-				break;
-			case 'armorBonus':
-				if (isArmorState(this.#state)) {
-					const nextState: ArmorFormState = { ...this.#state, bonus: value };
-					this.#state = nextState;
-				}
-				break;
-			case 'armorDexPenalty':
-				if (isArmorState(this.#state)) {
-					const nextState: ArmorFormState = { ...this.#state, dexPenalty: value };
-					this.#state = nextState;
-				}
-				break;
-			case 'shieldType':
-				if (isShieldState(this.#state) && isShieldType(value)) {
-					const nextState: ShieldFormState = { ...this.#state, type: value };
-					this.#state = nextState;
-				}
-				break;
-			case 'shieldBonus':
-				if (isShieldState(this.#state)) {
-					const nextState: ShieldFormState = { ...this.#state, bonus: value };
-					this.#state = nextState;
-				}
-				break;
-			case 'focusBonus':
-				if (isArcaneFocusState(this.#state)) {
-					const nextState: ArcaneFocusFormState = { ...this.#state, bonus: value };
-					this.#state = nextState;
-				}
-				break;
-			case 'focusSpCost':
-				if (isArcaneFocusState(this.#state)) {
-					const nextState: ArcaneFocusFormState = { ...this.#state, spCost: value };
-					this.#state = nextState;
-				}
-				break;
-			case 'focusDetails':
-				if (isArcaneFocusState(this.#state)) {
-					const nextState: ArcaneFocusFormState = { ...this.#state, details: value };
-					this.#state = nextState;
-				}
-				break;
-			case 'otherDetails':
-				if (this.#state.kind === 'other') {
-					this.#state = { ...this.#state, details: value };
-				}
+				this.#state = { ...this.#state, name: value };
 				break;
 			default:
 				break;
@@ -594,56 +492,129 @@ class EquipmentEditorModalImpl extends HandlebarsAppBase {
 		this.refreshSubmissionUI();
 	}
 
-	private updateWeaponModeField(index: number, field: string | undefined, rawValue: string): void {
-		if (!isWeaponState(this.#state) || field === undefined || Number.isNaN(index) || index < 0) {
+	private updateModeField(index: number, field: string | undefined, rawValue: string): void {
+		if (field === undefined || Number.isNaN(index) || index < 0) {
 			return;
 		}
 
-		const modes = this.#state.modes.map((mode, idx) => {
-			if (idx !== index) return mode;
-			switch (field) {
-				case 'type':
-					return isPrimaryWeaponType(rawValue) ? { ...mode, type: rawValue } : mode;
-				case 'bonus':
-					return { ...mode, bonus: rawValue };
-				case 'range':
-					return { ...mode, range: rawValue };
-				default:
-					return mode;
+		const mode = this.#state.modes[index];
+		if (!mode) return;
+
+		const updatedModes = [...this.#state.modes];
+
+		switch (mode.modeType) {
+			case 'weapon': {
+				const weaponMode = mode as WeaponModeFormState;
+				switch (field) {
+					case 'type':
+						if (isPrimaryWeaponType(rawValue)) {
+							updatedModes[index] = { ...weaponMode, type: rawValue };
+						}
+						break;
+					case 'bonus':
+						updatedModes[index] = { ...weaponMode, bonus: rawValue };
+						break;
+					case 'range':
+						updatedModes[index] = { ...weaponMode, range: rawValue };
+						break;
+				}
+				break;
 			}
-		});
-		this.#state = { ...this.#state, modes };
+			case 'armor': {
+				const armorMode = mode as ArmorModeFormState;
+				switch (field) {
+					case 'type':
+						if (isArmorType(rawValue)) {
+							updatedModes[index] = { ...armorMode, type: rawValue };
+						}
+						break;
+					case 'bonus':
+						updatedModes[index] = { ...armorMode, bonus: rawValue };
+						break;
+					case 'dexPenalty':
+						updatedModes[index] = { ...armorMode, dexPenalty: rawValue };
+						break;
+				}
+				break;
+			}
+			case 'shield': {
+				const shieldMode = mode as ShieldModeFormState;
+				switch (field) {
+					case 'type':
+						if (isShieldType(rawValue)) {
+							updatedModes[index] = { ...shieldMode, type: rawValue };
+						}
+						break;
+					case 'bonus':
+						updatedModes[index] = { ...shieldMode, bonus: rawValue };
+						break;
+				}
+				break;
+			}
+			case 'arcane': {
+				const arcaneMode = mode as ArcaneComponentModeFormState;
+				switch (field) {
+					case 'componentType':
+						if (isArcaneComponentType(rawValue)) {
+							updatedModes[index] = { ...arcaneMode, componentType: rawValue };
+						}
+						break;
+					case 'category':
+						updatedModes[index] = { ...arcaneMode, category: rawValue };
+						break;
+					case 'bonus':
+						updatedModes[index] = { ...arcaneMode, bonus: rawValue };
+						break;
+					case 'spCost':
+						updatedModes[index] = { ...arcaneMode, spCost: rawValue };
+						break;
+				}
+				break;
+			}
+		}
+
+		this.#state = { ...this.#state, modes: updatedModes };
 		this.#submissionError = null;
 		this.refreshSubmissionUI();
 	}
 
-	private addWeaponMode(): void {
-		if (!isWeaponState(this.#state)) {
-			return;
+	private addMode(modeType?: ModeType): void {
+		// Get the mode type from the dropdown if not provided
+		const root = this.element;
+		if (!modeType && root) {
+			const modeTypeSelect = root.querySelector<HTMLSelectElement>('[data-field="newModeType"]');
+			const selectedValue = modeTypeSelect?.value;
+			if (selectedValue && isModeType(selectedValue)) {
+				modeType = selectedValue as ModeType;
+			}
 		}
 
-		const nextModes = [...this.#state.modes, { type: PrimaryWeaponType.LightMelee, bonus: '0', range: '1' }];
+		// Default to weapon if still not set
+		if (!modeType) {
+			modeType = ModeType.Weapon;
+		}
+
+		const newMode = createDefaultModeState(modeType);
+		const nextModes = [...this.#state.modes, newMode];
 		this.#state = { ...this.#state, modes: nextModes };
+
 		void this.render(false);
 	}
 
-	private removeWeaponMode(index: number): void {
-		if (!isWeaponState(this.#state) || Number.isNaN(index) || index < 0) {
+	private removeMode(index: number): void {
+		if (Number.isNaN(index) || index < 0) {
 			return;
 		}
 
-		if (this.#state.modes.length <= 1) {
-			showNotification('warn', 'Weapons must have at least one mode');
-			return;
-		}
-
+		// Items can have no modes (becomes "other" type item)
 		const nextModes = this.#state.modes.filter((_, idx) => idx !== index);
 		this.#state = { ...this.#state, modes: nextModes };
+
 		void this.render(false);
 	}
 
 	private toggleTrait(traitValue: string, isChecked: boolean): void {
-		if (!stateSupportsTraits(this.#state) || !isEquipmentTrait(traitValue)) {
+		if (!isEquipmentTrait(traitValue)) {
 			return;
 		}
 
@@ -654,8 +625,7 @@ class EquipmentEditorModalImpl extends HandlebarsAppBase {
 			traitSet.delete(traitValue);
 		}
 
-		const nextState = { ...this.#state, traits: Array.from(traitSet) };
-		this.#state = nextState;
+		this.#state = { ...this.#state, traits: Array.from(traitSet) };
 		this.refreshSubmissionUI();
 	}
 
@@ -665,53 +635,49 @@ class EquipmentEditorModalImpl extends HandlebarsAppBase {
 			errors.push('Name is required.');
 		}
 
-		switch (state.kind) {
-			case 'weapon': {
-				if (state.modes.length === 0) {
-					errors.push('Add at least one weapon mode.');
-				}
-				state.modes.forEach((mode, idx) => {
+		// Validate each mode based on its type
+		state.modes.forEach((mode, idx) => {
+			const modeLabel = MODE_TYPE_LABELS[mode.modeType as ModeType];
+			switch (mode.modeType) {
+				case 'weapon': {
 					if (!mode.bonus.trim() || Number.isNaN(Number.parseInt(mode.bonus, 10))) {
-						errors.push(`Weapon mode ${idx + 1} needs a valid bonus.`);
+						errors.push(`${modeLabel} mode ${idx + 1} needs a valid bonus.`);
 					}
 					if (mode.range.trim()) {
 						const parsedRange = Number.parseInt(mode.range, 10);
 						if (Number.isNaN(parsedRange) || parsedRange < 1) {
-							errors.push(`Weapon mode ${idx + 1} needs a range of 1 or greater.`);
+							errors.push(`${modeLabel} mode ${idx + 1} needs a range of 1 or greater.`);
 						}
 					}
-				});
-				break;
+					break;
+				}
+				case 'armor': {
+					if (!mode.bonus.trim() || Number.isNaN(Number.parseInt(mode.bonus, 10))) {
+						errors.push(`${modeLabel} mode ${idx + 1} bonus must be a number.`);
+					}
+					if (!mode.dexPenalty.trim() || Number.isNaN(Number.parseInt(mode.dexPenalty, 10))) {
+						errors.push(`${modeLabel} mode ${idx + 1} DEX penalty must be a number.`);
+					}
+					break;
+				}
+				case 'shield': {
+					if (!mode.bonus.trim() || Number.isNaN(Number.parseInt(mode.bonus, 10))) {
+						errors.push(`${modeLabel} mode ${idx + 1} bonus must be a number.`);
+					}
+					break;
+				}
+				case 'arcane': {
+					if (!mode.bonus.trim() || Number.isNaN(Number.parseInt(mode.bonus, 10))) {
+						errors.push(`${modeLabel} mode ${idx + 1} bonus must be a number.`);
+					}
+					const parsedCost = Number.parseInt(mode.spCost, 10);
+					if (!mode.spCost.trim() || Number.isNaN(parsedCost) || parsedCost < 0) {
+						errors.push(`${modeLabel} mode ${idx + 1} SP cost must be zero or a positive number.`);
+					}
+					break;
+				}
 			}
-			case 'armor': {
-				if (!state.bonus.trim() || Number.isNaN(Number.parseInt(state.bonus, 10))) {
-					errors.push('Armor bonus must be a number.');
-				}
-				if (!state.dexPenalty.trim() || Number.isNaN(Number.parseInt(state.dexPenalty, 10))) {
-					errors.push('DEX penalty must be a number.');
-				}
-				break;
-			}
-			case 'shield': {
-				if (!state.bonus.trim() || Number.isNaN(Number.parseInt(state.bonus, 10))) {
-					errors.push('Shield bonus must be a number.');
-				}
-				break;
-			}
-			case 'arcaneFocus': {
-				if (!state.bonus.trim() || Number.isNaN(Number.parseInt(state.bonus, 10))) {
-					errors.push('Focus bonus must be a number.');
-				}
-				const parsedCost = Number.parseInt(state.spCost, 10);
-				if (!state.spCost.trim() || Number.isNaN(parsedCost) || parsedCost < 0) {
-					errors.push('SP cost must be zero or a positive number.');
-				}
-				break;
-			}
-			case 'other':
-			default:
-				break;
-		}
+		});
 
 		return { valid: errors.length === 0, errors };
 	}
@@ -773,49 +739,44 @@ class EquipmentEditorModalImpl extends HandlebarsAppBase {
 
 	private buildItemFromState(state: EquipmentFormState): Item {
 		const name = state.name.trim();
+		const traits = [...state.traits];
 
-		switch (state.kind) {
-			case 'weapon': {
-				const modes = state.modes.map(
-					mode =>
-						new WeaponMode({
-							type: mode.type,
-							bonus: Bonus.of(Number.parseInt(mode.bonus, 10)),
-							range: mode.range.trim() ? Distance.of(Number.parseInt(mode.range, 10)) : undefined,
-						}),
-				);
-				return new Weapon({ name, modes, traits: [...state.traits] });
+		// Convert each mode form state to a domain mode
+		const modes: ItemMode[] = state.modes.map(mode => {
+			switch (mode.modeType) {
+				case 'weapon':
+					return new WeaponMode({
+						type: mode.type,
+						bonus: Bonus.of(Number.parseInt(mode.bonus, 10)),
+						range: mode.range.trim() ? Distance.of(Number.parseInt(mode.range, 10)) : undefined,
+					});
+				case 'armor':
+					return new ArmorMode({
+						type: mode.type,
+						bonus: Bonus.of(Number.parseInt(mode.bonus, 10)),
+						dexPenalty: Bonus.of(Number.parseInt(mode.dexPenalty, 10)),
+					});
+				case 'shield':
+					return new ShieldMode({
+						type: mode.type,
+						bonus: Bonus.of(Number.parseInt(mode.bonus, 10)),
+						costs: [],
+					});
+				case 'arcane': {
+					const spCost = Number.parseInt(mode.spCost, 10);
+					const costs: ResourceCost[] =
+						spCost > 0 ? [new ResourceCost({ resource: Resource.SpiritPoint, amount: spCost })] : [];
+					return new ArcaneComponentMode({
+						component: mode.componentType,
+						category: mode.category.trim() || mode.componentType,
+						bonus: Bonus.of(Number.parseInt(mode.bonus, 10)),
+						costs,
+					});
+				}
 			}
-			case 'armor':
-				return new Armor({
-					name,
-					type: state.type,
-					bonus: Bonus.of(Number.parseInt(state.bonus, 10)),
-					dexPenalty: Bonus.of(Number.parseInt(state.dexPenalty, 10)),
-					traits: [...state.traits],
-				});
-			case 'shield':
-				return new Shield({
-					name,
-					type: state.type,
-					bonus: Bonus.of(Number.parseInt(state.bonus, 10)),
-					traits: [...state.traits],
-				});
-			case 'arcaneFocus':
-				return new ArcaneFocus({
-					name,
-					bonus: Bonus.of(Number.parseInt(state.bonus, 10)),
-					spCost: Number.parseInt(state.spCost, 10),
-					details: state.details.trim() || undefined,
-					traits: [...state.traits],
-				});
-			case 'other':
-			default:
-				return new OtherItem({
-					name,
-					details: state.details.trim() || undefined,
-				});
-		}
+		});
+
+		return new Item({ name, modes, traits });
 	}
 
 	private async saveItem(item: Item): Promise<void> {
@@ -888,6 +849,10 @@ class EquipmentEditorModalImpl extends HandlebarsAppBase {
 	}
 }
 
+// =============================================================================
+// Public API
+// =============================================================================
+
 interface EquipmentEditorModalOpenOptions {
 	actorId: string;
 	itemIndex?: number;
@@ -927,7 +892,7 @@ export class EquipmentEditorModal {
 			mode = 'edit';
 			resolvedIndex = itemIndex;
 		} else {
-			initialState = createDefaultState('weapon');
+			initialState = createDefaultState();
 		}
 
 		const modalOptions: EquipmentEditorModalInternalOptions = {

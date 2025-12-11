@@ -33,6 +33,9 @@ class ConsumeResourceModalImpl extends HandlebarsAppBase {
 		// Initialize adjusted costs
 		this.adjustedCosts = options.costs.map(cost => ({
 			...cost,
+			resourceDefinition: cost.resourceDefinition,
+			shortDescription: cost.shortDescription,
+			longDescription: cost.longDescription,
 			adjustedAmount: cost.amount,
 		}));
 	}

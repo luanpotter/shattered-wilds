@@ -1,12 +1,15 @@
 import {
-	ArcaneFocus,
-	Armor,
+	ArcaneComponentMode,
+	ArmorMode,
+	ArmorModeOption,
 	CharacterSheet,
 	CheckFactory,
+	getItemType,
 	Item,
-	OtherItem,
-	Shield,
-	Weapon,
+	ModeType,
+	ShieldMode,
+	ShieldModeOption,
+	WeaponMode,
 	WeaponModeOption,
 } from '@shattered-wilds/commons';
 
@@ -26,11 +29,15 @@ export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: Cha
 	const defaultArmor = characterSheet.equipment.defaultArmor();
 
 	const renderItem = (item: Item) => {
-		if (item instanceof Weapon) {
+		const itemType = getItemType(item);
+
+		// Weapon item (all modes are weapon modes)
+		if (itemType === ModeType.Weapon) {
+			const weaponModes = item.modes as WeaponMode[];
 			return (
 				<div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
 					<Bold>{item.name}</Bold>
-					{item.modes.map((mode, idx) => {
+					{weaponModes.map((mode, idx) => {
 						const parts = [
 							`${mode.type} ${mode.bonus.description}`,
 							mode.range.isMelee() ? undefined : `Range: ${mode.range.description}`,
@@ -45,9 +52,7 @@ export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: Cha
 								<div style={{ display: 'flex', gap: '0.1em' }}>
 									{mode.range.isMelee() ? undefined : <ValueBox value={mode.range} />}
 									<ValueBox
-										value={
-											checkFactory.weapon({ weaponMode: new WeaponModeOption({ weapon: item, mode }) }).modifierValue
-										}
+										value={checkFactory.weapon({ weaponMode: new WeaponModeOption({ item, mode }) }).modifierValue}
 									/>
 								</div>
 							</div>
@@ -55,11 +60,15 @@ export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: Cha
 					})}
 				</div>
 			);
-		} else if (item instanceof Armor) {
+		}
+
+		// Armor item (all modes are armor modes)
+		if (itemType === ModeType.Armor) {
+			const armorMode = item.modes[0] as ArmorMode;
 			const parts = [
-				item.type,
-				item.bonus.description,
-				item.dexPenalty.isNotZero ? `DEX Penalty: ${item.dexPenalty.description}` : undefined,
+				armorMode.type,
+				armorMode.bonus.description,
+				armorMode.dexPenalty.isNotZero ? `DEX Penalty: ${armorMode.dexPenalty.description}` : undefined,
 			].filter(e => e !== undefined);
 			return (
 				<>
@@ -70,60 +79,81 @@ export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: Cha
 						{wrapTraits(item.traits)}
 					</div>
 					<Dash />
-					<ValueBox value={checkFactory.armor({ armor: item }).modifierValue} />
+					<ValueBox
+						value={checkFactory.armor({ armor: new ArmorModeOption({ item, mode: armorMode }) }).modifierValue}
+					/>
 				</>
 			);
-		} else if (item instanceof Shield) {
+		}
+
+		// Shield item (all modes are shield modes)
+		if (itemType === ModeType.Shield) {
+			const shieldMode = item.modes[0] as ShieldMode;
 			return (
 				<>
 					<div style={{ display: 'flex', alignItems: 'center' }}>
 						<Bold>{item.name}</Bold>
 						&nbsp;
 						<span>
-							[{item.type} {item.bonus.description}]
+							[{shieldMode.type} {shieldMode.bonus.description}]
 						</span>
 						{wrapTraits(item.traits)}
 					</div>
 					<Dash />
-					<ValueBox value={checkFactory.shield({ armor: defaultArmor, shield: item }).modifierValue} />
+					<ValueBox
+						value={
+							checkFactory.shield({ armor: defaultArmor, shield: new ShieldModeOption({ item, mode: shieldMode }) })
+								.modifierValue
+						}
+					/>
 				</>
 			);
-		} else if (item instanceof ArcaneFocus) {
+		}
+
+		// Arcane component item (all modes are arcane modes)
+		if (itemType === ModeType.Arcane) {
+			const arcaneMode = item.modes[0] as ArcaneComponentMode;
 			return (
 				<>
 					<div style={{ display: 'flex', alignItems: 'center' }}>
 						<Bold>{item.name}</Bold>
 						&nbsp;
-						<span>[{item.description}]</span>
+						<span>[{arcaneMode.description}]</span>
 						{wrapTraits(item.traits)}
 					</div>
 					<Dash />
-					<ValueBox value={item.bonus} />
+					<ValueBox value={arcaneMode.bonus} />
 				</>
 			);
-		} else if (item instanceof OtherItem) {
-			return (
-				<>
-					<Bold>{item.name}</Bold>
-					&nbsp;
-					{item.details && <span style={{ fontSize: '0.95em' }}>{item.details}</span>}
-					{wrapTraits(item.traits)}
-				</>
-			);
-		} else {
-			return <>{item.name}</>;
 		}
+
+		// Other/mixed item - just show name and traits
+		return (
+			<>
+				<Bold>{item.name}</Bold>
+				{item.modes.length > 0 && (
+					<>
+						&nbsp;
+						<span style={{ fontSize: '0.95em' }}>{item.modes.map(m => m.description).join('; ')}</span>
+					</>
+				)}
+				{wrapTraits(item.traits)}
+			</>
+		);
 	};
 
 	const getColorForItemType = (item: Item) => {
-		if (item instanceof Weapon) {
-			return '#c62828ff';
-		} else if (item instanceof Armor) {
-			return '#2e7d32ff';
-		} else if (item instanceof Shield) {
-			return '#1565c0ff';
+		const itemType = getItemType(item);
+		switch (itemType) {
+			case ModeType.Weapon:
+				return '#c62828ff';
+			case ModeType.Armor:
+				return '#2e7d32ff';
+			case ModeType.Shield:
+				return '#1565c0ff';
+			default:
+				return '#6d4c41ff';
 		}
-		return '#6d4c41ff';
 	};
 
 	return (

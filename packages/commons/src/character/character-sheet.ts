@@ -5,7 +5,7 @@ import { InherentModifier, ModifierSource, StatNode, StatTree } from '../stats/s
 import { StatType } from '../stats/stat-type.js';
 import { Circumstances } from './circumstances.js';
 import { ClassInfo } from './class-info.js';
-import { Armor, Equipment } from './equipment.js';
+import { Equipment } from './equipment.js';
 import { Personality } from './personality.js';
 import { RaceInfo } from './race-info.js';
 
@@ -163,21 +163,18 @@ export class CharacterSheet {
 		modifiers.push(...this.feats.getFeatModifiers());
 
 		// Add equipment modifiers (armor DEX penalties)
-		this.equipment.items
-			.filter(item => item instanceof Armor)
-			.forEach(item => {
-				const armor = item as Armor;
-				if (armor.dexPenalty.isNotZero) {
-					modifiers.push(
-						new InherentModifier({
-							source: ModifierSource.Equipment,
-							name: `${armor.name} (${armor.type}) DEX Penalty`,
-							statType: StatType.DEX,
-							value: armor.dexPenalty, // dexPenalty is already stored as negative
-						}),
-					);
-				}
-			});
+		this.equipment.armorModes().forEach(({ item, mode }) => {
+			if (mode.dexPenalty.isNotZero) {
+				modifiers.push(
+					new InherentModifier({
+						source: ModifierSource.Equipment,
+						name: `${item.name} (${mode.type}) DEX Penalty`,
+						statType: StatType.DEX,
+						value: mode.dexPenalty, // dexPenalty is already stored as negative
+					}),
+				);
+			}
+		});
 
 		return modifiers;
 	}

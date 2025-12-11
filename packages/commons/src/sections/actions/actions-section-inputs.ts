@@ -1,5 +1,5 @@
 import { CharacterSheet } from '../../character/character-sheet.js';
-import { Armor, Shield, WeaponModeOption } from '../../character/equipment.js';
+import { ArmorModeOption, ShieldModeOption, WeaponModeOption } from '../../character/equipment.js';
 import { ActionType } from '../../core/actions.js';
 import { COVER_TYPES, PassiveCoverType } from '../../core/cover.js';
 import { Trait } from '../../core/traits.js';
@@ -25,8 +25,8 @@ export class ActionTabInputValues {
 	selectedDefenseRealm: StatType;
 	selectedPassiveCover: PassiveCoverType;
 	heightIncrements: number;
-	selectedArmor: Armor | 'None';
-	selectedShield: Shield | 'None';
+	selectedArmor: ArmorModeOption | 'None';
+	selectedShield: ShieldModeOption | 'None';
 
 	constructor({
 		selectedWeaponMode,
@@ -42,8 +42,8 @@ export class ActionTabInputValues {
 		selectedDefenseRealm: StatType;
 		selectedPassiveCover: PassiveCoverType;
 		heightIncrements: number;
-		selectedArmor: Armor | 'None';
-		selectedShield: Shield | 'None';
+		selectedArmor: ArmorModeOption | 'None';
+		selectedShield: ShieldModeOption | 'None';
 	}) {
 		this.selectedWeaponMode = selectedWeaponMode;
 		this.selectedRangeValue = selectedRangeValue;
@@ -68,8 +68,8 @@ export class ActionTabInputValues {
 		selectedDefenseRealm?: StatType;
 		selectedPassiveCover?: PassiveCoverType;
 		heightIncrements?: number;
-		selectedArmor?: Armor | 'None';
-		selectedShield?: Shield | 'None';
+		selectedArmor?: ArmorModeOption | 'None';
+		selectedShield?: ShieldModeOption | 'None';
 	}): ActionTabInputValues {
 		return new ActionTabInputValues({
 			selectedWeaponMode: selectedWeapon ?? this.selectedWeaponMode,
@@ -87,9 +87,7 @@ export class ActionTabInputValues {
 	};
 
 	weaponModifier = (): CircumstanceModifier | null => {
-		return this.selectedWeaponMode
-			? this.selectedWeaponMode.weapon.getEquipmentModifier(this.selectedWeaponMode.mode)
-			: null;
+		return this.selectedWeaponMode?.getEquipmentModifier();
 	};
 
 	rangeIncrementModifier = (): CircumstanceModifier | null => {
@@ -143,8 +141,8 @@ export class ActionsSectionInputFactory {
 	// derived fields
 	movementValue: { value: Distance; description: string };
 	weaponModes: WeaponModeOption[];
-	armors: (Armor | 'None')[];
-	shields: (Shield | 'None')[];
+	armors: (ArmorModeOption | 'None')[];
+	shields: (ShieldModeOption | 'None')[];
 
 	constructor({
 		sheet,
@@ -161,7 +159,7 @@ export class ActionsSectionInputFactory {
 
 		// derived fields
 		this.movementValue = this.sheet.getStatTree().getDistance(DerivedStatType.Movement);
-		this.weaponModes = this.sheet.equipment.weaponModes();
+		this.weaponModes = this.sheet.equipment.weaponOptions();
 		this.armors = this.sheet.equipment.armorOptions();
 		this.shields = this.sheet.equipment.shieldOptions();
 	}
@@ -233,7 +231,7 @@ export class ActionsSectionInputFactory {
 			label: 'Weapon',
 			tooltip: 'Select the weapon to use for the attack',
 			options: this.weaponModes,
-			describe: weaponMode => `${weaponMode.weapon.name} - ${weaponMode.mode.description}`,
+			describe: weaponMode => weaponMode.description,
 			getter: () => this.inputValues.selectedWeaponMode,
 			setter: weaponMode => {
 				this.update(this.inputValues.copyWith({ selectedWeapon: weaponMode }));
@@ -343,12 +341,12 @@ export class ActionsSectionInputFactory {
 	}
 
 	private armor(): SectionInput {
-		return new DropdownInput<Armor | 'None'>({
+		return new DropdownInput<ArmorModeOption | 'None'>({
 			key: `action-inputs-armor`,
 			label: 'Armor',
 			tooltip: 'Armor is applied to the any **Body Defense** check.',
 			options: this.armors,
-			describe: armor => (armor === 'None' ? 'No Armor' : armor.displayText),
+			describe: armor => (armor === 'None' ? 'No Armor' : armor.description),
 			getter: () => this.inputValues.selectedArmor,
 			setter: armor => {
 				this.update(this.inputValues.copyWith({ selectedArmor: armor }));
@@ -357,12 +355,12 @@ export class ActionsSectionInputFactory {
 	}
 
 	private shield(): SectionInput {
-		return new DropdownInput<Shield | 'None'>({
+		return new DropdownInput<ShieldModeOption | 'None'>({
 			key: `action-inputs-shield`,
 			label: 'Shield',
 			tooltip: 'Select the shield to use for the Body Defense check.',
 			options: this.shields,
-			describe: shield => (shield === 'None' ? 'No Shield' : shield.displayText),
+			describe: shield => (shield === 'None' ? 'No Shield' : shield.description),
 			getter: () => this.inputValues.selectedShield,
 			setter: shield => {
 				this.update(this.inputValues.copyWith({ selectedShield: shield }));

@@ -33,12 +33,18 @@ Similarly to Weapons, a piece of Armor is described by its Armor Bonus, and any 
 
 # Shields
 
-Shields can be used to perform the Shield Block reaction. Note that they do not confer any other bonuses (other than being able to be used as a weapon for a Shield Bash).
+Shields can be used to perform the [[Shield Block]] reaction. Note that they do not confer any other bonuses (other than being able to be used as a weapon for a Shield Bash).
 
 {% list "Equipment", "order", "type" "Shield" %}
 
-# Arcane Foci
+# Arcane Components
 
-[[Arcanist]] and [[Mechanist]] **Casters** can use tools to assist them in casting spells. These tools are called **Arcane Foci** and allow the **Caster** to use a **Focal Component**. That will require spending a certain number of [[Spirit_Point | Spirit Points]] to activate (typically 1 [[Spirit_Point | SP]]). Essentially, the **Caster** is connecting (a very weak form of **Channeling**) to the **Focal Component** to activate it in the correct way. That still requires mental concentration, as the **Foci** need to be instructed on the exact nature of the required vibrations, and therefore cannot be used by non-Casters. That also cannot be done while [[Distraught]], as it does require [[Channeling]].
+Different types of Casters can use different types of equipments to aid in their spell casting.
 
-{% list "Equipment", "order", "type" "Arcane Focus" %}
+Regardless of using arcane-assisting equipment or not, casting the spell still requires mental concentration, as the equipment needs to be manipulated in the exact way to produce the required vibrations, and therefore they cannot be used (for the purposes of spell casting) by non-Casters.
+
+* The [[Arcanist]] and [[Naturalist]] can use **Arcane Foci** as **Focal Components**. As with any **Imbued Items**, they might require spending a certain number of [[Spirit_Point | Spirit Points]] to activate (typically 1 [[Spirit_Point | SP]]). Essentially, the **Caster** is connecting (a very weak form of **Channeling**) to the **Focal Component**, and thus also cannot be done while [[Distraught]], as it does require [[Channeling]].
+* The [[Mechanist]] can engineer and use mechanical tools and contraptions as **Somatic Components**. The [[Arcanist]] can use simple hand gestures but not mechanical tools.
+* The [[Musicist]] can use musical instruments as **Verbal Components**. The [[Arcanist]] can use basic chanting but not musical instruments.
+
+{% list "Equipment", "order", "type" "Arcane Component" %}

@@ -1,22 +1,27 @@
 import {
-	Armor,
+	ArcaneComponentMode,
+	ArcaneSpellComponentType,
+	ArmorMode,
 	ArmorType,
-	ArcaneFocus,
 	BASIC_EQUIPMENT,
 	BasicEquipmentType,
 	Bonus,
 	CharacterSheet,
 	Distance,
 	Equipment,
-	OtherItem,
+	Item,
+	ItemMode,
+	MODE_TYPE_LABELS,
+	ModeType,
 	PrimaryWeaponType,
-	Shield,
+	Resource,
+	ResourceCost,
+	ShieldMode,
 	ShieldType,
 	Trait,
-	Weapon,
 	WeaponMode,
 } from '@shattered-wilds/commons';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useStore } from '../../store';
 import { Button } from '../shared/Button';
@@ -24,7 +29,135 @@ import { LabeledCheckbox } from '../shared/LabeledCheckbox';
 import LabeledDropdown from '../shared/LabeledDropdown';
 import LabeledInput from '../shared/LabeledInput';
 
-type ItemKind = 'weapon' | 'armor' | 'shield' | 'arcane focus' | 'other';
+// Form state for each mode type - use string literals that match ModeType enum values
+interface WeaponModeState {
+	type: 'weapon';
+	weaponType: PrimaryWeaponType;
+	bonus: number;
+	range: number;
+}
+
+interface ArmorModeState {
+	type: 'armor';
+	armorType: ArmorType;
+	bonus: number;
+	dexPenalty: number;
+}
+
+interface ShieldModeState {
+	type: 'shield';
+	shieldType: ShieldType;
+	bonus: number;
+}
+
+interface ArcaneModeState {
+	type: 'arcane';
+	component: ArcaneSpellComponentType;
+	category: string;
+	bonus: number;
+	spCost: number;
+}
+
+type ModeState = WeaponModeState | ArmorModeState | ShieldModeState | ArcaneModeState;
+
+// Create default states for each mode type
+const createDefaultWeaponMode = (): WeaponModeState => ({
+	type: 'weapon',
+	weaponType: PrimaryWeaponType.LightMelee,
+	bonus: 0,
+	range: 1,
+});
+
+const createDefaultArmorMode = (): ArmorModeState => ({
+	type: 'armor',
+	armorType: ArmorType.LightArmor,
+	bonus: 0,
+	dexPenalty: 0,
+});
+
+const createDefaultShieldMode = (): ShieldModeState => ({
+	type: 'shield',
+	shieldType: ShieldType.SmallShield,
+	bonus: 0,
+});
+
+const createDefaultArcaneMode = (): ArcaneModeState => ({
+	type: 'arcane',
+	component: ArcaneSpellComponentType.Focal,
+	category: '',
+	bonus: 0,
+	spCost: 1,
+});
+
+// Convert domain mode to form state
+const modeToState = (mode: ItemMode): ModeState => {
+	if (mode instanceof WeaponMode) {
+		return {
+			type: 'weapon',
+			weaponType: mode.type,
+			bonus: mode.bonus.value,
+			range: mode.range.value,
+		};
+	}
+	if (mode instanceof ArmorMode) {
+		return {
+			type: 'armor',
+			armorType: mode.type,
+			bonus: mode.bonus.value,
+			dexPenalty: mode.dexPenalty.value,
+		};
+	}
+	if (mode instanceof ShieldMode) {
+		return {
+			type: 'shield',
+			shieldType: mode.type,
+			bonus: mode.bonus.value,
+		};
+	}
+	if (mode instanceof ArcaneComponentMode) {
+		const spCost = mode.costs.find(c => c.resource === Resource.SpiritPoint);
+		return {
+			type: 'arcane',
+			component: mode.component,
+			category: mode.category,
+			bonus: mode.bonus.value,
+			spCost: spCost?.amount ?? 1,
+		};
+	}
+	// Fallback - shouldn't happen
+	return createDefaultWeaponMode();
+};
+
+// Convert form state to domain mode
+const stateToMode = (state: ModeState): ItemMode => {
+	switch (state.type) {
+		case 'weapon':
+			return new WeaponMode({
+				type: state.weaponType,
+				bonus: Bonus.of(state.bonus),
+				range: Distance.of(state.range),
+			});
+		case 'armor':
+			return new ArmorMode({
+				type: state.armorType,
+				bonus: Bonus.of(state.bonus),
+				dexPenalty: Bonus.of(state.dexPenalty),
+			});
+		case 'shield':
+			return new ShieldMode({
+				type: state.shieldType,
+				bonus: Bonus.of(state.bonus),
+				costs: [],
+			});
+		case 'arcane':
+			return new ArcaneComponentMode({
+				component: state.component,
+				category: state.category || 'Arcane Component',
+				bonus: Bonus.of(state.bonus),
+				costs: state.spCost > 0 ? [new ResourceCost({ resource: Resource.SpiritPoint, amount: state.spCost })] : [],
+			});
+	}
+};
 
 interface AddItemModalProps {
 	characterId: string;
@@ -44,59 +177,15 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 	// Editing/viewing existing item? Derive initial values from it once
 	const existing = typeof itemIndex === 'number' ? equipment.items[itemIndex] : undefined;
 
-	const [kind, setKind] = useState<ItemKind>(() => {
-		if (existing instanceof Weapon) return 'weapon';
-		if (existing instanceof Armor) return 'armor';
-		if (existing instanceof Shield) return 'shield';
-		if (existing instanceof ArcaneFocus) return 'arcane focus';
-		if (existing instanceof OtherItem) return 'other';
-		return 'weapon';
-	});
 	const [template, setTemplate] = useState<BasicEquipmentType | null>(null);
-	const [name, setName] = useState<string>(() => (existing ? existing.name : ''));
-	const [traits, setTraits] = useState<Trait[]>(() =>
-		existing && !(existing instanceof OtherItem) ? existing.traits : [],
+	const [name, setName] = useState<string>(() => existing?.name ?? '');
+	const [traits, setTraits] = useState<Trait[]>(() => existing?.traits ?? []);
+	const [modes, setModes] = useState<ModeState[]>(() =>
+		existing?.modes.length ? existing.modes.map(modeToState) : [createDefaultWeaponMode()],
 	);
 
-	// Weapon
-	const emptyMode = () => ({ type: PrimaryWeaponType.LightMelee as PrimaryWeaponType, bonus: 0, range: 1 });
-	const [weaponModes, setWeaponModes] = useState<Array<{ type: PrimaryWeaponType; bonus: number; range: number }>>(
-		() =>
-			existing instanceof Weapon
-				? existing.modes.map(m => ({ type: m.type, bonus: m.bonus.value, range: m.range.value }))
-				: [emptyMode()],
-	);
-
-	// Armor
-	const [armorType, setArmorType] = useState<ArmorType>(
-		existing instanceof Armor ? existing.type : ArmorType.LightArmor,
-	);
-	const [armorBonus, setArmorBonus] = useState<number>(existing instanceof Armor ? existing.bonus.value : 0);
-	const [armorDexPenalty, setArmorDexPenalty] = useState<number>(
-		existing instanceof Armor ? existing.dexPenalty.value : 0,
-	);
-
-	// Shield
-	const [shieldType, setShieldType] = useState<ShieldType>(
-		existing instanceof Shield ? existing.type : ShieldType.SmallShield,
-	);
-	const [shieldBonus, setShieldBonus] = useState<number>(existing instanceof Shield ? existing.bonus.value : 0);
-
-	// Arcane Focus
-	const [arcaneFocusBonus, setArcaneFocusBonus] = useState<number>(
-		existing instanceof ArcaneFocus ? existing.bonus.value : 0,
-	);
-	const [arcaneFocusSpCost, setArcaneFocusSpCost] = useState<number>(
-		existing instanceof ArcaneFocus ? existing.spCost : 1,
-	);
-	const [arcaneFocusDetails, setArcaneFocusDetails] = useState<string>(
-		existing instanceof ArcaneFocus ? (existing.details ?? '') : '',
-	);
-
-	// Other
-	const [otherDetails, setOtherDetails] = useState<string>(
-		existing instanceof OtherItem ? (existing.details ?? '') : '',
-	);
+	// For adding new modes
+	const [newModeType, setNewModeType] = useState<ModeType>(ModeType.Weapon);
 
 	// Traits
 	const equipmentTraits: Trait[] = [Trait.Concealable, Trait.Reloadable, Trait.TwoHanded, Trait.Polearm];
@@ -104,76 +193,20 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 		setTraits(prev => (prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]));
 	};
 
-	const templatesForKind = useMemo(() => {
-		return Object.values(BasicEquipmentType).filter(key => {
-			const item = BASIC_EQUIPMENT[key].generator();
-			if (kind === 'weapon') return item instanceof Weapon;
-			if (kind === 'armor') return item instanceof Armor;
-			if (kind === 'shield') return item instanceof Shield;
-			if (kind === 'arcane focus') return item instanceof ArcaneFocus;
-			return false;
-		});
-	}, [kind]);
-
-	const clearFields = useCallback(() => {
-		setName('');
-		setTraits([]);
-		setWeaponModes([emptyMode()]);
-		setArmorType(ArmorType.LightArmor);
-		setArmorBonus(0);
-		setArmorDexPenalty(0);
-		setShieldType(ShieldType.SmallShield);
-		setShieldBonus(0);
-		setArcaneFocusBonus(0);
-		setArcaneFocusSpCost(1);
-		setArcaneFocusDetails('');
-		setOtherDetails('');
-	}, []);
-
+	// Load from template
 	useEffect(() => {
 		if (typeof itemIndex === 'number') return;
 		if (!template) return;
 
-		const item = BASIC_EQUIPMENT[template].generator(); // fresh instance to avoid mutating templates
-		if (item instanceof Weapon) {
-			setKind('weapon');
-			setName(item.name);
-			setTraits(item.traits);
-			setWeaponModes(item.modes.map(m => ({ type: m.type, bonus: m.bonus.value, range: m.range.value })));
-		} else if (item instanceof Armor) {
-			setKind('armor');
-			setName(item.name);
-			setTraits(item.traits);
-			setArmorType(item.type);
-			setArmorBonus(item.bonus.value);
-			setArmorDexPenalty(item.dexPenalty.value);
-		} else if (item instanceof Shield) {
-			setKind('shield');
-			setName(item.name);
-			setTraits(item.traits);
-			setShieldType(item.type);
-			setShieldBonus(item.bonus.value);
-		} else if (item instanceof ArcaneFocus) {
-			setKind('arcane focus');
-			setName(item.name);
-			setTraits(item.traits);
-			setArcaneFocusBonus(item.bonus.value);
-			setArcaneFocusSpCost(item.spCost);
-			setArcaneFocusDetails(item.details ?? '');
-		}
+		const item = BASIC_EQUIPMENT[template].generator();
+		setName(item.name);
+		setTraits(item.traits);
+		setModes(item.modes.length ? item.modes.map(modeToState) : [createDefaultWeaponMode()]);
 	}, [template, itemIndex]);
 
-	const handleSetKind = (newKind: ItemKind) => {
-		setKind(newKind);
-		setTemplate(null);
-		clearFields();
-	};
-
-	const addMode = () => setWeaponModes(prev => [...prev, emptyMode()]);
 	const didResetOnViewRef = useRef(false);
-	const removeMode = (index: number) => setWeaponModes(prev => prev.filter((_, i) => i !== index));
 
-	// If switching to view mode mid-edit, reset fields to last saved data (only once per switch)
+	// If switching to view mode mid-edit, reset fields to last saved data
 	useEffect(() => {
 		if (editMode) {
 			didResetOnViewRef.current = false;
@@ -183,72 +216,48 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 		if (didResetOnViewRef.current) return;
 		const current = equipment.items[itemIndex];
 		if (!current) return;
-		// Reset to persisted item values
+
 		setName(current.name);
-		if (current instanceof Weapon) {
-			setKind('weapon');
-			setTraits(current.traits);
-			setWeaponModes(current.modes.map(m => ({ type: m.type, bonus: m.bonus.value, range: m.range.value })));
-		} else if (current instanceof Armor) {
-			setKind('armor');
-			setTraits(current.traits);
-			setArmorType(current.type);
-			setArmorBonus(current.bonus.value);
-			setArmorDexPenalty(current.dexPenalty.value);
-		} else if (current instanceof Shield) {
-			setKind('shield');
-			setTraits(current.traits);
-			setShieldType(current.type);
-			setShieldBonus(current.bonus.value);
-		} else if (current instanceof ArcaneFocus) {
-			setKind('arcane focus');
-			setTraits(current.traits);
-			setArcaneFocusBonus(current.bonus.value);
-			setArcaneFocusSpCost(current.spCost);
-			setArcaneFocusDetails(current.details ?? '');
-		} else if (current instanceof OtherItem) {
-			setKind('other');
-			setOtherDetails(current.details ?? '');
-		}
+		setTraits(current.traits);
+		setModes(current.modes.length ? current.modes.map(modeToState) : []);
 		didResetOnViewRef.current = true;
 	}, [editMode, itemIndex, equipment.items]);
 
-	const buildItem = () => {
-		if (kind === 'weapon') {
-			const modesFinal = weaponModes.map(
-				m => new WeaponMode({ type: m.type, bonus: Bonus.of(m.bonus), range: Distance.of(m.range) }),
-			);
-			return new Weapon({ name: name || 'Unnamed Weapon', modes: modesFinal, traits });
+	const addMode = () => {
+		let newMode: ModeState;
+		switch (newModeType) {
+			case 'weapon':
+				newMode = createDefaultWeaponMode();
+				break;
+			case 'armor':
+				newMode = createDefaultArmorMode();
+				break;
+			case 'shield':
+				newMode = createDefaultShieldMode();
+				break;
+			case 'arcane':
+				newMode = createDefaultArcaneMode();
+				break;
 		}
-		if (kind === 'armor') {
-			return new Armor({
-				name: name || 'Unnamed Armor',
-				type: armorType,
-				bonus: Bonus.of(armorBonus),
-				dexPenalty: Bonus.of(armorDexPenalty),
-				traits,
-			});
-		}
-		if (kind === 'shield') {
-			return new Shield({ name: name || 'Unnamed Shield', type: shieldType, bonus: Bonus.of(shieldBonus), traits });
-		}
-		if (kind === 'arcane focus') {
-			return new ArcaneFocus({
-				name: name || 'Unnamed Arcane Focus',
-				details: arcaneFocusDetails || undefined,
-				bonus: Bonus.of(arcaneFocusBonus),
-				spCost: arcaneFocusSpCost,
-				traits,
-			});
-		}
-		return new OtherItem({ name: name || 'New Item', details: otherDetails || undefined });
+		setModes(prev => [...prev, newMode]);
+	};
+
+	const removeMode = (index: number) => {
+		setModes(prev => prev.filter((_, i) => i !== index));
+	};
+
+	const updateMode = <T extends ModeState>(index: number, updates: Partial<T>) => {
+		setModes(prev => prev.map((m, i) => (i === index ? { ...m, ...updates } : m)));
+	};
+
+	const buildItem = (): Item => {
+		const itemModes = modes.map(stateToMode);
+		return new Item({ name: name || 'New Item', modes: itemModes, traits });
 	};
 
 	const isValid = useMemo(() => {
-		if (!name && kind !== 'other') return false;
-		if (kind === 'weapon') return weaponModes.length > 0;
-		return true;
-	}, [name, kind, weaponModes.length]);
+		return name.trim().length > 0 || modes.length > 0;
+	}, [name, modes.length]);
 
 	const handleConfirm = () => {
 		const item = buildItem();
@@ -267,198 +276,170 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 		onClose();
 	};
 
+	const renderModeEditor = (mode: ModeState, index: number): React.ReactNode => {
+		switch (mode.type) {
+			case ModeType.Weapon:
+				return (
+					<div key={index} style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+						<LabeledDropdown
+							variant='inline'
+							label='Weapon'
+							value={mode.weaponType}
+							options={Object.values(PrimaryWeaponType)}
+							disabled={!editMode}
+							onChange={val => updateMode<WeaponModeState>(index, { weaponType: val as PrimaryWeaponType })}
+						/>
+						<LabeledInput
+							variant='inline'
+							label='Bonus'
+							value={`${mode.bonus}`}
+							disabled={!editMode}
+							onBlur={val => updateMode<WeaponModeState>(index, { bonus: parseInt(val) || 0 })}
+						/>
+						<LabeledInput
+							variant='inline'
+							label='Range'
+							value={`${mode.range}`}
+							disabled={!editMode}
+							onBlur={val => updateMode<WeaponModeState>(index, { range: parseInt(val) || 1 })}
+						/>
+						{editMode && <Button variant='inline' title='Remove' onClick={() => removeMode(index)} />}
+					</div>
+				);
+			case ModeType.Armor:
+				return (
+					<div key={index} style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+						<LabeledDropdown
+							variant='inline'
+							label='Armor'
+							value={mode.armorType}
+							options={Object.values(ArmorType)}
+							disabled={!editMode}
+							onChange={val => updateMode<ArmorModeState>(index, { armorType: val as ArmorType })}
+						/>
+						<LabeledInput
+							variant='inline'
+							label='Bonus'
+							value={`${mode.bonus}`}
+							disabled={!editMode}
+							onBlur={val => updateMode<ArmorModeState>(index, { bonus: parseInt(val) || 0 })}
+						/>
+						<LabeledInput
+							variant='inline'
+							label='DEX Penalty'
+							value={`${mode.dexPenalty}`}
+							disabled={!editMode}
+							onBlur={val => updateMode<ArmorModeState>(index, { dexPenalty: parseInt(val) || 0 })}
+						/>
+						{editMode && <Button variant='inline' title='Remove' onClick={() => removeMode(index)} />}
+					</div>
+				);
+			case ModeType.Shield:
+				return (
+					<div key={index} style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+						<LabeledDropdown
+							variant='inline'
+							label='Shield'
+							value={mode.shieldType}
+							options={Object.values(ShieldType)}
+							disabled={!editMode}
+							onChange={val => updateMode<ShieldModeState>(index, { shieldType: val as ShieldType })}
+						/>
+						<LabeledInput
+							variant='inline'
+							label='Bonus'
+							value={`${mode.bonus}`}
+							disabled={!editMode}
+							onBlur={val => updateMode<ShieldModeState>(index, { bonus: parseInt(val) || 0 })}
+						/>
+						{editMode && <Button variant='inline' title='Remove' onClick={() => removeMode(index)} />}
+					</div>
+				);
+			case ModeType.Arcane:
+				return (
+					<div key={index} style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+						<LabeledDropdown
+							variant='inline'
+							label='Arcane'
+							value={mode.component}
+							options={Object.values(ArcaneSpellComponentType)}
+							disabled={!editMode}
+							onChange={val => updateMode<ArcaneModeState>(index, { component: val as ArcaneSpellComponentType })}
+						/>
+						<LabeledInput
+							variant='inline'
+							label='Bonus'
+							value={`${mode.bonus}`}
+							disabled={!editMode}
+							onBlur={val => updateMode<ArcaneModeState>(index, { bonus: parseInt(val) || 0 })}
+						/>
+						<LabeledInput
+							variant='inline'
+							label='SP Cost'
+							value={`${mode.spCost}`}
+							disabled={!editMode}
+							onBlur={val => updateMode<ArcaneModeState>(index, { spCost: parseInt(val) || 0 })}
+						/>
+						<LabeledInput
+							variant='inline'
+							label='Category'
+							value={mode.category}
+							disabled={!editMode}
+							onBlur={val => updateMode<ArcaneModeState>(index, { category: val })}
+						/>
+						{editMode && <Button variant='inline' title='Remove' onClick={() => removeMode(index)} />}
+					</div>
+				);
+			default:
+				return null;
+		}
+	};
+
 	return (
 		<div style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-			<div style={{ display: 'flex', gap: '8px' }}>
+			{typeof itemIndex !== 'number' && (
 				<LabeledDropdown
-					label='Item Type'
-					value={kind}
-					options={['weapon', 'armor', 'shield', 'arcane focus', 'other'] as const}
-					describe={k =>
-						({ weapon: 'Weapon', armor: 'Armor', shield: 'Shield', 'arcane focus': 'Arcane Focus', other: 'Other' })[k]
-					}
-					disabled={!editMode}
-					onChange={value => handleSetKind(value as ItemKind)}
+					label='Template (optional)'
+					value={template}
+					options={Object.values(BasicEquipmentType)}
+					describe={t => t}
+					placeholder='Start from scratch'
+					onChange={setTemplate}
 				/>
-				{kind !== 'other' && typeof itemIndex !== 'number' && (
-					<LabeledDropdown
-						label='Template (optional)'
-						value={template}
-						options={templatesForKind}
-						describe={t => t}
-						placeholder='Start from scratch'
-						onChange={setTemplate}
-					/>
-				)}
-			</div>
+			)}
 
 			<LabeledInput label='Name' value={name} onBlur={setName} disabled={!editMode} />
 
-			{kind === 'weapon' && (
-				<div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-					{/* Traits above modes */}
-					<div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-						<span style={{ fontWeight: 'bold', marginRight: '4px' }}>Traits:</span>
-						{equipmentTraits.map(t => (
-							<LabeledCheckbox
-								key={t}
-								label={String(t)}
-								checked={traits.includes(t)}
-								disabled={!editMode}
-								onChange={() => toggleTrait(t)}
-							/>
-						))}
-					</div>
-
-					{weaponModes.map((mode, idx) => (
-						<div key={idx} style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-							<LabeledDropdown
-								variant='inline'
-								label={`Mode ${idx + 1}`}
-								value={mode.type}
-								options={Object.values(PrimaryWeaponType)}
-								disabled={!editMode}
-								onChange={val =>
-									setWeaponModes(prev => prev.map((m, i) => (i === idx ? { ...m, type: val as PrimaryWeaponType } : m)))
-								}
-							/>
-							<LabeledInput
-								variant='inline'
-								label='Bonus'
-								value={`${mode.bonus}`}
-								disabled={!editMode}
-								onBlur={val =>
-									setWeaponModes(prev => prev.map((m, i) => (i === idx ? { ...m, bonus: parseInt(val) || 0 } : m)))
-								}
-							/>
-							<LabeledInput
-								variant='inline'
-								label='Range'
-								value={`${mode.range}`}
-								disabled={!editMode}
-								onBlur={val =>
-									setWeaponModes(prev => prev.map((m, i) => (i === idx ? { ...m, range: parseInt(val) || 1 } : m)))
-								}
-							/>
-							<Button variant='inline' title='Remove' onClick={() => removeMode(idx)} disabled={!editMode} />
-						</div>
-					))}
-					<div style={{ display: 'flex', justifyContent: 'center' }}>
-						<Button variant='inline' title='Add Mode' onClick={addMode} disabled={!editMode} />
-					</div>
-				</div>
-			)}
-
-			{kind === 'armor' && (
-				<div>
-					<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-						<LabeledDropdown
-							label='Armor Type'
-							value={armorType}
-							options={Object.values(ArmorType)}
-							disabled={!editMode}
-							onChange={val => setArmorType(val as ArmorType)}
-						/>
-						<LabeledInput
-							label='Armor Bonus'
-							value={`${armorBonus}`}
-							onBlur={v => setArmorBonus(parseInt(v) || 0)}
-							disabled={!editMode}
-						/>
-						<LabeledInput
-							label='DEX Penalty'
-							value={`${armorDexPenalty}`}
-							onBlur={v => setArmorDexPenalty(parseInt(v) || 0)}
-							disabled={!editMode}
-						/>
-					</div>
-					<div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-						<span style={{ fontWeight: 'bold', marginRight: '4px' }}>Traits:</span>
-						{equipmentTraits.map(t => (
-							<LabeledCheckbox
-								key={t}
-								label={String(t)}
-								checked={traits.includes(t)}
-								disabled={!editMode}
-								onChange={() => toggleTrait(t)}
-							/>
-						))}
-					</div>
-				</div>
-			)}
-
-			{kind === 'shield' && (
-				<div>
-					<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-						<LabeledDropdown
-							label='Shield Type'
-							value={shieldType}
-							options={Object.values(ShieldType)}
-							disabled={!editMode}
-							onChange={val => setShieldType(val as ShieldType)}
-						/>
-						<LabeledInput
-							label='Shield Bonus'
-							value={`${shieldBonus}`}
-							onBlur={v => setShieldBonus(parseInt(v) || 0)}
-							disabled={!editMode}
-						/>
-					</div>
-					<div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-						<span style={{ fontWeight: 'bold', marginRight: '4px' }}>Traits:</span>
-						{equipmentTraits.map(t => (
-							<LabeledCheckbox
-								key={t}
-								label={String(t)}
-								checked={traits.includes(t)}
-								disabled={!editMode}
-								onChange={() => toggleTrait(t)}
-							/>
-						))}
-					</div>
-				</div>
-			)}
-
-			{kind === 'arcane focus' && (
-				<div>
-					<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-						<LabeledInput
-							label='Bonus'
-							value={`${arcaneFocusBonus}`}
-							onBlur={v => setArcaneFocusBonus(parseInt(v) || 0)}
-							disabled={!editMode}
-						/>
-						<LabeledInput
-							label='SP Cost'
-							value={`${arcaneFocusSpCost}`}
-							onBlur={v => setArcaneFocusSpCost(parseInt(v) || 1)}
-							disabled={!editMode}
-						/>
-					</div>
-					<LabeledInput
-						label='Details (optional)'
-						value={arcaneFocusDetails}
-						onBlur={setArcaneFocusDetails}
+			<div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+				<span style={{ fontWeight: 'bold', marginRight: '4px' }}>Traits:</span>
+				{equipmentTraits.map(t => (
+					<LabeledCheckbox
+						key={t}
+						label={String(t)}
+						checked={traits.includes(t)}
 						disabled={!editMode}
+						onChange={() => toggleTrait(t)}
 					/>
-					<div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-						<span style={{ fontWeight: 'bold', marginRight: '4px' }}>Traits:</span>
-						{equipmentTraits.map(t => (
-							<LabeledCheckbox
-								key={t}
-								label={String(t)}
-								checked={traits.includes(t)}
-								disabled={!editMode}
-								onChange={() => toggleTrait(t)}
-							/>
-						))}
-					</div>
-				</div>
-			)}
+				))}
+			</div>
 
-			{kind === 'other' && (
-				<LabeledInput label='Details' value={otherDetails} onBlur={setOtherDetails} disabled={!editMode} />
-			)}
+			<div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+				<span style={{ fontWeight: 'bold' }}>Modes:</span>
+				{modes.map((mode, idx) => renderModeEditor(mode, idx))}
+				{editMode && (
+					<div style={{ display: 'flex', gap: '6px', alignItems: 'center', justifyContent: 'center' }}>
+						<LabeledDropdown
+							variant='inline'
+							label='Add'
+							value={newModeType}
+							options={Object.values(ModeType)}
+							describe={t => MODE_TYPE_LABELS[t]}
+							onChange={val => setNewModeType(val as ModeType)}
+						/>
+						<Button variant='inline' title='Add Mode' onClick={addMode} />
+					</div>
+				)}
+			</div>
 
 			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '8px' }}>
 				{editMode ? (

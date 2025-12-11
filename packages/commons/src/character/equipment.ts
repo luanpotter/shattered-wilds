@@ -1,7 +1,11 @@
+import { ArcaneSpellComponentOption, ArcaneSpellComponentType } from '../core/arcane.js';
 import { Trait } from '../core/traits.js';
+import { Resource, ResourceCost } from '../stats/resources.js';
 import { CircumstanceModifier, ModifierSource } from '../stats/stat-tree.js';
 import { StatType } from '../stats/stat-type.js';
 import { Bonus, Distance } from '../stats/value.js';
+import { filterInstanceOf } from '../utils/utils.js';
+import { EquipmentSerializer } from './equipment-serializer.js';
 
 export enum PrimaryWeaponType {
 	Unarmed = 'Unarmed',
@@ -14,14 +18,15 @@ export enum PrimaryWeaponType {
 export interface PrimaryWeaponTypeDefinition {
 	statType: StatType;
 	rangeType: Trait.Melee | Trait.Ranged;
+	powerTier: number;
 }
 
 export const PRIMARY_WEAPON_TYPES: Record<PrimaryWeaponType, PrimaryWeaponTypeDefinition> = {
-	[PrimaryWeaponType.Unarmed]: { statType: StatType.STR, rangeType: Trait.Melee },
-	[PrimaryWeaponType.Thrown]: { statType: StatType.STR, rangeType: Trait.Ranged },
-	[PrimaryWeaponType.LightMelee]: { statType: StatType.DEX, rangeType: Trait.Melee },
-	[PrimaryWeaponType.Ranged]: { statType: StatType.DEX, rangeType: Trait.Ranged },
-	[PrimaryWeaponType.HeavyMelee]: { statType: StatType.STR, rangeType: Trait.Melee },
+	[PrimaryWeaponType.Unarmed]: { statType: StatType.STR, rangeType: Trait.Melee, powerTier: 0 },
+	[PrimaryWeaponType.Thrown]: { statType: StatType.STR, rangeType: Trait.Ranged, powerTier: 1 },
+	[PrimaryWeaponType.LightMelee]: { statType: StatType.DEX, rangeType: Trait.Melee, powerTier: 2 },
+	[PrimaryWeaponType.Ranged]: { statType: StatType.DEX, rangeType: Trait.Ranged, powerTier: 2 },
+	[PrimaryWeaponType.HeavyMelee]: { statType: StatType.STR, rangeType: Trait.Melee, powerTier: 3 },
 };
 
 export enum ArmorType {
@@ -35,22 +40,59 @@ export enum ShieldType {
 	LargeShield = 'Large Shield',
 }
 
-export interface Item {
-	name: string;
-	description: string;
-	displayText: string;
-	traits: Trait[];
+export enum ModeType {
+	Weapon = 'weapon',
+	Armor = 'armor',
+	Shield = 'shield',
+	Arcane = 'arcane',
 }
 
-export class WeaponMode {
+export const MODE_TYPE_LABELS: Record<ModeType, string> = {
+	[ModeType.Weapon]: 'Weapon',
+	[ModeType.Armor]: 'Armor',
+	[ModeType.Shield]: 'Shield',
+	[ModeType.Arcane]: 'Arcane Component',
+};
+
+/**
+ * Returns the ModeType if all modes share the same type, null otherwise.
+ * Use sparingly - most code should be multi-modal-agnostic.
+ */
+export const getItemType = (item: Item): ModeType | null => {
+	const firstMode = item.modes[0];
+	if (!firstMode) return null;
+	const firstModeType = firstMode.modeType;
+	return item.modes.every(mode => mode.modeType === firstModeType) ? firstModeType : null;
+};
+
+export interface ItemMode {
+	modeType: ModeType;
+	description: string;
+	costs: ResourceCost[];
+}
+
+export class WeaponMode implements ItemMode {
+	modeType = ModeType.Weapon;
 	type: PrimaryWeaponType;
 	bonus: Bonus;
 	range: Distance;
+	costs: ResourceCost[];
 
-	constructor({ type, bonus, range }: { type: PrimaryWeaponType; bonus: Bonus; range?: Distance | undefined }) {
+	constructor({
+		type,
+		bonus,
+		range,
+		costs = [],
+	}: {
+		type: PrimaryWeaponType;
+		bonus: Bonus;
+		range?: Distance | undefined;
+		costs?: ResourceCost[];
+	}) {
 		this.type = type;
 		this.bonus = bonus;
-		this.range = range ?? Distance.of(1);
+		this.range = range ?? Distance.melee();
+		this.costs = costs;
 	}
 
 	get statType(): StatType {
@@ -63,38 +105,6 @@ export class WeaponMode {
 
 	get description(): string {
 		return `${this.type} (${this.bonus.description}, ${this.range.description})`;
-	}
-}
-
-export class WeaponModeOption {
-	weapon: Weapon;
-	mode: WeaponMode;
-
-	constructor({ weapon, mode }: { weapon: Weapon; mode: WeaponMode }) {
-		this.weapon = weapon;
-		this.mode = mode;
-	}
-
-	getEquipmentModifier(): CircumstanceModifier {
-		return this.weapon.getEquipmentModifier(this.mode);
-	}
-
-	get name(): string {
-		return `${this.weapon.name} / ${this.mode.description}`;
-	}
-}
-
-export class Weapon implements Item {
-	name: string;
-	modes: WeaponMode[];
-	traits: Trait[];
-	static readonly unarmed: WeaponModeOption = Weapon.buildUnarmed();
-	static readonly shieldBash: WeaponModeOption = Weapon.buildShieldBash();
-
-	constructor({ name, modes, traits = [] }: { name: string; modes: WeaponMode[]; traits?: Trait[] }) {
-		this.name = name;
-		this.modes = modes;
-		this.traits = traits;
 	}
 
 	static simple({
@@ -109,57 +119,32 @@ export class Weapon implements Item {
 		bonus: Bonus;
 		range?: Distance;
 		traits?: Trait[];
-	}): Weapon {
-		return new Weapon({
-			name,
-			modes: [new WeaponMode({ type, bonus, range })],
-			traits,
-		});
-	}
-
-	getEquipmentModifier(mode: WeaponMode): CircumstanceModifier {
-		return new CircumstanceModifier({
-			source: ModifierSource.Equipment,
-			name: `${this.name} / ${mode.description}`,
-			value: mode.bonus,
-		});
-	}
-
-	private static buildUnarmed(): WeaponModeOption {
-		const mode = new WeaponMode({ type: PrimaryWeaponType.Unarmed, bonus: Bonus.of(0) });
-		const weapon = new Weapon({
-			name: 'Unarmed',
-			modes: [mode],
-		});
-		return new WeaponModeOption({ weapon, mode });
-	}
-
-	private static buildShieldBash(): WeaponModeOption {
-		const mode = new WeaponMode({ type: PrimaryWeaponType.Unarmed, bonus: Bonus.of(1) });
-		const weapon = new Weapon({
-			name: 'Shield Bash',
-			modes: [mode],
-		});
-		return new WeaponModeOption({ weapon, mode });
-	}
-
-	get description(): string {
-		return `${this.modes.map(mode => mode.description).join(' / ')}`;
-	}
-
-	get displayText(): string {
-		return `${this.name} (${this.description})`;
+	}): Item {
+		const mode = new WeaponMode({ type, bonus, range, costs: [] });
+		return new Item({ name, modes: [mode], traits });
 	}
 }
 
-export class Armor implements Item {
-	name: string;
+export class ArmorMode implements ItemMode {
+	modeType = ModeType.Armor;
 	type: ArmorType;
 	bonus: Bonus;
 	dexPenalty: Bonus;
-	traits: Trait[];
+	// can't image an armor mode having costs!
+	costs: ResourceCost[] = [];
 
-	constructor({
+	constructor({ type, bonus, dexPenalty }: { type: ArmorType; bonus: Bonus; dexPenalty: Bonus }) {
+		this.type = type;
+		this.bonus = bonus;
+		this.dexPenalty = dexPenalty;
+	}
+
+	get description(): string {
+		const dexPenalty = this.dexPenalty.isNotZero ? `, DEX Penalty: ${this.dexPenalty.description}` : '';
+		return `${this.type} ${this.bonus.description}${dexPenalty}`;
+	}
+
+	static simple({
 		name,
 		type,
 		bonus,
@@ -171,131 +156,214 @@ export class Armor implements Item {
 		bonus: Bonus;
 		dexPenalty: Bonus;
 		traits?: Trait[];
-	}) {
-		this.name = name;
-		this.type = type;
-		this.bonus = bonus;
-		this.dexPenalty = dexPenalty;
-		this.traits = traits;
-	}
-
-	get description(): string {
-		const dexPenalty = this.dexPenalty.isNotZero ? `, DEX Penalty: ${this.dexPenalty.description}` : '';
-		return `${this.type} ${this.bonus.description}${dexPenalty}`;
-	}
-
-	get displayText(): string {
-		return `${this.name} (${this.description})`;
-	}
-
-	getEquipmentModifier(): CircumstanceModifier {
-		return new CircumstanceModifier({
-			source: ModifierSource.Equipment,
-			name: this.description,
-			value: this.bonus,
-		});
+	}): Item {
+		const mode = new ArmorMode({ type, bonus, dexPenalty });
+		return new Item({ name, modes: [mode], traits });
 	}
 }
 
-export class Shield implements Item {
-	name: string;
+export class ShieldMode implements ItemMode {
+	modeType = ModeType.Shield;
 	type: ShieldType;
 	bonus: Bonus;
-	traits: Trait[];
+	costs: ResourceCost[] = [];
 
-	constructor({ name, type, bonus, traits = [] }: { name: string; type: ShieldType; bonus: Bonus; traits?: Trait[] }) {
-		this.name = name;
+	constructor({ type, bonus, costs }: { type: ShieldType; bonus: Bonus; costs: ResourceCost[] }) {
 		this.type = type;
 		this.bonus = bonus;
-		this.traits = traits;
+		this.costs = costs;
 	}
 
 	get description(): string {
 		return `${this.type} ${this.bonus.description}`;
 	}
 
-	get displayText(): string {
-		return `${this.name} (${this.description})`;
+	static simple({
+		name,
+		type,
+		bonus,
+		traits = [],
+	}: {
+		name: string;
+		type: ShieldType;
+		bonus: Bonus;
+		traits?: Trait[];
+	}): Item {
+		const mode = new ShieldMode({ type, bonus, costs: [] });
+		return new Item({ name, modes: [mode], traits });
+	}
+}
+
+export class ArcaneComponentMode implements ItemMode {
+	modeType = ModeType.Arcane;
+	category: string;
+	component: ArcaneSpellComponentType;
+	bonus: Bonus;
+	costs: ResourceCost[];
+
+	constructor({
+		category,
+		component,
+		bonus,
+		costs,
+	}: {
+		category: string;
+		component: ArcaneSpellComponentType;
+		bonus: Bonus;
+		costs: ResourceCost[];
+	}) {
+		this.category = category;
+		this.component = component;
+		this.bonus = bonus;
+		this.costs = costs;
+	}
+
+	get description(): string {
+		return `${this.category} (${this.bonus.description})`;
+	}
+
+	static simple({
+		name,
+		category,
+		component,
+		bonus,
+		costs,
+		traits = [],
+	}: {
+		name: string;
+		category: string;
+		component: ArcaneSpellComponentType;
+		bonus: Bonus;
+		costs: ResourceCost[];
+		traits?: Trait[];
+	}): Item {
+		const mode = new ArcaneComponentMode({ category, component, bonus, costs });
+		return new Item({ name, modes: [mode], traits });
+	}
+}
+
+export class Item {
+	name: string;
+	traits: Trait[];
+	modes: ItemMode[];
+
+	constructor({ name, traits = [], modes = [] }: { name: string; traits?: Trait[]; modes?: ItemMode[] }) {
+		this.name = name;
+		this.traits = traits;
+		this.modes = modes;
+	}
+
+	private modesDescriptor(): string | undefined {
+		if (this.modes.length === 0) {
+			return undefined;
+		}
+		return `${this.modes.map(mode => mode.description).join(' / ')}`;
+	}
+
+	get description(): string {
+		const modesDesc = this.modesDescriptor();
+		return `${this.name} ${modesDesc ? `(${modesDesc})` : ''}`;
+	}
+}
+
+export class ItemModeOption<T extends ItemMode> {
+	item: Item;
+	mode: T;
+
+	constructor({ item, mode }: { item: Item; mode: T }) {
+		this.item = item;
+		this.mode = mode;
+	}
+
+	get description(): string {
+		return `${this.item.name} / ${this.mode.description}`;
+	}
+}
+
+export class WeaponModeOption extends ItemModeOption<WeaponMode> {
+	static readonly unarmed: WeaponModeOption = WeaponModeOption.buildUnarmed();
+	static readonly shieldBash: WeaponModeOption = WeaponModeOption.buildShieldBash();
+
+	constructor({ item, mode }: { item: Item; mode: WeaponMode }) {
+		super({ item, mode });
 	}
 
 	getEquipmentModifier(): CircumstanceModifier {
 		return new CircumstanceModifier({
 			source: ModifierSource.Equipment,
 			name: this.description,
-			value: this.bonus,
+			value: this.mode.bonus,
 		});
+	}
+
+	private static buildUnarmed(): WeaponModeOption {
+		const mode = new WeaponMode({ type: PrimaryWeaponType.Unarmed, bonus: Bonus.of(0), costs: [] });
+		const item = new Item({
+			name: 'Unarmed',
+			modes: [mode],
+		});
+		return new WeaponModeOption({ item, mode });
+	}
+
+	private static buildShieldBash(): WeaponModeOption {
+		const mode = new WeaponMode({ type: PrimaryWeaponType.Unarmed, bonus: Bonus.of(1), costs: [] });
+		const item = new Item({
+			name: 'Shield Bash',
+			modes: [mode],
+		});
+		return new WeaponModeOption({ item, mode });
 	}
 }
 
-export class ArcaneFocus implements Item {
-	name: string;
-	details: string | undefined;
-	bonus: Bonus;
-	spCost: number;
-	traits: Trait[];
-
-	constructor({
-		name,
-		details,
-		bonus,
-		spCost,
-		traits = [],
-	}: {
-		name: string;
-		details?: string | undefined;
-		bonus: Bonus;
-		spCost: number;
-		traits?: Trait[];
-	}) {
-		this.name = name;
-		this.details = details;
-		this.bonus = bonus;
-		this.spCost = spCost;
-		this.traits = traits;
-	}
-
-	get description(): string {
-		if (this.details) {
-			return `${this.name} (${this.details}, ${this.bonus.description})`;
-		}
-		return `${this.name} (${this.bonus.description})`;
-	}
-
-	get displayText(): string {
-		return this.description;
+export class ShieldModeOption extends ItemModeOption<ShieldMode> {
+	constructor({ item, mode }: { item: Item; mode: ShieldMode }) {
+		super({ item, mode });
 	}
 
 	getEquipmentModifier(): CircumstanceModifier {
 		return new CircumstanceModifier({
-			source: ModifierSource.Component,
-			name: this.name,
-			value: this.bonus,
+			source: ModifierSource.Equipment,
+			name: `${this.item.name} / ${this.mode.description}`,
+			value: this.mode.bonus,
 		});
 	}
 }
 
-export class OtherItem implements Item {
-	name: string;
-	details: string | undefined;
-
-	constructor({ name, details }: { name: string; details?: string | undefined }) {
-		this.name = name;
-		this.details = details;
+export class ArmorModeOption extends ItemModeOption<ArmorMode> {
+	constructor({ item, mode }: { item: Item; mode: ArmorMode }) {
+		super({ item, mode });
 	}
 
-	get description(): string {
-		if (this.details) {
-			return `${this.name} (${this.details})`;
-		}
-		return this.name;
+	getEquipmentModifier(): CircumstanceModifier {
+		return new CircumstanceModifier({
+			source: ModifierSource.Equipment,
+			name: `${this.item.name} / ${this.mode.description}`,
+			value: this.mode.bonus,
+		});
+	}
+}
+
+export class ArcaneComponentModeOption extends ItemModeOption<ArcaneComponentMode> {
+	constructor({ item, mode }: { item: Item; mode: ArcaneComponentMode }) {
+		super({ item, mode });
 	}
 
-	get displayText(): string {
-		return this.description;
+	getEquipmentModifier(): CircumstanceModifier {
+		return new CircumstanceModifier({
+			source: ModifierSource.Equipment,
+			name: `${this.item.name} [${this.mode.description}]`,
+			value: this.mode.bonus,
+		});
 	}
 
-	get traits(): Trait[] {
-		return [];
+	toOption(): ArcaneSpellComponentOption {
+		const { item, mode } = this;
+		return {
+			name: item.name,
+			type: mode.component,
+			cost: this.mode.costs.map(cost => cost.shortDescription).join(', '),
+			toComponentModifier: () => this.getEquipmentModifier(),
+		};
 	}
 }
 
@@ -306,190 +374,67 @@ export class Equipment {
 		this.items = items;
 	}
 
-	// typescript hack to filter by class type
-	private ofType<T extends Item>(ctor: new (...args: never[]) => T): T[] {
-		return this.items.filter(item => item instanceof ctor) as T[];
+	shieldModes(): ShieldModeOption[] {
+		return this.itemsWithModes(ShieldMode, ShieldModeOption);
 	}
 
-	shields(): Shield[] {
-		return this.ofType(Shield);
+	shieldOptions(): (ShieldModeOption | 'None')[] {
+		const shields = this.shieldModes();
+		return ['None', ...shields];
 	}
 
-	shieldOptions(): (Shield | 'None')[] {
-		return ['None', ...this.shields()];
+	armorModes(): ArmorModeOption[] {
+		return this.itemsWithModes(ArmorMode, ArmorModeOption);
 	}
 
-	armors(): Armor[] {
-		return this.ofType(Armor);
-	}
-
-	armorOptions(): (Armor | 'None')[] {
-		return ['None', ...this.armors()];
-	}
-
-	weapons(): Weapon[] {
-		return this.ofType(Weapon);
+	armorOptions(): (ArmorModeOption | 'None')[] {
+		const armorModes = this.armorModes();
+		return ['None', ...armorModes];
 	}
 
 	weaponModes(): WeaponModeOption[] {
-		const hasShield = this.shields().length > 0;
-		const weapons = this.weapons();
-		return [
-			Weapon.unarmed,
-			...(hasShield ? [Weapon.shieldBash] : []),
-			...weapons.flatMap(weapon => weapon.modes.map(mode => new WeaponModeOption({ weapon, mode }))),
-		];
+		return this.itemsWithModes(WeaponMode, WeaponModeOption);
 	}
 
-	arcaneFoci(): ArcaneFocus[] {
-		return this.ofType(ArcaneFocus);
+	weaponOptions(): WeaponModeOption[] {
+		const hasShield = this.shieldOptions().length > 1;
+		const weaponModes = this.weaponModes();
+		return [WeaponModeOption.unarmed, ...(hasShield ? [WeaponModeOption.shieldBash] : []), ...weaponModes];
+	}
+
+	arcaneComponentModes(): ArcaneComponentModeOption[] {
+		return this.itemsWithModes(ArcaneComponentMode, ArcaneComponentModeOption);
 	}
 
 	defaultWeaponMode(): WeaponModeOption {
-		return this.weaponModes()[0] ?? Weapon.unarmed;
+		return this.weaponModes()[0] ?? WeaponModeOption.unarmed;
 	}
 
-	defaultArmor(): Armor | 'None' {
-		return this.armors()[0] ?? 'None';
+	defaultArmor(): ArmorModeOption | 'None' {
+		return this.armorModes()[0] ?? 'None';
 	}
 
-	defaultShield(): Shield | 'None' {
-		return this.shields()[0] ?? 'None';
+	defaultShield(): ShieldModeOption | 'None' {
+		return this.shieldModes()[0] ?? 'None';
+	}
+
+	private itemsWithModes<T extends ItemMode, R extends ItemModeOption<T>>(
+		ctor: new (...args: never[]) => T,
+		modeCtor: new (args: { item: Item; mode: T }) => R,
+	): R[] {
+		return this.items.flatMap(item => filterInstanceOf(item.modes, ctor).map(mode => new modeCtor({ item, mode })));
 	}
 
 	static from(prop: string | undefined): Equipment {
 		if (!prop) {
 			return new Equipment();
 		}
-
-		const itemData = JSON.parse(prop) as Array<{
-			itemType: 'weapon' | 'armor' | 'shield' | 'arcane focus' | 'other';
-			name: string;
-			details?: string;
-			modes?: Array<{
-				type: string;
-				bonus: number;
-				range?: number;
-			}>;
-			type?: string;
-			bonus?: number;
-			spCost?: number;
-			dexPenalty?: number;
-			traits?: string[];
-		}>;
-
-		const items: Item[] = itemData.map(data => {
-			const traits = data.traits?.map(trait => trait as Trait) || [];
-
-			switch (data.itemType) {
-				case 'weapon': {
-					if (!data.modes || data.modes.length === 0) {
-						throw new Error(`Weapon ${data.name} must have at least one mode`);
-					}
-					const modes = data.modes.map(
-						modeData =>
-							new WeaponMode({
-								type: modeData.type as PrimaryWeaponType,
-								bonus: Bonus.of(modeData.bonus),
-								range: modeData.range ? Distance.of(modeData.range) : undefined,
-							}),
-					);
-					return new Weapon({ name: data.name, modes, traits });
-				}
-				case 'armor': {
-					if (!data.type) throw new Error(`Armor ${data.name} must have a type`);
-					return new Armor({
-						name: data.name,
-						type: data.type as ArmorType,
-						bonus: Bonus.of(data.bonus ?? 0),
-						dexPenalty: Bonus.of(data.dexPenalty ?? 0),
-						traits,
-					});
-				}
-				case 'shield': {
-					if (!data.type) throw new Error(`Shield ${data.name} must have a type`);
-					return new Shield({
-						name: data.name,
-						type: data.type as ShieldType,
-						bonus: Bonus.of(data.bonus ?? 0),
-						traits,
-					});
-				}
-				case 'arcane focus': {
-					if (data.bonus === undefined) throw new Error(`Arcane Focus ${data.name} must have a bonus`);
-					if (data.spCost === undefined) throw new Error(`Arcane Focus ${data.name} must have a spCost`);
-					return new ArcaneFocus({
-						name: data.name,
-						details: data.details,
-						bonus: Bonus.of(data.bonus),
-						spCost: data.spCost,
-						traits,
-					});
-				}
-				case 'other': {
-					return new OtherItem({
-						name: data.name,
-						details: data.details,
-					});
-				}
-				default:
-					throw new Error(`Unknown item type: ${data.itemType}`);
-			}
-		});
-
+		const items = EquipmentSerializer.deserialize(prop);
 		return new Equipment(items);
 	}
 
 	toProp(): string {
-		const serializedItems = this.items.map(item => {
-			if (item instanceof Weapon) {
-				return {
-					itemType: 'weapon' as const,
-					name: item.name,
-					modes: item.modes.map(mode => ({
-						type: mode.type,
-						bonus: mode.bonus.value,
-						range: mode.range.value,
-					})),
-					traits: item.traits,
-				};
-			} else if (item instanceof Armor) {
-				return {
-					itemType: 'armor' as const,
-					name: item.name,
-					type: item.type,
-					bonus: item.bonus.value,
-					dexPenalty: item.dexPenalty.value,
-					traits: item.traits,
-				};
-			} else if (item instanceof Shield) {
-				return {
-					itemType: 'shield' as const,
-					name: item.name,
-					type: item.type,
-					bonus: item.bonus.value,
-					traits: item.traits,
-				};
-			} else if (item instanceof ArcaneFocus) {
-				return {
-					itemType: 'arcane focus' as const,
-					name: item.name,
-					bonus: item.bonus.value,
-					spCost: item.spCost,
-					details: item.details,
-					traits: item.traits,
-				};
-			} else if (item instanceof OtherItem) {
-				return {
-					itemType: 'other' as const,
-					name: item.name,
-					details: item.details,
-				};
-			} else {
-				throw new Error(`Unknown item type: ${item.constructor.name}`);
-			}
-		});
-		return JSON.stringify(serializedItems);
+		return EquipmentSerializer.serialize(this.items);
 	}
 }
 
@@ -514,6 +459,12 @@ export enum BasicEquipmentType {
 	// Arcane Foci
 	Wand = 'Wand',
 	Staff = 'Staff',
+	// Arcane Tools
+	PuzzleGearBox = 'PuzzleGearBox',
+	ConvolutedContraption = 'Convoluted Contraption',
+	// Instruments
+	Ocarina = 'Ocarina',
+	Lyre = 'Lyre',
 }
 
 export class BasicEquipmentDefinition {
@@ -530,7 +481,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 	// Weapons
 	[BasicEquipmentType.Javelin]: new BasicEquipmentDefinition({
 		generator: () =>
-			Weapon.simple({
+			WeaponMode.simple({
 				name: 'Javelin',
 				type: PrimaryWeaponType.Thrown,
 				bonus: Bonus.of(2),
@@ -540,7 +491,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 	}),
 	[BasicEquipmentType.Hatchet]: new BasicEquipmentDefinition({
 		generator: () =>
-			new Weapon({
+			new Item({
 				name: 'Hatchet',
 				modes: [
 					new WeaponMode({
@@ -558,7 +509,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 	}),
 	[BasicEquipmentType.Dagger]: new BasicEquipmentDefinition({
 		generator: () =>
-			new Weapon({
+			new Item({
 				name: 'Dagger',
 				modes: [
 					new WeaponMode({
@@ -577,7 +528,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 	}),
 	[BasicEquipmentType.Rapier]: new BasicEquipmentDefinition({
 		generator: () =>
-			Weapon.simple({
+			WeaponMode.simple({
 				name: 'Rapier',
 				type: PrimaryWeaponType.LightMelee,
 				bonus: Bonus.of(4),
@@ -586,7 +537,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 	}),
 	[BasicEquipmentType.BowAndArrows]: new BasicEquipmentDefinition({
 		generator: () =>
-			Weapon.simple({
+			WeaponMode.simple({
 				name: 'Bow & Arrows',
 				type: PrimaryWeaponType.Ranged,
 				bonus: Bonus.of(4),
@@ -597,7 +548,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 	}),
 	[BasicEquipmentType.CrossbowAndDarts]: new BasicEquipmentDefinition({
 		generator: () =>
-			Weapon.simple({
+			WeaponMode.simple({
 				name: 'Crossbow & Darts',
 				type: PrimaryWeaponType.Ranged,
 				bonus: Bonus.of(5),
@@ -608,7 +559,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 	}),
 	[BasicEquipmentType.Spear]: new BasicEquipmentDefinition({
 		generator: () =>
-			Weapon.simple({
+			WeaponMode.simple({
 				name: 'Spear',
 				type: PrimaryWeaponType.HeavyMelee,
 				bonus: Bonus.of(4),
@@ -619,7 +570,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 	}),
 	[BasicEquipmentType.Mace]: new BasicEquipmentDefinition({
 		generator: () =>
-			Weapon.simple({
+			WeaponMode.simple({
 				name: 'Mace',
 				type: PrimaryWeaponType.HeavyMelee,
 				bonus: Bonus.of(5),
@@ -629,7 +580,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 	}),
 	[BasicEquipmentType.Longsword]: new BasicEquipmentDefinition({
 		generator: () =>
-			Weapon.simple({
+			WeaponMode.simple({
 				name: 'Longsword',
 				type: PrimaryWeaponType.HeavyMelee,
 				bonus: Bonus.of(6),
@@ -641,7 +592,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 	// Armor
 	[BasicEquipmentType.LeatherArmor]: new BasicEquipmentDefinition({
 		generator: () =>
-			new Armor({
+			ArmorMode.simple({
 				name: 'Leather Armor',
 				type: ArmorType.LightArmor,
 				bonus: Bonus.of(1),
@@ -651,7 +602,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 	}),
 	[BasicEquipmentType.Chainmail]: new BasicEquipmentDefinition({
 		generator: () =>
-			new Armor({
+			ArmorMode.simple({
 				name: 'Chainmail',
 				type: ArmorType.MediumArmor,
 				bonus: Bonus.of(3),
@@ -661,7 +612,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 	}),
 	[BasicEquipmentType.FullPlate]: new BasicEquipmentDefinition({
 		generator: () =>
-			new Armor({
+			ArmorMode.simple({
 				name: 'Full Plate',
 				type: ArmorType.HeavyArmor,
 				bonus: Bonus.of(5),
@@ -672,7 +623,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 	// Shields
 	[BasicEquipmentType.SmallShield]: new BasicEquipmentDefinition({
 		generator: () =>
-			new Shield({
+			ShieldMode.simple({
 				name: 'Small Shield',
 				type: ShieldType.SmallShield,
 				bonus: Bonus.of(3),
@@ -680,7 +631,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 	}),
 	[BasicEquipmentType.LargeShield]: new BasicEquipmentDefinition({
 		generator: () =>
-			new Shield({
+			ShieldMode.simple({
 				name: 'Large Shield',
 				type: ShieldType.LargeShield,
 				bonus: Bonus.of(6),
@@ -691,19 +642,69 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 	// Arcane Foci
 	[BasicEquipmentType.Wand]: new BasicEquipmentDefinition({
 		generator: () =>
-			new ArcaneFocus({
+			ArcaneComponentMode.simple({
 				name: 'Wand',
+				category: 'Typical One-Handed Focus',
+				component: ArcaneSpellComponentType.Focal,
 				bonus: Bonus.of(2),
-				spCost: 1,
+				costs: [new ResourceCost({ resource: Resource.SpiritPoint, amount: 1 })],
 			}),
 	}),
 	[BasicEquipmentType.Staff]: new BasicEquipmentDefinition({
 		generator: () =>
-			new ArcaneFocus({
+			ArcaneComponentMode.simple({
 				name: 'Staff',
+				category: 'Typical Two-Handed Focus',
+				component: ArcaneSpellComponentType.Focal,
 				bonus: Bonus.of(3),
-				spCost: 1,
 				traits: [Trait.TwoHanded],
+				costs: [new ResourceCost({ resource: Resource.SpiritPoint, amount: 1 })],
+			}),
+	}),
+
+	// Arcane Tools
+	[BasicEquipmentType.PuzzleGearBox]: new BasicEquipmentDefinition({
+		generator: () =>
+			ArcaneComponentMode.simple({
+				name: 'Puzzle Gear Box',
+				category: 'Typical One-Handed Tool',
+				component: ArcaneSpellComponentType.Somatic,
+				bonus: Bonus.of(2),
+				costs: [],
+			}),
+	}),
+	[BasicEquipmentType.ConvolutedContraption]: new BasicEquipmentDefinition({
+		generator: () =>
+			ArcaneComponentMode.simple({
+				name: 'Convoluted Contraption',
+				category: 'Typical Two-Handed Tool',
+				component: ArcaneSpellComponentType.Somatic,
+				bonus: Bonus.of(3),
+				traits: [Trait.TwoHanded],
+				costs: [],
+			}),
+	}),
+
+	// Instruments
+	[BasicEquipmentType.Ocarina]: new BasicEquipmentDefinition({
+		generator: () =>
+			ArcaneComponentMode.simple({
+				name: 'Ocarina',
+				category: 'Typical One-Handed Instrument',
+				component: ArcaneSpellComponentType.Verbal,
+				bonus: Bonus.of(2),
+				costs: [],
+			}),
+	}),
+	[BasicEquipmentType.Lyre]: new BasicEquipmentDefinition({
+		generator: () =>
+			ArcaneComponentMode.simple({
+				name: 'Lyre',
+				category: 'Typical Two-Handed Instrument',
+				component: ArcaneSpellComponentType.Verbal,
+				bonus: Bonus.of(3),
+				traits: [Trait.TwoHanded],
+				costs: [],
 			}),
 	}),
 };

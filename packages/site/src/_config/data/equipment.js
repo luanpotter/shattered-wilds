@@ -1,27 +1,16 @@
-import { BASIC_EQUIPMENT, Weapon, Armor, Shield, ArcaneFocus, slugify } from '@shattered-wilds/commons';
+import { BASIC_EQUIPMENT, getItemType, MODE_TYPE_LABELS, slugify } from '@shattered-wilds/commons';
 
-const computeType = item => {
-	if (item instanceof Weapon) {
-		return 'Weapon';
-	}
-	if (item instanceof Armor) {
-		return 'Armor';
-	}
-	if (item instanceof Shield) {
-		return 'Shield';
-	}
-	if (item instanceof ArcaneFocus) {
-		return 'Arcane Focus';
-	}
-	return 'Other';
+const computeTypeLabel = item => {
+	const itemType = getItemType(item);
+	return itemType ? MODE_TYPE_LABELS[itemType] : 'Other';
 };
 
 export const equipment = Object.values(BASIC_EQUIPMENT).map(def => {
 	const item = def.generator();
 	const slug = slugify(item.name);
 
-	const type = computeType(item);
-	const bonusForSorting = item.modes ? Math.min(...item.modes.map(mode => mode.bonus.value)) : (item.bonus?.value ?? 0);
+	const type = computeTypeLabel(item);
+	const bonusForSorting = item.modes.length > 0 ? Math.min(...item.modes.map(mode => mode.bonus.value)) : 0;
 	return {
 		// wiki parameters
 		group: 'Equipment',
@@ -50,6 +39,6 @@ export const equipment = Object.values(BASIC_EQUIPMENT).map(def => {
 		type,
 		traits: item.traits,
 		alternativeNames: def.alternativeNames,
-		modes: item.modes?.map(mode => ({ ...mode, description: mode.description })),
+		modes: item.modes.map(mode => ({ description: mode.description })),
 	};
 });

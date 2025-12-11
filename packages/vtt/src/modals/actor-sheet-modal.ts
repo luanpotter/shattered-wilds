@@ -8,8 +8,6 @@ import {
 	ArcaneSectionDefaults,
 	ArcaneSectionInputValues,
 	ArcaneSpellComponentType,
-	ArcaneFocus,
-	Armor,
 	CharacterSheet,
 	Check,
 	CheckFactory,
@@ -30,17 +28,15 @@ import {
 	firstParagraph,
 	NodeStatModifier,
 	NumberInput,
-	OtherItem,
 	PassiveCoverType,
-	PRIMARY_WEAPON_TYPES,
 	Resource,
 	RESOURCES,
-	Shield,
 	StatNode,
 	StatType,
-	Weapon,
 	WeaponModeOption,
+	ArmorModeOption,
 	ResourceCost,
+	ShieldModeOption,
 } from '@shattered-wilds/commons';
 import { prepareActionRow } from '../action-row-renderer.js';
 import { ActorLike, createHandlebarsActorSheetBase, getActorById, showNotification } from '../foundry-shim.js';
@@ -67,6 +63,7 @@ import { confirmAction } from './modals.js';
 import { addConditionModal } from './condition-modal.js';
 import { addConsequenceModal } from './consequence-modal.js';
 import { EquipmentEditorModal } from './equipment-editor-modal.js';
+import { prepareEquipmentDisplayData } from './equipment-display-data.js';
 
 const HandlebarsActorSheetBase = createHandlebarsActorSheetBase();
 
@@ -117,34 +114,32 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 		const characterSheet = this.getCharacterSheet();
 		if (!characterSheet) return null;
 
-		const weaponModes = characterSheet.equipment.weaponModes();
+		const weaponModes = characterSheet.equipment.weaponOptions();
 		return weaponModes[this.#actionsUIState.selectedWeaponIndex] || null;
 	}
 
-	private getSelectedArmor(): Armor | 'None' {
+	private getSelectedArmor(): ArmorModeOption | 'None' {
 		const characterSheet = this.getCharacterSheet();
 		if (!characterSheet) return 'None';
 
-		const equipment = characterSheet.equipment;
-		const armors = equipment.armors();
+		const armorOptions = characterSheet.equipment.armorOptions();
 
-		if (this.#actionsUIState.selectedArmor !== null && this.#actionsUIState.selectedArmor < armors.length) {
-			const armor = armors[this.#actionsUIState.selectedArmor];
-			return armor || 'None';
+		if (this.#actionsUIState.selectedArmor !== null && this.#actionsUIState.selectedArmor < armorOptions.length) {
+			const armor = armorOptions[this.#actionsUIState.selectedArmor];
+			return armor ?? 'None';
 		}
 		return 'None';
 	}
 
-	private getSelectedShield(): Shield | 'None' {
+	private getSelectedShield(): ShieldModeOption | 'None' {
 		const characterSheet = this.getCharacterSheet();
 		if (!characterSheet) return 'None';
 
-		const equipment = characterSheet.equipment;
-		const shields = equipment.shields();
+		const shieldOptions = characterSheet.equipment.shieldOptions();
 
-		if (this.#actionsUIState.selectedShield !== null && this.#actionsUIState.selectedShield < shields.length) {
-			const shield = shields[this.#actionsUIState.selectedShield];
-			return shield || 'None';
+		if (this.#actionsUIState.selectedShield !== null && this.#actionsUIState.selectedShield < shieldOptions.length) {
+			const shield = shieldOptions[this.#actionsUIState.selectedShield];
+			return shield ?? 'None';
 		}
 		return 'None';
 	}
@@ -152,7 +147,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 	private createActionTabInputValues(): ActionTabInputValues {
 		const selectedWeapon = this.getSelectedWeapon();
 		return new ActionTabInputValues({
-			selectedWeaponMode: selectedWeapon || Weapon.unarmed,
+			selectedWeaponMode: selectedWeapon || WeaponModeOption.unarmed,
 			selectedRangeValue: this.#actionsUIState.selectedRange?.value ?? 0,
 			selectedDefenseRealm: this.#actionsUIState.selectedDefenseRealm,
 			selectedPassiveCover: this.#actionsUIState.selectedPassiveCover,
@@ -167,9 +162,9 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 	): (updatedValues: ActionTabInputValues) => void {
 		return updatedValues => {
 			// Update the UI state with the new values
-			const weaponModes = characterSheet.equipment.weaponModes();
+			const weaponModes = characterSheet.equipment.weaponOptions();
 			const weaponIndex = weaponModes.findIndex(
-				w => w.weapon === updatedValues.selectedWeaponMode.weapon && w.mode === updatedValues.selectedWeaponMode.mode,
+				w => w.item === updatedValues.selectedWeaponMode.item && w.mode === updatedValues.selectedWeaponMode.mode,
 			);
 			if (weaponIndex >= 0) {
 				this.#actionsUIState.selectedWeaponIndex = weaponIndex;
@@ -181,8 +176,8 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 			this.#actionsUIState.heightIncrements = String(updatedValues.heightIncrements);
 
 			// Update armor and shield indices
-			const armors = characterSheet.equipment.armors();
-			const shields = characterSheet.equipment.shields();
+			const armors = characterSheet.equipment.armorOptions();
+			const shields = characterSheet.equipment.shieldOptions();
 
 			if (updatedValues.selectedArmor !== 'None') {
 				const armorIndex = armors.findIndex(a => a === updatedValues.selectedArmor);
@@ -416,7 +411,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 			featsData: this.prepareFeatsData(characterSheet),
 			personalityData: this.preparePersonalityData(characterSheet),
 			miscData: this.prepareMiscData(characterSheet),
-			equipmentData: this.prepareEquipmentData(characterSheet),
+			equipmentData: prepareEquipmentDisplayData(characterSheet),
 			actionsData: this.prepareActionsData(characterSheet),
 			arcaneData: this.prepareArcaneData(characterSheet),
 			divineData: this.prepareDivineData(characterSheet),
@@ -534,117 +529,6 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 			value: miscValue,
 			isEmpty: !miscValue,
 		};
-	}
-
-	prepareEquipmentData(characterSheet: CharacterSheet | undefined): Record<string, unknown> | null {
-		if (!characterSheet) {
-			return null;
-		}
-		try {
-			const equipment = characterSheet.equipment;
-			if (!equipment || equipment.items.length === 0) {
-				return { isEmpty: true, items: [] };
-			}
-
-			const weaponModes = equipment.weaponModes().map((mode, idx) => ({
-				idx,
-				mode,
-			}));
-
-			const items = equipment.items.map((item, index) => {
-				const baseItem = {
-					index,
-					name: item.name,
-					description: item.displayText,
-					traits: [] as string[],
-				};
-
-				if (item instanceof Weapon) {
-					return {
-						...baseItem,
-						itemType: 'Weapon',
-						headerDisplay: `<strong>${item.name}</strong> - ${item.description}`,
-						traits: item.traits,
-						weaponModes: item.modes.map(mode => {
-							const weaponTypeDef = PRIMARY_WEAPON_TYPES[mode.type];
-							return {
-								idx: weaponModes.find(wm => wm.mode.weapon === item && wm.mode.mode === mode)?.idx ?? 0,
-								type: mode.description,
-								bonus: mode.bonus.description,
-								bonusValue: mode.bonus.value,
-								range: mode.range?.description,
-								attackStat: weaponTypeDef.statType.name,
-								primaryAttribute: `Primary: ${weaponTypeDef.statType.name}`,
-							};
-						}),
-					};
-				}
-
-				if (item instanceof Armor) {
-					return {
-						...baseItem,
-						itemType: 'Armor',
-						headerDisplay: `<strong>${item.name}</strong> - ${item.description}`,
-						traits: item.traits,
-						armorInfo: {
-							type: item.type,
-							bonus: item.bonus.description,
-							dexPenalty: item.dexPenalty.isNotZero ? item.dexPenalty.description : null,
-						},
-					};
-				}
-
-				if (item instanceof Shield) {
-					return {
-						...baseItem,
-						itemType: 'Shield',
-						headerDisplay: `<strong>${item.name}</strong> - ${item.description}`,
-						traits: item.traits,
-						shieldInfo: {
-							type: item.type,
-							bonus: item.bonus.description,
-						},
-					};
-				}
-
-				if (item instanceof ArcaneFocus) {
-					return {
-						...baseItem,
-						itemType: 'Arcane Focus',
-						headerDisplay: `<strong>${item.name}</strong> - ${item.description}`,
-						traits: item.traits,
-						arcaneFocusInfo: {
-							bonus: item.bonus.description,
-							spCost: item.spCost,
-							details: item.details || null,
-						},
-					};
-				}
-
-				if (item instanceof OtherItem) {
-					return {
-						...baseItem,
-						itemType: 'Other',
-						headerDisplay: `<strong>${item.name}</strong> - ${item.details || 'Other equipment'}`,
-						description: item.details || item.name,
-					};
-				}
-
-				return {
-					...baseItem,
-					itemType: 'Unknown',
-					headerDisplay: `<strong>${item.name}</strong> - Unknown equipment`,
-				};
-			});
-
-			return {
-				isEmpty: false,
-				items,
-			};
-		} catch (err) {
-			console.warn('Failed to prepare equipment data:', err);
-			return { isEmpty: true, items: [] };
-		}
 	}
 
 	prepareActionsData(characterSheet: CharacterSheet | undefined): Record<string, unknown> | null {
@@ -1252,7 +1136,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 					return;
 				}
 				const weaponModeOptionIdx = parseInt(btn.dataset.weaponModeOptionIdx || '0');
-				const weaponMode = sheet.equipment.weaponModes()[weaponModeOptionIdx];
+				const weaponMode = sheet.equipment.weaponOptions()[weaponModeOptionIdx];
 				if (!weaponMode) {
 					showNotification('warn', `Weapon mode not found for idx ${weaponModeOptionIdx}`);
 					return;
@@ -1279,12 +1163,17 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 					return;
 				}
 				const item = sheet.equipment.items[itemIndex];
-				if (!(item instanceof Shield)) {
-					showNotification('warn', 'Selected item is not a shield');
+				if (!item) {
+					showNotification('warn', 'Shield not found for this entry');
+					return;
+				}
+				const shieldMode = sheet.equipment.shieldModes().find(option => option.item === item);
+				if (!shieldMode) {
+					showNotification('warn', 'Selected item does not provide a shield mode');
 					return;
 				}
 				const useModal = event.shiftKey === false;
-				await this.handleShieldBlock({ shield: item, useModal });
+				await this.handleShieldBlock({ shield: shieldMode, useModal });
 			});
 		});
 
@@ -2297,7 +2186,13 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 		}
 	}
 
-	private async handleShieldBlock({ shield, useModal }: { shield: Shield; useModal: boolean }): Promise<void> {
+	private async handleShieldBlock({
+		shield,
+		useModal,
+	}: {
+		shield: ShieldModeOption;
+		useModal: boolean;
+	}): Promise<void> {
 		const characterSheet = this.getCharacterSheet();
 		if (!characterSheet) {
 			showNotification('warn', 'Character sheet data not found');
@@ -2316,7 +2211,7 @@ export class SWActorSheetV2 extends HandlebarsActorSheetBase {
 	}
 
 	private async handleShieldBash({ useModal }: { useModal: boolean }): Promise<void> {
-		await this.handleWeaponAttack({ weaponMode: Weapon.shieldBash, useModal });
+		await this.handleWeaponAttack({ weaponMode: WeaponModeOption.shieldBash, useModal });
 	}
 
 	private async openEquipmentEditor(itemIndex?: number): Promise<void> {

@@ -172,47 +172,16 @@ export class ArcaneSection {
 		);
 	}
 
-	private static createFocalComponentOptions(sheet: CharacterSheet): ArcaneSpellComponentOption[] {
-		const flavor = sheet.characterClass.definition.flavor;
-		const noFocalComponent = ARCANE_SPELL_COMPONENTS.filter(component => component.flavors.includes(flavor)).find(
-			c => c.type === ArcaneSpellComponentType.Focal,
-		);
-		if (!noFocalComponent) {
-			return [];
-		}
-
-		const arcaneFoci = sheet.equipment.arcaneFoci();
-
-		return [
-			{
-				name: noFocalComponent.name,
-				toComponentModifier: () => noFocalComponent.toComponentModifier(),
-			},
-			...arcaneFoci.map(focus => ({
-				name: focus.name,
-				cost: focus.spCost ? `${focus.spCost} SP` : undefined,
-				toComponentModifier: () => focus.getEquipmentModifier(),
-			})),
-		];
-	}
-
 	private static componentsForFlavor = ({
 		sheet,
 	}: {
 		sheet: CharacterSheet;
 	}): Partial<Record<ArcaneSpellComponentType, readonly ArcaneSpellComponentOption[]>> => {
 		const flavor = sheet.characterClass.definition.flavor;
-		const base = Object.groupBy(
-			ARCANE_SPELL_COMPONENTS.filter(component => component.type !== ArcaneSpellComponentType.Focal).filter(component =>
-				component.flavors.includes(flavor),
-			),
-			component => component.type,
-		);
-		const focalComponents = ArcaneSection.createFocalComponentOptions(sheet);
-		return {
-			...base,
-			...(focalComponents.length > 0 ? { [ArcaneSpellComponentType.Focal]: focalComponents } : {}),
-		};
+		const intrinsicComponents = ARCANE_SPELL_COMPONENTS.filter(component => component.flavors.includes(flavor));
+		const equipmentComponents = sheet.equipment.arcaneComponentModes().map(item => item.toOption());
+		const allComponents = [...intrinsicComponents, ...equipmentComponents];
+		return Object.groupBy(allComponents, component => component.type);
 	};
 
 	static getComponentsForFlavor(

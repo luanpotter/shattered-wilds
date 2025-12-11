@@ -5,15 +5,6 @@
 			<input id="equipment-name" class="sw-input" type="text" value="{{name}}" data-field="name" autocomplete="off" />
 		</div>
 
-		<div class="sw-form-field">
-			<label for="equipment-kind">Item Type</label>
-			<select id="equipment-kind" class="sw-select" data-field="kind">
-				{{#each kindOptions}}
-				<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
-				{{/each}}
-			</select>
-		</div>
-
 		{{#if hasTraits}}
 		<div class="sw-form-field">
 			<label>Traits</label>
@@ -28,115 +19,114 @@
 		</div>
 		{{/if}}
 
-		{{#if isWeapon}}
 		<div class="sw-panel">
 			<div class="sw-panel__header">
-				<h3 class="sw-panel__title">Weapon Modes</h3>
-				<button type="button" class="sw-button" data-action="add-weapon-mode">
-					<i class="fas fa-plus"></i> Add Mode
-				</button>
-			</div>
-			<div class="sw-panel__body">
-				{{#each weaponModes}}
-				<div class="sw-weapon-mode-row">
-					<div class="sw-form-field">
-						<label>Type</label>
-						<select class="sw-select" data-mode-field="type" data-mode-index="{{index}}">
-							{{#each typeOptions}}
-							<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
-							{{/each}}
-						</select>
-					</div>
-					<div class="sw-form-field">
-						<label>Bonus</label>
-						<input class="sw-input" type="number" data-mode-field="bonus" data-mode-index="{{index}}" value="{{bonus}}" />
-					</div>
-					<div class="sw-form-field">
-						<label>Range (Hexes)</label>
-						<input class="sw-input" type="number" min="1" data-mode-field="range" data-mode-index="{{index}}" value="{{range}}" />
-					</div>
-					<button type="button" class="sw-button sw-button--icon sw-button--danger" data-action="remove-weapon-mode" data-mode-index="{{index}}">
-						<i class="fas fa-trash"></i>
+				<h3 class="sw-panel__title">Item Modes</h3>
+				<div class="sw-add-mode-controls">
+					<select class="sw-select sw-select--inline" data-field="newModeType">
+						{{#each modeTypeOptions}}
+						<option value="{{value}}">{{label}}</option>
+						{{/each}}
+					</select>
+					<button type="button" class="sw-button" data-action="add-mode">
+						<i class="fas fa-plus"></i> Add Mode
 					</button>
 				</div>
+			</div>
+			<div class="sw-panel__body">
+				{{#if hasModes}}
+				{{#each modes}}
+				<div class="sw-mode-row" data-mode-type="{{modeType}}">
+					<div class="sw-mode-row__header">
+						<span class="sw-mode-row__label">{{modeTypeLabel}}</span>
+						<button type="button" class="sw-button sw-button--icon sw-button--danger" data-action="remove-mode" data-mode-index="{{index}}">
+							<i class="fas fa-trash"></i>
+						</button>
+					</div>
+					<div class="sw-mode-row__fields">
+						{{#if isWeapon}}
+						<div class="sw-form-field">
+							<label>Type</label>
+							<select class="sw-select" data-mode-field="type" data-mode-index="{{index}}">
+								{{#each typeOptions}}
+								<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+								{{/each}}
+							</select>
+						</div>
+						<div class="sw-form-field">
+							<label>Bonus</label>
+							<input class="sw-input" type="number" data-mode-field="bonus" data-mode-index="{{index}}" value="{{bonus}}" />
+						</div>
+						<div class="sw-form-field">
+							<label>Range (Hexes)</label>
+							<input class="sw-input" type="number" min="1" data-mode-field="range" data-mode-index="{{index}}" value="{{range}}" />
+						</div>
+						{{/if}}
+
+						{{#if isArmor}}
+						<div class="sw-form-field">
+							<label>Type</label>
+							<select class="sw-select" data-mode-field="type" data-mode-index="{{index}}">
+								{{#each typeOptions}}
+								<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+								{{/each}}
+							</select>
+						</div>
+						<div class="sw-form-field">
+							<label>Bonus</label>
+							<input class="sw-input" type="number" data-mode-field="bonus" data-mode-index="{{index}}" value="{{bonus}}" />
+						</div>
+						<div class="sw-form-field">
+							<label>DEX Penalty</label>
+							<input class="sw-input" type="number" data-mode-field="dexPenalty" data-mode-index="{{index}}" value="{{dexPenalty}}" />
+						</div>
+						{{/if}}
+
+						{{#if isShield}}
+						<div class="sw-form-field">
+							<label>Type</label>
+							<select class="sw-select" data-mode-field="type" data-mode-index="{{index}}">
+								{{#each typeOptions}}
+								<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+								{{/each}}
+							</select>
+						</div>
+						<div class="sw-form-field">
+							<label>Bonus</label>
+							<input class="sw-input" type="number" data-mode-field="bonus" data-mode-index="{{index}}" value="{{bonus}}" />
+						</div>
+						{{/if}}
+
+						{{#if isArcane}}
+						<div class="sw-form-field">
+							<label>Type</label>
+							<select class="sw-select" data-mode-field="componentType" data-mode-index="{{index}}">
+								{{#each componentTypeOptions}}
+								<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+								{{/each}}
+							</select>
+						</div>
+						<div class="sw-form-field">
+							<label>Bonus</label>
+							<input class="sw-input" type="number" data-mode-field="bonus" data-mode-index="{{index}}" value="{{bonus}}" />
+						</div>
+						<div class="sw-form-field">
+							<label>SP Cost</label>
+							<input class="sw-input" type="number" min="0" data-mode-field="spCost" data-mode-index="{{index}}" value="{{spCost}}" />
+						</div>
+						<div class="sw-form-field sw-form-field--full">
+							<label>Category</label>
+							<input class="sw-input" type="text" data-mode-field="category" data-mode-index="{{index}}" value="{{category}}" placeholder="Optional description" />
+						</div>
+						{{/if}}
+					</div>
+				</div>
 				{{/each}}
+				{{else}}
+				<p class="sw-empty-state">No modes added. Add a mode to define item capabilities.</p>
+				{{/if}}
 			</div>
 		</div>
-		{{/if}}
-
-		{{#if isArmor}}
-		<div class="sw-panel">
-			<h3 class="sw-panel__title">Armor Details</h3>
-			<div class="sw-form-grid sw-form-grid--cols-auto">
-				<div class="sw-form-field">
-					<label>Type</label>
-					<select class="sw-select" data-field="armorType">
-						{{#each armorOptions.typeOptions}}
-						<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
-						{{/each}}
-					</select>
-				</div>
-				<div class="sw-form-field">
-					<label>Bonus</label>
-					<input class="sw-input" type="number" data-field="armorBonus" value="{{armorOptions.bonus}}" />
-				</div>
-				<div class="sw-form-field">
-					<label>DEX Penalty</label>
-					<input class="sw-input" type="number" data-field="armorDexPenalty" value="{{armorOptions.dexPenalty}}" />
-				</div>
-			</div>
-		</div>
-		{{/if}}
-
-		{{#if isShield}}
-		<div class="sw-panel">
-			<h3 class="sw-panel__title">Shield Details</h3>
-			<div class="sw-form-grid sw-form-grid--cols-auto">
-				<div class="sw-form-field">
-					<label>Type</label>
-					<select class="sw-select" data-field="shieldType">
-						{{#each shieldOptions.typeOptions}}
-						<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
-						{{/each}}
-					</select>
-				</div>
-				<div class="sw-form-field">
-					<label>Bonus</label>
-					<input class="sw-input" type="number" data-field="shieldBonus" value="{{shieldOptions.bonus}}" />
-				</div>
-			</div>
-		</div>
-		{{/if}}
-
-		{{#if isArcaneFocus}}
-		<div class="sw-panel">
-			<h3 class="sw-panel__title">Arcane Focus</h3>
-			<div class="sw-form-grid sw-form-grid--cols-auto">
-				<div class="sw-form-field">
-					<label>Bonus</label>
-					<input class="sw-input" type="number" data-field="focusBonus" value="{{arcaneFocusOptions.bonus}}" />
-				</div>
-				<div class="sw-form-field">
-					<label>SP Cost</label>
-					<input class="sw-input" type="number" min="0" data-field="focusSpCost" value="{{arcaneFocusOptions.spCost}}" />
-				</div>
-			</div>
-			<div class="sw-form-field">
-				<label>Details</label>
-				<input class="sw-input" type="text" data-field="focusDetails" value="{{arcaneFocusOptions.details}}" placeholder="Optional description" />
-			</div>
-		</div>
-		{{/if}}
-
-		{{#if isOther}}
-		<div class="sw-panel">
-			<h3 class="sw-panel__title">Item Details</h3>
-			<div class="sw-form-field">
-				<label>Details</label>
-				<input class="sw-input" type="text" data-field="otherDetails" value="{{otherDetails}}" placeholder="Optional description" />
-			</div>
-		</div>
-		{{/if}}
 	</div>
 
 	<div class="sw-inline-message" data-variant="warning" data-role="validation-message" {{#unless validationMessage}}style="display: none;"{{/unless}}>

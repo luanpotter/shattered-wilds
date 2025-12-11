@@ -19,6 +19,18 @@ export class ResourceCost {
 		this.amount = amount;
 		this.variable = variable;
 	}
+
+	get resourceDefinition(): ResourceDefinition {
+		return RESOURCES[this.resource];
+	}
+
+	get shortDescription(): string {
+		return `${this.amount}${this.variable ? '+' : ''} ${this.resourceDefinition.shortCode}`;
+	}
+
+	get longDescription(): string {
+		return `${this.amount}${this.variable ? '+' : ''} ${this.resourceDefinition.fullName}`;
+	}
 }
 
 export class ResourceDefinition {

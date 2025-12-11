@@ -28,8 +28,8 @@ export interface BasicDefense {
 
 export const getBasicAttacksFor = (character: CharacterSheet): BasicAttack[] => {
 	const checkFactory = new CheckFactory({ characterSheet: character });
-	return character.equipment.weaponModes().map(weaponMode => ({
-		name: weaponMode.name,
+	return character.equipment.weaponOptions().map(weaponMode => ({
+		name: weaponMode.description,
 		check: checkFactory.weapon({ weaponMode }),
 		range: weaponMode.mode.range,
 	}));

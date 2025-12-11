@@ -52,7 +52,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 	const [selectedPassiveCover, setSelectedPassiveCover] = useState('selectedPassiveCover', PassiveCoverType.None);
 	const [heightIncrements, setHeightIncrements] = useState('heightIncrements', 0);
 
-	const weaponModes = sheet.equipment.weaponModes();
+	const weaponModes = sheet.equipment.weaponOptions();
 	const [selectedWeaponMode, setSelectedWeaponMode] = useStateArrayItem(
 		'selectedWeaponMode',
 		weaponModes,

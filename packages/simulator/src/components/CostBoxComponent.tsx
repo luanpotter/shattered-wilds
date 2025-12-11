@@ -1,4 +1,4 @@
-import { ActionRowCost, CharacterSheet, ResourceCost, RESOURCES } from '@shattered-wilds/commons';
+import { ActionRowCost, CharacterSheet, ResourceCost } from '@shattered-wilds/commons';
 import React from 'react';
 
 import { useModals } from '../hooks/useModals';
@@ -27,9 +27,8 @@ const BaseCostBoxComponent: React.FC<{
 	const { openConsumeResourceModal } = useModals();
 
 	const costs = resourceCosts.map(cost => {
-		const resource = RESOURCES[cost.resource];
-		const value = `${cost.amount}${cost.variable ? '+' : ''} ${resource.shortCode}`;
-		const tooltip = `${cost.amount}${cost.variable ? '+' : ''} ${resource.fullName}`;
+		const value = cost.shortDescription;
+		const tooltip = cost.longDescription;
 		const current = sheet.getResource(cost.resource).current;
 		const insufficient = current < cost.amount;
 		return { value, tooltip, insufficient };

@@ -1,5 +1,5 @@
 import { CharacterSheet } from '../character/character-sheet.js';
-import { Armor, Shield, WeaponModeOption } from '../character/equipment.js';
+import { ArmorModeOption, ShieldModeOption, WeaponModeOption } from '../character/equipment.js';
 import { Check, CheckMode, CheckNature } from '../stats/check.js';
 import { DerivedStatType } from '../stats/derived-stat.js';
 import { CircumstanceModifier, StatModifier, StatTree } from '../stats/stat-tree.js';
@@ -33,12 +33,12 @@ export class CheckFactory {
 		return this.create({
 			mode: CheckMode.Contested,
 			nature: CheckNature.Active,
-			descriptor: weaponMode.weapon.name,
+			descriptor: weaponMode.item.name,
 			statModifier,
 		});
 	}
 
-	armor({ armor }: { armor: Armor }) {
+	armor({ armor }: { armor: ArmorModeOption }) {
 		const armorModifier = armor.getEquipmentModifier();
 
 		return this.action({
@@ -50,7 +50,7 @@ export class CheckFactory {
 		});
 	}
 
-	shield({ armor, shield }: { armor: Armor | 'None'; shield: Shield }) {
+	shield({ armor, shield }: { armor: ArmorModeOption | 'None'; shield: ShieldModeOption }) {
 		const armorModifier = armor === 'None' ? undefined : armor.getEquipmentModifier();
 		const shieldModifier = shield.getEquipmentModifier();
 

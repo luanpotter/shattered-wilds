@@ -65,6 +65,7 @@ export enum ArcaneSpellComponentType {
 
 export type ArcaneSpellComponentOption = {
 	name: string;
+	type: ArcaneSpellComponentType;
 	cost?: string | undefined;
 	toComponentModifier(): CircumstanceModifier;
 };
@@ -105,13 +106,29 @@ export class ArcaneSpellComponentDefinition implements ArcaneSpellComponentOptio
 	}
 }
 
-const allCasters = [ClassFlavor.Arcanist, ClassFlavor.Mechanist, ClassFlavor.Musicist, ClassFlavor.Naturalist];
+const allCasterFlavors = [ClassFlavor.Arcanist, ClassFlavor.Mechanist, ClassFlavor.Musicist, ClassFlavor.Naturalist];
+
+export const SOMATIC_BASE_COMPONENTS = [
+	new ArcaneSpellComponentDefinition({
+		type: ArcaneSpellComponentType.Somatic,
+		name: 'No Somatic Component',
+		flavors: allCasterFlavors,
+		bonus: Bonus.of(0),
+	}),
+	new ArcaneSpellComponentDefinition({
+		type: ArcaneSpellComponentType.Somatic,
+		name: 'Basic Gesturing',
+		cost: 'Not [[Immobilized]]',
+		flavors: [ClassFlavor.Arcanist, ClassFlavor.Mechanist],
+		bonus: Bonus.of(1),
+	}),
+];
 
 export const ARCANE_SPELL_COMPONENTS: ArcaneSpellComponentDefinition[] = [
 	new ArcaneSpellComponentDefinition({
 		type: ArcaneSpellComponentType.Somatic,
 		name: 'No Somatic Component',
-		flavors: allCasters,
+		flavors: allCasterFlavors,
 		bonus: Bonus.of(0),
 	}),
 	new ArcaneSpellComponentDefinition({
@@ -122,21 +139,9 @@ export const ARCANE_SPELL_COMPONENTS: ArcaneSpellComponentDefinition[] = [
 		bonus: Bonus.of(1),
 	}),
 	new ArcaneSpellComponentDefinition({
-		type: ArcaneSpellComponentType.Somatic,
-		name: 'Typical One-Handed Tool Use',
-		flavors: [ClassFlavor.Mechanist],
-		bonus: Bonus.of(2),
-	}),
-	new ArcaneSpellComponentDefinition({
-		type: ArcaneSpellComponentType.Somatic,
-		name: 'Typical Two-Handed Tool Use',
-		flavors: [ClassFlavor.Mechanist],
-		bonus: Bonus.of(3),
-	}),
-	new ArcaneSpellComponentDefinition({
 		type: ArcaneSpellComponentType.Verbal,
 		name: 'No Verbal Component',
-		flavors: allCasters,
+		flavors: allCasterFlavors,
 		bonus: Bonus.of(0),
 	}),
 	new ArcaneSpellComponentDefinition({
@@ -147,28 +152,10 @@ export const ARCANE_SPELL_COMPONENTS: ArcaneSpellComponentDefinition[] = [
 		bonus: Bonus.of(1),
 	}),
 	new ArcaneSpellComponentDefinition({
-		type: ArcaneSpellComponentType.Verbal,
-		name: 'Typical One-Handed Instrument',
-		flavors: [ClassFlavor.Musicist],
-		bonus: Bonus.of(2),
-	}),
-	new ArcaneSpellComponentDefinition({
-		type: ArcaneSpellComponentType.Verbal,
-		name: 'Typical Two-Handed Instrument',
-		flavors: [ClassFlavor.Musicist],
-		bonus: Bonus.of(3),
-	}),
-	new ArcaneSpellComponentDefinition({
 		type: ArcaneSpellComponentType.Focal,
 		name: 'No Focal Component',
-		flavors: allCasters,
+		flavors: allCasterFlavors,
 		bonus: Bonus.of(0),
-	}),
-	new ArcaneSpellComponentDefinition({
-		type: ArcaneSpellComponentType.Focal,
-		name: 'Custom Focus',
-		flavors: [ClassFlavor.Naturalist],
-		bonus: Bonus.of(4),
 	}),
 ];
 
