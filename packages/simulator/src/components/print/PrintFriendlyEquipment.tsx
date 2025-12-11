@@ -64,7 +64,10 @@ export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: Cha
 			// Multiple weapon modes - render as sub-list
 			return (
 				<div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-					<Bold>{item.name}</Bold>
+					<div style={{ display: 'flex', alignItems: 'center' }}>
+						<Bold>{item.name}</Bold>
+						{wrapTraits(item.traits)}
+					</div>
 					{weaponModes.map((mode, idx) => {
 						const parts = [
 							`${mode.type} ${mode.bonus.description}`,
@@ -74,7 +77,6 @@ export const PrintFriendlyEquipment = ({ characterSheet }: { characterSheet: Cha
 							<div key={idx} style={{ display: 'flex', marginLeft: '1em' }}>
 								<div style={{ display: 'flex', alignItems: 'center' }}>
 									<span>[{parts.join(', ')}]</span>
-									{wrapTraits(item.traits)}
 								</div>
 								<Dash />
 								<div style={{ display: 'flex', gap: '0.1em' }}>
