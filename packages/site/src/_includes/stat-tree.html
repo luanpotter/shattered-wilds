@@ -419,6 +419,22 @@
 			}
 		}
 
+		// Function to expand all nodes in the tree
+		function expandAllNodes() {
+			const allChildren = document.querySelectorAll('.tree-children');
+			const allToggles = document.querySelectorAll('.tree-toggle');
+			allChildren.forEach(children => children.classList.remove('collapsed'));
+			allToggles.forEach(toggle => toggle.classList.remove('collapsed'));
+		}
+
+		// Function to collapse all nodes in the tree
+		function collapseAllNodes() {
+			const allChildren = document.querySelectorAll('.tree-children');
+			const allToggles = document.querySelectorAll('.tree-toggle');
+			allChildren.forEach(children => children.classList.add('collapsed'));
+			allToggles.forEach(toggle => toggle.classList.add('collapsed'));
+		}
+
 		// Initialize tree toggles
 		const treeToggles = document.querySelectorAll('.tree-toggle');
 
@@ -427,6 +443,16 @@
 				e.stopPropagation(); // Prevent event bubbling
 				const treeNode = this.closest('.tree-node');
 				toggleNode(treeNode);
+			});
+
+			toggle.addEventListener('dblclick', function (e) {
+				e.stopPropagation(); // Prevent event bubbling
+				const isCollapsed = this.classList.contains('collapsed');
+				if (isCollapsed) {
+					expandAllNodes();
+				} else {
+					collapseAllNodes();
+				}
 			});
 		});
 
