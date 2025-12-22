@@ -46,9 +46,7 @@ export const DERIVED_STATS: Record<DerivedStatType, DerivedStat> = {
 
 This determines how many hexes a character can move in a single turn.
 
-All movement forms can move at least 1 hex, regardless of the character's calculated movement speed.
-
-Unused movement from the [[Stride]] action can be saved for later.`,
+All movement forms can move at least 1 hex, regardless of the character's calculated movement speed.`,
 		formula: F.constant(3).add(F.variable(0.25, StatType.Agility, RoundMode.floor)),
 	}),
 	[DerivedStatType.Initiative]: new DerivedStat({

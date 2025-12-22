@@ -17,7 +17,9 @@ For simplicity, actions are categorized into 4 types: Movement, Attack, Defense,
 
 ### Type: Movement
 
-These are actions associated with movement, and can take several forms. All movement forms can move at least 1 Hex, regardless of the character's Speed. Unused movement from the [[Stride]] action can be saved for later but only as part of a sequence of **Movement** actions.
+These are actions associated with movement, and can take several forms. All movement forms can move at least 1 Hex, regardless of the character's Speed.
+
+Unused movement from the [[Stride]] action can be saved for later but only as part of a sequence of **Movement** actions (for example, a character with `Movement = 3` can use `1 AP` to [[Stride]] for 2 hexes, then use `1 AP` [[Climb]] a ledge, moving 1 hex, and then use the last portion of their previous [[Stride]] to move 1 final hex, while using `2 AP` in total; but if they were to perform a non-Movement action, any unspent movement is lost).
 
 #### Difficult Terrain
 
