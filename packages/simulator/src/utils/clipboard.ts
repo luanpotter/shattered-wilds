@@ -7,7 +7,7 @@ export const copyCharacterDataToClipboard = (character: Character) => {
 	exportDataToClipboard(shareString);
 };
 
-export const importCharacterDataFromClipboard = async (characters: Character[]): Promise<Character | string> => {
+export const importCharacterDataFromClipboard = async (): Promise<Character | string> => {
 	try {
 		const clipboardText = await window.navigator.clipboard.readText();
 		if (!clipboardText.trim()) {
@@ -15,7 +15,7 @@ export const importCharacterDataFromClipboard = async (characters: Character[]):
 		}
 
 		const props = CharacterSheet.parsePropsFromShareString(clipboardText);
-		return createNewCharacter({ characters, props });
+		return createNewCharacter({ props });
 	} catch {
 		return 'Failed to import from clipboard. Make sure you have clipboard permissions.';
 	}

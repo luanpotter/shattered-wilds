@@ -1,6 +1,7 @@
 export type ViewType =
 	| '404'
 	| 'home'
+	| 'encounters'
 	| 'encounter'
 	| 'character-sheets'
 	| 'onboarding'
@@ -10,6 +11,7 @@ export type ViewType =
 export interface RouteState {
 	view: ViewType;
 	characterId?: string;
+	encounterId?: string;
 }
 
 export const Navigator = {
@@ -32,8 +34,16 @@ export const Navigator = {
 			return { view: '404' };
 		}
 
-		if (hash === '/encounter') {
-			return { view: 'encounter' };
+		if (hash === '/encounters' || hash.startsWith('/encounters/')) {
+			const matchEncounter = hash.match(/^\/encounters\/(.+)$/);
+			if (matchEncounter) {
+				return { view: 'encounter', encounterId: matchEncounter[1] };
+			}
+			const matchList = hash.match(/^\/encounters$/);
+			if (matchList) {
+				return { view: 'encounters' };
+			}
+			return { view: '404' };
 		}
 
 		if (hash === '/print/actions') {
@@ -51,8 +61,12 @@ export const Navigator = {
 		window.location.hash = '#/';
 	},
 
-	toEncounter(): void {
-		window.location.hash = '#/encounter';
+	toEncounters(): void {
+		window.location.hash = '#/encounters';
+	},
+
+	toEncounter(encounterId: string): void {
+		window.location.hash = `#/encounters/${encounterId}`;
 	},
 
 	toCharacterSheets(): void {

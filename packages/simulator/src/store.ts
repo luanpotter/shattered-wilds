@@ -2,14 +2,21 @@ import { Check, CheckMode, CheckNature, StatModifier } from '@shattered-wilds/co
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { Character, Modal, GridState, HexPosition } from './types/ui';
+import { Character, Encounter, Modal, GridState, HexPosition } from './types/ui';
 
 type AddCharacter = (character: Character) => void;
 type UpdateCharacterName = (character: Character, newName: string) => void;
 type UpdateCharacterProp = (character: Character, prop: string, value: string | undefined) => void;
-type UpdateCharacterPos = (character: Character, pos: HexPosition) => void;
 type UpdateCharacterAutomaticMode = (character: Character, automaticMode: boolean) => void;
 type RemoveCharacter = (id: string) => void;
+
+type AddEncounter = (encounter: Encounter) => void;
+type UpdateEncounter = (encounter: Encounter) => void;
+type RemoveEncounter = (id: string) => void;
+type UpdateCharacterPositionInEncounter = (encounterId: string, characterId: string, pos: HexPosition) => void;
+type AddCharacterToEncounter = (encounterId: string, characterId: string, pos: HexPosition) => void;
+type RemoveCharacterFromEncounter = (encounterId: string, characterId: string) => void;
+
 type AddModal = (modal: Modal) => void;
 type UpdateModal = (modal: Modal) => void;
 type RemoveModal = (id: string) => void;
@@ -19,15 +26,21 @@ type ToggleEditMode = () => void;
 interface AppState {
 	modals: Modal[];
 	characters: Character[];
+	encounters: Encounter[];
 	gridState: GridState;
 	editMode: boolean;
-	uiState: Record<string, unknown>; // Store component UI state by component key
+	uiState: Record<string, unknown>;
 	addCharacter: AddCharacter;
 	updateCharacterName: UpdateCharacterName;
 	updateCharacterProp: UpdateCharacterProp;
-	updateCharacterPos: UpdateCharacterPos;
 	updateCharacterAutomaticMode: UpdateCharacterAutomaticMode;
 	removeCharacter: RemoveCharacter;
+	addEncounter: AddEncounter;
+	updateEncounter: UpdateEncounter;
+	removeEncounter: RemoveEncounter;
+	updateCharacterPositionInEncounter: UpdateCharacterPositionInEncounter;
+	addCharacterToEncounter: AddCharacterToEncounter;
+	removeCharacterFromEncounter: RemoveCharacterFromEncounter;
 	addModal: AddModal;
 	updateModal: UpdateModal;
 	removeModal: RemoveModal;
@@ -77,6 +90,7 @@ export const useStore = create<AppState>()(
 		set => ({
 			modals: [],
 			characters: [],
+			encounters: [],
 			gridState: {
 				scale: 1,
 				offset: { x: 0, y: 0 },
@@ -108,10 +122,6 @@ export const useStore = create<AppState>()(
 						return c;
 					}),
 				})),
-			updateCharacterPos: (character, pos) =>
-				set(state => ({
-					characters: state.characters.map(c => (c.id === character.id ? { ...c, position: pos } : c)),
-				})),
 			updateCharacterAutomaticMode: (character, automaticMode) =>
 				set(state => ({
 					characters: state.characters.map(c => (c.id === character.id ? { ...c, automaticMode } : c)),
@@ -119,8 +129,45 @@ export const useStore = create<AppState>()(
 			removeCharacter: id =>
 				set(state => ({
 					characters: state.characters.filter(c => c.id !== id),
-					// Also close any modals associated with this character
 					modals: state.modals.filter(modal => !('characterId' in modal) || modal.characterId !== id),
+					encounters: state.encounters.map(e => {
+						const newPositions = { ...e.characterPositions };
+						delete newPositions[id];
+						return { ...e, characterPositions: newPositions };
+					}),
+				})),
+			addEncounter: encounter =>
+				set(state => ({
+					encounters: [...state.encounters, encounter],
+				})),
+			updateEncounter: encounter =>
+				set(state => ({
+					encounters: state.encounters.map(e => (e.id === encounter.id ? encounter : e)),
+				})),
+			removeEncounter: id =>
+				set(state => ({
+					encounters: state.encounters.filter(e => e.id !== id),
+				})),
+			updateCharacterPositionInEncounter: (encounterId, characterId, pos) =>
+				set(state => ({
+					encounters: state.encounters.map(e =>
+						e.id === encounterId ? { ...e, characterPositions: { ...e.characterPositions, [characterId]: pos } } : e,
+					),
+				})),
+			addCharacterToEncounter: (encounterId, characterId, pos) =>
+				set(state => ({
+					encounters: state.encounters.map(e =>
+						e.id === encounterId ? { ...e, characterPositions: { ...e.characterPositions, [characterId]: pos } } : e,
+					),
+				})),
+			removeCharacterFromEncounter: (encounterId, characterId) =>
+				set(state => ({
+					encounters: state.encounters.map(e => {
+						if (e.id !== encounterId) return e;
+						const newPositions = { ...e.characterPositions };
+						delete newPositions[characterId];
+						return { ...e, characterPositions: newPositions };
+					}),
 				})),
 			addModal: modal =>
 				set(state => ({
@@ -152,7 +199,7 @@ export const useStore = create<AppState>()(
 		}),
 		{
 			name: 'd12-simulator-storage',
-			version: 1,
+			version: 2,
 			onRehydrateStorage: () => state => {
 				if (state) {
 					const rehydrated = rehydrateState(state);

@@ -9,7 +9,7 @@ interface MeasureModalProps {
 	toPosition: HexPosition;
 	distance: number;
 	onClose: () => void;
-	onMove: () => void;
+	onMove?: () => void;
 }
 
 export const MeasureModal: React.FC<MeasureModalProps> = ({ fromCharacter, toPosition, distance, onClose, onMove }) => {
@@ -53,7 +53,15 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({ fromCharacter, toPos
 			</div>
 
 			<div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
-				<Button onClick={onMove} title='Move' />
+				{onMove && (
+					<Button
+						onClick={() => {
+							onMove();
+							onClose();
+						}}
+						title='Move'
+					/>
+				)}
 				<Button onClick={onClose} title='Close' />
 			</div>
 		</div>

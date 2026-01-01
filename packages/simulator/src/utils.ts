@@ -1,4 +1,4 @@
-import { Character, HexPosition, Point } from './types/ui';
+import { Character, Point } from './types/ui';
 
 /**
  * Find the next available character number
@@ -29,62 +29,6 @@ export const findNextCharacterNumber = (characters: Character[]): number => {
 	}
 
 	return nextNumber;
-};
-
-/**
- * Find the next available hex position for a character
- * Searches in a spiral pattern outward from the center
- * @param characters Array of existing characters to check positions against
- * @returns The next available hex coordinates {q, r}
- */
-export const findNextEmptyHexPosition = (
-	characters: Character[],
-	startQ: number = 0,
-	startR: number = 0,
-): HexPosition => {
-	// Check if the starting position is empty
-	if (!findCharacterAtPosition(characters, startQ, startR)) {
-		return { q: startQ, r: startR };
-	}
-
-	// Spiral outward from the starting position
-	const directions = [
-		{ q: 1, r: 0 }, // east
-		{ q: 0, r: 1 }, // southeast
-		{ q: -1, r: 1 }, // southwest
-		{ q: -1, r: 0 }, // west
-		{ q: 0, r: -1 }, // northwest
-		{ q: 1, r: -1 }, // northeast
-	];
-
-	let q = startQ;
-	let r = startR;
-	let radius = 1;
-
-	while (radius < 20) {
-		// Prevent infinite loop with a reasonable limit
-		for (let side = 0; side < 6; side++) {
-			for (let step = 0; step < radius; step++) {
-				q += directions[side].q;
-				r += directions[side].r;
-
-				if (!findCharacterAtPosition(characters, q, r)) {
-					return { q, r };
-				}
-			}
-		}
-		radius++;
-	}
-
-	// Fallback if no position found
-	return { q: 0, r: 0 };
-};
-
-/**
- * Finds a character at the given hex position
- */
-export const findCharacterAtPosition = (characters: Character[], q: number, r: number): Character | undefined => {
-	return characters.find(c => c.position?.q === q && c.position?.r === r);
 };
 
 /**

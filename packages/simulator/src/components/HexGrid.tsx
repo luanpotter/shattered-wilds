@@ -5,7 +5,7 @@ import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
 import { getBasicAttacksFor } from '../types/grid-actions';
 import { DragState, Point, Character, HexPosition } from '../types/ui';
-import { findCharacterAtPosition, axialToPixel } from '../utils';
+import { axialToPixel } from '../utils';
 
 import { CharacterToken } from './CharacterToken';
 import { TokenContextMenu } from './TokenContextMenu';
@@ -43,20 +43,24 @@ const generateHexes = (width: number, height: number): HexPosition[] => {
 };
 
 interface BattleGridProps {
-	disabled?: boolean;
-	dragState: DragState;
-	onStartCharacterDrag: (character: Character, startPosition: Point) => void;
+	encounterCharacters: Character[];
+	getCharacterPosition: (characterId: string) => HexPosition | undefined;
+	updateCharacterPosition: (characterId: string, pos: HexPosition) => void;
 }
 
-export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onStartCharacterDrag }) => {
+export const BattleGrid: React.FC<BattleGridProps> = ({
+	encounterCharacters,
+	getCharacterPosition,
+	updateCharacterPosition,
+}) => {
 	const gridRef = useRef<HTMLDivElement>(null);
 	const svgRef = useRef<SVGSVGElement>(null);
-	const characters = useStore(state => state.characters);
 	const gridState = useStore(state => state.gridState);
 	const updateGridState = useStore(state => state.updateGridState);
 	const modals = useStore(state => state.modals);
-	const { openCharacterSheetModal, openCharacterCreationModal, openAttackActionModal, openMeasureModal } = useModals();
+	const { openCharacterSheetModal, openAttackActionModal, openMeasureModal } = useModals();
 	const editMode = useStore(state => state.editMode);
+	const [dragState, setDragState] = useState<DragState>({ type: 'none' });
 	const [ghostPosition, setGhostPosition] = useState<Point | null>(null);
 	const [hoveredCharacter, setHoveredCharacter] = useState<Character | null>(null);
 	const [contextMenu, setContextMenu] = useState<{
@@ -73,6 +77,16 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 		isSelectingTarget: boolean;
 		hoveredPosition?: HexPosition;
 	} | null>(null);
+
+	const findCharacterAtHex = useCallback(
+		(q: number, r: number): Character | undefined => {
+			return encounterCharacters.find(c => {
+				const pos = getCharacterPosition(c.id);
+				return pos?.q === q && pos?.r === r;
+			});
+		},
+		[encounterCharacters, getCharacterPosition],
+	);
 
 	// This function converts screen coordinates to SVG user space coordinates
 	const screenToSvgCoordinates = useCallback((x: number, y: number): Point | null => {
@@ -135,6 +149,62 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 		}
 	}, [modals, measureState]);
 
+	// Handle drag move and drop
+	useEffect(() => {
+		if (dragState.type !== 'character') return;
+
+		const handleMouseMove = (e: MouseEvent) => {
+			if (dragState.type === 'character') {
+				setDragState(prev => ({
+					...prev,
+					startPosition: { x: e.clientX, y: e.clientY },
+				}));
+			}
+		};
+
+		const handleMouseUp = (e: MouseEvent) => {
+			if (dragState.type === 'character' && dragState.objectId) {
+				const character = encounterCharacters.find(c => c.id === dragState.objectId);
+				if (!character) {
+					setDragState({ type: 'none' });
+					return;
+				}
+
+				const element = document.elementFromPoint(e.clientX, e.clientY);
+				if (!element) {
+					setDragState({ type: 'none' });
+					return;
+				}
+
+				let current = element;
+				while (current && !current.hasAttribute('data-hex') && current.parentElement) {
+					current = current.parentElement;
+				}
+
+				if (current && current.hasAttribute('data-hex')) {
+					const hexData = current.getAttribute('data-hex');
+					if (hexData) {
+						const [q, r] = hexData.split(',').map(Number);
+						const existingCharacter = findCharacterAtHex(q, r);
+
+						if (!existingCharacter || existingCharacter.id === character.id) {
+							updateCharacterPosition(character.id, { q, r });
+						}
+					}
+				}
+			}
+
+			setDragState({ type: 'none' });
+		};
+
+		document.addEventListener('mousemove', handleMouseMove);
+		document.addEventListener('mouseup', handleMouseUp);
+		return () => {
+			document.removeEventListener('mousemove', handleMouseMove);
+			document.removeEventListener('mouseup', handleMouseUp);
+		};
+	}, [dragState, encounterCharacters, updateCharacterPosition, findCharacterAtHex]);
+
 	const handleWheel = (e: React.WheelEvent) => {
 		e.preventDefault();
 		const delta = e.deltaY > 0 ? 0.9 : 1.1;
@@ -185,20 +255,25 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 				e.preventDefault();
 				e.stopPropagation();
 
-				// Check if the target is within range
-				const attackRange = getAttackRange(attackState.attacker, attackState.attackIndex).value;
-				const distance = getHexDistance(attackState.attacker.position!, character.position!);
+				const attackerPos = getCharacterPosition(attackState.attacker.id);
+				const targetPos = getCharacterPosition(character.id);
 
-				if (distance <= attackRange) {
-					// Valid target - open Attack Action Modal
-					openAttackActionModal({
-						attackerId: attackState.attacker.id,
-						defenderId: character.id,
-						attackIndex: attackState.attackIndex,
-					});
+				if (attackerPos && targetPos) {
+					// Check if the target is within range
+					const attackRange = getAttackRange(attackState.attacker, attackState.attackIndex).value;
+					const distance = getHexDistance(attackerPos, targetPos);
 
-					// Clear attack state
-					setAttackState(null);
+					if (distance <= attackRange) {
+						// Valid target - open Attack Action Modal
+						openAttackActionModal({
+							attackerId: attackState.attacker.id,
+							defenderId: character.id,
+							attackIndex: attackState.attackIndex,
+						});
+
+						// Clear attack state
+						setAttackState(null);
+					}
 				}
 				// If not in range, do nothing (could add feedback later)
 
@@ -209,8 +284,11 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 			e.preventDefault();
 			e.stopPropagation();
 
-			const pos = { x: e.clientX, y: e.clientY };
-			onStartCharacterDrag(character, pos);
+			setDragState({
+				type: 'character',
+				objectId: character.id,
+				startPosition: { x: e.clientX, y: e.clientY },
+			});
 			// Keep the hover state when starting drag
 			setHoveredCharacter(character);
 		} else if (e.button === 2) {
@@ -244,11 +322,11 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 	};
 
 	const handleHexRightClick = (q: number, r: number) => {
-		// Check if there's already a character at this position
-		const existingCharacter = findCharacterAtPosition(characters, q, r);
-
-		if (!existingCharacter) {
-			openCharacterCreationModal({ hexPosition: { q, r } });
+		// In encounter view, right-click on empty hex does nothing
+		// Characters are added via the "Add character" bar
+		const existingCharacter = findCharacterAtHex(q, r);
+		if (existingCharacter && editMode) {
+			openCharacterSheetModal({ characterId: existingCharacter.id });
 		}
 	};
 
@@ -351,8 +429,6 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 
 	// Handle mouse move for measure hover
 	const handleMouseMove = (e: React.MouseEvent) => {
-		if (disabled) return;
-
 		// Handle drag
 		if (e.buttons === 4) {
 			updateGridState({
@@ -384,15 +460,21 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 
 	// Handle hex click for measure
 	const handleHexClick = (q: number, r: number) => {
-		if (measureState?.isSelectingTarget && measureState.fromCharacter.position) {
+		const fromPos = getCharacterPosition(measureState?.fromCharacter.id ?? '');
+		if (measureState?.isSelectingTarget && fromPos) {
 			const toPosition = { q, r };
-			const distance = getHexDistance(measureState.fromCharacter.position, toPosition);
+			const distance = getHexDistance(fromPos, toPosition);
+			const characterId = measureState.fromCharacter.id;
 
-			// Open measure modal
+			// Open measure modal with move callback
 			openMeasureModal({
-				fromCharacterId: measureState.fromCharacter.id,
+				fromCharacterId: characterId,
 				toPosition,
 				distance,
+				onMove: () => {
+					updateCharacterPosition(characterId, toPosition);
+					setMeasureState(null);
+				},
 			});
 
 			// Keep measure state active to maintain highlight
@@ -414,12 +496,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 		const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
 		if (svgCoords) {
 			const { q, r } = pixelToAxial(svgCoords.x, svgCoords.y);
-
-			// Only show create character modal if there's no character at this position
-			const existingCharacter = findCharacterAtPosition(characters, q, r);
-			if (!existingCharacter) {
-				handleHexRightClick(q, r);
-			}
+			handleHexRightClick(q, r);
 		}
 	};
 
@@ -477,10 +554,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 									if (!measureState?.isSelectingTarget) {
 										e.preventDefault();
 										e.stopPropagation();
-										const existingCharacter = findCharacterAtPosition(characters, q, r);
-										if (!existingCharacter) {
-											handleHexRightClick(q, r);
-										}
+										handleHexRightClick(q, r);
 									}
 								}}
 							/>
@@ -489,30 +563,33 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 				</g>
 
 				{/* Movement Range Highlight Layer */}
-				{hoveredCharacter?.position && !attackState?.isSelectingTarget && !measureState?.isSelectingTarget && (
-					<g style={{ pointerEvents: 'none' }}>
-						{getHexesInRange(
-							hoveredCharacter.position,
-							CharacterSheet.from(hoveredCharacter.props).getStatTree().computeDerivedStat(DerivedStatType.Movement)
-								.value,
-						).map(({ q, r }, i) => (
-							<Hex key={`range-${i}`} q={q} r={r}>
-								<path
-									d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
-									fill='rgba(0, 255, 0, 0.2)'
-									stroke='rgba(0, 255, 0, 0.5)'
-									strokeWidth='0.5'
-								/>
-							</Hex>
-						))}
-					</g>
-				)}
+				{hoveredCharacter &&
+					getCharacterPosition(hoveredCharacter.id) &&
+					!attackState?.isSelectingTarget &&
+					!measureState?.isSelectingTarget && (
+						<g style={{ pointerEvents: 'none' }}>
+							{getHexesInRange(
+								getCharacterPosition(hoveredCharacter.id)!,
+								CharacterSheet.from(hoveredCharacter.props).getStatTree().computeDerivedStat(DerivedStatType.Movement)
+									.value,
+							).map(({ q, r }, i) => (
+								<Hex key={`range-${i}`} q={q} r={r}>
+									<path
+										d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
+										fill='rgba(0, 255, 0, 0.2)'
+										stroke='rgba(0, 255, 0, 0.5)'
+										strokeWidth='0.5'
+									/>
+								</Hex>
+							))}
+						</g>
+					)}
 
 				{/* Attack Range Highlight Layer */}
-				{attackState?.isSelectingTarget && attackState.attacker.position && (
+				{attackState?.isSelectingTarget && getCharacterPosition(attackState.attacker.id) && (
 					<g style={{ pointerEvents: 'none' }}>
 						{getHexesInRange(
-							attackState.attacker.position,
+							getCharacterPosition(attackState.attacker.id)!,
 							getAttackRange(attackState.attacker, attackState.attackIndex).value,
 						).map(({ q, r }, i) => (
 							<Hex key={`attack-range-${i}`} q={q} r={r}>
@@ -528,18 +605,20 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 				)}
 
 				{/* Measure Path Highlight Layer */}
-				{measureState?.fromCharacter.position && measureState.hoveredPosition && (
+				{measureState && getCharacterPosition(measureState.fromCharacter.id) && measureState.hoveredPosition && (
 					<g style={{ pointerEvents: 'none' }}>
-						{findShortestPath(measureState.fromCharacter.position, measureState.hoveredPosition).map(({ q, r }, i) => (
-							<Hex key={`measure-path-${i}`} q={q} r={r}>
-								<path
-									d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
-									fill='rgba(0, 255, 0, 0.3)'
-									stroke='rgba(0, 255, 0, 0.7)'
-									strokeWidth='1'
-								/>
-							</Hex>
-						))}
+						{findShortestPath(getCharacterPosition(measureState.fromCharacter.id)!, measureState.hoveredPosition).map(
+							({ q, r }, i) => (
+								<Hex key={`measure-path-${i}`} q={q} r={r}>
+									<path
+										d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
+										fill='rgba(0, 255, 0, 0.3)'
+										stroke='rgba(0, 255, 0, 0.7)'
+										strokeWidth='1'
+									/>
+								</Hex>
+							),
+						)}
 					</g>
 				)}
 
@@ -547,8 +626,11 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 				<g>
 					{generateHexes(10, 10).map(({ q, r }, i) => (
 						<Hex key={`char-${i}`} q={q} r={r}>
-							{characters
-								.filter(c => c.position?.q === q && c.position?.r === r)
+							{encounterCharacters
+								.filter(c => {
+									const pos = getCharacterPosition(c.id);
+									return pos?.q === q && pos?.r === r;
+								})
 								.map(character => (
 									<CharacterToken
 										key={character.id}
@@ -566,8 +648,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({ disabled, dragState, onS
 				{/* Ghost Token Layer */}
 				{dragState.type === 'character' && dragState.objectId && ghostPosition && (
 					<g transform={`translate(${ghostPosition.x},${ghostPosition.y})`}>
-						{characters.find(c => c.id === dragState.objectId) && (
-							<CharacterToken character={characters.find(c => c.id === dragState.objectId)!} isGhost={true} />
+						{encounterCharacters.find(c => c.id === dragState.objectId) && (
+							<CharacterToken character={encounterCharacters.find(c => c.id === dragState.objectId)!} isGhost={true} />
 						)}
 					</g>
 				)}

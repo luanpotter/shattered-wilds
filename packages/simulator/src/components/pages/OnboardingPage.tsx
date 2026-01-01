@@ -30,7 +30,6 @@ interface OnboardingPageProps {
 }
 
 export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToCharacterSheets }) => {
-	const characters = useStore(state => state.characters);
 	const addCharacter = useStore(state => state.addCharacter);
 
 	const [step, setStep] = useState(1);
@@ -43,7 +42,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 	};
 
 	const createCharacter = () => {
-		const character = createNewCharacter({ characters, props: options });
+		const character = createNewCharacter({ props: options });
 		addCharacter(character);
 		onNavigateToCharacterSheets();
 	};

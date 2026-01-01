@@ -192,10 +192,12 @@ export function useModals() {
 		fromCharacterId,
 		toPosition,
 		distance,
+		onMove,
 	}: {
 		fromCharacterId: string;
 		toPosition: HexPosition;
 		distance: number;
+		onMove?: () => void;
 	}) => {
 		const character = characters.find(c => c.id === fromCharacterId);
 		if (!character) {
@@ -209,6 +211,7 @@ export function useModals() {
 			fromCharacterId,
 			toPosition,
 			distance,
+			...(onMove && { onMove }),
 		});
 	};
 

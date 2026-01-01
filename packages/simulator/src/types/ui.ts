@@ -1,7 +1,5 @@
 import { Check, FeatSlot, FeatDefinition, Condition, Consequence, ResourceCost } from '@shattered-wilds/commons';
 
-import { findNextEmptyHexPosition } from '../utils';
-
 export interface Point {
 	x: number;
 	y: number;
@@ -83,6 +81,7 @@ export type Modal = BaseModal &
 				fromCharacterId: string;
 				toPosition: HexPosition;
 				distance: number;
+				onMove?: () => void;
 		  }
 		| {
 				type: 'consume-resource';
@@ -127,24 +126,89 @@ export type Modal = BaseModal &
 
 export interface Character {
 	id: string;
-	position?: HexPosition;
 	automaticMode?: boolean;
 	props: { name: string } & Record<string, string>;
 }
 
-export const createNewCharacter = ({
-	characters,
-	props,
-}: {
-	characters: Character[];
-	props: Record<string, string>;
-}): Character => {
+export interface Encounter {
+	id: string;
+	name: string;
+	characterPositions: Record<string, HexPosition>;
+}
+
+export const createNewCharacter = ({ props }: { props: Record<string, string> }): Character => {
 	return {
 		id: window.crypto.randomUUID(),
 		props: props as { name: string } & Record<string, string>,
-		position: findNextEmptyHexPosition(characters),
 		automaticMode: false,
 	};
+};
+
+export const createNewEncounter = ({
+	name,
+	characterIds,
+	existingCharacterPositions,
+}: {
+	name: string;
+	characterIds: string[];
+	existingCharacterPositions?: Record<string, HexPosition>;
+}): Encounter => {
+	const characterPositions: Record<string, HexPosition> = {};
+	const usedPositions: HexPosition[] = [];
+
+	characterIds.forEach(id => {
+		const existingPos = existingCharacterPositions?.[id];
+		if (existingPos && !usedPositions.some(p => p.q === existingPos.q && p.r === existingPos.r)) {
+			characterPositions[id] = existingPos;
+			usedPositions.push(existingPos);
+		} else {
+			const pos = findNextEmptyHexPositionFromList(usedPositions);
+			characterPositions[id] = pos;
+			usedPositions.push(pos);
+		}
+	});
+
+	return {
+		id: window.crypto.randomUUID(),
+		name,
+		characterPositions,
+	};
+};
+
+const findNextEmptyHexPositionFromList = (usedPositions: HexPosition[], startQ = 0, startR = 0): HexPosition => {
+	const isOccupied = (q: number, r: number) => usedPositions.some(p => p.q === q && p.r === r);
+
+	if (!isOccupied(startQ, startR)) {
+		return { q: startQ, r: startR };
+	}
+
+	const directions = [
+		{ q: 1, r: 0 },
+		{ q: 0, r: 1 },
+		{ q: -1, r: 1 },
+		{ q: -1, r: 0 },
+		{ q: 0, r: -1 },
+		{ q: 1, r: -1 },
+	];
+
+	let q = startQ;
+	let r = startR;
+	let radius = 1;
+
+	while (radius < 20) {
+		for (let side = 0; side < 6; side++) {
+			for (let step = 0; step < radius; step++) {
+				q += directions[side].q;
+				r += directions[side].r;
+				if (!isOccupied(q, r)) {
+					return { q, r };
+				}
+			}
+		}
+		radius++;
+	}
+
+	return { q: 0, r: 0 };
 };
 
 export function getCharacterInitials(character: { props: { name: string } }): string {

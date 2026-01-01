@@ -4,7 +4,6 @@ import { FaClipboard, FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
 import { Character } from '../../types/ui';
-import { findNextEmptyHexPosition } from '../../utils';
 import { importCharacterDataFromClipboard } from '../../utils/clipboard';
 import { Button } from '../shared/Button';
 
@@ -18,12 +17,11 @@ export const CharacterListModal: React.FC = () => {
 	const [importError, setImportError] = useState<string | null>(null);
 
 	const handleOpenNewCharacterModal = () => {
-		const hexPosition = findNextEmptyHexPosition(characters);
-		openCharacterCreationModal({ hexPosition });
+		openCharacterCreationModal({});
 	};
 
 	const handleImportFromClipboard = async () => {
-		const result = await importCharacterDataFromClipboard(characters);
+		const result = await importCharacterDataFromClipboard();
 		if (typeof result === 'string') {
 			setImportError(result);
 		} else {

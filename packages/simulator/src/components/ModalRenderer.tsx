@@ -38,7 +38,6 @@ interface ModalRendererProps {
 export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag }) => {
 	const characters = useStore(state => state.characters);
 	const removeModal = useStore(state => state.removeModal);
-	const updateCharacterPos = useStore(state => state.updateCharacterPos);
 
 	const handleCopyCharacterSheet = (characterId: string) => {
 		const character = characters.find(c => c.id === characterId);
@@ -178,10 +177,7 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 						toPosition={modal.toPosition}
 						distance={modal.distance}
 						onClose={onClose}
-						onMove={() => {
-							updateCharacterPos(fromCharacter, modal.toPosition);
-							onClose();
-						}}
+						{...(modal.onMove && { onMove: modal.onMove })}
 					/>
 				);
 			}

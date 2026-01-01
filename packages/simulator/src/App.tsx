@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { FaCrosshairs, FaEdit, FaHome, FaPlay, FaTimes, FaUsers } from 'react-icons/fa';
+import { FaHome } from 'react-icons/fa';
 
-import { BattleGrid } from './components/HexGrid';
 import { ModalRenderer } from './components/ModalRenderer';
 import { CharacterSheetsPage } from './components/pages/CharacterSheetsPage';
+import { EncountersPage } from './components/pages/EncountersPage';
 import { HomePage } from './components/pages/HomePage';
 import { NotFoundPage } from './components/pages/NotFoundPage';
 import { OnboardingPage } from './components/pages/OnboardingPage';
@@ -12,7 +12,7 @@ import { PrintFriendlyCharacterSheetPage } from './components/pages/PrintFriendl
 import { Button } from './components/shared/Button';
 import { useModals } from './hooks/useModals';
 import { useStore } from './store';
-import { Character, DragState, Point } from './types/ui';
+import { DragState } from './types/ui';
 import { Navigator, type ViewType } from './utils/routes';
 
 const App = (): React.ReactElement => {
@@ -20,18 +20,15 @@ const App = (): React.ReactElement => {
 	const [initialCharacterId, setInitialCharacterId] = useState<string | null>(
 		() => Navigator.parseRoute().characterId || null,
 	);
+	const [initialEncounterId, setInitialEncounterId] = useState<string | null>(
+		() => Navigator.parseRoute().encounterId || null,
+	);
 	const [dragState, setDragState] = useState<DragState>({ type: 'none' });
 
-	const characters = useStore(state => state.characters);
-	const updateGridState = useStore(state => state.updateGridState);
-	const updateCharacterPos = useStore(state => state.updateCharacterPos);
 	const gridState = useStore(state => state.gridState);
-	const editMode = useStore(state => state.editMode);
-	const toggleEditMode = useStore(state => state.toggleEditMode);
+	const updateGridState = useStore(state => state.updateGridState);
 	const modals = useStore(state => state.modals);
-	const { openCharacterListModal, closeAllModals, updateModal } = useModals();
-
-	const isEncounterView = currentView === 'encounter';
+	const { updateModal } = useModals();
 
 	// Handle browser navigation (back/forward buttons)
 	useEffect(() => {
@@ -39,6 +36,7 @@ const App = (): React.ReactElement => {
 			const route = Navigator.parseRoute();
 			setCurrentView(route.view);
 			setInitialCharacterId(route.characterId || null);
+			setInitialEncounterId(route.encounterId || null);
 		};
 
 		window.addEventListener('hashchange', handleHashChange);
@@ -69,50 +67,10 @@ const App = (): React.ReactElement => {
 						y: currentOffset.y + dy / currentScale,
 					},
 				});
-			} else if (dragState.type === 'character' && dragState.objectId) {
-				// Just update the mouse position for the ghost token
-				setDragState(prev => ({
-					...prev,
-					startPosition: { x: e.clientX, y: e.clientY },
-				}));
 			}
 		};
 
-		const handleMouseUp = (e: MouseEvent) => {
-			if (dragState.type === 'character' && dragState.objectId) {
-				// Find the character
-				const character = characters.find(c => c.id === dragState.objectId);
-				if (!character) {
-					setDragState({ type: 'none' });
-					return;
-				}
-
-				// Find the hex under the mouse
-				const element = document.elementFromPoint(e.clientX, e.clientY);
-				if (!element) {
-					setDragState({ type: 'none' });
-					return;
-				}
-
-				// Try to find the closest element with data-hex attribute
-				let current = element;
-				while (current && !current.hasAttribute('data-hex') && current.parentElement) {
-					current = current.parentElement;
-				}
-
-				if (current && current.hasAttribute('data-hex')) {
-					const hexData = current.getAttribute('data-hex');
-					if (hexData) {
-						const [q, r] = hexData.split(',').map(Number);
-						const existingCharacter = characters.find(c => c.position?.q === q && c.position?.r === r);
-
-						if (!existingCharacter) {
-							updateCharacterPos(character, { q, r });
-						}
-					}
-				}
-			}
-
+		const handleMouseUp = () => {
 			setDragState({ type: 'none' });
 		};
 
@@ -126,14 +84,12 @@ const App = (): React.ReactElement => {
 		}
 
 		return () => {};
-	}, [dragState, gridState, updateGridState, updateModal, modals, characters, updateCharacterPos]);
+	}, [dragState, gridState, updateGridState, updateModal, modals]);
 
 	const handleMouseDown = (e: React.MouseEvent) => {
 		if (e.button === 1) {
-			// Only block middle click if NOT on a link or interactive element
 			const tag = (e.target as HTMLElement).tagName.toLowerCase();
 			if (tag === 'a' || tag === 'button' || tag === 'input' || tag === 'textarea' || tag === 'select') {
-				// Let browser handle middle click
 				return;
 			}
 			e.preventDefault();
@@ -142,34 +98,10 @@ const App = (): React.ReactElement => {
 		}
 	};
 
-	const handleStartCharacterDrag = (character: Character, startPosition: Point) => {
-		setDragState({
-			type: 'character',
-			objectId: character.id,
-			startPosition,
-		});
-	};
-
-	const handleOpenCharacterList = () => {
-		openCharacterListModal();
-	};
-
-	const handleRecenter = () => {
-		updateGridState({
-			scale: 1,
-			offset: { x: 0, y: 0 },
-		});
-	};
-
-	const handleCloseAllModals = () => {
-		closeAllModals();
-	};
-
 	const hasHeaderAndFooter = (view: ViewType): boolean => {
-		return !['onboarding', 'print-sheet'].includes(view);
+		return !['onboarding', 'print-sheet', 'encounter'].includes(view);
 	};
 
-	// we need a completely custom style for printing
 	if (currentView === 'print-sheet') {
 		return <PrintFriendlyCharacterSheetPage characterId={initialCharacterId!} />;
 	} else if (currentView === 'print-actions') {
@@ -210,18 +142,6 @@ const App = (): React.ReactElement => {
 							<h1 style={{ margin: 0 }}>D12 Simulator</h1>
 							<div style={{ display: 'flex', gap: '1rem' }}>
 								<Button onClick={Navigator.toHome} icon={FaHome} title='Home' />
-								{isEncounterView && (
-									<>
-										<Button onClick={handleOpenCharacterList} icon={FaUsers} title='Characters' />
-										<Button
-											onClick={toggleEditMode}
-											icon={editMode ? FaPlay : FaEdit}
-											title={editMode ? 'Switch to Play' : 'Switch to Edit'}
-										/>
-										<Button onClick={handleRecenter} icon={FaCrosshairs} title='Re-center' />
-										<Button onClick={handleCloseAllModals} icon={FaTimes} title='Close All' />
-									</>
-								)}
 							</div>
 						</div>
 					</div>
@@ -236,24 +156,19 @@ const App = (): React.ReactElement => {
 			>
 				<div
 					style={{
-						width: currentView === 'onboarding' ? '100%' : '100vw',
+						width: currentView === 'onboarding' || currentView === 'encounter' ? '100%' : '100vw',
 						height: '100%',
-						position: currentView === 'onboarding' ? 'relative' : 'absolute',
-						left: currentView === 'onboarding' ? 'auto' : '50%',
-						transform: currentView === 'onboarding' ? 'none' : 'translateX(-50%)',
-						padding: currentView === 'onboarding' ? '0' : '0 16px',
+						position: currentView === 'onboarding' || currentView === 'encounter' ? 'relative' : 'absolute',
+						left: currentView === 'onboarding' || currentView === 'encounter' ? 'auto' : '50%',
+						transform: currentView === 'onboarding' || currentView === 'encounter' ? 'none' : 'translateX(-50%)',
+						padding: currentView === 'onboarding' || currentView === 'encounter' ? '0' : '0 16px',
 						boxSizing: 'border-box',
 					}}
 				>
 					{currentView === '404' && <NotFoundPage />}
 					{currentView === 'home' && <HomePage />}
-					{currentView === 'encounter' && (
-						<BattleGrid
-							disabled={dragState.type !== 'none'}
-							onStartCharacterDrag={handleStartCharacterDrag}
-							dragState={dragState}
-						/>
-					)}
+					{currentView === 'encounters' && <EncountersPage initialEncounterId={null} />}
+					{currentView === 'encounter' && <EncountersPage initialEncounterId={initialEncounterId} />}
 					{currentView === 'character-sheets' && (
 						<CharacterSheetsPage
 							onNavigateToCharacterSheet={Navigator.toCharacterSheet}

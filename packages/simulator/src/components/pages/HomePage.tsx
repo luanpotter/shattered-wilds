@@ -29,9 +29,9 @@ export const HomePage: React.FC = () => {
 				/>
 				<MenuCard
 					icon={FaMap}
-					title='Encounter'
+					title='Encounters'
 					description='Simulate combat encounters'
-					onClick={Navigator.toEncounter}
+					onClick={Navigator.toEncounters}
 				/>
 			</div>
 		</div>

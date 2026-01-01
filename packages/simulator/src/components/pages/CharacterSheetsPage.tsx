@@ -7,7 +7,6 @@ import { FaCirclePlay } from 'react-icons/fa6';
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
 import { Character, createNewCharacter } from '../../types/ui';
-import { findNextEmptyHexPosition } from '../../utils';
 import { importCharacterDataFromClipboard } from '../../utils/clipboard';
 import { PREDEFINED_CHARACTERS } from '../../utils/predefined-characters';
 import { Navigator } from '../../utils/routes';
@@ -72,8 +71,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 	};
 
 	const handleEmptyCharacterCreation = () => {
-		const hexPosition = findNextEmptyHexPosition(characters);
-		openCharacterCreationModal({ hexPosition });
+		openCharacterCreationModal({});
 		setShowCreateDropdown(false);
 	};
 
@@ -83,7 +81,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 	};
 
 	const handleImportFromClipboard = async () => {
-		const result = await importCharacterDataFromClipboard(characters);
+		const result = await importCharacterDataFromClipboard();
 		if (typeof result === 'string') {
 			setImportError(result);
 		} else {
@@ -99,7 +97,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 			if (currentCharacters.find(c => c.props.name === characterProps.name)) {
 				return;
 			}
-			const character = createNewCharacter({ characters: currentCharacters, props: characterProps });
+			const character = createNewCharacter({ props: characterProps });
 			currentCharacters.push(character); // make sure the next character gets a fresh position
 			addCharacter(character);
 		});
