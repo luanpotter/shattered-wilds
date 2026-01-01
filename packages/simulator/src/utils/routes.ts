@@ -1,4 +1,11 @@
-export type ViewType = '404' | 'simulator' | 'character-sheets' | 'onboarding' | 'print-sheet' | 'print-actions';
+export type ViewType =
+	| '404'
+	| 'home'
+	| 'encounter'
+	| 'character-sheets'
+	| 'onboarding'
+	| 'print-sheet'
+	| 'print-actions';
 
 export interface RouteState {
 	view: ViewType;
@@ -7,7 +14,7 @@ export interface RouteState {
 
 export const Navigator = {
 	parseRoute(): RouteState {
-		const hash = window.location.hash.slice(1); // Remove the # prefix
+		const hash = window.location.hash.slice(1);
 
 		if (hash === '/characters' || hash.startsWith('/characters/')) {
 			const matchPrint = hash.match(/^\/characters\/(.+)\/print$/);
@@ -25,6 +32,10 @@ export const Navigator = {
 			return { view: '404' };
 		}
 
+		if (hash === '/encounter') {
+			return { view: 'encounter' };
+		}
+
 		if (hash === '/print/actions') {
 			return { view: 'print-actions' };
 		}
@@ -33,11 +44,15 @@ export const Navigator = {
 			return { view: 'onboarding' };
 		}
 
-		return { view: 'simulator' };
+		return { view: 'home' };
 	},
 
-	toSimulator(): void {
+	toHome(): void {
 		window.location.hash = '#/';
+	},
+
+	toEncounter(): void {
+		window.location.hash = '#/encounter';
 	},
 
 	toCharacterSheets(): void {

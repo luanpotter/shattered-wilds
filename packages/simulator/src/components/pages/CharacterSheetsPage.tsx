@@ -1,7 +1,7 @@
 import { CharacterSheet, getRecordValues } from '@shattered-wilds/commons';
 import React, { useEffect, useRef, useState } from 'react';
 import { IconType } from 'react-icons';
-import { FaArrowLeft, FaChevronDown, FaClipboard, FaEye, FaPlus, FaTrash } from 'react-icons/fa';
+import { FaChevronDown, FaClipboard, FaEye, FaPlus, FaTrash } from 'react-icons/fa';
 import { FaCirclePlay } from 'react-icons/fa6';
 
 import { useModals } from '../../hooks/useModals';
@@ -218,10 +218,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 						alignItems: 'center',
 					}}
 				>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-						<Button onClick={Navigator.toSimulator} icon={FaArrowLeft} title='Back to Simulator' />
-						<h2 style={{ margin: 0 }}>Character Sheets</h2>
-					</div>
+					<h2 style={{ margin: 0 }}>Character Sheets</h2>
 					<div style={{ display: 'flex', gap: '1rem' }}>
 						<div ref={dropdownRef} style={{ position: 'relative' }}>
 							<button

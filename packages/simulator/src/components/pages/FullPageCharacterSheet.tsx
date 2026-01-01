@@ -148,7 +148,6 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 				}}
 			>
 				<div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-					<Button onClick={Navigator.toSimulator} icon={FaArrowLeft} title='Back to Simulator' />
 					<Button onClick={onBack} icon={FaArrowLeft} title='Back to List' />
 					<h2 style={{ margin: 0, fontSize: '1.5rem' }}>{character.props.name}&apos;s Character Sheet</h2>
 				</div>

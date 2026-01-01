@@ -4,6 +4,7 @@ import { FaCrosshairs, FaEdit, FaHome, FaPlay, FaTimes, FaUsers } from 'react-ic
 import { BattleGrid } from './components/HexGrid';
 import { ModalRenderer } from './components/ModalRenderer';
 import { CharacterSheetsPage } from './components/pages/CharacterSheetsPage';
+import { HomePage } from './components/pages/HomePage';
 import { NotFoundPage } from './components/pages/NotFoundPage';
 import { OnboardingPage } from './components/pages/OnboardingPage';
 import { PrintFriendlyActions } from './components/pages/PrintFriendlyActions';
@@ -29,6 +30,8 @@ const App = (): React.ReactElement => {
 	const toggleEditMode = useStore(state => state.toggleEditMode);
 	const modals = useStore(state => state.modals);
 	const { openCharacterListModal, closeAllModals, updateModal } = useModals();
+
+	const isEncounterView = currentView === 'encounter';
 
 	// Handle browser navigation (back/forward buttons)
 	useEffect(() => {
@@ -206,15 +209,19 @@ const App = (): React.ReactElement => {
 						>
 							<h1 style={{ margin: 0 }}>D12 Simulator</h1>
 							<div style={{ display: 'flex', gap: '1rem' }}>
-								<Button onClick={() => (window.location.href = '/')} icon={FaHome} title='Back to Site' />
-								<Button onClick={handleOpenCharacterList} icon={FaUsers} title='Characters' />
-								<Button
-									onClick={toggleEditMode}
-									icon={editMode ? FaPlay : FaEdit}
-									title={editMode ? 'Switch to Play' : 'Switch to Edit'}
-								/>
-								<Button onClick={handleRecenter} icon={FaCrosshairs} title='Re-center' />
-								<Button onClick={handleCloseAllModals} icon={FaTimes} title='Close All' />
+								<Button onClick={Navigator.toHome} icon={FaHome} title='Home' />
+								{isEncounterView && (
+									<>
+										<Button onClick={handleOpenCharacterList} icon={FaUsers} title='Characters' />
+										<Button
+											onClick={toggleEditMode}
+											icon={editMode ? FaPlay : FaEdit}
+											title={editMode ? 'Switch to Play' : 'Switch to Edit'}
+										/>
+										<Button onClick={handleRecenter} icon={FaCrosshairs} title='Re-center' />
+										<Button onClick={handleCloseAllModals} icon={FaTimes} title='Close All' />
+									</>
+								)}
 							</div>
 						</div>
 					</div>
@@ -239,7 +246,8 @@ const App = (): React.ReactElement => {
 					}}
 				>
 					{currentView === '404' && <NotFoundPage />}
-					{currentView === 'simulator' && (
+					{currentView === 'home' && <HomePage />}
+					{currentView === 'encounter' && (
 						<BattleGrid
 							disabled={dragState.type !== 'none'}
 							onStartCharacterDrag={handleStartCharacterDrag}
