@@ -122,6 +122,10 @@ export type Modal = BaseModal &
 				onConfirm: () => void;
 				onCancel: () => void;
 		  }
+		| {
+				type: 'encounter-config';
+				encounterId: string;
+		  }
 	);
 
 export interface Character {

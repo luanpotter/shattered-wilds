@@ -1,12 +1,11 @@
 import React from 'react';
-import { FaArrowLeft, FaCrosshairs, FaEdit, FaPlay, FaTimes } from 'react-icons/fa';
+import { FaArrowLeft, FaCog, FaCrosshairs, FaEdit, FaPlay, FaTimes } from 'react-icons/fa';
 
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
 import { Character, HexPosition } from '../../types/ui';
 import { BattleGrid } from '../HexGrid';
 import { Button } from '../shared/Button';
-import { AddCharacterDropdown } from '../shared/FilterableCharacterSelect';
 
 interface EncounterViewProps {
 	encounterId: string;
@@ -20,7 +19,7 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 	const editMode = useStore(state => state.editMode);
 	const toggleEditMode = useStore(state => state.toggleEditMode);
 	const updateEncounter = useStore(state => state.updateEncounter);
-	const { closeAllModals } = useModals();
+	const { closeAllModals, openEncounterConfigModal } = useModals();
 
 	const encounter = encounters.find(e => e.id === encounterId);
 
@@ -51,16 +50,6 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 		});
 	};
 
-	const addCharacterToEncounter = (characterId: string, pos: HexPosition) => {
-		updateEncounter({
-			...encounter,
-			characterPositions: {
-				...encounter.characterPositions,
-				[characterId]: pos,
-			},
-		});
-	};
-
 	const handleRecenter = () => {
 		updateGridState({
 			scale: 1,
@@ -72,7 +61,9 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 		closeAllModals();
 	};
 
-	const availableCharacters = characters.filter(c => !encounter.characterPositions[c.id]);
+	const handleOpenConfig = () => {
+		openEncounterConfigModal({ encounterId });
+	};
 
 	return (
 		<div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -96,33 +87,11 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 						icon={editMode ? FaPlay : FaEdit}
 						title={editMode ? 'Play Mode' : 'Edit Mode'}
 					/>
+					<Button onClick={handleOpenConfig} icon={FaCog} title='Config' />
 					<Button onClick={handleRecenter} icon={FaCrosshairs} title='Re-center' />
 					<Button onClick={handleCloseAllModals} icon={FaTimes} title='Close All' />
 				</div>
 			</div>
-
-			{editMode && (
-				<div
-					style={{
-						padding: '0.5rem 1rem',
-						borderBottom: '1px solid var(--text)',
-						display: 'flex',
-						alignItems: 'center',
-						gap: '0.5rem',
-						flexShrink: 0,
-					}}
-				>
-					<AddCharacterDropdown
-						characters={availableCharacters}
-						onAdd={characterId => {
-							const usedPositions = Object.values(encounter.characterPositions);
-							const pos = findNextEmptyPosition(usedPositions);
-							addCharacterToEncounter(characterId, pos);
-						}}
-						placeholder='Add character to encounter...'
-					/>
-				</div>
-			)}
 
 			<div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
 				<BattleGrid
@@ -133,40 +102,4 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 			</div>
 		</div>
 	);
-};
-
-const findNextEmptyPosition = (usedPositions: HexPosition[], startQ = 0, startR = 0): HexPosition => {
-	const isOccupied = (q: number, r: number) => usedPositions.some(p => p.q === q && p.r === r);
-
-	if (!isOccupied(startQ, startR)) {
-		return { q: startQ, r: startR };
-	}
-
-	const directions = [
-		{ q: 1, r: 0 },
-		{ q: 0, r: 1 },
-		{ q: -1, r: 1 },
-		{ q: -1, r: 0 },
-		{ q: 0, r: -1 },
-		{ q: 1, r: -1 },
-	];
-
-	let q = startQ;
-	let r = startR;
-	let radius = 1;
-
-	while (radius < 20) {
-		for (let side = 0; side < 6; side++) {
-			for (let step = 0; step < radius; step++) {
-				q += directions[side].q;
-				r += directions[side].r;
-				if (!isOccupied(q, r)) {
-					return { q, r };
-				}
-			}
-		}
-		radius++;
-	}
-
-	return { q: 0, r: 0 };
 };

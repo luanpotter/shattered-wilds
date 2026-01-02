@@ -19,6 +19,7 @@ import {
 	ConfirmationModal,
 	ConsumeResourceModal,
 	DiceRollModal,
+	EncounterConfigModal,
 	FeatParameterSetupModal,
 	FeatSelectionModal,
 	FeatsModal,
@@ -234,6 +235,9 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 						}}
 					/>
 				);
+			}
+			case 'encounter-config': {
+				return <EncounterConfigModal encounterId={modal.encounterId} onClose={onClose} />;
 			}
 			default:
 				return <div>Unknown modal type</div>;

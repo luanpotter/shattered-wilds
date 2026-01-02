@@ -369,6 +369,14 @@ export function useModals() {
 		});
 	};
 
+	const openEncounterConfigModal = ({ encounterId }: { encounterId: string }) => {
+		addModal({
+			title: 'Encounter Config',
+			type: 'encounter-config',
+			encounterId,
+		});
+	};
+
 	return {
 		openCharacterListModal,
 		openCharacterCreationModal,
@@ -388,6 +396,7 @@ export function useModals() {
 		openAddConditionModal,
 		openAddConsequenceModal,
 		openConfirmationModal,
+		openEncounterConfigModal,
 		closeModal,
 		closeAllModals,
 		updateModal,

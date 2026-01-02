@@ -11,6 +11,7 @@ export { ClassSetupModal } from './ClassSetupModal';
 export { ConfirmationModal } from './ConfirmationModal';
 export { ConsumeResourceModal } from './ConsumeResourceModal';
 export { DiceRollModal } from './DiceRollModal';
+export { EncounterConfigModal } from './EncounterConfigModal';
 export { FeatsModal } from './FeatsModal';
 export { FeatSelectionModal } from './FeatSelectionModal';
 export { FeatParameterSetupModal } from './FeatParameterSetupModal';
