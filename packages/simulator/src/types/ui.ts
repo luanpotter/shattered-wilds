@@ -13,7 +13,7 @@ import {
 export type { Point, HexPosition, HexVertex };
 
 export type MapMode = 'map' | 'encounter';
-export type MapTool = 'select' | 'line' | 'area';
+export type MapTool = 'select' | 'line' | 'area' | 'stamp';
 
 export interface LineDrawing {
 	type: 'line';
@@ -28,7 +28,14 @@ export interface AreaDrawing {
 	color: string;
 }
 
-export type Drawing = LineDrawing | AreaDrawing;
+export interface StampDrawing {
+	type: 'stamp';
+	hex: HexPosition;
+	icon: string;
+	color: string;
+}
+
+export type Drawing = LineDrawing | AreaDrawing | StampDrawing;
 
 export interface GameMap {
 	size: { width: number; height: number };
@@ -179,6 +186,11 @@ export type Modal = BaseModal &
 				type: 'color-picker';
 				currentColor: string;
 				onColorChange: (color: string) => void;
+		  }
+		| {
+				type: 'icon-selection';
+				currentIcon: string | null;
+				onSelect: (icon: string) => void;
 		  }
 	);
 

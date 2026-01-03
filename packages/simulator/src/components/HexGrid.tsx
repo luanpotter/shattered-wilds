@@ -12,6 +12,8 @@ import {
 	getHexNeighbors,
 } from '@shattered-wilds/commons';
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
+import { IconType } from 'react-icons';
+import * as Fa6Icons from 'react-icons/fa6';
 
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
@@ -32,6 +34,14 @@ import {
 
 import { CharacterToken } from './CharacterToken';
 import { TokenContextMenu } from './TokenContextMenu';
+
+// Dynamic icon loader from fa6
+const renderFaIcon = (iconName: string): React.ReactNode => {
+	const icons = Fa6Icons as Record<string, IconType>;
+	const IconComponent = icons[iconName];
+	if (!IconComponent) return null;
+	return <IconComponent />;
+};
 
 // Pre-computed hex path for pointy-top hexagon with radius 5
 const HEX_PATH = 'M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z';
@@ -222,7 +232,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	const gridState = useStore(state => state.gridState);
 	const updateGridState = useStore(state => state.updateGridState);
 	const modals = useStore(state => state.modals);
-	const { openCharacterSheetModal, openAttackActionModal, openMeasureModal } = useModals();
+	const { openCharacterSheetModal, openAttackActionModal, openMeasureModal, openIconSelectionModal } = useModals();
 	const editMode = useStore(state => state.editMode);
 	const [dragState, setDragState] = useState<DragState>({ type: 'none' });
 	const [ghostPosition, setGhostPosition] = useState<Point | null>(null);
@@ -251,11 +261,14 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	});
 	const [areaToolState, setAreaToolState] = useState<AreaToolState | null>(null);
 	const [areaToolHoveredHex, setAreaToolHoveredHex] = useState<HexPosition | null>(null);
+	const [stampToolHoveredHex, setStampToolHoveredHex] = useState<HexPosition | null>(null);
+	const [lastStampIcon, setLastStampIcon] = useState<string | null>(null);
 
 	// Tool helpers
 	const isLineTool = isMapMode && selectedTool === 'line';
 	const isSelectTool = isMapMode && selectedTool === 'select';
 	const isAreaTool = isMapMode && selectedTool === 'area';
+	const isStampTool = isMapMode && selectedTool === 'stamp';
 
 	const findCharacterAtHex = useCallback(
 		(q: number, r: number): Character | undefined => {
@@ -313,6 +326,12 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 						if (dist <= threshold) {
 							return i;
 						}
+					}
+				}
+				if (drawing.type === 'stamp') {
+					const clickedHex = pixelToAxial(point.x, point.y);
+					if (drawing.hex.q === clickedHex.q && drawing.hex.r === clickedHex.r) {
+						return i;
 					}
 				}
 			}
@@ -392,6 +411,12 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							result.add(index);
 							break;
 						}
+					}
+				}
+				if (drawing.type === 'stamp') {
+					const { x, y } = axialToPixel(drawing.hex.q, drawing.hex.r);
+					if (pointInBox({ x, y })) {
+						result.add(index);
 					}
 				}
 			});
@@ -690,17 +715,15 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							}
 							setSelectToolState(prev => ({ ...prev, selectedIndices: newSelected }));
 						} else if (isAlreadySelected) {
-							const nearestVertex = findNearestVertex(svgCoords, 10);
-							if (nearestVertex) {
-								setSelectToolState(prev => ({ ...prev, dragStart: nearestVertex, dragCurrent: nearestVertex }));
-							}
+							// Store raw coordinates - each drawing type will snap to its own lattice
+							setSelectToolState(prev => ({ ...prev, dragStart: svgCoords, dragCurrent: svgCoords }));
 						} else {
-							const nearestVertex = findNearestVertex(svgCoords, 10);
+							// Store raw coordinates - each drawing type will snap to its own lattice
 							setSelectToolState(prev => ({
 								...prev,
 								selectedIndices: new Set([clickedDrawingIndex]),
-								dragStart: nearestVertex,
-								dragCurrent: nearestVertex,
+								dragStart: svgCoords,
+								dragCurrent: svgCoords,
 							}));
 						}
 					} else {
@@ -726,6 +749,76 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 						previewHexes: [centerHex],
 					});
 				}
+			}
+
+			// Handle stamp tool left click
+			if (isStampTool && svgRef.current) {
+				const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
+				if (svgCoords) {
+					const hex = pixelToAxial(svgCoords.x, svgCoords.y);
+					if (lastStampIcon) {
+						// Place the previous icon
+						updateMap({
+							...map,
+							drawings: [
+								...map.drawings,
+								{
+									type: 'stamp',
+									hex,
+									icon: lastStampIcon,
+									color: selectedColor,
+								},
+							],
+						});
+					} else {
+						// Open selection modal
+						openIconSelectionModal({
+							currentIcon: null,
+							onSelect: (icon: string) => {
+								setLastStampIcon(icon);
+								updateMap({
+									...map,
+									drawings: [
+										...map.drawings,
+										{
+											type: 'stamp',
+											hex,
+											icon,
+											color: selectedColor,
+										},
+									],
+								});
+							},
+						});
+					}
+				}
+			}
+		}
+
+		// Handle stamp tool right click
+		if (e.button === 2 && isStampTool && svgRef.current) {
+			e.preventDefault();
+			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
+			if (svgCoords) {
+				const hex = pixelToAxial(svgCoords.x, svgCoords.y);
+				openIconSelectionModal({
+					currentIcon: lastStampIcon,
+					onSelect: (icon: string) => {
+						setLastStampIcon(icon);
+						updateMap({
+							...map,
+							drawings: [
+								...map.drawings,
+								{
+									type: 'stamp',
+									hex,
+									icon,
+									color: selectedColor,
+								},
+							],
+						});
+					},
+				});
 			}
 		}
 		// For middle and right click, do not block default behavior
@@ -762,44 +855,59 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					selectionBox: null,
 				}));
 			} else if (selectToolState.dragStart && selectToolState.dragCurrent) {
-				const dx = selectToolState.dragCurrent.x - selectToolState.dragStart.x;
-				const dy = selectToolState.dragCurrent.y - selectToolState.dragStart.y;
-				if (dx !== 0 || dy !== 0) {
-					const newDrawings = map.drawings.map((drawing, i) => {
-						if (!selectToolState.selectedIndices.has(i)) return drawing;
-						if (drawing.type === 'line') {
-							// Apply offset and snap to nearest valid vertices
-							const rawStart = { x: drawing.start.x + dx, y: drawing.start.y + dy };
-							const rawEnd = { x: drawing.end.x + dx, y: drawing.end.y + dy };
-							const newStart = findNearestVertex(rawStart, 10) ?? drawing.start;
-							const newEnd = findNearestVertex(rawEnd, 10) ?? drawing.end;
-							return {
-								...drawing,
-								start: newStart,
-								end: newEnd,
-							};
-						}
-						if (drawing.type === 'area') {
-							// For area drawings, we move by whole hex offsets
-							// Calculate the hex offset from the pixel offset
-							const startHex = pixelToAxial(selectToolState.dragStart!.x, selectToolState.dragStart!.y);
-							const endHex = pixelToAxial(selectToolState.dragCurrent!.x, selectToolState.dragCurrent!.y);
-							const dq = endHex.q - startHex.q;
-							const dr = endHex.r - startHex.r;
-							if (dq !== 0 || dr !== 0) {
-								return {
-									...drawing,
-									hexes: drawing.hexes.map(hex => ({
-										q: hex.q + dq,
-										r: hex.r + dr,
-									})),
-								};
-							}
-						}
-						return drawing;
-					});
-					updateMap({ ...map, drawings: newDrawings });
-				}
+				const newDrawings = map.drawings.map((drawing, i) => {
+					if (!selectToolState.selectedIndices.has(i)) return drawing;
+					if (drawing.type === 'line') {
+						// Snap to vertex lattice for lines
+						const startVertex = findNearestVertex(selectToolState.dragStart!, 10) ?? selectToolState.dragStart!;
+						const endVertex = findNearestVertex(selectToolState.dragCurrent!, 10) ?? selectToolState.dragCurrent!;
+						const dx = endVertex.x - startVertex.x;
+						const dy = endVertex.y - startVertex.y;
+						if (dx === 0 && dy === 0) return drawing;
+						// Apply offset and snap to nearest valid vertices
+						const rawStart = { x: drawing.start.x + dx, y: drawing.start.y + dy };
+						const rawEnd = { x: drawing.end.x + dx, y: drawing.end.y + dy };
+						const newStart = findNearestVertex(rawStart, 10) ?? drawing.start;
+						const newEnd = findNearestVertex(rawEnd, 10) ?? drawing.end;
+						return {
+							...drawing,
+							start: newStart,
+							end: newEnd,
+						};
+					}
+					if (drawing.type === 'area') {
+						// Snap to hex center lattice for areas
+						const startHex = pixelToAxial(selectToolState.dragStart!.x, selectToolState.dragStart!.y);
+						const endHex = pixelToAxial(selectToolState.dragCurrent!.x, selectToolState.dragCurrent!.y);
+						const dq = endHex.q - startHex.q;
+						const dr = endHex.r - startHex.r;
+						if (dq === 0 && dr === 0) return drawing;
+						return {
+							...drawing,
+							hexes: drawing.hexes.map(hex => ({
+								q: hex.q + dq,
+								r: hex.r + dr,
+							})),
+						};
+					}
+					if (drawing.type === 'stamp') {
+						// Snap to hex center lattice for stamps
+						const startHex = pixelToAxial(selectToolState.dragStart!.x, selectToolState.dragStart!.y);
+						const endHex = pixelToAxial(selectToolState.dragCurrent!.x, selectToolState.dragCurrent!.y);
+						const dq = endHex.q - startHex.q;
+						const dr = endHex.r - startHex.r;
+						if (dq === 0 && dr === 0) return drawing;
+						return {
+							...drawing,
+							hex: {
+								q: drawing.hex.q + dq,
+								r: drawing.hex.r + dr,
+							},
+						};
+					}
+					return drawing;
+				});
+				updateMap({ ...map, drawings: newDrawings });
 				setSelectToolState(prev => ({ ...prev, dragStart: null, dragCurrent: null }));
 			}
 		}
@@ -901,10 +1009,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 						selectionBox: prev.selectionBox ? { ...prev.selectionBox, end: svgCoords } : null,
 					}));
 				} else if (selectToolState.dragStart && e.buttons === 1) {
-					const nearestVertex = findNearestVertex(svgCoords, 10);
-					if (nearestVertex) {
-						setSelectToolState(prev => ({ ...prev, dragCurrent: nearestVertex }));
-					}
+					// Store raw coordinates - each drawing type will snap to its own lattice
+					setSelectToolState(prev => ({ ...prev, dragCurrent: svgCoords }));
 				}
 			}
 		}
@@ -928,6 +1034,18 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		} else if (!isAreaTool && areaToolHoveredHex) {
 			// Clear hovered hex when not in area tool mode
 			setAreaToolHoveredHex(null);
+		}
+
+		// Handle stamp tool hover
+		if (isStampTool && svgRef.current) {
+			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
+			if (svgCoords) {
+				const hoveredHex = pixelToAxial(svgCoords.x, svgCoords.y);
+				setStampToolHoveredHex(hoveredHex);
+			}
+		} else if (!isStampTool && stampToolHoveredHex) {
+			// Clear hovered hex when not in stamp tool mode
+			setStampToolHoveredHex(null);
 		}
 
 		// Handle measure hover
@@ -1124,7 +1242,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							const isSelected = selectToolState.selectedIndices.has(index);
 							const isDragging =
 								isSelected && selectToolState.dragStart !== null && selectToolState.dragCurrent !== null;
-							// Calculate hex offset for dragging
+							// Calculate hex offset for dragging - snap to hex center lattice
 							let dq = 0;
 							let dr = 0;
 							if (isDragging) {
@@ -1239,6 +1357,68 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 								</g>
 							);
 						}
+						if (drawing.type === 'stamp') {
+							const isSelected = selectToolState.selectedIndices.has(index);
+							const isDragging =
+								isSelected && selectToolState.dragStart !== null && selectToolState.dragCurrent !== null;
+							// Calculate hex offset for dragging - snap to hex center lattice
+							let dq = 0;
+							let dr = 0;
+							if (isDragging) {
+								const startHex = pixelToAxial(selectToolState.dragStart!.x, selectToolState.dragStart!.y);
+								const endHex = pixelToAxial(selectToolState.dragCurrent!.x, selectToolState.dragCurrent!.y);
+								dq = endHex.q - startHex.q;
+								dr = endHex.r - startHex.r;
+							}
+							const adjustedHex = { q: drawing.hex.q + dq, r: drawing.hex.r + dr };
+							const center = axialToPixel(adjustedHex.q, adjustedHex.r, 10);
+							// Size is 40% of hex height (which is 2 * hexRadius * sqrt(3)/2 for pointy-top)
+							const hexHeight = 10 * Math.sqrt(3);
+							const iconSize = hexHeight * 0.4;
+							// Scale factor: we render at 100px in CSS and scale down to iconSize in SVG units
+							const cssSize = 100;
+							const scale = iconSize / cssSize;
+							return (
+								<g key={index}>
+									{/* Selection circle highlight */}
+									{isSelected && (
+										<circle
+											cx={center.x}
+											cy={center.y}
+											r={iconSize / 2 + 1}
+											fill='none'
+											stroke='var(--accent)'
+											strokeWidth='0.6'
+											opacity={0.5}
+										/>
+									)}
+									{/* Icon rendered via foreignObject - scale down from CSS pixels to SVG units */}
+									<g transform={`translate(${center.x}, ${center.y}) scale(${scale})`}>
+										<foreignObject
+											x={-cssSize / 2}
+											y={-cssSize / 2}
+											width={cssSize}
+											height={cssSize}
+											style={{ pointerEvents: 'none', opacity: isDragging ? 0.6 : 1 }}
+										>
+											<div
+												style={{
+													width: cssSize,
+													height: cssSize,
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'center',
+													color: drawing.color,
+													fontSize: cssSize * 0.8,
+												}}
+											>
+												{renderFaIcon(drawing.icon)}
+											</div>
+										</foreignObject>
+									</g>
+								</g>
+							);
+						}
 						return null;
 					})}
 				</g>
@@ -1348,6 +1528,26 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 										/>
 									))}
 								</>
+							);
+						})()}
+					</g>
+				)}
+
+				{/* Stamp Tool Preview Layer */}
+				{stampToolHoveredHex && isStampTool && (
+					<g style={{ pointerEvents: 'none' }}>
+						{(() => {
+							const vertices = getHexVertices(stampToolHoveredHex.q, stampToolHoveredHex.r, 10);
+							const pathData = `M${vertices.map(v => `${v.x},${v.y}`).join(' L')} Z`;
+							return (
+								<path
+									d={pathData}
+									fill='var(--accent)'
+									fillOpacity={0.1}
+									stroke='var(--accent)'
+									strokeWidth='0.3'
+									strokeOpacity={0.7}
+								/>
 							);
 						})()}
 					</g>

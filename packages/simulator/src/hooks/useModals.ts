@@ -392,6 +392,21 @@ export function useModals() {
 		});
 	};
 
+	const openIconSelectionModal = ({
+		currentIcon,
+		onSelect,
+	}: {
+		currentIcon: string | null;
+		onSelect: (icon: string) => void;
+	}) => {
+		addModal({
+			title: 'Pick Icon',
+			type: 'icon-selection',
+			currentIcon,
+			onSelect,
+		});
+	};
+
 	return {
 		openCharacterListModal,
 		openCharacterCreationModal,
@@ -413,6 +428,7 @@ export function useModals() {
 		openConfirmationModal,
 		openEncounterConfigModal,
 		openColorPickerModal,
+		openIconSelectionModal,
 		closeModal,
 		closeAllModals,
 		updateModal,

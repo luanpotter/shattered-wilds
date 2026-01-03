@@ -9,6 +9,7 @@ import {
 	FaMousePointer,
 	FaPenAlt,
 	FaPlay,
+	FaStamp,
 	FaTimes,
 } from 'react-icons/fa';
 import { FaX } from 'react-icons/fa6';
@@ -132,6 +133,12 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 					icon={FaFillDrip}
 					tooltip='Area Tool'
 					selected={selectedTool === 'area'}
+				/>
+				<Button
+					onClick={() => setSelectedTool('stamp')}
+					icon={FaStamp}
+					tooltip='Stamp Tool'
+					selected={selectedTool === 'stamp'}
 				/>
 				<div style={{ width: '1px', background: 'var(--text)', margin: '0 4px' }} />
 				<button

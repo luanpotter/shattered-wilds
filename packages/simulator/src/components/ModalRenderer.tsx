@@ -24,7 +24,8 @@ import {
 	FeatParameterSetupModal,
 	FeatSelectionModal,
 	FeatsModal,
-	ItemModal,
+	IconSelectionModal,
+	AddItemModal,
 	MeasureModal,
 	ModalWrapper,
 	RaceSetupModal,
@@ -204,7 +205,7 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 				);
 			}
 			case 'item': {
-				return <ItemModal characterId={modal.characterId} itemIndex={modal.itemIndex} onClose={onClose} />;
+				return <AddItemModal characterId={modal.characterId} itemIndex={modal.itemIndex} onClose={onClose} />;
 			}
 			case 'add-condition': {
 				const character = characters.find(c => c.id === modal.characterId);
@@ -242,6 +243,9 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 			}
 			case 'color-picker': {
 				return <ColorPickerModal currentColor={modal.currentColor} onSelect={modal.onColorChange} onClose={onClose} />;
+			}
+			case 'icon-selection': {
+				return <IconSelectionModal currentIcon={modal.currentIcon} onSelect={modal.onSelect} onClose={onClose} />;
 			}
 			default:
 				return <div>Unknown modal type</div>;

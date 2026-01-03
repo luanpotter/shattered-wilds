@@ -16,6 +16,7 @@ export { EncounterConfigModal } from './EncounterConfigModal';
 export { FeatsModal } from './FeatsModal';
 export { FeatSelectionModal } from './FeatSelectionModal';
 export { FeatParameterSetupModal } from './FeatParameterSetupModal';
+export { IconSelectionModal } from './IconSelectionModal';
 export { MeasureModal } from './MeasureModal';
-export { AddItemModal as ItemModal } from './AddItemModal';
+export { AddItemModal } from './AddItemModal';
 export { default as RaceSetupModal } from './RaceSetupModal';
