@@ -14,7 +14,7 @@ import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react'
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
 import { getBasicAttacksFor } from '../types/grid-actions';
-import { DragState, Point, Character, HexPosition, MapMode, MapTool, LineToolState } from '../types/ui';
+import { DragState, Point, Character, HexPosition, MapMode, MapTool, LineToolState, HexVertex } from '../types/ui';
 
 import { CharacterToken } from './CharacterToken';
 import { TokenContextMenu } from './TokenContextMenu';
@@ -205,6 +205,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		hoveredPosition?: HexPosition;
 	} | null>(null);
 	const [lineToolState, setLineToolState] = useState<LineToolState | null>(null);
+	const [lineToolHoveredVertex, setLineToolHoveredVertex] = useState<HexVertex | null>(null);
 
 	// Line tool helper: check if we're actively using the line tool
 	const isLineTool = isMapMode && selectedTool === 'line';
@@ -569,6 +570,16 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					);
 				}
 			}
+		} else if (isLineTool && !lineToolState && svgRef.current) {
+			// Track hovered vertex before drawing starts
+			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
+			if (svgCoords) {
+				const nearestVertex = findNearestVertex(svgCoords, 10);
+				setLineToolHoveredVertex(nearestVertex);
+			}
+		} else if (!isLineTool && lineToolHoveredVertex) {
+			// Clear hovered vertex when not in line tool mode
+			setLineToolHoveredVertex(null);
 		}
 
 		// Handle measure hover
@@ -758,26 +769,37 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				</g>
 
 				{/* Line Tool Preview Layer */}
-				{lineToolState && lineToolState.pathVertices.length > 1 && (
+				{lineToolState && lineToolState.pathVertices.length >= 1 && (
 					<g style={{ pointerEvents: 'none' }}>
 						<polyline
 							points={lineToolState.pathVertices.map(v => `${v.x},${v.y}`).join(' ')}
 							fill='none'
 							stroke='var(--accent)'
-							strokeWidth='1'
+							strokeWidth='0.4'
 							strokeLinecap='round'
 							strokeLinejoin='round'
 						/>
 						{/* Start vertex marker */}
-						<circle cx={lineToolState.startVertex.x} cy={lineToolState.startVertex.y} r='1.5' fill='var(--accent)' />
+						<circle cx={lineToolState.startVertex.x} cy={lineToolState.startVertex.y} r='0.6' fill='var(--accent)' />
 						{/* End vertex marker */}
 						<circle
 							cx={lineToolState.currentEndVertex.x}
 							cy={lineToolState.currentEndVertex.y}
-							r='1.5'
+							r='0.6'
 							fill='var(--accent)'
 						/>
 					</g>
+				)}
+
+				{/* Line Tool Hovered Vertex Preview (before drawing starts) */}
+				{isLineTool && !lineToolState && lineToolHoveredVertex && (
+					<circle
+						cx={lineToolHoveredVertex.x}
+						cy={lineToolHoveredVertex.y}
+						r='0.6'
+						fill='var(--accent)'
+						style={{ pointerEvents: 'none' }}
+					/>
 				)}
 
 				{/* Ghost Token Layer */}
