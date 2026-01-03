@@ -721,10 +721,15 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					const newDrawings = map.drawings.map((drawing, i) => {
 						if (!selectToolState.selectedIndices.has(i)) return drawing;
 						if (drawing.type === 'line') {
+							// Apply offset and snap to nearest valid vertices
+							const rawStart = { x: drawing.start.x + dx, y: drawing.start.y + dy };
+							const rawEnd = { x: drawing.end.x + dx, y: drawing.end.y + dy };
+							const newStart = findNearestVertex(rawStart, 10) ?? drawing.start;
+							const newEnd = findNearestVertex(rawEnd, 10) ?? drawing.end;
 							return {
 								...drawing,
-								start: { x: drawing.start.x + dx, y: drawing.start.y + dy },
-								end: { x: drawing.end.x + dx, y: drawing.end.y + dy },
+								start: newStart,
+								end: newEnd,
 							};
 						}
 						return drawing;
@@ -1018,8 +1023,11 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 								isSelected && selectToolState.dragStart !== null && selectToolState.dragCurrent !== null;
 							const offsetX = isDragging ? selectToolState.dragCurrent!.x - selectToolState.dragStart!.x : 0;
 							const offsetY = isDragging ? selectToolState.dragCurrent!.y - selectToolState.dragStart!.y : 0;
-							const adjustedStart = { x: drawing.start.x + offsetX, y: drawing.start.y + offsetY };
-							const adjustedEnd = { x: drawing.end.x + offsetX, y: drawing.end.y + offsetY };
+							// Apply offset and snap to nearest valid vertices
+							const rawStart = { x: drawing.start.x + offsetX, y: drawing.start.y + offsetY };
+							const rawEnd = { x: drawing.end.x + offsetX, y: drawing.end.y + offsetY };
+							const adjustedStart = isDragging ? (findNearestVertex(rawStart, 10) ?? rawStart) : drawing.start;
+							const adjustedEnd = isDragging ? (findNearestVertex(rawEnd, 10) ?? rawEnd) : drawing.end;
 							const pathVertices = findVertexPath(adjustedStart, adjustedEnd, 10);
 							return (
 								<g key={index}>
