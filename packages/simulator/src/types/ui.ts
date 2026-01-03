@@ -10,6 +10,9 @@ export interface HexPosition {
 	r: number;
 }
 
+export type MapMode = 'map' | 'encounter';
+export type MapTool = 'select' | 'line';
+
 export type DragType = 'none' | 'modal' | 'grid' | 'character';
 
 export interface DragState {

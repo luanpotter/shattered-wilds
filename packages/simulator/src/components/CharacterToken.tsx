@@ -8,6 +8,7 @@ export interface CharacterTokenProps {
 	onMouseEnter?: () => void;
 	onMouseLeave?: () => void;
 	isGhost?: boolean;
+	interactive?: boolean;
 }
 
 export const CharacterToken: React.FC<CharacterTokenProps> = ({
@@ -16,6 +17,7 @@ export const CharacterToken: React.FC<CharacterTokenProps> = ({
 	onMouseEnter,
 	onMouseLeave,
 	isGhost = false,
+	interactive = true,
 }) => {
 	const handleMouseDown = (e: React.MouseEvent) => {
 		if (onClick) {
@@ -43,7 +45,7 @@ export const CharacterToken: React.FC<CharacterTokenProps> = ({
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
 			style={{
-				cursor: isGhost ? 'grabbing' : 'grab',
+				cursor: isGhost ? 'grabbing' : interactive ? 'grab' : 'default',
 				opacity: isGhost ? 0.7 : 1,
 				pointerEvents: isGhost ? 'none' : 'auto',
 			}}

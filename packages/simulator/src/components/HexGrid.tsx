@@ -4,7 +4,7 @@ import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react'
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
 import { getBasicAttacksFor } from '../types/grid-actions';
-import { DragState, Point, Character, HexPosition } from '../types/ui';
+import { DragState, Point, Character, HexPosition, MapMode, MapTool } from '../types/ui';
 import { axialToPixel } from '../utils';
 
 import { CharacterToken } from './CharacterToken';
@@ -158,6 +158,8 @@ interface BattleGridProps {
 	getCharacterPosition: (characterId: string) => HexPosition | undefined;
 	updateCharacterPosition: (characterId: string, pos: HexPosition) => void;
 	mapSize: { width: number; height: number };
+	mapMode?: MapMode;
+	selectedTool?: MapTool;
 }
 
 export const BattleGrid: React.FC<BattleGridProps> = ({
@@ -165,7 +167,10 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	getCharacterPosition,
 	updateCharacterPosition,
 	mapSize,
+	mapMode = 'encounter',
+	selectedTool = 'select',
 }) => {
+	const isMapMode = mapMode === 'map';
 	const gridRef = useRef<HTMLDivElement>(null);
 	const svgRef = useRef<SVGSVGElement>(null);
 	const gridState = useStore(state => state.gridState);
@@ -327,11 +332,13 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	};
 
 	const handleCharacterMouseEnter = (character: Character) => {
+		if (isMapMode) {
+			return;
+		}
 		setHoveredCharacter(character);
 	};
 
 	const handleCharacterMouseLeave = () => {
-		// Only clear hover state if we're not dragging
 		if (dragState.type !== 'character') {
 			setHoveredCharacter(null);
 		}
@@ -363,6 +370,15 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	const handleCharacterMouseDown = (e: React.MouseEvent, character: Character) => {
 		if (e.button === 0) {
 			// Left click
+			if (isMapMode) {
+				// In map mode, handle based on selected tool
+				e.preventDefault();
+				e.stopPropagation();
+				// TODO: Handle map mode tool actions (select, line, etc.)
+				console.log(`Map mode: ${selectedTool} tool clicked on character`, character.id);
+				return;
+			}
+
 			if (attackState?.isSelectingTarget) {
 				// We're in attack mode - select this character as target
 				e.preventDefault();
@@ -408,6 +424,13 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			// Right click - handle based on mode
 			e.preventDefault();
 			e.stopPropagation();
+
+			if (isMapMode) {
+				// In map mode, right-click does not open token options
+				// TODO: Handle map mode right-click tool actions
+				console.log(`Map mode: right-click with ${selectedTool} tool on character`, character.id);
+				return;
+			}
 
 			if (measureState?.isSelectingTarget) {
 				// Cancel measure mode when right-clicking on character
@@ -599,6 +622,17 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	const handleGridRightClick = (e: React.MouseEvent) => {
 		e.preventDefault();
 
+		if (isMapMode) {
+			// In map mode, handle based on selected tool
+			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
+			if (svgCoords) {
+				const { q, r } = pixelToAxial(svgCoords.x, svgCoords.y);
+				// TODO: Handle map mode right-click tool actions on hex
+				console.log(`Map mode: right-click with ${selectedTool} tool on hex`, { q, r });
+			}
+			return;
+		}
+
 		if (measureState?.isSelectingTarget) {
 			// Cancel measure mode
 			setMeasureState(null);
@@ -640,6 +674,16 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					transform: `scale(${gridState.scale}) translate(${gridState.offset.x}px, ${gridState.offset.y}px)`,
 				}}
 				onClick={e => {
+					if (isMapMode) {
+						// In map mode, handle based on selected tool
+						const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
+						if (svgCoords) {
+							const { q, r } = pixelToAxial(svgCoords.x, svgCoords.y);
+							// TODO: Handle map mode left-click tool actions on hex
+							console.log(`Map mode: left-click with ${selectedTool} tool on hex`, { q, r });
+						}
+						return;
+					}
 					if (measureState?.isSelectingTarget) {
 						const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
 						if (svgCoords) {
@@ -653,7 +697,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				<StaticHexGrid width={mapSize.width} height={mapSize.height} />
 
 				{/* Movement Range Highlight Layer */}
-				{hoveredCharacter &&
+				{!isMapMode &&
+					hoveredCharacter &&
 					getCharacterPosition(hoveredCharacter.id) &&
 					!attackState?.isSelectingTarget &&
 					!measureState?.isSelectingTarget && (
@@ -710,6 +755,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 									onMouseEnter={() => handleCharacterMouseEnter(character)}
 									onMouseLeave={handleCharacterMouseLeave}
 									isGhost={dragState.type === 'character' && dragState.objectId === character.id}
+									interactive={!isMapMode}
 								/>
 							</g>
 						);

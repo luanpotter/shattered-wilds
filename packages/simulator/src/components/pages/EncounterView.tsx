@@ -14,7 +14,7 @@ import { FaX } from 'react-icons/fa6';
 
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
-import { Character, HexPosition } from '../../types/ui';
+import { Character, HexPosition, MapMode, MapTool } from '../../types/ui';
 import { BattleGrid } from '../HexGrid';
 import { Button } from '../shared/Button';
 
@@ -24,8 +24,8 @@ interface EncounterViewProps {
 }
 
 export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBack }) => {
-	const [mapMode, setMapMode] = useState<'map' | 'encounter'>('encounter');
-	const [selectedTool, setSelectedTool] = useState<'select' | 'line'>('select');
+	const [mapMode, setMapMode] = useState<MapMode>('encounter');
+	const [selectedTool, setSelectedTool] = useState<MapTool>('select');
 
 	const encounters = useStore(state => state.encounters);
 	const characters = useStore(state => state.characters);
@@ -146,6 +146,8 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 					getCharacterPosition={getCharacterPosition}
 					updateCharacterPosition={updateCharacterPosition}
 					mapSize={encounter.mapSize ?? { width: 10, height: 10 }}
+					mapMode={mapMode}
+					selectedTool={selectedTool}
 				/>
 			</div>
 		</div>
