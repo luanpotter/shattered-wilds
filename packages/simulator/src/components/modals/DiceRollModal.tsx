@@ -5,7 +5,7 @@ import {
 	CHECK_TYPES,
 	CheckNature,
 	CheckType,
-	DiceRollConfig,
+	DiceRoll,
 	DiceRoller,
 	DiceRollEncoder,
 	EntropyProvider,
@@ -159,30 +159,30 @@ const DiceRollModalContent: React.FC<{
 	const [extraSkill, setExtraSkill] = useState<StatType>(StatType.STR);
 	const [rollResults, setRollResults] = useState<RollResults | null>(null);
 
-	// Build config for the DiceRoller
-	const buildConfig = (): DiceRollConfig => ({
-		modifierValue: check.modifierValue.value,
-		checkType,
-		targetDC: dc,
-		...(useExtra && {
-			extra: {
-				name: extraSkill.name,
-				value: tree.valueOf(extraSkill).value,
-			},
-		}),
-		...(useLuck && {
-			luck: {
-				value: tree.valueOf(StatType.Fortune).value,
-			},
-		}),
+	// Build a DiceRoll for the DiceRoller
+	const buildDiceRoll = (): DiceRoll => ({
+		characterName: sheet.name,
+		check: check.withType(checkType),
+		targetDC: dc ?? undefined,
+		extra: useExtra
+			? {
+					name: extraSkill.name,
+					value: tree.valueOf(extraSkill).value,
+				}
+			: undefined,
+		luck: useLuck
+			? {
+					value: tree.valueOf(StatType.Fortune).value,
+				}
+			: undefined,
 	});
 
 	// Memoized calculations that update when dependencies change (e.g., DC or check type)
 	const results = useMemo(() => {
 		if (!rollResults) return null;
 		// Recalculate results with current settings using commons function
-		const config = buildConfig();
-		const calculatedResults = calculateResults(rollResults.dice, config);
+		const roll = buildDiceRoll();
+		const calculatedResults = calculateResults(rollResults.dice, roll);
 		return { ...rollResults, ...calculatedResults };
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [rollResults, checkType, dc, check.modifierValue.value]);
@@ -191,29 +191,14 @@ const DiceRollModalContent: React.FC<{
 	const handleDcInputChange = (value: string) => setDc(value ? parseInt(value) : null);
 
 	const handleCopyToVTT = () => {
-		const d12Command = DiceRollEncoder.encode({
-			characterName: sheet.name,
-			check,
-			extra: useExtra
-				? {
-						name: extraSkill.name,
-						value: tree.valueOf(extraSkill).value,
-					}
-				: undefined,
-			luck: useLuck
-				? {
-						value: tree.valueOf(StatType.Fortune).value,
-					}
-				: undefined,
-			targetDC: dc ?? undefined,
-		});
+		const d12Command = DiceRollEncoder.encode(buildDiceRoll());
 		exportDataToClipboard(d12Command);
 		onClose();
 	};
 
 	const handleRollDice = async () => {
-		const config = buildConfig();
-		const rollResult = await diceRoller.roll(config);
+		const roll = buildDiceRoll();
+		const rollResult = await diceRoller.roll(roll);
 		setRollResults(rollResult);
 	};
 

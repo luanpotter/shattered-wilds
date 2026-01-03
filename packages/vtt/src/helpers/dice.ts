@@ -1,4 +1,4 @@
-import { Check, DiceRoll, DiceRollConfig, DiceRoller, EntropyProvider, RollResults } from '@shattered-wilds/commons';
+import { Check, DiceRoll, DiceRoller, EntropyProvider, RollResults } from '@shattered-wilds/commons';
 import { Foundry, FoundryRoll } from '../foundry-shim';
 import { DiceRollModal } from '../modals/dice-modal';
 
@@ -51,46 +51,20 @@ export const rollDice = async (request: RollDiceRequest): Promise<void> => {
 };
 
 export const executeEnhancedRoll = async (roll: DiceRoll): Promise<number> => {
-	const { characterName, check, extra, luck, targetDC } = roll;
-
-	// Build config for DiceRoller
-	const config: DiceRollConfig = {
-		modifierValue: check.modifierValue.value,
-		checkType: check.type,
-		targetDC: targetDC ?? null,
-		...(extra && { extra: { name: extra.name, value: extra.value } }),
-		...(luck && { luck: { value: luck.value } }),
-	};
-
-	// Use DiceRoller to roll and process - context contains the FoundryRoll
 	const diceRoller = new DiceRoller(foundryEntropyProvider);
-	const results = await diceRoller.roll(config);
 
-	return await displayRollResults({
-		check,
-		results,
-		extra,
-		luck,
-		characterName,
-		targetDC,
-	});
+	const results = await diceRoller.roll(roll);
+	await displayRollResults(roll, results);
+
+	return results.total;
 };
 
-interface DisplayParams {
-	check: Check;
-	results: RollResults<FoundryRoll>;
-	extra: DiceRoll['extra'];
-	luck: DiceRoll['luck'];
-	characterName: string;
-	targetDC: number | undefined;
-}
-
-const displayRollResults = async (params: DisplayParams): Promise<number> => {
-	const { check, results, extra, luck, characterName, targetDC } = params;
+const displayRollResults = async (roll: DiceRoll, results: RollResults<FoundryRoll>): Promise<void> => {
+	const { characterName, check, extra, luck, targetDC } = roll;
 	const {
 		dice,
 		autoFail,
-		total: finalTotal,
+		total,
 		critModifiers,
 		critShifts: shifts,
 		success,
@@ -148,7 +122,7 @@ const displayRollResults = async (params: DisplayParams): Promise<number> => {
 			mechanicsHtml += `<div style="color: #f57c00; font-weight: bold; margin-top: 4px; font-size: 1.2em;">🎲 Crit Modifiers: +${critModifiers}</div>`;
 		}
 
-		mechanicsHtml += `<div style="color: #2e7d32; font-weight: bold; margin-top: 4px; font-size: 1.2em;">🎯 Final Total: ${finalTotal}</div>`;
+		mechanicsHtml += `<div style="color: #2e7d32; font-weight: bold; margin-top: 4px; font-size: 1.2em;">🎯 Final Total: ${total}</div>`;
 
 		if (targetDC !== undefined) {
 			const successText = success ? 'SUCCESS' : 'FAILURE';
@@ -170,6 +144,4 @@ const displayRollResults = async (params: DisplayParams): Promise<number> => {
 		},
 		flavor: mechanicsHtml,
 	});
-
-	return finalTotal;
 };

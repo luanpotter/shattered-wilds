@@ -56,8 +56,8 @@ export class Check {
 		return this.statModifier.statType;
 	}
 
-	// NOTE: we typically try to build the check with all the modifiers it needs at once,
-	// but this is used specifically if the user adds a CM on the "last mile" (i.e. on the Dice Roll dialog itself)
+	// NOTE: we typically try to build the check with all the parameters it needs at once,
+	// but these withX methods are used for "last mile" adjustments (e.g., on the Dice Roll dialog itself)
 	withAdditionalCM(cm: CircumstanceModifier): Check {
 		const newStatModifier = this.statModifier.withAdditionalCM(cm);
 		return new Check({
@@ -65,6 +65,16 @@ export class Check {
 			nature: this.nature,
 			descriptor: this.descriptor,
 			statModifier: newStatModifier,
+		});
+	}
+
+	withType(type: CheckType): Check {
+		const [mode, nature] = type.split('-') as [CheckMode, CheckNature];
+		return new Check({
+			mode,
+			nature,
+			descriptor: this.descriptor,
+			statModifier: this.statModifier,
 		});
 	}
 }

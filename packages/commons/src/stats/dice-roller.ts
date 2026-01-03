@@ -1,4 +1,5 @@
 import { CheckNature, CheckType } from './check.js';
+import { DiceRoll } from './dice.js';
 
 /**
  * Output from an entropy provider roll.
@@ -24,32 +25,6 @@ export interface DieResult {
 	value: number;
 	valid?: boolean; // For extra/luck dice, whether the roll is valid (below threshold)
 	type: 'base' | 'extra' | 'luck';
-}
-
-/**
- * Configuration for extra die
- */
-export interface ExtraDieConfig {
-	name: string; // Name of the attribute (e.g. "STR", "DEX")
-	value: number; // The threshold value - roll must be <= this to be valid
-}
-
-/**
- * Configuration for luck die
- */
-export interface LuckDieConfig {
-	value: number; // Fortune threshold value - roll must be <= this to be valid
-}
-
-/**
- * Complete configuration for a dice roll
- */
-export interface DiceRollConfig {
-	modifierValue: number; // The total modifier to add to the roll
-	checkType: CheckType; // The type of check being made
-	targetDC: number | null; // The target DC (if applicable)
-	extra?: ExtraDieConfig; // Extra die configuration (if using)
-	luck?: LuckDieConfig; // Luck die configuration (if using)
 }
 
 /**
@@ -119,8 +94,10 @@ const getSelectedDiceValues = (dice: DieResult[]): number[] => {
  * Crits are always calculated across ALL dice (even invalid ones)
  * Selected dice are always the two highest valid dice
  */
-export const calculateResults = (dice: DieResult[], config: DiceRollConfig): Omit<RollResults, 'dice' | 'context'> => {
-	const { modifierValue, checkType, targetDC } = config;
+export const calculateResults = (dice: DieResult[], roll: DiceRoll): Omit<RollResults, 'dice' | 'context'> => {
+	const { check, targetDC } = roll;
+	const modifierValue = check.modifierValue.value;
+	const checkType = check.type;
 
 	// For crits and auto-fail we must use ALL dice, even invalid ones
 	const allValues = dice.map(die => die.value);
@@ -152,7 +129,7 @@ export const calculateResults = (dice: DieResult[], config: DiceRollConfig): Omi
 	let success: boolean | undefined;
 	let critShifts = 0;
 
-	if (!autoFail && targetDC !== null) {
+	if (!autoFail && targetDC !== undefined) {
 		if (isActiveCheck(checkType)) {
 			// Active checks: must beat DC, or tie with crit
 			success = total > targetDC || (total === targetDC && critModifiers > 0);
@@ -182,12 +159,14 @@ export class DiceRoller<T = void> {
 	}
 
 	/**
-	 * Roll dice according to configuration
+	 * Roll dice according to the DiceRoll request
 	 * Returns complete results including selected dice, calculations, and entropy context
 	 */
-	async roll(config: DiceRollConfig): Promise<RollResults<T>> {
+	async roll(roll: DiceRoll): Promise<RollResults<T>> {
+		const { extra, luck } = roll;
+
 		// Calculate how many dice we need
-		const diceCount = 2 + (config.extra ? 1 : 0) + (config.luck ? 1 : 0);
+		const diceCount = 2 + (extra ? 1 : 0) + (luck ? 1 : 0);
 
 		// Roll all dice at once
 		const { values, context } = await this.entropyProvider(diceCount);
@@ -201,26 +180,26 @@ export class DiceRoller<T = void> {
 		let rollIndex = 2;
 
 		// Add extra die if configured
-		if (config.extra) {
+		if (extra) {
 			const extraRoll = values[rollIndex++]!;
 			dice.push({
 				value: extraRoll,
-				valid: extraRoll <= config.extra.value,
+				valid: extraRoll <= extra.value,
 				type: 'extra',
 			});
 		}
 
 		// Add luck die if configured
-		if (config.luck) {
+		if (luck) {
 			const luckRoll = values[rollIndex++]!;
 			dice.push({
 				value: luckRoll,
-				valid: luckRoll <= config.luck.value,
+				valid: luckRoll <= luck.value,
 				type: 'luck',
 			});
 		}
 
-		const results = calculateResults(dice, config);
+		const results = calculateResults(dice, roll);
 
 		return {
 			dice,
