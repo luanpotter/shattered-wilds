@@ -24,6 +24,7 @@ import {
 	LineToolState,
 	HexVertex,
 	GameMap,
+	SelectToolState,
 } from '../types/ui';
 
 import { CharacterToken } from './CharacterToken';
@@ -61,6 +62,23 @@ function StaticHexGridComponent({ width, height }: StaticHexGridProps) {
 	);
 }
 const StaticHexGrid = React.memo(StaticHexGridComponent);
+
+const pointToSegmentDistance = (
+	p: { x: number; y: number },
+	a: { x: number; y: number },
+	b: { x: number; y: number },
+): number => {
+	const dx = b.x - a.x;
+	const dy = b.y - a.y;
+	const lenSq = dx * dx + dy * dy;
+	if (lenSq === 0) {
+		return Math.sqrt((p.x - a.x) ** 2 + (p.y - a.y) ** 2);
+	}
+	const t = Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / lenSq));
+	const projX = a.x + t * dx;
+	const projY = a.y + t * dy;
+	return Math.sqrt((p.x - projX) ** 2 + (p.y - projY) ** 2);
+};
 
 interface HexHighlightLayerProps {
 	hexes: HexPosition[];
@@ -218,9 +236,16 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	} | null>(null);
 	const [lineToolState, setLineToolState] = useState<LineToolState | null>(null);
 	const [lineToolHoveredVertex, setLineToolHoveredVertex] = useState<HexVertex | null>(null);
+	const [selectToolState, setSelectToolState] = useState<SelectToolState>({
+		selectedIndices: new Set(),
+		selectionBox: null,
+		dragStart: null,
+		dragCurrent: null,
+	});
 
-	// Line tool helper: check if we're actively using the line tool
+	// Tool helpers
 	const isLineTool = isMapMode && selectedTool === 'line';
+	const isSelectTool = isMapMode && selectedTool === 'select';
 
 	const findCharacterAtHex = useCallback(
 		(q: number, r: number): Character | undefined => {
@@ -256,6 +281,96 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		return { x: transformedPoint.x, y: transformedPoint.y };
 	}, []);
 
+	const findDrawingAtPoint = useCallback(
+		(point: Point, threshold = 2): number | null => {
+			for (let i = map.drawings.length - 1; i >= 0; i--) {
+				const drawing = map.drawings[i];
+				if (drawing.type === 'line') {
+					const pathVertices = findVertexPath(drawing.start, drawing.end, 10);
+					for (let j = 0; j < pathVertices.length - 1; j++) {
+						const a = pathVertices[j];
+						const b = pathVertices[j + 1];
+						const dist = pointToSegmentDistance(point, a, b);
+						if (dist <= threshold) {
+							return i;
+						}
+					}
+				}
+			}
+			return null;
+		},
+		[map.drawings],
+	);
+
+	const findDrawingsInBox = useCallback(
+		(box: { start: Point; end: Point }): Set<number> => {
+			const minX = Math.min(box.start.x, box.end.x);
+			const maxX = Math.max(box.start.x, box.end.x);
+			const minY = Math.min(box.start.y, box.end.y);
+			const maxY = Math.max(box.start.y, box.end.y);
+
+			// Helper to check if a point is inside the box
+			const pointInBox = (p: Point) => p.x >= minX && p.x <= maxX && p.y >= minY && p.y <= maxY;
+
+			// Helper to check if a line segment intersects the box
+			const segmentIntersectsBox = (p1: Point, p2: Point): boolean => {
+				// If either endpoint is inside, it intersects
+				if (pointInBox(p1) || pointInBox(p2)) return true;
+
+				// Check if segment crosses any of the 4 box edges
+				const boxEdges: [Point, Point][] = [
+					[
+						{ x: minX, y: minY },
+						{ x: maxX, y: minY },
+					], // top
+					[
+						{ x: maxX, y: minY },
+						{ x: maxX, y: maxY },
+					], // right
+					[
+						{ x: maxX, y: maxY },
+						{ x: minX, y: maxY },
+					], // bottom
+					[
+						{ x: minX, y: maxY },
+						{ x: minX, y: minY },
+					], // left
+				];
+
+				for (const [e1, e2] of boxEdges) {
+					if (segmentsIntersect(p1, p2, e1, e2)) return true;
+				}
+				return false;
+			};
+
+			// Helper to check if two line segments intersect
+			const segmentsIntersect = (a1: Point, a2: Point, b1: Point, b2: Point): boolean => {
+				const ccw = (A: Point, B: Point, C: Point) => (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x);
+				return ccw(a1, b1, b2) !== ccw(a2, b1, b2) && ccw(a1, a2, b1) !== ccw(a1, a2, b2);
+			};
+
+			const result = new Set<number>();
+			map.drawings.forEach((drawing, index) => {
+				if (drawing.type === 'line') {
+					const pathVertices = findVertexPath(drawing.start, drawing.end, 10);
+					// Check if any vertex is inside or any segment intersects
+					for (let i = 0; i < pathVertices.length; i++) {
+						if (pointInBox(pathVertices[i])) {
+							result.add(index);
+							break;
+						}
+						if (i < pathVertices.length - 1 && segmentIntersectsBox(pathVertices[i], pathVertices[i + 1])) {
+							result.add(index);
+							break;
+						}
+					}
+				}
+			});
+			return result;
+		},
+		[map.drawings],
+	);
+
 	useEffect(() => {
 		if (dragState.type === 'character' && dragState.startPosition && svgRef.current) {
 			const svgCoords = screenToSvgCoordinates(dragState.startPosition.x, dragState.startPosition.y);
@@ -275,13 +390,26 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					setMeasureState(null);
 				} else if (attackState?.isSelectingTarget) {
 					setAttackState(null);
+				} else if (isSelectTool && selectToolState.selectedIndices.size > 0) {
+					setSelectToolState(prev => ({
+						...prev,
+						selectedIndices: new Set(),
+						selectionBox: null,
+						dragStart: null,
+						dragCurrent: null,
+					}));
 				}
+			}
+			if ((e.key === 'Delete' || e.key === 'Backspace') && isSelectTool && selectToolState.selectedIndices.size > 0) {
+				const newDrawings = map.drawings.filter((_, i) => !selectToolState.selectedIndices.has(i));
+				updateMap({ ...map, drawings: newDrawings });
+				setSelectToolState(prev => ({ ...prev, selectedIndices: new Set() }));
 			}
 		};
 
 		document.addEventListener('keydown', handleKeyDown);
 		return () => document.removeEventListener('keydown', handleKeyDown);
-	}, [measureState, attackState]);
+	}, [measureState, attackState, isSelectTool, selectToolState.selectedIndices, map, updateMap]);
 
 	// Clear measure state when measure modal is closed
 	useEffect(() => {
@@ -511,6 +639,47 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					}
 				}
 			}
+
+			// Handle select tool start
+			if (isSelectTool && svgRef.current) {
+				const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
+				if (svgCoords) {
+					const clickedDrawingIndex = findDrawingAtPoint(svgCoords);
+					if (clickedDrawingIndex !== null) {
+						const isAlreadySelected = selectToolState.selectedIndices.has(clickedDrawingIndex);
+						if (e.shiftKey) {
+							const newSelected = new Set(selectToolState.selectedIndices);
+							if (isAlreadySelected) {
+								newSelected.delete(clickedDrawingIndex);
+							} else {
+								newSelected.add(clickedDrawingIndex);
+							}
+							setSelectToolState(prev => ({ ...prev, selectedIndices: newSelected }));
+						} else if (isAlreadySelected) {
+							const nearestVertex = findNearestVertex(svgCoords, 10);
+							if (nearestVertex) {
+								setSelectToolState(prev => ({ ...prev, dragStart: nearestVertex, dragCurrent: nearestVertex }));
+							}
+						} else {
+							const nearestVertex = findNearestVertex(svgCoords, 10);
+							setSelectToolState(prev => ({
+								...prev,
+								selectedIndices: new Set([clickedDrawingIndex]),
+								dragStart: nearestVertex,
+								dragCurrent: nearestVertex,
+							}));
+						}
+					} else {
+						setSelectToolState(prev => ({
+							...prev,
+							selectedIndices: e.shiftKey ? prev.selectedIndices : new Set(),
+							selectionBox: { start: svgCoords, end: svgCoords },
+							dragStart: null,
+							dragCurrent: null,
+						}));
+					}
+				}
+			}
 		}
 		// For middle and right click, do not block default behavior
 	};
@@ -535,6 +704,35 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				});
 			}
 			setLineToolState(null);
+		}
+
+		if (e.button === 0 && isSelectTool) {
+			if (selectToolState.selectionBox) {
+				const selected = findDrawingsInBox(selectToolState.selectionBox);
+				setSelectToolState(prev => ({
+					...prev,
+					selectedIndices: e.shiftKey ? new Set([...prev.selectedIndices, ...selected]) : selected,
+					selectionBox: null,
+				}));
+			} else if (selectToolState.dragStart && selectToolState.dragCurrent) {
+				const dx = selectToolState.dragCurrent.x - selectToolState.dragStart.x;
+				const dy = selectToolState.dragCurrent.y - selectToolState.dragStart.y;
+				if (dx !== 0 || dy !== 0) {
+					const newDrawings = map.drawings.map((drawing, i) => {
+						if (!selectToolState.selectedIndices.has(i)) return drawing;
+						if (drawing.type === 'line') {
+							return {
+								...drawing,
+								start: { x: drawing.start.x + dx, y: drawing.start.y + dy },
+								end: { x: drawing.end.x + dx, y: drawing.end.y + dy },
+							};
+						}
+						return drawing;
+					});
+					updateMap({ ...map, drawings: newDrawings });
+				}
+				setSelectToolState(prev => ({ ...prev, dragStart: null, dragCurrent: null }));
+			}
 		}
 	};
 
@@ -605,6 +803,24 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		} else if (!isLineTool && lineToolHoveredVertex) {
 			// Clear hovered vertex when not in line tool mode
 			setLineToolHoveredVertex(null);
+		}
+
+		// Handle select tool
+		if (isSelectTool && svgRef.current) {
+			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
+			if (svgCoords) {
+				if (selectToolState.selectionBox) {
+					setSelectToolState(prev => ({
+						...prev,
+						selectionBox: prev.selectionBox ? { ...prev.selectionBox, end: svgCoords } : null,
+					}));
+				} else if (selectToolState.dragStart && e.buttons === 1) {
+					const nearestVertex = findNearestVertex(svgCoords, 10);
+					if (nearestVertex) {
+						setSelectToolState(prev => ({ ...prev, dragCurrent: nearestVertex }));
+					}
+				}
+			}
 		}
 
 		// Handle measure hover
@@ -797,22 +1013,58 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				<g style={{ pointerEvents: 'none' }}>
 					{map.drawings.map((drawing, index) => {
 						if (drawing.type === 'line') {
-							const pathVertices = findVertexPath(drawing.start, drawing.end, 10);
+							const isSelected = selectToolState.selectedIndices.has(index);
+							const isDragging =
+								isSelected && selectToolState.dragStart !== null && selectToolState.dragCurrent !== null;
+							const offsetX = isDragging ? selectToolState.dragCurrent!.x - selectToolState.dragStart!.x : 0;
+							const offsetY = isDragging ? selectToolState.dragCurrent!.y - selectToolState.dragStart!.y : 0;
+							const adjustedStart = { x: drawing.start.x + offsetX, y: drawing.start.y + offsetY };
+							const adjustedEnd = { x: drawing.end.x + offsetX, y: drawing.end.y + offsetY };
+							const pathVertices = findVertexPath(adjustedStart, adjustedEnd, 10);
 							return (
-								<polyline
-									key={index}
-									points={pathVertices.map(v => `${v.x},${v.y}`).join(' ')}
-									fill='none'
-									stroke={drawing.color}
-									strokeWidth='0.4'
-									strokeLinecap='round'
-									strokeLinejoin='round'
-								/>
+								<g key={index}>
+									{/* Selection highlight (rendered behind) */}
+									{isSelected && (
+										<polyline
+											points={pathVertices.map(v => `${v.x},${v.y}`).join(' ')}
+											fill='none'
+											stroke='var(--accent)'
+											strokeWidth='1.2'
+											strokeLinecap='round'
+											strokeLinejoin='round'
+											opacity={0.5}
+										/>
+									)}
+									<polyline
+										points={pathVertices.map(v => `${v.x},${v.y}`).join(' ')}
+										fill='none'
+										stroke={drawing.color}
+										strokeWidth='0.4'
+										strokeLinecap='round'
+										strokeLinejoin='round'
+										opacity={isDragging ? 0.6 : 1}
+									/>
+								</g>
 							);
 						}
 						return null;
 					})}
 				</g>
+
+				{/* Selection Box Layer */}
+				{selectToolState.selectionBox && (
+					<rect
+						x={Math.min(selectToolState.selectionBox.start.x, selectToolState.selectionBox.end.x)}
+						y={Math.min(selectToolState.selectionBox.start.y, selectToolState.selectionBox.end.y)}
+						width={Math.abs(selectToolState.selectionBox.end.x - selectToolState.selectionBox.start.x)}
+						height={Math.abs(selectToolState.selectionBox.end.y - selectToolState.selectionBox.start.y)}
+						fill='none'
+						stroke='var(--accent)'
+						strokeWidth='0.3'
+						strokeDasharray='1,1'
+						style={{ pointerEvents: 'none' }}
+					/>
+				)}
 
 				{/* Line Tool Preview Layer */}
 				{lineToolState && lineToolState.pathVertices.length >= 1 && (

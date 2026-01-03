@@ -35,6 +35,18 @@ export interface LineToolState {
 	pathVertices: HexVertex[];
 }
 
+export interface SelectionBox {
+	start: Point;
+	end: Point;
+}
+
+export interface SelectToolState {
+	selectedIndices: Set<number>;
+	selectionBox: SelectionBox | null;
+	dragStart: HexVertex | null;
+	dragCurrent: HexVertex | null;
+}
+
 export type DragType = 'none' | 'modal' | 'grid' | 'character';
 
 export interface DragState {
