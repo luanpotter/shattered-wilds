@@ -13,7 +13,7 @@ import {
 export type { Point, HexPosition, HexVertex };
 
 export type MapMode = 'map' | 'encounter';
-export type MapTool = 'select' | 'line';
+export type MapTool = 'select' | 'line' | 'area';
 
 export interface LineDrawing {
 	type: 'line';
@@ -22,7 +22,13 @@ export interface LineDrawing {
 	color: string;
 }
 
-export type Drawing = LineDrawing;
+export interface AreaDrawing {
+	type: 'area';
+	hexes: HexPosition[];
+	color: string;
+}
+
+export type Drawing = LineDrawing | AreaDrawing;
 
 export interface GameMap {
 	size: { width: number; height: number };
@@ -33,6 +39,12 @@ export interface LineToolState {
 	startVertex: HexVertex;
 	currentEndVertex: HexVertex;
 	pathVertices: HexVertex[];
+}
+
+export interface AreaToolState {
+	centerHex: HexPosition;
+	radius: number;
+	previewHexes: HexPosition[];
 }
 
 export interface SelectionBox {

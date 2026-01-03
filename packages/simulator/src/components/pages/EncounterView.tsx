@@ -4,6 +4,7 @@ import {
 	FaCog,
 	FaCrosshairs,
 	FaEdit,
+	FaFillDrip,
 	FaMap,
 	FaMousePointer,
 	FaPenAlt,
@@ -101,6 +102,12 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 					icon={FaPenAlt}
 					tooltip='Line Tool'
 					selected={selectedTool === 'line'}
+				/>
+				<Button
+					onClick={() => setSelectedTool('area')}
+					icon={FaFillDrip}
+					tooltip='Area Tool'
+					selected={selectedTool === 'area'}
 				/>
 				<Button onClick={handleMapMode} icon={FaX} tooltip='Return to Encounter mode' />
 			</>

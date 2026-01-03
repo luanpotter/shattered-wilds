@@ -8,6 +8,8 @@ import {
 	findHexPath,
 	findNearestVertex,
 	findVertexPath,
+	getHexVertices,
+	getHexNeighbors,
 } from '@shattered-wilds/commons';
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 
@@ -22,6 +24,7 @@ import {
 	MapMode,
 	MapTool,
 	LineToolState,
+	AreaToolState,
 	HexVertex,
 	GameMap,
 	SelectToolState,
@@ -242,10 +245,13 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		dragStart: null,
 		dragCurrent: null,
 	});
+	const [areaToolState, setAreaToolState] = useState<AreaToolState | null>(null);
+	const [areaToolHoveredHex, setAreaToolHoveredHex] = useState<HexPosition | null>(null);
 
 	// Tool helpers
 	const isLineTool = isMapMode && selectedTool === 'line';
 	const isSelectTool = isMapMode && selectedTool === 'select';
+	const isAreaTool = isMapMode && selectedTool === 'area';
 
 	const findCharacterAtHex = useCallback(
 		(q: number, r: number): Character | undefined => {
@@ -285,6 +291,15 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		(point: Point, threshold = 2): number | null => {
 			for (let i = map.drawings.length - 1; i >= 0; i--) {
 				const drawing = map.drawings[i];
+				if (drawing.type === 'area') {
+					// Check if point is inside any of the hexes
+					const clickedHex = pixelToAxial(point.x, point.y);
+					for (const hex of drawing.hexes) {
+						if (hex.q === clickedHex.q && hex.r === clickedHex.r) {
+							return i;
+						}
+					}
+				}
 				if (drawing.type === 'line') {
 					const pathVertices = findVertexPath(drawing.start, drawing.end, 10);
 					for (let j = 0; j < pathVertices.length - 1; j++) {
@@ -351,6 +366,16 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 			const result = new Set<number>();
 			map.drawings.forEach((drawing, index) => {
+				if (drawing.type === 'area') {
+					// Check if any hex center is inside the box
+					for (const hex of drawing.hexes) {
+						const { x, y } = axialToPixel(hex.q, hex.r);
+						if (pointInBox({ x, y })) {
+							result.add(index);
+							break;
+						}
+					}
+				}
 				if (drawing.type === 'line') {
 					const pathVertices = findVertexPath(drawing.start, drawing.end, 10);
 					// Check if any vertex is inside or any segment intersects
@@ -680,6 +705,19 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					}
 				}
 			}
+
+			// Handle area tool start
+			if (isAreaTool && svgRef.current) {
+				const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
+				if (svgCoords) {
+					const centerHex = pixelToAxial(svgCoords.x, svgCoords.y);
+					setAreaToolState({
+						centerHex,
+						radius: 0,
+						previewHexes: [centerHex],
+					});
+				}
+			}
 		}
 		// For middle and right click, do not block default behavior
 	};
@@ -732,12 +770,46 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 								end: newEnd,
 							};
 						}
+						if (drawing.type === 'area') {
+							// For area drawings, we move by whole hex offsets
+							// Calculate the hex offset from the pixel offset
+							const startHex = pixelToAxial(selectToolState.dragStart!.x, selectToolState.dragStart!.y);
+							const endHex = pixelToAxial(selectToolState.dragCurrent!.x, selectToolState.dragCurrent!.y);
+							const dq = endHex.q - startHex.q;
+							const dr = endHex.r - startHex.r;
+							if (dq !== 0 || dr !== 0) {
+								return {
+									...drawing,
+									hexes: drawing.hexes.map(hex => ({
+										q: hex.q + dq,
+										r: hex.r + dr,
+									})),
+								};
+							}
+						}
 						return drawing;
 					});
 					updateMap({ ...map, drawings: newDrawings });
 				}
 				setSelectToolState(prev => ({ ...prev, dragStart: null, dragCurrent: null }));
 			}
+		}
+
+		if (e.button === 0 && isAreaTool && areaToolState) {
+			if (areaToolState.previewHexes.length > 0) {
+				updateMap({
+					...map,
+					drawings: [
+						...map.drawings,
+						{
+							type: 'area',
+							hexes: areaToolState.previewHexes,
+							color: 'var(--accent)',
+						},
+					],
+				});
+			}
+			setAreaToolState(null);
 		}
 	};
 
@@ -828,6 +900,27 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			}
 		}
 
+		// Handle area tool drag
+		if (isAreaTool && areaToolState && svgRef.current) {
+			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
+			if (svgCoords) {
+				const currentHex = pixelToAxial(svgCoords.x, svgCoords.y);
+				const radius = hexDistance(areaToolState.centerHex, currentHex);
+				const previewHexes = getHexesInRange(areaToolState.centerHex, radius);
+				setAreaToolState(prev => (prev ? { ...prev, radius, previewHexes } : null));
+			}
+		} else if (isAreaTool && !areaToolState && svgRef.current) {
+			// Track hovered hex before drawing starts
+			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
+			if (svgCoords) {
+				const hoveredHex = pixelToAxial(svgCoords.x, svgCoords.y);
+				setAreaToolHoveredHex(hoveredHex);
+			}
+		} else if (!isAreaTool && areaToolHoveredHex) {
+			// Clear hovered hex when not in area tool mode
+			setAreaToolHoveredHex(null);
+		}
+
 		// Handle measure hover
 		if (measureState?.isSelectingTarget && svgRef.current) {
 			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
@@ -900,13 +993,14 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				height: '100%',
 				overflow: 'hidden',
 				position: 'relative',
-				cursor: isLineTool
-					? 'crosshair'
-					: measureState?.isSelectingTarget
+				cursor:
+					isLineTool || isAreaTool
 						? 'crosshair'
-						: dragState.type === 'character'
-							? 'grabbing'
-							: 'default',
+						: measureState?.isSelectingTarget
+							? 'crosshair'
+							: dragState.type === 'character'
+								? 'grabbing'
+								: 'default',
 			}}
 			onWheel={handleWheel}
 			onMouseMove={handleMouseMove}
@@ -1017,6 +1111,87 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				{/* Saved Drawings Layer */}
 				<g style={{ pointerEvents: 'none' }}>
 					{map.drawings.map((drawing, index) => {
+						if (drawing.type === 'area') {
+							const isSelected = selectToolState.selectedIndices.has(index);
+							const isDragging =
+								isSelected && selectToolState.dragStart !== null && selectToolState.dragCurrent !== null;
+							// Calculate hex offset for dragging
+							let dq = 0;
+							let dr = 0;
+							if (isDragging) {
+								const startHex = pixelToAxial(selectToolState.dragStart!.x, selectToolState.dragStart!.y);
+								const endHex = pixelToAxial(selectToolState.dragCurrent!.x, selectToolState.dragCurrent!.y);
+								dq = endHex.q - startHex.q;
+								dr = endHex.r - startHex.r;
+							}
+
+							// Create a set of hex keys for quick lookup
+							const hexSet = new Set(drawing.hexes.map(h => `${h.q + dq},${h.r + dr}`));
+
+							// Edge index to neighbor index mapping for pointy-top hex:
+							// Edge 0 (v0→v1, top→top-right) borders Northeast neighbor (index 1)
+							// Edge 1 (v1→v2, top-right→bottom-right) borders East neighbor (index 0)
+							// Edge 2 (v2→v3, bottom-right→bottom) borders Southeast neighbor (index 5)
+							// Edge 3 (v3→v4, bottom→bottom-left) borders Southwest neighbor (index 4)
+							// Edge 4 (v4→v5, bottom-left→top-left) borders West neighbor (index 3)
+							// Edge 5 (v5→v0, top-left→top) borders Northwest neighbor (index 2)
+							const edgeToNeighborIndex = [1, 0, 5, 4, 3, 2];
+
+							// Collect all boundary edges
+							const boundaryEdges: { x1: number; y1: number; x2: number; y2: number }[] = [];
+							for (const hex of drawing.hexes) {
+								const adjustedHex = { q: hex.q + dq, r: hex.r + dr };
+								const vertices = getHexVertices(adjustedHex.q, adjustedHex.r, 10);
+								const neighbors = getHexNeighbors(adjustedHex);
+
+								// For each edge (6 edges)
+								for (let i = 0; i < 6; i++) {
+									const neighborIndex = edgeToNeighborIndex[i];
+									const neighbor = neighbors[neighborIndex];
+									const neighborKey = `${neighbor.q},${neighbor.r}`;
+									// Only draw this edge if neighbor is NOT in the area
+									if (!hexSet.has(neighborKey)) {
+										const v1 = vertices[i];
+										const v2 = vertices[(i + 1) % 6];
+										boundaryEdges.push({ x1: v1.x, y1: v1.y, x2: v2.x, y2: v2.y });
+									}
+								}
+							}
+
+							return (
+								<g key={index}>
+									{/* Fill each hex */}
+									{drawing.hexes.map((hex, hexIndex) => {
+										const adjustedHex = { q: hex.q + dq, r: hex.r + dr };
+										const vertices = getHexVertices(adjustedHex.q, adjustedHex.r, 10);
+										const pathData = `M${vertices.map(v => `${v.x},${v.y}`).join(' L')} Z`;
+										return (
+											<path
+												key={hexIndex}
+												d={pathData}
+												fill={drawing.color}
+												fillOpacity={isDragging ? 0.1 : 0.2}
+												stroke='none'
+											/>
+										);
+									})}
+									{/* Draw only boundary edges */}
+									{boundaryEdges.map((edge, edgeIndex) => (
+										<line
+											key={edgeIndex}
+											x1={edge.x1}
+											y1={edge.y1}
+											x2={edge.x2}
+											y2={edge.y2}
+											stroke={drawing.color}
+											strokeWidth={isSelected ? '0.6' : '0.3'}
+											strokeOpacity={isSelected ? 1 : 0.8}
+											strokeLinecap='round'
+										/>
+									))}
+								</g>
+							);
+						}
 						if (drawing.type === 'line') {
 							const isSelected = selectToolState.selectedIndices.has(index);
 							const isDragging =
@@ -1106,6 +1281,67 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 						fill='var(--accent)'
 						style={{ pointerEvents: 'none' }}
 					/>
+				)}
+
+				{/* Area Tool Hovered Hex Preview (before drawing starts) */}
+				{isAreaTool && !areaToolState && areaToolHoveredHex && (
+					<g style={{ pointerEvents: 'none' }}>
+						{(() => {
+							const vertices = getHexVertices(areaToolHoveredHex.q, areaToolHoveredHex.r, 10);
+							const pathData = `M${vertices.map(v => `${v.x},${v.y}`).join(' L')} Z`;
+							return (
+								<path d={pathData} fill='var(--accent)' fillOpacity={0.2} stroke='var(--accent)' strokeWidth='0.3' />
+							);
+						})()}
+					</g>
+				)}
+
+				{/* Area Tool Preview Layer */}
+				{areaToolState && (
+					<g style={{ pointerEvents: 'none' }}>
+						{(() => {
+							const hexSet = new Set(areaToolState.previewHexes.map(h => `${h.q},${h.r}`));
+							const edgeToNeighborIndex = [1, 0, 5, 4, 3, 2];
+							const boundaryEdges: { x1: number; y1: number; x2: number; y2: number }[] = [];
+
+							for (const hex of areaToolState.previewHexes) {
+								const vertices = getHexVertices(hex.q, hex.r, 10);
+								const neighbors = getHexNeighbors(hex);
+								for (let i = 0; i < 6; i++) {
+									const neighborIndex = edgeToNeighborIndex[i];
+									const neighbor = neighbors[neighborIndex];
+									if (!hexSet.has(`${neighbor.q},${neighbor.r}`)) {
+										const v1 = vertices[i];
+										const v2 = vertices[(i + 1) % 6];
+										boundaryEdges.push({ x1: v1.x, y1: v1.y, x2: v2.x, y2: v2.y });
+									}
+								}
+							}
+
+							return (
+								<>
+									{areaToolState.previewHexes.map((hex, index) => {
+										const vertices = getHexVertices(hex.q, hex.r, 10);
+										const pathData = `M${vertices.map(v => `${v.x},${v.y}`).join(' L')} Z`;
+										return <path key={index} d={pathData} fill='var(--accent)' fillOpacity={0.2} stroke='none' />;
+									})}
+									{boundaryEdges.map((edge, edgeIndex) => (
+										<line
+											key={`edge-${edgeIndex}`}
+											x1={edge.x1}
+											y1={edge.y1}
+											x2={edge.x2}
+											y2={edge.y2}
+											stroke='var(--accent)'
+											strokeWidth='0.3'
+											strokeOpacity={0.8}
+											strokeLinecap='round'
+										/>
+									))}
+								</>
+							);
+						})()}
+					</g>
 				)}
 
 				{/* Ghost Token Layer */}
