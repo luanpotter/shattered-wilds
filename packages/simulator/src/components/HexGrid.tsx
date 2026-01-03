@@ -322,7 +322,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		e.preventDefault();
 		const delta = e.deltaY > 0 ? 0.9 : 1.1;
 		updateGridState({
-			scale: Math.max(0.5, Math.min(2, gridState.scale * delta)),
+			scale: gridState.scale * delta,
 		});
 	};
 
