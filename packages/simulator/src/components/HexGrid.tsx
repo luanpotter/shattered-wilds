@@ -1,5 +1,5 @@
 import { CharacterSheet, DerivedStatType, Distance } from '@shattered-wilds/commons';
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
@@ -10,10 +10,67 @@ import { axialToPixel } from '../utils';
 import { CharacterToken } from './CharacterToken';
 import { TokenContextMenu } from './TokenContextMenu';
 
-const Hex: React.FC<{ q: number; r: number; children?: React.ReactNode }> = ({ q, r, children }) => {
-	const { x, y } = axialToPixel(q, r);
-	return <g transform={`translate(${x},${y})`}>{children}</g>;
-};
+// Pre-computed hex path for pointy-top hexagon with radius 5
+const HEX_PATH = 'M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z';
+
+interface StaticHexGridProps {
+	width: number;
+	height: number;
+}
+
+// Memoized static hex grid - renders all hexes as a single static layer
+function StaticHexGridComponent({ width, height }: StaticHexGridProps) {
+	const hexes = useMemo(() => generateHexes(width, height), [width, height]);
+
+	return (
+		<g>
+			{hexes.map(({ q, r }) => {
+				const { x, y } = axialToPixel(q, r);
+				return (
+					<path
+						key={`${q},${r}`}
+						d={HEX_PATH}
+						transform={`translate(${x},${y})`}
+						fill='var(--background-alt)'
+						stroke='var(--text)'
+						strokeWidth='0.5'
+						data-hex={`${q},${r}`}
+					/>
+				);
+			})}
+		</g>
+	);
+}
+const StaticHexGrid = React.memo(StaticHexGridComponent);
+
+interface HexHighlightLayerProps {
+	hexes: HexPosition[];
+	fillColor: string;
+	strokeColor: string;
+	strokeWidth?: number;
+}
+
+// Memoized highlight layer for movement/attack range
+function HexHighlightLayerComponent({ hexes, fillColor, strokeColor, strokeWidth = 0.5 }: HexHighlightLayerProps) {
+	return (
+		<g style={{ pointerEvents: 'none' }}>
+			{hexes.map(({ q, r }) => {
+				const { x, y } = axialToPixel(q, r);
+				return (
+					<path
+						key={`${q},${r}`}
+						d={HEX_PATH}
+						transform={`translate(${x},${y})`}
+						fill={fillColor}
+						stroke={strokeColor}
+						strokeWidth={strokeWidth}
+					/>
+				);
+			})}
+		</g>
+	);
+}
+const HexHighlightLayer = React.memo(HexHighlightLayerComponent);
 
 const generateHexes = (width: number, height: number): HexPosition[] => {
 	const hexes = [];
@@ -536,6 +593,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				height: '100%',
 				overflow: 'hidden',
 				position: 'relative',
+				cursor: measureState?.isSelectingTarget ? 'crosshair' : dragState.type === 'character' ? 'grabbing' : 'default',
 			}}
 			onWheel={handleWheel}
 			onMouseMove={handleMouseMove}
@@ -553,124 +611,75 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				style={{
 					transform: `scale(${gridState.scale}) translate(${gridState.offset.x}px, ${gridState.offset.y}px)`,
 				}}
+				onClick={e => {
+					if (measureState?.isSelectingTarget) {
+						const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
+						if (svgCoords) {
+							const { q, r } = pixelToAxial(svgCoords.x, svgCoords.y);
+							handleHexClick(q, r);
+						}
+					}
+				}}
 			>
-				{/* Base Grid Layer */}
-				<g>
-					{generateHexes(mapSize.width, mapSize.height).map(({ q, r }, i) => (
-						<Hex key={i} q={q} r={r}>
-							<path
-								d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
-								fill='var(--background-alt)'
-								stroke='var(--text)'
-								strokeWidth='0.5'
-								data-hex={`${q},${r}`}
-								style={{
-									cursor: measureState?.isSelectingTarget
-										? 'crosshair'
-										: dragState.type === 'character'
-											? 'grabbing'
-											: 'pointer',
-								}}
-								onClick={e => {
-									if (measureState?.isSelectingTarget) {
-										e.preventDefault();
-										e.stopPropagation();
-										handleHexClick(q, r);
-									}
-								}}
-								onContextMenu={e => {
-									if (!measureState?.isSelectingTarget) {
-										e.preventDefault();
-										e.stopPropagation();
-										handleHexRightClick(q, r);
-									}
-								}}
-							/>
-						</Hex>
-					))}
-				</g>
+				{/* Base Grid Layer - Static, memoized */}
+				<StaticHexGrid width={mapSize.width} height={mapSize.height} />
 
 				{/* Movement Range Highlight Layer */}
 				{hoveredCharacter &&
 					getCharacterPosition(hoveredCharacter.id) &&
 					!attackState?.isSelectingTarget &&
 					!measureState?.isSelectingTarget && (
-						<g style={{ pointerEvents: 'none' }}>
-							{getHexesInRange(
+						<HexHighlightLayer
+							hexes={getHexesInRange(
 								getCharacterPosition(hoveredCharacter.id)!,
 								CharacterSheet.from(hoveredCharacter.props).getStatTree().computeDerivedStat(DerivedStatType.Movement)
 									.value,
-							).map(({ q, r }, i) => (
-								<Hex key={`range-${i}`} q={q} r={r}>
-									<path
-										d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
-										fill='rgba(0, 255, 0, 0.2)'
-										stroke='rgba(0, 255, 0, 0.5)'
-										strokeWidth='0.5'
-									/>
-								</Hex>
-							))}
-						</g>
+							)}
+							fillColor='rgba(0, 255, 0, 0.2)'
+							strokeColor='rgba(0, 255, 0, 0.5)'
+						/>
 					)}
 
 				{/* Attack Range Highlight Layer */}
 				{attackState?.isSelectingTarget && getCharacterPosition(attackState.attacker.id) && (
-					<g style={{ pointerEvents: 'none' }}>
-						{getHexesInRange(
+					<HexHighlightLayer
+						hexes={getHexesInRange(
 							getCharacterPosition(attackState.attacker.id)!,
 							getAttackRange(attackState.attacker, attackState.attackIndex).value,
-						).map(({ q, r }, i) => (
-							<Hex key={`attack-range-${i}`} q={q} r={r}>
-								<path
-									d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
-									fill='rgba(255, 0, 0, 0.2)'
-									stroke='rgba(255, 0, 0, 0.5)'
-									strokeWidth='0.5'
-								/>
-							</Hex>
-						))}
-					</g>
+						)}
+						fillColor='rgba(255, 0, 0, 0.2)'
+						strokeColor='rgba(255, 0, 0, 0.5)'
+					/>
 				)}
 
 				{/* Measure Path Highlight Layer */}
 				{measureState && getCharacterPosition(measureState.fromCharacter.id) && measureState.hoveredPosition && (
-					<g style={{ pointerEvents: 'none' }}>
-						{findShortestPath(getCharacterPosition(measureState.fromCharacter.id)!, measureState.hoveredPosition).map(
-							({ q, r }, i) => (
-								<Hex key={`measure-path-${i}`} q={q} r={r}>
-									<path
-										d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
-										fill='rgba(0, 255, 0, 0.3)'
-										stroke='rgba(0, 255, 0, 0.7)'
-										strokeWidth='1'
-									/>
-								</Hex>
-							),
-						)}
-					</g>
+					<HexHighlightLayer
+						hexes={findShortestPath(getCharacterPosition(measureState.fromCharacter.id)!, measureState.hoveredPosition)}
+						fillColor='rgba(0, 255, 0, 0.3)'
+						strokeColor='rgba(0, 255, 0, 0.7)'
+						strokeWidth={1}
+					/>
 				)}
 
-				{/* Character Tokens Layer */}
+				{/* Character Tokens Layer - Render directly from characters, not hexes */}
 				<g>
-					{generateHexes(mapSize.width, mapSize.height).map(({ q, r }, i) => (
-						<Hex key={`char-${i}`} q={q} r={r}>
-							{encounterCharacters
-								.filter(c => {
-									const pos = getCharacterPosition(c.id);
-									return pos?.q === q && pos?.r === r;
-								})
-								.map(character => (
-									<CharacterToken
-										key={character.id}
-										character={character}
-										onClick={e => handleCharacterMouseDown(e, character)}
-										onMouseEnter={() => handleCharacterMouseEnter(character)}
-										onMouseLeave={handleCharacterMouseLeave}
-										isGhost={dragState.type === 'character' && dragState.objectId === character.id}
-									/>
-								))}
-						</Hex>
-					))}
+					{encounterCharacters.map(character => {
+						const pos = getCharacterPosition(character.id);
+						if (!pos) return null;
+						const { x, y } = axialToPixel(pos.q, pos.r);
+						return (
+							<g key={character.id} transform={`translate(${x},${y})`}>
+								<CharacterToken
+									character={character}
+									onClick={e => handleCharacterMouseDown(e, character)}
+									onMouseEnter={() => handleCharacterMouseEnter(character)}
+									onMouseLeave={handleCharacterMouseLeave}
+									isGhost={dragState.type === 'character' && dragState.objectId === character.id}
+								/>
+							</g>
+						);
+					})}
 				</g>
 
 				{/* Ghost Token Layer */}
