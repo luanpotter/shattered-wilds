@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaTrash } from 'react-icons/fa';
 
 import { useStore } from '../../store';
-import { HexPosition } from '../../types/ui';
+import { Drawing, HexPosition } from '../../types/ui';
 import { Button } from '../shared/Button';
 import { AddCharacterDropdown } from '../shared/FilterableCharacterSelect';
 
@@ -18,6 +18,7 @@ export const EncounterConfigModal: React.FC<EncounterConfigModalProps> = ({ enco
 
 	const encounter = encounters.find(e => e.id === encounterId);
 	const [name, setName] = useState(encounter?.name ?? '');
+	const [confirmDeleteDrawingType, setConfirmDeleteDrawingType] = useState<Drawing['type'] | null>(null);
 
 	// Sync local name state if encounter name changes externally
 	useEffect(() => {
@@ -174,6 +175,75 @@ export const EncounterConfigModal: React.FC<EncounterConfigModalProps> = ({ enco
 					</div>
 				</div>
 			</div>
+
+			{/* Map Drawings Section */}
+			{encounter.map && encounter.map.drawings.length > 0 && (
+				<div style={{ marginBottom: '1rem' }}>
+					<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Map Drawings</span>
+					<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+						{(() => {
+							const drawingCounts = encounter.map.drawings.reduce(
+								(acc, drawing) => {
+									acc[drawing.type] = (acc[drawing.type] || 0) + 1;
+									return acc;
+								},
+								{} as Record<string, number>,
+							);
+
+							const typeLabels: Record<string, string> = {
+								line: 'Line Drawings',
+							};
+
+							return Object.entries(drawingCounts).map(([type, count]) => (
+								<li
+									key={type}
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+										padding: '0.5rem',
+										borderBottom: '1px solid var(--text-muted)',
+									}}
+								>
+									{confirmDeleteDrawingType === type ? (
+										<>
+											<span style={{ color: 'var(--accent)' }}>
+												Delete all {count} {typeLabels[type] ?? type}?
+											</span>
+											<div style={{ display: 'flex', gap: '0.5rem' }}>
+												<Button
+													onClick={() => {
+														const newDrawings = encounter.map!.drawings.filter(d => d.type !== type);
+														updateEncounter({
+															...encounter,
+															map: { ...encounter.map!, drawings: newDrawings },
+														});
+														setConfirmDeleteDrawingType(null);
+													}}
+													title='Yes'
+												/>
+												<Button onClick={() => setConfirmDeleteDrawingType(null)} title='No' variant='inline' />
+											</div>
+										</>
+									) : (
+										<>
+											<span>
+												{typeLabels[type] ?? type} ({count})
+											</span>
+											<Button
+												onClick={() => setConfirmDeleteDrawingType(type as Drawing['type'])}
+												icon={FaTrash}
+												variant='inline'
+												tooltip={`Delete all ${typeLabels[type] ?? type}`}
+											/>
+										</>
+									)}
+								</li>
+							));
+						})()}
+					</ul>
+				</div>
+			)}
 
 			<div style={{ display: 'flex', justifyContent: 'flex-end' }}>
 				<Button onClick={onClose} title='Done' />
