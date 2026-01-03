@@ -98,20 +98,12 @@ interface HexHighlightLayerProps {
 	hexes: HexPosition[];
 	fillColor: string;
 	strokeColor: string;
-	strokeWidth?: number;
 	mapWidth: number;
 	mapHeight: number;
 }
 
 // Memoized highlight layer for movement/attack range
-function HexHighlightLayerComponent({
-	hexes,
-	fillColor,
-	strokeColor,
-	strokeWidth = 0.5,
-	mapWidth,
-	mapHeight,
-}: HexHighlightLayerProps) {
+function HexHighlightLayerComponent({ hexes, fillColor, strokeColor, mapWidth, mapHeight }: HexHighlightLayerProps) {
 	return (
 		<g style={{ pointerEvents: 'none' }}>
 			{hexes
@@ -125,7 +117,7 @@ function HexHighlightLayerComponent({
 							transform={`translate(${x},${y})`}
 							fill={fillColor}
 							stroke={strokeColor}
-							strokeWidth={strokeWidth}
+							strokeWidth={0.5}
 						/>
 					);
 				})}
@@ -1207,9 +1199,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				{measureState && getCharacterPosition(measureState.fromCharacter.id) && measureState.hoveredPosition && (
 					<HexHighlightLayer
 						hexes={findHexPath(getCharacterPosition(measureState.fromCharacter.id)!, measureState.hoveredPosition)}
-						fillColor='rgba(0, 255, 0, 0.3)'
-						strokeColor='rgba(0, 255, 0, 0.7)'
-						strokeWidth={1}
+						fillColor='rgba(0, 255, 0, 0.2)'
+						strokeColor='rgba(0, 255, 0, 0.5)'
 						mapWidth={map.size.width}
 						mapHeight={map.size.height}
 					/>

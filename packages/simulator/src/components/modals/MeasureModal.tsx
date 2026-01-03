@@ -16,9 +16,6 @@ export const MeasureModal: React.FC<MeasureModalProps> = ({ fromCharacter, toPos
 	const modalStyle: React.CSSProperties = {
 		padding: '20px',
 		maxWidth: '400px',
-		backgroundColor: 'var(--background)',
-		border: '1px solid var(--text)',
-		borderRadius: '8px',
 		boxSizing: 'border-box',
 	};
 
