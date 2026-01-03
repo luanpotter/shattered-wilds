@@ -14,7 +14,17 @@ import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react'
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
 import { getBasicAttacksFor } from '../types/grid-actions';
-import { DragState, Point, Character, HexPosition, MapMode, MapTool, LineToolState, HexVertex, GameMap } from '../types/ui';
+import {
+	DragState,
+	Point,
+	Character,
+	HexPosition,
+	MapMode,
+	MapTool,
+	LineToolState,
+	HexVertex,
+	GameMap,
+} from '../types/ui';
 
 import { CharacterToken } from './CharacterToken';
 import { TokenContextMenu } from './TokenContextMenu';
@@ -519,6 +529,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							type: 'line',
 							start: lineToolState.startVertex,
 							end: lineToolState.currentEndVertex,
+							color: 'var(--accent)',
 						},
 					],
 				});
@@ -792,7 +803,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 									key={index}
 									points={pathVertices.map(v => `${v.x},${v.y}`).join(' ')}
 									fill='none'
-									stroke='var(--text)'
+									stroke={drawing.color}
 									strokeWidth='0.4'
 									strokeLinecap='round'
 									strokeLinejoin='round'

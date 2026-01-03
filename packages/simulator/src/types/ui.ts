@@ -19,6 +19,7 @@ export interface LineDrawing {
 	type: 'line';
 	start: HexVertex;
 	end: HexVertex;
+	color: string;
 }
 
 export type Drawing = LineDrawing;

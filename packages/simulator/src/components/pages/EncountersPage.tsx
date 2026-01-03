@@ -55,13 +55,19 @@ export const EncountersPage: React.FC<EncountersPageProps> = ({ initialEncounter
 	};
 
 	const handleCreateEncounter = () => {
-		if (!newEncounterName.trim()) return;
+		if (!newEncounterName.trim()) {
+			console.error('Encounter name is required');
+			return;
+		}
 
 		const encounter: Encounter = {
 			id: window.crypto.randomUUID(),
 			name: newEncounterName.trim(),
 			characterPositions: {},
-			mapSize: { width: 10, height: 10 },
+			map: {
+				size: { width: 10, height: 10 },
+				drawings: [],
+			},
 		};
 
 		let q = 0;
