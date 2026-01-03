@@ -15,6 +15,7 @@ export * from './core/races.js';
 export * from './core/size.js';
 export * from './core/traits.js';
 export * from './engine/check-factory.js';
+export * from './hex.js';
 export * from './sections/actions/actions-section.js';
 export * from './sections/arcane/arcane-section.js';
 export * from './sections/circumstances/circumstances-section.js';

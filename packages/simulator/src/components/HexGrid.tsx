@@ -1,11 +1,20 @@
-import { CharacterSheet, DerivedStatType, Distance } from '@shattered-wilds/commons';
+import {
+	CharacterSheet,
+	DerivedStatType,
+	Distance,
+	axialToPixel,
+	pixelToAxial,
+	hexDistance,
+	findHexPath,
+	findNearestVertex,
+	findVertexPath,
+} from '@shattered-wilds/commons';
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
 import { getBasicAttacksFor } from '../types/grid-actions';
-import { DragState, Point, Character, HexPosition, MapMode, MapTool } from '../types/ui';
-import { axialToPixel } from '../utils';
+import { DragState, Point, Character, HexPosition, MapMode, MapTool, LineToolState } from '../types/ui';
 
 import { CharacterToken } from './CharacterToken';
 import { TokenContextMenu } from './TokenContextMenu';
@@ -195,6 +204,10 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		isSelectingTarget: boolean;
 		hoveredPosition?: HexPosition;
 	} | null>(null);
+	const [lineToolState, setLineToolState] = useState<LineToolState | null>(null);
+
+	// Line tool helper: check if we're actively using the line tool
+	const isLineTool = isMapMode && selectedTool === 'line';
 
 	const findCharacterAtHex = useCallback(
 		(q: number, r: number): Character | undefined => {
@@ -390,7 +403,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				if (attackerPos && targetPos) {
 					// Check if the target is within range
 					const attackRange = getAttackRange(attackState.attacker, attackState.attackIndex).value;
-					const distance = getHexDistance(attackerPos, targetPos);
+					const distance = hexDistance(attackerPos, targetPos);
 
 					if (distance <= attackRange) {
 						// Valid target - open Attack Action Modal
@@ -470,8 +483,33 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		if (e.button === 0) {
 			// Left click: allow drag, block default
 			e.preventDefault();
+
+			// Handle line tool start
+			if (isLineTool && svgRef.current) {
+				const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
+				if (svgCoords) {
+					const startVertex = findNearestVertex(svgCoords, 10);
+					if (startVertex) {
+						setLineToolState({
+							startVertex,
+							currentEndVertex: startVertex,
+							pathVertices: [startVertex],
+						});
+					}
+				}
+			}
 		}
 		// For middle and right click, do not block default behavior
+	};
+
+	const handleMouseUp = (e: React.MouseEvent) => {
+		if (e.button === 0 && isLineTool && lineToolState) {
+			// Line tool finished - for now just log the path, later we'll persist it
+			console.log('Line tool finished with path:', lineToolState.pathVertices);
+			// Clear the line tool state (the line is "committed")
+			// TODO: Actually persist the line to the map state
+			setLineToolState(null);
+		}
 	};
 
 	// Function to get all hexes within range
@@ -489,70 +527,6 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			}
 		}
 		return hexes;
-	};
-
-	// Function to calculate hex distance between two positions
-	const getHexDistance = (pos1: HexPosition, pos2: HexPosition): number => {
-		return (Math.abs(pos1.q - pos2.q) + Math.abs(pos1.q + pos1.r - pos2.q - pos2.r) + Math.abs(pos1.r - pos2.r)) / 2;
-	};
-
-	// Function to calculate shortest path between two hex positions
-	const findShortestPath = (start: HexPosition, end: HexPosition): HexPosition[] => {
-		// If same position, return single hex
-		if (start.q === end.q && start.r === end.r) {
-			return [start];
-		}
-
-		// Convert axial to cube coordinates for line algorithm
-		const axialToCube = (hex: HexPosition) => ({
-			x: hex.q,
-			y: -hex.q - hex.r,
-			z: hex.r,
-		});
-
-		const cubeToAxial = (cube: { x: number; y: number; z: number }) => ({
-			q: cube.x,
-			r: cube.z,
-		});
-
-		const cubeRound = (cube: { x: number; y: number; z: number }) => {
-			let rx = Math.round(cube.x);
-			let ry = Math.round(cube.y);
-			let rz = Math.round(cube.z);
-
-			const xDiff = Math.abs(rx - cube.x);
-			const yDiff = Math.abs(ry - cube.y);
-			const zDiff = Math.abs(rz - cube.z);
-
-			if (xDiff > yDiff && xDiff > zDiff) {
-				rx = -ry - rz;
-			} else if (yDiff > zDiff) {
-				ry = -rx - rz;
-			} else {
-				rz = -rx - ry;
-			}
-
-			return { x: rx, y: ry, z: rz };
-		};
-
-		const startCube = axialToCube(start);
-		const endCube = axialToCube(end);
-		const distance = getHexDistance(start, end);
-
-		const path: HexPosition[] = [];
-
-		for (let i = 0; i <= distance; i++) {
-			const t = distance === 0 ? 0 : i / distance;
-			const cube = {
-				x: startCube.x + (endCube.x - startCube.x) * t,
-				y: startCube.y + (endCube.y - startCube.y) * t,
-				z: startCube.z + (endCube.z - startCube.z) * t,
-			};
-			const rounded = cubeRound(cube);
-			path.push(cubeToAxial(rounded));
-		}
-
-		return path;
 	};
 
 	// Handle measure action
@@ -575,6 +549,28 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			});
 		}
 
+		// Handle line tool drawing
+		if (isLineTool && lineToolState && svgRef.current) {
+			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
+			if (svgCoords) {
+				// Find nearest vertex to the current mouse position
+				const nearestVertex = findNearestVertex(svgCoords, 10);
+				if (nearestVertex) {
+					// Compute the path from start to current end vertex
+					const pathVertices = findVertexPath(lineToolState.startVertex, nearestVertex, 10);
+					setLineToolState(prev =>
+						prev
+							? {
+									...prev,
+									currentEndVertex: nearestVertex,
+									pathVertices,
+								}
+							: null,
+					);
+				}
+			}
+		}
+
 		// Handle measure hover
 		if (measureState?.isSelectingTarget && svgRef.current) {
 			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
@@ -586,20 +582,12 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		}
 	};
 
-	// Convert pixel coordinates to axial hex coordinates
-	const pixelToAxial = (x: number, y: number): HexPosition => {
-		// Inverse of axialToPixel: x = q * 10 + r * 5, y = r * 8.66
-		const r = Math.round(y / 8.66);
-		const q = Math.round((x - r * 5) / 10);
-		return { q, r };
-	};
-
 	// Handle hex click for measure
 	const handleHexClick = (q: number, r: number) => {
 		const fromPos = getCharacterPosition(measureState?.fromCharacter.id ?? '');
 		if (measureState?.isSelectingTarget && fromPos) {
 			const toPosition = { q, r };
-			const distance = getHexDistance(fromPos, toPosition);
+			const distance = hexDistance(fromPos, toPosition);
 			const characterId = measureState.fromCharacter.id;
 
 			// Open measure modal with move callback
@@ -655,11 +643,18 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				height: '100%',
 				overflow: 'hidden',
 				position: 'relative',
-				cursor: measureState?.isSelectingTarget ? 'crosshair' : dragState.type === 'character' ? 'grabbing' : 'default',
+				cursor: isLineTool
+					? 'crosshair'
+					: measureState?.isSelectingTarget
+						? 'crosshair'
+						: dragState.type === 'character'
+							? 'grabbing'
+							: 'default',
 			}}
 			onWheel={handleWheel}
 			onMouseMove={handleMouseMove}
 			onMouseDown={handleMouseDown}
+			onMouseUp={handleMouseUp}
 			onContextMenu={e => {
 				e.preventDefault();
 				handleGridRightClick(e);
@@ -732,7 +727,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				{/* Measure Path Highlight Layer */}
 				{measureState && getCharacterPosition(measureState.fromCharacter.id) && measureState.hoveredPosition && (
 					<HexHighlightLayer
-						hexes={findShortestPath(getCharacterPosition(measureState.fromCharacter.id)!, measureState.hoveredPosition)}
+						hexes={findHexPath(getCharacterPosition(measureState.fromCharacter.id)!, measureState.hoveredPosition)}
 						fillColor='rgba(0, 255, 0, 0.3)'
 						strokeColor='rgba(0, 255, 0, 0.7)'
 						strokeWidth={1}
@@ -761,6 +756,29 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 						);
 					})}
 				</g>
+
+				{/* Line Tool Preview Layer */}
+				{lineToolState && lineToolState.pathVertices.length > 1 && (
+					<g style={{ pointerEvents: 'none' }}>
+						<polyline
+							points={lineToolState.pathVertices.map(v => `${v.x},${v.y}`).join(' ')}
+							fill='none'
+							stroke='var(--accent)'
+							strokeWidth='1'
+							strokeLinecap='round'
+							strokeLinejoin='round'
+						/>
+						{/* Start vertex marker */}
+						<circle cx={lineToolState.startVertex.x} cy={lineToolState.startVertex.y} r='1.5' fill='var(--accent)' />
+						{/* End vertex marker */}
+						<circle
+							cx={lineToolState.currentEndVertex.x}
+							cy={lineToolState.currentEndVertex.y}
+							r='1.5'
+							fill='var(--accent)'
+						/>
+					</g>
+				)}
 
 				{/* Ghost Token Layer */}
 				{dragState.type === 'character' && dragState.objectId && ghostPosition && (

@@ -1,4 +1,4 @@
-import { Character, Point } from './types/ui';
+import { Character } from './types/ui';
 
 /**
  * Find the next available character number
@@ -29,15 +29,6 @@ export const findNextCharacterNumber = (characters: Character[]): number => {
 	}
 
 	return nextNumber;
-};
-
-/**
- * Convert axial hex coordinates to pixel coordinates
- */
-export const axialToPixel = (q: number, r: number): Point => {
-	const x = q * 10 + r * 5;
-	const y = r * 8.66; // sqrt(3) * 5
-	return { x, y };
 };
 
 /**

@@ -1,17 +1,30 @@
-import { Check, FeatSlot, FeatDefinition, Condition, Consequence, ResourceCost } from '@shattered-wilds/commons';
+import {
+	Check,
+	FeatSlot,
+	FeatDefinition,
+	Condition,
+	Consequence,
+	ResourceCost,
+	Point,
+	HexCoord as HexPosition,
+	HexVertex,
+} from '@shattered-wilds/commons';
 
-export interface Point {
-	x: number;
-	y: number;
-}
-
-export interface HexPosition {
-	q: number;
-	r: number;
-}
+// Re-export for convenience
+export type { Point, HexPosition, HexVertex };
 
 export type MapMode = 'map' | 'encounter';
 export type MapTool = 'select' | 'line';
+
+/** State for the line drawing tool */
+export interface LineToolState {
+	/** The starting vertex of the line (set on first click) */
+	startVertex: HexVertex;
+	/** The current end vertex (follows mouse, snapped to nearest vertex) */
+	currentEndVertex: HexVertex;
+	/** The computed path of vertices along hex edges from start to end */
+	pathVertices: HexVertex[];
+}
 
 export type DragType = 'none' | 'modal' | 'grid' | 'character';
 
