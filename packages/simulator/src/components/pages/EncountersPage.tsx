@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FaEye, FaPlus, FaTrash } from 'react-icons/fa';
 
 import { useStore } from '../../store';
-import { Encounter } from '../../types/ui';
+import { createNewEncounter, Encounter } from '../../types/ui';
 import { Navigator } from '../../utils/routes';
 import { Button } from '../shared/Button';
 import { FilterableCharacterSelect } from '../shared/FilterableCharacterSelect';
@@ -55,30 +55,15 @@ export const EncountersPage: React.FC<EncountersPageProps> = ({ initialEncounter
 	};
 
 	const handleCreateEncounter = () => {
-		if (!newEncounterName.trim()) {
+		const name = newEncounterName.trim();
+		if (!name) {
 			console.error('Encounter name is required');
 			return;
 		}
 
-		const encounter: Encounter = {
-			id: window.crypto.randomUUID(),
-			name: newEncounterName.trim(),
-			characterPositions: {},
-			map: {
-				size: { width: 10, height: 10 },
-				drawings: [],
-			},
-		};
-
-		let q = 0;
-		let r = 0;
-		selectedCharacterIds.forEach((charId, index) => {
-			encounter.characterPositions[charId] = { q, r };
-			q += 1;
-			if ((index + 1) % 5 === 0) {
-				q = 0;
-				r += 1;
-			}
+		const encounter = createNewEncounter({
+			name,
+			characterIds: selectedCharacterIds,
 		});
 
 		addEncounter(encounter);
