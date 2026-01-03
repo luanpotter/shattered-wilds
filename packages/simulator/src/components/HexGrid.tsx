@@ -48,25 +48,36 @@ interface HexHighlightLayerProps {
 	fillColor: string;
 	strokeColor: string;
 	strokeWidth?: number;
+	mapWidth: number;
+	mapHeight: number;
 }
 
 // Memoized highlight layer for movement/attack range
-function HexHighlightLayerComponent({ hexes, fillColor, strokeColor, strokeWidth = 0.5 }: HexHighlightLayerProps) {
+function HexHighlightLayerComponent({
+	hexes,
+	fillColor,
+	strokeColor,
+	strokeWidth = 0.5,
+	mapWidth,
+	mapHeight,
+}: HexHighlightLayerProps) {
 	return (
 		<g style={{ pointerEvents: 'none' }}>
-			{hexes.map(({ q, r }) => {
-				const { x, y } = axialToPixel(q, r);
-				return (
-					<path
-						key={`${q},${r}`}
-						d={HEX_PATH}
-						transform={`translate(${x},${y})`}
-						fill={fillColor}
-						stroke={strokeColor}
-						strokeWidth={strokeWidth}
-					/>
-				);
-			})}
+			{hexes
+				.filter(pos => isHexInBounds(pos, mapWidth, mapHeight))
+				.map(({ q, r }) => {
+					const { x, y } = axialToPixel(q, r);
+					return (
+						<path
+							key={`${q},${r}`}
+							d={HEX_PATH}
+							transform={`translate(${x},${y})`}
+							fill={fillColor}
+							stroke={strokeColor}
+							strokeWidth={strokeWidth}
+						/>
+					);
+				})}
 		</g>
 	);
 }
@@ -97,6 +108,23 @@ const generateHexes = (width: number, height: number): HexPosition[] => {
 	}
 
 	return hexes;
+};
+
+// Check if a hex position is within the grid bounds
+const isHexInBounds = (pos: HexPosition, width: number, height: number): boolean => {
+	const { q, r } = pos;
+
+	// Check vertical bounds
+	if (r < -height || r > height) {
+		return false;
+	}
+
+	// Calculate the q range for this row (same logic as generateHexes)
+	const qOffset = Math.floor(r / 2);
+	const minQ = -width - qOffset;
+	const maxQ = width - qOffset;
+
+	return q >= minQ && q <= maxQ;
 };
 
 // Calculate the SVG viewBox dimensions based on map size
@@ -637,6 +665,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							)}
 							fillColor='rgba(0, 255, 0, 0.2)'
 							strokeColor='rgba(0, 255, 0, 0.5)'
+							mapWidth={mapSize.width}
+							mapHeight={mapSize.height}
 						/>
 					)}
 
@@ -649,6 +679,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 						)}
 						fillColor='rgba(255, 0, 0, 0.2)'
 						strokeColor='rgba(255, 0, 0, 0.5)'
+						mapWidth={mapSize.width}
+						mapHeight={mapSize.height}
 					/>
 				)}
 
@@ -659,6 +691,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 						fillColor='rgba(0, 255, 0, 0.3)'
 						strokeColor='rgba(0, 255, 0, 0.7)'
 						strokeWidth={1}
+						mapWidth={mapSize.width}
+						mapHeight={mapSize.height}
 					/>
 				)}
 
