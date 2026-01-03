@@ -14,7 +14,7 @@ import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react'
 import { useModals } from '../hooks/useModals';
 import { useStore } from '../store';
 import { getBasicAttacksFor } from '../types/grid-actions';
-import { DragState, Point, Character, HexPosition, MapMode, MapTool, LineToolState, HexVertex } from '../types/ui';
+import { DragState, Point, Character, HexPosition, MapMode, MapTool, LineToolState, HexVertex, GameMap } from '../types/ui';
 
 import { CharacterToken } from './CharacterToken';
 import { TokenContextMenu } from './TokenContextMenu';
@@ -166,7 +166,8 @@ interface BattleGridProps {
 	encounterCharacters: Character[];
 	getCharacterPosition: (characterId: string) => HexPosition | undefined;
 	updateCharacterPosition: (characterId: string, pos: HexPosition) => void;
-	mapSize: { width: number; height: number };
+	map: GameMap;
+	updateMap: (map: GameMap) => void;
 	mapMode?: MapMode;
 	selectedTool?: MapTool;
 }
@@ -175,7 +176,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	encounterCharacters,
 	getCharacterPosition,
 	updateCharacterPosition,
-	mapSize,
+	map,
+	updateMap,
 	mapMode = 'encounter',
 	selectedTool = 'select',
 }) => {
@@ -505,10 +507,22 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 	const handleMouseUp = (e: React.MouseEvent) => {
 		if (e.button === 0 && isLineTool && lineToolState) {
-			// Line tool finished - for now just log the path, later we'll persist it
-			console.log('Line tool finished with path:', lineToolState.pathVertices);
-			// Clear the line tool state (the line is "committed")
-			// TODO: Actually persist the line to the map state
+			if (
+				lineToolState.startVertex.x !== lineToolState.currentEndVertex.x ||
+				lineToolState.startVertex.y !== lineToolState.currentEndVertex.y
+			) {
+				updateMap({
+					...map,
+					drawings: [
+						...map.drawings,
+						{
+							type: 'line',
+							start: lineToolState.startVertex,
+							end: lineToolState.currentEndVertex,
+						},
+					],
+				});
+			}
 			setLineToolState(null);
 		}
 	};
@@ -675,7 +689,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				ref={svgRef}
 				width='100%'
 				height='100%'
-				viewBox={calculateViewBox(mapSize.width, mapSize.height)}
+				viewBox={calculateViewBox(map.size.width, map.size.height)}
 				style={{
 					transform: `scale(${gridState.scale}) translate(${gridState.offset.x}px, ${gridState.offset.y}px)`,
 				}}
@@ -700,7 +714,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				}}
 			>
 				{/* Base Grid Layer - Static, memoized */}
-				<StaticHexGrid width={mapSize.width} height={mapSize.height} />
+				<StaticHexGrid width={map.size.width} height={map.size.height} />
 
 				{/* Movement Range Highlight Layer */}
 				{!isMapMode &&
@@ -716,8 +730,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							)}
 							fillColor='rgba(0, 255, 0, 0.2)'
 							strokeColor='rgba(0, 255, 0, 0.5)'
-							mapWidth={mapSize.width}
-							mapHeight={mapSize.height}
+							mapWidth={map.size.width}
+							mapHeight={map.size.height}
 						/>
 					)}
 
@@ -730,8 +744,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 						)}
 						fillColor='rgba(255, 0, 0, 0.2)'
 						strokeColor='rgba(255, 0, 0, 0.5)'
-						mapWidth={mapSize.width}
-						mapHeight={mapSize.height}
+						mapWidth={map.size.width}
+						mapHeight={map.size.height}
 					/>
 				)}
 
@@ -742,8 +756,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 						fillColor='rgba(0, 255, 0, 0.3)'
 						strokeColor='rgba(0, 255, 0, 0.7)'
 						strokeWidth={1}
-						mapWidth={mapSize.width}
-						mapHeight={mapSize.height}
+						mapWidth={map.size.width}
+						mapHeight={map.size.height}
 					/>
 				)}
 
@@ -765,6 +779,27 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 								/>
 							</g>
 						);
+					})}
+				</g>
+
+				{/* Saved Drawings Layer */}
+				<g style={{ pointerEvents: 'none' }}>
+					{map.drawings.map((drawing, index) => {
+						if (drawing.type === 'line') {
+							const pathVertices = findVertexPath(drawing.start, drawing.end, 10);
+							return (
+								<polyline
+									key={index}
+									points={pathVertices.map(v => `${v.x},${v.y}`).join(' ')}
+									fill='none'
+									stroke='var(--text)'
+									strokeWidth='0.4'
+									strokeLinecap='round'
+									strokeLinejoin='round'
+								/>
+							);
+						}
+						return null;
 					})}
 				</g>
 

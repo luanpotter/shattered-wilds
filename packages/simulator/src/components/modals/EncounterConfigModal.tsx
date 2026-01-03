@@ -39,19 +39,13 @@ export const EncounterConfigModal: React.FC<EncounterConfigModalProps> = ({ enco
 
 	const handleNameChange = (newName: string) => {
 		setName(newName);
-		updateEncounter({
-			...encounter,
-			name: newName,
-		});
+		updateEncounter({ ...encounter, name: newName });
 	};
 
 	const handleRemoveCharacter = (characterId: string) => {
 		const newPositions = { ...encounter.characterPositions };
 		delete newPositions[characterId];
-		updateEncounter({
-			...encounter,
-			characterPositions: newPositions,
-		});
+		updateEncounter({ ...encounter, characterPositions: newPositions });
 	};
 
 	const handleAddCharacter = (characterId: string) => {
@@ -134,12 +128,13 @@ export const EncounterConfigModal: React.FC<EncounterConfigModalProps> = ({ enco
 							type='number'
 							min={1}
 							max={50}
-							value={encounter.mapSize?.width ?? 10}
+							value={encounter.map?.size.width ?? 10}
 							onChange={e => {
 								const width = Math.max(1, Math.min(50, parseInt(e.target.value) || 1));
+								const currentMap = encounter.map ?? { size: { width: 10, height: 10 }, drawings: [] };
 								updateEncounter({
 									...encounter,
-									mapSize: { width, height: encounter.mapSize?.height ?? 10 },
+									map: { ...currentMap, size: { ...currentMap.size, width } },
 								});
 							}}
 							style={{
@@ -158,12 +153,13 @@ export const EncounterConfigModal: React.FC<EncounterConfigModalProps> = ({ enco
 							type='number'
 							min={1}
 							max={50}
-							value={encounter.mapSize?.height ?? 10}
+							value={encounter.map?.size.height ?? 10}
 							onChange={e => {
 								const height = Math.max(1, Math.min(50, parseInt(e.target.value) || 1));
+								const currentMap = encounter.map ?? { size: { width: 10, height: 10 }, drawings: [] };
 								updateEncounter({
 									...encounter,
-									mapSize: { width: encounter.mapSize?.width ?? 10, height },
+									map: { ...currentMap, size: { ...currentMap.size, height } },
 								});
 							}}
 							style={{

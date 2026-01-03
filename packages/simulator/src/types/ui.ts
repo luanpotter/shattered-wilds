@@ -10,19 +10,27 @@ import {
 	HexVertex,
 } from '@shattered-wilds/commons';
 
-// Re-export for convenience
 export type { Point, HexPosition, HexVertex };
 
 export type MapMode = 'map' | 'encounter';
 export type MapTool = 'select' | 'line';
 
-/** State for the line drawing tool */
+export interface LineDrawing {
+	type: 'line';
+	start: HexVertex;
+	end: HexVertex;
+}
+
+export type Drawing = LineDrawing;
+
+export interface GameMap {
+	size: { width: number; height: number };
+	drawings: Drawing[];
+}
+
 export interface LineToolState {
-	/** The starting vertex of the line (set on first click) */
 	startVertex: HexVertex;
-	/** The current end vertex (follows mouse, snapped to nearest vertex) */
 	currentEndVertex: HexVertex;
-	/** The computed path of vertices along hex edges from start to end */
 	pathVertices: HexVertex[];
 }
 
@@ -154,7 +162,7 @@ export interface Encounter {
 	id: string;
 	name: string;
 	characterPositions: Record<string, HexPosition>;
-	mapSize: { width: number; height: number };
+	map: GameMap;
 }
 
 export const createNewCharacter = ({ props }: { props: Record<string, string> }): Character => {
@@ -193,7 +201,10 @@ export const createNewEncounter = ({
 		id: window.crypto.randomUUID(),
 		name,
 		characterPositions,
-		mapSize: { width: 10, height: 10 },
+		map: {
+			size: { width: 10, height: 10 },
+			drawings: [],
+		},
 	};
 };
 

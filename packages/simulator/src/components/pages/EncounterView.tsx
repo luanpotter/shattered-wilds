@@ -14,7 +14,7 @@ import { FaX } from 'react-icons/fa6';
 
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
-import { Character, HexPosition, MapMode, MapTool } from '../../types/ui';
+import { Character, GameMap, HexPosition, MapMode, MapTool } from '../../types/ui';
 import { BattleGrid } from '../HexGrid';
 import { Button } from '../shared/Button';
 
@@ -62,6 +62,10 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 				[characterId]: pos,
 			},
 		});
+	};
+
+	const updateMap = (map: GameMap) => {
+		updateEncounter({ ...encounter, map });
 	};
 
 	const handleRecenter = () => {
@@ -145,7 +149,8 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 					encounterCharacters={encounterCharacters}
 					getCharacterPosition={getCharacterPosition}
 					updateCharacterPosition={updateCharacterPosition}
-					mapSize={encounter.mapSize ?? { width: 10, height: 10 }}
+					map={encounter.map ?? { size: { width: 10, height: 10 }, drawings: [] }}
+					updateMap={updateMap}
 					mapMode={mapMode}
 					selectedTool={selectedTool}
 				/>
