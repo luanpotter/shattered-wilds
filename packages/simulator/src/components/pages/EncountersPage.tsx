@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { FaEye, FaPlus, FaTrash } from 'react-icons/fa';
+import { FaDownload, FaEye, FaPlus, FaTrash, FaUpload } from 'react-icons/fa';
 
 import { useStore } from '../../store';
 import { createNewEncounter, Encounter } from '../../types/ui';
+import { copyEncounterToClipboard, importEncounterFromClipboard } from '../../utils/encounterShare';
 import { Navigator } from '../../utils/routes';
 import { Button } from '../shared/Button';
 import { FilterableCharacterSelect } from '../shared/FilterableCharacterSelect';
@@ -86,6 +87,20 @@ export const EncountersPage: React.FC<EncountersPageProps> = ({ initialEncounter
 		);
 	};
 
+	const handleExportEncounter = (encounter: Encounter) => {
+		copyEncounterToClipboard(encounter);
+	};
+
+	const handleImportEncounter = async () => {
+		const result = await importEncounterFromClipboard();
+		if (typeof result === 'string') {
+			setError(result);
+			return;
+		}
+		addEncounter(result);
+		handleViewEncounter(result);
+	};
+
 	if (selectedEncounterId) {
 		return <EncounterView encounterId={selectedEncounterId} onBack={handleBackToList} />;
 	}
@@ -149,6 +164,7 @@ export const EncountersPage: React.FC<EncountersPageProps> = ({ initialEncounter
 				>
 					<h2 style={{ margin: 0 }}>Encounters</h2>
 					<div style={{ display: 'flex', gap: '1rem' }}>
+						<Button onClick={handleImportEncounter} icon={FaUpload} title='Import Encounter' />
 						<Button onClick={() => setShowCreateForm(true)} icon={FaPlus} title='New Encounter' />
 					</div>
 				</div>
@@ -285,6 +301,7 @@ export const EncountersPage: React.FC<EncountersPageProps> = ({ initialEncounter
 										</span>
 										<div style={{ display: 'flex', gap: '0.5rem' }}>
 											<Button onClick={() => handleViewEncounter(encounter)} icon={FaEye} title='View' />
+											<Button onClick={() => handleExportEncounter(encounter)} icon={FaDownload} title='Export' />
 											<Button onClick={() => handleDeleteEncounter(encounter)} icon={FaTrash} title='Delete' />
 										</div>
 									</div>
