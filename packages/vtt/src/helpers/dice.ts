@@ -1,8 +1,6 @@
-import { Check, DiceRoll } from '@shattered-wilds/commons';
+import { Check, DiceRoll, DiceRollConfig, DiceRoller, EntropyProvider, RollResults } from '@shattered-wilds/commons';
 import { Foundry, FoundryRoll } from '../foundry-shim';
 import { DiceRollModal } from '../modals/dice-modal';
-
-export type ExtraDiceParams = { value: number; valid?: boolean; label?: string };
 
 export interface RollDiceRequest {
 	actorId: string;
@@ -11,6 +9,26 @@ export interface RollDiceRequest {
 	targetDC: number | undefined;
 	useModal: boolean;
 }
+
+/**
+ * EntropyProvider that uses Foundry's Roll to generate d12 values.
+ * Returns the FoundryRoll as context for later use with .toMessage().
+ */
+const foundryEntropyProvider: EntropyProvider<FoundryRoll> = async (count: number) => {
+	const foundryRoll = await Foundry.Roll.create(`${count}d12`);
+	await foundryRoll.evaluate();
+
+	const values: number[] = [];
+	for (let i = 0; i < count; i++) {
+		const result = foundryRoll.terms[0]?.results?.[i]?.result;
+		if (result === undefined) {
+			throw new Error(`No result at index ${i}`);
+		}
+		values.push(result);
+	}
+
+	return { values, context: foundryRoll };
+};
 
 export const rollDice = async (request: RollDiceRequest): Promise<void> => {
 	if (request.useModal) {
@@ -35,121 +53,58 @@ export const rollDice = async (request: RollDiceRequest): Promise<void> => {
 export const executeEnhancedRoll = async (roll: DiceRoll): Promise<number> => {
 	const { characterName, check, extra, luck, targetDC } = roll;
 
-	const diceCount = 2 + (extra ? 1 : 0) + (luck ? 1 : 0);
-
-	const rolls = await Foundry.Roll.create(`${diceCount}d12`);
-	await rolls.evaluate();
-
-	const extraDice: { extra: ExtraDiceParams | undefined; luck: ExtraDiceParams | undefined } = {
-		extra: undefined,
-		luck: undefined,
+	// Build config for DiceRoller
+	const config: DiceRollConfig = {
+		modifierValue: check.modifierValue.value,
+		checkType: check.type,
+		targetDC: targetDC ?? null,
+		...(extra && { extra: { name: extra.name, value: extra.value } }),
+		...(luck && { luck: { value: luck.value } }),
 	};
 
-	if (extra) {
-		const extraIndex = 2;
-		const extraRollValue = rolls.terms[0]!.results![extraIndex]!.result;
-		const extraValue = extra.value;
+	// Use DiceRoller to roll and process - context contains the FoundryRoll
+	const diceRoller = new DiceRoller(foundryEntropyProvider);
+	const results = await diceRoller.roll(config);
 
-		extraDice.extra = {
-			value: extraRollValue,
-			valid: extraRollValue <= extraValue,
-			label: `${extra.name} (${extraValue})`,
-		};
-	}
-
-	if (luck) {
-		const luckIndex = 2 + (extra ? 1 : 0);
-		const luckRollValue = rolls.terms[0]!.results![luckIndex]!.result;
-		const fortuneValue = luck.value;
-
-		extraDice.luck = {
-			value: luckRollValue,
-			valid: luckRollValue <= fortuneValue,
-			label: `Luck (${fortuneValue})`,
-		};
-	}
-
-	return await processEnhancedShatteredWildsRoll(rolls, check, extraDice, targetDC, {
-		speaker: {
-			alias: `${check.name} Check [${check.modifierValue.description}] - ${characterName}`,
-		},
+	return await displayRollResults({
+		check,
+		results,
+		extra,
+		luck,
+		characterName,
+		targetDC,
 	});
 };
 
-const calculateShifts = (excess: number): number => {
-	if (excess < 6) return 0;
+interface DisplayParams {
+	check: Check;
+	results: RollResults<FoundryRoll>;
+	extra: DiceRoll['extra'];
+	luck: DiceRoll['luck'];
+	characterName: string;
+	targetDC: number | undefined;
+}
 
-	let shifts = 0;
-	let threshold = 6;
-	let gap = 6;
+const displayRollResults = async (params: DisplayParams): Promise<number> => {
+	const { check, results, extra, luck, characterName, targetDC } = params;
+	const {
+		dice,
+		autoFail,
+		total: finalTotal,
+		critModifiers,
+		critShifts: shifts,
+		success,
+		selectedDice,
+		context: foundryRoll,
+	} = results;
 
-	while (excess >= threshold) {
-		shifts++;
-		threshold += gap;
-		gap += 6;
-	}
+	// Get base dice values for display
+	const baseValues = dice.filter(d => d.type === 'base').map(d => d.value);
+	const extraDie = dice.find(d => d.type === 'extra');
+	const luckDie = dice.find(d => d.type === 'luck');
 
-	return shifts;
-};
-
-const rollToResults = (roll: FoundryRoll, index: number): number | undefined => {
-	return roll.terms[0]?.results?.[index]?.result;
-};
-
-const processEnhancedShatteredWildsRoll = async (
-	rolls: FoundryRoll,
-	check: Check,
-	extraDice: { extra: ExtraDiceParams | undefined; luck: ExtraDiceParams | undefined },
-	targetDC: number | undefined,
-	chatOptions: { speaker?: { alias?: string }; flavor?: string },
-): Promise<number> => {
-	const baseValues = [rollToResults(rolls, 0)!, rollToResults(rolls, 1)!];
-
-	const allDiceValues = [
-		...baseValues,
-		...(extraDice.extra ? [extraDice.extra.value] : []),
-		...(extraDice.luck ? [extraDice.luck.value] : []),
-	];
-
-	const allValidDiceValues = [
-		...baseValues,
-		...(extraDice.extra?.valid === true ? [extraDice.extra.value] : []),
-		...(extraDice.luck?.valid === true ? [extraDice.luck.value] : []),
-	];
-	const topTwoValidDiceValues = allValidDiceValues.sort((a, b) => b - a).slice(0, 2);
-
-	// Check for crit modifiers
-	let critModifiers = 0;
-	if (allDiceValues.includes(12)) critModifiers += 6;
-
-	// Check for pairs
-	const pairs = allDiceValues.filter(
-		(val: number, i: number, arr: number[]) =>
-			arr.indexOf(val) !== i && arr.filter((x: number) => x === val).length >= 2,
-	);
-	if (pairs.length > 0) critModifiers += 6;
-
-	// Check for auto-fail (pair of 1s)
-	const ones = allDiceValues.filter((v: number) => v === 1);
-	const autoFail = ones.length >= 2;
-
-	// Calculate final total
-	const baseTotal = topTwoValidDiceValues.reduce((sum, val) => sum + val, 0);
-
-	const diceTotal = baseTotal + critModifiers;
-	const finalTotal = diceTotal + check.modifierValue.value;
-
-	// Calculate success and shifts if DC is provided
-	let success: boolean | undefined;
-	let shifts = 0;
-
-	if (!autoFail && targetDC !== undefined) {
-		success = finalTotal >= targetDC;
-		if (success) {
-			const excess = finalTotal - targetDC;
-			shifts = calculateShifts(excess);
-		}
-	}
+	// Get base total for display
+	const baseTotal = selectedDice.reduce((sum, val) => sum + val, 0);
 
 	// Build enhanced mechanics message
 	let mechanicsHtml = `<div class="shattered-wilds-mechanics" style="font-family: Arial; margin: 8px 0; padding: 8px; border: 1px solid #ccc; border-radius: 4px; background: #f9f9f9;">`;
@@ -169,16 +124,16 @@ const processEnhancedShatteredWildsRoll = async (
 	mechanicsHtml += `<div style="margin-bottom: 8px;">`;
 	mechanicsHtml += `<strong>Base Dice:</strong> ${baseValues.join(', ')}`;
 
-	if (extraDice.extra) {
-		const extraLabels = extraDice.extra.valid !== undefined ? (extraDice.extra.valid ? ' ✓' : ' ✗') : '';
-		mechanicsHtml += `<br><strong>Extra Dice:</strong> ${extraDice.extra.label}: ${extraDice.extra.value}${extraLabels}`;
+	if (extraDie && extra) {
+		const extraLabel = extraDie.valid ? ' ✓' : ' ✗';
+		mechanicsHtml += `<br><strong>Extra Die:</strong> ${extra.name} (${extra.value}): ${extraDie.value}${extraLabel}`;
 	}
-	if (extraDice.luck) {
-		const luckLabels = extraDice.luck.valid !== undefined ? (extraDice.luck.valid ? ' ✓' : ' ✗') : '';
-		mechanicsHtml += `<br><strong>Luck Dice:</strong> ${extraDice.luck.label}: ${extraDice.luck.value}${luckLabels}`;
+	if (luckDie && luck) {
+		const luckLabel = luckDie.valid ? ' ✓' : ' ✗';
+		mechanicsHtml += `<br><strong>Luck Die:</strong> Fortune (${luck.value}): ${luckDie.value}${luckLabel}`;
 	}
-	if (extraDice.extra || extraDice.luck) {
-		mechanicsHtml += `<br><strong>Selected Dice:</strong> ${topTwoValidDiceValues.join(', ')} = ${baseTotal}`;
+	if (extraDie || luckDie) {
+		mechanicsHtml += `<br><strong>Selected Dice:</strong> ${selectedDice.join(', ')} = ${baseTotal}`;
 	}
 
 	mechanicsHtml += `</div>`;
@@ -209,8 +164,10 @@ const processEnhancedShatteredWildsRoll = async (
 	mechanicsHtml += `</div>`;
 
 	// Send the enhanced single message with dice and mechanics
-	await rolls.toMessage({
-		...chatOptions,
+	await foundryRoll.toMessage({
+		speaker: {
+			alias: `${check.name} Check [${check.modifierValue.description}] - ${characterName}`,
+		},
 		flavor: mechanicsHtml,
 	});
 

@@ -26,6 +26,7 @@ export * from './sections/feats/feats-section.js';
 export * from './stats/check.js';
 export * from './stats/derived-stat.js';
 export * from './stats/dice.js';
+export * from './stats/dice-roller.js';
 export * from './stats/resources.js';
 export * from './stats/stat-tree.js';
 export * from './stats/stat-type.js';

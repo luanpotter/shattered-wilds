@@ -1,12 +1,16 @@
 import {
+	calculateResults,
+	CharacterSheet,
 	Check,
+	CHECK_TYPES,
 	CheckNature,
 	CheckType,
-	CHECK_TYPES,
-	StatTree,
-	CharacterSheet,
-	StatType,
+	DiceRollConfig,
+	DiceRoller,
 	DiceRollEncoder,
+	EntropyProvider,
+	RollResults,
+	StatType,
 } from '@shattered-wilds/commons';
 import React, { useMemo, useState } from 'react';
 import { FaCheck, FaTimes } from 'react-icons/fa';
@@ -27,122 +31,17 @@ export interface DiceRollModalProps {
 	initialTargetDC?: number;
 }
 
-interface DieResult {
-	value: number;
-	valid?: boolean;
-	type: 'base' | 'extra' | 'luck';
-}
+// Entropy provider for simulator using Math.random()
+const simulatorEntropyProvider: EntropyProvider<void> = async (count: number) => ({
+	values: Array.from({ length: count }, () => Math.floor(Math.random() * 12) + 1),
+	context: undefined,
+});
 
-interface RollResults {
-	dice: DieResult[];
-	selectedIndices: number[];
-	autoFail: boolean;
-	total: number;
-	critModifiers: number;
-	critShifts: number;
-	success: boolean | undefined;
-}
-
-const rollD12 = () => Math.floor(Math.random() * 12) + 1;
-
-const calculateShifts = (excess: number): number => {
-	// Shifting window: +6, then +12, then +18, ...
-	if (excess < 6) return 0;
-	let shifts = 0;
-	let next = 6;
-	let add = 6;
-	while (excess >= next) {
-		shifts++;
-		add += 6;
-		next += add; // 6, 18, 36, ...
-	}
-	return shifts;
-};
+// Create a single DiceRoller instance for the simulator
+const diceRoller = new DiceRoller(simulatorEntropyProvider);
 
 const showTargetDC = (checkType: CheckType) =>
 	['Static-Active', 'Static-Resisted', 'Contested-Active'].includes(checkType);
-
-const isActiveCheck = (checkType: CheckType) => checkType.endsWith(`-${CheckNature.Active}`);
-const canAutoFail = (checkType: CheckType) => checkType.endsWith(`-${CheckNature.Active}`);
-
-// Core rolling logic
-const performRoll = (tree: StatTree, useExtra: boolean, useLuck: boolean, extraSkill: StatType): DieResult[] => {
-	const dice: DieResult[] = [
-		{ value: rollD12(), type: 'base' },
-		{ value: rollD12(), type: 'base' },
-	];
-
-	if (useExtra) {
-		const extraValue = tree.valueOf(extraSkill).value;
-		const extraRoll = rollD12();
-		dice.push({
-			value: extraRoll,
-			valid: extraRoll <= extraValue,
-			type: 'extra',
-		});
-	}
-
-	if (useLuck) {
-		const fortuneValue = tree.valueOf(StatType.Fortune).value;
-		const luckRoll = rollD12();
-		dice.push({
-			value: luckRoll,
-			valid: luckRoll <= fortuneValue,
-			type: 'luck',
-		});
-	}
-
-	return dice;
-};
-
-// Calculate results from dice and settings
-const calculateResults = (
-	dice: DieResult[],
-	selectedIndices: number[],
-	checkType: CheckType,
-	dc: number | null,
-	modifierValue: number,
-): Omit<RollResults, 'dice' | 'selectedIndices'> => {
-	// For crits and auto-fail we must use ALL dice, even invalid ones
-	const allValues = dice.map(die => die.value);
-	const validDice = dice.filter(die => die.type === 'base' || die.valid);
-
-	// Auto-fail check
-	const hasPairOfOnes = allValues.filter(v => v === 1).length >= 2;
-	const autoFail = hasPairOfOnes && canAutoFail(checkType);
-
-	// Calculate crit modifiers
-	let critModifiers = 0;
-	if (allValues.includes(12)) critModifiers += 6;
-	const pairs = allValues.reduce(
-		(acc, val, i, arr) => acc + (arr.indexOf(val) !== i && arr.filter(x => x === val).length >= 2 ? 1 : 0),
-		0,
-	);
-	if (pairs > 0) critModifiers += 6;
-
-	// Get selected dice values
-	const selectedValues = selectedIndices.map(i => validDice[i]?.value ?? 0);
-	const baseTotal = selectedValues.reduce((sum, val) => sum + val, 0) + modifierValue;
-	const total = baseTotal + critModifiers;
-
-	// Calculate success and shifts
-	let success: boolean | undefined;
-	let critShifts = 0;
-
-	if (!autoFail && dc !== null) {
-		if (isActiveCheck(checkType)) {
-			success = total > dc || (total === dc && critModifiers > 0);
-		} else {
-			success = total >= dc;
-		}
-
-		if (success) {
-			critShifts = calculateShifts(total - dc);
-		}
-	}
-
-	return { autoFail, total, critModifiers, critShifts, success };
-};
 
 export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 	characterId,
@@ -182,14 +81,9 @@ const PentagonDie: React.FC<{
 	isSelected: boolean;
 	isValid?: boolean;
 	label?: string;
-	onClick: () => void;
-}> = ({ value, isSelected, isValid, label, onClick }) => (
+}> = ({ value, isSelected, isValid, label }) => (
 	<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
 		<div
-			onClick={onClick}
-			onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && onClick()}
-			role='button'
-			tabIndex={0}
 			style={{
 				position: 'relative',
 				width: '60px',
@@ -197,7 +91,6 @@ const PentagonDie: React.FC<{
 				display: 'flex',
 				justifyContent: 'center',
 				alignItems: 'center',
-				cursor: 'pointer',
 			}}
 		>
 			{/* Pentagon background and border using SVG */}
@@ -266,23 +159,33 @@ const DiceRollModalContent: React.FC<{
 	const [extraSkill, setExtraSkill] = useState<StatType>(StatType.STR);
 	const [rollResults, setRollResults] = useState<RollResults | null>(null);
 
-	// Memoized calculations that update when dependencies change
+	// Build config for the DiceRoller
+	const buildConfig = (): DiceRollConfig => ({
+		modifierValue: check.modifierValue.value,
+		checkType,
+		targetDC: dc,
+		...(useExtra && {
+			extra: {
+				name: extraSkill.name,
+				value: tree.valueOf(extraSkill).value,
+			},
+		}),
+		...(useLuck && {
+			luck: {
+				value: tree.valueOf(StatType.Fortune).value,
+			},
+		}),
+	});
+
+	// Memoized calculations that update when dependencies change (e.g., DC or check type)
 	const results = useMemo(() => {
 		if (!rollResults) return null;
-		const calculatedResults = calculateResults(
-			rollResults.dice,
-			rollResults.selectedIndices,
-			checkType,
-			dc,
-			check.modifierValue.value,
-		);
+		// Recalculate results with current settings using commons function
+		const config = buildConfig();
+		const calculatedResults = calculateResults(rollResults.dice, config);
 		return { ...rollResults, ...calculatedResults };
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [rollResults, checkType, dc, check.modifierValue.value]);
-
-	const validDice = useMemo(
-		() => rollResults?.dice.filter(die => die.type === 'base' || die.valid) || [],
-		[rollResults?.dice],
-	);
 
 	const handleCheckTypeChange = (newType: CheckType) => setCheckType(newType);
 	const handleDcInputChange = (value: string) => setDc(value ? parseInt(value) : null);
@@ -308,64 +211,14 @@ const DiceRollModalContent: React.FC<{
 		onClose();
 	};
 
-	const handleRollDice = () => {
-		const dice = performRoll(tree, useExtra, useLuck, extraSkill);
-		const validDice = dice.filter(die => die.type === 'base' || die.valid);
-
-		// Auto-select best two dice
-		const sorted = validDice
-			.map((die, index) => ({ die, index }))
-			.sort((a, b) => {
-				// Prioritize 12s for crits, then highest values
-				if (a.die.value === 12 && b.die.value !== 12) return -1;
-				if (b.die.value === 12 && a.die.value !== 12) return 1;
-				return b.die.value - a.die.value;
-			});
-
-		const selectedIndices = sorted.slice(0, 2).map(({ index }) => index);
-
-		setRollResults({
-			dice,
-			selectedIndices,
-			autoFail: false, // Will be calculated in useMemo
-			total: 0, // Will be calculated in useMemo
-			critModifiers: 0, // Will be calculated in useMemo
-			critShifts: 0, // Will be calculated in useMemo
-			success: undefined, // Will be calculated in useMemo
-		});
-	};
-
-	const handleDiceClick = (dieIndex: number) => {
-		if (!rollResults) return;
-
-		const { selectedIndices } = rollResults;
-		const isSelected = selectedIndices.includes(dieIndex);
-
-		let newIndices: number[];
-		if (isSelected) {
-			// Deselect and ensure we still have 2 dice selected
-			newIndices = selectedIndices.filter(i => i !== dieIndex);
-			if (newIndices.length === 1) {
-				// Find another available die
-				const available = validDice.findIndex((_, i) => !newIndices.includes(i));
-				if (available !== -1) newIndices.push(available);
-			}
-		} else if (selectedIndices.length < 2) {
-			// Add to selection
-			newIndices = [...selectedIndices, dieIndex];
-		} else {
-			// Replace the lower-value die
-			const currentValues = selectedIndices.map(i => validDice[i]?.value || 0);
-			const replaceIndex = currentValues[0] < currentValues[1] ? 0 : 1;
-			newIndices = [...selectedIndices];
-			newIndices[replaceIndex] = dieIndex;
-		}
-
-		setRollResults({ ...rollResults, selectedIndices: newIndices });
+	const handleRollDice = async () => {
+		const config = buildConfig();
+		const rollResult = await diceRoller.roll(config);
+		setRollResults(rollResult);
 	};
 
 	const handleCloseWithCallback = () => {
-		if (results && onDiceRollComplete) {
+		if (onDiceRollComplete && results) {
 			onDiceRollComplete({
 				total: results.total,
 				shifts: results.critShifts,
@@ -376,10 +229,7 @@ const DiceRollModalContent: React.FC<{
 
 	// Render results view
 	if (results) {
-		const { selectedIndices, autoFail, total, critModifiers, success, critShifts } = results;
-		const selectedValues = selectedIndices.map(i => validDice[i]?.value || 0);
-		const allValidValues = validDice.map(die => die.value);
-		const hasPairOfOnes = allValidValues.filter(v => v === 1).length >= 2;
+		const { selectedDice, autoFail, total, critModifiers, success, critShifts, hasPairOfOnes } = results;
 
 		return (
 			<div style={{ padding: '16px' }}>
@@ -403,34 +253,26 @@ const DiceRollModalContent: React.FC<{
 
 				{/* Dice Display */}
 				<div style={{ display: 'flex', gap: '8px', marginBottom: '16px', justifyContent: 'center' }}>
-					{(() => {
-						if (!rollResults) return null;
-						let currentValidIdx = 0;
-						return rollResults.dice.map((die, displayIdx) => {
-							const isValidDie = die.type === 'base' || die.valid;
-							const validIdx = isValidDie ? currentValidIdx++ : -1;
-							const label =
-								die.type === 'extra'
-									? `${extraSkill.name} (${tree.valueOf(extraSkill).value})`
-									: die.type === 'luck'
-										? `LCK (${tree.valueOf(StatType.Fortune).value})`
-										: undefined;
-							const isSelected = validIdx >= 0 && selectedIndices.includes(validIdx);
-							const handleClick = () => {
-								if (validIdx >= 0) handleDiceClick(validIdx);
-							};
-							return (
-								<PentagonDie
-									key={displayIdx}
-									value={die.value}
-									isSelected={isSelected}
-									{...(die.valid !== undefined && { isValid: die.valid })}
-									{...(label && { label })}
-									onClick={handleClick}
-								/>
-							);
-						});
-					})()}
+					{results.dice.map((die, displayIdx) => {
+						const isValidDie = die.type === 'base' || die.valid === true;
+						const label =
+							die.type === 'extra'
+								? `${extraSkill.name} (${tree.valueOf(extraSkill).value})`
+								: die.type === 'luck'
+									? `LCK (${tree.valueOf(StatType.Fortune).value})`
+									: undefined;
+						// A die is selected if it's valid and its value is in selectedDice
+						const isSelected = isValidDie && selectedDice.includes(die.value);
+						return (
+							<PentagonDie
+								key={displayIdx}
+								value={die.value}
+								isSelected={isSelected}
+								{...(die.valid !== undefined && { isValid: die.valid })}
+								{...(label && { label })}
+							/>
+						);
+					})}
 				</div>
 
 				{/* Status Messages */}
@@ -445,7 +287,13 @@ const DiceRollModalContent: React.FC<{
 
 				{!autoFail && hasPairOfOnes && checkType === 'Contested-Resisted' && (
 					<div
-						style={{ textAlign: 'center', marginBottom: '16px', color: 'orange', fontSize: '16px', fontWeight: 'bold' }}
+						style={{
+							textAlign: 'center',
+							marginBottom: '16px',
+							color: 'orange',
+							fontSize: '16px',
+							fontWeight: 'bold',
+						}}
 					>
 						Pair of 1s Rolled
 						<div style={{ fontSize: '14px', color: 'var(--text)' }}>No auto-fail on Contested Resisted rolls</div>
@@ -457,7 +305,7 @@ const DiceRollModalContent: React.FC<{
 					<div style={{ marginBottom: '16px' }}>
 						<div style={{ marginBottom: '8px', textAlign: 'center' }}>
 							{(() => {
-								const selectedText = selectedValues.length > 0 ? selectedValues.join(' + ') : '0';
+								const selectedText = selectedDice.length > 0 ? selectedDice.join(' + ') : '0';
 								const critText = critModifiers > 0 ? ` + ${critModifiers} (Crit)` : '';
 								const modifierText = check.modifierValue?.description ?? `${check.modifierValue?.value ?? 0}`;
 								return `[${selectedText}]${critText} + [${modifierText}] = ${total}`;
