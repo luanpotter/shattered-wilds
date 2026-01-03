@@ -66,7 +66,8 @@ function StaticHexGridComponent({ width, height }: StaticHexGridProps) {
 						transform={`translate(${x},${y})`}
 						fill='var(--background-alt)'
 						stroke='var(--text)'
-						strokeWidth='0.5'
+						strokeWidth='0.3'
+						strokeOpacity={0.3}
 						data-hex={`${q},${r}`}
 					/>
 				);
