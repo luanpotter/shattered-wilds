@@ -24,6 +24,9 @@ export const EncountersPage: React.FC<EncountersPageProps> = ({ initialEncounter
 	const [showCreateForm, setShowCreateForm] = useState(false);
 	const [newEncounterName, setNewEncounterName] = useState('');
 	const [selectedCharacterIds, setSelectedCharacterIds] = useState<string[]>([]);
+	const [mapWidth, setMapWidth] = useState(10);
+	const [mapHeight, setMapHeight] = useState(10);
+	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
 		setSelectedEncounterId(initialEncounterId);
@@ -57,19 +60,24 @@ export const EncountersPage: React.FC<EncountersPageProps> = ({ initialEncounter
 	const handleCreateEncounter = () => {
 		const name = newEncounterName.trim();
 		if (!name) {
-			console.error('Encounter name is required');
+			setError('Encounter name is required');
 			return;
 		}
 
 		const encounter = createNewEncounter({
 			name,
 			characterIds: selectedCharacterIds,
+			mapSize: { width: mapWidth, height: mapHeight },
 		});
 
 		addEncounter(encounter);
 		setNewEncounterName('');
 		setSelectedCharacterIds([]);
+		setMapWidth(10);
+		setMapHeight(10);
+		setError(null);
 		setShowCreateForm(false);
+		handleViewEncounter(encounter);
 	};
 
 	const toggleCharacterSelection = (characterId: string) => {
@@ -156,6 +164,20 @@ export const EncountersPage: React.FC<EncountersPageProps> = ({ initialEncounter
 						}}
 					>
 						<h3 style={{ margin: '0 0 1rem 0' }}>Create New Encounter</h3>
+						{error && (
+							<div
+								style={{
+									padding: '0.5rem 1rem',
+									marginBottom: '1rem',
+									backgroundColor: 'var(--background-alt)',
+									border: '1px solid var(--error)',
+									borderRadius: '4px',
+									color: 'var(--error)',
+								}}
+							>
+								{error}
+							</div>
+						)}
 						<div style={{ marginBottom: '1rem' }}>
 							<label htmlFor='encounter-name' style={{ display: 'block', marginBottom: '0.5rem' }}>
 								Name
@@ -178,12 +200,42 @@ export const EncountersPage: React.FC<EncountersPageProps> = ({ initialEncounter
 								placeholder='Search characters to add...'
 							/>
 						</div>
+						<div
+							style={{ marginBottom: '1rem', alignItems: 'center', display: 'flex', flexDirection: 'row', gap: '8px' }}
+						>
+							<strong>Map Size</strong>
+							<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+								<span>Width:</span>
+								<input
+									type='number'
+									min={1}
+									max={50}
+									value={mapWidth}
+									onChange={e => setMapWidth(Math.max(1, Math.min(50, parseInt(e.target.value) || 1)))}
+									style={{ width: '60px', padding: '0.25rem 0.5rem' }}
+								/>
+							</div>
+							<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+								<span>Height:</span>
+								<input
+									type='number'
+									min={1}
+									max={50}
+									value={mapHeight}
+									onChange={e => setMapHeight(Math.max(1, Math.min(50, parseInt(e.target.value) || 1)))}
+									style={{ width: '60px', padding: '0.25rem 0.5rem' }}
+								/>
+							</div>
+						</div>
 						<div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
 							<Button
 								onClick={() => {
 									setShowCreateForm(false);
 									setNewEncounterName('');
 									setSelectedCharacterIds([]);
+									setMapWidth(10);
+									setMapHeight(10);
+									setError(null);
 								}}
 								title='Cancel'
 							/>

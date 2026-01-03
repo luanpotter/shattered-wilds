@@ -178,10 +178,12 @@ export const createNewEncounter = ({
 	name,
 	characterIds,
 	existingCharacterPositions,
+	mapSize = { width: 10, height: 10 },
 }: {
 	name: string;
 	characterIds: string[];
 	existingCharacterPositions?: Record<string, HexPosition>;
+	mapSize?: { width: number; height: number };
 }): Encounter => {
 	const characterPositions: Record<string, HexPosition> = {};
 	const usedPositions: HexPosition[] = [];
@@ -203,7 +205,7 @@ export const createNewEncounter = ({
 		name,
 		characterPositions,
 		map: {
-			size: { width: 10, height: 10 },
+			size: mapSize,
 			drawings: [],
 		},
 	};
