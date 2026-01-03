@@ -193,6 +193,7 @@ export const EncounterConfigModal: React.FC<EncounterConfigModalProps> = ({ enco
 							const typeLabels: Record<string, string> = {
 								line: 'Line Drawings',
 								area: 'Area Drawings',
+								stamp: 'Stamp Drawings',
 							};
 
 							return Object.entries(drawingCounts).map(([type, count]) => (
