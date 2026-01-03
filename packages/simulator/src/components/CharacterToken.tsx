@@ -46,7 +46,7 @@ export const CharacterToken: React.FC<CharacterTokenProps> = ({
 			onMouseLeave={handleMouseLeave}
 			style={{
 				cursor: isGhost ? 'grabbing' : interactive ? 'grab' : 'default',
-				opacity: isGhost ? 0.7 : 1,
+				opacity: isGhost ? 0.7 : interactive ? 1 : 0.5,
 				pointerEvents: isGhost ? 'none' : 'auto',
 			}}
 		>
