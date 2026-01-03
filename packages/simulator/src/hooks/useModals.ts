@@ -377,6 +377,21 @@ export function useModals() {
 		});
 	};
 
+	const openColorPickerModal = ({
+		currentColor,
+		onColorChange,
+	}: {
+		currentColor: string;
+		onColorChange: (color: string) => void;
+	}) => {
+		addModal({
+			title: 'Pick Color',
+			type: 'color-picker',
+			currentColor,
+			onColorChange,
+		});
+	};
+
 	return {
 		openCharacterListModal,
 		openCharacterCreationModal,
@@ -397,6 +412,7 @@ export function useModals() {
 		openAddConsequenceModal,
 		openConfirmationModal,
 		openEncounterConfigModal,
+		openColorPickerModal,
 		closeModal,
 		closeAllModals,
 		updateModal,

@@ -8,6 +8,7 @@ export { AttackActionModal } from './AttackActionModal';
 export { BasicAttacksModal } from './BasicAttacksModal';
 export { CharacterCreationModal } from './CharacterCreationModal';
 export { ClassSetupModal } from './ClassSetupModal';
+export { ColorPickerModal } from './ColorPickerModal';
 export { ConfirmationModal } from './ConfirmationModal';
 export { ConsumeResourceModal } from './ConsumeResourceModal';
 export { DiceRollModal } from './DiceRollModal';

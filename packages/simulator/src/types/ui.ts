@@ -175,6 +175,11 @@ export type Modal = BaseModal &
 				type: 'encounter-config';
 				encounterId: string;
 		  }
+		| {
+				type: 'color-picker';
+				currentColor: string;
+				onColorChange: (color: string) => void;
+		  }
 	);
 
 export interface Character {

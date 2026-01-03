@@ -201,6 +201,8 @@ interface BattleGridProps {
 	updateMap: (map: GameMap) => void;
 	mapMode?: MapMode;
 	selectedTool?: MapTool;
+	selectedColor?: string;
+	onSelectionChange?: (indices: Set<number>) => void;
 }
 
 export const BattleGrid: React.FC<BattleGridProps> = ({
@@ -211,6 +213,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	updateMap,
 	mapMode = 'encounter',
 	selectedTool = 'select',
+	selectedColor = 'var(--accent)',
+	onSelectionChange,
 }) => {
 	const isMapMode = mapMode === 'map';
 	const gridRef = useRef<HTMLDivElement>(null);
@@ -435,6 +439,11 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		document.addEventListener('keydown', handleKeyDown);
 		return () => document.removeEventListener('keydown', handleKeyDown);
 	}, [measureState, attackState, isSelectTool, selectToolState.selectedIndices, map, updateMap]);
+
+	// Notify parent when selection changes
+	useEffect(() => {
+		onSelectionChange?.(selectToolState.selectedIndices);
+	}, [selectToolState.selectedIndices, onSelectionChange]);
 
 	// Clear measure state when measure modal is closed
 	useEffect(() => {
@@ -736,7 +745,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							type: 'line',
 							start: lineToolState.startVertex,
 							end: lineToolState.currentEndVertex,
-							color: 'var(--accent)',
+							color: selectedColor,
 						},
 					],
 				});
@@ -804,7 +813,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 						{
 							type: 'area',
 							hexes: areaToolState.previewHexes,
-							color: 'var(--accent)',
+							color: selectedColor,
 						},
 					],
 				});

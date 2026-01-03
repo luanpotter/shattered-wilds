@@ -27,6 +27,8 @@ interface EncounterViewProps {
 export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBack }) => {
 	const [mapMode, setMapMode] = useState<MapMode>('encounter');
 	const [selectedTool, setSelectedTool] = useState<MapTool>('select');
+	const [selectedColor, setSelectedColor] = useState<string>('var(--accent)');
+	const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
 
 	const encounters = useStore(state => state.encounters);
 	const characters = useStore(state => state.characters);
@@ -34,7 +36,7 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 	const editMode = useStore(state => state.editMode);
 	const toggleEditMode = useStore(state => state.toggleEditMode);
 	const updateEncounter = useStore(state => state.updateEncounter);
-	const { closeAllModals, openEncounterConfigModal } = useModals();
+	const { closeAllModals, openEncounterConfigModal, openColorPickerModal } = useModals();
 
 	const encounter = encounters.find(e => e.id === encounterId);
 
@@ -88,6 +90,28 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 		openEncounterConfigModal({ encounterId });
 	};
 
+	const handleColorChange = (newColor: string) => {
+		setSelectedColor(newColor);
+		// Update color of selected drawings
+		if (selectedIndices.size > 0 && encounter.map) {
+			const newDrawings = encounter.map.drawings.map((drawing, index) =>
+				selectedIndices.has(index) ? { ...drawing, color: newColor } : drawing,
+			);
+			updateMap({ ...encounter.map, drawings: newDrawings });
+		}
+	};
+
+	const handleOpenColorPicker = () => {
+		openColorPickerModal({
+			currentColor: selectedColor,
+			onColorChange: handleColorChange,
+		});
+	};
+
+	const handleSelectionChange = (indices: Set<number>) => {
+		setSelectedIndices(indices);
+	};
+
 	const MapControls = () => {
 		return (
 			<>
@@ -109,6 +133,21 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 					tooltip='Area Tool'
 					selected={selectedTool === 'area'}
 				/>
+				<div style={{ width: '1px', background: 'var(--text)', margin: '0 4px' }} />
+				<button
+					onClick={handleOpenColorPicker}
+					title='Pick Color'
+					style={{
+						width: '32px',
+						height: '32px',
+						backgroundColor: selectedColor,
+						border: '2px solid var(--text)',
+						borderRadius: '4px',
+						cursor: 'pointer',
+						padding: 0,
+					}}
+				/>
+				<div style={{ width: '1px', background: 'var(--text)', margin: '0 4px' }} />
 				<Button onClick={handleMapMode} icon={FaX} tooltip='Return to Encounter mode' />
 			</>
 		);
@@ -160,6 +199,8 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 					updateMap={updateMap}
 					mapMode={mapMode}
 					selectedTool={selectedTool}
+					selectedColor={selectedColor}
+					onSelectionChange={handleSelectionChange}
 				/>
 			</div>
 		</div>

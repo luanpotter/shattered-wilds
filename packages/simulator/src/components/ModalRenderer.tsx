@@ -16,6 +16,7 @@ import {
 	BasicAttacksModal,
 	CharacterCreationModal,
 	ClassSetupModal,
+	ColorPickerModal,
 	ConfirmationModal,
 	ConsumeResourceModal,
 	DiceRollModal,
@@ -238,6 +239,9 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 			}
 			case 'encounter-config': {
 				return <EncounterConfigModal encounterId={modal.encounterId} onClose={onClose} />;
+			}
+			case 'color-picker': {
+				return <ColorPickerModal currentColor={modal.currentColor} onSelect={modal.onColorChange} onClose={onClose} />;
 			}
 			default:
 				return <div>Unknown modal type</div>;
