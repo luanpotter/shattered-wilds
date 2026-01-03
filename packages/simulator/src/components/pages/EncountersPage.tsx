@@ -61,6 +61,7 @@ export const EncountersPage: React.FC<EncountersPageProps> = ({ initialEncounter
 			id: window.crypto.randomUUID(),
 			name: newEncounterName.trim(),
 			characterPositions: {},
+			mapSize: { width: 10, height: 10 },
 		};
 
 		let q = 0;

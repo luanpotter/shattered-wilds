@@ -42,16 +42,44 @@ const generateHexes = (width: number, height: number): HexPosition[] => {
 	return hexes;
 };
 
+// Calculate the SVG viewBox dimensions based on map size
+// Hex dimensions: horizontal spacing = 10, vertical spacing = 8.66
+// Hex radius (pointy-top) = 5
+const calculateViewBox = (width: number, height: number): string => {
+	// The grid spans from r = -height to r = +height
+	// Vertical: y goes from -height * 8.66 to +height * 8.66
+	const verticalExtent = height * 8.66;
+
+	// For horizontal, we need to account for the hex arrangement
+	// Each row has 2*width + 1 hexes, spanning roughly (2*width + 1) * 10 in x
+	// But the actual x position depends on q and r: x = q * 10 + r * 5
+	// At r = 0, q ranges from -width to +width, so x ranges from -width*10 to +width*10
+	// At r = -height, q is offset by floor(-height/2), adding r*5 = -height*5
+	// At r = +height, q is offset by floor(height/2), adding r*5 = +height*5
+	const horizontalExtent = width * 10 + height * 5;
+
+	// Add padding for hex radius (5) on all sides
+	const padding = 6;
+	const minX = -horizontalExtent - padding;
+	const minY = -verticalExtent - padding;
+	const svgWidth = 2 * horizontalExtent + 2 * padding;
+	const svgHeight = 2 * verticalExtent + 2 * padding;
+
+	return `${minX} ${minY} ${svgWidth} ${svgHeight}`;
+};
+
 interface BattleGridProps {
 	encounterCharacters: Character[];
 	getCharacterPosition: (characterId: string) => HexPosition | undefined;
 	updateCharacterPosition: (characterId: string, pos: HexPosition) => void;
+	mapSize: { width: number; height: number };
 }
 
 export const BattleGrid: React.FC<BattleGridProps> = ({
 	encounterCharacters,
 	getCharacterPosition,
 	updateCharacterPosition,
+	mapSize,
 }) => {
 	const gridRef = useRef<HTMLDivElement>(null);
 	const svgRef = useRef<SVGSVGElement>(null);
@@ -521,14 +549,14 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				ref={svgRef}
 				width='100%'
 				height='100%'
-				viewBox='-100 -100 200 200'
+				viewBox={calculateViewBox(mapSize.width, mapSize.height)}
 				style={{
 					transform: `scale(${gridState.scale}) translate(${gridState.offset.x}px, ${gridState.offset.y}px)`,
 				}}
 			>
 				{/* Base Grid Layer */}
 				<g>
-					{generateHexes(10, 10).map(({ q, r }, i) => (
+					{generateHexes(mapSize.width, mapSize.height).map(({ q, r }, i) => (
 						<Hex key={i} q={q} r={r}>
 							<path
 								d='M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z'
@@ -624,7 +652,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 				{/* Character Tokens Layer */}
 				<g>
-					{generateHexes(10, 10).map(({ q, r }, i) => (
+					{generateHexes(mapSize.width, mapSize.height).map(({ q, r }, i) => (
 						<Hex key={`char-${i}`} q={q} r={r}>
 							{encounterCharacters
 								.filter(c => {

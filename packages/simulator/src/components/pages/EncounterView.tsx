@@ -98,6 +98,7 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 					encounterCharacters={encounterCharacters}
 					getCharacterPosition={getCharacterPosition}
 					updateCharacterPosition={updateCharacterPosition}
+					mapSize={encounter.mapSize ?? { width: 10, height: 10 }}
 				/>
 			</div>
 		</div>

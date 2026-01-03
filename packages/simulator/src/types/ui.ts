@@ -138,6 +138,7 @@ export interface Encounter {
 	id: string;
 	name: string;
 	characterPositions: Record<string, HexPosition>;
+	mapSize: { width: number; height: number };
 }
 
 export const createNewCharacter = ({ props }: { props: Record<string, string> }): Character => {
@@ -176,6 +177,7 @@ export const createNewEncounter = ({
 		id: window.crypto.randomUUID(),
 		name,
 		characterPositions,
+		mapSize: { width: 10, height: 10 },
 	};
 };
 

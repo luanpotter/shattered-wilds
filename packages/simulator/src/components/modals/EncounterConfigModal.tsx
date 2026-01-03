@@ -125,6 +125,60 @@ export const EncounterConfigModal: React.FC<EncounterConfigModalProps> = ({ enco
 				/>
 			</div>
 
+			<div style={{ marginBottom: '1rem' }}>
+				<span style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Map Size</span>
+				<div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<span>Width:</span>
+						<input
+							type='number'
+							min={1}
+							max={50}
+							value={encounter.mapSize?.width ?? 10}
+							onChange={e => {
+								const width = Math.max(1, Math.min(50, parseInt(e.target.value) || 1));
+								updateEncounter({
+									...encounter,
+									mapSize: { width, height: encounter.mapSize?.height ?? 10 },
+								});
+							}}
+							style={{
+								width: '60px',
+								padding: '0.25rem 0.5rem',
+								border: '1px solid var(--text)',
+								borderRadius: '4px',
+								backgroundColor: 'var(--background)',
+								color: 'var(--text)',
+							}}
+						/>
+					</div>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<span>Height:</span>
+						<input
+							type='number'
+							min={1}
+							max={50}
+							value={encounter.mapSize?.height ?? 10}
+							onChange={e => {
+								const height = Math.max(1, Math.min(50, parseInt(e.target.value) || 1));
+								updateEncounter({
+									...encounter,
+									mapSize: { width: encounter.mapSize?.width ?? 10, height },
+								});
+							}}
+							style={{
+								width: '60px',
+								padding: '0.25rem 0.5rem',
+								border: '1px solid var(--text)',
+								borderRadius: '4px',
+								backgroundColor: 'var(--background)',
+								color: 'var(--text)',
+							}}
+						/>
+					</div>
+				</div>
+			</div>
+
 			<div style={{ display: 'flex', justifyContent: 'flex-end' }}>
 				<Button onClick={onClose} title='Done' />
 			</div>
