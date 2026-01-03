@@ -1,5 +1,16 @@
-import React from 'react';
-import { FaArrowLeft, FaCog, FaCrosshairs, FaEdit, FaPlay, FaTimes } from 'react-icons/fa';
+import React, { useState } from 'react';
+import {
+	FaArrowLeft,
+	FaCog,
+	FaCrosshairs,
+	FaEdit,
+	FaMap,
+	FaMousePointer,
+	FaPenAlt,
+	FaPlay,
+	FaTimes,
+} from 'react-icons/fa';
+import { FaX } from 'react-icons/fa6';
 
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
@@ -13,6 +24,9 @@ interface EncounterViewProps {
 }
 
 export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBack }) => {
+	const [mapMode, setMapMode] = useState<'map' | 'encounter'>('encounter');
+	const [selectedTool, setSelectedTool] = useState<'select' | 'line'>('select');
+
 	const encounters = useStore(state => state.encounters);
 	const characters = useStore(state => state.characters);
 	const updateGridState = useStore(state => state.updateGridState);
@@ -61,8 +75,48 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 		closeAllModals();
 	};
 
+	const handleMapMode = () => {
+		setMapMode(prev => (prev === 'map' ? 'encounter' : 'map'));
+	};
+
 	const handleOpenConfig = () => {
 		openEncounterConfigModal({ encounterId });
+	};
+
+	const MapControls = () => {
+		return (
+			<>
+				<Button
+					onClick={() => setSelectedTool('select')}
+					icon={FaMousePointer}
+					tooltip='Select Tool'
+					selected={selectedTool === 'select'}
+				/>
+				<Button
+					onClick={() => setSelectedTool('line')}
+					icon={FaPenAlt}
+					tooltip='Line Tool'
+					selected={selectedTool === 'line'}
+				/>
+				<Button onClick={handleMapMode} icon={FaX} tooltip='Return to Encounter mode' />
+			</>
+		);
+	};
+
+	const EncounterControls = () => {
+		return (
+			<>
+				<Button
+					onClick={toggleEditMode}
+					icon={editMode ? FaPlay : FaEdit}
+					title={editMode ? 'Play Mode' : 'Edit Mode'}
+				/>
+				<Button onClick={handleMapMode} icon={FaMap} title='Map' />
+				<Button onClick={handleOpenConfig} icon={FaCog} title='Config' />
+				<Button onClick={handleRecenter} icon={FaCrosshairs} title='Re-center' />
+				<Button onClick={handleCloseAllModals} icon={FaTimes} title='Close All' />
+			</>
+		);
 	};
 
 	return (
@@ -82,14 +136,7 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 					<h2 style={{ margin: 0, fontSize: '1.2rem' }}>{encounter.name}</h2>
 				</div>
 				<div style={{ display: 'flex', gap: '0.5rem' }}>
-					<Button
-						onClick={toggleEditMode}
-						icon={editMode ? FaPlay : FaEdit}
-						title={editMode ? 'Play Mode' : 'Edit Mode'}
-					/>
-					<Button onClick={handleOpenConfig} icon={FaCog} title='Config' />
-					<Button onClick={handleRecenter} icon={FaCrosshairs} title='Re-center' />
-					<Button onClick={handleCloseAllModals} icon={FaTimes} title='Close All' />
+					{mapMode === 'map' ? <MapControls /> : <EncounterControls />}
 				</div>
 			</div>
 
