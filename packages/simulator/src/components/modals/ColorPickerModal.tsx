@@ -409,6 +409,10 @@ export const ColorPickerModal: React.FC<ColorPickerModalProps> = ({ currentColor
 						<button
 							key={preset.value}
 							onClick={() => handlePresetClick(preset.value)}
+							onDoubleClick={() => {
+								onSelect(preset.value);
+								onClose();
+							}}
 							title={preset.label}
 							aria-label={`Select ${preset.label}`}
 							style={{
