@@ -283,22 +283,26 @@ export class ArcaneComponentMode implements ItemMode {
 export class Item {
 	name: string;
 	slot: SlotType;
+	isEquipped: boolean;
 	traits: Trait[];
 	modes: ItemMode[];
 
 	constructor({
 		name,
 		slot,
+		isEquipped = false,
 		traits = [],
 		modes = [],
 	}: {
 		name: string;
 		slot: SlotType;
+		isEquipped?: boolean;
 		traits?: Trait[];
 		modes?: ItemMode[];
 	}) {
-		this.slot = slot;
 		this.name = name;
+		this.slot = slot;
+		this.isEquipped = isEquipped;
 		this.traits = traits;
 		this.modes = modes;
 	}

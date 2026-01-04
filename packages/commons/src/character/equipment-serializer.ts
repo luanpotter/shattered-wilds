@@ -30,6 +30,7 @@ const serializeItem = (item: Item): string => {
 	const pojo = {
 		name: item.name,
 		slot: item.slot,
+		isEquipped: item.isEquipped,
 		traits: [...item.traits],
 		modes: item.modes.map(mode => serializeItemMode(mode)),
 	};
@@ -83,6 +84,7 @@ const deserializeItem = (data: string): Item => {
 	const pojo = JSON.parse(data) as {
 		name: string;
 		slot: string;
+		isEquipped?: boolean;
 		traits?: Item['traits'];
 		modes?: { __type: string; [key: string]: unknown }[];
 	};
@@ -90,6 +92,7 @@ const deserializeItem = (data: string): Item => {
 	return new Item({
 		name: pojo.name,
 		slot: pojo.slot as SlotType,
+		isEquipped: pojo.isEquipped ?? false,
 		traits: pojo.traits ?? [],
 		modes,
 	});

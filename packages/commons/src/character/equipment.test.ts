@@ -95,4 +95,18 @@ describe('equipment serialization and rehydration', () => {
 		const roundTrip = Equipment.from(serialized);
 		expect(roundTrip.items).toEqual(items);
 	});
+
+	it('equipped and non-equipped items are preserved through serialization', () => {
+		const sword = BASIC_EQUIPMENT[BasicEquipmentType.Longsword].generator();
+		sword.isEquipped = true;
+		const shield = BASIC_EQUIPMENT[BasicEquipmentType.SmallShield].generator();
+		shield.isEquipped = false;
+
+		const equipment = new Equipment([sword, shield]);
+		const prop = equipment.toProp();
+
+		const [rehydratedSword, rehydratedShield] = Equipment.from(prop).items;
+		expect(rehydratedSword!.isEquipped).toBe(true);
+		expect(rehydratedShield!.isEquipped).toBe(false);
+	});
 });

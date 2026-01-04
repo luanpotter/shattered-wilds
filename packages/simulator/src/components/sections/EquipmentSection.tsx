@@ -16,6 +16,7 @@ import { FaHandBackFist, FaHandHoldingHand } from 'react-icons/fa6';
 
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
+import { semanticClick } from '../../utils';
 import Block from '../shared/Block';
 import { Button } from '../shared/Button';
 import LabeledInput from '../shared/LabeledInput';
@@ -49,6 +50,13 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ characterId 
 		onUpdateEquipment(equipment);
 	};
 
+	const toggleIsEquipped = (idx: number) => {
+		const item = equipment.items[idx];
+		item.isEquipped = !item.isEquipped;
+		console.log(equipment);
+		onUpdateEquipment(equipment);
+	};
+
 	const slotTypeToIcon = (slotType: SlotType): IconType => {
 		switch (slotType) {
 			case SlotType.Armor:
@@ -66,10 +74,14 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ characterId 
 		}
 	};
 
-	const slotTypeIcon = (slotType: SlotType, isEquipped: boolean): React.JSX.Element => {
+	const slotTypeIcon = (slotType: SlotType, isEquipped: boolean, onClick?: () => void): React.JSX.Element => {
 		const Icon = slotTypeToIcon(slotType);
 		const tooltip = `${slotType}${slotType == SlotType.None ? '' : isEquipped ? ' (equipped)' : ' (not equipped)'}`;
-		return <Icon style={isEquipped ? {} : { opacity: '0.25' }} title={tooltip} />;
+		const style = {
+			opacity: isEquipped ? '1' : '0.25',
+			cursor: onClick ? 'pointer' : 'default',
+		};
+		return <Icon style={style} title={tooltip} {...(onClick ? semanticClick('button', onClick) : {})} />;
 	};
 
 	return (
@@ -90,7 +102,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ characterId 
 						width: '100%',
 					}}
 				>
-					{slotTypeIcon(item.slot, false)}
+					{slotTypeIcon(item.slot, item.isEquipped, () => toggleIsEquipped(idx))}
 					<LabeledInput
 						variant='inline'
 						value={item.name}
