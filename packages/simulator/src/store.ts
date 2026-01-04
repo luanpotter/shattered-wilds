@@ -1,4 +1,4 @@
-import { Check, CheckMode, CheckNature, StatModifier } from '@shattered-wilds/commons';
+import { Check } from '@shattered-wilds/commons';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -61,21 +61,9 @@ const rehydrateState = (persistedState: unknown): AppState | undefined => {
 	if (state.modals) {
 		state.modals = state.modals.map(modal => {
 			if (modal.type === 'dice-roll' && modal.check && !(modal.check instanceof Check)) {
-				// Reconstruct Check object from plain object
-				const checkData = modal.check as {
-					mode: CheckMode;
-					descriptor: string;
-					nature: CheckNature;
-					statModifier: StatModifier;
-				};
 				return {
 					...modal,
-					check: new Check({
-						mode: checkData.mode,
-						descriptor: checkData.descriptor,
-						nature: checkData.nature,
-						statModifier: checkData.statModifier,
-					}),
+					check: Check.fromJSON(modal.check),
 				};
 			}
 			return modal;

@@ -26,6 +26,15 @@ export class CircumstanceModifier {
 	get description(): string {
 		return `${this.value.description} from ${this.source} ${this.name}`;
 	}
+
+	static fromJSON(data: { source: ModifierSource; name: string; value: { value: number } }): CircumstanceModifier {
+		if (data instanceof CircumstanceModifier) return data;
+		return new CircumstanceModifier({
+			source: data.source,
+			name: data.name,
+			value: Bonus.fromJSON(data.value),
+		});
+	}
 }
 
 export class InherentModifier extends CircumstanceModifier {
@@ -370,6 +379,38 @@ export class StatModifier {
 			appliedModifiers: [...this.appliedModifiers, cm],
 			value: Bonus.add([this.value, cm.value]),
 			overrideDescription: this.overrideDescription,
+		});
+	}
+
+	static fromJSON(data: {
+		statType: StatType | DerivedStatType | { name: string };
+		baseValue: { value: number };
+		appliedModifiers: { source: ModifierSource; name: string; value: { value: number } }[];
+		value: { value: number };
+		overrideDescription?: string | undefined;
+	}): StatModifier {
+		if (data instanceof StatModifier) return data;
+
+		// Rehydrate statType: if it's a plain object with a name, look up the StatType
+		let statType: StatType | DerivedStatType;
+		if (typeof data.statType === 'string') {
+			// It's a DerivedStatType enum value
+			statType = data.statType as DerivedStatType;
+		} else if (data.statType instanceof StatType) {
+			statType = data.statType;
+		} else if ('name' in data.statType && typeof data.statType.name === 'string') {
+			// It's a serialized StatType, look it up by name
+			statType = StatType.fromName(data.statType.name as StatTypeName);
+		} else {
+			throw new Error('Unable to rehydrate statType');
+		}
+
+		return new StatModifier({
+			statType,
+			baseValue: Bonus.fromJSON(data.baseValue),
+			appliedModifiers: data.appliedModifiers.map(cm => CircumstanceModifier.fromJSON(cm)),
+			value: Bonus.fromJSON(data.value),
+			overrideDescription: data.overrideDescription,
 		});
 	}
 }

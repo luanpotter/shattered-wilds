@@ -34,6 +34,11 @@ export class Bonus implements Value {
 	static zero(): Bonus {
 		return Bonus.of(0);
 	}
+
+	static fromJSON(data: { value: number }): Bonus {
+		if (data instanceof Bonus) return data;
+		return Bonus.of(data.value);
+	}
 }
 
 export class Distance implements Value {

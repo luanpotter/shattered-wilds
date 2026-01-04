@@ -77,4 +77,19 @@ export class Check {
 			statModifier: this.statModifier,
 		});
 	}
+
+	static fromJSON(data: {
+		mode: CheckMode;
+		nature: CheckNature;
+		descriptor: string;
+		statModifier: Parameters<typeof StatModifier.fromJSON>[0];
+	}): Check {
+		if (data instanceof Check) return data;
+		return new Check({
+			mode: data.mode,
+			nature: data.nature,
+			descriptor: data.descriptor,
+			statModifier: StatModifier.fromJSON(data.statModifier),
+		});
+	}
 }
