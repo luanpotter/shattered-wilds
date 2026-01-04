@@ -1,34 +1,36 @@
 import {
+	ACTIONS,
 	CharacterSheet,
 	DerivedStatType,
 	Distance,
 	axialToPixel,
-	pixelToAxial,
-	hexDistance,
 	findHexPath,
 	findNearestVertex,
 	findVertexPath,
-	getHexVertices,
 	getHexNeighbors,
+	getHexVertices,
+	hexDistance,
+	pixelToAxial,
 } from '@shattered-wilds/commons';
-import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { IconType } from 'react-icons';
 import * as Fa6Icons from 'react-icons/fa6';
 
 import { useModals } from '../hooks/useModals';
+import { PropUpdater } from '../hooks/usePropUpdates';
 import { useStore } from '../store';
 import { getBasicAttacksFor } from '../types/grid-actions';
 import {
-	DragState,
-	Point,
+	AreaToolState,
 	Character,
+	DragState,
+	GameMap,
 	HexPosition,
+	HexVertex,
+	LineToolState,
 	MapMode,
 	MapTool,
-	LineToolState,
-	AreaToolState,
-	HexVertex,
-	GameMap,
+	Point,
 	SelectToolState,
 } from '../types/ui';
 
@@ -222,13 +224,17 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	currentTurnCharacterId,
 }) => {
 	const isMapMode = mapMode === 'map';
+
 	const gridRef = useRef<HTMLDivElement>(null);
 	const svgRef = useRef<SVGSVGElement>(null);
+
 	const gridState = useStore(state => state.gridState);
 	const updateGridState = useStore(state => state.updateGridState);
 	const modals = useStore(state => state.modals);
 	const { openCharacterSheetModal, openAttackActionModal, openMeasureModal, openIconSelectionModal } = useModals();
 	const editMode = useStore(state => state.editMode);
+	const updateCharacterProp = useStore(state => state.updateCharacterProp);
+
 	const [dragState, setDragState] = useState<DragState>({ type: 'none' });
 	const [ghostPosition, setGhostPosition] = useState<Point | null>(null);
 	const [hoveredCharacter, setHoveredCharacter] = useState<Character | null>(null);
@@ -239,6 +245,10 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	const [attackState, setAttackState] = useState<{
 		attacker: Character;
 		attackIndex: number;
+		isSelectingTarget: boolean;
+	} | null>(null);
+	const [strideState, setStrideState] = useState<{
+		character: Character;
 		isSelectingTarget: boolean;
 	} | null>(null);
 	const [measureState, setMeasureState] = useState<{
@@ -565,7 +575,16 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	};
 
 	const handleStrideAction = (character: Character) => {
-		console.log(`TODO: Taking stride action for character ${character.id}`);
+		setStrideState({
+			character,
+			isSelectingTarget: true,
+		});
+	};
+
+	const getStrideRange = (character: Character): Distance => {
+		const sheet = CharacterSheet.from(character.props);
+		const movement = sheet.getStatTree().getDistance(DerivedStatType.Movement);
+		return movement.value;
 	};
 
 	const getAttackRange = (attacker: Character, attackIndex: number): Distance => {
@@ -1058,8 +1077,27 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		}
 	};
 
-	// Handle hex click for measure
+	// Handle hex click for measure or stride
 	const handleHexClick = (q: number, r: number) => {
+		// Stride action
+		const character = strideState?.character;
+		const from = character ? getCharacterPosition(character.id) : null;
+		if (strideState?.isSelectingTarget && character && from) {
+			const toPosition = { q, r };
+			const strideRange = getStrideRange(character).value;
+			const distance = hexDistance(from, toPosition);
+			if (distance <= strideRange) {
+				updateCharacterPosition(strideState.character.id, toPosition);
+				const sheet = CharacterSheet.from(character.props);
+				const propUpdater = new PropUpdater({ character, sheet, updateCharacterProp });
+				const strideCost = ACTIONS.Stride.costs[0];
+				propUpdater.updateResourceByDelta(strideCost.resource, -strideCost.amount);
+				setStrideState(null);
+			}
+			return;
+		}
+
+		// Measure action
 		const fromPos = getCharacterPosition(measureState?.fromCharacter.id ?? '');
 		if (measureState?.isSelectingTarget && fromPos) {
 			const toPosition = { q, r };
@@ -1102,7 +1140,11 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			setMeasureState(null);
 			return;
 		}
-
+		if (strideState?.isSelectingTarget) {
+			// Cancel stride mode
+			setStrideState(null);
+			return;
+		}
 		// Get hex coordinates from click position
 		const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
 		if (svgCoords) {
@@ -1156,7 +1198,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 						}
 						return;
 					}
-					if (measureState?.isSelectingTarget) {
+					if (measureState?.isSelectingTarget || strideState?.isSelectingTarget) {
 						const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
 						if (svgCoords) {
 							const { q, r } = pixelToAxial(svgCoords.x, svgCoords.y);
@@ -1168,12 +1210,13 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				{/* Base Grid Layer - Static, memoized */}
 				<StaticHexGrid width={map.size.width} height={map.size.height} />
 
-				{/* Movement Range Highlight Layer */}
+				{/* Movement Range Highlight Layer (hover) */}
 				{!isMapMode &&
 					hoveredCharacter &&
 					getCharacterPosition(hoveredCharacter.id) &&
 					!attackState?.isSelectingTarget &&
-					!measureState?.isSelectingTarget && (
+					!measureState?.isSelectingTarget &&
+					!strideState?.isSelectingTarget && (
 						<HexHighlightLayer
 							hexes={getHexesInRange(
 								getCharacterPosition(hoveredCharacter.id)!,
@@ -1186,6 +1229,20 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							mapHeight={map.size.height}
 						/>
 					)}
+
+				{/* Stride Range Highlight Layer */}
+				{strideState?.isSelectingTarget && getCharacterPosition(strideState.character.id) && (
+					<HexHighlightLayer
+						hexes={getHexesInRange(
+							getCharacterPosition(strideState.character.id)!,
+							getStrideRange(strideState.character).value ?? getStrideRange(strideState.character),
+						)}
+						fillColor='rgba(0, 255, 0, 0.2)'
+						strokeColor='rgba(0, 255, 0, 0.5)'
+						mapWidth={map.size.width}
+						mapHeight={map.size.height}
+					/>
+				)}
 
 				{/* Attack Range Highlight Layer */}
 				{attackState?.isSelectingTarget && getCharacterPosition(attackState.attacker.id) && (

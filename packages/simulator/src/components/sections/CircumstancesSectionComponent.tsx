@@ -32,17 +32,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 
 	const [newOtherCircumstance, setNewOtherCircumstance] = useState('');
 
-	const {
-		updateResourceByDelta,
-		updateResourceToValue,
-		updateResourceToMax,
-		addCondition,
-		removeCondition,
-		removeAllConditions,
-		addConsequence,
-		addToConsequenceRank,
-		removeConsequence,
-	} = usePropUpdates(character, characterSheet);
+	const propUpdater = usePropUpdates(character, characterSheet);
 	const { openAddConditionModal, openAddConsequenceModal, openConfirmationModal } = useModals();
 
 	const resourceBar = (resource: Resource): JSX.Element[] => {
@@ -58,8 +48,8 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 					current={value.current}
 					max={value.max}
 					color={def.color}
-					onIncrement={() => updateResourceByDelta(resource, 1)}
-					onDecrement={() => updateResourceByDelta(resource, -1)}
+					onIncrement={() => propUpdater.updateResourceByDelta(resource, 1)}
+					onDecrement={() => propUpdater.updateResourceByDelta(resource, -1)}
 				/>
 			</div>,
 		];
@@ -85,19 +75,19 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 				onToggle={index => {
 					const isIndexActive = index < value.current;
 					const newIndex = isIndexActive ? index : index + 1;
-					updateResourceToValue(resource, newIndex);
+					propUpdater.updateResourceToValue(resource, newIndex);
 				}}
 			/>,
 			<div key={`${resource}-buttons`} style={{ display: 'flex', gap: '4px', marginLeft: '12px' }}>
 				<Button
 					variant='inline'
-					onClick={() => updateResourceByDelta(resource, -1)}
+					onClick={() => propUpdater.updateResourceByDelta(resource, -1)}
 					icon={FaMinus}
 					tooltip={`Decrease ${label}`}
 				/>
 				<Button
 					variant='inline'
-					onClick={() => updateResourceByDelta(resource, 1)}
+					onClick={() => propUpdater.updateResourceByDelta(resource, 1)}
 					icon={FaPlus}
 					tooltip={`Increase ${label}`}
 				/>
@@ -179,28 +169,26 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 	};
 
 	const healAttributePoints = () => {
-		[Resource.VitalityPoint, Resource.FocusPoint, Resource.SpiritPoint].forEach(updateResourceToMax);
+		[Resource.VitalityPoint, Resource.FocusPoint, Resource.SpiritPoint].forEach(resource =>
+			propUpdater.updateResourceToMax(resource),
+		);
 	};
 
 	const endTurn = () => {
-		updateResourceToMax(Resource.ActionPoint);
+		propUpdater.updateResourceToMax(Resource.ActionPoint);
 	};
 
 	const shortRest = () => {
-		(() => {
-			removeAllConditions();
-		})();
+		propUpdater.removeAllConditions();
 		healAttributePoints();
-		addToConsequenceRank(Consequence.Exhaustion, 1);
+		propUpdater.addToConsequenceRank(Consequence.Exhaustion, 1);
 	};
 
 	const longRest = () => {
-		(() => {
-			removeAllConditions();
-		})();
+		propUpdater.removeAllConditions();
 		healAttributePoints();
-		addToConsequenceRank(Consequence.Exhaustion, -3);
-		updateResourceByDelta(Resource.HeroismPoint, 1);
+		propUpdater.addToConsequenceRank(Consequence.Exhaustion, -3);
+		propUpdater.updateResourceByDelta(Resource.HeroismPoint, 1);
 	};
 
 	const handleEndTurn = async () => {
@@ -256,7 +244,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 		openAddConditionModal({
 			characterId,
 			onConfirm: (condition, rank) => {
-				addCondition({ name: condition, rank });
+				propUpdater.addCondition({ name: condition, rank });
 			},
 		});
 	};
@@ -265,7 +253,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 		openAddConsequenceModal({
 			characterId,
 			onConfirm: (consequence, rank) => {
-				addConsequence({ name: consequence, rank });
+				propUpdater.addConsequence({ name: consequence, rank });
 			},
 		});
 	};
@@ -343,8 +331,8 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 					return { key: def.name, rank: c.rank, ...def };
 				}),
 				handleAdd: handleAddCondition,
-				addItem: (key, rank) => addCondition({ name: key as Condition, rank }),
-				removeItem: key => removeCondition(key as Condition),
+				addItem: (key, rank) => propUpdater.addCondition({ name: key as Condition, rank }),
+				removeItem: key => propUpdater.removeCondition(key as Condition),
 			})}
 			<hr />
 			{cards({
@@ -354,8 +342,8 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 					return { key: def.name, rank: c.rank, ...def };
 				}),
 				handleAdd: handleAddConsequence,
-				addItem: (key, rank) => addConsequence({ name: key as Consequence, rank }),
-				removeItem: key => removeConsequence(key as Consequence),
+				addItem: (key, rank) => propUpdater.addConsequence({ name: key as Consequence, rank }),
+				removeItem: key => propUpdater.removeConsequence(key as Consequence),
 			})}
 			<hr />
 			<div style={{ marginBottom: '8px' }}>

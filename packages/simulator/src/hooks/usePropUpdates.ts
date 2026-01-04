@@ -15,92 +15,101 @@ export type PropUpdates = {
 	removeConsequence: (consequence: Consequence) => void;
 };
 
-export const usePropUpdates = (character: Character, sheet: CharacterSheet): PropUpdates => {
+export const usePropUpdates = (character: Character, sheet: CharacterSheet): PropUpdater => {
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
+	return new PropUpdater({ character, sheet, updateCharacterProp });
+};
 
-	const updateResourceProp = (resource: Resource, value: number) => {
-		updateCharacterProp(character, resource, value.toString());
+export class PropUpdater {
+	private character: Character;
+	private sheet: CharacterSheet;
+	private updateCharacterProp: (character: Character, prop: string, value: string) => void;
+
+	constructor({
+		character,
+		sheet,
+		updateCharacterProp,
+	}: {
+		character: Character;
+		sheet: CharacterSheet;
+		updateCharacterProp: (character: Character, prop: string, value: string) => void;
+	}) {
+		this.character = character;
+		this.sheet = sheet;
+		this.updateCharacterProp = updateCharacterProp;
+	}
+
+	updateResourceProp = (resource: Resource, value: number) => {
+		this.updateCharacterProp(this.character, resource, value.toString());
 	};
 
-	const updateResourceToValue = (resource: Resource, value: number) => {
-		const newValue = sheet.updateResourceToValue(resource, value);
-		updateResourceProp(resource, newValue);
+	updateResourceToValue = (resource: Resource, value: number) => {
+		const newValue = this.sheet.updateResourceToValue(resource, value);
+		this.updateResourceProp(resource, newValue);
 	};
 
-	const updateResourceToMax = (resource: Resource) => {
-		const newValue = sheet.updateResourceToMax(resource);
-		updateResourceProp(resource, newValue);
+	updateResourceToMax = (resource: Resource) => {
+		const newValue = this.sheet.updateResourceToMax(resource);
+		this.updateResourceProp(resource, newValue);
 	};
 
-	const updateResourceByDelta = (resource: Resource, delta: number) => {
-		const newValue = sheet.updateResourceByDelta(resource, delta);
-		updateResourceProp(resource, newValue);
+	updateResourceByDelta = (resource: Resource, delta: number) => {
+		const newValue = this.sheet.updateResourceByDelta(resource, delta);
+		this.updateResourceProp(resource, newValue);
 	};
 
-	const serializeConditions = (conditions: AppliedCircumstance<Condition>[]) => {
+	serializeConditions = (conditions: AppliedCircumstance<Condition>[]) => {
 		const conditionsProp = conditions.map(c => `${c.name}:${c.rank}`).join(',');
-		updateCharacterProp(character, 'conditions', conditionsProp);
+		this.updateCharacterProp(this.character, 'conditions', conditionsProp);
 	};
 
-	const filterConditionOut = (condition: Condition) => {
-		return sheet.circumstances.conditions.filter(c => c.name !== condition);
+	filterConditionOut = (condition: Condition) => {
+		return this.sheet.circumstances.conditions.filter(c => c.name !== condition);
 	};
 
-	const addCondition = (condition: AppliedCircumstance<Condition>) => {
-		const newConditions = [...filterConditionOut(condition.name), condition];
-		serializeConditions(newConditions);
+	addCondition = (condition: AppliedCircumstance<Condition>) => {
+		const newConditions = [...this.filterConditionOut(condition.name), condition];
+		this.serializeConditions(newConditions);
 	};
 
-	const removeCondition = (condition: Condition) => {
-		const newConditions = filterConditionOut(condition);
-		serializeConditions(newConditions);
+	removeCondition = (condition: Condition) => {
+		const newConditions = this.filterConditionOut(condition);
+		this.serializeConditions(newConditions);
 	};
 
-	const removeAllConditions = () => {
-		serializeConditions([]);
+	removeAllConditions = () => {
+		this.serializeConditions([]);
 	};
 
-	const serializeConsequences = (consequences: AppliedCircumstance<Consequence>[]) => {
+	serializeConsequences = (consequences: AppliedCircumstance<Consequence>[]) => {
 		const consequencesProp = consequences.map(c => `${c.name}:${c.rank}`).join(',');
-		updateCharacterProp(character, 'consequences', consequencesProp);
+		this.updateCharacterProp(this.character, 'consequences', consequencesProp);
 	};
 
-	const filterConsequenceOut = (consequence: Consequence) => {
-		return sheet.circumstances.consequences.filter(c => c.name !== consequence);
+	filterConsequenceOut = (consequence: Consequence) => {
+		return this.sheet.circumstances.consequences.filter(c => c.name !== consequence);
 	};
 
-	const addConsequence = (consequence: AppliedCircumstance<Consequence>) => {
-		const newConsequences = [...filterConsequenceOut(consequence.name), consequence];
-		serializeConsequences(newConsequences);
+	addConsequence = (consequence: AppliedCircumstance<Consequence>) => {
+		const newConsequences = [...this.filterConsequenceOut(consequence.name), consequence];
+		this.serializeConsequences(newConsequences);
 	};
 
-	const removeConsequence = (consequence: Consequence) => {
-		const newConsequences = filterConsequenceOut(consequence);
-		serializeConsequences(newConsequences);
+	removeConsequence = (consequence: Consequence) => {
+		const newConsequences = this.filterConsequenceOut(consequence);
+		this.serializeConsequences(newConsequences);
 	};
 
-	const addToConsequenceRank = (consequence: Consequence, delta: number) => {
-		const existing = sheet.circumstances.consequences.find(c => c.name === consequence);
+	addToConsequenceRank = (consequence: Consequence, delta: number) => {
+		const existing = this.sheet.circumstances.consequences.find(c => c.name === consequence);
 		const newRank = (existing?.rank ?? 0) + delta;
 		if (newRank <= 0) {
-			removeConsequence(consequence);
+			this.removeConsequence(consequence);
 		} else {
 			const newConsequences = existing
-				? [...filterConsequenceOut(consequence), { ...existing, rank: newRank }]
-				: [...sheet.circumstances.consequences, { name: consequence, rank: newRank }];
-			serializeConsequences(newConsequences);
+				? [...this.filterConsequenceOut(consequence), { ...existing, rank: newRank }]
+				: [...this.sheet.circumstances.consequences, { name: consequence, rank: newRank }];
+			this.serializeConsequences(newConsequences);
 		}
 	};
-
-	return {
-		updateResourceByDelta,
-		updateResourceToMax,
-		updateResourceToValue,
-		addCondition,
-		removeCondition,
-		removeAllConditions,
-		addConsequence,
-		addToConsequenceRank,
-		removeConsequence,
-	};
-};
+}
