@@ -15,9 +15,23 @@ export enum SlotType {
 	None = 'None',
 }
 
-/** Held items such as Weapons or Arcane Components must be either One Handed or Two Handed. */
-const heldItemSlotByTraits = (traits: Trait[]): SlotType => {
-	return traits.includes(Trait.TwoHanded) ? SlotType.TwoHands : SlotType.OneHand;
+export const Slots = {
+	/** Held items such as Weapons or Arcane Components must be either One Handed or Two Handed. */
+	heldItemSlotByTraits: (traits: Trait[]): SlotType => {
+		return traits.includes(Trait.TwoHanded) ? SlotType.TwoHands : SlotType.OneHand;
+	},
+
+	/** Mapping of slot types to number of hands it occupies. */
+	slotToHands: (slot: SlotType): number => {
+		switch (slot) {
+			case SlotType.OneHand:
+				return 1;
+			case SlotType.TwoHands:
+				return 2;
+			default:
+				return 0;
+		}
+	},
 };
 
 export enum PrimaryWeaponType {
@@ -155,7 +169,7 @@ export class WeaponMode implements ItemMode {
 		traits?: Trait[];
 	}): Item {
 		const mode = new WeaponMode({ type, bonus, range, costs: [] });
-		const slot = heldItemSlotByTraits(traits);
+		const slot = Slots.heldItemSlotByTraits(traits);
 		return new Item({ name, slot, modes: [mode], traits });
 	}
 }
@@ -275,7 +289,7 @@ export class ArcaneComponentMode implements ItemMode {
 		traits?: Trait[];
 	}): Item {
 		const mode = new ArcaneComponentMode({ category, component, bonus, costs });
-		const slot = heldItemSlotByTraits(traits);
+		const slot = Slots.heldItemSlotByTraits(traits);
 		return new Item({ name, slot, modes: [mode], traits });
 	}
 }
@@ -305,6 +319,10 @@ export class Item {
 		this.isEquipped = isEquipped;
 		this.traits = traits;
 		this.modes = modes;
+	}
+
+	get isEquippable(): boolean {
+		return this.slot !== SlotType.None;
 	}
 
 	private modesDescriptor(): string | undefined {
@@ -430,6 +448,29 @@ export class Equipment {
 		this.items = items;
 	}
 
+	warnings(): string[] {
+		const equipment = this.equippedItems();
+		const invalidEquip = equipment.some(item => !item.isEquippable);
+		const excessArmor = equipment.filter(item => item.slot === SlotType.Armor).length > 1;
+		const slotToHands = (slot: SlotType): number => {
+			switch (slot) {
+				case SlotType.OneHand:
+					return 1;
+				case SlotType.TwoHands:
+					return 2;
+				default:
+					return 0;
+			}
+		};
+		const excessHands = equipment.map(item => slotToHands(item.slot)).reduce((a, b) => a + b, 0) > 2;
+		const warnings = [
+			invalidEquip ? 'One or more equipped items cannot be equipped.' : null,
+			excessArmor ? 'More than one item in the Armor slot is equipped.' : null,
+			excessHands ? 'More than two hands worth of items are equipped.' : null,
+		];
+		return warnings.filter(warning => warning !== null);
+	}
+
 	shieldModes(): ShieldModeOption[] {
 		return this.itemsWithModes(ShieldMode, ShieldModeOption);
 	}
@@ -478,7 +519,13 @@ export class Equipment {
 		ctor: new (...args: never[]) => T,
 		modeCtor: new (args: { item: Item; mode: T }) => R,
 	): R[] {
-		return this.items.flatMap(item => filterInstanceOf(item.modes, ctor).map(mode => new modeCtor({ item, mode })));
+		return this.equippedItems().flatMap(item =>
+			filterInstanceOf(item.modes, ctor).map(mode => new modeCtor({ item, mode })),
+		);
+	}
+
+	private equippedItems(): Item[] {
+		return this.items.filter(item => item.isEquipped);
 	}
 
 	static from(prop: string | undefined): Equipment {

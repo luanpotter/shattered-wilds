@@ -7,6 +7,7 @@ import {
 	FaBox,
 	FaChild,
 	FaEdit,
+	FaExclamationTriangle,
 	FaPlus,
 	FaQuestionCircle,
 	FaRing,
@@ -76,7 +77,8 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ characterId 
 
 	const slotTypeIcon = (slotType: SlotType, isEquipped: boolean, onClick?: () => void): React.JSX.Element => {
 		const Icon = slotTypeToIcon(slotType);
-		const tooltip = `${slotType}${slotType == SlotType.None ? '' : isEquipped ? ' (equipped)' : ' (not equipped)'}`;
+		const description = slotType == SlotType.None ? 'not equippable' : isEquipped ? 'equipped' : 'not equipped';
+		const tooltip = `${slotType} (${description})`;
 		const style = {
 			opacity: isEquipped ? '1' : '0.25',
 			cursor: onClick ? 'pointer' : 'default',
@@ -84,12 +86,44 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ characterId 
 		return <Icon style={style} title={tooltip} {...(onClick ? semanticClick('button', onClick) : {})} />;
 	};
 
+	const warnings = equipment.warnings();
+
 	return (
 		<Block>
 			<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
 				<h3 style={{ margin: '0 0 8px 0', fontSize: '1.1em' }}>Equipment</h3>
 				{editMode && <Button onClick={() => openAddItemModal({ characterId })} title='Add Item' icon={FaPlus} />}
 			</div>
+
+			{warnings.length > 0 && (
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						justifyContent: 'center',
+						gap: '8px',
+						border: '1px solid var(--accent)',
+						padding: '2px 8px',
+						marginBottom: '8px',
+					}}
+				>
+					{warnings.map((warning, idx) => (
+						<div
+							key={idx}
+							style={{
+								color: 'var(--color-warning)',
+								marginBottom: '4px',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+							}}
+						>
+							<FaExclamationTriangle style={{ color: 'orange' }} />
+							{warning}
+						</div>
+					))}
+				</div>
+			)}
 
 			{equipment.items.map((item, idx) => (
 				<div
@@ -102,7 +136,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ characterId 
 						width: '100%',
 					}}
 				>
-					{slotTypeIcon(item.slot, item.isEquipped, () => toggleIsEquipped(idx))}
+					{slotTypeIcon(item.slot, item.isEquipped, item.isEquippable ? () => toggleIsEquipped(idx) : undefined)}
 					<LabeledInput
 						variant='inline'
 						value={item.name}
