@@ -1,7 +1,17 @@
 import { CharacterSheet, Equipment, SlotType } from '@shattered-wilds/commons';
 import React from 'react';
 import { IconType } from 'react-icons';
-import { FaArrowDown, FaArrowUp, FaBox, FaChild, FaEdit, FaPlus, FaRing, FaTrash } from 'react-icons/fa';
+import {
+	FaArrowDown,
+	FaArrowUp,
+	FaBox,
+	FaChild,
+	FaEdit,
+	FaPlus,
+	FaQuestionCircle,
+	FaRing,
+	FaTrash,
+} from 'react-icons/fa';
 import { FaHandBackFist, FaHandHoldingHand } from 'react-icons/fa6';
 
 import { useModals } from '../../hooks/useModals';
@@ -51,6 +61,8 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ characterId 
 				return FaRing;
 			case SlotType.None:
 				return FaBox;
+			case null:
+				return FaQuestionCircle;
 		}
 	};
 
