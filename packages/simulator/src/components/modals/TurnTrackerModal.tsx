@@ -81,11 +81,26 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 		return encounter.turnTracker.currentTurnCharacterId ?? null;
 	}, [encounter?.turnTracker, sortedCharacters]);
 
+	const resetCharacterAP = useCallback(
+		(characterId: string) => {
+			const character = characters.find(c => c.id === characterId);
+			if (!character) {
+				return;
+			}
+			const sheet = CharacterSheet.from(character.props);
+			const propUpdater = new PropUpdater({ character, sheet, updateCharacterProp });
+			propUpdater.updateResourceToMax(Resource.ActionPoint);
+		},
+		[characters, updateCharacterProp],
+	);
+
 	const handleBeginEncounter = useCallback(async () => {
 		if (!encounter) return;
 		setIsRolling(true);
 
 		try {
+			encounterCharacterIds.forEach(resetCharacterAP);
+
 			const initiativePromises = encounterCharacterIds.map(async id => {
 				const character = characters.find(c => c.id === id);
 				if (character) {
@@ -121,7 +136,7 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 		} finally {
 			setIsRolling(false);
 		}
-	}, [encounter, encounterCharacterIds, characters, updateEncounter]);
+	}, [encounter, encounterCharacterIds, updateEncounter, characters, resetCharacterAP]);
 
 	const handleEndEncounter = useCallback(async () => {
 		if (!encounter) return;
@@ -217,12 +232,7 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 
 		// Reset Action Points for the current turn character
 		if (currentTurnCharacterId) {
-			const character = characters.find(c => c.id === currentTurnCharacterId);
-			if (character) {
-				const sheet = CharacterSheet.from(character.props);
-				const propUpdater = new PropUpdater({ character, sheet, updateCharacterProp });
-				propUpdater.updateResourceToMax(Resource.ActionPoint);
-			}
+			resetCharacterAP(currentTurnCharacterId);
 		}
 
 		updateEncounter({
@@ -232,7 +242,7 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 				currentTurnCharacterId: nextCharacterId,
 			},
 		});
-	}, [encounter, sortedCharacters, updateEncounter, characters, updateCharacterProp]);
+	}, [encounter, sortedCharacters, updateEncounter, resetCharacterAP]);
 
 	const handlePrevTurn = useCallback(() => {
 		if (!encounter?.turnTracker) return;
