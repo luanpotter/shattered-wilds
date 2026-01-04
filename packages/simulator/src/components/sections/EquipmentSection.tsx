@@ -1,6 +1,6 @@
 import { CharacterSheet, Equipment } from '@shattered-wilds/commons';
 import React from 'react';
-import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
+import { FaArrowDown, FaArrowUp, FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
@@ -24,6 +24,16 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ characterId 
 
 	const handleRemoveItem = (idx: number) => {
 		equipment.items.splice(idx, 1);
+		onUpdateEquipment(equipment);
+	};
+
+	const handleMoveItem = ({ itemIndex, delta }: { itemIndex: number; delta: number }) => {
+		const newIndex = itemIndex + delta;
+		if (newIndex < 0 || newIndex >= equipment.items.length) {
+			return;
+		}
+		const [item] = equipment.items.splice(itemIndex, 1);
+		equipment.items.splice(newIndex, 0, item);
 		onUpdateEquipment(equipment);
 	};
 
@@ -57,6 +67,20 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ characterId 
 					/>
 					{editMode && (
 						<>
+							<Button
+								onClick={() => handleMoveItem({ itemIndex: idx, delta: 1 })}
+								icon={FaArrowDown}
+								tooltip='Move down'
+								variant='inline'
+								disabled={idx === equipment.items.length - 1}
+							/>
+							<Button
+								onClick={() => handleMoveItem({ itemIndex: idx, delta: -1 })}
+								icon={FaArrowUp}
+								tooltip='Move up'
+								variant='inline'
+								disabled={idx === 0}
+							/>
 							<Button
 								onClick={() => openViewItemModal({ characterId, itemIndex: idx })}
 								icon={FaEdit}
