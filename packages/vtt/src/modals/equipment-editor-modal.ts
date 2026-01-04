@@ -19,6 +19,7 @@ import {
 	TraitTarget,
 	TRAITS,
 	WeaponMode,
+	SlotType,
 } from '@shattered-wilds/commons';
 import { createHandlebarsApplicationBase, getActorById, showNotification } from '../foundry-shim.js';
 import { parseCharacterProps } from '../helpers/character.js';
@@ -739,6 +740,7 @@ class EquipmentEditorModalImpl extends HandlebarsAppBase {
 
 	private buildItemFromState(state: EquipmentFormState): Item {
 		const name = state.name.trim();
+		const slot = SlotType.None; // TODO: support slots on vtt
 		const traits = [...state.traits];
 
 		// Convert each mode form state to a domain mode
@@ -776,7 +778,7 @@ class EquipmentEditorModalImpl extends HandlebarsAppBase {
 			}
 		});
 
-		return new Item({ name, modes, traits });
+		return new Item({ name, slot, modes, traits });
 	}
 
 	private async saveItem(item: Item): Promise<void> {

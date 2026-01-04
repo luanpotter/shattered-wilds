@@ -1,7 +1,7 @@
 // sadly TS sucks and there is no easy way to de/serialize polymorphic types
 // I've spent too much time on this - I will just write a hacky serializer for now
 
-import { ArcaneComponentMode, ArmorMode, Item, ItemMode, ShieldMode, WeaponMode } from './equipment.js';
+import { ArcaneComponentMode, ArmorMode, Item, ItemMode, ShieldMode, SlotType, WeaponMode } from './equipment.js';
 import { Bonus, Distance } from '../stats/value.js';
 import { ResourceCost } from '../stats/resources.js';
 
@@ -29,6 +29,7 @@ export const EquipmentSerializer = {
 const serializeItem = (item: Item): string => {
 	const pojo = {
 		name: item.name,
+		slot: item.slot,
 		traits: [...item.traits],
 		modes: item.modes.map(mode => serializeItemMode(mode)),
 	};
@@ -81,12 +82,14 @@ const serializeItemMode = (mode: ItemMode): unknown => {
 const deserializeItem = (data: string): Item => {
 	const pojo = JSON.parse(data) as {
 		name: string;
+		slot: string;
 		traits?: Item['traits'];
 		modes?: { __type: string; [key: string]: unknown }[];
 	};
 	const modes = (pojo.modes ?? []).map(mode => deserializeItemMode(mode));
 	return new Item({
 		name: pojo.name,
+		slot: pojo.slot as SlotType,
 		traits: pojo.traits ?? [],
 		modes,
 	});

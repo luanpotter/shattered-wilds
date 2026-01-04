@@ -6,6 +6,7 @@ import {
 	Equipment,
 	Item,
 	PrimaryWeaponType,
+	SlotType,
 	WeaponMode,
 } from './equipment';
 import { Bonus, Distance } from '../stats/value';
@@ -55,6 +56,7 @@ describe('equipment serialization and rehydration', () => {
 	it('arcane foci preserve nested costs, traits, and bonuses', () => {
 		const focus = new Item({
 			name: 'Custom Focus',
+			slot: SlotType.TwoHands,
 			traits: [Trait.TwoHanded],
 			modes: [
 				new ArcaneComponentMode({

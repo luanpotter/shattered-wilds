@@ -18,6 +18,7 @@ import {
 	ResourceCost,
 	ShieldMode,
 	ShieldType,
+	SlotType,
 	Trait,
 	WeaponMode,
 } from '@shattered-wilds/commons';
@@ -178,6 +179,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 	const existing = typeof itemIndex === 'number' ? equipment.items[itemIndex] : undefined;
 
 	const [template, setTemplate] = useState<BasicEquipmentType | null>(null);
+	const [slot, setSlot] = useState<SlotType>(() => existing?.slot ?? SlotType.None);
 	const [name, setName] = useState<string>(() => existing?.name ?? '');
 	const [traits, setTraits] = useState<Trait[]>(() => existing?.traits ?? []);
 	const [modes, setModes] = useState<ModeState[]>(() =>
@@ -200,6 +202,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 
 		const item = BASIC_EQUIPMENT[template].generator();
 		setName(item.name);
+		setSlot(item.slot);
 		setTraits(item.traits);
 		setModes(item.modes.length ? item.modes.map(modeToState) : [createDefaultWeaponMode()]);
 	}, [template, itemIndex]);
@@ -252,7 +255,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 
 	const buildItem = (): Item => {
 		const itemModes = modes.map(stateToMode);
-		return new Item({ name: name || 'New Item', modes: itemModes, traits });
+		return new Item({ name: name || 'New Item', slot, modes: itemModes, traits });
 	};
 
 	const isValid = useMemo(() => {
@@ -397,16 +400,25 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 
 	return (
 		<div style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-			{typeof itemIndex !== 'number' && (
+			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+				{typeof itemIndex !== 'number' && (
+					<LabeledDropdown
+						label='Template (optional)'
+						value={template}
+						options={Object.values(BasicEquipmentType)}
+						describe={t => t}
+						placeholder='Start from scratch'
+						onChange={setTemplate}
+					/>
+				)}
 				<LabeledDropdown
-					label='Template (optional)'
-					value={template}
-					options={Object.values(BasicEquipmentType)}
+					label='Slot'
+					value={slot}
+					options={Object.values(SlotType)}
 					describe={t => t}
-					placeholder='Start from scratch'
-					onChange={setTemplate}
+					onChange={setSlot}
 				/>
-			)}
+			</div>
 
 			<LabeledInput label='Name' value={name} onBlur={setName} disabled={!editMode} />
 

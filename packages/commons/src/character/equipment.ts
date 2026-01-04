@@ -7,6 +7,19 @@ import { Bonus, Distance } from '../stats/value.js';
 import { filterInstanceOf } from '../utils/utils.js';
 import { EquipmentSerializer } from './equipment-serializer.js';
 
+export enum SlotType {
+	Armor = 'Armor',
+	OneHand = 'One Hand',
+	TwoHands = 'Two Hands',
+	Free = 'Free',
+	None = 'None',
+}
+
+/** Held items such as Weapons or Arcane Components must be either One Handed or Two Handed. */
+const heldItemSlotByTraits = (traits: Trait[]): SlotType => {
+	return traits.includes(Trait.TwoHanded) ? SlotType.TwoHands : SlotType.OneHand;
+};
+
 export enum PrimaryWeaponType {
 	Unarmed = 'Unarmed',
 	Thrown = 'Thrown',
@@ -39,6 +52,27 @@ export enum ShieldType {
 	SmallShield = 'Small Shield',
 	LargeShield = 'Large Shield',
 }
+
+export class ShieldTypeDefinition {
+	shieldType: ShieldType;
+	slotType: SlotType;
+
+	constructor({ shieldType, slotType }: { shieldType: ShieldType; slotType: SlotType }) {
+		this.shieldType = shieldType;
+		this.slotType = slotType;
+	}
+}
+
+export const SHIELD_TYPE_DEFINITIONS: Record<ShieldType, ShieldTypeDefinition> = {
+	[ShieldType.SmallShield]: new ShieldTypeDefinition({
+		shieldType: ShieldType.SmallShield,
+		slotType: SlotType.OneHand,
+	}),
+	[ShieldType.LargeShield]: new ShieldTypeDefinition({
+		shieldType: ShieldType.LargeShield,
+		slotType: SlotType.TwoHands,
+	}),
+};
 
 export enum ModeType {
 	Weapon = 'weapon',
@@ -121,7 +155,8 @@ export class WeaponMode implements ItemMode {
 		traits?: Trait[];
 	}): Item {
 		const mode = new WeaponMode({ type, bonus, range, costs: [] });
-		return new Item({ name, modes: [mode], traits });
+		const slot = heldItemSlotByTraits(traits);
+		return new Item({ name, slot, modes: [mode], traits });
 	}
 }
 
@@ -158,7 +193,8 @@ export class ArmorMode implements ItemMode {
 		traits?: Trait[];
 	}): Item {
 		const mode = new ArmorMode({ type, bonus, dexPenalty });
-		return new Item({ name, modes: [mode], traits });
+		const slot = SlotType.Armor;
+		return new Item({ name, slot, modes: [mode], traits });
 	}
 }
 
@@ -190,7 +226,8 @@ export class ShieldMode implements ItemMode {
 		traits?: Trait[];
 	}): Item {
 		const mode = new ShieldMode({ type, bonus, costs: [] });
-		return new Item({ name, modes: [mode], traits });
+		const slot = SHIELD_TYPE_DEFINITIONS[type].slotType;
+		return new Item({ name, slot, modes: [mode], traits });
 	}
 }
 
@@ -238,16 +275,29 @@ export class ArcaneComponentMode implements ItemMode {
 		traits?: Trait[];
 	}): Item {
 		const mode = new ArcaneComponentMode({ category, component, bonus, costs });
-		return new Item({ name, modes: [mode], traits });
+		const slot = heldItemSlotByTraits(traits);
+		return new Item({ name, slot, modes: [mode], traits });
 	}
 }
 
 export class Item {
 	name: string;
+	slot: SlotType;
 	traits: Trait[];
 	modes: ItemMode[];
 
-	constructor({ name, traits = [], modes = [] }: { name: string; traits?: Trait[]; modes?: ItemMode[] }) {
+	constructor({
+		name,
+		slot,
+		traits = [],
+		modes = [],
+	}: {
+		name: string;
+		slot: SlotType;
+		traits?: Trait[];
+		modes?: ItemMode[];
+	}) {
+		this.slot = slot;
 		this.name = name;
 		this.traits = traits;
 		this.modes = modes;
@@ -300,6 +350,7 @@ export class WeaponModeOption extends ItemModeOption<WeaponMode> {
 		const mode = new WeaponMode({ type: PrimaryWeaponType.Unarmed, bonus: Bonus.of(0), costs: [] });
 		const item = new Item({
 			name: 'Unarmed',
+			slot: SlotType.None,
 			modes: [mode],
 		});
 		return new WeaponModeOption({ item, mode });
@@ -309,6 +360,7 @@ export class WeaponModeOption extends ItemModeOption<WeaponMode> {
 		const mode = new WeaponMode({ type: PrimaryWeaponType.Unarmed, bonus: Bonus.of(1), costs: [] });
 		const item = new Item({
 			name: 'Shield Bash',
+			slot: SlotType.None,
 			modes: [mode],
 		});
 		return new WeaponModeOption({ item, mode });
@@ -493,6 +545,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 		generator: () =>
 			new Item({
 				name: 'Hatchet',
+				slot: SlotType.OneHand,
 				modes: [
 					new WeaponMode({
 						type: PrimaryWeaponType.LightMelee,
@@ -511,6 +564,7 @@ export const BASIC_EQUIPMENT: Record<BasicEquipmentType, BasicEquipmentDefinitio
 		generator: () =>
 			new Item({
 				name: 'Dagger',
+				slot: SlotType.OneHand,
 				modes: [
 					new WeaponMode({
 						type: PrimaryWeaponType.LightMelee,
