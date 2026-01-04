@@ -4,6 +4,14 @@
 			<label for="equipment-name">Name</label>
 			<input id="equipment-name" class="sw-input" type="text" value="{{name}}" data-field="name" autocomplete="off" />
 		</div>
+		<div class="sw-form-field">
+			<label for="equipment-slot">Slot</label>
+			<select id="equipment-slot" class="sw-select sw-select--inline" data-field="slot">
+				{{#each slotTypeOptions}}
+				<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+				{{/each}}
+			</select>
+		</div>
 
 		{{#if hasTraits}}
 		<div class="sw-form-field">

@@ -20,6 +20,7 @@ import {
 	TRAITS,
 	WeaponMode,
 	SlotType,
+	isEnumValue,
 } from '@shattered-wilds/commons';
 import { createHandlebarsApplicationBase, getActorById, showNotification } from '../foundry-shim.js';
 import { parseCharacterProps } from '../helpers/character.js';
@@ -65,6 +66,7 @@ type ModeFormState = WeaponModeFormState | ArmorModeFormState | ShieldModeFormSt
 
 type EquipmentFormState = {
 	name: string;
+	slot: SlotType;
 	traits: Trait[];
 	modes: ModeFormState[];
 };
@@ -161,6 +163,7 @@ function createDefaultModeState(modeType: ModeType): ModeFormState {
 function createDefaultState(name = ''): EquipmentFormState {
 	return {
 		name,
+		slot: SlotType.None,
 		traits: [],
 		modes: [createDefaultModeState(ModeType.Weapon)],
 	};
@@ -210,6 +213,7 @@ function modeToFormState(mode: ItemMode): ModeFormState {
 function createStateFromItem(item: Item): EquipmentFormState {
 	return {
 		name: item.name,
+		slot: item.slot,
 		traits: [...item.traits],
 		modes: item.modes.length > 0 ? item.modes.map(modeToFormState) : [createDefaultModeState(ModeType.Weapon)],
 	};
@@ -345,6 +349,12 @@ class EquipmentEditorModalImpl extends HandlebarsAppBase {
 			label: MODE_TYPE_LABELS[value],
 		}));
 
+		const slotTypeOptions = Object.values(SlotType).map(value => ({
+			value,
+			label: value,
+			selected: value === state.slot,
+		}));
+
 		return {
 			mode: this.#options.mode,
 			isEditMode: this.#options.mode === 'edit',
@@ -354,6 +364,7 @@ class EquipmentEditorModalImpl extends HandlebarsAppBase {
 			modes,
 			hasModes: modes.length > 0,
 			modeTypeOptions,
+			slotTypeOptions,
 			canSubmit: validation.valid,
 			submitLabel: this.#options.mode === 'edit' ? 'Save Item' : 'Add Item',
 			canDelete: this.#options.mode === 'edit',
@@ -484,6 +495,13 @@ class EquipmentEditorModalImpl extends HandlebarsAppBase {
 		switch (field) {
 			case 'name':
 				this.#state = { ...this.#state, name: value };
+				break;
+			case 'slot':
+				if (isEnumValue(SlotType)(value)) {
+					this.#state = { ...this.#state, slot: value };
+				} else {
+					console.error(`Invalid slot type selected: ${value}`);
+				}
 				break;
 			default:
 				break;
@@ -740,7 +758,7 @@ class EquipmentEditorModalImpl extends HandlebarsAppBase {
 
 	private buildItemFromState(state: EquipmentFormState): Item {
 		const name = state.name.trim();
-		const slot = SlotType.None; // TODO: support slots on vtt
+		const slot = state.slot;
 		const traits = [...state.traits];
 
 		// Convert each mode form state to a domain mode
