@@ -290,7 +290,7 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 							<p style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>No characters in encounter</p>
 						) : (
 							<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-								{sortedCharacters.map(({ character, initiative }, idx) => {
+								{sortedCharacters.map(({ character, initiative }) => {
 									const isCurrentTurn = character.id === currentTurnCharacterId;
 									const isEditing = editingCharacterId === character.id;
 									const characterSheet = CharacterSheet.from(character.props);
@@ -320,10 +320,9 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 													▶
 												</span>
 												<span
-													{...semanticClick(idx, () => {
+													{...semanticClick('button', () => {
 														openCharacterSheetModal({ characterId: character.id });
 													})}
-													role='button'
 													style={{ fontWeight: isCurrentTurn ? 'bold' : 'normal', cursor: 'pointer' }}
 												>
 													{character.props.name}

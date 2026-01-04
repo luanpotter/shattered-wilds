@@ -1,9 +1,10 @@
 import { CharacterSheet } from '@shattered-wilds/commons';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaFistRaised, FaRuler, FaUser } from 'react-icons/fa';
 
 import { getBasicAttacksFor } from '../types/grid-actions';
 import { Character } from '../types/ui';
+import { semanticClick } from '../utils';
 
 interface TokenContextMenuProps {
 	character: Character;
@@ -37,6 +38,77 @@ export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
 		minWidth: '200px',
 	};
 
+	const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+
+	useEffect(() => {
+		const handleClickOutside = (e: MouseEvent) => {
+			const target = e.target as HTMLElement;
+			if (!target.closest('.token-context-menu')) {
+				onClose();
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => document.removeEventListener('mousedown', handleClickOutside);
+	}, [onClose]);
+
+	const MenuItem = ({
+		icon: Icon,
+		title,
+		onClick,
+	}: {
+		icon: React.ComponentType<{ size: number }>;
+		title: string;
+		onClick: () => void;
+	}) => {
+		return (
+			<BaseMenuItem
+				icon={Icon}
+				title={title}
+				hoveredItem={hoveredItem}
+				setHoveredItem={setHoveredItem}
+				onClick={onClick}
+				onClose={onClose}
+			/>
+		);
+	};
+
+	return (
+		<div className='token-context-menu' style={menuStyle} role='menu'>
+			{/* Character Sheet Option */}
+			<MenuItem icon={FaUser} title='See Character Sheet' onClick={() => onOpenCharacterSheet(character)} />
+
+			{/* Measure Option */}
+			{onMeasureAction && <MenuItem icon={FaRuler} title='Measure' onClick={() => onMeasureAction(character)} />}
+
+			{/* Attack Options */}
+			{basicAttacks.length > 0 && onAttackAction && (
+				<>
+					{/* Separator */}
+					<div style={{ height: '1px', backgroundColor: 'var(--text)', margin: '4px 0', opacity: 0.3 }} />
+
+					{basicAttacks.map((attack, index) => (
+						<MenuItem
+							key={`attack-${index}`}
+							icon={FaFistRaised}
+							title={`Attack: ${attack.name}`}
+							onClick={() => onAttackAction(character, index)}
+						/>
+					))}
+				</>
+			)}
+		</div>
+	);
+};
+
+const BaseMenuItem: React.FC<{
+	icon: React.ComponentType<{ size: number }>;
+	title: string;
+	hoveredItem: string | null;
+	setHoveredItem: (item: string | null) => void;
+	onClick: () => void;
+	onClose: () => void;
+}> = ({ icon: Icon, title, hoveredItem, setHoveredItem, onClick, onClose }) => {
 	const menuItemStyle: React.CSSProperties = {
 		display: 'flex',
 		alignItems: 'center',
@@ -50,115 +122,21 @@ export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
 		backgroundColor: 'var(--background-alt)',
 	};
 
-	const [hoveredItem, setHoveredItem] = React.useState<string | null>(null);
-
-	React.useEffect(() => {
-		const handleClickOutside = (e: MouseEvent) => {
-			const target = e.target as HTMLElement;
-			if (!target.closest('.token-context-menu')) {
-				onClose();
-			}
-		};
-
-		document.addEventListener('mousedown', handleClickOutside);
-		return () => document.removeEventListener('mousedown', handleClickOutside);
-	}, [onClose]);
-
-	const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
-		if (e.key === 'Enter' || e.key === ' ') {
-			e.preventDefault();
-			action();
-		}
-	};
-
 	return (
-		<div className='token-context-menu' style={menuStyle} role='menu'>
-			{/* Character Sheet Option */}
-			<div
-				role='menuitem'
-				tabIndex={0}
-				style={{
-					...menuItemStyle,
-					...(hoveredItem === 'sheet' ? menuItemHoverStyle : {}),
-				}}
-				onMouseEnter={() => setHoveredItem('sheet')}
-				onMouseLeave={() => setHoveredItem(null)}
-				onClick={() => {
-					onOpenCharacterSheet(character);
-					onClose();
-				}}
-				onKeyDown={e =>
-					handleKeyDown(e, () => {
-						onOpenCharacterSheet(character);
-						onClose();
-					})
-				}
-			>
-				<FaUser size={14} />
-				<span>See Character Sheet</span>
-			</div>
-
-			{/* Measure Option */}
-			{onMeasureAction && (
-				<div
-					role='menuitem'
-					tabIndex={0}
-					style={{
-						...menuItemStyle,
-						...(hoveredItem === 'measure' ? menuItemHoverStyle : {}),
-					}}
-					onMouseEnter={() => setHoveredItem('measure')}
-					onMouseLeave={() => setHoveredItem(null)}
-					onClick={() => {
-						onMeasureAction(character);
-						onClose();
-					}}
-					onKeyDown={e =>
-						handleKeyDown(e, () => {
-							onMeasureAction(character);
-							onClose();
-						})
-					}
-				>
-					<FaRuler size={14} />
-					<span>Measure</span>
-				</div>
-			)}
-
-			{/* Attack Options */}
-			{basicAttacks.length > 0 && onAttackAction && (
-				<>
-					{/* Separator */}
-					<div style={{ height: '1px', backgroundColor: 'var(--text)', margin: '4px 0', opacity: 0.3 }} />
-
-					{basicAttacks.map((attack, index) => (
-						<div
-							key={`attack-${index}`}
-							role='menuitem'
-							tabIndex={0}
-							style={{
-								...menuItemStyle,
-								...(hoveredItem === `attack-${index}` ? menuItemHoverStyle : {}),
-							}}
-							onMouseEnter={() => setHoveredItem(`attack-${index}`)}
-							onMouseLeave={() => setHoveredItem(null)}
-							onClick={() => {
-								onAttackAction(character, index);
-								onClose();
-							}}
-							onKeyDown={e =>
-								handleKeyDown(e, () => {
-									onAttackAction(character, index);
-									onClose();
-								})
-							}
-						>
-							<FaFistRaised size={14} />
-							<span>Attack: {attack.name}</span>
-						</div>
-					))}
-				</>
-			)}
+		<div
+			style={{
+				...menuItemStyle,
+				...(hoveredItem === title ? menuItemHoverStyle : {}),
+			}}
+			onMouseEnter={() => setHoveredItem(title)}
+			onMouseLeave={() => setHoveredItem(null)}
+			{...semanticClick('menuitem', () => {
+				onClick();
+				onClose();
+			})}
+		>
+			<Icon size={14} />
+			<span>{title}</span>
 		</div>
 	);
 };

@@ -46,11 +46,9 @@ export const FilterableCharacterSelect: React.FC<FilterableCharacterSelectProps>
 	return (
 		<div ref={containerRef} style={{ position: 'relative' }} onBlur={handleBlur}>
 			<div
-				role='combobox'
 				aria-expanded={isOpen}
 				aria-haspopup='listbox'
 				aria-controls='character-listbox'
-				tabIndex={-1}
 				style={{
 					display: 'flex',
 					flexWrap: 'wrap',
@@ -63,16 +61,10 @@ export const FilterableCharacterSelect: React.FC<FilterableCharacterSelectProps>
 					alignItems: 'center',
 					cursor: 'text',
 				}}
-				onClick={() => {
+				{...semanticClick('combobox', () => {
 					setIsOpen(true);
 					inputRef.current?.focus();
-				}}
-				onKeyDown={e => {
-					if (e.key === 'Enter' || e.key === ' ') {
-						setIsOpen(true);
-						inputRef.current?.focus();
-					}
-				}}
+				})}
 			>
 				{selectedCharacters.map(char => (
 					<span
@@ -232,7 +224,6 @@ export const AddCharacterDropdown: React.FC<AddCharacterDropdownProps> = ({
 	return (
 		<div ref={containerRef} style={{ position: 'relative', minWidth: '200px' }} onBlur={handleBlur}>
 			<div
-				role='combobox'
 				aria-expanded={isOpen}
 				aria-haspopup='listbox'
 				aria-controls='add-character-listbox'
@@ -246,7 +237,7 @@ export const AddCharacterDropdown: React.FC<AddCharacterDropdownProps> = ({
 					backgroundColor: 'var(--background)',
 					cursor: 'text',
 				}}
-				{...semanticClick(-1, () => {
+				{...semanticClick('combobox', () => {
 					setIsOpen(true);
 					inputRef.current?.focus();
 				})}
