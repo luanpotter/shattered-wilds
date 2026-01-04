@@ -75,17 +75,11 @@ export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
 
 	return (
 		<div className='token-context-menu' style={menuStyle} role='menu'>
-			{/* Character Sheet Option */}
 			<MenuItem icon={FaUser} title='See Character Sheet' onClick={() => onOpenCharacterSheet(character)} />
-
-			{/* Measure Option */}
 			{onMeasureAction && <MenuItem icon={FaRuler} title='Measure' onClick={() => onMeasureAction(character)} />}
-
-			{/* Attack Options */}
 			{basicAttacks.length > 0 && onAttackAction && (
 				<>
-					{/* Separator */}
-					<div style={{ height: '1px', backgroundColor: 'var(--text)', margin: '4px 0', opacity: 0.3 }} />
+					<Separator />
 
 					{basicAttacks.map((attack, index) => (
 						<MenuItem
@@ -100,6 +94,10 @@ export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
 		</div>
 	);
 };
+
+const Separator = () => (
+	<div style={{ height: '1px', backgroundColor: 'var(--text)', margin: '4px 0', opacity: 0.3 }} />
+);
 
 const BaseMenuItem: React.FC<{
 	icon: React.ComponentType<{ size: number }>;
