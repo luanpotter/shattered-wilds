@@ -68,7 +68,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ characterId 
 
 	const slotTypeIcon = (slotType: SlotType, isEquipped: boolean): React.JSX.Element => {
 		const Icon = slotTypeToIcon(slotType);
-		const tooltip = `${slotType} ${isEquipped ? '(equipped)' : '(not equipped)'}`;
+		const tooltip = `${slotType}${slotType == SlotType.None ? '' : isEquipped ? ' (equipped)' : ' (not equipped)'}`;
 		return <Icon style={isEquipped ? {} : { opacity: '0.25' }} title={tooltip} />;
 	};
 
