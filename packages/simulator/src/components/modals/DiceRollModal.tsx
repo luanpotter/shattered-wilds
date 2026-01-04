@@ -6,9 +6,7 @@ import {
 	CheckNature,
 	CheckType,
 	DiceRoll,
-	DiceRoller,
 	DiceRollEncoder,
-	EntropyProvider,
 	RollResults,
 	StatType,
 } from '@shattered-wilds/commons';
@@ -17,6 +15,7 @@ import { FaCheck, FaTimes } from 'react-icons/fa';
 
 import { useStore } from '../../store';
 import { exportDataToClipboard } from '../../utils/clipboard';
+import { diceRoller } from '../../utils/dice-roller';
 import Block from '../shared/Block';
 import { Button } from '../shared/Button';
 import { LabeledCheckbox } from '../shared/LabeledCheckbox';
@@ -30,15 +29,6 @@ export interface DiceRollModalProps {
 	onDiceRollComplete?: ((result: { total: number; shifts: number }) => void) | undefined;
 	initialTargetDC?: number;
 }
-
-// Entropy provider for simulator using Math.random()
-const simulatorEntropyProvider: EntropyProvider<void> = async (count: number) => ({
-	values: Array.from({ length: count }, () => Math.floor(Math.random() * 12) + 1),
-	context: undefined,
-});
-
-// Create a single DiceRoller instance for the simulator
-const diceRoller = new DiceRoller(simulatorEntropyProvider);
 
 const showTargetDC = (checkType: CheckType) =>
 	['Static-Active', 'Static-Resisted', 'Contested-Active'].includes(checkType);

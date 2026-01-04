@@ -29,6 +29,7 @@ import {
 	MeasureModal,
 	ModalWrapper,
 	RaceSetupModal,
+	TurnTrackerModal,
 } from './modals';
 import { CharacterListModal } from './modals/CharacterListModal';
 import { Button } from './shared/Button';
@@ -240,6 +241,9 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 			}
 			case 'encounter-config': {
 				return <EncounterConfigModal encounterId={modal.encounterId} onClose={onClose} />;
+			}
+			case 'turn-tracker': {
+				return <TurnTrackerModal encounterId={modal.encounterId} />;
 			}
 			case 'color-picker': {
 				return <ColorPickerModal currentColor={modal.currentColor} onSelect={modal.onColorChange} onClose={onClose} />;

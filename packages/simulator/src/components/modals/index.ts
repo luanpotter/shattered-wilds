@@ -19,4 +19,5 @@ export { FeatParameterSetupModal } from './FeatParameterSetupModal';
 export { IconSelectionModal } from './IconSelectionModal';
 export { MeasureModal } from './MeasureModal';
 export { AddItemModal } from './AddItemModal';
+export { TurnTrackerModal } from './TurnTrackerModal';
 export { default as RaceSetupModal } from './RaceSetupModal';

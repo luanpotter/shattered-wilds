@@ -183,6 +183,10 @@ export type Modal = BaseModal &
 				encounterId: string;
 		  }
 		| {
+				type: 'turn-tracker';
+				encounterId: string;
+		  }
+		| {
 				type: 'color-picker';
 				currentColor: string;
 				onColorChange: (color: string) => void;
@@ -200,11 +204,17 @@ export interface Character {
 	props: { name: string } & Record<string, string>;
 }
 
+export interface TurnTracker {
+	initiatives: Record<string, number | null>; // characterId -> initiative value (null = not rolled)
+	currentTurnIndex: number; // index in sorted order of whose turn it is
+}
+
 export interface Encounter {
 	id: string;
 	name: string;
 	characterPositions: Record<string, HexPosition>;
 	map: GameMap;
+	turnTracker: TurnTracker | null;
 }
 
 export const createNewCharacter = ({ props }: { props: Record<string, string> }): Character => {
@@ -249,6 +259,7 @@ export const createNewEncounter = ({
 			size: mapSize,
 			drawings: [],
 		},
+		turnTracker: null,
 	};
 };
 

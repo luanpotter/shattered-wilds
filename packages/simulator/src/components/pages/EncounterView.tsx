@@ -5,6 +5,7 @@ import {
 	FaCrosshairs,
 	FaEdit,
 	FaFillDrip,
+	FaListOl,
 	FaMap,
 	FaMousePointer,
 	FaPenAlt,
@@ -37,7 +38,7 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 	const editMode = useStore(state => state.editMode);
 	const toggleEditMode = useStore(state => state.toggleEditMode);
 	const updateEncounter = useStore(state => state.updateEncounter);
-	const { closeAllModals, openEncounterConfigModal, openColorPickerModal } = useModals();
+	const { closeAllModals, openEncounterConfigModal, openColorPickerModal, openTurnTrackerModal } = useModals();
 
 	const encounter = encounters.find(e => e.id === encounterId);
 
@@ -160,6 +161,10 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 		);
 	};
 
+	const handleOpenTurnTracker = () => {
+		openTurnTrackerModal({ encounterId });
+	};
+
 	const EncounterControls = () => {
 		return (
 			<>
@@ -168,6 +173,7 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 					icon={editMode ? FaPlay : FaEdit}
 					title={editMode ? 'Play Mode' : 'Edit Mode'}
 				/>
+				<Button onClick={handleOpenTurnTracker} icon={FaListOl} title='Turn Tracker' />
 				<Button onClick={handleMapMode} icon={FaMap} title='Map' />
 				<Button onClick={handleOpenConfig} icon={FaCog} title='Config' />
 				<Button onClick={handleRecenter} icon={FaCrosshairs} title='Re-center' />

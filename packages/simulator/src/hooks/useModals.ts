@@ -377,6 +377,18 @@ export function useModals() {
 		});
 	};
 
+	const openTurnTrackerModal = ({ encounterId }: { encounterId: string }) => {
+		// Check if modal is already open
+		const existingModal = modals.find(modal => modal.type === 'turn-tracker' && modal.encounterId === encounterId);
+		if (existingModal) return;
+
+		addModal({
+			title: 'Turn Tracker',
+			type: 'turn-tracker',
+			encounterId,
+		});
+	};
+
 	const openColorPickerModal = ({
 		currentColor,
 		onColorChange,
@@ -427,6 +439,7 @@ export function useModals() {
 		openAddConsequenceModal,
 		openConfirmationModal,
 		openEncounterConfigModal,
+		openTurnTrackerModal,
 		openColorPickerModal,
 		openIconSelectionModal,
 		closeModal,
