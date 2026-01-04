@@ -1,6 +1,8 @@
-import { CharacterSheet, Equipment } from '@shattered-wilds/commons';
+import { CharacterSheet, Equipment, SlotType } from '@shattered-wilds/commons';
 import React from 'react';
-import { FaArrowDown, FaArrowUp, FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
+import { IconType } from 'react-icons';
+import { FaArrowDown, FaArrowUp, FaBox, FaChild, FaEdit, FaPlus, FaRing, FaTrash } from 'react-icons/fa';
+import { FaHandBackFist, FaHandHoldingHand } from 'react-icons/fa6';
 
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
@@ -37,6 +39,26 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ characterId 
 		onUpdateEquipment(equipment);
 	};
 
+	const slotTypeToIcon = (slotType: SlotType): IconType => {
+		switch (slotType) {
+			case SlotType.Armor:
+				return FaChild;
+			case SlotType.OneHand:
+				return FaHandBackFist;
+			case SlotType.TwoHands:
+				return FaHandHoldingHand;
+			case SlotType.Free:
+				return FaRing;
+			case SlotType.None:
+				return FaBox;
+		}
+	};
+
+	const slotTypeIcon = (slotType: SlotType, isEquipped: boolean): React.JSX.Element => {
+		const Icon = slotTypeToIcon(slotType);
+		return <Icon style={isEquipped ? {} : { opacity: '0.25' }} />;
+	};
+
 	return (
 		<Block>
 			<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
@@ -55,6 +77,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ characterId 
 						width: '100%',
 					}}
 				>
+					{slotTypeIcon(item.slot, false)}
 					<LabeledInput
 						variant='inline'
 						value={item.name}
