@@ -1,10 +1,11 @@
-import { CharacterSheet, CheckFactory } from '@shattered-wilds/commons';
+import { CharacterSheet, CheckFactory, Resource } from '@shattered-wilds/commons';
 import React, { useState, useCallback, useMemo } from 'react';
 import { FaDice, FaPlay, FaStop, FaForward, FaBackward } from 'react-icons/fa6';
 
 import { useStore } from '../../store';
 import { TurnTracker, Character } from '../../types/ui';
 import { diceRoller } from '../../utils/dice-roller';
+import { DiamondIcon } from '../circumstances/ResourceDiamonds';
 import { Button } from '../shared/Button';
 
 interface TurnTrackerModalProps {
@@ -282,6 +283,8 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 								{sortedCharacters.map(({ character, initiative }) => {
 									const isCurrentTurn = character.id === currentTurnCharacterId;
 									const isEditing = editingCharacterId === character.id;
+									const characterSheet = CharacterSheet.from(character.props);
+									const actionPoints = characterSheet.getResource(Resource.ActionPoint);
 
 									return (
 										<li
@@ -308,7 +311,12 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 												</span>
 												<span style={{ fontWeight: isCurrentTurn ? 'bold' : 'normal' }}>{character.props.name}</span>
 											</div>
-											<div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+											<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+												<div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginRight: 4 }}>
+													{Array.from({ length: actionPoints.max }).map((_, i) => (
+														<DiamondIcon key={i} filled={i < actionPoints.current} color='#E53935' size={14} />
+													))}
+												</div>
 												{isEditing ? (
 													<input
 														type='number'

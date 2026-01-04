@@ -1,5 +1,21 @@
 import React from 'react';
 
+export const DiamondIcon: React.FC<{ filled: boolean; color: string; size?: number }> = ({
+	filled,
+	color,
+	size = 20,
+}) => (
+	<svg width={size} height={size} viewBox='0 0 20 20' style={{ display: 'block', transition: 'all 0.2s ease' }}>
+		<path
+			d='M 10 2 L 18 10 L 10 18 L 2 10 Z'
+			fill={filled ? color : 'transparent'}
+			stroke='var(--text)'
+			strokeWidth='2'
+			style={{ transition: 'fill 0.2s ease' }}
+		/>
+	</svg>
+);
+
 interface ResourceDiamondsProps {
 	count: number;
 	total: number;
@@ -27,25 +43,7 @@ export const ResourceDiamonds: React.FC<ResourceDiamondsProps> = ({ count, total
 						}}
 						title={`Toggle ${idx + 1}`}
 					>
-						<svg
-							width='20'
-							height='20'
-							viewBox='0 0 20 20'
-							style={{
-								display: 'block',
-								transition: 'all 0.2s ease',
-							}}
-						>
-							<path
-								d='M 10 2 L 18 10 L 10 18 L 2 10 Z'
-								fill={isFilled ? color : 'transparent'}
-								stroke='var(--text)'
-								strokeWidth='2'
-								style={{
-									transition: 'fill 0.2s ease',
-								}}
-							/>
-						</svg>
+						<DiamondIcon filled={isFilled} color={color} />
 					</button>
 				);
 			})}
