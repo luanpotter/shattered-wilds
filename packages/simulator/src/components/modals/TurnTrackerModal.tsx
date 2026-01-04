@@ -3,6 +3,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { FaBackward, FaDice, FaForward, FaPlay, FaStop } from 'react-icons/fa6';
 
 import { useModals } from '../../hooks/useModals';
+import { PropUpdater } from '../../hooks/usePropUpdates';
 import { useStore } from '../../store';
 import { Character, TurnTracker } from '../../types/ui';
 import { semanticClick } from '../../utils';
@@ -37,6 +38,7 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 	const characters = useStore(state => state.characters);
 	const encounters = useStore(state => state.encounters);
 	const updateEncounter = useStore(state => state.updateEncounter);
+	const updateCharacterProp = useStore(state => state.updateCharacterProp);
 
 	const [editingCharacterId, setEditingCharacterId] = useState<string | null>(null);
 	const [editValue, setEditValue] = useState('');
@@ -202,7 +204,7 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 		}
 	};
 
-	const handleNextTurn = useCallback(() => {
+	const handleEndTurn = useCallback(() => {
 		if (!encounter?.turnTracker) return;
 		const sortedWithInit = sortedCharacters.filter(c => c.initiative !== null);
 		if (sortedWithInit.length === 0) return;
@@ -212,6 +214,17 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 		const currentIdx = sortedWithInit.findIndex(c => c.character.id === currentTurnCharacterId);
 		const nextIndex = (currentIdx + 1) % sortedWithInit.length;
 		const nextCharacterId = sortedWithInit[nextIndex]?.character.id ?? null;
+
+		// Reset Action Points for the current turn character
+		if (currentTurnCharacterId) {
+			const character = characters.find(c => c.id === currentTurnCharacterId);
+			if (character) {
+				const sheet = CharacterSheet.from(character.props);
+				const propUpdater = new PropUpdater({ character, sheet, updateCharacterProp });
+				propUpdater.updateResourceToMax(Resource.ActionPoint);
+			}
+		}
+
 		updateEncounter({
 			...encounter,
 			turnTracker: {
@@ -219,7 +232,7 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 				currentTurnCharacterId: nextCharacterId,
 			},
 		});
-	}, [encounter, sortedCharacters, updateEncounter]);
+	}, [encounter, sortedCharacters, updateEncounter, characters, updateCharacterProp]);
 
 	const handlePrevTurn = useCallback(() => {
 		if (!encounter?.turnTracker) return;
@@ -279,8 +292,8 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 							borderBottom: '1px solid var(--text-muted)',
 						}}
 					>
-						<Button onClick={handlePrevTurn} icon={FaBackward} tooltip='Previous Turn' title='' />
-						<Button onClick={handleNextTurn} icon={FaForward} tooltip='Next Turn' title='' />
+						<Button onClick={handlePrevTurn} icon={FaBackward} tooltip='Revert Turn' title='Revert Turn' />
+						<Button onClick={handleEndTurn} icon={FaForward} tooltip='End Turn' title='End Turn' />
 					</div>
 
 					{/* Initiative List */}
