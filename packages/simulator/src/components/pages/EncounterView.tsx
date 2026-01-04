@@ -55,6 +55,9 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 		.map(charId => characters.find(c => c.id === charId))
 		.filter((c): c is Character => c !== undefined);
 
+	// Determine currentTurnCharacterId if turn tracker is active
+	const currentTurnCharacterId = encounter.turnTracker?.currentTurnCharacterId ?? null;
+
 	const getCharacterPosition = (characterId: string): HexPosition | undefined => {
 		return encounter.characterPositions[characterId];
 	};
@@ -214,6 +217,7 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 					selectedTool={selectedTool}
 					selectedColor={selectedColor}
 					onSelectionChange={handleSelectionChange}
+					currentTurnCharacterId={encounter.turnTracker ? currentTurnCharacterId : null}
 				/>
 			</div>
 		</div>

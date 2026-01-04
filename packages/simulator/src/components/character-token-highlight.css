@@ -1,0 +1,5 @@
+.character-token--highlighted {
+	stroke: var(--accent) !important;
+	stroke-width: 1.1 !important;
+	filter: drop-shadow(0 0 2.5px var(--accent));
+}

@@ -9,6 +9,7 @@ export interface CharacterTokenProps {
 	onMouseLeave?: () => void;
 	isGhost?: boolean;
 	interactive?: boolean;
+	highlight?: boolean;
 }
 
 export const CharacterToken: React.FC<CharacterTokenProps> = ({
@@ -18,6 +19,7 @@ export const CharacterToken: React.FC<CharacterTokenProps> = ({
 	onMouseLeave,
 	isGhost = false,
 	interactive = true,
+	highlight = false,
 }) => {
 	const handleMouseDown = (e: React.MouseEvent) => {
 		if (onClick) {
@@ -50,7 +52,15 @@ export const CharacterToken: React.FC<CharacterTokenProps> = ({
 				pointerEvents: isGhost ? 'none' : 'auto',
 			}}
 		>
-			<circle cx='0' cy='0' r='3' fill='var(--primary)' stroke='var(--text)' strokeWidth='0.5' />
+			<circle
+				cx='0'
+				cy='0'
+				r='3'
+				fill='var(--primary)'
+				stroke={highlight ? 'var(--accent)' : 'var(--text)'}
+				strokeWidth={highlight ? 1.1 : 0.5}
+				style={highlight ? { filter: 'drop-shadow(0 0 2.5px var(--accent))' } : {}}
+			/>
 			<text
 				x='0'
 				y='0.5'

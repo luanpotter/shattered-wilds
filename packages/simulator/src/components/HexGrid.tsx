@@ -206,6 +206,7 @@ interface BattleGridProps {
 	selectedTool?: MapTool;
 	selectedColor?: string;
 	onSelectionChange?: (indices: Set<number>) => void;
+	currentTurnCharacterId?: string | null;
 }
 
 export const BattleGrid: React.FC<BattleGridProps> = ({
@@ -218,6 +219,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	selectedTool = 'select',
 	selectedColor = 'var(--accent)',
 	onSelectionChange,
+	currentTurnCharacterId,
 }) => {
 	const isMapMode = mapMode === 'map';
 	const gridRef = useRef<HTMLDivElement>(null);
@@ -1221,6 +1223,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 									onMouseLeave={handleCharacterMouseLeave}
 									isGhost={dragState.type === 'character' && dragState.objectId === character.id}
 									interactive={!isMapMode}
+									highlight={currentTurnCharacterId === character.id}
 								/>
 							</g>
 						);

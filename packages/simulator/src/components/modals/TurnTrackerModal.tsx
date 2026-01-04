@@ -72,10 +72,8 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 
 	const currentTurnCharacterId = useMemo(() => {
 		if (!encounter?.turnTracker || sortedCharacters.length === 0) return null;
-		const sortedWithInit = sortedCharacters.filter(c => c.initiative !== null);
-		if (sortedWithInit.length === 0) return null;
-		const index = Math.min(encounter.turnTracker.currentTurnIndex, sortedWithInit.length - 1);
-		return sortedWithInit[index]?.character.id ?? null;
+		// Use the stored characterId directly
+		return encounter.turnTracker.currentTurnCharacterId ?? null;
 	}, [encounter?.turnTracker, sortedCharacters]);
 
 	const handleBeginEncounter = useCallback(async () => {
@@ -100,9 +98,15 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 				}
 			}
 
+			// Sort by initiative descending, pick first character as current
+			const sorted = Object.entries(initiatives)
+				.filter(([, init]) => init !== null)
+				.sort((a, b) => (b[1]! as number) - (a[1]! as number));
+			const firstCharacterId = sorted.length > 0 ? sorted[0][0] : null;
+
 			const newTracker: TurnTracker = {
 				initiatives,
-				currentTurnIndex: 0,
+				currentTurnCharacterId: firstCharacterId,
 			};
 
 			updateEncounter({
@@ -205,12 +209,16 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 		const sortedWithInit = sortedCharacters.filter(c => c.initiative !== null);
 		if (sortedWithInit.length === 0) return;
 
-		const nextIndex = (encounter.turnTracker.currentTurnIndex + 1) % sortedWithInit.length;
+		// Find current index
+		const currentTurnCharacterId = encounter.turnTracker?.currentTurnCharacterId ?? null;
+		const currentIdx = sortedWithInit.findIndex(c => c.character.id === currentTurnCharacterId);
+		const nextIndex = (currentIdx + 1) % sortedWithInit.length;
+		const nextCharacterId = sortedWithInit[nextIndex]?.character.id ?? null;
 		updateEncounter({
 			...encounter,
 			turnTracker: {
-				...encounter.turnTracker,
-				currentTurnIndex: nextIndex,
+				...encounter.turnTracker!, // non-null, checked above
+				currentTurnCharacterId: nextCharacterId,
 			},
 		});
 	}, [encounter, sortedCharacters, updateEncounter]);
@@ -220,12 +228,16 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 		const sortedWithInit = sortedCharacters.filter(c => c.initiative !== null);
 		if (sortedWithInit.length === 0) return;
 
-		const prevIndex = (encounter.turnTracker.currentTurnIndex - 1 + sortedWithInit.length) % sortedWithInit.length;
+		// Find current index
+		const currentTurnCharacterId = encounter.turnTracker?.currentTurnCharacterId ?? null;
+		const currentIdx = sortedWithInit.findIndex(c => c.character.id === currentTurnCharacterId);
+		const prevIndex = (currentIdx - 1 + sortedWithInit.length) % sortedWithInit.length;
+		const prevCharacterId = sortedWithInit[prevIndex]?.character.id ?? null;
 		updateEncounter({
 			...encounter,
 			turnTracker: {
-				...encounter.turnTracker,
-				currentTurnIndex: prevIndex,
+				...encounter.turnTracker!, // non-null, checked above
+				currentTurnCharacterId: prevCharacterId,
 			},
 		});
 	}, [encounter, sortedCharacters, updateEncounter]);

@@ -206,7 +206,7 @@ export interface Character {
 
 export interface TurnTracker {
 	initiatives: Record<string, number | null>; // characterId -> initiative value (null = not rolled)
-	currentTurnIndex: number; // index in sorted order of whose turn it is
+	currentTurnCharacterId: string | null; // characterId of whose turn it is
 }
 
 export interface Encounter {
