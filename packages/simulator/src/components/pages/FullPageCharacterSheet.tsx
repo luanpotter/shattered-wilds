@@ -127,8 +127,11 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 		);
 	}
 
-	const statTreeHasWarnings = sheet.getStatTree().root.childrenHaveUnallocatedPoints;
-	const featsHasWarnings = FeatsSection.create(sheet).hasWarnings;
+	const warnings: Record<string, boolean> = {
+		stats: sheet.getStatTree().root.childrenHaveUnallocatedPoints,
+		feats: FeatsSection.create(sheet).hasWarnings,
+		equipment: sheet.equipment.warnings().length > 0,
+	};
 
 	const Row = ({ children }: { children: React.ReactNode }) => {
 		return <div style={{ display: 'flex' }}>{children}</div>;
@@ -219,7 +222,7 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 									}}
 								>
 									<Icon size={16} />
-									{(t.key === 'stats' && statTreeHasWarnings) || (t.key === 'feats' && featsHasWarnings) ? (
+									{warnings[t.key] ? (
 										<FaExclamationTriangle
 											size={10}
 											style={{ position: 'absolute', top: 2, right: 2, color: 'var(--accent)' }}
