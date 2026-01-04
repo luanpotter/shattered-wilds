@@ -383,7 +383,7 @@ export class StatModifier {
 	}
 
 	static fromJSON(data: {
-		statType: StatType | DerivedStatType | { name: string };
+		statType: StatType | DerivedStatType | string | { name: string };
 		baseValue: { value: number };
 		appliedModifiers: { source: ModifierSource; name: string; value: { value: number } }[];
 		value: { value: number };
@@ -391,15 +391,16 @@ export class StatModifier {
 	}): StatModifier {
 		if (data instanceof StatModifier) return data;
 
-		// Rehydrate statType: if it's a plain object with a name, look up the StatType
+		// Rehydrate statType
 		let statType: StatType | DerivedStatType;
-		if (typeof data.statType === 'string') {
-			// It's a DerivedStatType enum value
-			statType = data.statType as DerivedStatType;
-		} else if (data.statType instanceof StatType) {
+		if (data.statType instanceof StatType) {
 			statType = data.statType;
+		} else if (typeof data.statType === 'string') {
+			// Could be a StatTypeName (from StatType.toJSON) or a DerivedStatType
+			const foundStatType = StatType.values.find(s => s.name === data.statType);
+			statType = foundStatType ?? (data.statType as DerivedStatType);
 		} else if ('name' in data.statType && typeof data.statType.name === 'string') {
-			// It's a serialized StatType, look it up by name
+			// It's a serialized StatType object, look it up by name
 			statType = StatType.fromName(data.statType.name as StatTypeName);
 		} else {
 			throw new Error('Unable to rehydrate statType');

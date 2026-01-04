@@ -506,6 +506,10 @@ On top of these types of actions, the different Skills can still be used for oth
 		return this.name;
 	}
 
+	toJSON(): string {
+		return this.name;
+	}
+
 	static readonly values: StatType[] = Object.values(StatType).filter(stat => stat.description);
 
 	static fromString(name: string | undefined, fallback: StatType): StatType {
