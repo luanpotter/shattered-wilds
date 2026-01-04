@@ -45,3 +45,18 @@ export const indexOfMatching = <T>(array: readonly T[], predicate: (item: T) => 
 	}
 	return -1;
 };
+
+export const semanticClick = (
+	tabIndex: number,
+	onClick: () => void,
+): { tabIndex: number; onClick: (e: React.MouseEvent) => void; onKeyDown: (e: React.KeyboardEvent) => void } => {
+	return {
+		tabIndex,
+		onClick: () => onClick(),
+		onKeyDown: e => {
+			if (e.key === 'Enter' || e.key === ' ') {
+				onClick();
+			}
+		},
+	};
+};

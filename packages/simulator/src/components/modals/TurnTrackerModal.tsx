@@ -1,9 +1,11 @@
 import { CharacterSheet, CheckFactory, Resource } from '@shattered-wilds/commons';
-import React, { useState, useCallback, useMemo } from 'react';
-import { FaDice, FaPlay, FaStop, FaForward, FaBackward } from 'react-icons/fa6';
+import React, { useCallback, useMemo, useState } from 'react';
+import { FaBackward, FaDice, FaForward, FaPlay, FaStop } from 'react-icons/fa6';
 
+import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
-import { TurnTracker, Character } from '../../types/ui';
+import { Character, TurnTracker } from '../../types/ui';
+import { semanticClick } from '../../utils';
 import { diceRoller } from '../../utils/dice-roller';
 import { DiamondIcon } from '../circumstances/ResourceDiamonds';
 import { Button } from '../shared/Button';
@@ -35,12 +37,13 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 	const characters = useStore(state => state.characters);
 	const encounters = useStore(state => state.encounters);
 	const updateEncounter = useStore(state => state.updateEncounter);
-	const addModal = useStore(state => state.addModal);
 
 	const [editingCharacterId, setEditingCharacterId] = useState<string | null>(null);
 	const [editValue, setEditValue] = useState('');
 	const [isRolling, setIsRolling] = useState(false);
 	const [rollingCharacterId, setRollingCharacterId] = useState<string | null>(null);
+
+	const { openConfirmationModal, openCharacterSheetModal } = useModals();
 
 	const encounter = encounters.find(e => e.id === encounterId);
 	const encounterCharacterIds = useMemo(
@@ -118,26 +121,21 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 		}
 	}, [encounter, encounterCharacterIds, characters, updateEncounter]);
 
-	const handleEndEncounter = useCallback(() => {
+	const handleEndEncounter = useCallback(async () => {
 		if (!encounter) return;
-		// Show confirmation modal
-		addModal({
-			id: `confirm-end-encounter-${encounterId}`,
-			type: 'confirmation',
+
+		const confirmed = await openConfirmationModal({
 			title: 'End Encounter',
-			position: { x: 400, y: 300 },
-			message: 'Are you sure you want to end this encounter? This will clear all initiative values.',
+			message: ['Are you sure you want to end this encounter?', 'This will clear all initiative values.'].join('\n\n'),
 			confirmText: 'End Encounter',
-			cancelText: 'Cancel',
-			onConfirm: () => {
-				updateEncounter({
-					...encounter,
-					turnTracker: null,
-				});
-			},
-			onCancel: () => {},
 		});
-	}, [encounter, encounterId, updateEncounter, addModal]);
+		if (confirmed) {
+			updateEncounter({
+				...encounter,
+				turnTracker: null,
+			});
+		}
+	}, [encounter, openConfirmationModal, updateEncounter]);
 
 	const handleRerollCharacter = useCallback(
 		async (characterId: string) => {
@@ -292,7 +290,7 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 							<p style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>No characters in encounter</p>
 						) : (
 							<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-								{sortedCharacters.map(({ character, initiative }) => {
+								{sortedCharacters.map(({ character, initiative }, idx) => {
 									const isCurrentTurn = character.id === currentTurnCharacterId;
 									const isEditing = editingCharacterId === character.id;
 									const characterSheet = CharacterSheet.from(character.props);
@@ -321,7 +319,15 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 												>
 													▶
 												</span>
-												<span style={{ fontWeight: isCurrentTurn ? 'bold' : 'normal' }}>{character.props.name}</span>
+												<span
+													{...semanticClick(idx, () => {
+														openCharacterSheetModal({ characterId: character.id });
+													})}
+													role='button'
+													style={{ fontWeight: isCurrentTurn ? 'bold' : 'normal', cursor: 'pointer' }}
+												>
+													{character.props.name}
+												</span>
 											</div>
 											<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 												<div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginRight: 4 }}>

@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { FaCheck, FaChevronDown, FaPlus, FaTimes } from 'react-icons/fa';
 
 import { Character } from '../../types/ui';
+import { semanticClick } from '../../utils';
 
 interface FilterableCharacterSelectProps {
 	characters: Character[];
@@ -235,7 +236,6 @@ export const AddCharacterDropdown: React.FC<AddCharacterDropdownProps> = ({
 				aria-expanded={isOpen}
 				aria-haspopup='listbox'
 				aria-controls='add-character-listbox'
-				tabIndex={-1}
 				style={{
 					display: 'flex',
 					alignItems: 'center',
@@ -246,16 +246,10 @@ export const AddCharacterDropdown: React.FC<AddCharacterDropdownProps> = ({
 					backgroundColor: 'var(--background)',
 					cursor: 'text',
 				}}
-				onClick={() => {
+				{...semanticClick(-1, () => {
 					setIsOpen(true);
 					inputRef.current?.focus();
-				}}
-				onKeyDown={e => {
-					if (e.key === 'Enter' || e.key === ' ') {
-						setIsOpen(true);
-						inputRef.current?.focus();
-					}
-				}}
+				})}
 			>
 				<FaPlus size={12} style={{ opacity: 0.7 }} />
 				<input
