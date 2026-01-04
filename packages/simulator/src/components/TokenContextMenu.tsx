@@ -1,6 +1,6 @@
 import { CharacterSheet } from '@shattered-wilds/commons';
 import React, { useEffect, useState } from 'react';
-import { FaFistRaised, FaRuler, FaUser } from 'react-icons/fa';
+import { FaFistRaised, FaRuler, FaUser, FaWalking } from 'react-icons/fa';
 
 import { getBasicAttacksFor } from '../types/grid-actions';
 import { Character } from '../types/ui';
@@ -11,8 +11,9 @@ interface TokenContextMenuProps {
 	position: { x: number; y: number };
 	onClose: () => void;
 	onOpenCharacterSheet: (character: Character) => void;
-	onAttackAction?: (character: Character, attackIndex: number) => void;
-	onMeasureAction?: (character: Character) => void;
+	onMeasureAction: (character: Character) => void;
+	onStrideAction: (character: Character) => void;
+	onAttackAction: (character: Character, attackIndex: number) => void;
 }
 
 export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
@@ -20,8 +21,9 @@ export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
 	position,
 	onClose,
 	onOpenCharacterSheet,
-	onAttackAction,
 	onMeasureAction,
+	onStrideAction,
+	onAttackAction,
 }) => {
 	const sheet = CharacterSheet.from(character.props);
 	const basicAttacks = getBasicAttacksFor(sheet);
@@ -76,21 +78,19 @@ export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
 	return (
 		<div className='token-context-menu' style={menuStyle} role='menu'>
 			<MenuItem icon={FaUser} title='See Character Sheet' onClick={() => onOpenCharacterSheet(character)} />
-			{onMeasureAction && <MenuItem icon={FaRuler} title='Measure' onClick={() => onMeasureAction(character)} />}
-			{basicAttacks.length > 0 && onAttackAction && (
-				<>
-					<Separator />
+			<MenuItem icon={FaRuler} title='Measure' onClick={() => onMeasureAction(character)} />
+			<Separator />
 
-					{basicAttacks.map((attack, index) => (
-						<MenuItem
-							key={`attack-${index}`}
-							icon={FaFistRaised}
-							title={`Attack: ${attack.name}`}
-							onClick={() => onAttackAction(character, index)}
-						/>
-					))}
-				</>
-			)}
+			<MenuItem icon={FaWalking} title='Stride' onClick={() => onStrideAction(character)} />
+
+			{basicAttacks.map((attack, index) => (
+				<MenuItem
+					key={`attack-${index}`}
+					icon={FaFistRaised}
+					title={`Attack: ${attack.name}`}
+					onClick={() => onAttackAction(character, index)}
+				/>
+			))}
 		</div>
 	);
 };

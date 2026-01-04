@@ -564,6 +564,10 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		});
 	};
 
+	const handleStrideAction = (character: Character) => {
+		console.log(`TODO: Taking stride action for character ${character.id}`);
+	};
+
 	const getAttackRange = (attacker: Character, attackIndex: number): Distance => {
 		const sheet = CharacterSheet.from(attacker.props);
 		const attacks = getBasicAttacksFor(sheet);
@@ -1565,6 +1569,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					onClose={() => setContextMenu(null)}
 					onOpenCharacterSheet={handleOpenCharacterSheet}
 					onAttackAction={handleAttackAction}
+					onStrideAction={handleStrideAction}
 					onMeasureAction={handleMeasureAction}
 				/>
 			)}
