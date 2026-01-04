@@ -61,7 +61,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ characterId 
 				return FaRing;
 			case SlotType.None:
 				return FaBox;
-			case null:
+			case undefined:
 				return FaQuestionCircle;
 		}
 	};
