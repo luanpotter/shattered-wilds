@@ -83,10 +83,6 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 		});
 	};
 
-	const handleCloseAllModals = () => {
-		closeAllModals();
-	};
-
 	const handleMapMode = () => {
 		setMapMode(prev => (prev === 'map' ? 'encounter' : 'map'));
 	};
@@ -180,7 +176,7 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 				<Button onClick={handleMapMode} icon={FaMap} title='Map' />
 				<Button onClick={handleOpenConfig} icon={FaCog} title='Config' />
 				<Button onClick={handleRecenter} icon={FaCrosshairs} title='Re-center' />
-				<Button onClick={handleCloseAllModals} icon={FaTimes} title='Close All' />
+				<Button onClick={closeAllModals} icon={FaTimes} title='Close All' />
 			</>
 		);
 	};

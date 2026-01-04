@@ -57,6 +57,10 @@ export const Navigator = {
 		return { view: 'home' };
 	},
 
+	toSite(): void {
+		window.location.pathname = '/';
+	},
+
 	toHome(): void {
 		window.location.hash = '#/';
 	},

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaMap, FaUsers } from 'react-icons/fa';
+import { FaArrowAltCircleLeft, FaMap, FaUsers } from 'react-icons/fa';
 
 import { Navigator } from '../../utils/routes';
 
@@ -32,6 +32,12 @@ export const HomePage: React.FC = () => {
 					title='Encounters'
 					description='Simulate combat encounters'
 					onClick={Navigator.toEncounters}
+				/>
+				<MenuCard
+					icon={FaArrowAltCircleLeft}
+					title='Back to Site'
+					description='Return to the main site'
+					onClick={Navigator.toSite}
 				/>
 			</div>
 		</div>

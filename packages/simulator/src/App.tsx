@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FaHome } from 'react-icons/fa';
+import { FaArrowAltCircleLeft, FaEdit, FaHome, FaPlay, FaTimes } from 'react-icons/fa';
 
 import { ModalRenderer } from './components/ModalRenderer';
 import { CharacterSheetsPage } from './components/pages/CharacterSheetsPage';
@@ -28,7 +28,9 @@ const App = (): React.ReactElement => {
 	const gridState = useStore(state => state.gridState);
 	const updateGridState = useStore(state => state.updateGridState);
 	const modals = useStore(state => state.modals);
-	const { updateModal } = useModals();
+	const { closeAllModals, updateModal } = useModals();
+	const editMode = useStore(state => state.editMode);
+	const toggleEditMode = useStore(state => state.toggleEditMode);
 
 	// Handle browser navigation (back/forward buttons)
 	useEffect(() => {
@@ -141,7 +143,14 @@ const App = (): React.ReactElement => {
 						>
 							<h1 style={{ margin: 0 }}>D12 Simulator</h1>
 							<div style={{ display: 'flex', gap: '1rem' }}>
+								<Button
+									onClick={toggleEditMode}
+									icon={editMode ? FaPlay : FaEdit}
+									title={editMode ? 'To Play Mode' : 'To Edit Mode'}
+								/>
+								<Button onClick={closeAllModals} icon={FaTimes} title='Close All' />
 								<Button onClick={Navigator.toHome} icon={FaHome} title='Home' />
+								<Button onClick={Navigator.toSite} icon={FaArrowAltCircleLeft} title='Site' />
 							</div>
 						</div>
 					</div>
