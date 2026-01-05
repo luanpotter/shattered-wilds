@@ -30,7 +30,6 @@ import { LabeledCheckbox } from '../shared/LabeledCheckbox';
 import LabeledDropdown from '../shared/LabeledDropdown';
 import LabeledInput from '../shared/LabeledInput';
 
-// Form state for each mode type - use string literals that match ModeType enum values
 interface WeaponModeState {
 	type: 'weapon';
 	weaponType: PrimaryWeaponType;
@@ -90,7 +89,6 @@ const createDefaultArcaneMode = (): ArcaneModeState => ({
 	spCost: 1,
 });
 
-// Convert domain mode to form state
 const modeToState = (mode: ItemMode): ModeState => {
 	if (mode instanceof WeaponMode) {
 		return {
@@ -99,23 +97,20 @@ const modeToState = (mode: ItemMode): ModeState => {
 			bonus: mode.bonus.value,
 			range: mode.range.value,
 		};
-	}
-	if (mode instanceof ArmorMode) {
+	} else if (mode instanceof ArmorMode) {
 		return {
 			type: 'armor',
 			armorType: mode.type,
 			bonus: mode.bonus.value,
 			dexPenalty: mode.dexPenalty.value,
 		};
-	}
-	if (mode instanceof ShieldMode) {
+	} else if (mode instanceof ShieldMode) {
 		return {
 			type: 'shield',
 			shieldType: mode.type,
 			bonus: mode.bonus.value,
 		};
-	}
-	if (mode instanceof ArcaneComponentMode) {
+	} else if (mode instanceof ArcaneComponentMode) {
 		const spCost = mode.costs.find(c => c.resource === Resource.SpiritPoint);
 		return {
 			type: 'arcane',
@@ -124,12 +119,11 @@ const modeToState = (mode: ItemMode): ModeState => {
 			bonus: mode.bonus.value,
 			spCost: spCost?.amount ?? 1,
 		};
+	} else {
+		throw new Error(`Unsupported ItemMode subtype: ${mode.constructor.name}`);
 	}
-	// Fallback - shouldn't happen
-	return createDefaultWeaponMode();
 };
 
-// Convert form state to domain mode
 const stateToMode = (state: ModeState): ItemMode => {
 	switch (state.type) {
 		case 'weapon':
@@ -182,9 +176,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 	const [slot, setSlot] = useState<SlotType>(() => existing?.slot ?? SlotType.None);
 	const [name, setName] = useState<string>(() => existing?.name ?? '');
 	const [traits, setTraits] = useState<Trait[]>(() => existing?.traits ?? []);
-	const [modes, setModes] = useState<ModeState[]>(() =>
-		existing?.modes.length ? existing.modes.map(modeToState) : [createDefaultWeaponMode()],
-	);
+	const [modes, setModes] = useState<ModeState[]>(() => existing?.modes?.map(modeToState) ?? []);
 
 	// For adding new modes
 	const [newModeType, setNewModeType] = useState<ModeType>(ModeType.Weapon);
