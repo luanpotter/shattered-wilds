@@ -240,15 +240,11 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 									}}
 								>
 									<DropdownButton
-										onClick={() => void handlePredefinedCharacterImport()}
+										onClick={handlePredefinedCharacterImport}
 										icon={FaCirclePlay}
-										title='Predefined Characters'
+										title='Add Predefined Characters'
 									/>
-									<DropdownButton
-										onClick={() => void handleImportFromClipboard()}
-										icon={FaClipboard}
-										title='Import Character'
-									/>
+									<DropdownButton onClick={handleImportFromClipboard} icon={FaClipboard} title='Import Character' />
 									<DropdownButton onClick={handleEmptyCharacterCreation} icon={FaPlus} title='Empty' />
 									<DropdownButton onClick={handleOnboardingCharacterCreation} icon={FaPlus} title='Onboarding' />
 								</div>

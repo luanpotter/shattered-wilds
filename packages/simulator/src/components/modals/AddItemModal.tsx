@@ -409,6 +409,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 					options={Object.values(SlotType)}
 					describe={t => t}
 					onChange={setSlot}
+					disabled={!editMode}
 				/>
 			</div>
 
