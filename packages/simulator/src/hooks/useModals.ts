@@ -1,7 +1,8 @@
 import { Check, FeatDefinition, FeatSlot, Condition, Consequence, ResourceCost } from '@shattered-wilds/commons';
 
+import { OmniSearchContext } from '../components/omni/OmniSearchContext';
 import { useStore } from '../store';
-import { HexCoord, Modal } from '../types/ui';
+import { HexCoord, Modal, ModalPositionType } from '../types/ui';
 import { Mouse } from '../utils/mouse';
 import { DistributiveOmit } from '../utils/types';
 
@@ -15,18 +16,36 @@ export const useModals = () => {
 	const generateModalId = () => window.crypto.randomUUID();
 
 	const addModal = (params: DistributiveOmit<Modal, 'id' | 'position'>) => {
-		const mousePosition = Mouse.getPosition();
-		// Use adjusted position to prevent modals from opening off-screen
-		const adjustedPosition = Mouse.getAdjustedPosition(
-			mousePosition,
-			params.widthPixels && params.heightPixels
-				? { width: params.widthPixels, height: params.heightPixels }
-				: undefined,
-		);
+		const positionType = params.positionType ?? ModalPositionType.MousePosition;
+		const position = (() => {
+			if (positionType === ModalPositionType.ScreenCenter) {
+				const screenWidth = window.innerWidth;
+				const screenHeight = window.innerHeight;
+				const modalWidth = params.widthPixels ?? 600;
+				const modalHeight = params.heightPixels ?? 400;
+
+				const yOffset = -150; // prop it up a bit from exact center (entirely feelings based)
+				return {
+					x: (screenWidth - modalWidth) / 2,
+					y: (screenHeight - modalHeight) / 2 + yOffset,
+				};
+			} else if (positionType === ModalPositionType.MousePosition) {
+				const mousePosition = Mouse.getPosition();
+				// Use adjusted position to prevent modals from opening off-screen
+				return Mouse.getAdjustedPosition(
+					mousePosition,
+					params.widthPixels && params.heightPixels
+						? { width: params.widthPixels, height: params.heightPixels }
+						: undefined,
+				);
+			} else {
+				throw new Error(`Unsupported modal position type: ${positionType}`);
+			}
+		})();
 
 		addModalStore({
 			id: generateModalId(),
-			position: adjustedPosition,
+			position,
 			...params,
 		});
 	};
@@ -50,15 +69,18 @@ export const useModals = () => {
 	const openCharacterSheetModal = ({ characterId }: { characterId: string }) => {
 		const character = characters.find(c => c.id === characterId);
 		if (!character) {
-			console.error('Character not found:', characterId);
+			openErrorModal({ message: `Character not found: ${characterId}` });
 			return;
 		}
 
-		// Check if modal is already open
+		// Check if modal is already open - if so, close it
 		const existingModal = modals.find(modal => modal.type === 'character-sheet' && modal.characterId === characterId);
-		if (existingModal) return;
+		if (existingModal) {
+			return;
+		}
 
 		addModal({
+			positionType: ModalPositionType.ScreenCenter,
 			title: `${character.props.name}'s Sheet`,
 			type: 'character-sheet',
 			characterId,
@@ -434,6 +456,24 @@ export const useModals = () => {
 		});
 	};
 
+	const openOmniSearchModal = ({ context }: { context: OmniSearchContext | undefined }) => {
+		// Check if modal is already open
+		const existingModal = modals.find(modal => modal.type === 'omni-search');
+		if (existingModal) {
+			removeModal(existingModal.id);
+			return;
+		}
+
+		addModal({
+			positionType: ModalPositionType.ScreenCenter,
+			title: 'Omni Search',
+			type: 'omni-search',
+			context,
+			widthPixels: 600,
+			heightPixels: 200,
+		});
+	};
+
 	return {
 		openCharacterListModal,
 		openCharacterCreationModal,
@@ -458,6 +498,7 @@ export const useModals = () => {
 		openTurnTrackerModal,
 		openColorPickerModal,
 		openIconSelectionModal,
+		openOmniSearchModal,
 		closeModal,
 		closeAllModals,
 		updateModal,

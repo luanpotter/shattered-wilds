@@ -28,7 +28,7 @@ const App = (): React.ReactElement => {
 	const gridState = useStore(state => state.gridState);
 	const updateGridState = useStore(state => state.updateGridState);
 	const modals = useStore(state => state.modals);
-	const { closeAllModals, updateModal } = useModals();
+	const { closeAllModals, updateModal, openOmniSearchModal } = useModals();
 	const editMode = useStore(state => state.editMode);
 	const toggleEditMode = useStore(state => state.toggleEditMode);
 
@@ -44,6 +44,19 @@ const App = (): React.ReactElement => {
 		window.addEventListener('hashchange', handleHashChange);
 		return () => window.removeEventListener('hashchange', handleHashChange);
 	}, []);
+
+	useEffect(() => {
+		const omniSearchHandler = (e: KeyboardEvent) => {
+			const isControl = e.ctrlKey || e.metaKey;
+			if (isControl && e.key.toLowerCase() === 'o') {
+				e.preventDefault();
+				openOmniSearchModal({ context: undefined });
+			}
+		};
+
+		window.addEventListener('keydown', omniSearchHandler);
+		return () => window.removeEventListener('keydown', omniSearchHandler);
+	}, [openOmniSearchModal]);
 
 	useEffect(() => {
 		const handleMouseMove = (e: MouseEvent) => {

@@ -10,6 +10,8 @@ import {
 	HexVertex,
 } from '@shattered-wilds/commons';
 
+import { OmniSearchContext } from '../components/omni/OmniSearchContext';
+
 export type { Point, HexCoord, HexVertex };
 
 export type MapMode = 'map' | 'encounter';
@@ -80,10 +82,15 @@ export interface GridState {
 	offset: Point;
 }
 
-// Base modal interface with common properties
+export enum ModalPositionType {
+	MousePosition,
+	ScreenCenter,
+}
+
 interface BaseModal {
 	id: string;
 	title: string;
+	positionType?: ModalPositionType;
 	position: Point;
 	widthPixels?: number;
 	heightPixels?: number;
@@ -201,6 +208,10 @@ export type Modal = BaseModal &
 				type: 'icon-selection';
 				currentIcon: string | null;
 				onSelect: (icon: string) => void;
+		  }
+		| {
+				type: 'omni-search';
+				context: OmniSearchContext | undefined;
 		  }
 	);
 
