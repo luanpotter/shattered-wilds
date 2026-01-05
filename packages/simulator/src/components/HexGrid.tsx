@@ -49,6 +49,10 @@ const renderFaIcon = (iconName: string): React.ReactNode => {
 // Pre-computed hex path for pointy-top hexagon with radius 5
 const HEX_PATH = 'M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z';
 
+// TODO: unify action-related colors with print-friendly character sheet
+const ATTACK_OVERLAY_COLOR = '#c62828ff';
+const MOVE_OVERLAY_COLOR = '#0daa15ff';
+
 interface StaticHexGridProps {
 	width: number;
 	height: number;
@@ -112,7 +116,7 @@ function HexHighlightLayerComponent({ hexes, color, mapWidth, mapHeight }: HexHi
 			hexes={hexes.filter(pos => isHexInBounds(pos, mapWidth, mapHeight))}
 			offset={{ q: 0, r: 0 }}
 			color={color}
-			isSelected={false}
+			isSelected={true}
 			isDragging={false}
 		/>
 	);
@@ -1214,7 +1218,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 								CharacterSheet.from(hoveredCharacter.props).getStatTree().computeDerivedStat(DerivedStatType.Movement)
 									.value,
 							)}
-							color='rgba(0, 255, 0, 0.5)'
+							color={MOVE_OVERLAY_COLOR}
 							mapWidth={map.size.width}
 							mapHeight={map.size.height}
 						/>
@@ -1227,7 +1231,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							getCharacterPosition(strideState.character.id)!,
 							getStrideRange(strideState.character).value ?? getStrideRange(strideState.character),
 						)}
-						color='rgba(0, 255, 0, 0.5)'
+						color={MOVE_OVERLAY_COLOR}
 						mapWidth={map.size.width}
 						mapHeight={map.size.height}
 					/>
@@ -1240,7 +1244,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							getCharacterPosition(attackState.attacker.id)!,
 							getAttackRange(attackState.attacker, attackState.attackIndex).value,
 						)}
-						color='rgba(255, 0, 0, 0.5)'
+						color={ATTACK_OVERLAY_COLOR}
 						mapWidth={map.size.width}
 						mapHeight={map.size.height}
 					/>
@@ -1250,7 +1254,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				{measureState && getCharacterPosition(measureState.fromCharacter.id) && measureState.hoveredPosition && (
 					<HexHighlightLayer
 						hexes={findHexPath(getCharacterPosition(measureState.fromCharacter.id)!, measureState.hoveredPosition)}
-						color='rgba(0, 255, 0, 0.5)'
+						color={MOVE_OVERLAY_COLOR}
 						mapWidth={map.size.width}
 						mapHeight={map.size.height}
 					/>

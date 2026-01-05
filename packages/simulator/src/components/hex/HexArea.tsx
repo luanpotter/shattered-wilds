@@ -67,7 +67,6 @@ export const HexArea = ({
 					y2={edge.y2}
 					stroke={color}
 					strokeWidth={isSelected ? '0.6' : '0.3'}
-					strokeOpacity={isSelected ? 1 : 0.8}
 					strokeLinecap='round'
 				/>
 			))}
