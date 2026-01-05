@@ -1269,28 +1269,6 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					/>
 				)}
 
-				{/* Character Tokens Layer - Render directly from characters, not hexes */}
-				<g>
-					{encounterCharacters.map(character => {
-						const pos = getCharacterPosition(character.id);
-						if (!pos) return null;
-						const { x, y } = axialToPixel(pos.q, pos.r);
-						return (
-							<g key={character.id} transform={`translate(${x},${y})`}>
-								<CharacterToken
-									character={character}
-									onClick={e => handleCharacterMouseDown(e, character)}
-									onMouseEnter={() => handleCharacterMouseEnter(character)}
-									onMouseLeave={handleCharacterMouseLeave}
-									isGhost={dragState.type === 'character' && dragState.objectId === character.id}
-									interactive={!isMapMode}
-									highlight={currentTurnCharacterId === character.id}
-								/>
-							</g>
-						);
-					})}
-				</g>
-
 				{/* Saved Drawings Layer */}
 				<g style={{ pointerEvents: 'none' }}>
 					{map.drawings.map((drawing, index) => {
@@ -1516,6 +1494,28 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 						/>
 					</g>
 				)}
+
+				{/* Character Tokens Layer - Render directly from characters, not hexes */}
+				<g>
+					{encounterCharacters.map(character => {
+						const pos = getCharacterPosition(character.id);
+						if (!pos) return null;
+						const { x, y } = axialToPixel(pos.q, pos.r);
+						return (
+							<g key={character.id} transform={`translate(${x},${y})`}>
+								<CharacterToken
+									character={character}
+									onClick={e => handleCharacterMouseDown(e, character)}
+									onMouseEnter={() => handleCharacterMouseEnter(character)}
+									onMouseLeave={handleCharacterMouseLeave}
+									isGhost={dragState.type === 'character' && dragState.objectId === character.id}
+									interactive={!isMapMode}
+									highlight={currentTurnCharacterId === character.id}
+								/>
+							</g>
+						);
+					})}
+				</g>
 
 				{/* Line Tool Hovered Vertex Preview (before drawing starts) */}
 				{isLineTool && !lineToolState && lineToolHoveredVertex && (
