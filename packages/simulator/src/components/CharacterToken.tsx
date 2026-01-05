@@ -85,9 +85,8 @@ export const CharacterToken: React.FC<CharacterTokenProps> = ({
 				style={{
 					userSelect: 'none',
 					pointerEvents: 'none',
-					fontFamily: 'Arial, sans-serif',
-					fontWeight: '500',
-					letterSpacing: '-0.2px',
+					fontWeight: 'bold',
+					letterSpacing: '-0.25px',
 				}}
 			>
 				{getCharacterInitials(character)}
