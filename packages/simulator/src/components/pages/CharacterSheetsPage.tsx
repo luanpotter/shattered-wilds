@@ -29,7 +29,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 
 	const removeCharacter = useStore(state => state.removeCharacter);
 	const addCharacter = useStore(state => state.addCharacter);
-	const { openCharacterCreationModal } = useModals();
+	const { openCharacterCreationModal, openConfirmationModal } = useModals();
 	const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(initialCharacterId);
 
 	// Update selectedCharacterId when initialCharacterId changes (for URL navigation)
@@ -92,14 +92,40 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 
 	const handlePredefinedCharacterImport = async () => {
 		const currentCharacters = [...characters];
-		getRecordValues(PREDEFINED_CHARACTERS).map(data => {
-			const characterProps = CharacterSheet.parsePropsFromShareString(data);
-			if (currentCharacters.find(c => c.props.name === characterProps.name)) {
-				return;
+		const predefinedCharacters = getRecordValues(PREDEFINED_CHARACTERS).map(shareString => {
+			const props = CharacterSheet.parsePropsFromShareString(shareString);
+			return createNewCharacter({ props });
+		});
+		const findExisting = (character: Character): Character | undefined => {
+			return currentCharacters.find(existing => existing.props.name === character.props.name);
+		};
+		const hasConflicts = predefinedCharacters.some(findExisting);
+		let overrideExisting: boolean;
+		if (hasConflicts) {
+			overrideExisting = await openConfirmationModal({
+				title: 'Import Predefined Characters',
+				message: [
+					'Some predefined characters have the same name as your existing characters.',
+					'Do you want to proceed? Existing characters will not be duplicated.',
+				].join('\n'),
+				confirmText: 'Override',
+				cancelText: 'Skip Duplicates',
+			});
+		} else {
+			overrideExisting = false;
+		}
+		predefinedCharacters.map(character => {
+			const existing = findExisting(character);
+			if (existing) {
+				if (overrideExisting) {
+					removeCharacter(existing.id);
+					addCharacter(character);
+				} else {
+					return;
+				}
+			} else {
+				addCharacter(character);
 			}
-			const character = createNewCharacter({ props: characterProps });
-			currentCharacters.push(character); // make sure the next character gets a fresh position
-			addCharacter(character);
 		});
 	};
 
