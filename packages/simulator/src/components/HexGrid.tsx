@@ -36,8 +36,9 @@ import {
 } from '../types/ui';
 
 import { CharacterToken } from './CharacterToken';
+import { GridActionSelectionData, GridActionTool } from './hex/GridActions';
 import { HexArea } from './hex/HexArea';
-import { ActionSelectionData, TokenContextMenu } from './TokenContextMenu';
+import { TokenContextMenu } from './TokenContextMenu';
 
 // Dynamic icon loader from fa6
 const renderFaIcon = (iconName: string): React.ReactNode => {
@@ -969,13 +970,21 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		});
 	};
 
-	const handleAction = (character: Character, data: ActionSelectionData | undefined) => {
+	const handleAction = (character: Character, data: GridActionSelectionData | undefined) => {
 		if (!data) {
 			console.error('Action modal not implemented yet.');
 			return;
 		}
 		console.log(`Action selected for character ${character.id}:`, data);
 		switch (data.action) {
+			case GridActionTool.MeasureDistance: {
+				handleMeasureAction(character);
+				break;
+			}
+			case GridActionTool.OpenCharacterSheet: {
+				handleOpenCharacterSheet(character);
+				break;
+			}
 			case Action.Stride: {
 				handleStrideAction(character);
 				break;
@@ -1587,8 +1596,6 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					character={contextMenu.character}
 					position={contextMenu.position}
 					onClose={() => setContextMenu(null)}
-					onOpenCharacterSheet={handleOpenCharacterSheet}
-					onMeasureAction={handleMeasureAction}
 					onAction={handleAction}
 				/>
 			)}

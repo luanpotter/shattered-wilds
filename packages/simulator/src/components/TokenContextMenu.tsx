@@ -6,28 +6,16 @@ import { getBasicAttacksFor } from '../types/grid-actions';
 import { Character } from '../types/ui';
 import { semanticClick } from '../utils';
 
-export interface ActionSelectionData {
-	action: Action;
-	selectedWeaponModeIndex?: number;
-}
+import { GridActionSelectionData, GridActionTool } from './hex/GridActions';
 
 interface TokenContextMenuProps {
 	character: Character;
 	position: { x: number; y: number };
 	onClose: () => void;
-	onOpenCharacterSheet: (character: Character) => void;
-	onMeasureAction: (character: Character) => void;
-	onAction: (character: Character, action: ActionSelectionData | undefined) => void;
+	onAction: (character: Character, action: GridActionSelectionData | undefined) => void;
 }
 
-export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
-	character,
-	position,
-	onClose,
-	onOpenCharacterSheet,
-	onMeasureAction,
-	onAction,
-}) => {
+export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({ character, position, onClose, onAction }) => {
 	const sheet = CharacterSheet.from(character.props);
 	const basicAttacks = getBasicAttacksFor(sheet);
 
@@ -80,8 +68,16 @@ export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
 
 	return (
 		<div className='token-context-menu' style={menuStyle} role='menu'>
-			<MenuItem icon={FaUser} title='See Character Sheet' onClick={() => onOpenCharacterSheet(character)} />
-			<MenuItem icon={FaRuler} title='Measure' onClick={() => onMeasureAction(character)} />
+			<MenuItem
+				icon={FaUser}
+				title='See Character Sheet'
+				onClick={() => onAction(character, { action: GridActionTool.OpenCharacterSheet })}
+			/>
+			<MenuItem
+				icon={FaRuler}
+				title='Measure'
+				onClick={() => onAction(character, { action: GridActionTool.MeasureDistance })}
+			/>
 			<MenuItem icon={FaBolt} title='Act' onClick={() => onAction(character, undefined)} />
 			<Separator />
 
