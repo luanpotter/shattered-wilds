@@ -247,7 +247,13 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ characterId, itemInd
 
 	const buildItem = (): Item => {
 		const itemModes = modes.map(stateToMode);
-		return new Item({ name: name || 'New Item', slot, modes: itemModes, traits });
+		return new Item({
+			name,
+			slot,
+			isEquipped: existing?.isEquipped ?? false,
+			modes: itemModes,
+			traits,
+		});
 	};
 
 	const isValid = useMemo(() => {
