@@ -6,11 +6,11 @@ import {
 	Consequence,
 	ResourceCost,
 	Point,
-	HexCoord as HexPosition,
+	HexCoord,
 	HexVertex,
 } from '@shattered-wilds/commons';
 
-export type { Point, HexPosition, HexVertex };
+export type { Point, HexCoord, HexVertex };
 
 export type MapMode = 'map' | 'encounter';
 export type MapTool = 'select' | 'line' | 'area' | 'stamp';
@@ -24,13 +24,13 @@ export interface LineDrawing {
 
 export interface AreaDrawing {
 	type: 'area';
-	hexes: HexPosition[];
+	hexes: HexCoord[];
 	color: string;
 }
 
 export interface StampDrawing {
 	type: 'stamp';
-	hex: HexPosition;
+	hex: HexCoord;
 	icon: string;
 	color: string;
 }
@@ -49,9 +49,9 @@ export interface LineToolState {
 }
 
 export interface AreaToolState {
-	centerHex: HexPosition;
+	centerHex: HexCoord;
 	radius: number;
-	previewHexes: HexPosition[];
+	previewHexes: HexCoord[];
 }
 
 export interface SelectionBox {
@@ -97,7 +97,7 @@ export type Modal = BaseModal &
 		  }
 		| {
 				type: 'character-creation';
-				hexPosition?: HexPosition;
+				hexPosition?: HexCoord;
 		  }
 		| {
 				type: 'character-sheet';
@@ -131,13 +131,15 @@ export type Modal = BaseModal &
 				attackerId: string;
 				defenderId: string;
 				attackIndex: number;
+				onClose: () => void;
 		  }
 		| {
 				type: 'measure';
 				fromCharacterId: string;
-				toPosition: HexPosition;
+				toPosition: HexCoord;
 				distance: number;
-				onMove?: () => void;
+				onMove: () => void;
+				onClose: () => void;
 		  }
 		| {
 				type: 'consume-resource';
@@ -179,6 +181,10 @@ export type Modal = BaseModal &
 				onCancel: () => void;
 		  }
 		| {
+				type: 'error';
+				message: string;
+		  }
+		| {
 				type: 'encounter-config';
 				encounterId: string;
 		  }
@@ -212,7 +218,7 @@ export interface TurnTracker {
 export interface Encounter {
 	id: string;
 	name: string;
-	characterPositions: Record<string, HexPosition>;
+	characterPositions: Record<string, HexCoord>;
 	map: GameMap;
 	turnTracker: TurnTracker | null;
 }
@@ -233,11 +239,11 @@ export const createNewEncounter = ({
 }: {
 	name: string;
 	characterIds: string[];
-	existingCharacterPositions?: Record<string, HexPosition>;
+	existingCharacterPositions?: Record<string, HexCoord>;
 	mapSize?: { width: number; height: number };
 }): Encounter => {
-	const characterPositions: Record<string, HexPosition> = {};
-	const usedPositions: HexPosition[] = [];
+	const characterPositions: Record<string, HexCoord> = {};
+	const usedPositions: HexCoord[] = [];
 
 	characterIds.forEach(id => {
 		const existingPos = existingCharacterPositions?.[id];
@@ -245,7 +251,7 @@ export const createNewEncounter = ({
 			characterPositions[id] = existingPos;
 			usedPositions.push(existingPos);
 		} else {
-			const pos = findNextEmptyHexPositionFromList(usedPositions);
+			const pos = findNextEmptyHexCoordFromList(usedPositions);
 			characterPositions[id] = pos;
 			usedPositions.push(pos);
 		}
@@ -263,7 +269,7 @@ export const createNewEncounter = ({
 	};
 };
 
-const findNextEmptyHexPositionFromList = (usedPositions: HexPosition[], startQ = 0, startR = 0): HexPosition => {
+const findNextEmptyHexCoordFromList = (usedPositions: HexCoord[], startQ = 0, startR = 0): HexCoord => {
 	const isOccupied = (q: number, r: number) => usedPositions.some(p => p.q === q && p.r === r);
 
 	if (!isOccupied(startQ, startR)) {

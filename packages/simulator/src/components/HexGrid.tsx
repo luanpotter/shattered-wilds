@@ -4,6 +4,7 @@ import {
 	CharacterSheet,
 	DerivedStatType,
 	Distance,
+	Resource,
 	axialToPixel,
 	findHexPath,
 	findNearestVertex,
@@ -17,6 +18,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { IconType } from 'react-icons';
 import * as Fa6Icons from 'react-icons/fa6';
 
+import { useErrors } from '../hooks/useErrors';
 import { useModals } from '../hooks/useModals';
 import { PropUpdater } from '../hooks/usePropUpdates';
 import { useStore } from '../store';
@@ -26,7 +28,7 @@ import {
 	Character,
 	DragState,
 	GameMap,
-	HexPosition,
+	HexCoord,
 	HexVertex,
 	LineToolState,
 	MapMode,
@@ -48,12 +50,45 @@ const renderFaIcon = (iconName: string): React.ReactNode => {
 	return <IconComponent />;
 };
 
+const LEFT_CLICK_BUTTON = 0;
+const RIGHT_CLICK_BUTTON = 2;
+const MIDDLE_CLICK_BUTTON = 4;
+
 // Pre-computed hex path for pointy-top hexagon with radius 5
 const HEX_PATH = 'M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z';
 
+enum OverlayType {
+	Movement,
+	Attack,
+}
+
 // TODO: unify action-related colors with print-friendly character sheet
-const ATTACK_OVERLAY_COLOR = '#c62828ff';
-const MOVE_OVERLAY_COLOR = '#0daa15ff';
+const OVERLAY_TYPES: Record<OverlayType, { color: string }> = {
+	[OverlayType.Movement]: {
+		color: '#0daa15ff',
+	},
+	[OverlayType.Attack]: {
+		color: '#c62828ff',
+	},
+};
+
+interface AreaOverlay {
+	type: OverlayType;
+	range?: Distance;
+}
+
+interface PathOverlay {
+	type: OverlayType;
+	from: HexCoord;
+	to: HexCoord;
+}
+
+interface ActionState {
+	character: Character;
+	data: GridActionSelectionData;
+	overlay: AreaOverlay | undefined;
+	hoveredPosition?: HexCoord;
+}
 
 interface StaticHexGridProps {
 	width: number;
@@ -105,7 +140,7 @@ const pointToSegmentDistance = (
 };
 
 interface HexHighlightLayerProps {
-	hexes: HexPosition[];
+	hexes: HexCoord[];
 	color: string;
 	mapWidth: number;
 	mapHeight: number;
@@ -125,7 +160,7 @@ function HexHighlightLayerComponent({ hexes, color, mapWidth, mapHeight }: HexHi
 }
 const HexHighlightLayer = React.memo(HexHighlightLayerComponent);
 
-const generateHexes = (width: number, height: number): HexPosition[] => {
+const generateHexes = (width: number, height: number): HexCoord[] => {
 	const hexes = [];
 
 	// Create a true rectangular grid with a consistent number of hexes per row/column
@@ -153,7 +188,7 @@ const generateHexes = (width: number, height: number): HexPosition[] => {
 };
 
 // Check if a hex position is within the grid bounds
-const isHexInBounds = (pos: HexPosition, width: number, height: number): boolean => {
+const isHexInBounds = (pos: HexCoord, width: number, height: number): boolean => {
 	const { q, r } = pos;
 
 	// Check vertical bounds
@@ -197,8 +232,8 @@ const calculateViewBox = (width: number, height: number): string => {
 
 interface BattleGridProps {
 	encounterCharacters: Character[];
-	getCharacterPosition: (characterId: string) => HexPosition | undefined;
-	updateCharacterPosition: (characterId: string, pos: HexPosition) => void;
+	getCharacterPosition: (characterId: string) => HexCoord | undefined;
+	updateCharacterPosition: (characterId: string, pos: HexCoord) => void;
 	map: GameMap;
 	updateMap: (map: GameMap) => void;
 	mapMode?: MapMode;
@@ -227,10 +262,21 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 	const gridState = useStore(state => state.gridState);
 	const updateGridState = useStore(state => state.updateGridState);
-	const modals = useStore(state => state.modals);
+	// const modals = useStore(state => state.modals);
 	const { openCharacterSheetModal, openAttackActionModal, openMeasureModal, openIconSelectionModal } = useModals();
+	const fail = useErrors();
 	const editMode = useStore(state => state.editMode);
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
+	const updateCharacterResource = (character: Character, resource: Resource, delta: number) => {
+		const sheet = CharacterSheet.from(character.props);
+		const propUpdater = new PropUpdater({ character, sheet, updateCharacterProp });
+		propUpdater.updateResourceByDelta(resource, delta);
+	};
+	const consumeActionCosts = (character: Character, action: Action) => {
+		for (const cost of ACTIONS[action].costs) {
+			updateCharacterResource(character, cost.resource, -cost.amount);
+		}
+	};
 
 	const [dragState, setDragState] = useState<DragState>({ type: 'none' });
 	const [ghostPosition, setGhostPosition] = useState<Point | null>(null);
@@ -239,20 +285,9 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		character: Character;
 		position: Point;
 	} | null>(null);
-	const [attackState, setAttackState] = useState<{
-		attacker: Character;
-		attackIndex: number;
-		isSelectingTarget: boolean;
-	} | null>(null);
-	const [strideState, setStrideState] = useState<{
-		character: Character;
-		isSelectingTarget: boolean;
-	} | null>(null);
-	const [measureState, setMeasureState] = useState<{
-		fromCharacter: Character;
-		isSelectingTarget: boolean;
-		hoveredPosition?: HexPosition;
-	} | null>(null);
+	const [actionState, setActionState] = useState<ActionState | null>(null);
+	const [overlayState, setOverlayState] = useState<PathOverlay | null>(null);
+	// tools
 	const [lineToolState, setLineToolState] = useState<LineToolState | null>(null);
 	const [lineToolHoveredVertex, setLineToolHoveredVertex] = useState<HexVertex | null>(null);
 	const [selectToolState, setSelectToolState] = useState<SelectToolState>({
@@ -262,8 +297,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		dragCurrent: null,
 	});
 	const [areaToolState, setAreaToolState] = useState<AreaToolState | null>(null);
-	const [areaToolHoveredHex, setAreaToolHoveredHex] = useState<HexPosition | null>(null);
-	const [stampToolHoveredHex, setStampToolHoveredHex] = useState<HexPosition | null>(null);
+	const [areaToolHoveredHex, setAreaToolHoveredHex] = useState<HexCoord | null>(null);
+	const [stampToolHoveredHex, setStampToolHoveredHex] = useState<HexCoord | null>(null);
 	const [lastStampIcon, setLastStampIcon] = useState<string | null>(null);
 
 	// Tool helpers
@@ -284,7 +319,9 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 	// This function converts screen coordinates to SVG user space coordinates
 	const screenToSvgCoordinates = useCallback((x: number, y: number): Point | null => {
-		if (!svgRef.current) return null;
+		if (!svgRef.current) {
+			return null;
+		}
 
 		// Get the SVG element's CTM (Current Transformation Matrix)
 		const svg = svgRef.current;
@@ -296,7 +333,9 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 		// Get the current transformation matrix and its inverse
 		const ctm = svg.getScreenCTM();
-		if (!ctm) return null;
+		if (!ctm) {
+			return null;
+		}
 
 		const inverseCtm = ctm.inverse();
 
@@ -305,6 +344,17 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 		return { x: transformedPoint.x, y: transformedPoint.y };
 	}, []);
+
+	const eventHexCoordinates = useCallback(
+		(e: React.MouseEvent): HexCoord | null => {
+			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
+			if (!svgCoords) {
+				return null;
+			}
+			return pixelToAxial(svgCoords.x, svgCoords.y);
+		},
+		[screenToSvgCoordinates],
+	);
 
 	const findDrawingAtPoint = useCallback(
 		(point: Point, threshold = 2): number | null => {
@@ -441,12 +491,10 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
+			const isSelecting = isSelectTool && selectToolState.selectedIndices.size > 0;
 			if (e.key === 'Escape') {
-				if (measureState?.isSelectingTarget) {
-					setMeasureState(null);
-				} else if (attackState?.isSelectingTarget) {
-					setAttackState(null);
-				} else if (isSelectTool && selectToolState.selectedIndices.size > 0) {
+				setActionState(null);
+				if (isSelecting) {
 					setSelectToolState(prev => ({
 						...prev,
 						selectedIndices: new Set(),
@@ -456,7 +504,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					}));
 				}
 			}
-			if ((e.key === 'Delete' || e.key === 'Backspace') && isSelectTool && selectToolState.selectedIndices.size > 0) {
+			if ((e.key === 'Delete' || e.key === 'Backspace') && isSelecting) {
 				const newDrawings = map.drawings.filter((_, i) => !selectToolState.selectedIndices.has(i));
 				updateMap({ ...map, drawings: newDrawings });
 				setSelectToolState(prev => ({ ...prev, selectedIndices: new Set() }));
@@ -465,22 +513,22 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 		document.addEventListener('keydown', handleKeyDown);
 		return () => document.removeEventListener('keydown', handleKeyDown);
-	}, [measureState, attackState, isSelectTool, selectToolState.selectedIndices, map, updateMap]);
+	}, [isSelectTool, selectToolState.selectedIndices, map, updateMap]);
 
 	// Notify parent when selection changes
 	useEffect(() => {
 		onSelectionChange?.(selectToolState.selectedIndices);
 	}, [selectToolState.selectedIndices, onSelectionChange]);
 
-	// Clear measure state when measure modal is closed
-	useEffect(() => {
-		if (measureState && !measureState.isSelectingTarget) {
-			const hasMeasureModal = modals.some(modal => modal.type === 'measure');
-			if (!hasMeasureModal) {
-				setMeasureState(null);
-			}
-		}
-	}, [modals, measureState]);
+	// // Clear measure state when measure modal is closed
+	// useEffect(() => {
+	// 	if (measureState && !measureState.isSelectingTarget) {
+	// 		const hasMeasureModal = modals.some(modal => modal.type === 'measure');
+	// 		if (!hasMeasureModal) {
+	// 			setMeasureState(null);
+	// 		}
+	// 	}
+	// }, [modals, measureState]);
 
 	// Handle drag move and drop
 	useEffect(() => {
@@ -563,21 +611,6 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		openCharacterSheetModal({ characterId: character.id });
 	};
 
-	const handleAttackAction = (attacker: Character, attackIndex: number) => {
-		setAttackState({
-			attacker,
-			attackIndex,
-			isSelectingTarget: true,
-		});
-	};
-
-	const handleStrideAction = (character: Character) => {
-		setStrideState({
-			character,
-			isSelectingTarget: true,
-		});
-	};
-
 	const getStrideRange = (character: Character): Distance => {
 		const sheet = CharacterSheet.from(character.props);
 		const movement = sheet.getStatTree().getDistance(DerivedStatType.Movement);
@@ -596,81 +629,61 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	};
 
 	const handleCharacterMouseDown = (e: React.MouseEvent, character: Character) => {
-		if (e.button === 0) {
-			// Left click
+		if (e.button === LEFT_CLICK_BUTTON) {
+			e.preventDefault();
+			e.stopPropagation();
+
 			if (isMapMode) {
-				// In map mode, handle based on selected tool
-				e.preventDefault();
-				e.stopPropagation();
 				// TODO: Handle map mode tool actions (select, line, etc.)
 				console.log(`Map mode: ${selectedTool} tool clicked on character`, character.id);
 				return;
-			}
-
-			if (attackState?.isSelectingTarget) {
-				// We're in attack mode - select this character as target
-				e.preventDefault();
-				e.stopPropagation();
-
-				const attackerPos = getCharacterPosition(attackState.attacker.id);
+			} else if (actionState?.data?.action === Action.Strike) {
+				const attackerPos = getCharacterPosition(actionState.character.id);
 				const targetPos = getCharacterPosition(character.id);
 
 				if (attackerPos && targetPos) {
 					// Check if the target is within range
-					const attackRange = getAttackRange(attackState.attacker, attackState.attackIndex).value;
-					const distance = hexDistance(attackerPos, targetPos);
-
-					if (distance <= attackRange) {
-						// Valid target - open Attack Action Modal
-						openAttackActionModal({
-							attackerId: attackState.attacker.id,
-							defenderId: character.id,
-							attackIndex: attackState.attackIndex,
-						});
-
-						// Clear attack state
-						setAttackState(null);
+					const selectedWeaponModeIndex = actionState.data.selectedWeaponModeIndex;
+					if (selectedWeaponModeIndex === undefined) {
+						fail('No weapon mode selected for attack action');
+						return;
 					}
+					setActionState(null);
+					setOverlayState({ type: OverlayType.Attack, from: attackerPos, to: targetPos });
+					openAttackActionModal({
+						attackerId: actionState.character.id,
+						defenderId: character.id,
+						attackIndex: selectedWeaponModeIndex,
+						onClose: () => setOverlayState(null),
+					});
 				}
-				// If not in range, do nothing (could add feedback later)
-
-				return;
+			} else {
+				setDragState({
+					type: 'character',
+					objectId: character.id,
+					startPosition: { x: e.clientX, y: e.clientY },
+				});
+				// Keep the hover state when starting drag
+				setHoveredCharacter(character);
 			}
-
-			// Normal drag behavior
-			e.preventDefault();
-			e.stopPropagation();
-
-			setDragState({
-				type: 'character',
-				objectId: character.id,
-				startPosition: { x: e.clientX, y: e.clientY },
-			});
-			// Keep the hover state when starting drag
-			setHoveredCharacter(character);
-		} else if (e.button === 2) {
-			// Right click - handle based on mode
+		} else if (e.button === RIGHT_CLICK_BUTTON) {
 			e.preventDefault();
 			e.stopPropagation();
 
 			if (isMapMode) {
-				// In map mode, right-click does not open token options
 				// TODO: Handle map mode right-click tool actions
 				console.log(`Map mode: right-click with ${selectedTool} tool on character`, character.id);
 				return;
 			}
 
-			if (measureState?.isSelectingTarget) {
-				// Cancel measure mode when right-clicking on character
-				setMeasureState(null);
+			if (actionState) {
+				setActionState(null);
 				return;
 			}
 
 			if (editMode) {
-				// In edit mode, directly open character sheet
 				handleOpenCharacterSheet(character);
 			} else {
-				// In play mode, show context menu at correct position relative to grid
 				if (gridRef.current) {
 					const rect = gridRef.current.getBoundingClientRect();
 					setContextMenu({
@@ -685,10 +698,10 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		}
 	};
 
-	const handleHexRightClick = (q: number, r: number) => {
+	const handleHexRightClick = (coords: HexCoord) => {
 		// In encounter view, right-click on empty hex does nothing
 		// Characters are added via the "Add character" bar
-		const existingCharacter = findCharacterAtHex(q, r);
+		const existingCharacter = findCharacterAtHex(coords.q, coords.r);
 		if (existingCharacter && editMode) {
 			openCharacterSheetModal({ characterId: existingCharacter.id });
 		}
@@ -755,57 +768,57 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 			// Handle area tool start
 			if (isAreaTool && svgRef.current) {
-				const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
-				if (svgCoords) {
-					const centerHex = pixelToAxial(svgCoords.x, svgCoords.y);
-					setAreaToolState({
-						centerHex,
-						radius: 0,
-						previewHexes: [centerHex],
-					});
+				const hex = eventHexCoordinates(e);
+				if (!hex) {
+					return;
 				}
+				setAreaToolState({
+					centerHex: hex,
+					radius: 0,
+					previewHexes: [hex],
+				});
 			}
 
 			// Handle stamp tool left click
 			if (isStampTool && svgRef.current) {
-				const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
-				if (svgCoords) {
-					const hex = pixelToAxial(svgCoords.x, svgCoords.y);
-					if (lastStampIcon) {
-						// Place the previous icon
-						updateMap({
-							...map,
-							drawings: [
-								...map.drawings,
-								{
-									type: 'stamp',
-									hex,
-									icon: lastStampIcon,
-									color: selectedColor,
-								},
-							],
-						});
-					} else {
-						// Open selection modal
-						openIconSelectionModal({
-							currentIcon: null,
-							onSelect: (icon: string) => {
-								setLastStampIcon(icon);
-								updateMap({
-									...map,
-									drawings: [
-										...map.drawings,
-										{
-											type: 'stamp',
-											hex,
-											icon,
-											color: selectedColor,
-										},
-									],
-								});
+				const hex = eventHexCoordinates(e);
+				if (!hex) {
+					return;
+				}
+				if (lastStampIcon) {
+					// Place the previous icon
+					updateMap({
+						...map,
+						drawings: [
+							...map.drawings,
+							{
+								type: 'stamp',
+								hex,
+								icon: lastStampIcon,
+								color: selectedColor,
 							},
-						});
-					}
+						],
+					});
+				} else {
+					// Open selection modal
+					openIconSelectionModal({
+						currentIcon: null,
+						onSelect: (icon: string) => {
+							setLastStampIcon(icon);
+							updateMap({
+								...map,
+								drawings: [
+									...map.drawings,
+									{
+										type: 'stamp',
+										hex,
+										icon,
+										color: selectedColor,
+									},
+								],
+							});
+						},
+					});
 				}
 			}
 		}
@@ -946,8 +959,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	};
 
 	// Function to get all hexes within range
-	const getHexesInRange = (center: HexPosition, range: number): HexPosition[] => {
-		const hexes: HexPosition[] = [];
+	const getHexesInRange = (center: HexCoord, range: number): HexCoord[] => {
+		const hexes: HexCoord[] = [];
 		for (let q = -range; q <= range; q++) {
 			for (let r = -range; r <= range; r++) {
 				// Check if this hex is within range
@@ -962,53 +975,61 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		return hexes;
 	};
 
-	// Handle measure action
-	const handleMeasureAction = (character: Character) => {
-		setMeasureState({
-			fromCharacter: character,
-			isSelectingTarget: true,
-		});
+	const processOverlayForActionType = (
+		character: Character,
+		data: GridActionSelectionData,
+	): AreaOverlay | undefined => {
+		switch (data.action) {
+			case GridActionTool.MeasureDistance: {
+				return {
+					type: OverlayType.Movement,
+				};
+			}
+			case Action.Stride: {
+				return {
+					type: OverlayType.Movement,
+					range: getStrideRange(character),
+				};
+			}
+			case Action.Strike: {
+				const selectedWeaponModeIndex = data.selectedWeaponModeIndex;
+				if (selectedWeaponModeIndex === undefined) {
+					fail(`No weapon mode selected for attack action.`);
+					return undefined;
+				}
+				const attackRange = getAttackRange(character, selectedWeaponModeIndex);
+				return {
+					type: OverlayType.Attack,
+					range: attackRange,
+				};
+			}
+			default:
+				return undefined;
+		}
 	};
 
 	const handleAction = (character: Character, data: GridActionSelectionData | undefined) => {
 		if (!data) {
-			console.error('Action modal not implemented yet.');
+			fail('TODO Action modal not implemented yet.');
 			return;
 		}
-		console.log(`Action selected for character ${character.id}:`, data);
-		switch (data.action) {
-			case GridActionTool.MeasureDistance: {
-				handleMeasureAction(character);
-				break;
-			}
-			case GridActionTool.OpenCharacterSheet: {
-				handleOpenCharacterSheet(character);
-				break;
-			}
-			case Action.Stride: {
-				handleStrideAction(character);
-				break;
-			}
-			case Action.Strike: {
-				const index = data.selectedWeaponModeIndex;
-				if (index === undefined) {
-					console.error('No weapon mode index provided for Strike action.');
-					return;
-				}
-				handleAttackAction(character, index);
-				break;
-			}
-			default: {
-				console.error('Unhandled action type:', data.action);
-				break;
-			}
+		if (data.action === GridActionTool.OpenCharacterSheet) {
+			handleOpenCharacterSheet(character);
+			return;
 		}
+
+		const overlay = processOverlayForActionType(character, data);
+		setActionState({
+			character,
+			overlay,
+			data,
+		});
 	};
 
 	// Handle mouse move for measure hover
 	const handleMouseMove = (e: React.MouseEvent) => {
 		// Handle drag
-		if (e.buttons === 4) {
+		if (e.buttons === MIDDLE_CLICK_BUTTON) {
 			updateGridState({
 				offset: {
 					x: gridState.offset.x + e.movementX / gridState.scale,
@@ -1017,8 +1038,12 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			});
 		}
 
+		if (!svgRef.current) {
+			return;
+		}
+
 		// Handle line tool drawing
-		if (isLineTool && lineToolState && svgRef.current) {
+		if (isLineTool && lineToolState) {
 			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
 			if (svgCoords) {
 				// Find nearest vertex to the current mouse position
@@ -1037,7 +1062,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					);
 				}
 			}
-		} else if (isLineTool && !lineToolState && svgRef.current) {
+		} else if (isLineTool && !lineToolState) {
 			// Track hovered vertex before drawing starts
 			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
 			if (svgCoords) {
@@ -1050,7 +1075,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		}
 
 		// Handle select tool
-		if (isSelectTool && svgRef.current) {
+		if (isSelectTool) {
 			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
 			if (svgCoords) {
 				if (selectToolState.selectionBox) {
@@ -1066,7 +1091,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		}
 
 		// Handle area tool drag
-		if (isAreaTool && areaToolState && svgRef.current) {
+		if (isAreaTool && areaToolState) {
 			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
 			if (svgCoords) {
 				const currentHex = pixelToAxial(svgCoords.x, svgCoords.y);
@@ -1074,7 +1099,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				const previewHexes = getHexesInRange(areaToolState.centerHex, radius);
 				setAreaToolState(prev => (prev ? { ...prev, radius, previewHexes } : null));
 			}
-		} else if (isAreaTool && !areaToolState && svgRef.current) {
+		} else if (isAreaTool && !areaToolState) {
 			// Track hovered hex before drawing starts
 			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
 			if (svgCoords) {
@@ -1087,7 +1112,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		}
 
 		// Handle stamp tool hover
-		if (isStampTool && svgRef.current) {
+		if (isStampTool) {
 			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
 			if (svgCoords) {
 				const hoveredHex = pixelToAxial(svgCoords.x, svgCoords.y);
@@ -1098,90 +1123,118 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			setStampToolHoveredHex(null);
 		}
 
-		// Handle measure hover
-		if (measureState?.isSelectingTarget && svgRef.current) {
-			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
-			if (svgCoords) {
-				// Convert SVG coordinates to hex coordinates
-				const hoveredHex = pixelToAxial(svgCoords.x, svgCoords.y);
-				setMeasureState(prev => (prev ? { ...prev, hoveredPosition: hoveredHex } : null));
+		// Handle hover
+		if (actionState) {
+			const hex = eventHexCoordinates(e);
+			if (hex) {
+				setActionState(prev => (prev ? { ...prev, hoveredPosition: hex } : null));
 			}
 		}
 	};
 
+	const renderActionStateOverlay = (actionState: ActionState): React.ReactNode => {
+		const overlay = actionState.overlay;
+		if (!overlay) {
+			return null;
+		}
+
+		const pos = getCharacterPosition(actionState.character.id);
+		if (!pos) {
+			return null;
+		}
+		const overlayColor = OVERLAY_TYPES[overlay.type].color;
+		const currentHex = actionState.hoveredPosition;
+
+		return (
+			<>
+				{overlay.range && (
+					<HexHighlightLayer
+						hexes={getHexesInRange(pos, overlay.range.value)}
+						color={overlayColor}
+						mapWidth={map.size.width}
+						mapHeight={map.size.height}
+					/>
+				)}
+				{currentHex && (
+					<HexHighlightLayer
+						hexes={findHexPath(pos, currentHex)}
+						color={overlayColor}
+						mapWidth={map.size.width}
+						mapHeight={map.size.height}
+					/>
+				)}
+			</>
+		);
+	};
+
+	const renderOverlay = (overlay: PathOverlay): React.ReactNode => {
+		const overlayColor = OVERLAY_TYPES[overlay.type].color;
+		return (
+			<HexHighlightLayer
+				hexes={findHexPath(overlay.from, overlay.to)}
+				color={overlayColor}
+				mapWidth={map.size.width}
+				mapHeight={map.size.height}
+			/>
+		);
+	};
+
 	// Handle hex click for measure or stride
-	const handleHexClick = (q: number, r: number) => {
-		// Stride action
-		const character = strideState?.character;
-		const from = character ? getCharacterPosition(character.id) : null;
-		if (strideState?.isSelectingTarget && character && from) {
-			const toPosition = { q, r };
-			const strideRange = getStrideRange(character).value;
-			const distance = hexDistance(from, toPosition);
-			if (distance <= strideRange) {
-				updateCharacterPosition(strideState.character.id, toPosition);
-				const sheet = CharacterSheet.from(character.props);
-				const propUpdater = new PropUpdater({ character, sheet, updateCharacterProp });
-				const strideCost = ACTIONS.Stride.costs[0];
-				propUpdater.updateResourceByDelta(strideCost.resource, -strideCost.amount);
-				setStrideState(null);
-			}
+	const handleHexClick = (target: HexCoord) => {
+		if (!actionState) {
+			return; // nothing to do
+		}
+
+		const character = actionState.character;
+		const from = getCharacterPosition(character.id);
+		if (!from) {
+			fail(`Character has no position for action: ${character.props.name}`);
 			return;
 		}
 
-		// Measure action
-		const fromPos = getCharacterPosition(measureState?.fromCharacter.id ?? '');
-		if (measureState?.isSelectingTarget && fromPos) {
-			const toPosition = { q, r };
-			const distance = hexDistance(fromPos, toPosition);
-			const characterId = measureState.fromCharacter.id;
-
-			// Open measure modal with move callback
-			openMeasureModal({
-				fromCharacterId: characterId,
-				toPosition,
-				distance,
-				onMove: () => {
-					updateCharacterPosition(characterId, toPosition);
-					setMeasureState(null);
-				},
-			});
-
-			// Keep measure state active to maintain highlight
-			setMeasureState(prev => (prev ? { ...prev, isSelectingTarget: false } : null));
+		const actionType = actionState.data?.action;
+		switch (actionType) {
+			case GridActionTool.MeasureDistance: {
+				const distance = hexDistance(from, target);
+				setOverlayState({ type: OverlayType.Movement, from, to: target });
+				setActionState(null);
+				openMeasureModal({
+					fromCharacterId: character.id,
+					toPosition: target,
+					distance,
+					onMove: () => {
+						updateCharacterPosition(character.id, target);
+						setOverlayState(null);
+					},
+					onClose: () => setOverlayState(null),
+				});
+				break;
+			}
+			case Action.Stride: {
+				updateCharacterPosition(character.id, target);
+				consumeActionCosts(character, Action.Stride);
+				setActionState(null);
+				break;
+			}
+			// TODO: consolidate attacking here
 		}
 	};
 
 	// Handle right-click outside character token
 	const handleGridRightClick = (e: React.MouseEvent) => {
 		e.preventDefault();
+		setActionState(null);
+
+		const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
+		if (!svgCoords) {
+			return;
+		}
+		const hexCoords = pixelToAxial(svgCoords.x, svgCoords.y);
 
 		if (isMapMode) {
-			// In map mode, handle based on selected tool
-			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
-			if (svgCoords) {
-				const { q, r } = pixelToAxial(svgCoords.x, svgCoords.y);
-				// TODO: Handle map mode right-click tool actions on hex
-				console.log(`Map mode: right-click with ${selectedTool} tool on hex`, { q, r });
-			}
-			return;
-		}
-
-		if (measureState?.isSelectingTarget) {
-			// Cancel measure mode
-			setMeasureState(null);
-			return;
-		}
-		if (strideState?.isSelectingTarget) {
-			// Cancel stride mode
-			setStrideState(null);
-			return;
-		}
-		// Get hex coordinates from click position
-		const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
-		if (svgCoords) {
-			const { q, r } = pixelToAxial(svgCoords.x, svgCoords.y);
-			handleHexRightClick(q, r);
+			console.log(`Map mode: right-click with ${selectedTool} tool on hex ${hexCoords}`);
+		} else {
+			handleHexRightClick(hexCoords);
 		}
 	};
 
@@ -1194,9 +1247,10 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				overflow: 'hidden',
 				position: 'relative',
 				cursor:
+					// TODO: simplify this logic
 					isLineTool || isAreaTool
 						? 'crosshair'
-						: measureState?.isSelectingTarget
+						: actionState
 							? 'crosshair'
 							: dragState.type === 'character'
 								? 'grabbing'
@@ -1220,22 +1274,14 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					transform: `scale(${gridState.scale}) translate(${gridState.offset.x}px, ${gridState.offset.y}px)`,
 				}}
 				onClick={e => {
-					if (isMapMode) {
-						// In map mode, handle based on selected tool
-						const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
-						if (svgCoords) {
-							const { q, r } = pixelToAxial(svgCoords.x, svgCoords.y);
-							// TODO: Handle map mode left-click tool actions on hex
-							console.log(`Map mode: left-click with ${selectedTool} tool on hex`, { q, r });
-						}
+					const hex = eventHexCoordinates(e);
+					if (!hex) {
 						return;
 					}
-					if (measureState?.isSelectingTarget || strideState?.isSelectingTarget) {
-						const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
-						if (svgCoords) {
-							const { q, r } = pixelToAxial(svgCoords.x, svgCoords.y);
-							handleHexClick(q, r);
-						}
+					if (isMapMode) {
+						console.log(`Map mode: left-click with ${selectedTool} tool on hex ${hex}`);
+					} else if (actionState) {
+						handleHexClick(hex);
 					}
 				}}
 			>
@@ -1243,59 +1289,21 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				<StaticHexGrid width={map.size.width} height={map.size.height} />
 
 				{/* Movement Range Highlight Layer (hover) */}
-				{!isMapMode &&
-					hoveredCharacter &&
-					getCharacterPosition(hoveredCharacter.id) &&
-					!attackState?.isSelectingTarget &&
-					!measureState?.isSelectingTarget &&
-					!strideState?.isSelectingTarget && (
-						<HexHighlightLayer
-							hexes={getHexesInRange(
-								getCharacterPosition(hoveredCharacter.id)!,
-								CharacterSheet.from(hoveredCharacter.props).getStatTree().computeDerivedStat(DerivedStatType.Movement)
-									.value,
-							)}
-							color={MOVE_OVERLAY_COLOR}
-							mapWidth={map.size.width}
-							mapHeight={map.size.height}
-						/>
-					)}
-
-				{/* Stride Range Highlight Layer */}
-				{strideState?.isSelectingTarget && getCharacterPosition(strideState.character.id) && (
+				{!isMapMode && hoveredCharacter && getCharacterPosition(hoveredCharacter.id) && !actionState && (
 					<HexHighlightLayer
 						hexes={getHexesInRange(
-							getCharacterPosition(strideState.character.id)!,
-							getStrideRange(strideState.character).value ?? getStrideRange(strideState.character),
+							getCharacterPosition(hoveredCharacter.id)!,
+							CharacterSheet.from(hoveredCharacter.props).getStatTree().computeDerivedStat(DerivedStatType.Movement)
+								.value,
 						)}
-						color={MOVE_OVERLAY_COLOR}
+						color={OVERLAY_TYPES[OverlayType.Movement].color}
 						mapWidth={map.size.width}
 						mapHeight={map.size.height}
 					/>
 				)}
 
-				{/* Attack Range Highlight Layer */}
-				{attackState?.isSelectingTarget && getCharacterPosition(attackState.attacker.id) && (
-					<HexHighlightLayer
-						hexes={getHexesInRange(
-							getCharacterPosition(attackState.attacker.id)!,
-							getAttackRange(attackState.attacker, attackState.attackIndex).value,
-						)}
-						color={ATTACK_OVERLAY_COLOR}
-						mapWidth={map.size.width}
-						mapHeight={map.size.height}
-					/>
-				)}
-
-				{/* Measure Path Highlight Layer */}
-				{measureState && getCharacterPosition(measureState.fromCharacter.id) && measureState.hoveredPosition && (
-					<HexHighlightLayer
-						hexes={findHexPath(getCharacterPosition(measureState.fromCharacter.id)!, measureState.hoveredPosition)}
-						color={MOVE_OVERLAY_COLOR}
-						mapWidth={map.size.width}
-						mapHeight={map.size.height}
-					/>
-				)}
+				{actionState && renderActionStateOverlay(actionState)}
+				{overlayState && renderOverlay(overlayState)}
 
 				{/* Saved Drawings Layer */}
 				<g style={{ pointerEvents: 'none' }}>

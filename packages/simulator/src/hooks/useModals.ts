@@ -1,11 +1,11 @@
 import { Check, FeatDefinition, FeatSlot, Condition, Consequence, ResourceCost } from '@shattered-wilds/commons';
 
 import { useStore } from '../store';
-import { HexPosition, Modal } from '../types/ui';
+import { HexCoord, Modal } from '../types/ui';
 import { Mouse } from '../utils/mouse';
 import { DistributiveOmit } from '../utils/types';
 
-export function useModals() {
+export const useModals = () => {
 	const modals = useStore(state => state.modals);
 	const addModalStore = useStore(state => state.addModal);
 	const updateModal = useStore(state => state.updateModal);
@@ -38,7 +38,7 @@ export function useModals() {
 		});
 	};
 
-	const openCharacterCreationModal = ({ hexPosition }: { hexPosition?: HexPosition }) => {
+	const openCharacterCreationModal = ({ hexPosition }: { hexPosition?: HexCoord }) => {
 		const title = hexPosition ? `Create Character (${hexPosition.q}, ${hexPosition.r})` : 'Create Character';
 		addModal({
 			title,
@@ -166,10 +166,12 @@ export function useModals() {
 		attackerId,
 		defenderId,
 		attackIndex,
+		onClose,
 	}: {
 		attackerId: string;
 		defenderId: string;
 		attackIndex: number;
+		onClose: () => void;
 	}) => {
 		const attacker = characters.find(c => c.id === attackerId);
 		const defender = characters.find(c => c.id === defenderId);
@@ -185,6 +187,7 @@ export function useModals() {
 			attackerId,
 			defenderId,
 			attackIndex,
+			onClose,
 		});
 	};
 
@@ -193,11 +196,13 @@ export function useModals() {
 		toPosition,
 		distance,
 		onMove,
+		onClose,
 	}: {
 		fromCharacterId: string;
-		toPosition: HexPosition;
+		toPosition: HexCoord;
 		distance: number;
-		onMove?: () => void;
+		onMove: () => void;
+		onClose: () => void;
 	}) => {
 		const character = characters.find(c => c.id === fromCharacterId);
 		if (!character) {
@@ -211,7 +216,8 @@ export function useModals() {
 			fromCharacterId,
 			toPosition,
 			distance,
-			...(onMove && { onMove }),
+			onMove,
+			onClose,
 		});
 	};
 
@@ -359,6 +365,15 @@ export function useModals() {
 		});
 	};
 
+	const openErrorModal = ({ message }: { message: string }) => {
+		addModal({
+			title: 'Unexpected Error',
+			type: 'error',
+			message,
+			widthPixels: 400,
+		});
+	};
+
 	const closeModal = (modalId: string) => {
 		removeModal(modalId);
 	};
@@ -438,6 +453,7 @@ export function useModals() {
 		openAddConditionModal,
 		openAddConsequenceModal,
 		openConfirmationModal,
+		openErrorModal,
 		openEncounterConfigModal,
 		openTurnTrackerModal,
 		openColorPickerModal,
@@ -446,4 +462,4 @@ export function useModals() {
 		closeAllModals,
 		updateModal,
 	};
-}
+};

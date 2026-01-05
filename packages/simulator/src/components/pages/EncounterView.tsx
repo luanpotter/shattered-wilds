@@ -17,7 +17,7 @@ import { FaX } from 'react-icons/fa6';
 
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
-import { Character, GameMap, HexPosition, MapMode, MapTool } from '../../types/ui';
+import { Character, GameMap, HexCoord, MapMode, MapTool } from '../../types/ui';
 import { BattleGrid } from '../HexGrid';
 import { Button } from '../shared/Button';
 
@@ -58,11 +58,11 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 	// Determine currentTurnCharacterId if turn tracker is active
 	const currentTurnCharacterId = encounter.turnTracker?.currentTurnCharacterId ?? null;
 
-	const getCharacterPosition = (characterId: string): HexPosition | undefined => {
+	const getCharacterPosition = (characterId: string): HexCoord | undefined => {
 		return encounter.characterPositions[characterId];
 	};
 
-	const updateCharacterPosition = (characterId: string, pos: HexPosition) => {
+	const updateCharacterPosition = (characterId: string, pos: HexCoord) => {
 		updateEncounter({
 			...encounter,
 			characterPositions: {

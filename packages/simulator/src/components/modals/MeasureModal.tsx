@@ -1,15 +1,15 @@
 import React from 'react';
 import { FaRuler } from 'react-icons/fa';
 
-import { Character, HexPosition } from '../../types/ui';
+import { Character, HexCoord } from '../../types/ui';
 import { Button } from '../shared/Button';
 
 interface MeasureModalProps {
 	fromCharacter: Character;
-	toPosition: HexPosition;
+	toPosition: HexCoord;
 	distance: number;
 	onClose: () => void;
-	onMove?: () => void;
+	onMove: () => void;
 }
 
 export const MeasureModal: React.FC<MeasureModalProps> = ({ fromCharacter, toPosition, distance, onClose, onMove }) => {

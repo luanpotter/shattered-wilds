@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
 import { useStore } from '../../store';
-import { HexPosition } from '../../types/ui';
+import { HexCoord } from '../../types/ui';
 import { findNextCharacterNumber } from '../../utils';
 import { Button } from '../shared/Button';
 
 interface CharacterCreationModalProps {
-	hexPosition?: HexPosition | undefined;
+	hexPosition?: HexCoord | undefined;
 	onClose: () => void;
 }
 

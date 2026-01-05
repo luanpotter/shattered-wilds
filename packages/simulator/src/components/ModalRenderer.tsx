@@ -12,6 +12,7 @@ import { CharacterSheetModal } from './CharacterSheet';
 import {
 	AddConditionModal,
 	AddConsequenceModal,
+	AddItemModal,
 	AttackActionModal,
 	BasicAttacksModal,
 	CharacterCreationModal,
@@ -25,13 +26,13 @@ import {
 	FeatSelectionModal,
 	FeatsModal,
 	IconSelectionModal,
-	AddItemModal,
 	MeasureModal,
 	ModalWrapper,
 	RaceSetupModal,
 	TurnTrackerModal,
 } from './modals';
 import { CharacterListModal } from './modals/CharacterListModal';
+import { ErrorModal } from './modals/ErrorModal';
 import { Button } from './shared/Button';
 
 interface ModalRendererProps {
@@ -167,7 +168,10 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 						attackerId={modal.attackerId}
 						defenderId={modal.defenderId}
 						attackIndex={modal.attackIndex}
-						onClose={onClose}
+						onClose={() => {
+							onClose();
+							modal.onClose();
+						}}
 					/>
 				);
 			case 'measure': {
@@ -180,8 +184,11 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 						fromCharacter={fromCharacter}
 						toPosition={modal.toPosition}
 						distance={modal.distance}
-						onClose={onClose}
-						{...(modal.onMove && { onMove: modal.onMove })}
+						onClose={() => {
+							onClose();
+							modal.onClose();
+						}}
+						onMove={modal.onMove}
 					/>
 				);
 			}
@@ -238,6 +245,9 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 						}}
 					/>
 				);
+			}
+			case 'error': {
+				return <ErrorModal message={modal.message} onClose={onClose} />;
 			}
 			case 'encounter-config': {
 				return <EncounterConfigModal encounterId={modal.encounterId} onClose={onClose} />;

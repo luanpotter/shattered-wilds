@@ -2,7 +2,7 @@ import { Check } from '@shattered-wilds/commons';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { Character, Encounter, Modal, GridState, HexPosition } from './types/ui';
+import { Character, Encounter, Modal, GridState, HexCoord } from './types/ui';
 
 type AddCharacter = (character: Character) => void;
 type UpdateCharacterName = (character: Character, newName: string) => void;
@@ -13,8 +13,8 @@ type RemoveCharacter = (id: string) => void;
 type AddEncounter = (encounter: Encounter) => void;
 type UpdateEncounter = (encounter: Encounter) => void;
 type RemoveEncounter = (id: string) => void;
-type UpdateCharacterPositionInEncounter = (encounterId: string, characterId: string, pos: HexPosition) => void;
-type AddCharacterToEncounter = (encounterId: string, characterId: string, pos: HexPosition) => void;
+type UpdateCharacterPositionInEncounter = (encounterId: string, characterId: string, pos: HexCoord) => void;
+type AddCharacterToEncounter = (encounterId: string, characterId: string, pos: HexCoord) => void;
 type RemoveCharacterFromEncounter = (encounterId: string, characterId: string) => void;
 
 type AddModal = (modal: Modal) => void;

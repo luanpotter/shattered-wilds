@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaTrash } from 'react-icons/fa';
 
 import { useStore } from '../../store';
-import { Drawing, HexPosition } from '../../types/ui';
+import { Drawing, HexCoord } from '../../types/ui';
 import { Button } from '../shared/Button';
 import { AddCharacterDropdown } from '../shared/FilterableCharacterSelect';
 
@@ -254,7 +254,7 @@ export const EncounterConfigModal: React.FC<EncounterConfigModalProps> = ({ enco
 	);
 };
 
-const findNextEmptyPosition = (usedPositions: HexPosition[], startQ = 0, startR = 0): HexPosition => {
+const findNextEmptyPosition = (usedPositions: HexCoord[], startQ = 0, startR = 0): HexCoord => {
 	const isOccupied = (q: number, r: number) => usedPositions.some(p => p.q === q && p.r === r);
 
 	if (!isOccupied(startQ, startR)) {

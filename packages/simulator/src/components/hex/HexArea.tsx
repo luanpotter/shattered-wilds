@@ -1,7 +1,5 @@
 import { getHexNeighbors, getHexVertices, HexCoord } from '@shattered-wilds/commons';
 
-import { HexPosition } from '../../types/ui';
-
 export const HexArea = ({
 	hexes,
 	offset,
@@ -9,7 +7,7 @@ export const HexArea = ({
 	isSelected,
 	isDragging,
 }: {
-	hexes: HexPosition[];
+	hexes: HexCoord[];
 	offset: HexCoord;
 	color: string;
 	isSelected: boolean;
