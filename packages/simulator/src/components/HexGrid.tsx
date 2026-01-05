@@ -78,6 +78,7 @@ function StaticHexGridComponent({ width, height }: StaticHexGridProps) {
 		</g>
 	);
 }
+
 const StaticHexGrid = React.memo(StaticHexGridComponent);
 
 const pointToSegmentDistance = (
@@ -99,32 +100,21 @@ const pointToSegmentDistance = (
 
 interface HexHighlightLayerProps {
 	hexes: HexPosition[];
-	fillColor: string;
-	strokeColor: string;
+	color: string;
 	mapWidth: number;
 	mapHeight: number;
 }
 
 // Memoized highlight layer for movement/attack range
-function HexHighlightLayerComponent({ hexes, fillColor, strokeColor, mapWidth, mapHeight }: HexHighlightLayerProps) {
+function HexHighlightLayerComponent({ hexes, color, mapWidth, mapHeight }: HexHighlightLayerProps) {
 	return (
-		<g style={{ pointerEvents: 'none' }}>
-			{hexes
-				.filter(pos => isHexInBounds(pos, mapWidth, mapHeight))
-				.map(({ q, r }) => {
-					const { x, y } = axialToPixel(q, r);
-					return (
-						<path
-							key={`${q},${r}`}
-							d={HEX_PATH}
-							transform={`translate(${x},${y})`}
-							fill={fillColor}
-							stroke={strokeColor}
-							strokeWidth={0.5}
-						/>
-					);
-				})}
-		</g>
+		<HexArea
+			hexes={hexes.filter(pos => isHexInBounds(pos, mapWidth, mapHeight))}
+			offset={{ q: 0, r: 0 }}
+			color={color}
+			isSelected={false}
+			isDragging={false}
+		/>
 	);
 }
 const HexHighlightLayer = React.memo(HexHighlightLayerComponent);
@@ -1224,8 +1214,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 								CharacterSheet.from(hoveredCharacter.props).getStatTree().computeDerivedStat(DerivedStatType.Movement)
 									.value,
 							)}
-							fillColor='rgba(0, 255, 0, 0.2)'
-							strokeColor='rgba(0, 255, 0, 0.5)'
+							color='rgba(0, 255, 0, 0.5)'
 							mapWidth={map.size.width}
 							mapHeight={map.size.height}
 						/>
@@ -1238,8 +1227,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							getCharacterPosition(strideState.character.id)!,
 							getStrideRange(strideState.character).value ?? getStrideRange(strideState.character),
 						)}
-						fillColor='rgba(0, 255, 0, 0.2)'
-						strokeColor='rgba(0, 255, 0, 0.5)'
+						color='rgba(0, 255, 0, 0.5)'
 						mapWidth={map.size.width}
 						mapHeight={map.size.height}
 					/>
@@ -1252,8 +1240,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							getCharacterPosition(attackState.attacker.id)!,
 							getAttackRange(attackState.attacker, attackState.attackIndex).value,
 						)}
-						fillColor='rgba(255, 0, 0, 0.2)'
-						strokeColor='rgba(255, 0, 0, 0.5)'
+						color='rgba(255, 0, 0, 0.5)'
 						mapWidth={map.size.width}
 						mapHeight={map.size.height}
 					/>
@@ -1263,8 +1250,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				{measureState && getCharacterPosition(measureState.fromCharacter.id) && measureState.hoveredPosition && (
 					<HexHighlightLayer
 						hexes={findHexPath(getCharacterPosition(measureState.fromCharacter.id)!, measureState.hoveredPosition)}
-						fillColor='rgba(0, 255, 0, 0.2)'
-						strokeColor='rgba(0, 255, 0, 0.5)'
+						color='rgba(0, 255, 0, 0.5)'
 						mapWidth={map.size.width}
 						mapHeight={map.size.height}
 					/>

@@ -94,18 +94,19 @@ export const CharacterToken: React.FC<CharacterTokenProps> = ({
 			</text>
 
 			{/* Resource Bars on Bottom */}
-			<g>{resources.map((resource, idx) => resourceBar({ idx, resource }))}</g>
+			<g>
+				{resources.map((resource, idx) => (
+					<ResourceBar key={idx} idx={idx} resource={resource} />
+				))}
+			</g>
 		</g>
 	);
 };
 
-const resourceBar = ({
-	idx,
-	resource: { color, current, max },
-}: {
+const ResourceBar: React.FC<{
 	idx: number;
 	resource: { color: string; current: number; max: number };
-}) => {
+}> = ({ idx, resource: { color, current, max } }) => {
 	const height = 1.2;
 	const fullWidth = 16;
 	const x = -fullWidth / 2;

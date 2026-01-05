@@ -49,7 +49,7 @@ export const HexArea = ({
 	}
 
 	return (
-		<g>
+		<g style={{ pointerEvents: 'none' }}>
 			{/* Fill each hex */}
 			{hexes.map((hex, hexIndex) => {
 				const adjustedHex = { q: hex.q + offset.q, r: hex.r + offset.r };
