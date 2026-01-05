@@ -1,5 +1,6 @@
 import {
 	ACTIONS,
+	Action,
 	CharacterSheet,
 	DerivedStatType,
 	Distance,
@@ -36,7 +37,7 @@ import {
 
 import { CharacterToken } from './CharacterToken';
 import { HexArea } from './hex/HexArea';
-import { TokenContextMenu } from './TokenContextMenu';
+import { ActionSelectionData, TokenContextMenu } from './TokenContextMenu';
 
 // Dynamic icon loader from fa6
 const renderFaIcon = (iconName: string): React.ReactNode => {
@@ -968,6 +969,33 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		});
 	};
 
+	const handleAction = (character: Character, data: ActionSelectionData | undefined) => {
+		if (!data) {
+			console.error('Action modal not implemented yet.');
+			return;
+		}
+		console.log(`Action selected for character ${character.id}:`, data);
+		switch (data.action) {
+			case Action.Stride: {
+				handleStrideAction(character);
+				break;
+			}
+			case Action.Strike: {
+				const index = data.selectedWeaponModeIndex;
+				if (index === undefined) {
+					console.error('No weapon mode index provided for Strike action.');
+					return;
+				}
+				handleAttackAction(character, index);
+				break;
+			}
+			default: {
+				console.error('Unhandled action type:', data.action);
+				break;
+			}
+		}
+	};
+
 	// Handle mouse move for measure hover
 	const handleMouseMove = (e: React.MouseEvent) => {
 		// Handle drag
@@ -1560,9 +1588,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					position={contextMenu.position}
 					onClose={() => setContextMenu(null)}
 					onOpenCharacterSheet={handleOpenCharacterSheet}
-					onAttackAction={handleAttackAction}
-					onStrideAction={handleStrideAction}
 					onMeasureAction={handleMeasureAction}
+					onAction={handleAction}
 				/>
 			)}
 		</div>

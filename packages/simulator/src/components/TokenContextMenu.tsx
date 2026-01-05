@@ -1,10 +1,15 @@
-import { CharacterSheet } from '@shattered-wilds/commons';
+import { Action, CharacterSheet } from '@shattered-wilds/commons';
 import React, { useEffect, useState } from 'react';
-import { FaFistRaised, FaRuler, FaUser, FaWalking } from 'react-icons/fa';
+import { FaBolt, FaFistRaised, FaRuler, FaUser, FaWalking } from 'react-icons/fa';
 
 import { getBasicAttacksFor } from '../types/grid-actions';
 import { Character } from '../types/ui';
 import { semanticClick } from '../utils';
+
+export interface ActionSelectionData {
+	action: Action;
+	selectedWeaponModeIndex?: number;
+}
 
 interface TokenContextMenuProps {
 	character: Character;
@@ -12,8 +17,7 @@ interface TokenContextMenuProps {
 	onClose: () => void;
 	onOpenCharacterSheet: (character: Character) => void;
 	onMeasureAction: (character: Character) => void;
-	onStrideAction: (character: Character) => void;
-	onAttackAction: (character: Character, attackIndex: number) => void;
+	onAction: (character: Character, action: ActionSelectionData | undefined) => void;
 }
 
 export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
@@ -22,8 +26,7 @@ export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
 	onClose,
 	onOpenCharacterSheet,
 	onMeasureAction,
-	onStrideAction,
-	onAttackAction,
+	onAction,
 }) => {
 	const sheet = CharacterSheet.from(character.props);
 	const basicAttacks = getBasicAttacksFor(sheet);
@@ -79,16 +82,17 @@ export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({
 		<div className='token-context-menu' style={menuStyle} role='menu'>
 			<MenuItem icon={FaUser} title='See Character Sheet' onClick={() => onOpenCharacterSheet(character)} />
 			<MenuItem icon={FaRuler} title='Measure' onClick={() => onMeasureAction(character)} />
+			<MenuItem icon={FaBolt} title='Act' onClick={() => onAction(character, undefined)} />
 			<Separator />
 
-			<MenuItem icon={FaWalking} title='Stride' onClick={() => onStrideAction(character)} />
+			<MenuItem icon={FaWalking} title='Stride' onClick={() => onAction(character, { action: Action.Stride })} />
 
 			{basicAttacks.map((attack, index) => (
 				<MenuItem
 					key={`attack-${index}`}
 					icon={FaFistRaised}
 					title={`Attack: ${attack.name}`}
-					onClick={() => onAttackAction(character, index)}
+					onClick={() => onAction(character, { action: Action.Strike, selectedWeaponModeIndex: 0 })}
 				/>
 			))}
 		</div>
