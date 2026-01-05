@@ -5,10 +5,10 @@ import { FaChevronDown, FaClipboard, FaEye, FaPlus, FaTrash } from 'react-icons/
 import { FaCirclePlay } from 'react-icons/fa6';
 
 import { useModals } from '../../hooks/useModals';
+import { PREDEFINED_CHARACTERS } from '../../pregen/predefined-characters';
 import { useStore } from '../../store';
 import { Character, createNewCharacter } from '../../types/ui';
 import { importCharacterDataFromClipboard } from '../../utils/clipboard';
-import { PREDEFINED_CHARACTERS } from '../../utils/predefined-characters';
 import { Navigator } from '../../utils/routes';
 import { Button } from '../shared/Button';
 

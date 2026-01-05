@@ -1,9 +1,16 @@
+import { getRecordValues } from '@shattered-wilds/commons';
 import React, { useEffect, useState } from 'react';
 import { FaDownload, FaEye, FaPlus, FaTrash, FaUpload } from 'react-icons/fa';
+import { FaCirclePlay } from 'react-icons/fa6';
 
+import { PREDEFINED_ENCOUNTERS } from '../../pregen/predefined-encounters';
 import { useStore } from '../../store';
 import { createNewEncounter, Encounter } from '../../types/ui';
-import { copyEncounterToClipboard, importEncounterFromClipboard } from '../../utils/encounterShare';
+import {
+	copyEncounterToClipboard,
+	importEncounterFromClipboard,
+	parseEncounterFromShareString,
+} from '../../utils/encounterShare';
 import { Navigator } from '../../utils/routes';
 import { Button } from '../shared/Button';
 import { FilterableCharacterSelect } from '../shared/FilterableCharacterSelect';
@@ -91,7 +98,7 @@ export const EncountersPage: React.FC<EncountersPageProps> = ({ initialEncounter
 		copyEncounterToClipboard(encounter);
 	};
 
-	const handleImportEncounter = async () => {
+	const handleImport = async () => {
 		const result = await importEncounterFromClipboard();
 		if (typeof result === 'string') {
 			setError(result);
@@ -99,6 +106,13 @@ export const EncountersPage: React.FC<EncountersPageProps> = ({ initialEncounter
 		}
 		addEncounter(result);
 		handleViewEncounter(result);
+	};
+
+	const handleAddPredefined = () => {
+		getRecordValues(PREDEFINED_ENCOUNTERS).map(shareString => {
+			const encounter = parseEncounterFromShareString(shareString);
+			addEncounter(encounter);
+		});
 	};
 
 	if (selectedEncounterId) {
@@ -164,8 +178,9 @@ export const EncountersPage: React.FC<EncountersPageProps> = ({ initialEncounter
 				>
 					<h2 style={{ margin: 0 }}>Encounters</h2>
 					<div style={{ display: 'flex', gap: '1rem' }}>
-						<Button onClick={handleImportEncounter} icon={FaUpload} title='Import Encounter' />
-						<Button onClick={() => setShowCreateForm(true)} icon={FaPlus} title='New Encounter' />
+						<Button onClick={handleImport} icon={FaUpload} title='Import' />
+						<Button onClick={handleAddPredefined} icon={FaCirclePlay} title='Add Predefined' />
+						<Button onClick={() => setShowCreateForm(true)} icon={FaPlus} title='New' />
 					</div>
 				</div>
 
