@@ -8,13 +8,13 @@ export interface DiceRoll {
 	characterName: string; // name of the character to roll for (display purposes only)
 	check: Check; // the check to roll
 	extra: // whether to add the extra die, and if so, the parameters
-	| {
+		| {
 				name: string; // name of the extra attribute (e.g. "STR", "DEX")
 				value: number; // the value of the attribute to check if the extra die is valid
 		  }
 		| undefined;
 	luck: // whether to add the luck die, and if so, the parameters
-	| {
+		| {
 				value: number; // the value of the attribute to check if the luck die is valid
 		  }
 		| undefined;
