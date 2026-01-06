@@ -33,7 +33,7 @@ import {
 } from './modals';
 import { CharacterListModal } from './modals/CharacterListModal';
 import { ErrorModal } from './modals/ErrorModal';
-import { OmniSearchModal } from './modals/OmniSearchModal';
+import { OmniBoxModal } from './modals/OmniBoxModal';
 import { Button } from './shared/Button';
 
 interface ModalRendererProps {
@@ -262,8 +262,8 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 			case 'icon-selection': {
 				return <IconSelectionModal currentIcon={modal.currentIcon} onSelect={modal.onSelect} onClose={onClose} />;
 			}
-			case 'omni-search': {
-				return <OmniSearchModal context={modal.context} onClose={onClose} />;
+			case 'omni-box': {
+				return <OmniBoxModal context={modal.context} onClose={onClose} />;
 			}
 		}
 	};

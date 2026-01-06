@@ -1,4 +1,4 @@
-export interface OmniSearchContext {
+export interface OmniBoxContext {
 	// TODO: define context properties
 	query?: string;
 }

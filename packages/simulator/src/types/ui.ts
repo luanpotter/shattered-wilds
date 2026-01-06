@@ -10,7 +10,7 @@ import {
 	HexVertex,
 } from '@shattered-wilds/commons';
 
-import { OmniSearchContext } from '../components/omni/OmniSearchContext';
+import { OmniBoxContext } from '../components/omni/OmniBoxContext';
 
 export type { Point, HexCoord, HexVertex };
 
@@ -210,8 +210,8 @@ export type Modal = BaseModal &
 				onSelect: (icon: string) => void;
 		  }
 		| {
-				type: 'omni-search';
-				context: OmniSearchContext | undefined;
+				type: 'omni-box';
+				context: OmniBoxContext | undefined;
 		  }
 	);
 

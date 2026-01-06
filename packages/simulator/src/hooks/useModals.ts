@@ -1,6 +1,6 @@
 import { Check, FeatDefinition, FeatSlot, Condition, Consequence, ResourceCost } from '@shattered-wilds/commons';
 
-import { OmniSearchContext } from '../components/omni/OmniSearchContext';
+import { OmniBoxContext } from '../components/omni/OmniBoxContext';
 import { useStore } from '../store';
 import { HexCoord, Modal, ModalPositionType } from '../types/ui';
 import { Mouse } from '../utils/mouse';
@@ -456,9 +456,9 @@ export const useModals = () => {
 		});
 	};
 
-	const openOmniSearchModal = ({ context }: { context: OmniSearchContext | undefined }) => {
+	const openOmniBoxModal = ({ context }: { context: OmniBoxContext | undefined }) => {
 		// Check if modal is already open
-		const existingModal = modals.find(modal => modal.type === 'omni-search');
+		const existingModal = modals.find(modal => modal.type === 'omni-box');
 		if (existingModal) {
 			removeModal(existingModal.id);
 			return;
@@ -466,8 +466,8 @@ export const useModals = () => {
 
 		addModal({
 			positionType: ModalPositionType.ScreenCenter,
-			title: 'Omni Search',
-			type: 'omni-search',
+			title: 'Omni Box',
+			type: 'omni-box',
 			context,
 			widthPixels: 600,
 			heightPixels: 200,
@@ -498,7 +498,7 @@ export const useModals = () => {
 		openTurnTrackerModal,
 		openColorPickerModal,
 		openIconSelectionModal,
-		openOmniSearchModal,
+		openOmniBoxModal,
 		closeModal,
 		closeAllModals,
 		updateModal,
