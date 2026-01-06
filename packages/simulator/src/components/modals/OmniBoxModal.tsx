@@ -1,6 +1,8 @@
 import React from 'react';
 
+import { semanticClick } from '../../utils';
 import { OmniBoxContext } from '../omni/OmniBoxContext';
+import { OmniBoxOption } from '../omni/OmniBoxOption';
 import { Button } from '../shared/Button';
 
 interface OmniBoxModalProps {
@@ -10,6 +12,11 @@ interface OmniBoxModalProps {
 
 export const OmniBoxModal: React.FC<OmniBoxModalProps> = ({ context, onClose }) => {
 	const [query, setQuery] = React.useState('');
+	const options: OmniBoxOption[] = [
+		{ label: 'Close', action: onClose },
+		{ label: 'No-op', action: () => console.log('No-op') },
+		// TODO: more options
+	];
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', gap: '8px', height: '100%', width: '100%' }}>
 			{context && <Context context={context} />}
@@ -21,8 +28,33 @@ export const OmniBoxModal: React.FC<OmniBoxModalProps> = ({ context, onClose }) 
 				onBlur={onClose}
 				value={query}
 				onChange={e => setQuery(e.target.value)}
+				// on enter, select the first option
+				onKeyDown={e => {
+					if (e.key === 'Enter') {
+						const firstOption = options.find(option => matches(option, query));
+						if (firstOption) {
+							firstOption.action();
+						}
+					}
+				}}
 			/>
-			<div style={{ flexGrow: 1, overflowY: 'auto' }}>RESULTS for query: {query}</div>
+			<div style={{ flexGrow: 1, overflowY: 'auto' }}>
+				{options
+					.filter(option => matches(option, query))
+					.map((option, index) => (
+						<div
+							key={index}
+							style={{
+								padding: '8px',
+								borderBottom: '1px solid #eee',
+								cursor: 'pointer',
+							}}
+							{...semanticClick('button', option.action)}
+						>
+							{option.label}
+						</div>
+					))}
+			</div>
 			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: 'auto' }}>
 				<Button variant='inline' onClick={onClose} title='Cancel' />
 			</div>
@@ -36,4 +68,8 @@ const Context: React.FC<{ context: OmniBoxContext }> = ({ context }) => {
 			<strong>Context:</strong> {JSON.stringify(context)}
 		</div>
 	);
+};
+
+const matches = (option: OmniBoxOption, query: string): boolean => {
+	return option.label.toLowerCase().includes(query.toLowerCase());
 };
