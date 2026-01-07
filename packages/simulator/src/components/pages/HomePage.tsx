@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaArrowAltCircleLeft, FaMap, FaUsers } from 'react-icons/fa';
 
-import { Navigator } from '../../utils/routes';
+import { Navigator, Route } from '../../utils/routes';
 
 export const HomePage: React.FC = () => {
 	return (
@@ -25,13 +25,13 @@ export const HomePage: React.FC = () => {
 					icon={FaUsers}
 					title='Characters'
 					description='Manage character sheets'
-					onClick={Navigator.toCharacterSheets}
+					onClick={() => Navigator.to(Route.Characters)}
 				/>
 				<MenuCard
 					icon={FaMap}
 					title='Encounters'
 					description='Simulate combat encounters'
-					onClick={Navigator.toEncounters}
+					onClick={() => Navigator.to(Route.Encounters)}
 				/>
 				<MenuCard
 					icon={FaArrowAltCircleLeft}

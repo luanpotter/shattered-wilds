@@ -22,7 +22,7 @@ import { useModals } from '../../hooks/useModals';
 import { useUIStateFactory } from '../../hooks/useUIState';
 import { useStore } from '../../store';
 import { copyCharacterDataToClipboard } from '../../utils/clipboard';
-import { Navigator } from '../../utils/routes';
+import { Navigator, Route } from '../../utils/routes';
 import { DerivedStatsRowComponent } from '../DerivedStatsRowComponent';
 import { ResourcesRowComponent } from '../ResourcesRowComponent';
 import { ActionsSectionComponent } from '../sections/ActionsSectionComponent';
@@ -155,7 +155,11 @@ const FullPageCharacterSheetContent: React.FC<FullPageCharacterSheetProps> = ({ 
 					<h2 style={{ margin: 0, fontSize: '1.5rem' }}>{character.props.name}&apos;s Character Sheet</h2>
 				</div>
 				<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-					<Button onClick={() => Navigator.toPrintView(character.id)} icon={FaPrint} title='Print Version' />
+					<Button
+						onClick={() => Navigator.to(Route.PrintSheet, { characterId: character.id })}
+						icon={FaPrint}
+						title='Print Version'
+					/>
 					<Button onClick={() => copyCharacterDataToClipboard(character)} icon={FaCopy} title='Export' />
 				</div>
 			</div>

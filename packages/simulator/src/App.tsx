@@ -13,15 +13,29 @@ import { Button } from './components/shared/Button';
 import { useModals } from './hooks/useModals';
 import { useStore } from './store';
 import { DragState } from './types/ui';
-import { Navigator, type ViewType } from './utils/routes';
+import { Navigator, Route, type RouteState } from './utils/routes';
+
+const getCharacterId = (route: RouteState): string | null => {
+	if (route.route === Route.Character || route.route === Route.PrintSheet) {
+		return route.characterId;
+	}
+	return null;
+};
+
+const getEncounterId = (route: RouteState): string | null => {
+	if (route.route === Route.Encounter) {
+		return route.encounterId;
+	}
+	return null;
+};
 
 const App = (): React.ReactElement => {
-	const [currentView, setCurrentView] = useState<ViewType>(() => Navigator.parseRoute().view);
-	const [initialCharacterId, setInitialCharacterId] = useState<string | null>(
-		() => Navigator.parseRoute().characterId || null,
+	const [currentRoute, setCurrentRoute] = useState<RouteState>(() => Navigator.parseRoute());
+	const [initialCharacterId, setInitialCharacterId] = useState<string | null>(() =>
+		getCharacterId(Navigator.parseRoute()),
 	);
-	const [initialEncounterId, setInitialEncounterId] = useState<string | null>(
-		() => Navigator.parseRoute().encounterId || null,
+	const [initialEncounterId, setInitialEncounterId] = useState<string | null>(() =>
+		getEncounterId(Navigator.parseRoute()),
 	);
 	const [dragState, setDragState] = useState<DragState>({ type: 'none' });
 
@@ -36,9 +50,9 @@ const App = (): React.ReactElement => {
 	useEffect(() => {
 		const handleHashChange = () => {
 			const route = Navigator.parseRoute();
-			setCurrentView(route.view);
-			setInitialCharacterId(route.characterId || null);
-			setInitialEncounterId(route.encounterId || null);
+			setCurrentRoute(route);
+			setInitialCharacterId(getCharacterId(route));
+			setInitialEncounterId(getEncounterId(route));
 		};
 
 		window.addEventListener('hashchange', handleHashChange);
@@ -113,13 +127,13 @@ const App = (): React.ReactElement => {
 		}
 	};
 
-	const hasHeaderAndFooter = (view: ViewType): boolean => {
-		return !['onboarding', 'print-sheet', 'encounter'].includes(view);
+	const hasHeaderAndFooter = (route: Route): boolean => {
+		return ![Route.Onboarding, Route.PrintSheet, Route.Encounter].includes(route);
 	};
 
-	if (currentView === 'print-sheet') {
+	if (currentRoute.route === Route.PrintSheet) {
 		return <PrintFriendlyCharacterSheetPage characterId={initialCharacterId!} />;
-	} else if (currentView === 'print-actions') {
+	} else if (currentRoute.route === Route.PrintActions) {
 		return <PrintFriendlyActions />;
 	}
 
@@ -136,7 +150,7 @@ const App = (): React.ReactElement => {
 			onMouseDown={handleMouseDown}
 			onMouseLeave={() => setDragState({ type: 'none' })}
 		>
-			{hasHeaderAndFooter(currentView) && (
+			{hasHeaderAndFooter(currentRoute.route) && (
 				<header
 					style={{
 						padding: '1rem',
@@ -162,7 +176,7 @@ const App = (): React.ReactElement => {
 									title={editMode ? 'To Play Mode' : 'To Edit Mode'}
 								/>
 								<Button onClick={closeAllModals} icon={FaTimes} title='Close All' />
-								<Button onClick={Navigator.toHome} icon={FaHome} title='Home' />
+								<Button onClick={() => Navigator.to(Route.Home)} icon={FaHome} title='Home' />
 								<Button onClick={Navigator.toSite} icon={FaArrowAltCircleLeft} title='Site' />
 							</div>
 						</div>
@@ -178,30 +192,38 @@ const App = (): React.ReactElement => {
 			>
 				<div
 					style={{
-						width: currentView === 'onboarding' || currentView === 'encounter' ? '100%' : '100vw',
+						width: currentRoute.route === Route.Onboarding || currentRoute.route === Route.Encounter ? '100%' : '100vw',
 						height: '100%',
-						position: currentView === 'onboarding' || currentView === 'encounter' ? 'relative' : 'absolute',
-						left: currentView === 'onboarding' || currentView === 'encounter' ? 'auto' : '50%',
-						transform: currentView === 'onboarding' || currentView === 'encounter' ? 'none' : 'translateX(-50%)',
-						padding: currentView === 'onboarding' || currentView === 'encounter' ? '0' : '0 16px',
+						position:
+							currentRoute.route === Route.Onboarding || currentRoute.route === Route.Encounter
+								? 'relative'
+								: 'absolute',
+						left: currentRoute.route === Route.Onboarding || currentRoute.route === Route.Encounter ? 'auto' : '50%',
+						transform:
+							currentRoute.route === Route.Onboarding || currentRoute.route === Route.Encounter
+								? 'none'
+								: 'translateX(-50%)',
+						padding: currentRoute.route === Route.Onboarding || currentRoute.route === Route.Encounter ? '0' : '0 16px',
 						boxSizing: 'border-box',
 					}}
 				>
-					{currentView === '404' && <NotFoundPage />}
-					{currentView === 'home' && <HomePage />}
-					{currentView === 'encounters' && <EncountersPage initialEncounterId={null} />}
-					{currentView === 'encounter' && <EncountersPage initialEncounterId={initialEncounterId} />}
-					{currentView === 'character-sheets' && (
+					{currentRoute.route === Route.NotFound && <NotFoundPage />}
+					{currentRoute.route === Route.Home && <HomePage />}
+					{currentRoute.route === Route.Encounters && <EncountersPage initialEncounterId={null} />}
+					{currentRoute.route === Route.Encounter && <EncountersPage initialEncounterId={initialEncounterId} />}
+					{(currentRoute.route === Route.Characters || currentRoute.route === Route.Character) && (
 						<CharacterSheetsPage
-							onNavigateToCharacterSheet={Navigator.toCharacterSheet}
-							onNavigateToOnboarding={Navigator.toOnboarding}
+							onNavigateToCharacterSheet={id => Navigator.to(Route.Character, { characterId: id })}
+							onNavigateToOnboarding={() => Navigator.to(Route.Onboarding)}
 							initialCharacterId={initialCharacterId}
 						/>
 					)}
-					{currentView === 'onboarding' && <OnboardingPage onNavigateToCharacterSheets={Navigator.toCharacterSheets} />}
+					{currentRoute.route === Route.Onboarding && (
+						<OnboardingPage onNavigateToCharacterSheets={() => Navigator.to(Route.Characters)} />
+					)}
 				</div>
 			</main>
-			{hasHeaderAndFooter(currentView) && (
+			{hasHeaderAndFooter(currentRoute.route) && (
 				<footer
 					style={{
 						borderTop: '1px solid var(--text)',

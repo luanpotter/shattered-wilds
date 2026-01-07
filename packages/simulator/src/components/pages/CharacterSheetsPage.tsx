@@ -9,7 +9,7 @@ import { PREDEFINED_CHARACTERS } from '../../pregen/predefined-characters';
 import { useStore } from '../../store';
 import { Character, createNewCharacter } from '../../types/ui';
 import { importCharacterDataFromClipboard } from '../../utils/clipboard';
-import { Navigator } from '../../utils/routes';
+import { Navigator, Route } from '../../utils/routes';
 import { Button } from '../shared/Button';
 
 import { FullPageCharacterSheet } from './FullPageCharacterSheet';
@@ -66,7 +66,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 	};
 
 	const handleBackToList = () => {
-		Navigator.toCharacterSheets();
+		Navigator.to(Route.Characters);
 		setSelectedCharacterId(null);
 	};
 

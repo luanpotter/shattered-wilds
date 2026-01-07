@@ -6,7 +6,7 @@ import { useStore } from '../store';
 import { getBasicAttacksFor } from '../types/grid-actions';
 import { Modal as ModalType } from '../types/ui';
 import { copyCharacterDataToClipboard } from '../utils/clipboard';
-import { Navigator } from '../utils/routes';
+import { Navigator, Route } from '../utils/routes';
 
 import { CharacterSheetModal } from './CharacterSheet';
 import {
@@ -55,14 +55,14 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 		// Close the character list modal
 		removeModal(modal.id);
 		// Navigate to the full character sheets page
-		Navigator.toCharacterSheets();
+		Navigator.to(Route.Characters);
 	};
 
 	const handleExpandCharacterSheet = (characterId: string) => {
 		// Close the character sheet modal
 		removeModal(modal.id);
 		// Navigate to the specific character sheet page
-		Navigator.toCharacterSheet(characterId);
+		Navigator.to(Route.Character, { characterId });
 	};
 
 	const generateTitleBarButtons = () => {

@@ -11,7 +11,7 @@ import {
 	importEncounterFromClipboard,
 	parseEncounterFromShareString,
 } from '../../utils/encounterShare';
-import { Navigator } from '../../utils/routes';
+import { Navigator, Route } from '../../utils/routes';
 import { Button } from '../shared/Button';
 import { FilterableCharacterSelect } from '../shared/FilterableCharacterSelect';
 
@@ -41,12 +41,12 @@ export const EncountersPage: React.FC<EncountersPageProps> = ({ initialEncounter
 	}, [initialEncounterId]);
 
 	const handleViewEncounter = (encounter: Encounter) => {
-		Navigator.toEncounter(encounter.id);
+		Navigator.to(Route.Encounter, { encounterId: encounter.id });
 		setSelectedEncounterId(encounter.id);
 	};
 
 	const handleBackToList = () => {
-		Navigator.toEncounters();
+		Navigator.to(Route.Encounters);
 		setSelectedEncounterId(null);
 	};
 
