@@ -1,6 +1,8 @@
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { isSimpleRouteDefinition, Navigator, ROUTES } from '../../utils/routes';
+import { useStore } from '../../store';
+import { Character, Encounter } from '../../types/ui';
+import { isSimpleRouteDefinition, Navigator, Route, ROUTES } from '../../utils/routes';
 import { OmniBoxContext } from '../omni/OmniBoxContext';
 import { OmniBoxOption, OmniBoxOptionType } from '../omni/OmniBoxOption';
 
@@ -17,13 +19,15 @@ export const OmniBoxModal: React.FC<OmniBoxModalProps> = ({ context, onClose }) 
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const selectedRef = useRef<HTMLDivElement>(null);
 
+	const characters = useStore(state => state.characters);
+	const encounters = useStore(state => state.encounters);
 	const allOptions: OmniBoxOption[] = useMemo(
 		() => [
 			{ type: OmniBoxOptionType.Misc, label: 'Close', action: () => {} },
-			...buildNavigationOptions(),
+			...buildNavigationOptions({ characters, encounters }),
 			// TODO: add more options
 		],
-		[],
+		[characters, encounters],
 	);
 
 	const filteredOptions = useMemo(() => {
@@ -180,6 +184,7 @@ const TypeBadge: React.FC<{ type: OmniBoxOptionType; inverted: boolean }> = ({ t
 				background: inverted ? 'var(--background)' : 'var(--text)',
 				color: inverted ? 'var(--text)' : 'var(--background)',
 				opacity: 0.7,
+				fontFamily: 'monospace',
 			}}
 		>
 			{labels[type]}
@@ -208,7 +213,32 @@ const ContextBadge: React.FC<{ context: OmniBoxContext }> = ({ context }) => (
 	</div>
 );
 
-const buildNavigationOptions = (): OmniBoxOption[] =>
+const buildNavigationOptions = ({
+	characters,
+	encounters,
+}: {
+	characters: Character[];
+	encounters: Encounter[];
+}): OmniBoxOption[] => [
+	...buildSimpleNavigationOptions(),
+	...characters.map(buildCharacterNavigationOption),
+	...encounters.map(buildEncounterNavigationOption),
+	{ type: OmniBoxOptionType.Navigation, label: 'Back to Site', action: Navigator.toSite },
+];
+
+const buildEncounterNavigationOption = (encounter: Encounter): OmniBoxOption => ({
+	type: OmniBoxOptionType.Navigation,
+	label: `Encounter: ${encounter.name}`,
+	action: () => Navigator.to(Route.Encounter, { encounterId: encounter.id }),
+});
+
+const buildCharacterNavigationOption = (character: Character): OmniBoxOption => ({
+	type: OmniBoxOptionType.Navigation,
+	label: `Character: ${character.props.name}`,
+	action: () => Navigator.to(Route.Character, { characterId: character.id }),
+});
+
+const buildSimpleNavigationOptions = (): OmniBoxOption[] =>
 	Object.values(ROUTES)
 		.filter(isSimpleRouteDefinition)
 		.map(def => ({
