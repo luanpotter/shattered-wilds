@@ -469,8 +469,7 @@ export const useModals = () => {
 			title: 'Omni Box',
 			type: 'omni-box',
 			context,
-			widthPixels: 600,
-			heightPixels: 200,
+			widthPixels: 400,
 		});
 	};
 
