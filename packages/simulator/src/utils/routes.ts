@@ -10,12 +10,6 @@ export enum Route {
 	Onboarding = 'onboarding',
 }
 
-export interface RouteDefinition<R extends Route, Path extends string> {
-	route: R;
-	label: string;
-	path: Path;
-}
-
 export const ROUTES = {
 	[Route.NotFound]: {
 		route: Route.NotFound,
@@ -86,6 +80,12 @@ type ParamsObject<Path extends string> =
 // Type helper to extract params for a route
 type RouteParamsFor<R extends Route> = ParamsObject<(typeof ROUTES)[R]['path']>;
 
+// Type representing any route definition from ROUTES
+type AnyRouteDefinition = (typeof ROUTES)[Route];
+
+// Type representing route definitions without parameters
+type SimpleRouteDefinition = (typeof ROUTES)[RoutesWithoutParams];
+
 // Parsed route state - discriminating union based on route
 export type RouteState =
 	| { route: Route.Home }
@@ -134,6 +134,19 @@ type RoutesWithParams = {
 	[R in Route]: RouteParamsFor<R> extends void ? never : R;
 }[Route];
 type RoutesWithoutParams = Exclude<Route, RoutesWithParams>;
+
+/** Type guard: check if a route requires no parameters */
+function isSimpleRoute(route: Route): route is RoutesWithoutParams {
+	if (route === Route.NotFound) {
+		return false;
+	}
+	return !ROUTES[route].path.includes(':');
+}
+
+/** Type guard for filtering route definitions */
+export function isSimpleRouteDefinition(def: AnyRouteDefinition): def is SimpleRouteDefinition {
+	return isSimpleRoute(def.route);
+}
 
 // Build path from pattern and params
 function buildPath(pattern: string, params?: Record<string, string>): string {
