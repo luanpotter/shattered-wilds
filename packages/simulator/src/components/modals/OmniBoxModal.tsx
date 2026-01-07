@@ -1,3 +1,4 @@
+import { getEnumKeys } from '@shattered-wilds/commons';
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useModals } from '../../hooks/useModals';
@@ -11,7 +12,7 @@ const ROW_HEIGHT = 24;
 const VISIBLE_ROWS = 8;
 
 interface OmniBoxModalProps {
-	context: OmniBoxContext | undefined;
+	context: OmniBoxContext;
 	onClose: () => void;
 }
 
@@ -24,19 +25,23 @@ export const OmniBoxModal: React.FC<OmniBoxModalProps> = ({ context, onClose }) 
 	const encounters = useStore(state => state.encounters);
 	const { closeAllModals } = useModals();
 
+	const [currentContext, updateContext] = useState<OmniBoxContext>(context);
+
 	const allOptions: OmniBoxOption[] = useMemo(
 		() => [
 			...buildMiscOptions({ closeAllModals }),
 			...buildNavigationOptions({ characters, encounters }),
-			// TODO: add more options
+			...buildContextOptions({ characters, encounters, updateContext }),
 		],
 		[characters, closeAllModals, encounters],
 	);
 
 	const filteredOptions = useMemo(() => {
 		const q = query.toLowerCase();
-		return allOptions.filter(opt => opt.label.toLowerCase().includes(q));
-	}, [allOptions, query]);
+		return allOptions
+			.filter(option => !currentContext.type || option.type === currentContext.type)
+			.filter(option => option.label.toLowerCase().includes(q));
+	}, [allOptions, currentContext.type, query]);
 
 	useEffect(() => setSelectedIndex(0), [filteredOptions.length]);
 	useEffect(() => selectedRef.current?.scrollIntoView({ block: 'nearest' }), [selectedIndex]);
@@ -44,7 +49,12 @@ export const OmniBoxModal: React.FC<OmniBoxModalProps> = ({ context, onClose }) 
 	const act = useCallback(
 		(option: OmniBoxOption) => {
 			option.action();
-			onClose();
+			if (option.type === OmniBoxOptionType.Context) {
+				// context-related options should not close the omni-box
+				setQuery('');
+			} else {
+				onClose();
+			}
 		},
 		[onClose],
 	);
@@ -93,7 +103,7 @@ export const OmniBoxModal: React.FC<OmniBoxModalProps> = ({ context, onClose }) 
 
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column' }}>
-			{context && <ContextBadge context={context} />}
+			<ContextBadge context={currentContext} />
 			<input
 				ref={input => input?.focus()}
 				type='text'
@@ -175,6 +185,7 @@ const OptionRow = forwardRef<
 
 const TypeBadge: React.FC<{ type: OmniBoxOptionType; inverted: boolean }> = ({ type, inverted }) => {
 	const labels: Record<OmniBoxOptionType, string> = {
+		[OmniBoxOptionType.Context]: 'ctx',
 		[OmniBoxOptionType.Navigation]: 'nav',
 		[OmniBoxOptionType.Misc]: '...',
 	};
@@ -210,11 +221,51 @@ const NoMatches = () => (
 	</div>
 );
 
-const ContextBadge: React.FC<{ context: OmniBoxContext }> = ({ context }) => (
-	<div style={{ padding: '4px 8px', fontSize: '11px', opacity: 0.6, borderBottom: '1px solid var(--text)' }}>
-		{JSON.stringify(context)}
-	</div>
-);
+const ContextBadge: React.FC<{ context: OmniBoxContext }> = ({ context }) => {
+	const characters = useStore(state => state.characters);
+	const character = context.characterId ? characters.find(c => c.id === context.characterId) : null;
+
+	const encounters = useStore(state => state.encounters);
+	const encounter = context.encounterId ? encounters.find(e => e.id === context.encounterId) : null;
+
+	const pills: { label: string; value: string }[] = [
+		context.type && { label: 'do', value: context.type },
+		encounter && { label: 'in', value: encounter.name },
+		character && { label: 'by', value: character.props.name },
+	].filter(Boolean) as { label: string; value: string }[];
+
+	if (pills.length === 0) return null;
+
+	return (
+		<div
+			style={{
+				padding: '4px 8px',
+				fontSize: '11px',
+				borderBottom: '1px solid var(--text)',
+				display: 'flex',
+				gap: '6px',
+				flexWrap: 'wrap',
+			}}
+		>
+			{pills.map(pill => (
+				<span
+					key={pill.label}
+					style={{
+						display: 'inline-flex',
+						alignItems: 'center',
+						gap: '4px',
+						border: '1px solid var(--accent)',
+						color: 'var(--text)',
+						padding: '1px 8px 1px 6px',
+					}}
+				>
+					<span style={{ opacity: 0.6, fontFamily: 'monospace' }}>{pill.label}:</span>
+					<span style={{ fontWeight: 500 }}>{pill.value}</span>
+				</span>
+			))}
+		</div>
+	);
+};
 
 const buildNavigationOptions = ({
 	characters,
@@ -254,3 +305,56 @@ const buildMiscOptions = ({ closeAllModals }: { closeAllModals: () => void }): O
 	{ type: OmniBoxOptionType.Misc, label: 'Close All', action: closeAllModals },
 	{ type: OmniBoxOptionType.Misc, label: 'Close', action: () => {} }, // just closes the omni-box
 ];
+
+const buildContextOptions = ({
+	characters,
+	encounters,
+	updateContext,
+}: {
+	characters: Character[];
+	encounters: Encounter[];
+	updateContext: React.Dispatch<React.SetStateAction<OmniBoxContext>>;
+}): OmniBoxOption[] => {
+	return [
+		{ type: OmniBoxOptionType.Context, label: 'Clear Context', action: () => updateContext({}) },
+		...characters.map(character => buildCharacterContextOption({ character, updateContext })),
+		...encounters.map(encounter => buildEncounterContextOption({ encounter, updateContext })),
+		...getEnumKeys(OmniBoxOptionType).map(type => buildTypeContextOption({ type, updateContext })),
+	];
+};
+
+const buildCharacterContextOption = ({
+	character,
+	updateContext,
+}: {
+	character: Character;
+	updateContext: React.Dispatch<React.SetStateAction<OmniBoxContext>>;
+}): OmniBoxOption => ({
+	type: OmniBoxOptionType.Context,
+	label: `Context: by ${character.props.name}`,
+	action: () => updateContext(prev => ({ ...prev, characterId: character.id })),
+});
+
+const buildEncounterContextOption = ({
+	encounter,
+	updateContext,
+}: {
+	encounter: Encounter;
+	updateContext: React.Dispatch<React.SetStateAction<OmniBoxContext>>;
+}): OmniBoxOption => ({
+	type: OmniBoxOptionType.Context,
+	label: `Context: in ${encounter.name}`,
+	action: () => updateContext(prev => ({ ...prev, encounterId: encounter.id })),
+});
+
+const buildTypeContextOption = ({
+	type,
+	updateContext,
+}: {
+	type: OmniBoxOptionType;
+	updateContext: React.Dispatch<React.SetStateAction<OmniBoxContext>>;
+}): OmniBoxOption => ({
+	type: OmniBoxOptionType.Context,
+	label: `Context: do ${OmniBoxOptionType[type]}`,
+	action: () => updateContext(prev => ({ ...prev, type })),
+});

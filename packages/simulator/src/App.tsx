@@ -64,13 +64,16 @@ const App = (): React.ReactElement => {
 			const isControl = e.ctrlKey || e.metaKey;
 			if (isControl && e.key.toLowerCase() === 'o') {
 				e.preventDefault();
-				openOmniBoxModal({ context: undefined });
+				const encounterId = getEncounterId(currentRoute);
+				const characterId = getCharacterId(currentRoute);
+				const context = { encounterId, characterId };
+				openOmniBoxModal({ context });
 			}
 		};
 
 		window.addEventListener('keydown', omniSearchHandler);
 		return () => window.removeEventListener('keydown', omniSearchHandler);
-	}, [openOmniBoxModal]);
+	}, [currentRoute, openOmniBoxModal]);
 
 	useEffect(() => {
 		const handleMouseMove = (e: MouseEvent) => {

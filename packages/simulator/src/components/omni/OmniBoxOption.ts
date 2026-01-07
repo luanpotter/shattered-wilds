@@ -5,6 +5,7 @@ export interface OmniBoxOption {
 }
 
 export enum OmniBoxOptionType {
-	Navigation,
-	Misc,
+	Context = 'Context',
+	Navigation = 'Navigation',
+	Misc = 'Misc',
 }

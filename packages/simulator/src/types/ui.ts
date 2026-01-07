@@ -211,7 +211,7 @@ export type Modal = BaseModal &
 		  }
 		| {
 				type: 'omni-box';
-				context: OmniBoxContext | undefined;
+				context: OmniBoxContext;
 		  }
 	);
 

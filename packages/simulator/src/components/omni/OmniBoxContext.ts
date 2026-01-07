@@ -1,4 +1,7 @@
+import { OmniBoxOptionType } from './OmniBoxOption';
+
 export interface OmniBoxContext {
-	// TODO: define context properties
-	query?: string;
+	type?: OmniBoxOptionType | null;
+	encounterId?: string | null;
+	characterId?: string | null;
 }

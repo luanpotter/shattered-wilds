@@ -456,7 +456,7 @@ export const useModals = () => {
 		});
 	};
 
-	const openOmniBoxModal = ({ context }: { context: OmniBoxContext | undefined }) => {
+	const openOmniBoxModal = ({ context }: { context: OmniBoxContext }) => {
 		// Check if modal is already open
 		const existingModal = modals.find(modal => modal.type === 'omni-box');
 		if (existingModal) {
