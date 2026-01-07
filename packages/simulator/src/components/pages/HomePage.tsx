@@ -14,6 +14,7 @@ export const HomePage: React.FC = () => {
 				height: '100%',
 			}}
 		>
+			<em style={{ textEmphasis: 'italics' }}>--[Press Ctrl+O for OmniBox]--</em>
 			<div
 				style={{
 					display: 'flex',
