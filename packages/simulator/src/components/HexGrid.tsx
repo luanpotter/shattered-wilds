@@ -38,7 +38,7 @@ import {
 } from '../types/ui';
 
 import { CharacterToken } from './CharacterToken';
-import { GridActionSelectionData, GridActionTool } from './hex/GridActions';
+import { gridActionRegistry, GridActionSelectionData, GridActionTool } from './hex/GridActions';
 import { HexArea } from './hex/HexArea';
 import { TokenContextMenu } from './TokenContextMenu';
 
@@ -1025,6 +1025,12 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			data,
 		});
 	};
+
+	// Register an action handler for OmniBox
+	useEffect(() => {
+		gridActionRegistry.register((character, data) => handleAction(character, data));
+		return () => gridActionRegistry.unregister();
+	});
 
 	// Handle mouse move for measure hover
 	const handleMouseMove = (e: React.MouseEvent) => {

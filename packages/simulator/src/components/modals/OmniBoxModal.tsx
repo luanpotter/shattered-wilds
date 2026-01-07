@@ -1,10 +1,11 @@
-import { getEnumKeys } from '@shattered-wilds/commons';
+import { Action, getEnumKeys } from '@shattered-wilds/commons';
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
 import { Character, Encounter } from '../../types/ui';
 import { isSimpleRouteDefinition, Navigator, Route, ROUTES } from '../../utils/routes';
+import { gridActionRegistry } from '../hex/GridActions';
 import { OmniBoxContext } from '../omni/OmniBoxContext';
 import { OmniBoxOption, OmniBoxOptionType } from '../omni/OmniBoxOption';
 
@@ -32,8 +33,9 @@ export const OmniBoxModal: React.FC<OmniBoxModalProps> = ({ context, onClose }) 
 			...buildMiscOptions({ closeAllModals }),
 			...buildNavigationOptions({ characters, encounters }),
 			...buildContextOptions({ characters, encounters, updateContext }),
+			...buildActOptions({ context: currentContext, characters }),
 		],
-		[characters, closeAllModals, encounters],
+		[characters, closeAllModals, currentContext, encounters],
 	);
 
 	const filteredOptions = useMemo(() => {
@@ -187,6 +189,7 @@ const TypeBadge: React.FC<{ type: OmniBoxOptionType; inverted: boolean }> = ({ t
 	const labels: Record<OmniBoxOptionType, string> = {
 		[OmniBoxOptionType.Context]: 'ctx',
 		[OmniBoxOptionType.Navigation]: 'nav',
+		[OmniBoxOptionType.Act]: 'act',
 		[OmniBoxOptionType.Misc]: '...',
 	};
 	return (
@@ -358,3 +361,26 @@ const buildTypeContextOption = ({
 	label: `Context: do ${OmniBoxOptionType[type]}`,
 	action: () => updateContext(prev => ({ ...prev, type })),
 });
+
+const buildActOptions = ({
+	context,
+	characters,
+}: {
+	context: OmniBoxContext;
+	characters: Character[];
+}): OmniBoxOption[] => {
+	if (!gridActionRegistry.isRegistered() || !context.characterId) {
+		return [];
+	}
+	const character = characters.find(c => c.id === context.characterId);
+	if (!character) {
+		return [];
+	}
+	return [
+		{
+			type: OmniBoxOptionType.Act,
+			label: 'Act: Stride',
+			action: () => gridActionRegistry.triggerAction(character, { action: Action.Stride }),
+		},
+	];
+};
