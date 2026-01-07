@@ -40,6 +40,7 @@ import {
 import { CharacterToken } from './CharacterToken';
 import { gridActionRegistry, GridActionSelectionData, GridActionTool } from './hex/GridActions';
 import { HexArea } from './hex/HexArea';
+import { OmniBoxOptionType } from './omni/OmniBoxOption';
 import { TokenContextMenu } from './TokenContextMenu';
 
 // Dynamic icon loader from fa6
@@ -231,6 +232,7 @@ const calculateViewBox = (width: number, height: number): string => {
 };
 
 interface BattleGridProps {
+	encounterId: string;
 	encounterCharacters: Character[];
 	getCharacterPosition: (characterId: string) => HexCoord | undefined;
 	updateCharacterPosition: (characterId: string, pos: HexCoord) => void;
@@ -244,6 +246,7 @@ interface BattleGridProps {
 }
 
 export const BattleGrid: React.FC<BattleGridProps> = ({
+	encounterId,
 	encounterCharacters,
 	getCharacterPosition,
 	updateCharacterPosition,
@@ -263,7 +266,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	const gridState = useStore(state => state.gridState);
 	const updateGridState = useStore(state => state.updateGridState);
 	// const modals = useStore(state => state.modals);
-	const { openCharacterSheetModal, openAttackActionModal, openMeasureModal, openIconSelectionModal } = useModals();
+	const { openCharacterSheetModal, openAttackActionModal, openMeasureModal, openIconSelectionModal, openOmniBoxModal } =
+		useModals();
 	const fail = useErrors();
 	const editMode = useStore(state => state.editMode);
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
@@ -1010,7 +1014,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 	const handleAction = (character: Character, data: GridActionSelectionData | undefined) => {
 		if (!data) {
-			fail('TODO Action modal not implemented yet.');
+			const context = { type: OmniBoxOptionType.Act, encounterId, characterId: character.id };
+			openOmniBoxModal({ context });
 			return;
 		}
 		if (data.action === GridActionTool.OpenCharacterSheet) {

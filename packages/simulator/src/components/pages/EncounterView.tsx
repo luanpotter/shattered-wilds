@@ -204,6 +204,7 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 
 			<div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
 				<BattleGrid
+					encounterId={encounterId}
 					encounterCharacters={encounterCharacters}
 					getCharacterPosition={getCharacterPosition}
 					updateCharacterPosition={updateCharacterPosition}
