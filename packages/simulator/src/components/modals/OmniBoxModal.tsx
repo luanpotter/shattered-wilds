@@ -377,10 +377,14 @@ const buildActOptions = ({
 		return [];
 	}
 	return [
-		{
-			type: OmniBoxOptionType.Act,
-			label: 'Act: Stride',
-			action: () => gridActionRegistry.triggerAction(character, { action: Action.Stride }),
-		},
+		buildActOption(character, Action.Stride),
+		buildActOption(character, Action.Run),
+		// TODO...
 	];
 };
+
+const buildActOption = (character: Character, action: Action) => ({
+	type: OmniBoxOptionType.Act,
+	label: `Act: ${action}`,
+	action: () => gridActionRegistry.triggerAction(character, { action }),
+});

@@ -990,10 +990,10 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				};
 			}
 			case Action.Stride: {
-				return {
-					type: OverlayType.Movement,
-					range: getStrideRange(character),
-				};
+				return { type: OverlayType.Movement, range: getStrideRange(character) };
+			}
+			case Action.Run: {
+				return { type: OverlayType.Movement, range: getStrideRange(character).times(4) };
 			}
 			case Action.Strike: {
 				const selectedWeaponModeIndex = data.selectedWeaponModeIndex;
@@ -1221,9 +1221,10 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				});
 				break;
 			}
-			case Action.Stride: {
+			case Action.Stride:
+			case Action.Run: {
 				updateCharacterPosition(character.id, target);
-				consumeActionCosts(character, Action.Stride);
+				consumeActionCosts(character, actionType);
 				setActionState(null);
 				break;
 			}
