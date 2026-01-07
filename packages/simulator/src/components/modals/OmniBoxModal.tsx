@@ -1,5 +1,6 @@
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
 import { Character, Encounter } from '../../types/ui';
 import { isSimpleRouteDefinition, Navigator, Route, ROUTES } from '../../utils/routes';
@@ -21,13 +22,15 @@ export const OmniBoxModal: React.FC<OmniBoxModalProps> = ({ context, onClose }) 
 
 	const characters = useStore(state => state.characters);
 	const encounters = useStore(state => state.encounters);
+	const { closeAllModals } = useModals();
+
 	const allOptions: OmniBoxOption[] = useMemo(
 		() => [
-			{ type: OmniBoxOptionType.Misc, label: 'Close', action: () => {} },
+			...buildMiscOptions({ closeAllModals }),
 			...buildNavigationOptions({ characters, encounters }),
 			// TODO: add more options
 		],
-		[characters, encounters],
+		[characters, closeAllModals, encounters],
 	);
 
 	const filteredOptions = useMemo(() => {
@@ -246,3 +249,8 @@ const buildSimpleNavigationOptions = (): OmniBoxOption[] =>
 			label: def.label,
 			action: () => Navigator.to(def.route),
 		}));
+
+const buildMiscOptions = ({ closeAllModals }: { closeAllModals: () => void }): OmniBoxOption[] => [
+	{ type: OmniBoxOptionType.Misc, label: 'Close All', action: closeAllModals },
+	{ type: OmniBoxOptionType.Misc, label: 'Close', action: () => {} }, // just closes the omni-box
+];
