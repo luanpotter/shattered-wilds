@@ -29,7 +29,7 @@ export const HexArea = ({
 	const boundaryEdges: { x1: number; y1: number; x2: number; y2: number }[] = [];
 	for (const hex of hexes) {
 		const adjustedHex = { q: hex.q + offset.q, r: hex.r + offset.r };
-		const vertices = getHexVertices(adjustedHex.q, adjustedHex.r, 10);
+		const vertices = getHexVertices(adjustedHex, 10);
 		const neighbors = getHexNeighbors(adjustedHex);
 
 		// For each edge (6 edges)
@@ -51,7 +51,7 @@ export const HexArea = ({
 			{/* Fill each hex */}
 			{hexes.map((hex, hexIndex) => {
 				const adjustedHex = { q: hex.q + offset.q, r: hex.r + offset.r };
-				const vertices = getHexVertices(adjustedHex.q, adjustedHex.r, 10);
+				const vertices = getHexVertices(adjustedHex, 10);
 				const pathData = `M${vertices.map(v => `${v.x},${v.y}`).join(' L')} Z`;
 				return <path key={hexIndex} d={pathData} fill={color} fillOpacity={isDragging ? 0.1 : 0.2} stroke='none' />;
 			})}

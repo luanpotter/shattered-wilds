@@ -6,13 +6,15 @@ import {
 	Distance,
 	Resource,
 	axialToPixel,
+	computeBoundaries,
 	findHexPath,
 	findNearestVertex,
 	findVertexPath,
-	getHexNeighbors,
 	getHexVertices,
+	getHexesInRange,
 	hexDistance,
 	pixelToAxial,
+	pointToSegmentDistance,
 } from '@shattered-wilds/commons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { IconType } from 'react-icons';
@@ -27,6 +29,7 @@ import {
 	AreaToolState,
 	Character,
 	DragState,
+	Drawing,
 	GameMap,
 	HexCoord,
 	HexVertex,
@@ -102,18 +105,19 @@ function StaticHexGridComponent({ width, height }: StaticHexGridProps) {
 
 	return (
 		<g>
-			{hexes.map(({ q, r }) => {
-				const { x, y } = axialToPixel(q, r);
+			{hexes.map(hex => {
+				const hexDesc = `${hex.q},${hex.r}`;
+				const { x, y } = axialToPixel(hex);
 				return (
 					<path
-						key={`${q},${r}`}
+						key={hexDesc}
 						d={HEX_PATH}
 						transform={`translate(${x},${y})`}
 						fill='var(--background-alt)'
 						stroke='var(--text)'
-						strokeWidth='0.3'
+						strokeWidth={0.3}
 						strokeOpacity={0.3}
-						data-hex={`${q},${r}`}
+						data-hex={hexDesc}
 					/>
 				);
 			})}
@@ -122,23 +126,6 @@ function StaticHexGridComponent({ width, height }: StaticHexGridProps) {
 }
 
 const StaticHexGrid = React.memo(StaticHexGridComponent);
-
-const pointToSegmentDistance = (
-	p: { x: number; y: number },
-	a: { x: number; y: number },
-	b: { x: number; y: number },
-): number => {
-	const dx = b.x - a.x;
-	const dy = b.y - a.y;
-	const lenSq = dx * dx + dy * dy;
-	if (lenSq === 0) {
-		return Math.sqrt((p.x - a.x) ** 2 + (p.y - a.y) ** 2);
-	}
-	const t = Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / lenSq));
-	const projX = a.x + t * dx;
-	const projY = a.y + t * dy;
-	return Math.sqrt((p.x - projX) ** 2 + (p.y - projY) ** 2);
-};
 
 interface HexHighlightLayerProps {
 	hexes: HexCoord[];
@@ -311,18 +298,22 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	const isAreaTool = isMapMode && selectedTool === 'area';
 	const isStampTool = isMapMode && selectedTool === 'stamp';
 
+	const addDrawing = useCallback(
+		(drawing: Drawing) => updateMap({ ...map, drawings: [...map.drawings, drawing] }),
+		[updateMap, map],
+	);
+
 	const findCharacterAtHex = useCallback(
-		(q: number, r: number): Character | undefined => {
+		(hex: HexCoord): Character | undefined => {
 			return encounterCharacters.find(c => {
 				const pos = getCharacterPosition(c.id);
-				return pos?.q === q && pos?.r === r;
+				return pos?.q === hex.q && pos?.r === hex.r;
 			});
 		},
 		[encounterCharacters, getCharacterPosition],
 	);
 
-	// This function converts screen coordinates to SVG user space coordinates
-	const screenToSvgCoordinates = useCallback((x: number, y: number): Point | null => {
+	const screenToSvgCoordinates = useCallback(({ x, y }: Point): Point | null => {
 		if (!svgRef.current) {
 			return null;
 		}
@@ -349,24 +340,31 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		return { x: transformedPoint.x, y: transformedPoint.y };
 	}, []);
 
-	const eventHexCoordinates = useCallback(
-		(e: React.MouseEvent): HexCoord | null => {
-			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
-			if (!svgCoords) {
-				return null;
-			}
-			return pixelToAxial(svgCoords.x, svgCoords.y);
+	const eventToSvgCoordinates = useCallback(
+		(event: { clientX: number; clientY: number }): Point | null => {
+			return screenToSvgCoordinates({ x: event.clientX, y: event.clientY });
 		},
 		[screenToSvgCoordinates],
 	);
 
+	const eventHexCoordinates = useCallback(
+		(e: React.MouseEvent): HexCoord | null => {
+			const svgCoords = eventToSvgCoordinates(e);
+			if (!svgCoords) {
+				return null;
+			}
+			return pixelToAxial(svgCoords);
+		},
+		[eventToSvgCoordinates],
+	);
+
 	const findDrawingAtPoint = useCallback(
 		(point: Point, threshold = 2): number | null => {
+			const clickedHex = pixelToAxial(point);
 			for (let i = map.drawings.length - 1; i >= 0; i--) {
 				const drawing = map.drawings[i];
 				if (drawing.type === 'area') {
 					// Check if point is inside any of the hexes
-					const clickedHex = pixelToAxial(point.x, point.y);
 					for (const hex of drawing.hexes) {
 						if (hex.q === clickedHex.q && hex.r === clickedHex.r) {
 							return i;
@@ -374,7 +372,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					}
 				}
 				if (drawing.type === 'line') {
-					const pathVertices = findVertexPath(drawing.start, drawing.end, 10);
+					const pathVertices = findVertexPath(drawing.start, drawing.end);
 					for (let j = 0; j < pathVertices.length - 1; j++) {
 						const a = pathVertices[j];
 						const b = pathVertices[j + 1];
@@ -385,7 +383,6 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					}
 				}
 				if (drawing.type === 'stamp') {
-					const clickedHex = pixelToAxial(point.x, point.y);
 					if (drawing.hex.q === clickedHex.q && drawing.hex.r === clickedHex.r) {
 						return i;
 					}
@@ -432,7 +429,9 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				];
 
 				for (const [e1, e2] of boxEdges) {
-					if (segmentsIntersect(p1, p2, e1, e2)) return true;
+					if (segmentsIntersect(p1, p2, e1, e2)) {
+						return true;
+					}
 				}
 				return false;
 			};
@@ -448,15 +447,15 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				if (drawing.type === 'area') {
 					// Check if any hex center is inside the box
 					for (const hex of drawing.hexes) {
-						const { x, y } = axialToPixel(hex.q, hex.r);
-						if (pointInBox({ x, y })) {
+						const point = axialToPixel(hex);
+						if (pointInBox(point)) {
 							result.add(index);
 							break;
 						}
 					}
 				}
 				if (drawing.type === 'line') {
-					const pathVertices = findVertexPath(drawing.start, drawing.end, 10);
+					const pathVertices = findVertexPath(drawing.start, drawing.end);
 					// Check if any vertex is inside or any segment intersects
 					for (let i = 0; i < pathVertices.length; i++) {
 						if (pointInBox(pathVertices[i])) {
@@ -470,8 +469,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					}
 				}
 				if (drawing.type === 'stamp') {
-					const { x, y } = axialToPixel(drawing.hex.q, drawing.hex.r);
-					if (pointInBox({ x, y })) {
+					const point = axialToPixel(drawing.hex);
+					if (pointInBox(point)) {
 						result.add(index);
 					}
 				}
@@ -483,11 +482,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 	useEffect(() => {
 		if (dragState.type === 'character' && dragState.startPosition && svgRef.current) {
-			const svgCoords = screenToSvgCoordinates(dragState.startPosition.x, dragState.startPosition.y);
-
-			if (svgCoords) {
-				setGhostPosition(svgCoords);
-			}
+			setGhostPosition(dragState.startPosition);
 		} else {
 			setGhostPosition(null);
 		}
@@ -539,11 +534,9 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		if (dragState.type !== 'character') return;
 
 		const handleMouseMove = (e: MouseEvent) => {
-			if (dragState.type === 'character') {
-				setDragState(prev => ({
-					...prev,
-					startPosition: { x: e.clientX, y: e.clientY },
-				}));
+			const point = eventToSvgCoordinates(e);
+			if (point && dragState.type === 'character') {
+				setDragState(prev => ({ ...prev, startPosition: point }));
 			}
 		};
 
@@ -570,10 +563,11 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					const hexData = current.getAttribute('data-hex');
 					if (hexData) {
 						const [q, r] = hexData.split(',').map(Number);
-						const existingCharacter = findCharacterAtHex(q, r);
+						const hex = { q, r };
+						const existingCharacter = findCharacterAtHex(hex);
 
 						if (!existingCharacter || existingCharacter.id === character.id) {
-							updateCharacterPosition(character.id, { q, r });
+							updateCharacterPosition(character.id, hex);
 						}
 					}
 				}
@@ -588,7 +582,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			document.removeEventListener('mousemove', handleMouseMove);
 			document.removeEventListener('mouseup', handleMouseUp);
 		};
-	}, [dragState, encounterCharacters, updateCharacterPosition, findCharacterAtHex]);
+	}, [dragState, encounterCharacters, updateCharacterPosition, findCharacterAtHex, eventToSvgCoordinates]);
 
 	const handleWheel = (e: React.WheelEvent) => {
 		e.preventDefault();
@@ -638,10 +632,10 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			e.stopPropagation();
 
 			if (isMapMode) {
-				// TODO: Handle map mode tool actions (select, line, etc.)
-				console.log(`Map mode: ${selectedTool} tool clicked on character`, character.id);
 				return;
-			} else if (actionState?.data?.action === Action.Strike) {
+			}
+
+			if (actionState?.data?.action === Action.Strike) {
 				const attackerPos = getCharacterPosition(actionState.character.id);
 				const targetPos = getCharacterPosition(character.id);
 
@@ -662,10 +656,14 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					});
 				}
 			} else {
+				const point = eventToSvgCoordinates(e);
+				if (!point) {
+					return;
+				}
 				setDragState({
 					type: 'character',
 					objectId: character.id,
-					startPosition: { x: e.clientX, y: e.clientY },
+					startPosition: point,
 				});
 				// Keep the hover state when starting drag
 				setHoveredCharacter(character);
@@ -675,8 +673,6 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			e.stopPropagation();
 
 			if (isMapMode) {
-				// TODO: Handle map mode right-click tool actions
-				console.log(`Map mode: right-click with ${selectedTool} tool on character`, character.id);
 				return;
 			}
 
@@ -705,77 +701,73 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	const handleHexRightClick = (coords: HexCoord) => {
 		// In encounter view, right-click on empty hex does nothing
 		// Characters are added via the "Add character" bar
-		const existingCharacter = findCharacterAtHex(coords.q, coords.r);
+		const existingCharacter = findCharacterAtHex(coords);
 		if (existingCharacter && editMode) {
 			openCharacterSheetModal({ characterId: existingCharacter.id });
 		}
 	};
 
 	const handleMouseDown = (e: React.MouseEvent) => {
+		const point = eventToSvgCoordinates(e);
+		if (!point) {
+			return;
+		}
+		const hex = pixelToAxial(point);
+
 		if (e.button === 0) {
 			// Left click: allow drag, block default
 			e.preventDefault();
 
 			// Handle line tool start
 			if (isLineTool && svgRef.current) {
-				const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
-				if (svgCoords) {
-					const startVertex = findNearestVertex(svgCoords, 10);
-					if (startVertex) {
-						setLineToolState({
-							startVertex,
-							currentEndVertex: startVertex,
-							pathVertices: [startVertex],
-						});
-					}
+				const startVertex = findNearestVertex(point);
+				if (startVertex) {
+					setLineToolState({
+						startVertex,
+						currentEndVertex: startVertex,
+						pathVertices: [startVertex],
+					});
 				}
 			}
 
 			// Handle select tool start
 			if (isSelectTool && svgRef.current) {
-				const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
-				if (svgCoords) {
-					const clickedDrawingIndex = findDrawingAtPoint(svgCoords);
-					if (clickedDrawingIndex !== null) {
-						const isAlreadySelected = selectToolState.selectedIndices.has(clickedDrawingIndex);
-						if (e.shiftKey) {
-							const newSelected = new Set(selectToolState.selectedIndices);
-							if (isAlreadySelected) {
-								newSelected.delete(clickedDrawingIndex);
-							} else {
-								newSelected.add(clickedDrawingIndex);
-							}
-							setSelectToolState(prev => ({ ...prev, selectedIndices: newSelected }));
-						} else if (isAlreadySelected) {
-							// Store raw coordinates - each drawing type will snap to its own lattice
-							setSelectToolState(prev => ({ ...prev, dragStart: svgCoords, dragCurrent: svgCoords }));
+				const clickedDrawingIndex = findDrawingAtPoint(point);
+				if (clickedDrawingIndex !== null) {
+					const isAlreadySelected = selectToolState.selectedIndices.has(clickedDrawingIndex);
+					if (e.shiftKey) {
+						const newSelected = new Set(selectToolState.selectedIndices);
+						if (isAlreadySelected) {
+							newSelected.delete(clickedDrawingIndex);
 						} else {
-							// Store raw coordinates - each drawing type will snap to its own lattice
-							setSelectToolState(prev => ({
-								...prev,
-								selectedIndices: new Set([clickedDrawingIndex]),
-								dragStart: svgCoords,
-								dragCurrent: svgCoords,
-							}));
+							newSelected.add(clickedDrawingIndex);
 						}
+						setSelectToolState(prev => ({ ...prev, selectedIndices: newSelected }));
+					} else if (isAlreadySelected) {
+						// Store raw coordinates - each drawing type will snap to its own lattice
+						setSelectToolState(prev => ({ ...prev, dragStart: point, dragCurrent: point }));
 					} else {
+						// Store raw coordinates - each drawing type will snap to its own lattice
 						setSelectToolState(prev => ({
 							...prev,
-							selectedIndices: e.shiftKey ? prev.selectedIndices : new Set(),
-							selectionBox: { start: svgCoords, end: svgCoords },
-							dragStart: null,
-							dragCurrent: null,
+							selectedIndices: new Set([clickedDrawingIndex]),
+							dragStart: point,
+							dragCurrent: point,
 						}));
 					}
+				} else {
+					setSelectToolState(prev => ({
+						...prev,
+						selectedIndices: e.shiftKey ? prev.selectedIndices : new Set(),
+						selectionBox: { start: point, end: point },
+						dragStart: null,
+						dragCurrent: null,
+					}));
 				}
 			}
 
 			// Handle area tool start
 			if (isAreaTool && svgRef.current) {
-				const hex = eventHexCoordinates(e);
-				if (!hex) {
-					return;
-				}
 				setAreaToolState({
 					centerHex: hex,
 					radius: 0,
@@ -785,42 +777,14 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 			// Handle stamp tool left click
 			if (isStampTool && svgRef.current) {
-				const hex = eventHexCoordinates(e);
-				if (!hex) {
-					return;
-				}
 				if (lastStampIcon) {
-					// Place the previous icon
-					updateMap({
-						...map,
-						drawings: [
-							...map.drawings,
-							{
-								type: 'stamp',
-								hex,
-								icon: lastStampIcon,
-								color: selectedColor,
-							},
-						],
-					});
+					addDrawing({ type: 'stamp', hex, icon: lastStampIcon, color: selectedColor });
 				} else {
-					// Open selection modal
 					openIconSelectionModal({
 						currentIcon: null,
 						onSelect: (icon: string) => {
 							setLastStampIcon(icon);
-							updateMap({
-								...map,
-								drawings: [
-									...map.drawings,
-									{
-										type: 'stamp',
-										hex,
-										icon,
-										color: selectedColor,
-									},
-								],
-							});
+							addDrawing({ type: 'stamp', hex, icon, color: selectedColor });
 						},
 					});
 				}
@@ -830,29 +794,15 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		// Handle stamp tool right click
 		if (e.button === 2 && isStampTool && svgRef.current) {
 			e.preventDefault();
-			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
-			if (svgCoords) {
-				const hex = pixelToAxial(svgCoords.x, svgCoords.y);
-				openIconSelectionModal({
-					currentIcon: lastStampIcon,
-					onSelect: (icon: string) => {
-						setLastStampIcon(icon);
-						updateMap({
-							...map,
-							drawings: [
-								...map.drawings,
-								{
-									type: 'stamp',
-									hex,
-									icon,
-									color: selectedColor,
-								},
-							],
-						});
-					},
-				});
-			}
+			openIconSelectionModal({
+				currentIcon: lastStampIcon,
+				onSelect: (icon: string) => {
+					setLastStampIcon(icon);
+					addDrawing({ type: 'stamp', hex, icon, color: selectedColor });
+				},
+			});
 		}
+
 		// For middle and right click, do not block default behavior
 	};
 
@@ -862,17 +812,11 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				lineToolState.startVertex.x !== lineToolState.currentEndVertex.x ||
 				lineToolState.startVertex.y !== lineToolState.currentEndVertex.y
 			) {
-				updateMap({
-					...map,
-					drawings: [
-						...map.drawings,
-						{
-							type: 'line',
-							start: lineToolState.startVertex,
-							end: lineToolState.currentEndVertex,
-							color: selectedColor,
-						},
-					],
+				addDrawing({
+					type: 'line',
+					start: lineToolState.startVertex,
+					end: lineToolState.currentEndVertex,
+					color: selectedColor,
 				});
 			}
 			setLineToolState(null);
@@ -891,16 +835,18 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					if (!selectToolState.selectedIndices.has(i)) return drawing;
 					if (drawing.type === 'line') {
 						// Snap to vertex lattice for lines
-						const startVertex = findNearestVertex(selectToolState.dragStart!, 10) ?? selectToolState.dragStart!;
-						const endVertex = findNearestVertex(selectToolState.dragCurrent!, 10) ?? selectToolState.dragCurrent!;
+						const startVertex = findNearestVertex(selectToolState.dragStart!) ?? selectToolState.dragStart!;
+						const endVertex = findNearestVertex(selectToolState.dragCurrent!) ?? selectToolState.dragCurrent!;
 						const dx = endVertex.x - startVertex.x;
 						const dy = endVertex.y - startVertex.y;
-						if (dx === 0 && dy === 0) return drawing;
+						if (dx === 0 && dy === 0) {
+							return drawing;
+						}
 						// Apply offset and snap to nearest valid vertices
 						const rawStart = { x: drawing.start.x + dx, y: drawing.start.y + dy };
 						const rawEnd = { x: drawing.end.x + dx, y: drawing.end.y + dy };
-						const newStart = findNearestVertex(rawStart, 10) ?? drawing.start;
-						const newEnd = findNearestVertex(rawEnd, 10) ?? drawing.end;
+						const newStart = findNearestVertex(rawStart) ?? drawing.start;
+						const newEnd = findNearestVertex(rawEnd) ?? drawing.end;
 						return {
 							...drawing,
 							start: newStart,
@@ -909,11 +855,13 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					}
 					if (drawing.type === 'area') {
 						// Snap to hex center lattice for areas
-						const startHex = pixelToAxial(selectToolState.dragStart!.x, selectToolState.dragStart!.y);
-						const endHex = pixelToAxial(selectToolState.dragCurrent!.x, selectToolState.dragCurrent!.y);
+						const startHex = pixelToAxial(selectToolState.dragStart!);
+						const endHex = pixelToAxial(selectToolState.dragCurrent!);
 						const dq = endHex.q - startHex.q;
 						const dr = endHex.r - startHex.r;
-						if (dq === 0 && dr === 0) return drawing;
+						if (dq === 0 && dr === 0) {
+							return drawing;
+						}
 						return {
 							...drawing,
 							hexes: drawing.hexes.map(hex => ({
@@ -924,11 +872,13 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					}
 					if (drawing.type === 'stamp') {
 						// Snap to hex center lattice for stamps
-						const startHex = pixelToAxial(selectToolState.dragStart!.x, selectToolState.dragStart!.y);
-						const endHex = pixelToAxial(selectToolState.dragCurrent!.x, selectToolState.dragCurrent!.y);
+						const startHex = pixelToAxial(selectToolState.dragStart!);
+						const endHex = pixelToAxial(selectToolState.dragCurrent!);
 						const dq = endHex.q - startHex.q;
 						const dr = endHex.r - startHex.r;
-						if (dq === 0 && dr === 0) return drawing;
+						if (dq === 0 && dr === 0) {
+							return drawing;
+						}
 						return {
 							...drawing,
 							hex: {
@@ -946,37 +896,10 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 		if (e.button === 0 && isAreaTool && areaToolState) {
 			if (areaToolState.previewHexes.length > 0) {
-				updateMap({
-					...map,
-					drawings: [
-						...map.drawings,
-						{
-							type: 'area',
-							hexes: areaToolState.previewHexes,
-							color: selectedColor,
-						},
-					],
-				});
+				addDrawing({ type: 'area', hexes: areaToolState.previewHexes, color: selectedColor });
 			}
 			setAreaToolState(null);
 		}
-	};
-
-	// Function to get all hexes within range
-	const getHexesInRange = (center: HexCoord, range: number): HexCoord[] => {
-		const hexes: HexCoord[] = [];
-		for (let q = -range; q <= range; q++) {
-			for (let r = -range; r <= range; r++) {
-				// Check if this hex is within range
-				if (Math.abs(q + r) <= range) {
-					hexes.push({
-						q: center.q + q,
-						r: center.r + r,
-					});
-				}
-			}
-		}
-		return hexes;
 	};
 
 	const processOverlayForActionType = (
@@ -985,9 +908,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	): AreaOverlay | undefined => {
 		switch (data.action) {
 			case GridActionTool.MeasureDistance: {
-				return {
-					type: OverlayType.Movement,
-				};
+				return { type: OverlayType.Movement };
 			}
 			case Action.Stride: {
 				return { type: OverlayType.Movement, range: getStrideRange(character) };
@@ -1002,10 +923,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					return undefined;
 				}
 				const attackRange = getAttackRange(character, selectedWeaponModeIndex);
-				return {
-					type: OverlayType.Attack,
-					range: attackRange,
-				};
+				return { type: OverlayType.Attack, range: attackRange };
 			}
 			default:
 				return undefined;
@@ -1024,22 +942,15 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		}
 
 		const overlay = processOverlayForActionType(character, data);
-		setActionState({
-			character,
-			overlay,
-			data,
-		});
+		setActionState({ character, overlay, data });
 	};
 
-	// Register an action handler for OmniBox
 	useEffect(() => {
 		gridActionRegistry.register((character, data) => handleAction(character, data));
 		return () => gridActionRegistry.unregister();
 	});
 
-	// Handle mouse move for measure hover
 	const handleMouseMove = (e: React.MouseEvent) => {
-		// Handle drag
 		if (e.buttons === MIDDLE_CLICK_BUTTON) {
 			updateGridState({
 				offset: {
@@ -1053,93 +964,54 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			return;
 		}
 
-		// Handle line tool drawing
+		const point = eventToSvgCoordinates(e);
+		if (!point) {
+			return;
+		}
+		const hex = pixelToAxial(point);
+
 		if (isLineTool && lineToolState) {
-			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
-			if (svgCoords) {
-				// Find nearest vertex to the current mouse position
-				const nearestVertex = findNearestVertex(svgCoords, 10);
-				if (nearestVertex) {
-					// Compute the path from start to current end vertex
-					const pathVertices = findVertexPath(lineToolState.startVertex, nearestVertex, 10);
-					setLineToolState(prev =>
-						prev
-							? {
-									...prev,
-									currentEndVertex: nearestVertex,
-									pathVertices,
-								}
-							: null,
-					);
-				}
+			const nearestVertex = findNearestVertex(point);
+			if (nearestVertex) {
+				const pathVertices = findVertexPath(lineToolState.startVertex, nearestVertex);
+				setLineToolState(prev => (prev ? { ...prev, currentEndVertex: nearestVertex, pathVertices } : null));
 			}
 		} else if (isLineTool && !lineToolState) {
-			// Track hovered vertex before drawing starts
-			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
-			if (svgCoords) {
-				const nearestVertex = findNearestVertex(svgCoords, 10);
-				setLineToolHoveredVertex(nearestVertex);
-			}
+			const nearestVertex = findNearestVertex(point);
+			setLineToolHoveredVertex(nearestVertex);
 		} else if (!isLineTool && lineToolHoveredVertex) {
-			// Clear hovered vertex when not in line tool mode
 			setLineToolHoveredVertex(null);
 		}
 
-		// Handle select tool
 		if (isSelectTool) {
-			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
-			if (svgCoords) {
-				if (selectToolState.selectionBox) {
-					setSelectToolState(prev => ({
-						...prev,
-						selectionBox: prev.selectionBox ? { ...prev.selectionBox, end: svgCoords } : null,
-					}));
-				} else if (selectToolState.dragStart && e.buttons === 1) {
-					// Store raw coordinates - each drawing type will snap to its own lattice
-					setSelectToolState(prev => ({ ...prev, dragCurrent: svgCoords }));
-				}
+			if (selectToolState.selectionBox) {
+				setSelectToolState(prev => ({
+					...prev,
+					selectionBox: prev.selectionBox ? { ...prev.selectionBox, end: point } : null,
+				}));
+			} else if (selectToolState.dragStart && e.buttons === 1) {
+				setSelectToolState(prev => ({ ...prev, dragCurrent: point }));
 			}
 		}
 
-		// Handle area tool drag
 		if (isAreaTool && areaToolState) {
-			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
-			if (svgCoords) {
-				const currentHex = pixelToAxial(svgCoords.x, svgCoords.y);
-				const radius = hexDistance(areaToolState.centerHex, currentHex);
-				const previewHexes = getHexesInRange(areaToolState.centerHex, radius);
-				setAreaToolState(prev => (prev ? { ...prev, radius, previewHexes } : null));
-			}
+			const radius = hexDistance(areaToolState.centerHex, hex);
+			const previewHexes = getHexesInRange(areaToolState.centerHex, radius);
+			setAreaToolState(prev => (prev ? { ...prev, radius, previewHexes } : null));
 		} else if (isAreaTool && !areaToolState) {
-			// Track hovered hex before drawing starts
-			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
-			if (svgCoords) {
-				const hoveredHex = pixelToAxial(svgCoords.x, svgCoords.y);
-				setAreaToolHoveredHex(hoveredHex);
-			}
+			setAreaToolHoveredHex(hex);
 		} else if (!isAreaTool && areaToolHoveredHex) {
-			// Clear hovered hex when not in area tool mode
 			setAreaToolHoveredHex(null);
 		}
 
-		// Handle stamp tool hover
 		if (isStampTool) {
-			const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
-			if (svgCoords) {
-				const hoveredHex = pixelToAxial(svgCoords.x, svgCoords.y);
-				setStampToolHoveredHex(hoveredHex);
-			}
+			setStampToolHoveredHex(hex);
 		} else if (!isStampTool && stampToolHoveredHex) {
-			// Clear hovered hex when not in stamp tool mode
 			setStampToolHoveredHex(null);
 		}
 
-		// Handle hover
 		if (actionState) {
-			const hex = eventHexCoordinates(e);
-			if (hex) {
-				setActionState(prev => (prev ? { ...prev, hoveredPosition: hex } : null));
-			}
+			setActionState(prev => (prev ? { ...prev, hoveredPosition: hex } : null));
 		}
 	};
 
@@ -1190,10 +1062,9 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		);
 	};
 
-	// Handle hex click for measure or stride
 	const handleHexClick = (target: HexCoord) => {
 		if (!actionState) {
-			return; // nothing to do
+			return;
 		}
 
 		const character = actionState.character;
@@ -1237,16 +1108,9 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		e.preventDefault();
 		setActionState(null);
 
-		const svgCoords = screenToSvgCoordinates(e.clientX, e.clientY);
-		if (!svgCoords) {
-			return;
-		}
-		const hexCoords = pixelToAxial(svgCoords.x, svgCoords.y);
-
-		if (isMapMode) {
-			console.log(`Map mode: right-click with ${selectedTool} tool on hex ${hexCoords}`);
-		} else {
-			handleHexRightClick(hexCoords);
+		const hex = eventHexCoordinates(e);
+		if (hex && !isMapMode) {
+			handleHexRightClick(hex);
 		}
 	};
 
@@ -1328,8 +1192,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							// Calculate hex offset for dragging - snap to hex center lattice
 							const offset = { q: 0, r: 0 };
 							if (isDragging) {
-								const startHex = pixelToAxial(selectToolState.dragStart!.x, selectToolState.dragStart!.y);
-								const endHex = pixelToAxial(selectToolState.dragCurrent!.x, selectToolState.dragCurrent!.y);
+								const startHex = pixelToAxial(selectToolState.dragStart!);
+								const endHex = pixelToAxial(selectToolState.dragCurrent!);
 								offset.q = endHex.q - startHex.q;
 								offset.r = endHex.r - startHex.r;
 							}
@@ -1354,9 +1218,9 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							// Apply offset and snap to nearest valid vertices
 							const rawStart = { x: drawing.start.x + offsetX, y: drawing.start.y + offsetY };
 							const rawEnd = { x: drawing.end.x + offsetX, y: drawing.end.y + offsetY };
-							const adjustedStart = isDragging ? (findNearestVertex(rawStart, 10) ?? rawStart) : drawing.start;
-							const adjustedEnd = isDragging ? (findNearestVertex(rawEnd, 10) ?? rawEnd) : drawing.end;
-							const pathVertices = findVertexPath(adjustedStart, adjustedEnd, 10);
+							const adjustedStart = isDragging ? (findNearestVertex(rawStart) ?? rawStart) : drawing.start;
+							const adjustedEnd = isDragging ? (findNearestVertex(rawEnd) ?? rawEnd) : drawing.end;
+							const pathVertices = findVertexPath(adjustedStart, adjustedEnd);
 							return (
 								<g key={index}>
 									{/* Selection highlight (rendered behind) */}
@@ -1391,13 +1255,13 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							let dq = 0;
 							let dr = 0;
 							if (isDragging) {
-								const startHex = pixelToAxial(selectToolState.dragStart!.x, selectToolState.dragStart!.y);
-								const endHex = pixelToAxial(selectToolState.dragCurrent!.x, selectToolState.dragCurrent!.y);
+								const startHex = pixelToAxial(selectToolState.dragStart!);
+								const endHex = pixelToAxial(selectToolState.dragCurrent!);
 								dq = endHex.q - startHex.q;
 								dr = endHex.r - startHex.r;
 							}
 							const adjustedHex = { q: drawing.hex.q + dq, r: drawing.hex.r + dr };
-							const center = axialToPixel(adjustedHex.q, adjustedHex.r, 10);
+							const center = axialToPixel(adjustedHex);
 							// Size is 40% of hex height (which is 2 * hexRadius * sqrt(3)/2 for pointy-top)
 							const hexHeight = 10 * Math.sqrt(3);
 							const iconSize = hexHeight * 0.4;
@@ -1491,8 +1355,10 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				<g>
 					{encounterCharacters.map(character => {
 						const pos = getCharacterPosition(character.id);
-						if (!pos) return null;
-						const { x, y } = axialToPixel(pos.q, pos.r);
+						if (!pos) {
+							return null;
+						}
+						const { x, y } = axialToPixel(pos);
 						return (
 							<g key={character.id} transform={`translate(${x},${y})`}>
 								<CharacterToken
@@ -1524,7 +1390,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				{isAreaTool && !areaToolState && areaToolHoveredHex && (
 					<g style={{ pointerEvents: 'none' }}>
 						{(() => {
-							const vertices = getHexVertices(areaToolHoveredHex.q, areaToolHoveredHex.r, 10);
+							const vertices = getHexVertices(areaToolHoveredHex);
 							const pathData = `M${vertices.map(v => `${v.x},${v.y}`).join(' L')} Z`;
 							return (
 								<path d={pathData} fill='var(--accent)' fillOpacity={0.2} stroke='var(--accent)' strokeWidth='0.3' />
@@ -1537,28 +1403,13 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				{areaToolState && (
 					<g style={{ pointerEvents: 'none' }}>
 						{(() => {
-							const hexSet = new Set(areaToolState.previewHexes.map(h => `${h.q},${h.r}`));
-							const edgeToNeighborIndex = [1, 0, 5, 4, 3, 2];
-							const boundaryEdges: { x1: number; y1: number; x2: number; y2: number }[] = [];
-
-							for (const hex of areaToolState.previewHexes) {
-								const vertices = getHexVertices(hex.q, hex.r, 10);
-								const neighbors = getHexNeighbors(hex);
-								for (let i = 0; i < 6; i++) {
-									const neighborIndex = edgeToNeighborIndex[i];
-									const neighbor = neighbors[neighborIndex];
-									if (!hexSet.has(`${neighbor.q},${neighbor.r}`)) {
-										const v1 = vertices[i];
-										const v2 = vertices[(i + 1) % 6];
-										boundaryEdges.push({ x1: v1.x, y1: v1.y, x2: v2.x, y2: v2.y });
-									}
-								}
-							}
+							const hexes = areaToolState.previewHexes;
+							const boundaryEdges = computeBoundaries(hexes);
 
 							return (
 								<>
-									{areaToolState.previewHexes.map((hex, index) => {
-										const vertices = getHexVertices(hex.q, hex.r, 10);
+									{hexes.map((hex, index) => {
+										const vertices = getHexVertices(hex);
 										const pathData = `M${vertices.map(v => `${v.x},${v.y}`).join(' L')} Z`;
 										return <path key={index} d={pathData} fill='var(--accent)' fillOpacity={0.2} stroke='none' />;
 									})}
@@ -1585,7 +1436,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				{stampToolHoveredHex && isStampTool && (
 					<g style={{ pointerEvents: 'none' }}>
 						{(() => {
-							const vertices = getHexVertices(stampToolHoveredHex.q, stampToolHoveredHex.r, 10);
+							const vertices = getHexVertices(stampToolHoveredHex);
 							const pathData = `M${vertices.map(v => `${v.x},${v.y}`).join(' L')} Z`;
 							return (
 								<path

@@ -60,13 +60,13 @@ const SQRT3 = Math.sqrt(3);
  * @param hexSize - The "width" of a hex (horizontal spacing). Default 10.
  * @returns Pixel coordinates of the hex center
  */
-export const axialToPixel = (q: number, r: number, hexSize: number = 10): Point => {
+export const axialToPixel = (hex: HexCoord, hexSize: number = 10): Point => {
 	// For pointy-top hexagons:
 	// - Horizontal spacing between centers in same row = hexSize
 	// - Each row is offset by hexSize/2
 	// - Vertical spacing = hexSize * sqrt(3) / 2
-	const x = q * hexSize + r * (hexSize / 2);
-	const y = r * hexSize * (SQRT3 / 2);
+	const x = hex.q * hexSize + hex.r * (hexSize / 2);
+	const y = hex.r * hexSize * (SQRT3 / 2);
 	return { x, y };
 };
 
@@ -79,12 +79,12 @@ export const axialToPixel = (q: number, r: number, hexSize: number = 10): Point 
  * @param hexSize - The "width" of a hex. Default 10.
  * @returns Axial coordinates of the containing hex (rounded)
  */
-export const pixelToAxial = (x: number, y: number, hexSize: number = 10): HexCoord => {
+export const pixelToAxial = (point: Point, hexSize: number = 10): HexCoord => {
 	// Inverse of axialToPixel
 	// y = r * hexSize * sqrt(3) / 2  =>  r = y / (hexSize * sqrt(3) / 2)
 	// x = q * hexSize + r * hexSize / 2  =>  q = (x - r * hexSize / 2) / hexSize
-	const r = y / ((hexSize * SQRT3) / 2);
-	const q = (x - (r * hexSize) / 2) / hexSize;
+	const r = point.y / ((hexSize * SQRT3) / 2);
+	const q = (point.x - (r * hexSize) / 2) / hexSize;
 
 	// Round to nearest hex using cube coordinate rounding
 	return roundAxial(q, r);
@@ -223,8 +223,8 @@ export const findHexPath = (start: HexCoord, end: HexCoord): HexCoord[] => {
  * @param hexSize - The "width" of a hex. Default 10.
  * @returns Array of 6 vertex positions
  */
-export const getHexVertices = (q: number, r: number, hexSize: number = 10): HexVertex[] => {
-	const center = axialToPixel(q, r, hexSize);
+export const getHexVertices = (hex: HexCoord, hexSize: number = 10): HexVertex[] => {
+	const center = axialToPixel(hex, hexSize);
 	const radius = hexSize / SQRT3; // Radius to vertices for pointy-top hex
 
 	const vertices: HexVertex[] = [];
@@ -254,8 +254,8 @@ export const getAllVertices = (hexCoords: HexCoord[], hexSize: number = 10): Hex
 	const vertexMap = new Map<string, HexVertex>();
 	const keyFn = (v: Point) => `${Math.round(v.x * 100)},${Math.round(v.y * 100)}`;
 
-	for (const { q, r } of hexCoords) {
-		const vertices = getHexVertices(q, r, hexSize);
+	for (const hex of hexCoords) {
+		const vertices = getHexVertices(hex, hexSize);
 		for (const vertex of vertices) {
 			const key = keyFn(vertex);
 			if (!vertexMap.has(key)) {
@@ -301,7 +301,7 @@ export const findClosestVertex = (point: Point, vertices: HexVertex[]): HexVerte
  * @returns The closest vertex
  */
 export const findNearestVertex = (point: Point, hexSize: number = 10): HexVertex | null => {
-	const hex = pixelToAxial(point.x, point.y, hexSize);
+	const hex = pixelToAxial(point, hexSize);
 	const neighbors = getHexNeighbors(hex);
 	const allHexes = [hex, ...neighbors];
 	const allVertices = getAllVertices(allHexes, hexSize);
@@ -365,7 +365,7 @@ export const vertexKey = (v: Point): string => {
  */
 export const getAdjacentVertices = (vertex: Point, hexSize: number = 10): HexVertex[] => {
 	// Find which hex this vertex belongs to
-	const hex = pixelToAxial(vertex.x, vertex.y, hexSize);
+	const hex = pixelToAxial(vertex, hexSize);
 	const hexesToCheck = [hex, ...getHexNeighbors(hex)];
 
 	// Find the exact hex and vertex index
@@ -373,7 +373,7 @@ export const getAdjacentVertices = (vertex: Point, hexSize: number = 10): HexVer
 	let foundIndex = -1;
 
 	for (const h of hexesToCheck) {
-		const vertices = getHexVertices(h.q, h.r, hexSize);
+		const vertices = getHexVertices(h, hexSize);
 		for (let i = 0; i < vertices.length; i++) {
 			if (verticesEqual(vertices[i]!, vertex)) {
 				foundHex = h;
@@ -388,7 +388,7 @@ export const getAdjacentVertices = (vertex: Point, hexSize: number = 10): HexVer
 		return [];
 	}
 
-	const hexVertices = getHexVertices(foundHex.q, foundHex.r, hexSize);
+	const hexVertices = getHexVertices(foundHex, hexSize);
 	const adjacent: HexVertex[] = [];
 
 	// Adjacent vertices on the same hex (previous and next in the ring)
@@ -402,7 +402,7 @@ export const getAdjacentVertices = (vertex: Point, hexSize: number = 10): HexVer
 	const neighbors = getHexNeighbors(foundHex);
 
 	for (const neighborHex of neighbors) {
-		const neighborVertices = getHexVertices(neighborHex.q, neighborHex.r, hexSize);
+		const neighborVertices = getHexVertices(neighborHex, hexSize);
 
 		// Find if this neighbor shares the vertex
 		for (let j = 0; j < neighborVertices.length; j++) {
@@ -496,9 +496,11 @@ export const getHexesAlongLine = (start: Point, end: Point, hexSize: number = 10
 
 	for (let i = 0; i <= steps; i++) {
 		const t = i / steps;
-		const x = start.x + dx * t;
-		const y = start.y + dy * t;
-		const hex = pixelToAxial(x, y, hexSize);
+		const point = {
+			x: start.x + dx * t,
+			y: start.y + dy * t,
+		};
+		const hex = pixelToAxial(point, hexSize);
 		hexes.add(hexKey(hex));
 	}
 
@@ -531,8 +533,8 @@ export const findVertexPath = (start: HexVertex, end: HexVertex, hexSize: number
 	const allowedHexKeys = getHexesAlongLine(start, end, hexSize);
 
 	// Also add hexes that contain the start and end vertices
-	const startHex = pixelToAxial(start.x, start.y, hexSize);
-	const endHex = pixelToAxial(end.x, end.y, hexSize);
+	const startHex = pixelToAxial(start, hexSize);
+	const endHex = pixelToAxial(end, hexSize);
 	const allStartHexes = [startHex, ...getHexNeighbors(startHex)];
 	const allEndHexes = [endHex, ...getHexNeighbors(endHex)];
 
@@ -545,7 +547,8 @@ export const findVertexPath = (start: HexVertex, end: HexVertex, hexSize: number
 	for (const hexKeyStr of allowedHexKeys) {
 		const [q, r] = hexKeyStr.split(',').map(Number);
 		if (q !== undefined && r !== undefined) {
-			const vertices = getHexVertices(q, r, hexSize);
+			const hex = { q, r };
+			const vertices = getHexVertices(hex, hexSize);
 			for (const v of vertices) {
 				allowedVertexKeys.add(vertexKey(v));
 			}
@@ -647,4 +650,55 @@ export const findVertexPath = (start: HexVertex, end: HexVertex, hexSize: number
 	// No path found - return empty array
 	console.error('No vertex path found between', start, 'and', end);
 	return [];
+};
+
+export const pointToSegmentDistance = (p: Point, a: Point, b: Point): number => {
+	const dx = b.x - a.x;
+	const dy = b.y - a.y;
+	const lenSq = dx * dx + dy * dy;
+	if (lenSq === 0) {
+		return Math.sqrt((p.x - a.x) ** 2 + (p.y - a.y) ** 2);
+	}
+	const t = Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / lenSq));
+	const projX = a.x + t * dx;
+	const projY = a.y + t * dy;
+	return Math.sqrt((p.x - projX) ** 2 + (p.y - projY) ** 2);
+};
+
+export const getHexesInRange = (center: HexCoord, range: number): HexCoord[] => {
+	const hexes: HexCoord[] = [];
+	for (let q = -range; q <= range; q++) {
+		for (let r = -range; r <= range; r++) {
+			// Check if this hex is within range
+			if (Math.abs(q + r) <= range) {
+				hexes.push({
+					q: center.q + q,
+					r: center.r + r,
+				});
+			}
+		}
+	}
+	return hexes;
+};
+
+export const computeBoundaries = (hexes: HexCoord[]) => {
+	const hexSet = new Set(hexes.map(h => `${h.q},${h.r}`));
+	const edgeToNeighborIndex = [1, 0, 5, 4, 3, 2] as const;
+	const boundaryEdges: { x1: number; y1: number; x2: number; y2: number }[] = [];
+
+	for (const hex of hexes) {
+		const vertices = getHexVertices(hex);
+		const neighbors = getHexNeighbors(hex);
+		for (let i = 0; i < 6; i++) {
+			const neighborIndex = edgeToNeighborIndex[i]!;
+			const neighbor = neighbors[neighborIndex]!;
+			if (!hexSet.has(`${neighbor.q},${neighbor.r}`)) {
+				const v1 = vertices[i]!;
+				const v2 = vertices[(i + 1) % 6]!;
+				boundaryEdges.push({ x1: v1.x, y1: v1.y, x2: v2.x, y2: v2.y });
+			}
+		}
+	}
+
+	return boundaryEdges;
 };
