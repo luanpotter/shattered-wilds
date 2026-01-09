@@ -6,7 +6,6 @@ import {
 	Distance,
 	Resource,
 	axialToPixel,
-	computeBoundaries,
 	findHexPath,
 	findNearestVertex,
 	findVertexPath,
@@ -16,7 +15,7 @@ import {
 	pixelToAxial,
 	pointToSegmentDistance,
 } from '@shattered-wilds/commons';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { IconType } from 'react-icons';
 import * as Fa6Icons from 'react-icons/fa6';
 
@@ -41,8 +40,9 @@ import {
 } from '../types/ui';
 
 import { CharacterToken } from './CharacterToken';
-import { gridActionRegistry, GridActionSelectionData, GridActionTool } from './hex/GridActions';
-import { HexArea } from './hex/HexArea';
+import { GridActionSelectionData, GridActionTool, gridActionRegistry } from './hex/GridActions';
+import { HexAreaComponent } from './hex/HexAreaComponent';
+import { StaticHexGrid } from './hex/StaticHexGrid';
 import { OmniBoxOptionType } from './omni/OmniBoxOption';
 import { TokenContextMenu } from './TokenContextMenu';
 
@@ -57,9 +57,6 @@ const renderFaIcon = (iconName: string): React.ReactNode => {
 const LEFT_CLICK_BUTTON = 0;
 const MIDDLE_CLICK_BUTTON = 1;
 const RIGHT_CLICK_BUTTON = 2;
-
-// Pre-computed hex path for pointy-top hexagon with radius 5
-const HEX_PATH = 'M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z';
 
 enum OverlayType {
 	Movement,
@@ -93,104 +90,6 @@ interface ActionState {
 	overlay: AreaOverlay | undefined;
 	hoveredPosition?: HexCoord;
 }
-
-interface StaticHexGridProps {
-	width: number;
-	height: number;
-}
-
-// Memoized static hex grid - renders all hexes as a single static layer
-function StaticHexGridComponent({ width, height }: StaticHexGridProps) {
-	const hexes = useMemo(() => generateHexes(width, height), [width, height]);
-
-	return (
-		<g>
-			{hexes.map(hex => {
-				const hexDesc = `${hex.q},${hex.r}`;
-				const { x, y } = axialToPixel(hex);
-				return (
-					<path
-						key={hexDesc}
-						d={HEX_PATH}
-						transform={`translate(${x},${y})`}
-						fill='var(--background-alt)'
-						stroke='var(--text)'
-						strokeWidth={0.3}
-						strokeOpacity={0.3}
-						data-hex={hexDesc}
-					/>
-				);
-			})}
-		</g>
-	);
-}
-
-const StaticHexGrid = React.memo(StaticHexGridComponent);
-
-interface HexHighlightLayerProps {
-	hexes: HexCoord[];
-	color: string;
-	mapWidth: number;
-	mapHeight: number;
-}
-
-// Memoized highlight layer for movement/attack range
-function HexHighlightLayerComponent({ hexes, color, mapWidth, mapHeight }: HexHighlightLayerProps) {
-	return (
-		<HexArea
-			hexes={hexes.filter(pos => isHexInBounds(pos, mapWidth, mapHeight))}
-			offset={{ q: 0, r: 0 }}
-			color={color}
-			isSelected={true}
-			isDragging={false}
-		/>
-	);
-}
-const HexHighlightLayer = React.memo(HexHighlightLayerComponent);
-
-const generateHexes = (width: number, height: number): HexCoord[] => {
-	const hexes = [];
-
-	// Create a true rectangular grid with a consistent number of hexes per row/column
-	// In axial coordinates:
-	// - Going along constant r-value = "diagonal rows"
-	// - Going along constant q-value = "vertical columns"
-
-	// Calculate the bounds to make a rectangular visual shape
-	// We need to offset the q-values for each row to make a rectangle
-	for (let r = -height; r <= height; r++) {
-		// Calculate q-offset based on row (r) to ensure a rectangular grid
-		// This makes sure each row starts at the right position to form a rectangle
-		const qOffset = Math.floor(r / 2);
-
-		// Each row has exactly the same number of hexes (2*width + 1)
-		for (let i = 0; i <= 2 * width; i++) {
-			// Calculate q value with offset to align the grid into a rectangle
-			const q = i - width - qOffset;
-
-			hexes.push({ q, r });
-		}
-	}
-
-	return hexes;
-};
-
-// Check if a hex position is within the grid bounds
-const isHexInBounds = (pos: HexCoord, width: number, height: number): boolean => {
-	const { q, r } = pos;
-
-	// Check vertical bounds
-	if (r < -height || r > height) {
-		return false;
-	}
-
-	// Calculate the q range for this row (same logic as generateHexes)
-	const qOffset = Math.floor(r / 2);
-	const minQ = -width - qOffset;
-	const maxQ = width - qOffset;
-
-	return q >= minQ && q <= maxQ;
-};
 
 // Calculate the SVG viewBox dimensions based on map size
 // Hex dimensions: horizontal spacing = 10, vertical spacing = 8.66
@@ -1015,6 +914,11 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		}
 	};
 
+	const highlight = (overlayType: OverlayType, hexes: HexCoord[]) => {
+		const overlayColor = OVERLAY_TYPES[overlayType].color;
+		return <HexAreaComponent hexes={hexes} color={overlayColor} mapSize={map.size} isSelected={true} />;
+	};
+
 	const renderActionStateOverlay = (actionState: ActionState): React.ReactNode => {
 		const overlay = actionState.overlay;
 		if (!overlay) {
@@ -1025,41 +929,18 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		if (!pos) {
 			return null;
 		}
-		const overlayColor = OVERLAY_TYPES[overlay.type].color;
 		const currentHex = actionState.hoveredPosition;
 
 		return (
 			<>
-				{overlay.range && (
-					<HexHighlightLayer
-						hexes={getHexesInRange(pos, overlay.range.value)}
-						color={overlayColor}
-						mapWidth={map.size.width}
-						mapHeight={map.size.height}
-					/>
-				)}
-				{currentHex && (
-					<HexHighlightLayer
-						hexes={findHexPath(pos, currentHex)}
-						color={overlayColor}
-						mapWidth={map.size.width}
-						mapHeight={map.size.height}
-					/>
-				)}
+				{overlay.range && highlight(overlay.type, getHexesInRange(pos, overlay.range.value))}
+				{currentHex && highlight(overlay.type, findHexPath(pos, currentHex))}
 			</>
 		);
 	};
 
 	const renderOverlay = (overlay: PathOverlay): React.ReactNode => {
-		const overlayColor = OVERLAY_TYPES[overlay.type].color;
-		return (
-			<HexHighlightLayer
-				hexes={findHexPath(overlay.from, overlay.to)}
-				color={overlayColor}
-				mapWidth={map.size.width}
-				mapHeight={map.size.height}
-			/>
-		);
+		return highlight(overlay.type, findHexPath(overlay.from, overlay.to));
 	};
 
 	const handleHexClick = (target: HexCoord) => {
@@ -1154,9 +1035,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					if (!hex) {
 						return;
 					}
-					if (isMapMode) {
-						console.log(`Map mode: left-click with ${selectedTool} tool on hex ${hex}`);
-					} else if (actionState) {
+					if (!isMapMode && actionState) {
 						handleHexClick(hex);
 					}
 				}}
@@ -1165,18 +1044,14 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				<StaticHexGrid width={map.size.width} height={map.size.height} />
 
 				{/* Movement Range Highlight Layer (hover) */}
-				{!isMapMode && hoveredCharacter && getCharacterPosition(hoveredCharacter.id) && !actionState && (
-					<HexHighlightLayer
-						hexes={getHexesInRange(
-							getCharacterPosition(hoveredCharacter.id)!,
-							CharacterSheet.from(hoveredCharacter.props).getStatTree().computeDerivedStat(DerivedStatType.Movement)
-								.value,
-						)}
-						color={OVERLAY_TYPES[OverlayType.Movement].color}
-						mapWidth={map.size.width}
-						mapHeight={map.size.height}
-					/>
-				)}
+				{!isMapMode &&
+					hoveredCharacter &&
+					getCharacterPosition(hoveredCharacter.id) &&
+					!actionState &&
+					highlight(
+						OverlayType.Movement,
+						getHexesInRange(getCharacterPosition(hoveredCharacter.id)!, getStrideRange(hoveredCharacter).value),
+					)}
 
 				{actionState && renderActionStateOverlay(actionState)}
 				{overlayState && renderOverlay(overlayState)}
@@ -1199,9 +1074,10 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							}
 
 							return (
-								<HexArea
+								<HexAreaComponent
 									key={index}
 									hexes={drawing.hexes}
+									mapSize={map.size}
 									offset={offset}
 									color={drawing.color}
 									isSelected={isSelected}
@@ -1401,35 +1277,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 				{/* Area Tool Preview Layer */}
 				{areaToolState && (
-					<g style={{ pointerEvents: 'none' }}>
-						{(() => {
-							const hexes = areaToolState.previewHexes;
-							const boundaryEdges = computeBoundaries(hexes);
-
-							return (
-								<>
-									{hexes.map((hex, index) => {
-										const vertices = getHexVertices(hex);
-										const pathData = `M${vertices.map(v => `${v.x},${v.y}`).join(' L')} Z`;
-										return <path key={index} d={pathData} fill='var(--accent)' fillOpacity={0.2} stroke='none' />;
-									})}
-									{boundaryEdges.map((edge, edgeIndex) => (
-										<line
-											key={`edge-${edgeIndex}`}
-											x1={edge.x1}
-											y1={edge.y1}
-											x2={edge.x2}
-											y2={edge.y2}
-											stroke='var(--accent)'
-											strokeWidth='0.3'
-											strokeOpacity={0.8}
-											strokeLinecap='round'
-										/>
-									))}
-								</>
-							);
-						})()}
-					</g>
+					<HexAreaComponent hexes={areaToolState.previewHexes} mapSize={map.size} color='var(--accent)' />
 				)}
 
 				{/* Stamp Tool Preview Layer */}

@@ -31,6 +31,11 @@ export interface HexCoord {
 	r: number;
 }
 
+export interface Dimensions {
+	width: number;
+	height: number;
+}
+
 /** A vertex at the corner of a hex, identified by position */
 export type HexVertex = Point;
 
@@ -681,24 +686,56 @@ export const getHexesInRange = (center: HexCoord, range: number): HexCoord[] => 
 	return hexes;
 };
 
-export const computeBoundaries = (hexes: HexCoord[]) => {
-	const hexSet = new Set(hexes.map(h => `${h.q},${h.r}`));
-	const edgeToNeighborIndex = [1, 0, 5, 4, 3, 2] as const;
-	const boundaryEdges: { x1: number; y1: number; x2: number; y2: number }[] = [];
+export const computeBoundaries = (
+	hexes: HexCoord[],
+	offset: HexCoord,
+): { x1: number; y1: number; x2: number; y2: number }[] => {
+	// Create a set of hex keys for quick lookup
+	const hexSet = new Set(hexes.map(h => `${h.q + offset.q},${h.r + offset.r}`));
 
+	// Edge index to neighbor index mapping for pointy-top hex:
+	// Edge 0 (v0→v1, top→top-right) borders Northeast neighbor (index 1)
+	// Edge 1 (v1→v2, top-right→bottom-right) borders East neighbor (index 0)
+	// Edge 2 (v2→v3, bottom-right→bottom) borders Southeast neighbor (index 5)
+	// Edge 3 (v3→v4, bottom→bottom-left) borders Southwest neighbor (index 4)
+	// Edge 4 (v4→v5, bottom-left→top-left) borders West neighbor (index 3)
+	// Edge 5 (v5→v0, top-left→top) borders Northwest neighbor (index 2)
+	const edgeToNeighborIndex = [1, 0, 5, 4, 3, 2];
+
+	// Collect all boundary edges
+	const boundaryEdges: { x1: number; y1: number; x2: number; y2: number }[] = [];
 	for (const hex of hexes) {
-		const vertices = getHexVertices(hex);
-		const neighbors = getHexNeighbors(hex);
+		const adjustedHex = { q: hex.q + offset.q, r: hex.r + offset.r };
+		const vertices = getHexVertices(adjustedHex, 10);
+		const neighbors = getHexNeighbors(adjustedHex);
+
+		// For each edge (6 edges)
 		for (let i = 0; i < 6; i++) {
 			const neighborIndex = edgeToNeighborIndex[i]!;
 			const neighbor = neighbors[neighborIndex]!;
-			if (!hexSet.has(`${neighbor.q},${neighbor.r}`)) {
+			const neighborKey = `${neighbor.q},${neighbor.r}`;
+			// Only draw this edge if neighbor is NOT in the area
+			if (!hexSet.has(neighborKey)) {
 				const v1 = vertices[i]!;
 				const v2 = vertices[(i + 1) % 6]!;
 				boundaryEdges.push({ x1: v1.x, y1: v1.y, x2: v2.x, y2: v2.y });
 			}
 		}
 	}
-
 	return boundaryEdges;
+};
+
+// Check if a hex position is within the grid bounds
+export const isHexInBounds = ({ q, r }: HexCoord, { width, height }: Dimensions): boolean => {
+	// Check vertical bounds
+	if (r < -height || r > height) {
+		return false;
+	}
+
+	// Calculate the q range for this row (same logic as generateHexes)
+	const qOffset = Math.floor(r / 2);
+	const minQ = -width - qOffset;
+	const maxQ = width - qOffset;
+
+	return q >= minQ && q <= maxQ;
 };
