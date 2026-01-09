@@ -55,8 +55,8 @@ const renderFaIcon = (iconName: string): React.ReactNode => {
 };
 
 const LEFT_CLICK_BUTTON = 0;
+const MIDDLE_CLICK_BUTTON = 1;
 const RIGHT_CLICK_BUTTON = 2;
-const MIDDLE_CLICK_BUTTON = 4;
 
 // Pre-computed hex path for pointy-top hexagon with radius 5
 const HEX_PATH = 'M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z';
@@ -714,7 +714,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		}
 		const hex = pixelToAxial(point);
 
-		if (e.button === 0) {
+		if (e.button === LEFT_CLICK_BUTTON) {
 			// Left click: allow drag, block default
 			e.preventDefault();
 
@@ -792,7 +792,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		}
 
 		// Handle stamp tool right click
-		if (e.button === 2 && isStampTool && svgRef.current) {
+		if (e.button === RIGHT_CLICK_BUTTON && isStampTool && svgRef.current) {
 			e.preventDefault();
 			openIconSelectionModal({
 				currentIcon: lastStampIcon,
@@ -807,7 +807,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	};
 
 	const handleMouseUp = (e: React.MouseEvent) => {
-		if (e.button === 0 && isLineTool && lineToolState) {
+		if (e.button === LEFT_CLICK_BUTTON && isLineTool && lineToolState) {
 			if (
 				lineToolState.startVertex.x !== lineToolState.currentEndVertex.x ||
 				lineToolState.startVertex.y !== lineToolState.currentEndVertex.y
@@ -822,7 +822,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			setLineToolState(null);
 		}
 
-		if (e.button === 0 && isSelectTool) {
+		if (e.button === LEFT_CLICK_BUTTON && isSelectTool) {
 			if (selectToolState.selectionBox) {
 				const selected = findDrawingsInBox(selectToolState.selectionBox);
 				setSelectToolState(prev => ({
@@ -894,7 +894,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			}
 		}
 
-		if (e.button === 0 && isAreaTool && areaToolState) {
+		if (e.button === LEFT_CLICK_BUTTON && isAreaTool && areaToolState) {
 			if (areaToolState.previewHexes.length > 0) {
 				addDrawing({ type: 'area', hexes: areaToolState.previewHexes, color: selectedColor });
 			}
@@ -951,7 +951,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	});
 
 	const handleMouseMove = (e: React.MouseEvent) => {
-		if (e.buttons === MIDDLE_CLICK_BUTTON) {
+		if (e.button === MIDDLE_CLICK_BUTTON) {
 			updateGridState({
 				offset: {
 					x: gridState.offset.x + e.movementX / gridState.scale,
@@ -989,7 +989,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					...prev,
 					selectionBox: prev.selectionBox ? { ...prev.selectionBox, end: point } : null,
 				}));
-			} else if (selectToolState.dragStart && e.buttons === 1) {
+			} else if (selectToolState.dragStart && e.button !== MIDDLE_CLICK_BUTTON) {
 				setSelectToolState(prev => ({ ...prev, dragCurrent: point }));
 			}
 		}
