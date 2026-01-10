@@ -16,7 +16,7 @@ import {
 } from 'react-icons/fa';
 import { FaX } from 'react-icons/fa6';
 
-import { useFindEncounter } from '../../hooks/useFindEncounter';
+import { useEncounters } from '../../hooks/useEncounters';
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
 import { Character, GameMap, MapMode, MapTool } from '../../types/ui';
@@ -38,10 +38,9 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 	const updateGridState = useStore(state => state.updateGridState);
 	const editMode = useStore(state => state.editMode);
 	const toggleEditMode = useStore(state => state.toggleEditMode);
-	const updateEncounter = useStore(state => state.updateEncounter);
 	const { closeAllModals, openEncounterConfigModal, openColorPickerModal, openTurnTrackerModal } = useModals();
 
-	const findEncounter = useFindEncounter();
+	const { updateEncounter, findEncounter } = useEncounters();
 	const encounter = findEncounter(encounterId);
 
 	if (!encounter) {

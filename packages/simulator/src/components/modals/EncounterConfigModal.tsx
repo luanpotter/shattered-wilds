@@ -2,7 +2,7 @@ import { HexCoord } from '@shattered-wilds/commons';
 import React, { useEffect, useState } from 'react';
 import { FaTrash } from 'react-icons/fa';
 
-import { useFindEncounter } from '../../hooks/useFindEncounter';
+import { useEncounters } from '../../hooks/useEncounters';
 import { useStore } from '../../store';
 import { Drawing } from '../../types/drawings';
 import { Button } from '../shared/Button';
@@ -16,8 +16,7 @@ interface EncounterConfigModalProps {
 export const EncounterConfigModal: React.FC<EncounterConfigModalProps> = ({ encounterId, onClose }) => {
 	const characters = useStore(state => state.characters);
 
-	const updateEncounter = useStore(state => state.updateEncounter);
-	const findEncounter = useFindEncounter();
+	const { updateEncounter, findEncounter } = useEncounters();
 	const encounter = findEncounter(encounterId);
 
 	const [name, setName] = useState(encounter?.name ?? '');

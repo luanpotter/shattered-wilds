@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { FaDownload, FaEye, FaPlus, FaTrash, FaUpload } from 'react-icons/fa';
 import { FaCirclePlay } from 'react-icons/fa6';
 
-import { useFindEncounter } from '../../hooks/useFindEncounter';
+import { useEncounters } from '../../hooks/useEncounters';
 import { PREDEFINED_ENCOUNTERS } from '../../pregen/predefined-encounters';
 import { useStore } from '../../store';
 import { createNewEncounter, Encounter } from '../../types/ui';
@@ -23,8 +23,7 @@ interface EncountersPageProps {
 }
 
 export const EncountersPage: React.FC<EncountersPageProps> = ({ initialEncounterId }) => {
-	const encounters = useStore(state => state.encounters);
-	const findEncounter = useFindEncounter();
+	const { encounters, findEncounter } = useEncounters();
 	const characters = useStore(state => state.characters);
 	const addEncounter = useStore(state => state.addEncounter);
 	const removeEncounter = useStore(state => state.removeEncounter);

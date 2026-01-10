@@ -10,7 +10,7 @@ import { OnboardingPage } from './components/pages/OnboardingPage';
 import { PrintFriendlyActions } from './components/pages/PrintFriendlyActions';
 import { PrintFriendlyCharacterSheetPage } from './components/pages/PrintFriendlyCharacterSheetPage';
 import { Button } from './components/shared/Button';
-import { useFindEncounter } from './hooks/useFindEncounter';
+import { useEncounters } from './hooks/useEncounters';
 import { useModals } from './hooks/useModals';
 import { useStore } from './store';
 import { DragState } from './types/ui';
@@ -47,7 +47,7 @@ const App = (): React.ReactElement => {
 	const editMode = useStore(state => state.editMode);
 	const toggleEditMode = useStore(state => state.toggleEditMode);
 
-	const findEncounter = useFindEncounter();
+	const { findEncounter } = useEncounters();
 
 	// Handle browser navigation (back/forward buttons)
 	useEffect(() => {

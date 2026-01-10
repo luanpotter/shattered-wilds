@@ -2,7 +2,7 @@ import { CharacterSheet, CheckFactory, Resource } from '@shattered-wilds/d12';
 import React, { useCallback, useMemo, useState } from 'react';
 import { FaBackward, FaDice, FaForward, FaPlay, FaStop } from 'react-icons/fa6';
 
-import { useFindEncounter } from '../../hooks/useFindEncounter';
+import { useEncounters } from '../../hooks/useEncounters';
 import { useModals } from '../../hooks/useModals';
 import { PropUpdater } from '../../hooks/usePropUpdates';
 import { useStore } from '../../store';
@@ -37,7 +37,6 @@ interface CharacterWithInitiative {
 
 export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId }) => {
 	const characters = useStore(state => state.characters);
-	const updateEncounter = useStore(state => state.updateEncounter);
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
 
 	const [editingCharacterId, setEditingCharacterId] = useState<string | null>(null);
@@ -47,7 +46,7 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 
 	const { openConfirmationModal, openCharacterSheetModal } = useModals();
 
-	const findEncounter = useFindEncounter();
+	const { updateEncounter, findEncounter } = useEncounters();
 	const encounter = findEncounter(encounterId);
 
 	const encounterCharacterIds = useMemo(
