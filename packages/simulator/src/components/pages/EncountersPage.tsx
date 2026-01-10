@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { FaDownload, FaEye, FaPlus, FaTrash, FaUpload } from 'react-icons/fa';
 import { FaCirclePlay } from 'react-icons/fa6';
 
+import { useFindEncounter } from '../../hooks/useFindEncounter';
 import { PREDEFINED_ENCOUNTERS } from '../../pregen/predefined-encounters';
 import { useStore } from '../../store';
 import { createNewEncounter, Encounter } from '../../types/ui';
@@ -18,17 +19,18 @@ import { FilterableCharacterSelect } from '../shared/FilterableCharacterSelect';
 import { EncounterView } from './EncounterView';
 
 interface EncountersPageProps {
-	initialEncounterId: string | null;
+	initialEncounterId: string | undefined;
 }
 
 export const EncountersPage: React.FC<EncountersPageProps> = ({ initialEncounterId }) => {
 	const encounters = useStore(state => state.encounters);
+	const findEncounter = useFindEncounter();
 	const characters = useStore(state => state.characters);
 	const addEncounter = useStore(state => state.addEncounter);
 	const removeEncounter = useStore(state => state.removeEncounter);
 
-	const [selectedEncounterId, setSelectedEncounterId] = useState<string | null>(initialEncounterId);
-	const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+	const [selectedEncounterId, setSelectedEncounterId] = useState<string | undefined>(initialEncounterId);
+	const [confirmDelete, setConfirmDelete] = useState<string | undefined>(undefined);
 	const [showCreateForm, setShowCreateForm] = useState(false);
 	const [newEncounterName, setNewEncounterName] = useState('');
 	const [selectedCharacterIds, setSelectedCharacterIds] = useState<string[]>([]);
@@ -47,7 +49,7 @@ export const EncountersPage: React.FC<EncountersPageProps> = ({ initialEncounter
 
 	const handleBackToList = () => {
 		Navigator.to(Route.Encounters);
-		setSelectedEncounterId(null);
+		setSelectedEncounterId(undefined);
 	};
 
 	const handleDeleteEncounter = (encounter: Encounter) => {
@@ -57,12 +59,12 @@ export const EncountersPage: React.FC<EncountersPageProps> = ({ initialEncounter
 	const handleConfirmDelete = () => {
 		if (confirmDelete) {
 			removeEncounter(confirmDelete);
-			setConfirmDelete(null);
+			setConfirmDelete(undefined);
 		}
 	};
 
 	const handleCancelDelete = () => {
-		setConfirmDelete(null);
+		setConfirmDelete(undefined);
 	};
 
 	const handleCreateEncounter = () => {
@@ -158,7 +160,7 @@ export const EncountersPage: React.FC<EncountersPageProps> = ({ initialEncounter
 						>
 							<h3 style={{ margin: '0 0 1rem 0' }}>Confirm Deletion</h3>
 							<p style={{ margin: '0 0 1.5rem 0' }}>
-								Are you sure you want to delete {encounters.find(e => e.id === confirmDelete)?.name}?
+								Are you sure you want to delete {findEncounter(confirmDelete)?.name}?
 							</p>
 							<div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
 								<Button onClick={handleCancelDelete} title='Cancel' />

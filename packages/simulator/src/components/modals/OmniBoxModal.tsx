@@ -2,6 +2,7 @@ import { getEnumKeys } from '@shattered-wilds/commons';
 import { Action } from '@shattered-wilds/d12';
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { useFindEncounter } from '../../hooks/useFindEncounter';
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
 import { Character, Encounter } from '../../types/ui';
@@ -229,8 +230,8 @@ const ContextBadge: React.FC<{ context: OmniBoxContext }> = ({ context }) => {
 	const characters = useStore(state => state.characters);
 	const character = context.characterId ? characters.find(c => c.id === context.characterId) : null;
 
-	const encounters = useStore(state => state.encounters);
-	const encounter = context.encounterId ? encounters.find(e => e.id === context.encounterId) : null;
+	const findEncounter = useFindEncounter();
+	const encounter = findEncounter(context.encounterId);
 
 	const pills: { label: string; value: string }[] = [
 		context.type && { label: 'do', value: context.type },

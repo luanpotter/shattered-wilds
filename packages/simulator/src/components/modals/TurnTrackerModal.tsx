@@ -2,6 +2,7 @@ import { CharacterSheet, CheckFactory, Resource } from '@shattered-wilds/d12';
 import React, { useCallback, useMemo, useState } from 'react';
 import { FaBackward, FaDice, FaForward, FaPlay, FaStop } from 'react-icons/fa6';
 
+import { useFindEncounter } from '../../hooks/useFindEncounter';
 import { useModals } from '../../hooks/useModals';
 import { PropUpdater } from '../../hooks/usePropUpdates';
 import { useStore } from '../../store';
@@ -36,7 +37,6 @@ interface CharacterWithInitiative {
 
 export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId }) => {
 	const characters = useStore(state => state.characters);
-	const encounters = useStore(state => state.encounters);
 	const updateEncounter = useStore(state => state.updateEncounter);
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
 
@@ -47,7 +47,9 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 
 	const { openConfirmationModal, openCharacterSheetModal } = useModals();
 
-	const encounter = encounters.find(e => e.id === encounterId);
+	const findEncounter = useFindEncounter();
+	const encounter = findEncounter(encounterId);
+
 	const encounterCharacterIds = useMemo(
 		() => (encounter ? Object.keys(encounter.characterPositions) : []),
 		[encounter],
@@ -122,7 +124,7 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 			const sorted = Object.entries(initiatives)
 				.filter(([, init]) => init !== null)
 				.sort((a, b) => (b[1]! as number) - (a[1]! as number));
-			const firstCharacterId = sorted.length > 0 ? sorted[0][0] : null;
+			const firstCharacterId = sorted.length > 0 ? sorted[0][0] : undefined;
 
 			const newTracker: TurnTracker = {
 				initiatives,

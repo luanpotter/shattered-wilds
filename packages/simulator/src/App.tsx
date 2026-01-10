@@ -10,31 +10,32 @@ import { OnboardingPage } from './components/pages/OnboardingPage';
 import { PrintFriendlyActions } from './components/pages/PrintFriendlyActions';
 import { PrintFriendlyCharacterSheetPage } from './components/pages/PrintFriendlyCharacterSheetPage';
 import { Button } from './components/shared/Button';
+import { useFindEncounter } from './hooks/useFindEncounter';
 import { useModals } from './hooks/useModals';
 import { useStore } from './store';
 import { DragState } from './types/ui';
 import { Navigator, Route, type RouteState } from './utils/routes';
 
-const getCharacterId = (route: RouteState): string | null => {
+const getCharacterId = (route: RouteState): string | undefined => {
 	if (route.route === Route.Character || route.route === Route.PrintSheet) {
 		return route.characterId;
 	}
-	return null;
+	return undefined;
 };
 
-const getEncounterId = (route: RouteState): string | null => {
+const getEncounterId = (route: RouteState): string | undefined => {
 	if (route.route === Route.Encounter) {
 		return route.encounterId;
 	}
-	return null;
+	return undefined;
 };
 
 const App = (): React.ReactElement => {
 	const [currentRoute, setCurrentRoute] = useState<RouteState>(() => Navigator.parseRoute());
-	const [initialCharacterId, setInitialCharacterId] = useState<string | null>(() =>
+	const [initialCharacterId, setInitialCharacterId] = useState<string | undefined>(() =>
 		getCharacterId(Navigator.parseRoute()),
 	);
-	const [initialEncounterId, setInitialEncounterId] = useState<string | null>(() =>
+	const [initialEncounterId, setInitialEncounterId] = useState<string | undefined>(() =>
 		getEncounterId(Navigator.parseRoute()),
 	);
 	const [dragState, setDragState] = useState<DragState>({ type: 'none' });
@@ -45,6 +46,8 @@ const App = (): React.ReactElement => {
 	const { closeAllModals, updateModal, openOmniBoxModal } = useModals();
 	const editMode = useStore(state => state.editMode);
 	const toggleEditMode = useStore(state => state.toggleEditMode);
+
+	const findEncounter = useFindEncounter();
 
 	// Handle browser navigation (back/forward buttons)
 	useEffect(() => {
@@ -65,7 +68,8 @@ const App = (): React.ReactElement => {
 			if (isControl && e.key.toLowerCase() === 'o') {
 				e.preventDefault();
 				const encounterId = getEncounterId(currentRoute);
-				const characterId = getCharacterId(currentRoute);
+				const characterId =
+					getCharacterId(currentRoute) ?? findEncounter(encounterId)?.turnTracker?.currentTurnCharacterId;
 				const context = { encounterId, characterId };
 				openOmniBoxModal({ context });
 			}
@@ -73,7 +77,7 @@ const App = (): React.ReactElement => {
 
 		window.addEventListener('keydown', omniSearchHandler);
 		return () => window.removeEventListener('keydown', omniSearchHandler);
-	}, [currentRoute, openOmniBoxModal]);
+	}, [currentRoute, findEncounter, openOmniBoxModal]);
 
 	useEffect(() => {
 		const handleMouseMove = (e: MouseEvent) => {
@@ -212,7 +216,7 @@ const App = (): React.ReactElement => {
 				>
 					{currentRoute.route === Route.NotFound && <NotFoundPage />}
 					{currentRoute.route === Route.Home && <HomePage />}
-					{currentRoute.route === Route.Encounters && <EncountersPage initialEncounterId={null} />}
+					{currentRoute.route === Route.Encounters && <EncountersPage initialEncounterId={undefined} />}
 					{currentRoute.route === Route.Encounter && <EncountersPage initialEncounterId={initialEncounterId} />}
 					{(currentRoute.route === Route.Characters || currentRoute.route === Route.Character) && (
 						<CharacterSheetsPage

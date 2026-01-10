@@ -18,7 +18,7 @@ import { FullPageCharacterSheet } from './FullPageCharacterSheet';
 interface CharacterSheetsPageProps {
 	onNavigateToCharacterSheet: (characterId: string) => void;
 	onNavigateToOnboarding: () => void;
-	initialCharacterId: string | null;
+	initialCharacterId: string | undefined;
 }
 
 export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
@@ -31,7 +31,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 	const removeCharacter = useStore(state => state.removeCharacter);
 	const addCharacter = useStore(state => state.addCharacter);
 	const { openCharacterCreationModal, openConfirmationModal } = useModals();
-	const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(initialCharacterId);
+	const [selectedCharacterId, setSelectedCharacterId] = useState<string | undefined>(initialCharacterId);
 
 	// Update selectedCharacterId when initialCharacterId changes (for URL navigation)
 	useEffect(() => {
@@ -68,7 +68,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 
 	const handleBackToList = () => {
 		Navigator.to(Route.Characters);
-		setSelectedCharacterId(null);
+		setSelectedCharacterId(undefined);
 	};
 
 	const handleEmptyCharacterCreation = () => {
