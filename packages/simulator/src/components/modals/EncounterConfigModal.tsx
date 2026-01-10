@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { FaTrash } from 'react-icons/fa';
 
 import { useStore } from '../../store';
-import { Drawing } from '../../types/ui';
+import { Drawing } from '../../types/drawings';
 import { Button } from '../shared/Button';
 import { AddCharacterDropdown } from '../shared/FilterableCharacterSelect';
 

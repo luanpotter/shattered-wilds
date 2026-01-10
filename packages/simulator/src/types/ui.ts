@@ -1,35 +1,15 @@
-import { Point, HexCoord } from '@shattered-wilds/commons';
+import { Point, HexCoord, Dimensions } from '@shattered-wilds/commons';
 import { Check, FeatSlot, FeatDefinition, Condition, Consequence, ResourceCost } from '@shattered-wilds/d12';
 
 import { OmniBoxContext } from '../components/omni/OmniBoxContext';
 
+import { Drawing } from './drawings';
+
 export type MapMode = 'map' | 'encounter';
 export type MapTool = 'select' | 'line' | 'area' | 'stamp';
 
-export interface LineDrawing {
-	type: 'line';
-	start: Point;
-	end: Point;
-	color: string;
-}
-
-export interface AreaDrawing {
-	type: 'area';
-	hexes: HexCoord[];
-	color: string;
-}
-
-export interface StampDrawing {
-	type: 'stamp';
-	hex: HexCoord;
-	icon: string;
-	color: string;
-}
-
-export type Drawing = LineDrawing | AreaDrawing | StampDrawing;
-
 export interface GameMap {
-	size: { width: number; height: number };
+	size: Dimensions;
 	drawings: Drawing[];
 }
 
@@ -269,13 +249,8 @@ export const createNewEncounter = ({
 	};
 };
 
-const findNextEmptyHexCoordFromList = (usedPositions: HexCoord[], startQ = 0, startR = 0): HexCoord => {
-	const isOccupied = (q: number, r: number) => usedPositions.some(p => p.q === q && p.r === r);
-
-	if (!isOccupied(startQ, startR)) {
-		return { q: startQ, r: startR };
-	}
-
+const findNextEmptyHexCoordFromList = (usedPositions: HexCoord[]): HexCoord => {
+	const isOccupied = ({ q, r }: HexCoord) => usedPositions.some(p => p.q === q && p.r === r);
 	const directions = [
 		{ q: 1, r: 0 },
 		{ q: 0, r: 1 },
@@ -285,17 +260,19 @@ const findNextEmptyHexCoordFromList = (usedPositions: HexCoord[], startQ = 0, st
 		{ q: 1, r: -1 },
 	];
 
-	let q = startQ;
-	let r = startR;
-	let radius = 1;
+	const currentHex = { q: 0, r: 0 };
+	if (!isOccupied(currentHex)) {
+		return currentHex;
+	}
 
+	let radius = 1;
 	while (radius < 20) {
 		for (let side = 0; side < 6; side++) {
 			for (let step = 0; step < radius; step++) {
-				q += directions[side].q;
-				r += directions[side].r;
-				if (!isOccupied(q, r)) {
-					return { q, r };
+				currentHex.q += directions[side].q;
+				currentHex.r += directions[side].r;
+				if (!isOccupied(currentHex)) {
+					return currentHex;
 				}
 			}
 		}
@@ -305,7 +282,7 @@ const findNextEmptyHexCoordFromList = (usedPositions: HexCoord[], startQ = 0, st
 	return { q: 0, r: 0 };
 };
 
-export function getCharacterInitials(character: { props: { name: string } }): string {
+export const getCharacterInitials = (character: { props: { name: string } }): string => {
 	const words = character.props.name.split(' ');
 	if (words.length === 1) {
 		// Single word, return up to first 2 characters, uppercased
@@ -318,4 +295,4 @@ export function getCharacterInitials(character: { props: { name: string } }): st
 			.join('')
 			.toUpperCase();
 	}
-}
+};

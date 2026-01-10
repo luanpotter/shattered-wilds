@@ -1,25 +1,24 @@
-import { Box, HexCoord, Point, pointToSegmentDistance } from '@shattered-wilds/commons';
+import { Box, HexCoord, Point } from '@shattered-wilds/commons';
 import { ACTIONS, Action, CharacterSheet, DerivedStatType, Distance, Resource } from '@shattered-wilds/d12';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { IconType } from 'react-icons';
-import * as Fa6Icons from 'react-icons/fa6';
 
 import { useErrors } from '../../hooks/useErrors';
 import { useModals } from '../../hooks/useModals';
 import { PropUpdater } from '../../hooks/usePropUpdates';
 import { useStore } from '../../store';
+import { Drawing, drawingContainsPoint, drawingIntersectsBox } from '../../types/drawings';
 import { getBasicAttacksFor } from '../../types/grid-actions';
 import {
 	AreaToolState,
 	Character,
 	DragState,
-	Drawing,
 	GameMap,
 	LineToolState,
 	MapMode,
 	MapTool,
 	SelectToolState,
 } from '../../types/ui';
+import { renderFaIcon } from '../../utils/faIcons';
 import { CharacterToken } from '../CharacterToken';
 import { OmniBoxOptionType } from '../omni/OmniBoxOption';
 import { TokenContextMenu } from '../TokenContextMenu';
@@ -28,14 +27,6 @@ import { GridActionSelectionData, GridActionTool, gridActionRegistry } from './G
 import { HexAreaComponent } from './HexAreaComponent';
 import { hexGrid } from './HexGrid';
 import { StaticHexGrid } from './StaticHexGrid';
-
-// Dynamic icon loader from fa6
-const renderFaIcon = (iconName: string): React.ReactNode => {
-	const icons = Fa6Icons as Record<string, IconType>;
-	const IconComponent = icons[iconName];
-	if (!IconComponent) return null;
-	return <IconComponent />;
-};
 
 const LEFT_CLICK_BUTTON = 0;
 const MIDDLE_CLICK_BUTTON = 1;
@@ -241,33 +232,10 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 	);
 
 	const findDrawingAtPoint = useCallback(
-		(point: Point, threshold = 2): number | null => {
-			const clickedHex = hexGrid.pixelToAxial(point);
+		(point: Point): number | null => {
 			for (let i = map.drawings.length - 1; i >= 0; i--) {
-				const drawing = map.drawings[i];
-				if (drawing.type === 'area') {
-					// Check if point is inside any of the hexes
-					for (const hex of drawing.hexes) {
-						if (hex.q === clickedHex.q && hex.r === clickedHex.r) {
-							return i;
-						}
-					}
-				}
-				if (drawing.type === 'line') {
-					const pathVertices = hexGrid.findVertexPath(drawing.start, drawing.end);
-					for (let j = 0; j < pathVertices.length - 1; j++) {
-						const a = pathVertices[j];
-						const b = pathVertices[j + 1];
-						const dist = pointToSegmentDistance(point, a, b);
-						if (dist <= threshold) {
-							return i;
-						}
-					}
-				}
-				if (drawing.type === 'stamp') {
-					if (drawing.hex.q === clickedHex.q && drawing.hex.r === clickedHex.r) {
-						return i;
-					}
+				if (drawingContainsPoint({ hexGrid, drawing: map.drawings[i], point })) {
+					return i;
 				}
 			}
 			return null;
@@ -279,36 +247,8 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 		(box: Box): Set<number> => {
 			const result = new Set<number>();
 			map.drawings.forEach((drawing, index) => {
-				if (drawing.type === 'area') {
-					// Check if any hex center is inside the box
-					for (const hex of drawing.hexes) {
-						const point = hexGrid.axialToPixel(hex);
-						if (box.contains(point)) {
-							result.add(index);
-							break;
-						}
-					}
-				}
-				if (drawing.type === 'line') {
-					const pathVertices = hexGrid.findVertexPath(drawing.start, drawing.end);
-					// Check if any vertex is inside or any segment intersects
-					for (let i = 0; i < pathVertices.length; i++) {
-						if (box.contains(pathVertices[i])) {
-							result.add(index);
-							break;
-						}
-						const line = { start: pathVertices[i], end: pathVertices[i + 1] };
-						if (i < pathVertices.length - 1 && box.intersects(line)) {
-							result.add(index);
-							break;
-						}
-					}
-				}
-				if (drawing.type === 'stamp') {
-					const point = hexGrid.axialToPixel(drawing.hex);
-					if (box.contains(point)) {
-						result.add(index);
-					}
+				if (drawingIntersectsBox({ hexGrid, drawing, box })) {
+					result.add(index);
 				}
 			});
 			return result;

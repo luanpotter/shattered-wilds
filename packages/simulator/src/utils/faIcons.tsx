@@ -1,10 +1,19 @@
-// Font Awesome 6 icon search utility
+// Font Awesome 6 icon search and rendering utility
 // Icon names are the react-icons export names (e.g., 'FaStar', 'FaFire')
 
+import { IconType } from 'react-icons';
 import * as Fa6Icons from 'react-icons/fa6';
 
 // Get all FA6 icon names dynamically from the module
 const FA_ICONS: string[] = Object.keys(Fa6Icons).filter(key => key.startsWith('Fa'));
+
+// Dynamic icon loader from fa6
+export const renderFaIcon = (iconName: string): React.ReactNode => {
+	const icons = Fa6Icons as Record<string, IconType>;
+	const IconComponent = icons[iconName];
+	if (!IconComponent) return null;
+	return <IconComponent />;
+};
 
 interface IconEntry {
 	name: string;
