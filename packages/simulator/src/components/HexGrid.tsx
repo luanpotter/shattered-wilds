@@ -1,4 +1,5 @@
 import {
+	Box,
 	HexCoord,
 	Point,
 	axialToPixel,
@@ -287,61 +288,14 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	);
 
 	const findDrawingsInBox = useCallback(
-		(box: { start: Point; end: Point }): Set<number> => {
-			const minX = Math.min(box.start.x, box.end.x);
-			const maxX = Math.max(box.start.x, box.end.x);
-			const minY = Math.min(box.start.y, box.end.y);
-			const maxY = Math.max(box.start.y, box.end.y);
-
-			// Helper to check if a point is inside the box
-			const pointInBox = (p: Point) => p.x >= minX && p.x <= maxX && p.y >= minY && p.y <= maxY;
-
-			// Helper to check if a line segment intersects the box
-			const segmentIntersectsBox = (p1: Point, p2: Point): boolean => {
-				// If either endpoint is inside, it intersects
-				if (pointInBox(p1) || pointInBox(p2)) return true;
-
-				// Check if segment crosses any of the 4 box edges
-				const boxEdges: [Point, Point][] = [
-					[
-						{ x: minX, y: minY },
-						{ x: maxX, y: minY },
-					], // top
-					[
-						{ x: maxX, y: minY },
-						{ x: maxX, y: maxY },
-					], // right
-					[
-						{ x: maxX, y: maxY },
-						{ x: minX, y: maxY },
-					], // bottom
-					[
-						{ x: minX, y: maxY },
-						{ x: minX, y: minY },
-					], // left
-				];
-
-				for (const [e1, e2] of boxEdges) {
-					if (segmentsIntersect(p1, p2, e1, e2)) {
-						return true;
-					}
-				}
-				return false;
-			};
-
-			// Helper to check if two line segments intersect
-			const segmentsIntersect = (a1: Point, a2: Point, b1: Point, b2: Point): boolean => {
-				const ccw = (A: Point, B: Point, C: Point) => (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x);
-				return ccw(a1, b1, b2) !== ccw(a2, b1, b2) && ccw(a1, a2, b1) !== ccw(a1, a2, b2);
-			};
-
+		(box: Box): Set<number> => {
 			const result = new Set<number>();
 			map.drawings.forEach((drawing, index) => {
 				if (drawing.type === 'area') {
 					// Check if any hex center is inside the box
 					for (const hex of drawing.hexes) {
 						const point = axialToPixel(hex);
-						if (pointInBox(point)) {
+						if (box.contains(point)) {
 							result.add(index);
 							break;
 						}
@@ -351,11 +305,12 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					const pathVertices = findVertexPath(drawing.start, drawing.end);
 					// Check if any vertex is inside or any segment intersects
 					for (let i = 0; i < pathVertices.length; i++) {
-						if (pointInBox(pathVertices[i])) {
+						if (box.contains(pathVertices[i])) {
 							result.add(index);
 							break;
 						}
-						if (i < pathVertices.length - 1 && segmentIntersectsBox(pathVertices[i], pathVertices[i + 1])) {
+						const line = { start: pathVertices[i], end: pathVertices[i + 1] };
+						if (i < pathVertices.length - 1 && box.intersects(line)) {
 							result.add(index);
 							break;
 						}
@@ -363,7 +318,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				}
 				if (drawing.type === 'stamp') {
 					const point = axialToPixel(drawing.hex);
-					if (pointInBox(point)) {
+					if (box.contains(point)) {
 						result.add(index);
 					}
 				}
@@ -411,16 +366,6 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	useEffect(() => {
 		onSelectionChange?.(selectToolState.selectedIndices);
 	}, [selectToolState.selectedIndices, onSelectionChange]);
-
-	// // Clear measure state when measure modal is closed
-	// useEffect(() => {
-	// 	if (measureState && !measureState.isSelectingTarget) {
-	// 		const hasMeasureModal = modals.some(modal => modal.type === 'measure');
-	// 		if (!hasMeasureModal) {
-	// 			setMeasureState(null);
-	// 		}
-	// 	}
-	// }, [modals, measureState]);
 
 	// Handle drag move and drop
 	useEffect(() => {
@@ -717,7 +662,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 		if (e.button === LEFT_CLICK_BUTTON && isSelectTool) {
 			if (selectToolState.selectionBox) {
-				const selected = findDrawingsInBox(selectToolState.selectionBox);
+				const selected = findDrawingsInBox(new Box({ ...selectToolState.selectionBox }));
 				setSelectToolState(prev => ({
 					...prev,
 					selectedIndices: e.shiftKey ? new Set([...prev.selectedIndices, ...selected]) : selected,
