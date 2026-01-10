@@ -40,7 +40,7 @@ export const drawingContainsPoint = ({
 			}
 		}
 	} else if (drawing.type === 'line') {
-		const threshold = 0.5; // in pixels; "thickness" of the line clickable area
+		const threshold = 1.0; // in pixels; "thickness" of the line clickable area
 		const pathVertices = hexGrid.findVertexPath(drawing.start, drawing.end);
 		for (let j = 0; j < pathVertices.length - 1; j++) {
 			const line = { start: pathVertices[j], end: pathVertices[j + 1] };
