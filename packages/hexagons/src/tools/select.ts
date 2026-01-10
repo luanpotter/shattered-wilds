@@ -105,7 +105,7 @@ class HexSelectTool {
 
 							const vertices = getHexVertices({ x: px, y: py });
 							const closest = findClosestVertex({ x: px, y: py }, vertices);
-							lattice.push(closest ?? { x: px, y: py });
+							lattice.push(closest);
 						}
 						this.moveLattice[id] = { lattice, origin: { x: drawing.x, y: drawing.y } };
 					} else {
@@ -161,7 +161,7 @@ class HexSelectTool {
 				const shape = drawing.shape;
 				if (shape.points.length > 0) {
 					// Polygon: align to the nearest lattice vertex
-					const snapped = findClosestVertex(moved, vertices) ?? moved;
+					const snapped = findClosestVertex(moved, vertices);
 					const offsetX = snapped.x - origin.x;
 					const offsetY = snapped.y - origin.y;
 					const newOrigin = {

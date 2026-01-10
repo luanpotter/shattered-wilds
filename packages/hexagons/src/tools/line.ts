@@ -86,13 +86,6 @@ export class HexLineTool {
 			}
 
 			const endVertex = findClosestVertex(scenePos, vertices);
-			if (!endVertex) {
-				this.startVertex = null;
-				this.clearPreview();
-				return;
-			}
-
-			// Find the path
 			const path = findVertexPath(this.startVertex, endVertex);
 
 			if (path.length > 1) {
@@ -272,10 +265,7 @@ export class HexLineTool {
 
 		// Find the closest vertex to click position
 		const closestVertex = findClosestVertex(scenePos, vertices);
-
-		if (closestVertex) {
-			this.startVertex = closestVertex;
-		}
+		this.startVertex = closestVertex;
 
 		event?.stopPropagation?.();
 		event?.preventDefault?.();
@@ -294,10 +284,6 @@ export class HexLineTool {
 
 		// Find the closest vertex to mouse position
 		const closestVertex = findClosestVertex(scenePos, vertices);
-
-		if (!closestVertex) {
-			return;
-		}
 
 		// If we're dragging, draw a line from start to current vertex
 		if (this.startVertex) {

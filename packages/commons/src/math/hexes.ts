@@ -78,9 +78,7 @@ export const vertexKey = (v: Point): string => {
 /**
  * Find the closest vertex to a given point.
  */
-export const findClosestVertex = (point: Point, vertices: Point[]): Point | null => {
-	if (vertices.length === 0) return null;
-
+export const findClosestVertex = (point: Point, vertices: Point[]): Point => {
 	let closest: Point | null = null;
 	let closestDistSq = Infinity;
 
@@ -94,11 +92,13 @@ export const findClosestVertex = (point: Point, vertices: Point[]): Point | null
 		}
 	}
 
-	return closest;
+	return closest ?? point;
 };
 
 /**
- * Calculate the perpendicular distance from a point to a line.
+ * Calculate the perpendicular distance from a point to an infinite line.
+ * Note: This extends the line infinitely in both directions.
+ * For distance to a line segment, use distanceToSegment instead.
  */
 export const distanceToLine = (point: Point, line: Line): number => {
 	const dx = line.end.x - line.start.x;
@@ -114,6 +114,32 @@ export const distanceToLine = (point: Point, line: Line): number => {
 	const t = ((point.x - line.start.x) * dx + (point.y - line.start.y) * dy) / lengthSq;
 	const projX = line.start.x + t * dx;
 	const projY = line.start.y + t * dy;
+
+	const pdx = point.x - projX;
+	const pdy = point.y - projY;
+	return Math.sqrt(pdx * pdx + pdy * pdy);
+};
+
+/**
+ * Calculate the distance from a point to a line segment.
+ * Unlike distanceToLine, this clamps the projection to the segment bounds.
+ */
+export const distanceToSegment = (point: Point, segment: Line): number => {
+	const dx = segment.end.x - segment.start.x;
+	const dy = segment.end.y - segment.start.y;
+	const lengthSq = dx * dx + dy * dy;
+
+	if (lengthSq === 0) {
+		// Segment is a point
+		const pdx = point.x - segment.start.x;
+		const pdy = point.y - segment.start.y;
+		return Math.sqrt(pdx * pdx + pdy * pdy);
+	}
+
+	// Calculate projection parameter and clamp to [0, 1]
+	const t = Math.max(0, Math.min(1, ((point.x - segment.start.x) * dx + (point.y - segment.start.y) * dy) / lengthSq));
+	const projX = segment.start.x + t * dx;
+	const projY = segment.start.y + t * dy;
 
 	const pdx = point.x - projX;
 	const pdy = point.y - projY;
@@ -431,7 +457,7 @@ export class HexGrid {
 	/**
 	 * Find the nearest vertex to a point, searching the local hex and its neighbors.
 	 */
-	findNearestVertex(point: Point): Point | null {
+	findNearestVertex(point: Point): Point {
 		const hex = this.pixelToAxial(point);
 		const neighbors = this.getHexNeighbors(hex);
 		const allHexes = [hex, ...neighbors];

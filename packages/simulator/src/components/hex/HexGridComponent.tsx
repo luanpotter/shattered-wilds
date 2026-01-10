@@ -6,7 +6,7 @@ import { useErrors } from '../../hooks/useErrors';
 import { useModals } from '../../hooks/useModals';
 import { PropUpdater } from '../../hooks/usePropUpdates';
 import { useStore } from '../../store';
-import { Drawing, drawingContainsPoint, drawingIntersectsBox } from '../../types/drawings';
+import { displaceDrawing, Drawing, drawingContainsPoint, drawingIntersectsBox } from '../../types/drawings';
 import { getBasicAttacksFor } from '../../types/grid-actions';
 import {
 	AreaToolState,
@@ -483,9 +483,11 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 		if (e.button === LEFT_CLICK_BUTTON) {
 			// Left click: allow drag, block default
 			e.preventDefault();
+			if (!svgRef.current) {
+				return;
+			}
 
-			// Handle line tool start
-			if (isLineTool && svgRef.current) {
+			if (isLineTool) {
 				const startVertex = hexGrid.findNearestVertex(point);
 				if (startVertex) {
 					setLineToolState({
@@ -494,10 +496,7 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 						pathVertices: [startVertex],
 					});
 				}
-			}
-
-			// Handle select tool start
-			if (isSelectTool && svgRef.current) {
+			} else if (isSelectTool) {
 				const clickedDrawingIndex = findDrawingAtPoint(point);
 				if (clickedDrawingIndex !== null) {
 					const isAlreadySelected = selectToolState.selectedIndices.has(clickedDrawingIndex);
@@ -510,10 +509,8 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 						}
 						setSelectToolState(prev => ({ ...prev, selectedIndices: newSelected }));
 					} else if (isAlreadySelected) {
-						// Store raw coordinates - each drawing type will snap to its own lattice
 						setSelectToolState(prev => ({ ...prev, dragStart: point, dragCurrent: point }));
 					} else {
-						// Store raw coordinates - each drawing type will snap to its own lattice
 						setSelectToolState(prev => ({
 							...prev,
 							selectedIndices: new Set([clickedDrawingIndex]),
@@ -530,19 +527,13 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 						dragCurrent: null,
 					}));
 				}
-			}
-
-			// Handle area tool start
-			if (isAreaTool && svgRef.current) {
+			} else if (isAreaTool) {
 				setAreaToolState({
 					centerHex: hex,
 					radius: 0,
 					previewHexes: [hex],
 				});
-			}
-
-			// Handle stamp tool left click
-			if (isStampTool && svgRef.current) {
+			} else if (isStampTool) {
 				if (lastStampIcon) {
 					addDrawing({ type: 'stamp', hex, icon: lastStampIcon, color: selectedColor });
 				} else {
@@ -589,71 +580,22 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 		}
 
 		if (e.button === LEFT_CLICK_BUTTON && isSelectTool) {
-			if (selectToolState.selectionBox) {
-				const selected = findDrawingsInBox(new Box({ ...selectToolState.selectionBox }));
+			const { selectionBox, dragStart, dragCurrent } = selectToolState;
+			if (selectionBox) {
+				const selected = findDrawingsInBox(new Box({ ...selectionBox }));
 				setSelectToolState(prev => ({
 					...prev,
 					selectedIndices: e.shiftKey ? new Set([...prev.selectedIndices, ...selected]) : selected,
 					selectionBox: null,
 				}));
-			} else if (selectToolState.dragStart && selectToolState.dragCurrent) {
+			} else if (dragStart && dragCurrent) {
 				const newDrawings = map.drawings.map((drawing, i) => {
 					if (!selectToolState.selectedIndices.has(i)) return drawing;
-					if (drawing.type === 'line') {
-						// Snap to vertex lattice for lines
-						const startVertex = hexGrid.findNearestVertex(selectToolState.dragStart!) ?? selectToolState.dragStart!;
-						const endVertex = hexGrid.findNearestVertex(selectToolState.dragCurrent!) ?? selectToolState.dragCurrent!;
-						const dx = endVertex.x - startVertex.x;
-						const dy = endVertex.y - startVertex.y;
-						if (dx === 0 && dy === 0) {
-							return drawing;
-						}
-						// Apply offset and snap to nearest valid vertices
-						const rawStart = { x: drawing.start.x + dx, y: drawing.start.y + dy };
-						const rawEnd = { x: drawing.end.x + dx, y: drawing.end.y + dy };
-						const newStart = hexGrid.findNearestVertex(rawStart) ?? drawing.start;
-						const newEnd = hexGrid.findNearestVertex(rawEnd) ?? drawing.end;
-						return {
-							...drawing,
-							start: newStart,
-							end: newEnd,
-						};
-					}
-					if (drawing.type === 'area') {
-						// Snap to hex center lattice for areas
-						const startHex = hexGrid.pixelToAxial(selectToolState.dragStart!);
-						const endHex = hexGrid.pixelToAxial(selectToolState.dragCurrent!);
-						const dq = endHex.q - startHex.q;
-						const dr = endHex.r - startHex.r;
-						if (dq === 0 && dr === 0) {
-							return drawing;
-						}
-						return {
-							...drawing,
-							hexes: drawing.hexes.map(hex => ({
-								q: hex.q + dq,
-								r: hex.r + dr,
-							})),
-						};
-					}
-					if (drawing.type === 'stamp') {
-						// Snap to hex center lattice for stamps
-						const startHex = hexGrid.pixelToAxial(selectToolState.dragStart!);
-						const endHex = hexGrid.pixelToAxial(selectToolState.dragCurrent!);
-						const dq = endHex.q - startHex.q;
-						const dr = endHex.r - startHex.r;
-						if (dq === 0 && dr === 0) {
-							return drawing;
-						}
-						return {
-							...drawing,
-							hex: {
-								q: drawing.hex.q + dq,
-								r: drawing.hex.r + dr,
-							},
-						};
-					}
-					return drawing;
+					return displaceDrawing({
+						hexGrid,
+						drawing,
+						delta: { start: dragStart, end: dragCurrent },
+					});
 				});
 				updateMap({ ...map, drawings: newDrawings });
 				setSelectToolState(prev => ({ ...prev, dragStart: null, dragCurrent: null }));
@@ -926,11 +868,9 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 				{/* Saved Drawings Layer */}
 				<g style={{ pointerEvents: 'none' }}>
 					{map.drawings.map((drawing, index) => {
+						const isSelected = selectToolState.selectedIndices.has(index);
+						const isDragging = isSelected && selectToolState.dragStart !== null && selectToolState.dragCurrent !== null;
 						if (drawing.type === 'area') {
-							const isSelected = selectToolState.selectedIndices.has(index);
-							const isDragging =
-								isSelected && selectToolState.dragStart !== null && selectToolState.dragCurrent !== null;
-
 							// Calculate hex offset for dragging - snap to hex center lattice
 							const offset = { q: 0, r: 0 };
 							if (isDragging) {
