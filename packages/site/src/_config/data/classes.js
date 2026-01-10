@@ -7,6 +7,7 @@ export const classes = Object.values(CLASS_DEFINITIONS).map(def => {
 		// wiki parameters
 		group: 'Classes',
 		groupSlug: 'Classes',
+		globalDataKey: 'classes',
 		slug,
 		title: `${def.name}`,
 		url: `/wiki/${slug}/`,

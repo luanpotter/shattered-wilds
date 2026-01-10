@@ -16,6 +16,7 @@ export const equipment = Object.values(BASIC_EQUIPMENT).map(def => {
 		// wiki parameters
 		group: 'Equipment',
 		groupSlug: 'Equipment',
+		globalDataKey: 'equipment',
 		slug,
 		title: `${item.name}`,
 		url: `/wiki/${slug}/`,

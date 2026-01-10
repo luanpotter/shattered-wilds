@@ -7,6 +7,7 @@ export const covers = Object.values(COVER_TYPES).map(def => {
 		// wiki parameters
 		group: 'Cover',
 		groupSlug: 'Cover',
+		globalDataKey: 'covers',
 		slug,
 		title: `Passive Cover - ${def.type}`,
 		url: `/wiki/${slug}/`,

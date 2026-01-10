@@ -11,6 +11,7 @@ export const predefinedArcaneSpells = Object.values(PREDEFINED_ARCANE_SPELLS).ma
 		// wiki parameters
 		group: 'Predefined_Arcane_Spells',
 		groupSlug: 'Predefined_Arcane_Spells',
+		globalDataKey: 'predefinedArcaneSpells',
 		slug,
 		title: `${def.name}`,
 		url: `/wiki/${slug}/`,

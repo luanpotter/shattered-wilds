@@ -21,6 +21,7 @@ export const actions = Object.values(ACTIONS).map(def => {
 		// wiki parameters
 		group: 'Action',
 		groupSlug: 'Action',
+		globalDataKey: 'actions',
 		slug,
 		title: `${def.name}`,
 		url: `/wiki/${slug}/`,

@@ -7,6 +7,7 @@ export const schools = Object.values(ARCANE_SCHOOLS).map(def => {
 		// wiki parameters
 		group: 'Arcane_Schools',
 		groupSlug: 'Arcane_Schools',
+		globalDataKey: 'schools',
 		slug,
 		title: `${def.name}`,
 		url: `/wiki/${slug}/`,

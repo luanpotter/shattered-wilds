@@ -9,6 +9,7 @@ export const flavors = Object.values(CLASS_FLAVORS).map(def => {
 		// wiki parameters
 		group: 'Class Flavors',
 		groupSlug: 'Classes',
+		globalDataKey: 'flavors',
 		slug,
 		title,
 		url: `/wiki/${slug}/`,

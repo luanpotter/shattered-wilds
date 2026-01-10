@@ -36,22 +36,6 @@ export default function (eleventyConfig) {
 	eleventyConfig.addPlugin(eleventyGoogleFonts);
 
 	eleventyConfig.addGlobalData('lexiconFiles', lexiconFiles);
-	eleventyConfig.addGlobalData('actions', actions);
-	eleventyConfig.addGlobalData('stats', stats);
-	eleventyConfig.addGlobalData('derivedStats', derivedStats);
-	eleventyConfig.addGlobalData('resources', resources);
-	eleventyConfig.addGlobalData('feats', feats);
-	eleventyConfig.addGlobalData('equipment', equipment);
-	eleventyConfig.addGlobalData('classes', classes);
-	eleventyConfig.addGlobalData('traits', traits);
-	eleventyConfig.addGlobalData('covers', covers);
-	eleventyConfig.addGlobalData('predefinedArcaneSpells', predefinedArcaneSpells);
-	eleventyConfig.addGlobalData('schools', schools);
-	eleventyConfig.addGlobalData('conditions', conditions);
-	eleventyConfig.addGlobalData('consequences', consequences);
-	eleventyConfig.addGlobalData('upbringings', upbringings);
-	eleventyConfig.addGlobalData('roles', roles);
-	eleventyConfig.addGlobalData('flavors', flavors);
 
 	const wikiPages = [
 		...lexiconFiles,
@@ -79,6 +63,11 @@ export default function (eleventyConfig) {
 			}
 			return a.title.localeCompare(b.title);
 		});
+
+	const byGlobalKey = Object.groupBy(wikiPages, e => e.globalDataKey);
+	for (const [key, entries] of Object.entries(byGlobalKey)) {
+		eleventyConfig.addGlobalData(key, entries);
+	}
 
 	const wikiByGroup = wikiPages.reduce((acc, e) => {
 		if (!e.group) {

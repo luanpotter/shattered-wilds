@@ -10,6 +10,7 @@ export const stats = StatType.values
 			// wiki parameters
 			group: 'Stat',
 			groupSlug: 'Stat',
+			globalDataKey: 'stats',
 			slug,
 			title: stat.name,
 			url: `/wiki/${slug}/`,

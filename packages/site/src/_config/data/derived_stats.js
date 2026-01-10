@@ -7,6 +7,7 @@ export const derivedStats = Object.values(DERIVED_STATS).map(stat => {
 		// wiki parameters
 		group: 'Derived_Stat',
 		groupSlug: 'Derived_Stat',
+		globalDataKey: 'derivedStats',
 		slug,
 		title: stat.name,
 		url: `/wiki/${slug}/`,

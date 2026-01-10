@@ -7,6 +7,7 @@ export const resources = Object.values(RESOURCES).map(resource => {
 		// wiki parameters
 		group: 'Resource',
 		groupSlug: 'Resource',
+		globalDataKey: 'resources',
 		slug,
 		title: resource.fullName,
 		url: `/wiki/${slug}/`,

@@ -20,6 +20,7 @@ export const feats = Object.values(FEATS).map(feat => {
 		// wiki parameters
 		group: 'Feat',
 		groupSlug: 'Feat',
+		globalDataKey: 'feats',
 		slug,
 		title: feat.name,
 		url: `/wiki/${slug}/`,

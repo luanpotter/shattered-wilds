@@ -9,6 +9,7 @@ export const roles = Object.values(CLASS_ROLES).map(def => {
 		// wiki parameters
 		group: 'Class Roles',
 		groupSlug: 'Classes',
+		globalDataKey: 'roles',
 		slug,
 		title,
 		url: `/wiki/${slug}/`,

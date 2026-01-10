@@ -7,6 +7,7 @@ export const traits = Object.values(TRAITS).map(def => {
 		// wiki parameters
 		group: 'Trait',
 		groupSlug: 'Trait',
+		globalDataKey: 'traits',
 		slug,
 		title: `${def.name}`,
 		url: `/wiki/${slug}/`,

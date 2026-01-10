@@ -4,8 +4,8 @@
 	"description": "Website dedicated to host information about Shattered Wilds.",
 	"type": "module",
 	"scripts": {
-		"build": "eleventy --config=.eleventy.js",
-		"dev": "eleventy --serve --config=.eleventy.js",
+		"build": "bun --bun eleventy --config=.eleventy.js",
+		"dev": "bun --bun eleventy --serve --config=.eleventy.js",
 		"lint": "eslint . --ext .ts,.tsx,.js,.cjs --config eslint.config.ts --max-warnings 0",
 		"lint:fix": "eslint . --ext .ts,.tsx,.js,.cjs --fix --config eslint.config.ts --max-warnings 0",
 		"type-check": "tsc --noEmit --incremental false --project tsconfig.json",
