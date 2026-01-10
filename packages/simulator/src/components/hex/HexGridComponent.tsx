@@ -18,11 +18,11 @@ import {
 	MapTool,
 	SelectToolState,
 } from '../../types/ui';
-import { renderFaIcon } from '../../utils/faIcons';
 import { CharacterToken } from '../CharacterToken';
 import { OmniBoxOptionType } from '../omni/OmniBoxOption';
 import { TokenContextMenu } from '../TokenContextMenu';
 
+import { DrawingComponent } from './DrawingComponent';
 import { GridActionSelectionData, GridActionTool, gridActionRegistry } from './GridActions';
 import { HexAreaComponent } from './HexAreaComponent';
 import { hexGrid } from './HexGrid';
@@ -868,131 +868,22 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 				{/* Saved Drawings Layer */}
 				<g style={{ pointerEvents: 'none' }}>
 					{map.drawings.map((drawing, index) => {
-						const isSelected = selectToolState.selectedIndices.has(index);
-						const isDragging = isSelected && selectToolState.dragStart !== null && selectToolState.dragCurrent !== null;
-						if (drawing.type === 'area') {
-							// Calculate hex offset for dragging - snap to hex center lattice
-							const offset = { q: 0, r: 0 };
-							if (isDragging) {
-								const startHex = hexGrid.pixelToAxial(selectToolState.dragStart!);
-								const endHex = hexGrid.pixelToAxial(selectToolState.dragCurrent!);
-								offset.q = endHex.q - startHex.q;
-								offset.r = endHex.r - startHex.r;
-							}
-
-							return (
-								<HexAreaComponent
-									key={index}
-									hexes={drawing.hexes}
-									mapSize={map.size}
-									offset={offset}
-									color={drawing.color}
-									isSelected={isSelected}
-									isDragging={isDragging}
-								/>
-							);
-						}
-						if (drawing.type === 'line') {
-							const isSelected = selectToolState.selectedIndices.has(index);
-							const isDragging =
-								isSelected && selectToolState.dragStart !== null && selectToolState.dragCurrent !== null;
-							const offsetX = isDragging ? selectToolState.dragCurrent!.x - selectToolState.dragStart!.x : 0;
-							const offsetY = isDragging ? selectToolState.dragCurrent!.y - selectToolState.dragStart!.y : 0;
-							// Apply offset and snap to nearest valid vertices
-							const rawStart = { x: drawing.start.x + offsetX, y: drawing.start.y + offsetY };
-							const rawEnd = { x: drawing.end.x + offsetX, y: drawing.end.y + offsetY };
-							const adjustedStart = isDragging ? (hexGrid.findNearestVertex(rawStart) ?? rawStart) : drawing.start;
-							const adjustedEnd = isDragging ? (hexGrid.findNearestVertex(rawEnd) ?? rawEnd) : drawing.end;
-							const pathVertices = hexGrid.findVertexPath(adjustedStart, adjustedEnd);
-							return (
-								<g key={index}>
-									{/* Selection highlight (rendered behind) */}
-									{isSelected && (
-										<polyline
-											points={pathVertices.map((v: Point) => `${v.x},${v.y}`).join(' ')}
-											fill='none'
-											stroke='var(--accent)'
-											strokeWidth='1.2'
-											strokeLinecap='round'
-											strokeLinejoin='round'
-											opacity={0.5}
-										/>
-									)}
-									<polyline
-										points={pathVertices.map((v: Point) => `${v.x},${v.y}`).join(' ')}
-										fill='none'
-										stroke={drawing.color}
-										strokeWidth='0.4'
-										strokeLinecap='round'
-										strokeLinejoin='round'
-										opacity={isDragging ? 0.6 : 1}
-									/>
-								</g>
-							);
-						}
-						if (drawing.type === 'stamp') {
-							const isSelected = selectToolState.selectedIndices.has(index);
-							const isDragging =
-								isSelected && selectToolState.dragStart !== null && selectToolState.dragCurrent !== null;
-							// Calculate hex offset for dragging - snap to hex center lattice
-							let dq = 0;
-							let dr = 0;
-							if (isDragging) {
-								const startHex = hexGrid.pixelToAxial(selectToolState.dragStart!);
-								const endHex = hexGrid.pixelToAxial(selectToolState.dragCurrent!);
-								dq = endHex.q - startHex.q;
-								dr = endHex.r - startHex.r;
-							}
-							const adjustedHex = { q: drawing.hex.q + dq, r: drawing.hex.r + dr };
-							const center = hexGrid.axialToPixel(adjustedHex);
-							// Size is 40% of hex height (which is 2 * hexRadius * sqrt(3)/2 for pointy-top)
-							const hexHeight = 10 * Math.sqrt(3);
-							const iconSize = hexHeight * 0.4;
-							// Scale factor: we render at 100px in CSS and scale down to iconSize in SVG units
-							const cssSize = 100;
-							const scale = iconSize / cssSize;
-							return (
-								<g key={index}>
-									{/* Selection circle highlight */}
-									{isSelected && (
-										<circle
-											cx={center.x}
-											cy={center.y}
-											r={iconSize / 2 + 1}
-											fill='none'
-											stroke='var(--accent)'
-											strokeWidth='0.6'
-											opacity={0.5}
-										/>
-									)}
-									{/* Icon rendered via foreignObject - scale down from CSS pixels to SVG units */}
-									<g transform={`translate(${center.x}, ${center.y}) scale(${scale})`}>
-										<foreignObject
-											x={-cssSize / 2}
-											y={-cssSize / 2}
-											width={cssSize}
-											height={cssSize}
-											style={{ pointerEvents: 'none', opacity: isDragging ? 0.6 : 1 }}
-										>
-											<div
-												style={{
-													width: cssSize,
-													height: cssSize,
-													display: 'flex',
-													alignItems: 'center',
-													justifyContent: 'center',
-													color: drawing.color,
-													fontSize: cssSize * 0.8,
-												}}
-											>
-												{renderFaIcon(drawing.icon)}
-											</div>
-										</foreignObject>
-									</g>
-								</g>
-							);
-						}
-						return null;
+						const { selectedIndices, dragStart, dragCurrent } = selectToolState;
+						const isSelected = selectedIndices.has(index);
+						const dragBox =
+							isSelected && dragStart !== null && dragCurrent !== null
+								? new Box({ start: dragStart, end: dragCurrent })
+								: null;
+						return (
+							<DrawingComponent
+								key={index}
+								hexGrid={hexGrid}
+								drawing={drawing}
+								isSelected={isSelected}
+								dragBox={dragBox}
+								map={map}
+							/>
+						);
 					})}
 				</g>
 
