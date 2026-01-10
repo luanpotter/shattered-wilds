@@ -1,4 +1,4 @@
-import { METADATA_CLASSES, WIKI, WikiDatum } from '@shattered-wilds/d12';
+import { METADATA_CLASSES, StatTypeName, WIKI, WikiDatum } from '@shattered-wilds/d12';
 import React from 'react';
 
 import { useModals } from '../../hooks/useModals';
@@ -39,18 +39,8 @@ export const LexiconModal: React.FC<LexiconModalProps> = ({ entry, onClose }) =>
 				<Breadcrumb entry={entry} />
 			</div>
 			<div className='item-excerpt'>
-				<RichText
-					otherComponents={{
-						a: ({ href, children }) => {
-							if (href?.startsWith('/wiki/') === true) {
-								return <WikiLink slug={href?.replace('/wiki/', '') || ''} title={children as string} />;
-							}
-							return <a href={href}>{children}</a>;
-						},
-					}}
-				>
-					{entry.content}
-				</RichText>
+				<RichTextWithLinks>{entry.content}</RichTextWithLinks>
+				{renderExtraContent(entry)}
 			</div>
 			<Button variant='inline' onClick={onClose} title='Close' />
 		</div>
@@ -80,7 +70,7 @@ const WikiLink: React.FC<{ slug: string; title: string; overrideStyle?: boolean 
 	const entry = WIKI.find(e => e.slug === slug);
 	const style = overrideStyle ? { color: 'inherit', cursor: 'pointer' } : { cursor: 'pointer' };
 	if (!entry) {
-		console.warn(`WikiLink: entry not found for slug "${slug}"`);
+		console.error(`WikiLink entry not found for slug: ${slug}`);
 		return (
 			<a style={style} href={`/wiki/${slug}`}>
 				{title}
@@ -91,5 +81,77 @@ const WikiLink: React.FC<{ slug: string; title: string; overrideStyle?: boolean 
 		<a style={style} {...semanticClick('button', () => openLexiconModal({ entry }))}>
 			{title}
 		</a>
+	);
+};
+
+const renderExtraContent = (entry: WikiDatum) => {
+	if (entry.group === 'Stat') {
+		return renderStatExtraContent(entry);
+	}
+	return null;
+};
+
+interface AttributeExtraFields {
+	longDescription?: string;
+	hierarchy?: string;
+	childHierarchy?: string;
+	parent?: string;
+	parentSlug?: string;
+	children?: StatTypeName[];
+	exampleUsages?: string[];
+}
+
+const renderStatExtraContent = (lexicon: WikiDatum & AttributeExtraFields) => {
+	return (
+		<>
+			{lexicon.longDescription ? <RichTextWithLinks>{`${lexicon.longDescription}`}</RichTextWithLinks> : null}
+			{lexicon.parent ? (
+				<p>
+					<strong>{lexicon.title}</strong> is a {lexicon.hierarchy} of{' '}
+					<WikiLink slug={lexicon.parent} title={lexicon.parent} />.
+				</p>
+			) : null}
+			{lexicon.children && lexicon.children.length > 0 ? (
+				<>
+					<p>It has the following {lexicon.childHierarchy}s:</p>
+					<ul>
+						{lexicon.children.map(child => (
+							<li key={child}>
+								<WikiLink slug={child} title={child} />
+							</li>
+						))}
+					</ul>
+				</>
+			) : null}
+			{lexicon.exampleUsages && lexicon.exampleUsages.length > 0 ? (
+				<>
+					<h3>Example Usages</h3>
+					<ul>
+						{lexicon.exampleUsages.map((usage, index) => (
+							<li key={index}>
+								<RichTextWithLinks>{usage}</RichTextWithLinks>
+							</li>
+						))}
+					</ul>
+				</>
+			) : null}
+		</>
+	);
+};
+
+const RichTextWithLinks: React.FC<{ children: string }> = ({ children }) => {
+	return (
+		<RichText
+			otherComponents={{
+				a: ({ href, children }) => {
+					if (href?.startsWith('/wiki/') === true) {
+						return <WikiLink slug={href?.replace('/wiki/', '') || ''} title={children as string} />;
+					}
+					return <a href={href}>{children}</a>;
+				},
+			}}
+		>
+			{children}
+		</RichText>
 	);
 };

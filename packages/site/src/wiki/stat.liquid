@@ -18,7 +18,7 @@
 {% endif %}
 
 {% if lexicon.parent %}
-<p><strong>{{ lexicon.name }}</strong> is a {{ lexicon.hierarchy }} of <a href="/wiki/{{ lexicon.parent }}/">{{ lexicon.parent }}</a>.</p>
+<p><strong>{{ lexicon.title }}</strong> is a {{ lexicon.hierarchy }} of <a href="/wiki/{{ lexicon.parent }}/">{{ lexicon.parent }}</a>.</p>
 {% endif %}
 {% if lexicon.children.size > 0 %}
     <p>It has the following {{ lexicon.childHierarchy }}s:</p>

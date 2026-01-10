@@ -87,7 +87,7 @@ export class StatType {
 		name: StatTypeName.Body,
 		description: `The realm of physical capabilities, representing the character's physique.`,
 		exampleUsages: [
-			`Determines [[Vitality Point | Vitality Points]].`,
+			`Determines [[Vitality_Points | Vitality Points]].`,
 			`Is used for **Basic Body Defense** resisted checks.`,
 		],
 	});
@@ -97,7 +97,7 @@ export class StatType {
 		name: StatTypeName.Mind,
 		description: `The realm of mental capabilities, representing your character's intellect.`,
 		exampleUsages: [
-			`Determines [[Focus Point | Focus Points]].`,
+			`Determines [[Focus_Points | Focus Points]].`,
 			`Is used for **Basic Mind Defense** resisted checks.`,
 		],
 	});
@@ -107,7 +107,7 @@ export class StatType {
 		name: StatTypeName.Soul,
 		description: `The realm of spiritual capabilities, representing your character's life force, connection to the **Aether** and the link to their own physical being.`,
 		exampleUsages: [
-			`Determines [[Spirit Point | Spirit Points]].`,
+			`Determines [[Spirit_Points | Spirit Points]].`,
 			`Is used for **Basic Soul Defense** resisted checks.`,
 		],
 	});
