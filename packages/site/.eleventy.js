@@ -5,24 +5,9 @@ import markdownIt from 'markdown-it';
 import markdownItAnchor from 'markdown-it-anchor';
 import markdownItAttrs from 'markdown-it-attrs';
 import markdownItWiki from 'markdown-it-wikilinks';
-import { actions } from './src/_config/data/actions.js';
-import { predefinedArcaneSpells } from './src/_config/data/arcane.js';
-import { classes } from './src/_config/data/classes.js';
-import { conditions } from './src/_config/data/conditions.js';
-import { consequences } from './src/_config/data/consequence.js';
-import { covers } from './src/_config/data/covers.js';
-import { derivedStats } from './src/_config/data/derived_stats.js';
-import { equipment } from './src/_config/data/equipment.js';
-import { feats } from './src/_config/data/feats.js';
-import { resources } from './src/_config/data/resources.js';
-import { roles } from './src/_config/data/roles.js';
-import { flavors } from './src/_config/data/flavors.js';
-import { schools } from './src/_config/data/schools.js';
-import { stats } from './src/_config/data/stats.js';
-import { traits } from './src/_config/data/traits.js';
-import { upbringings } from './src/_config/data/upbringings.js';
 import { parseLexicon } from './src/_config/lexicon.js';
 import { TextProcessor } from './src/_config/TextProcessor.js';
+import { WIKI } from '@shattered-wilds/d12';
 
 export default function (eleventyConfig) {
 	// NOTE: kept to allow for a different prefix in the future
@@ -37,32 +22,7 @@ export default function (eleventyConfig) {
 
 	eleventyConfig.addGlobalData('lexiconFiles', lexiconFiles);
 
-	const wikiPages = [
-		...lexiconFiles,
-		...actions,
-		...stats,
-		...derivedStats,
-		...resources,
-		...feats,
-		...equipment,
-		...classes,
-		...traits,
-		...covers,
-		...predefinedArcaneSpells,
-		...schools,
-		...conditions,
-		...consequences,
-		...upbringings,
-		...roles,
-		...flavors,
-	]
-		.filter(e => e.slug)
-		.sort((a, b) => {
-			if (!a.title) {
-				console.error(`No title for ${a.slug}`);
-			}
-			return a.title.localeCompare(b.title);
-		});
+	const wikiPages = WIKI;
 
 	const byGlobalKey = Object.groupBy(wikiPages, e => e.globalDataKey);
 	for (const [key, entries] of Object.entries(byGlobalKey)) {

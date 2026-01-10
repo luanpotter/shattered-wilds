@@ -117,6 +117,7 @@ export interface ItemMode {
 	modeType: ModeType;
 	description: string;
 	costs: ResourceCost[];
+	bonus: Bonus;
 }
 
 export class WeaponMode implements ItemMode {
