@@ -33,10 +33,10 @@ const HexArea: React.FC<HexAreaProps> = ({
 			{boundary.map((edge, edgeIndex) => (
 				<line
 					key={edgeIndex}
-					x1={edge.x1}
-					y1={edge.y1}
-					x2={edge.x2}
-					y2={edge.y2}
+					x1={edge.start.x}
+					y1={edge.start.y}
+					x2={edge.end.x}
+					y2={edge.end.y}
 					stroke={color}
 					strokeWidth={isSelected ? '0.6' : '0.3'}
 					strokeLinecap='round'
