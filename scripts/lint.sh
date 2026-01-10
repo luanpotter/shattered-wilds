@@ -13,22 +13,22 @@ while [[ $# -gt 0 ]]; do
         --fix)
             FIX_MODE=true
             shift
-            ;;
+        ;;
         simulator|site|commons|vtt|hexagons)
             PROJECTS_TO_RUN+=("$1")
             shift
-            ;;
+        ;;
         *)
             echo "❌ Error: Unknown argument '$1'. Valid arguments are: --fix, simulator, site, commons, vtt, hexagons"
             echo "Usage: $0 [--fix] [simulator|site|commons|vtt|hexagons...]"
             exit 1
-            ;;
+        ;;
     esac
 done
 
 # If no projects specified, run all
 if [ ${#PROJECTS_TO_RUN[@]} -eq 0 ]; then
-    PROJECTS_TO_RUN=("simulator" "site" "commons" "vtt" "hexagons")
+    PROJECTS_TO_RUN=("commons" "d12" "simulator" "site" "vtt" "hexagons")
 fi
 
 echo "🔍 Linting projects: ${PROJECTS_TO_RUN[*]}..."
@@ -69,11 +69,11 @@ run_project_checks() {
     local project_name=$1
     local project_path=$2
     local status_var_name=$3
-
+    
     print_status "34" "📦 Linting $project_name project..."
-
+    
     cd "$project_path"
-
+    
     # Run build
     print_status "36" "🔧 Running build..." 1
     BUILD_OUTPUT=$(bun run build 2>&1)
@@ -84,7 +84,7 @@ run_project_checks() {
         echo "$BUILD_OUTPUT"
         eval "$status_var_name=true"
     fi
-
+    
     # Run tests for commons package
     if [ "$project_name" = "commons" ]; then
         print_status "36" "🧪 Running tests..." 1
@@ -97,7 +97,7 @@ run_project_checks() {
             eval "$status_var_name=true"
         fi
     fi
-
+    
     # Run check or check:fix based on mode
     if [ "$FIX_MODE" = true ]; then
         print_status "36" "🔧 Running check:fix..." 1
@@ -120,7 +120,7 @@ run_project_checks() {
             eval "$status_var_name=true"
         fi
     fi
-
+    
     cd ../..
 }
 
@@ -216,17 +216,17 @@ if [ "$MARKDOWNLINT_AVAILABLE" = true ]; then
     else
         print_status "36" "🔧 Running markdownlint..." 1
     fi
-
+    
     # Find all markdown files in the project
     MARKDOWN_FILES=$(find . -name "*.md" -not -path "./node_modules/*" -not -path "./packages/*/node_modules/*" -not -path "./packages/*/dist/*" -not -path "./packages/*/_site/*")
-
+    
     if [ -n "$MARKDOWN_FILES" ]; then
         if [ "$FIX_MODE" = true ]; then
             MARKDOWNLINT_OUTPUT=$(markdownlint --fix $MARKDOWN_FILES 2>&1)
         else
             MARKDOWNLINT_OUTPUT=$(markdownlint $MARKDOWN_FILES 2>&1)
         fi
-
+        
         if [ $? -eq 0 ]; then
             if [ "$FIX_MODE" = true ]; then
                 print_status "32" "✅ Markdown linting and fixing passed" 1
