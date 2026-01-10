@@ -1,8 +1,8 @@
-import type { Point } from '@shattered-wilds/commons';
+import { findClosestVertex, type Point } from '@shattered-wilds/commons';
 import { MODULE_ID } from '../consts';
 import { FederatedPointerEvent } from 'pixi.js';
 import { isHexGrid, rerenderSceneControls, toScenePosition } from '../utils/vtt';
-import { findClosestVertex, findVertexPath, getHexVertices } from '../utils/hexes';
+import { findVertexPath, getHexVertices } from '../utils/hexes';
 import { HexagonsSettings } from '../utils/settings';
 
 let activeHexLineTool: HexLineTool | null = null;

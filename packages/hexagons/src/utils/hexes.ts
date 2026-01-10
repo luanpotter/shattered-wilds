@@ -1,5 +1,4 @@
 import { distanceToLine, signedDistanceToLine, vertexKey, verticesEqual } from '@shattered-wilds/commons';
-export { findClosestVertex } from '@shattered-wilds/commons';
 import type { Line, Point } from '@shattered-wilds/commons';
 
 /**

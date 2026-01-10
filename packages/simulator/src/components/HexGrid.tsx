@@ -20,11 +20,11 @@ import {
 	MapTool,
 	SelectToolState,
 } from '../types/ui';
-import { hexGrid } from '../utils/hexGrid';
 
 import { CharacterToken } from './CharacterToken';
 import { GridActionSelectionData, GridActionTool, gridActionRegistry } from './hex/GridActions';
 import { HexAreaComponent } from './hex/HexAreaComponent';
+import { hexGrid } from './hex/hexGrid';
 import { StaticHexGrid } from './hex/StaticHexGrid';
 import { OmniBoxOptionType } from './omni/OmniBoxOption';
 import { TokenContextMenu } from './TokenContextMenu';

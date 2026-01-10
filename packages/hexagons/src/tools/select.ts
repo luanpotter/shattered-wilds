@@ -1,7 +1,7 @@
-import type { Point } from '@shattered-wilds/commons';
+import { findClosestVertex, type Point } from '@shattered-wilds/commons';
 import { FederatedPointerEvent } from 'pixi.js';
 import { isHexGrid, toScenePosition } from '../utils/vtt';
-import { getHexVertices, findClosestVertex } from '../utils/hexes';
+import { getHexVertices } from '../utils/hexes';
 import { getAllHexagonsDrawings } from '../utils/drawings';
 
 let highlightLayer: PIXI.Graphics | null = null;
