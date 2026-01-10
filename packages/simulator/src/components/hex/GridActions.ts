@@ -5,6 +5,7 @@ import { Character } from '../../types/ui';
 export enum GridActionTool {
 	OpenCharacterSheet = 'Open Character Sheet',
 	MeasureDistance = 'Measure Distance',
+	EndTurn = 'End Turn',
 }
 
 export interface GridActionSelectionData {

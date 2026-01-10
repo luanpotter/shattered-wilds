@@ -648,6 +648,10 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 			handleOpenCharacterSheet(character);
 			return;
 		}
+		if (data.action === GridActionTool.EndTurn) {
+			fail('End Turn not implemented yet');
+			return;
+		}
 
 		const overlay = processOverlayForActionType(character, data);
 		setActionState({ character, overlay, data });

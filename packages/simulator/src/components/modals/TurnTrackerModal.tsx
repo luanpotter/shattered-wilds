@@ -4,7 +4,8 @@ import { FaBackward, FaDice, FaForward, FaPlay, FaStop } from 'react-icons/fa6';
 
 import { useEncounters } from '../../hooks/useEncounters';
 import { useModals } from '../../hooks/useModals';
-import { PropUpdater } from '../../hooks/usePropUpdates';
+import { useResetCharacterAP } from '../../hooks/useResetCharacterAP';
+import { useTurnTrackerHooks } from '../../hooks/useTurnTrackerHooks';
 import { useStore } from '../../store';
 import { Character, TurnTracker } from '../../types/ui';
 import { semanticClick } from '../../utils';
@@ -37,7 +38,6 @@ interface CharacterWithInitiative {
 
 export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId }) => {
 	const characters = useStore(state => state.characters);
-	const updateCharacterProp = useStore(state => state.updateCharacterProp);
 
 	const [editingCharacterId, setEditingCharacterId] = useState<string | null>(null);
 	const [editValue, setEditValue] = useState('');
@@ -54,46 +54,13 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 		[encounter],
 	);
 
-	// Get characters with their initiatives, sorted by initiative (highest first)
+	const { sortCharactersByInitiative, endTurn } = useTurnTrackerHooks();
+
 	const sortedCharacters = useMemo((): CharacterWithInitiative[] => {
-		if (!encounter) return [];
-		const turnTracker = encounter.turnTracker;
+		return encounter ? sortCharactersByInitiative(encounter) : [];
+	}, [sortCharactersByInitiative, encounter]);
 
-		const withInitiatives = encounterCharacterIds
-			.map(id => {
-				const character = characters.find(c => c.id === id);
-				const initiative = turnTracker?.initiatives[id] ?? null;
-				return { character, initiative };
-			})
-			.filter((item): item is CharacterWithInitiative => item.character !== undefined);
-
-		// Sort: characters with initiative (highest first), then characters without initiative
-		return withInitiatives.sort((a, b) => {
-			if (a.initiative === null && b.initiative === null) return 0;
-			if (a.initiative === null) return 1;
-			if (b.initiative === null) return -1;
-			return b.initiative - a.initiative; // Descending order
-		});
-	}, [encounter, encounterCharacterIds, characters]);
-
-	const currentTurnCharacterId = useMemo(() => {
-		if (!encounter?.turnTracker || sortedCharacters.length === 0) return null;
-		// Use the stored characterId directly
-		return encounter.turnTracker.currentTurnCharacterId ?? null;
-	}, [encounter?.turnTracker, sortedCharacters]);
-
-	const resetCharacterAP = useCallback(
-		(characterId: string) => {
-			const character = characters.find(c => c.id === characterId);
-			if (!character) {
-				return;
-			}
-			const sheet = CharacterSheet.from(character.props);
-			const propUpdater = new PropUpdater({ character, sheet, updateCharacterProp });
-			propUpdater.updateResourceToMax(Resource.ActionPoint);
-		},
-		[characters, updateCharacterProp],
-	);
+	const resetCharacterAP = useResetCharacterAP();
 
 	const handleBeginEncounter = useCallback(async () => {
 		if (!encounter) return;
@@ -220,31 +187,6 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 		}
 	};
 
-	const handleEndTurn = useCallback(() => {
-		if (!encounter?.turnTracker) return;
-		const sortedWithInit = sortedCharacters.filter(c => c.initiative !== null);
-		if (sortedWithInit.length === 0) return;
-
-		// Find current index
-		const currentTurnCharacterId = encounter.turnTracker?.currentTurnCharacterId ?? null;
-		const currentIdx = sortedWithInit.findIndex(c => c.character.id === currentTurnCharacterId);
-		const nextIndex = (currentIdx + 1) % sortedWithInit.length;
-		const nextCharacterId = sortedWithInit[nextIndex]?.character.id ?? null;
-
-		// Reset Action Points for the current turn character
-		if (currentTurnCharacterId) {
-			resetCharacterAP(currentTurnCharacterId);
-		}
-
-		updateEncounter({
-			...encounter,
-			turnTracker: {
-				...encounter.turnTracker!, // non-null, checked above
-				currentTurnCharacterId: nextCharacterId,
-			},
-		});
-	}, [encounter, sortedCharacters, updateEncounter, resetCharacterAP]);
-
 	const handlePrevTurn = useCallback(() => {
 		if (!encounter?.turnTracker) return;
 		const sortedWithInit = sortedCharacters.filter(c => c.initiative !== null);
@@ -304,7 +246,7 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 						}}
 					>
 						<Button onClick={handlePrevTurn} icon={FaBackward} tooltip='Revert Turn' title='Revert Turn' />
-						<Button onClick={handleEndTurn} icon={FaForward} tooltip='End Turn' title='End Turn' />
+						<Button onClick={() => endTurn(encounter)} icon={FaForward} tooltip='End Turn' title='End Turn' />
 					</div>
 
 					{/* Initiative List */}
@@ -315,7 +257,7 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 						) : (
 							<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
 								{sortedCharacters.map(({ character, initiative }) => {
-									const isCurrentTurn = character.id === currentTurnCharacterId;
+									const isCurrentTurn = character.id === encounter?.turnTracker?.currentTurnCharacterId;
 									const isEditing = editingCharacterId === character.id;
 									const characterSheet = CharacterSheet.from(character.props);
 									const actionPoints = characterSheet.getResource(Resource.ActionPoint);
