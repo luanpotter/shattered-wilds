@@ -1,5 +1,5 @@
-import { getEnumKeys } from '@shattered-wilds/commons';
-import { Action, WIKI, WikiDatum } from '@shattered-wilds/d12';
+import { getEnumKeys, getRecordKeys } from '@shattered-wilds/commons';
+import { Action, ACTIONS, WIKI, WikiDatum } from '@shattered-wilds/d12';
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useEncounters } from '../../hooks/useEncounters';
@@ -384,9 +384,7 @@ const buildActOptions = ({
 	}
 	return [
 		buildActOption(character, GridActionTool.EndTurn),
-		buildActOption(character, Action.Stride),
-		buildActOption(character, Action.Run),
-		// TODO...
+		...getRecordKeys(ACTIONS).map(action => buildActOption(character, action)),
 	];
 };
 

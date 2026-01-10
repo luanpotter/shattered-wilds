@@ -1,7 +1,18 @@
-import { Box, HexCoord, Point } from '@shattered-wilds/commons';
-import { ACTIONS, Action, CharacterSheet, DerivedStatType, Distance, Resource } from '@shattered-wilds/d12';
+import { Box, HexCoord, Point, filterInstanceOf } from '@shattered-wilds/commons';
+import {
+	ACTIONS,
+	Action,
+	ActionDefinition,
+	ActionValueParameter,
+	ActionValueUnit,
+	CharacterSheet,
+	DerivedStatType,
+	Distance,
+	Resource,
+} from '@shattered-wilds/d12';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
+import { Formula } from '../../../../d12/dist/stats/formula';
 import { useErrors } from '../../hooks/useErrors';
 import { useModals } from '../../hooks/useModals';
 import { PropUpdater } from '../../hooks/usePropUpdates';
@@ -618,19 +629,31 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 		}
 	};
 
+	const getFormulaForDistance = (actionDef: ActionDefinition): Formula | undefined => {
+		return filterInstanceOf(actionDef.parameters, ActionValueParameter)?.find(
+			param => param.unit === ActionValueUnit.Hex,
+		)?.formula;
+	};
+
+	const getValueForDistance = (actionDef: ActionDefinition, character: Character): Distance | undefined => {
+		const statTree = CharacterSheet.from(character.props).getStatTree();
+		const result = getFormulaForDistance(actionDef)?.compute(statTree);
+		return result ? Distance.of(result.value) : undefined;
+	};
+
 	const processOverlayForActionType = (
 		character: Character,
 		data: GridActionSelectionData,
 	): AreaOverlay | undefined => {
+		const actionDef = data.action in ACTIONS ? ACTIONS[data.action as Action] : undefined;
+		const distanceParameter = actionDef ? getValueForDistance(actionDef, character) : undefined;
+		if (distanceParameter) {
+			return { type: OverlayType.Movement, range: distanceParameter };
+		}
+
 		switch (data.action) {
 			case GridActionTool.MeasureDistance: {
 				return { type: OverlayType.Movement };
-			}
-			case Action.Stride: {
-				return { type: OverlayType.Movement, range: getStrideRange(character) };
-			}
-			case Action.Run: {
-				return { type: OverlayType.Movement, range: getStrideRange(character).times(4) };
 			}
 			case Action.Strike: {
 				const selectedWeaponModeIndex = data.selectedWeaponModeIndex;
@@ -795,6 +818,9 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 				break;
 			}
 			case Action.Stride:
+			case Action.SideStep:
+			case Action.Climb:
+			case Action.PassThrough:
 			case Action.Run: {
 				updateCharacterPosition(character.id, target);
 				consumeActionCosts(character, actionType);

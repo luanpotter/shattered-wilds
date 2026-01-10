@@ -241,7 +241,7 @@ export enum Action {
 	BasicDefense = 'BasicDefense',
 }
 
-export const ACTIONS = {
+export const ACTIONS: Record<Action, ActionDefinition> = {
 	// Movement
 	[Action.Stride]: new ActionDefinition({
 		key: Action.Stride,
@@ -936,4 +936,4 @@ export const ACTIONS = {
 			'At the start of your turn, you can choose to decrease your [[Initiative]] to any value below the current. Your turn then does not start and moves down the turn order. You can never raise your initiative.',
 		costs: [new ResourceCost({ resource: Resource.ActionPoint, amount: 0 })],
 	}),
-};
+} as const;
