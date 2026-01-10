@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { HexCoord } from '@shattered-wilds/commons';
+import React, { useEffect, useState } from 'react';
 import { FaTrash } from 'react-icons/fa';
 
 import { useStore } from '../../store';
-import { Drawing, HexCoord } from '../../types/ui';
+import { Drawing } from '../../types/ui';
 import { Button } from '../shared/Button';
 import { AddCharacterDropdown } from '../shared/FilterableCharacterSelect';
 

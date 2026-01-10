@@ -1,17 +1,15 @@
-import { Point, HexCoord, HexVertex } from '@shattered-wilds/commons';
+import { Point, HexCoord } from '@shattered-wilds/commons';
 import { Check, FeatSlot, FeatDefinition, Condition, Consequence, ResourceCost } from '@shattered-wilds/d12';
 
 import { OmniBoxContext } from '../components/omni/OmniBoxContext';
-
-export type { Point, HexCoord, HexVertex };
 
 export type MapMode = 'map' | 'encounter';
 export type MapTool = 'select' | 'line' | 'area' | 'stamp';
 
 export interface LineDrawing {
 	type: 'line';
-	start: HexVertex;
-	end: HexVertex;
+	start: Point;
+	end: Point;
 	color: string;
 }
 
@@ -36,9 +34,9 @@ export interface GameMap {
 }
 
 export interface LineToolState {
-	startVertex: HexVertex;
-	currentEndVertex: HexVertex;
-	pathVertices: HexVertex[];
+	startVertex: Point;
+	currentEndVertex: Point;
+	pathVertices: Point[];
 }
 
 export interface AreaToolState {
@@ -55,8 +53,8 @@ export interface SelectionBox {
 export interface SelectToolState {
 	selectedIndices: Set<number>;
 	selectionBox: SelectionBox | null;
-	dragStart: HexVertex | null;
-	dragCurrent: HexVertex | null;
+	dragStart: Point | null;
+	dragCurrent: Point | null;
 }
 
 export type DragType = 'none' | 'modal' | 'grid' | 'character';

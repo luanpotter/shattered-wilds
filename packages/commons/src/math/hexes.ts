@@ -15,29 +15,17 @@
  * - Each hex has 6 vertices, numbered 0-5 starting from the top and going clockwise
  */
 
+import { Dimensions, Point } from './geom.js';
+
 // ============================================================================
 // Types
 // ============================================================================
-
-/** A point in 2D space */
-export interface Point {
-	x: number;
-	y: number;
-}
 
 /** Axial hex coordinates */
 export interface HexCoord {
 	q: number;
 	r: number;
 }
-
-export interface Dimensions {
-	width: number;
-	height: number;
-}
-
-/** A vertex at the corner of a hex, identified by position */
-export type HexVertex = Point;
 
 // ============================================================================
 // Constants
@@ -228,11 +216,11 @@ export const findHexPath = (start: HexCoord, end: HexCoord): HexCoord[] => {
  * @param hexSize - The "width" of a hex. Default 10.
  * @returns Array of 6 vertex positions
  */
-export const getHexVertices = (hex: HexCoord, hexSize: number = 10): HexVertex[] => {
+export const getHexVertices = (hex: HexCoord, hexSize: number = 10): Point[] => {
 	const center = axialToPixel(hex, hexSize);
 	const radius = hexSize / SQRT3; // Radius to vertices for pointy-top hex
 
-	const vertices: HexVertex[] = [];
+	const vertices: Point[] = [];
 	for (let i = 0; i < 6; i++) {
 		// For pointy-top, vertex 0 is at the top (90 degrees in standard math coords)
 		// Going clockwise means decreasing angle
@@ -255,8 +243,8 @@ export const getHexVertices = (hex: HexCoord, hexSize: number = 10): HexVertex[]
  * @param hexSize - The "width" of a hex. Default 10.
  * @returns Array of unique vertices
  */
-export const getAllVertices = (hexCoords: HexCoord[], hexSize: number = 10): HexVertex[] => {
-	const vertexMap = new Map<string, HexVertex>();
+export const getAllVertices = (hexCoords: HexCoord[], hexSize: number = 10): Point[] => {
+	const vertexMap = new Map<string, Point>();
 	const keyFn = (v: Point) => `${Math.round(v.x * 100)},${Math.round(v.y * 100)}`;
 
 	for (const hex of hexCoords) {
@@ -279,10 +267,10 @@ export const getAllVertices = (hexCoords: HexCoord[], hexSize: number = 10): Hex
  * @param vertices - Array of vertices to search
  * @returns The closest vertex, or null if array is empty
  */
-export const findClosestVertex = (point: Point, vertices: HexVertex[]): HexVertex | null => {
+export const findClosestVertex = (point: Point, vertices: Point[]): Point | null => {
 	if (vertices.length === 0) return null;
 
-	let closest: HexVertex | null = null;
+	let closest: Point | null = null;
 	let closestDistSq = Infinity;
 
 	for (const vertex of vertices) {
@@ -305,7 +293,7 @@ export const findClosestVertex = (point: Point, vertices: HexVertex[]): HexVerte
  * @param hexSize - The "width" of a hex. Default 10.
  * @returns The closest vertex
  */
-export const findNearestVertex = (point: Point, hexSize: number = 10): HexVertex | null => {
+export const findNearestVertex = (point: Point, hexSize: number = 10): Point | null => {
 	const hex = pixelToAxial(point, hexSize);
 	const neighbors = getHexNeighbors(hex);
 	const allHexes = [hex, ...neighbors];
@@ -368,7 +356,7 @@ export const vertexKey = (v: Point): string => {
  * @param hexSize - The "width" of a hex. Default 10.
  * @returns Array of adjacent vertices
  */
-export const getAdjacentVertices = (vertex: Point, hexSize: number = 10): HexVertex[] => {
+export const getAdjacentVertices = (vertex: Point, hexSize: number = 10): Point[] => {
 	// Find which hex this vertex belongs to
 	const hex = pixelToAxial(vertex, hexSize);
 	const hexesToCheck = [hex, ...getHexNeighbors(hex)];
@@ -394,7 +382,7 @@ export const getAdjacentVertices = (vertex: Point, hexSize: number = 10): HexVer
 	}
 
 	const hexVertices = getHexVertices(foundHex, hexSize);
-	const adjacent: HexVertex[] = [];
+	const adjacent: Point[] = [];
 
 	// Adjacent vertices on the same hex (previous and next in the ring)
 	const prev = hexVertices[(foundIndex + 5) % 6];
@@ -528,7 +516,7 @@ export const getHexesAlongLine = (start: Point, end: Point, hexSize: number = 10
  * @param hexSize - The "width" of a hex. Default 10.
  * @returns Array of vertices forming the path, or empty if no path found
  */
-export const findVertexPath = (start: HexVertex, end: HexVertex, hexSize: number = 10): HexVertex[] => {
+export const findVertexPath = (start: Point, end: Point, hexSize: number = 10): Point[] => {
 	// Quick check for same vertex
 	if (verticesEqual(start, end)) {
 		return [start];
@@ -562,7 +550,7 @@ export const findVertexPath = (start: HexVertex, end: HexVertex, hexSize: number
 
 	// A* search
 	interface PathNode {
-		vertex: HexVertex;
+		vertex: Point;
 		cost: number; // Cumulative distance to line
 		signedDistSum: number; // For alternating preference
 		pathLength: number;
@@ -578,7 +566,7 @@ export const findVertexPath = (start: HexVertex, end: HexVertex, hexSize: number
 	];
 
 	const visited = new Set<string>();
-	const parent = new Map<string, HexVertex>();
+	const parent = new Map<string, Point>();
 	const bestCost = new Map<string, number>();
 
 	bestCost.set(vertexKey(start), 0);
@@ -613,8 +601,8 @@ export const findVertexPath = (start: HexVertex, end: HexVertex, hexSize: number
 		// Check if we reached the end
 		if (verticesEqual(vertex, end)) {
 			// Reconstruct path
-			const path: HexVertex[] = [];
-			let curr: HexVertex | undefined = vertex;
+			const path: Point[] = [];
+			let curr: Point | undefined = vertex;
 			while (curr) {
 				path.unshift(curr);
 				curr = parent.get(vertexKey(curr));

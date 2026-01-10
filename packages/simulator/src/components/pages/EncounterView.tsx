@@ -1,3 +1,4 @@
+import { HexCoord } from '@shattered-wilds/commons';
 import React, { useState } from 'react';
 import {
 	FaArrowLeft,
@@ -17,7 +18,7 @@ import { FaX } from 'react-icons/fa6';
 
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
-import { Character, GameMap, HexCoord, MapMode, MapTool } from '../../types/ui';
+import { Character, GameMap, MapMode, MapTool } from '../../types/ui';
 import { BattleGrid } from '../HexGrid';
 import { Button } from '../shared/Button';
 

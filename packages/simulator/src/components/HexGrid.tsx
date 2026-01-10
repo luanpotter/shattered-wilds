@@ -1,4 +1,6 @@
 import {
+	HexCoord,
+	Point,
 	axialToPixel,
 	findHexPath,
 	findNearestVertex,
@@ -25,12 +27,9 @@ import {
 	DragState,
 	Drawing,
 	GameMap,
-	HexCoord,
-	HexVertex,
 	LineToolState,
 	MapMode,
 	MapTool,
-	Point,
 	SelectToolState,
 } from '../types/ui';
 
@@ -174,7 +173,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 	const [overlayState, setOverlayState] = useState<PathOverlay | null>(null);
 	// tools
 	const [lineToolState, setLineToolState] = useState<LineToolState | null>(null);
-	const [lineToolHoveredVertex, setLineToolHoveredVertex] = useState<HexVertex | null>(null);
+	const [lineToolHoveredVertex, setLineToolHoveredVertex] = useState<Point | null>(null);
 	const [selectToolState, setSelectToolState] = useState<SelectToolState>({
 		selectedIndices: new Set(),
 		selectionBox: null,

@@ -1,4 +1,4 @@
-import { Point } from '../types/ui';
+import { Point } from '@shattered-wilds/commons';
 
 declare global {
 	interface Window {

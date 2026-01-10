@@ -1,8 +1,9 @@
+import { HexCoord } from '@shattered-wilds/commons';
 import { Check, FeatDefinition, FeatSlot, Condition, Consequence, ResourceCost } from '@shattered-wilds/d12';
 
 import { OmniBoxContext } from '../components/omni/OmniBoxContext';
 import { useStore } from '../store';
-import { HexCoord, Modal, ModalPositionType } from '../types/ui';
+import { Modal, ModalPositionType } from '../types/ui';
 import { Mouse } from '../utils/mouse';
 import { DistributiveOmit } from '../utils/types';
 

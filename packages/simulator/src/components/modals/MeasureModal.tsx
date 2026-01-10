@@ -1,7 +1,8 @@
+import { HexCoord } from '@shattered-wilds/commons';
 import React from 'react';
 import { FaRuler } from 'react-icons/fa';
 
-import { Character, HexCoord } from '../../types/ui';
+import { Character } from '../../types/ui';
 import { Button } from '../shared/Button';
 
 interface MeasureModalProps {

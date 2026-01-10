@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { HexCoord } from '@shattered-wilds/commons';
+import React, { useEffect, useState } from 'react';
 
 import { useStore } from '../../store';
-import { HexCoord } from '../../types/ui';
 import { findNextCharacterNumber } from '../../utils';
 import { Button } from '../shared/Button';
 

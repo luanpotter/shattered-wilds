@@ -1,8 +1,9 @@
+import { HexCoord } from '@shattered-wilds/commons';
 import { Check } from '@shattered-wilds/d12';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { Character, Encounter, Modal, GridState, HexCoord } from './types/ui';
+import { Character, Encounter, Modal, GridState } from './types/ui';
 
 type AddCharacter = (character: Character) => void;
 type UpdateCharacterName = (character: Character, newName: string) => void;
