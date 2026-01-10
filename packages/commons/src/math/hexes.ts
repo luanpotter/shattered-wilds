@@ -15,11 +15,7 @@
  * - Each hex has 6 vertices, numbered 0-5 starting from the top and going clockwise
  */
 
-import { Dimensions, Point } from './geom.js';
-
-// ============================================================================
-// Types
-// ============================================================================
+import { Dimensions, Line, Point } from './geom.js';
 
 /** Axial hex coordinates */
 export interface HexCoord {
@@ -27,16 +23,7 @@ export interface HexCoord {
 	r: number;
 }
 
-// ============================================================================
-// Constants
-// ============================================================================
-
-/** The mathematical constant sqrt(3), used extensively in hex calculations */
 const SQRT3 = Math.sqrt(3);
-
-// ============================================================================
-// Coordinate Conversions
-// ============================================================================
 
 /**
  * Convert axial hex coordinates to pixel coordinates (hex center).
@@ -674,10 +661,7 @@ export const getHexesInRange = (center: HexCoord, range: number): HexCoord[] => 
 	return hexes;
 };
 
-export const computeBoundaries = (
-	hexes: HexCoord[],
-	offset: HexCoord,
-): { x1: number; y1: number; x2: number; y2: number }[] => {
+export const computeBoundaries = (hexes: HexCoord[], offset: HexCoord): Line[] => {
 	// Create a set of hex keys for quick lookup
 	const hexSet = new Set(hexes.map(h => `${h.q + offset.q},${h.r + offset.r}`));
 
@@ -691,7 +675,7 @@ export const computeBoundaries = (
 	const edgeToNeighborIndex = [1, 0, 5, 4, 3, 2];
 
 	// Collect all boundary edges
-	const boundaryEdges: { x1: number; y1: number; x2: number; y2: number }[] = [];
+	const boundaryEdges: Line[] = [];
 	for (const hex of hexes) {
 		const adjustedHex = { q: hex.q + offset.q, r: hex.r + offset.r };
 		const vertices = getHexVertices(adjustedHex, 10);
@@ -704,9 +688,9 @@ export const computeBoundaries = (
 			const neighborKey = `${neighbor.q},${neighbor.r}`;
 			// Only draw this edge if neighbor is NOT in the area
 			if (!hexSet.has(neighborKey)) {
-				const v1 = vertices[i]!;
-				const v2 = vertices[(i + 1) % 6]!;
-				boundaryEdges.push({ x1: v1.x, y1: v1.y, x2: v2.x, y2: v2.y });
+				const start = vertices[i]!;
+				const end = vertices[(i + 1) % 6]!;
+				boundaryEdges.push({ start, end });
 			}
 		}
 	}
