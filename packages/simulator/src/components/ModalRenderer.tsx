@@ -94,6 +94,15 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 						/>
 					</>
 				);
+			case 'lexicon':
+				return (
+					<Button
+						onClick={() => Navigator.toWiki(modal.entry.slug)}
+						icon={FaExpand}
+						tooltip='Open on Site'
+						variant='inline'
+					/>
+				);
 			default:
 				return null;
 		}

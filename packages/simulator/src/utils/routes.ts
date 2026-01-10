@@ -203,6 +203,10 @@ export const Navigator = {
 		window.location.pathname = '/';
 	},
 
+	toWiki(slug: string): void {
+		window.location.pathname = `/wiki/${slug}`;
+	},
+
 	/** Get all navigable routes (excludes 404) */
 	getNavigableRoutes(): Route[] {
 		return Object.values(Route).filter(r => r !== Route.NotFound);
