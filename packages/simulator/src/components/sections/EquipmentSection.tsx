@@ -54,7 +54,6 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({ characterId 
 	const toggleIsEquipped = (idx: number) => {
 		const item = equipment.items[idx];
 		item.isEquipped = !item.isEquipped;
-		console.log(equipment);
 		onUpdateEquipment(equipment);
 	};
 

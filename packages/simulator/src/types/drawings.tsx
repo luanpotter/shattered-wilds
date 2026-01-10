@@ -42,14 +42,10 @@ export const drawingContainsPoint = ({
 	} else if (drawing.type === 'line') {
 		const threshold = 0.5; // in pixels; "thickness" of the line clickable area
 		const pathVertices = hexGrid.findVertexPath(drawing.start, drawing.end);
-		console.log(`MATCHING LINE - path is: ${pathVertices.map(v => `(${v.x},${v.y})`).join(', ')}`);
 		for (let j = 0; j < pathVertices.length - 1; j++) {
 			const line = { start: pathVertices[j], end: pathVertices[j + 1] };
 			const dist = distanceToSegment(point, line);
 			if (dist <= threshold) {
-				console.log(
-					`FOUND MATCH BETWEEN POINT ${point.x},${point.y} AND LINE SEGMENT ${line.start.x},${line.start.y} to ${line.end.x},${line.end.y} with distance ${dist}`,
-				);
 				return true;
 			}
 		}
