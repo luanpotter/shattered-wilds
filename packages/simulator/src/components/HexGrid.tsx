@@ -1,17 +1,4 @@
-import {
-	Box,
-	HexCoord,
-	Point,
-	axialToPixel,
-	findHexPath,
-	findNearestVertex,
-	findVertexPath,
-	getHexVertices,
-	getHexesInRange,
-	hexDistance,
-	pixelToAxial,
-	pointToSegmentDistance,
-} from '@shattered-wilds/commons';
+import { Box, HexCoord, Point, pointToSegmentDistance } from '@shattered-wilds/commons';
 import { ACTIONS, Action, CharacterSheet, DerivedStatType, Distance, Resource } from '@shattered-wilds/d12';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { IconType } from 'react-icons';
@@ -33,6 +20,7 @@ import {
 	MapTool,
 	SelectToolState,
 } from '../types/ui';
+import { hexGrid } from '../utils/hexGrid';
 
 import { CharacterToken } from './CharacterToken';
 import { GridActionSelectionData, GridActionTool, gridActionRegistry } from './hex/GridActions';
@@ -247,14 +235,14 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 			if (!svgCoords) {
 				return null;
 			}
-			return pixelToAxial(svgCoords);
+			return hexGrid.pixelToAxial(svgCoords);
 		},
 		[eventToSvgCoordinates],
 	);
 
 	const findDrawingAtPoint = useCallback(
 		(point: Point, threshold = 2): number | null => {
-			const clickedHex = pixelToAxial(point);
+			const clickedHex = hexGrid.pixelToAxial(point);
 			for (let i = map.drawings.length - 1; i >= 0; i--) {
 				const drawing = map.drawings[i];
 				if (drawing.type === 'area') {
@@ -266,7 +254,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					}
 				}
 				if (drawing.type === 'line') {
-					const pathVertices = findVertexPath(drawing.start, drawing.end);
+					const pathVertices = hexGrid.findVertexPath(drawing.start, drawing.end);
 					for (let j = 0; j < pathVertices.length - 1; j++) {
 						const a = pathVertices[j];
 						const b = pathVertices[j + 1];
@@ -294,7 +282,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				if (drawing.type === 'area') {
 					// Check if any hex center is inside the box
 					for (const hex of drawing.hexes) {
-						const point = axialToPixel(hex);
+						const point = hexGrid.axialToPixel(hex);
 						if (box.contains(point)) {
 							result.add(index);
 							break;
@@ -302,7 +290,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					}
 				}
 				if (drawing.type === 'line') {
-					const pathVertices = findVertexPath(drawing.start, drawing.end);
+					const pathVertices = hexGrid.findVertexPath(drawing.start, drawing.end);
 					// Check if any vertex is inside or any segment intersects
 					for (let i = 0; i < pathVertices.length; i++) {
 						if (box.contains(pathVertices[i])) {
@@ -317,7 +305,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					}
 				}
 				if (drawing.type === 'stamp') {
-					const point = axialToPixel(drawing.hex);
+					const point = hexGrid.axialToPixel(drawing.hex);
 					if (box.contains(point)) {
 						result.add(index);
 					}
@@ -550,7 +538,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		if (!point) {
 			return;
 		}
-		const hex = pixelToAxial(point);
+		const hex = hexGrid.pixelToAxial(point);
 
 		if (e.button === LEFT_CLICK_BUTTON) {
 			// Left click: allow drag, block default
@@ -558,7 +546,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 			// Handle line tool start
 			if (isLineTool && svgRef.current) {
-				const startVertex = findNearestVertex(point);
+				const startVertex = hexGrid.findNearestVertex(point);
 				if (startVertex) {
 					setLineToolState({
 						startVertex,
@@ -673,8 +661,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					if (!selectToolState.selectedIndices.has(i)) return drawing;
 					if (drawing.type === 'line') {
 						// Snap to vertex lattice for lines
-						const startVertex = findNearestVertex(selectToolState.dragStart!) ?? selectToolState.dragStart!;
-						const endVertex = findNearestVertex(selectToolState.dragCurrent!) ?? selectToolState.dragCurrent!;
+						const startVertex = hexGrid.findNearestVertex(selectToolState.dragStart!) ?? selectToolState.dragStart!;
+						const endVertex = hexGrid.findNearestVertex(selectToolState.dragCurrent!) ?? selectToolState.dragCurrent!;
 						const dx = endVertex.x - startVertex.x;
 						const dy = endVertex.y - startVertex.y;
 						if (dx === 0 && dy === 0) {
@@ -683,8 +671,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 						// Apply offset and snap to nearest valid vertices
 						const rawStart = { x: drawing.start.x + dx, y: drawing.start.y + dy };
 						const rawEnd = { x: drawing.end.x + dx, y: drawing.end.y + dy };
-						const newStart = findNearestVertex(rawStart) ?? drawing.start;
-						const newEnd = findNearestVertex(rawEnd) ?? drawing.end;
+						const newStart = hexGrid.findNearestVertex(rawStart) ?? drawing.start;
+						const newEnd = hexGrid.findNearestVertex(rawEnd) ?? drawing.end;
 						return {
 							...drawing,
 							start: newStart,
@@ -693,8 +681,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					}
 					if (drawing.type === 'area') {
 						// Snap to hex center lattice for areas
-						const startHex = pixelToAxial(selectToolState.dragStart!);
-						const endHex = pixelToAxial(selectToolState.dragCurrent!);
+						const startHex = hexGrid.pixelToAxial(selectToolState.dragStart!);
+						const endHex = hexGrid.pixelToAxial(selectToolState.dragCurrent!);
 						const dq = endHex.q - startHex.q;
 						const dr = endHex.r - startHex.r;
 						if (dq === 0 && dr === 0) {
@@ -710,8 +698,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					}
 					if (drawing.type === 'stamp') {
 						// Snap to hex center lattice for stamps
-						const startHex = pixelToAxial(selectToolState.dragStart!);
-						const endHex = pixelToAxial(selectToolState.dragCurrent!);
+						const startHex = hexGrid.pixelToAxial(selectToolState.dragStart!);
+						const endHex = hexGrid.pixelToAxial(selectToolState.dragCurrent!);
 						const dq = endHex.q - startHex.q;
 						const dr = endHex.r - startHex.r;
 						if (dq === 0 && dr === 0) {
@@ -806,16 +794,16 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		if (!point) {
 			return;
 		}
-		const hex = pixelToAxial(point);
+		const hex = hexGrid.pixelToAxial(point);
 
 		if (isLineTool && lineToolState) {
-			const nearestVertex = findNearestVertex(point);
+			const nearestVertex = hexGrid.findNearestVertex(point);
 			if (nearestVertex) {
-				const pathVertices = findVertexPath(lineToolState.startVertex, nearestVertex);
+				const pathVertices = hexGrid.findVertexPath(lineToolState.startVertex, nearestVertex);
 				setLineToolState(prev => (prev ? { ...prev, currentEndVertex: nearestVertex, pathVertices } : null));
 			}
 		} else if (isLineTool && !lineToolState) {
-			const nearestVertex = findNearestVertex(point);
+			const nearestVertex = hexGrid.findNearestVertex(point);
 			setLineToolHoveredVertex(nearestVertex);
 		} else if (!isLineTool && lineToolHoveredVertex) {
 			setLineToolHoveredVertex(null);
@@ -833,8 +821,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		}
 
 		if (isAreaTool && areaToolState) {
-			const radius = hexDistance(areaToolState.centerHex, hex);
-			const previewHexes = getHexesInRange(areaToolState.centerHex, radius);
+			const radius = hexGrid.hexDistance(areaToolState.centerHex, hex);
+			const previewHexes = hexGrid.getHexesInRange(areaToolState.centerHex, radius);
 			setAreaToolState(prev => (prev ? { ...prev, radius, previewHexes } : null));
 		} else if (isAreaTool && !areaToolState) {
 			setAreaToolHoveredHex(hex);
@@ -872,14 +860,14 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 
 		return (
 			<>
-				{overlay.range && highlight(overlay.type, getHexesInRange(pos, overlay.range.value))}
-				{currentHex && highlight(overlay.type, findHexPath(pos, currentHex))}
+				{overlay.range && highlight(overlay.type, hexGrid.getHexesInRange(pos, overlay.range.value))}
+				{currentHex && highlight(overlay.type, hexGrid.findHexPath(pos, currentHex))}
 			</>
 		);
 	};
 
 	const renderOverlay = (overlay: PathOverlay): React.ReactNode => {
-		return highlight(overlay.type, findHexPath(overlay.from, overlay.to));
+		return highlight(overlay.type, hexGrid.findHexPath(overlay.from, overlay.to));
 	};
 
 	const handleHexClick = (target: HexCoord) => {
@@ -897,7 +885,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 		const actionType = actionState.data?.action;
 		switch (actionType) {
 			case GridActionTool.MeasureDistance: {
-				const distance = hexDistance(from, target);
+				const distance = hexGrid.hexDistance(from, target);
 				setOverlayState({ type: OverlayType.Movement, from, to: target });
 				setActionState(null);
 				openMeasureModal({
@@ -989,7 +977,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 					!actionState &&
 					highlight(
 						OverlayType.Movement,
-						getHexesInRange(getCharacterPosition(hoveredCharacter.id)!, getStrideRange(hoveredCharacter).value),
+						hexGrid.getHexesInRange(getCharacterPosition(hoveredCharacter.id)!, getStrideRange(hoveredCharacter).value),
 					)}
 
 				{actionState && renderActionStateOverlay(actionState)}
@@ -1006,8 +994,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							// Calculate hex offset for dragging - snap to hex center lattice
 							const offset = { q: 0, r: 0 };
 							if (isDragging) {
-								const startHex = pixelToAxial(selectToolState.dragStart!);
-								const endHex = pixelToAxial(selectToolState.dragCurrent!);
+								const startHex = hexGrid.pixelToAxial(selectToolState.dragStart!);
+								const endHex = hexGrid.pixelToAxial(selectToolState.dragCurrent!);
 								offset.q = endHex.q - startHex.q;
 								offset.r = endHex.r - startHex.r;
 							}
@@ -1033,15 +1021,15 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							// Apply offset and snap to nearest valid vertices
 							const rawStart = { x: drawing.start.x + offsetX, y: drawing.start.y + offsetY };
 							const rawEnd = { x: drawing.end.x + offsetX, y: drawing.end.y + offsetY };
-							const adjustedStart = isDragging ? (findNearestVertex(rawStart) ?? rawStart) : drawing.start;
-							const adjustedEnd = isDragging ? (findNearestVertex(rawEnd) ?? rawEnd) : drawing.end;
-							const pathVertices = findVertexPath(adjustedStart, adjustedEnd);
+							const adjustedStart = isDragging ? (hexGrid.findNearestVertex(rawStart) ?? rawStart) : drawing.start;
+							const adjustedEnd = isDragging ? (hexGrid.findNearestVertex(rawEnd) ?? rawEnd) : drawing.end;
+							const pathVertices = hexGrid.findVertexPath(adjustedStart, adjustedEnd);
 							return (
 								<g key={index}>
 									{/* Selection highlight (rendered behind) */}
 									{isSelected && (
 										<polyline
-											points={pathVertices.map(v => `${v.x},${v.y}`).join(' ')}
+											points={pathVertices.map((v: Point) => `${v.x},${v.y}`).join(' ')}
 											fill='none'
 											stroke='var(--accent)'
 											strokeWidth='1.2'
@@ -1051,7 +1039,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 										/>
 									)}
 									<polyline
-										points={pathVertices.map(v => `${v.x},${v.y}`).join(' ')}
+										points={pathVertices.map((v: Point) => `${v.x},${v.y}`).join(' ')}
 										fill='none'
 										stroke={drawing.color}
 										strokeWidth='0.4'
@@ -1070,13 +1058,13 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 							let dq = 0;
 							let dr = 0;
 							if (isDragging) {
-								const startHex = pixelToAxial(selectToolState.dragStart!);
-								const endHex = pixelToAxial(selectToolState.dragCurrent!);
+								const startHex = hexGrid.pixelToAxial(selectToolState.dragStart!);
+								const endHex = hexGrid.pixelToAxial(selectToolState.dragCurrent!);
 								dq = endHex.q - startHex.q;
 								dr = endHex.r - startHex.r;
 							}
 							const adjustedHex = { q: drawing.hex.q + dq, r: drawing.hex.r + dr };
-							const center = axialToPixel(adjustedHex);
+							const center = hexGrid.axialToPixel(adjustedHex);
 							// Size is 40% of hex height (which is 2 * hexRadius * sqrt(3)/2 for pointy-top)
 							const hexHeight = 10 * Math.sqrt(3);
 							const iconSize = hexHeight * 0.4;
@@ -1173,7 +1161,7 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 						if (!pos) {
 							return null;
 						}
-						const { x, y } = axialToPixel(pos);
+						const { x, y } = hexGrid.axialToPixel(pos);
 						return (
 							<g key={character.id} transform={`translate(${x},${y})`}>
 								<CharacterToken
@@ -1205,8 +1193,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				{isAreaTool && !areaToolState && areaToolHoveredHex && (
 					<g style={{ pointerEvents: 'none' }}>
 						{(() => {
-							const vertices = getHexVertices(areaToolHoveredHex);
-							const pathData = `M${vertices.map(v => `${v.x},${v.y}`).join(' L')} Z`;
+							const vertices = hexGrid.getHexVertices(areaToolHoveredHex);
+							const pathData = `M${vertices.map((v: Point) => `${v.x},${v.y}`).join(' L')} Z`;
 							return (
 								<path d={pathData} fill='var(--accent)' fillOpacity={0.2} stroke='var(--accent)' strokeWidth='0.3' />
 							);
@@ -1223,8 +1211,8 @@ export const BattleGrid: React.FC<BattleGridProps> = ({
 				{stampToolHoveredHex && isStampTool && (
 					<g style={{ pointerEvents: 'none' }}>
 						{(() => {
-							const vertices = getHexVertices(stampToolHoveredHex);
-							const pathData = `M${vertices.map(v => `${v.x},${v.y}`).join(' L')} Z`;
+							const vertices = hexGrid.getHexVertices(stampToolHoveredHex);
+							const pathData = `M${vertices.map((v: Point) => `${v.x},${v.y}`).join(' L')} Z`;
 							return (
 								<path
 									d={pathData}

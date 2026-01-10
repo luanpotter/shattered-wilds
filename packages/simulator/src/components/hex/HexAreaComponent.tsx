@@ -1,5 +1,7 @@
-import { computeBoundaries, Dimensions, getHexVertices, HexCoord, isHexInBounds } from '@shattered-wilds/commons';
+import { Dimensions, HexCoord, Line, Point } from '@shattered-wilds/commons';
 import React from 'react';
+
+import { hexGrid } from '../../utils/hexGrid';
 
 export interface HexAreaProps {
 	hexes: HexCoord[];
@@ -18,19 +20,19 @@ const HexArea: React.FC<HexAreaProps> = ({
 	isSelected = false,
 	isDragging = false,
 }) => {
-	const inBoundHexes = hexes.filter(hex => isHexInBounds(hex, mapSize));
-	const boundary = computeBoundaries(inBoundHexes, offset);
+	const inBoundHexes = hexes.filter(hex => hexGrid.isHexInBounds(hex, mapSize));
+	const boundary = hexGrid.computeBoundaries(inBoundHexes, offset);
 	return (
 		<g style={{ pointerEvents: 'none' }}>
 			{/* Fill each hex */}
 			{inBoundHexes.map((hex, hexIndex) => {
 				const adjustedHex = { q: hex.q + offset.q, r: hex.r + offset.r };
-				const vertices = getHexVertices(adjustedHex, 10);
-				const pathData = `M${vertices.map(v => `${v.x},${v.y}`).join(' L')} Z`;
+				const vertices = hexGrid.getHexVertices(adjustedHex);
+				const pathData = `M${vertices.map((v: Point) => `${v.x},${v.y}`).join(' L')} Z`;
 				return <path key={hexIndex} d={pathData} fill={color} fillOpacity={isDragging ? 0.1 : 0.2} stroke='none' />;
 			})}
 			{/* Draw only boundary edges */}
-			{boundary.map((edge, edgeIndex) => (
+			{boundary.map((edge: Line, edgeIndex: number) => (
 				<line
 					key={edgeIndex}
 					x1={edge.start.x}

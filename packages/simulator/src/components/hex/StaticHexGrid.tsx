@@ -1,5 +1,7 @@
-import { axialToPixel, HexCoord } from '@shattered-wilds/commons';
+import { HexCoord } from '@shattered-wilds/commons';
 import React, { useMemo } from 'react';
+
+import { hexGrid } from '../../utils/hexGrid';
 
 // Pre-computed hex path for pointy-top hexagon with radius 5
 const HEX_PATH = 'M0,-5 L4.33,-2.5 L4.33,2.5 L0,5 L-4.33,2.5 L-4.33,-2.5 Z';
@@ -43,7 +45,7 @@ const StaticHexGridComponent: React.FC<StaticHexGridProps> = ({ width, height })
 		<g>
 			{hexes.map(hex => {
 				const hexDesc = `${hex.q},${hex.r}`;
-				const { x, y } = axialToPixel(hex);
+				const { x, y } = hexGrid.axialToPixel(hex);
 				return (
 					<path
 						key={hexDesc}
