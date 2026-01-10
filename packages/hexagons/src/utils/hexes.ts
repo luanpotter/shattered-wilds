@@ -1,10 +1,5 @@
-import {
-	distanceToLine,
-	findClosestVertex as commonsFindClosestVertex,
-	signedDistanceToLine,
-	vertexKey,
-	verticesEqual,
-} from '@shattered-wilds/commons';
+import { distanceToLine, signedDistanceToLine, vertexKey, verticesEqual } from '@shattered-wilds/commons';
+export { findClosestVertex } from '@shattered-wilds/commons';
 import type { Line, Point } from '@shattered-wilds/commons';
 
 /**
@@ -12,13 +7,6 @@ import type { Line, Point } from '@shattered-wilds/commons';
  */
 export const getHexSize = (): number | undefined => {
 	return canvas?.grid?.size;
-};
-
-/**
- * Find the closest vertex to a given point from a list of vertices.
- */
-export const findClosestVertex = (point: PIXI.IPointData, vertices: Point[]): Point | null => {
-	return commonsFindClosestVertex(point, vertices);
 };
 
 /**
