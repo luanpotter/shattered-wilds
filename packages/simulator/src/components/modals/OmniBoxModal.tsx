@@ -1,5 +1,5 @@
 import { getEnumKeys } from '@shattered-wilds/commons';
-import { Action } from '@shattered-wilds/d12';
+import { Action, WIKI, WikiDatum } from '@shattered-wilds/d12';
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useEncounters } from '../../hooks/useEncounters';
@@ -30,14 +30,17 @@ export const OmniBoxModal: React.FC<OmniBoxModalProps> = ({ context, onClose }) 
 
 	const [currentContext, updateContext] = useState<OmniBoxContext>(context);
 
+	const { openLexiconModal } = useModals();
+
 	const allOptions: OmniBoxOption[] = useMemo(
 		() => [
 			...buildMiscOptions({ closeAllModals }),
 			...buildNavigationOptions({ characters, encounters }),
 			...buildContextOptions({ characters, encounters, updateContext }),
 			...buildActOptions({ context: currentContext, characters }),
+			...buildLexiconOptions(openLexiconModal),
 		],
-		[characters, closeAllModals, currentContext, encounters],
+		[characters, closeAllModals, currentContext, encounters, openLexiconModal],
 	);
 
 	const filteredOptions = useMemo(() => {
@@ -192,6 +195,7 @@ const TypeBadge: React.FC<{ type: OmniBoxOptionType; inverted: boolean }> = ({ t
 		[OmniBoxOptionType.Context]: 'ctx',
 		[OmniBoxOptionType.Navigation]: 'nav',
 		[OmniBoxOptionType.Act]: 'act',
+		[OmniBoxOptionType.Lexicon]: 'def',
 		[OmniBoxOptionType.Misc]: '...',
 	};
 	return (
@@ -391,3 +395,11 @@ const buildActOption = (character: Character, action: GridActionTool | Action) =
 	label: `Act: ${action}`,
 	action: () => gridActionRegistry.triggerAction(character, { action }),
 });
+
+const buildLexiconOptions = (openLexiconModal: ({ entry }: { entry: WikiDatum }) => void): OmniBoxOption[] => {
+	return WIKI.map(entry => ({
+		type: OmniBoxOptionType.Lexicon,
+		label: `Lexicon: ${entry.title}`,
+		action: () => openLexiconModal({ entry }),
+	}));
+};

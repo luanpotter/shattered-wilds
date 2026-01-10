@@ -8,5 +8,6 @@ export enum OmniBoxOptionType {
 	Context = 'Context',
 	Navigation = 'Navigation',
 	Act = 'Act',
+	Lexicon = 'Lexicon',
 	Misc = 'Misc',
 }

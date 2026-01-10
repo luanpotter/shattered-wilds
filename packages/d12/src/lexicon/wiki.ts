@@ -1,37 +1,23 @@
-import { slugify } from '@shattered-wilds/commons';
+import { getEnumKeys, slugify } from '@shattered-wilds/commons';
 import { BASIC_EQUIPMENT, getItemType, Item, MODE_TYPE_LABELS } from '../character/equipment.js';
 import { ACTIONS } from '../core/actions.js';
 import { ARCANE_SCHOOLS, PREDEFINED_ARCANE_SPELLS } from '../core/arcane.js';
-import {
-	CLASS_DEFINITIONS,
-	CLASS_FLAVORS,
-	CLASS_REALMS,
-	CLASS_ROLES,
-	ClassFlavor,
-	ClassRole,
-} from '../core/classes.js';
+import { CLASS_DEFINITIONS, CLASS_FLAVORS, CLASS_ROLES } from '../core/classes.js';
 import { CONDITIONS } from '../core/conditions.js';
 import { CONSEQUENCES } from '../core/consequences.js';
 import { COVER_TYPES } from '../core/cover.js';
-import { FEATS, FeatSource } from '../core/feats.js';
+import { FEATS } from '../core/feats.js';
 import { UPBRINGING_DEFINITIONS } from '../core/races.js';
 import { TRAITS } from '../core/traits.js';
 import { DERIVED_STATS } from '../stats/derived-stat.js';
 import { Resource, RESOURCES } from '../stats/resources.js';
 import { StatType } from '../stats/stat-type.js';
+import { MetadataClass, WikiMetadata, WikiMetadataFrom } from './metadata.js';
 
 export interface WikiGroup {
 	group: string;
 	groupSlug: string;
 	globalDataKey: string;
-}
-
-export interface WikiMetadata {
-	key: string;
-	slug?: string | undefined;
-	title: string;
-	value: string | number | undefined;
-	cssClass: string;
 }
 
 export interface WikiDatum {
@@ -58,7 +44,7 @@ const buildWiki = ({
 	group: WikiGroup;
 	title: string;
 	content: string;
-	metadata?: Array<WikiMetadata>;
+	metadata?: Array<WikiMetadata | undefined>;
 	[key: string]: unknown;
 }): WikiDatum => {
 	return {
@@ -69,7 +55,7 @@ const buildWiki = ({
 		globalDataKey: group.globalDataKey,
 		title,
 		content,
-		metadata,
+		metadata: metadata.filter((m): m is WikiMetadata => m !== undefined),
 		...other,
 	};
 };
@@ -78,18 +64,12 @@ const actions = Object.values(ACTIONS).map(def => {
 	const slug = slugify(def.name);
 	const addCostMetadata = (resource: Resource, force: boolean): WikiMetadata | undefined => {
 		const cost = def.costs.find(c => c.resource === resource);
-		const amount = cost?.amount ?? 0;
-		if (amount === 0 && !force) {
+		if (!cost) {
 			return undefined;
 		}
-
-		return {
-			key: resource,
-			title: RESOURCES[resource].shortCode,
-			value: cost?.variable ? `${amount}+` : amount,
-			cssClass: `metadata-cost`,
-		};
+		return WikiMetadataFrom.cost(cost, { force });
 	};
+
 	return buildWiki({
 		// wiki parameters
 		group: { group: 'Action', groupSlug: 'Action', globalDataKey: 'actions' },
@@ -97,24 +77,10 @@ const actions = Object.values(ACTIONS).map(def => {
 		title: `${def.name}`,
 		content: def.description,
 		metadata: [
-			{
-				key: 'type',
-				title: 'Type',
-				value: def.type,
-				cssClass: 'metadata-type',
-			},
-			...def.traits.map(trait => ({
-				key: slugify(trait),
-				title: trait,
-				value: undefined,
-				cssClass: 'metadata-trait',
-			})),
-			addCostMetadata(Resource.ActionPoint, true),
-			addCostMetadata(Resource.FocusPoint, false),
-			addCostMetadata(Resource.SpiritPoint, false),
-			addCostMetadata(Resource.VitalityPoint, false),
-			addCostMetadata(Resource.HeroismPoint, false),
-		].filter((m): m is WikiMetadata => m !== undefined),
+			WikiMetadataFrom.type(def.type),
+			...def.traits.map(WikiMetadataFrom.trait),
+			...getEnumKeys(Resource).map(resource => addCostMetadata(resource, resource === Resource.ActionPoint)),
+		],
 
 		// other data
 		type: def.type,
@@ -142,25 +108,13 @@ const arcane = Object.values(PREDEFINED_ARCANE_SPELLS).map((def, idx) => {
 		content: `${def.description}`,
 		order: idx,
 		metadata: [
-			{
-				key: 'school',
-				slug: slugify(def.school),
-				title: 'School',
-				value: def.school,
-				cssClass: 'metadata-school',
-			},
-			{
-				key: 'modifier',
-				title: 'CM',
-				value: `${-combinedModifier}${hasVariableModifier ? '+' : ''}`,
-				cssClass: 'metadata-cost',
-			},
-			...def.traits.map(trait => ({
-				key: trait.replace(' ', '_'),
-				title: trait,
-				value: undefined,
-				cssClass: 'metadata-trait',
-			})),
+			WikiMetadataFrom.school(def.school),
+			WikiMetadataFrom.numeric({
+				key: 'CM',
+				value: -combinedModifier,
+				variable: hasVariableModifier,
+			}),
+			...def.traits.map(WikiMetadataFrom.trait),
 		],
 
 		// other parameters
@@ -186,28 +140,7 @@ const classes = Object.values(CLASS_DEFINITIONS).map(def => {
 		slug,
 		title: `${def.name}`,
 		content: def.description,
-		metadata: [
-			{
-				key: 'realm',
-				title: 'Realm',
-				value: `${def.realm} (${def.primaryAttribute.parent})`,
-				cssClass: 'metadata-type',
-			},
-			{
-				key: 'role',
-				title: 'Role',
-				slug: slugify(`${def.role} ${def.realm}`),
-				value: `${def.role} (${def.primaryAttribute})`,
-				cssClass: 'metadata-source',
-			},
-			{
-				key: 'flavor',
-				title: 'Flavor',
-				slug: slugify(`${def.flavor} ${def.realm}`),
-				value: def.flavor,
-				cssClass: 'metadata-source',
-			},
-		],
+		metadata: [WikiMetadataFrom.realm(def.realm), WikiMetadataFrom.role(def.role), WikiMetadataFrom.flavor(def.flavor)],
 
 		// other parameters
 		name: def.name,
@@ -317,18 +250,12 @@ export const equipment = Object.values(BASIC_EQUIPMENT).map(def => {
 		content: item.description,
 		metadata: [
 			{
-				key: 'type',
-				title: 'Type',
-				value: type,
-				cssClass: 'metadata-type',
+				metadataClass: MetadataClass.Type,
+				key: { text: 'Type' },
+				value: { text: type },
 			},
-			...item.traits.map(trait => ({
-				key: trait,
-				title: trait,
-				value: undefined,
-				cssClass: 'metadata-trait',
-			})),
-		].filter(Boolean),
+			...item.traits.map(WikiMetadataFrom.trait),
+		],
 		order: bonusForSorting,
 
 		// other data
@@ -341,18 +268,6 @@ export const equipment = Object.values(BASIC_EQUIPMENT).map(def => {
 
 const feats = Object.values(FEATS).map(feat => {
 	const slug = slugify(feat.name);
-
-	const sourceToSlug = (source: FeatSource): string => {
-		if (source in CLASS_FLAVORS) {
-			const flavor = CLASS_FLAVORS[source as ClassFlavor];
-			return `${flavor.name} ${flavor.realm}`;
-		}
-		if (source in CLASS_ROLES) {
-			const role = CLASS_ROLES[source as ClassRole];
-			return `${role.name} ${role.realm}`;
-		}
-		return source;
-	};
 
 	const group = {
 		group: 'Feat',
@@ -367,25 +282,9 @@ const feats = Object.values(FEATS).map(feat => {
 		url: `/wiki/${slug}/`,
 		content: feat.description,
 		metadata: [
-			{
-				key: 'type',
-				title: 'Type',
-				value: feat.type,
-				cssClass: 'metadata-type',
-			},
-			{
-				key: 'level',
-				title: 'Level',
-				value: feat.level,
-				cssClass: 'metadata-level',
-			},
-			...feat.sources.map(source => ({
-				key: 'source',
-				title: 'Source',
-				slug: slugify(sourceToSlug(source)),
-				value: source,
-				cssClass: 'metadata-source',
-			})),
+			WikiMetadataFrom.type(feat.type),
+			WikiMetadataFrom.numeric({ key: 'Level', value: feat.level }),
+			...feat.sources.map(WikiMetadataFrom.source),
 		],
 
 		// other parameters
@@ -419,14 +318,7 @@ const flavors = Object.values(CLASS_FLAVORS).map(def => {
 		title,
 		url: `/wiki/${slug}/`,
 		content: def.description,
-		metadata: [
-			{
-				key: 'realm',
-				title: 'Realm',
-				value: `${def.realm} (${CLASS_REALMS[def.realm].realm})`,
-				cssClass: 'metadata-type',
-			},
-		],
+		metadata: [WikiMetadataFrom.realm(def.realm)],
 
 		// other parameters
 		name: def.name,
@@ -473,21 +365,7 @@ const roles = Object.values(CLASS_ROLES).map(def => {
 		title,
 		url: `/wiki/${slug}/`,
 		content: def.description,
-		metadata: [
-			{
-				key: 'realm',
-				title: 'Realm',
-				value: `${def.realm} (${CLASS_REALMS[def.realm].realm})`,
-				cssClass: 'metadata-type',
-			},
-			{
-				key: 'role',
-				title: 'Primary Attribute',
-				slug: slugify(def.primaryAttribute.name),
-				value: def.primaryAttribute.name,
-				cssClass: 'metadata-source',
-			},
-		],
+		metadata: [WikiMetadataFrom.realm(def.realm), WikiMetadataFrom.attribute(def.primaryAttribute)],
 
 		// other parameters
 		name: def.name,
@@ -530,7 +408,6 @@ const stats = StatType.values
 			title: stat.name,
 			url: `/wiki/${slug}/`,
 			content: stat.description,
-			metadata: [],
 
 			// other parameters
 			name: stat.name,
@@ -560,10 +437,8 @@ const traits = Object.values(TRAITS).map(def => {
 		content: def.description,
 		metadata: [
 			{
-				key: def.target,
-				title: def.target,
-				value: undefined,
-				cssClass: `metadata-trait`,
+				metadataClass: MetadataClass.Trait,
+				key: { text: def.target, slug: slugify(def.target) },
 			},
 		],
 

@@ -33,6 +33,7 @@ import {
 } from './modals';
 import { CharacterListModal } from './modals/CharacterListModal';
 import { ErrorModal } from './modals/ErrorModal';
+import { LexiconModal } from './modals/LexiconModal';
 import { OmniBoxModal } from './modals/OmniBoxModal';
 import { Button } from './shared/Button';
 
@@ -264,6 +265,9 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 			}
 			case 'omni-box': {
 				return <OmniBoxModal context={modal.context} onClose={onClose} />;
+			}
+			case 'lexicon': {
+				return <LexiconModal entry={modal.entry} onClose={onClose} />;
 			}
 		}
 	};

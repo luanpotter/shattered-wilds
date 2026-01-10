@@ -25,6 +25,7 @@ export default function (eleventyConfig) {
 	const wikiPages = WIKI;
 
 	const byGlobalKey = Object.groupBy(wikiPages, e => e.globalDataKey);
+
 	for (const [key, entries] of Object.entries(byGlobalKey)) {
 		eleventyConfig.addGlobalData(key, entries);
 	}

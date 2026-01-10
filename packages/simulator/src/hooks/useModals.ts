@@ -1,5 +1,5 @@
 import { HexCoord } from '@shattered-wilds/commons';
-import { Check, FeatDefinition, FeatSlot, Condition, Consequence, ResourceCost } from '@shattered-wilds/d12';
+import { Check, FeatDefinition, FeatSlot, Condition, Consequence, ResourceCost, WikiDatum } from '@shattered-wilds/d12';
 
 import { OmniBoxContext } from '../components/omni/OmniBoxContext';
 import { useStore } from '../store';
@@ -474,6 +474,15 @@ export const useModals = () => {
 		});
 	};
 
+	const openLexiconModal = ({ entry }: { entry: WikiDatum }) => {
+		addModal({
+			title: `Lexicon: ${entry.title}`,
+			type: 'lexicon',
+			entry,
+			widthPixels: 600,
+		});
+	};
+
 	return {
 		openCharacterListModal,
 		openCharacterCreationModal,
@@ -499,6 +508,7 @@ export const useModals = () => {
 		openColorPickerModal,
 		openIconSelectionModal,
 		openOmniBoxModal,
+		openLexiconModal,
 		closeModal,
 		closeAllModals,
 		updateModal,

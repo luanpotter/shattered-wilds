@@ -11,14 +11,16 @@ const wikiLinks = (value: string) => {
 
 interface RichTextProps {
 	children: string;
+	otherComponents?: React.ComponentProps<typeof ReactMarkdown>['components'];
 }
 
-export const RichText: React.FC<RichTextProps> = ({ children }) => {
+export const RichText: React.FC<RichTextProps> = ({ children, otherComponents }) => {
 	const preProcessed = wikiLinks(children);
 	return (
 		<ReactMarkdown
 			components={{
 				p: ({ children }) => <p style={{ margin: 0 }}>{children}</p>,
+				...otherComponents,
 			}}
 		>
 			{preProcessed}

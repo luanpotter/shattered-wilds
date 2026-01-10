@@ -1,5 +1,5 @@
 import { Point, HexCoord, Dimensions } from '@shattered-wilds/commons';
-import { Check, FeatSlot, FeatDefinition, Condition, Consequence, ResourceCost } from '@shattered-wilds/d12';
+import { Check, FeatSlot, FeatDefinition, Condition, Consequence, ResourceCost, WikiDatum } from '@shattered-wilds/d12';
 
 import { OmniBoxContext } from '../components/omni/OmniBoxContext';
 
@@ -181,6 +181,10 @@ export type Modal = BaseModal &
 		| {
 				type: 'omni-box';
 				context: OmniBoxContext;
+		  }
+		| {
+				type: 'lexicon';
+				entry: WikiDatum;
 		  }
 	);
 
