@@ -19,7 +19,7 @@ import { FaX } from 'react-icons/fa6';
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
 import { Character, GameMap, MapMode, MapTool } from '../../types/ui';
-import { BattleGrid } from '../HexGrid';
+import { HexGridComponent } from '../hex/HexGridComponent';
 import { Button } from '../shared/Button';
 
 interface EncounterViewProps {
@@ -204,7 +204,7 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 			</div>
 
 			<div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-				<BattleGrid
+				<HexGridComponent
 					encounterId={encounterId}
 					encounterCharacters={encounterCharacters}
 					getCharacterPosition={getCharacterPosition}

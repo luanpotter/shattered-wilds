@@ -1,7 +1,7 @@
 import { Dimensions, HexCoord, Line, Point } from '@shattered-wilds/commons';
 import React from 'react';
 
-import { hexGrid } from './hexGrid';
+import { hexGrid } from './HexGrid';
 
 export interface HexAreaProps {
 	hexes: HexCoord[];

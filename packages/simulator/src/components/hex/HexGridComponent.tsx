@@ -4,11 +4,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { IconType } from 'react-icons';
 import * as Fa6Icons from 'react-icons/fa6';
 
-import { useErrors } from '../hooks/useErrors';
-import { useModals } from '../hooks/useModals';
-import { PropUpdater } from '../hooks/usePropUpdates';
-import { useStore } from '../store';
-import { getBasicAttacksFor } from '../types/grid-actions';
+import { useErrors } from '../../hooks/useErrors';
+import { useModals } from '../../hooks/useModals';
+import { PropUpdater } from '../../hooks/usePropUpdates';
+import { useStore } from '../../store';
+import { getBasicAttacksFor } from '../../types/grid-actions';
 import {
 	AreaToolState,
 	Character,
@@ -19,15 +19,15 @@ import {
 	MapMode,
 	MapTool,
 	SelectToolState,
-} from '../types/ui';
+} from '../../types/ui';
+import { CharacterToken } from '../CharacterToken';
+import { OmniBoxOptionType } from '../omni/OmniBoxOption';
+import { TokenContextMenu } from '../TokenContextMenu';
 
-import { CharacterToken } from './CharacterToken';
-import { GridActionSelectionData, GridActionTool, gridActionRegistry } from './hex/GridActions';
-import { HexAreaComponent } from './hex/HexAreaComponent';
-import { hexGrid } from './hex/hexGrid';
-import { StaticHexGrid } from './hex/StaticHexGrid';
-import { OmniBoxOptionType } from './omni/OmniBoxOption';
-import { TokenContextMenu } from './TokenContextMenu';
+import { GridActionSelectionData, GridActionTool, gridActionRegistry } from './GridActions';
+import { HexAreaComponent } from './HexAreaComponent';
+import { hexGrid } from './HexGrid';
+import { StaticHexGrid } from './StaticHexGrid';
 
 // Dynamic icon loader from fa6
 const renderFaIcon = (iconName: string): React.ReactNode => {
@@ -100,7 +100,7 @@ const calculateViewBox = (width: number, height: number): string => {
 	return `${minX} ${minY} ${svgWidth} ${svgHeight}`;
 };
 
-interface BattleGridProps {
+interface HexGridComponentProps {
 	encounterId: string;
 	encounterCharacters: Character[];
 	getCharacterPosition: (characterId: string) => HexCoord | undefined;
@@ -114,7 +114,7 @@ interface BattleGridProps {
 	currentTurnCharacterId?: string | null;
 }
 
-export const BattleGrid: React.FC<BattleGridProps> = ({
+export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 	encounterId,
 	encounterCharacters,
 	getCharacterPosition,
