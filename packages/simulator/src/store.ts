@@ -1,4 +1,4 @@
-import { Check } from '@shattered-wilds/commons';
+import { Check } from '@shattered-wilds/d12';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 

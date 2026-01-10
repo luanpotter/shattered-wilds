@@ -1,0 +1,39 @@
+{
+	"name": "@shattered-wilds/d12",
+	"version": "0.1.0",
+	"description": "Data models representing the core concepts of the D12 System and the Shattered Wilds setting.",
+	"type": "module",
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsc",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"lint": "eslint . --ext .ts,.tsx,.js,.cjs --config eslint.config.ts --max-warnings 0",
+		"lint:fix": "eslint . --ext .ts,.tsx,.js,.cjs --fix --config eslint.config.ts --max-warnings 0",
+		"type-check": "tsc --noEmit --incremental false --project tsconfig.json",
+		"prettier:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,css,html}\" --ignore-path .gitignore",
+		"prettier:fix": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,html}\" --ignore-path .gitignore",
+		"check": "bun run lint && bun run type-check && bun run test && bun run prettier:check",
+		"check:fix": "bun run lint:fix && bun run type-check && bun run prettier:fix",
+		"clean": "rm -rf build/ dist/ node_modules/"
+	},
+	"dependencies": {
+		"@shattered-wilds/commons": "workspace:*",
+		"type-comparator": "^0.2.10"
+	},
+	"devDependencies": {
+		"typescript": "^5.7.2",
+		"vitest": "^3.2.4"
+	}
+}

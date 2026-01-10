@@ -1,10 +1,5 @@
-import {
-	ACTIONS,
-	ActionType,
-	firstParagraph,
-	getRecordValues,
-	PREDEFINED_ARCANE_SPELLS,
-} from '@shattered-wilds/commons';
+import { firstParagraph, getRecordValues } from '@shattered-wilds/commons';
+import { ACTIONS, ActionType, PREDEFINED_ARCANE_SPELLS } from '@shattered-wilds/d12';
 
 import { Blocks, Bold, InfoBox, PrintRichText } from '../print/print-friendly-commons';
 

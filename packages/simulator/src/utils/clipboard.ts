@@ -1,4 +1,4 @@
-import { CharacterSheet } from '@shattered-wilds/commons';
+import { CharacterSheet } from '@shattered-wilds/d12';
 
 import { Character, createNewCharacter } from '../types/ui';
 

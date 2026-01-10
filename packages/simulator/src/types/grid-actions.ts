@@ -12,7 +12,7 @@ import {
 	DefenseTrait,
 	Distance,
 	PassiveCoverType,
-} from '@shattered-wilds/commons';
+} from '@shattered-wilds/d12';
 
 export interface BasicAttack {
 	name: string;

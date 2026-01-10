@@ -8,7 +8,7 @@ import {
 	FeatInfo,
 	FeatsSection,
 	StatType,
-} from '@shattered-wilds/commons';
+} from '@shattered-wilds/d12';
 import { asc, map } from 'type-comparator';
 
 import { useStore } from '../../store';

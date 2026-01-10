@@ -1,4 +1,4 @@
-import { Action, CharacterSheet } from '@shattered-wilds/commons';
+import { Action, CharacterSheet } from '@shattered-wilds/d12';
 import React, { useEffect, useState } from 'react';
 import { FaBolt, FaFistRaised, FaRuler, FaUser, FaWalking } from 'react-icons/fa';
 

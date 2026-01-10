@@ -1,4 +1,4 @@
-import { CheckFactory, DiceRoll } from '@shattered-wilds/commons';
+import { CheckFactory, DiceRoll } from '@shattered-wilds/d12';
 import { executeEnhancedRoll } from './dice.js';
 import { ActorLike, Foundry } from '../foundry-shim.js';
 import { parseCharacterSheet } from './character.js';

@@ -1,3 +1,4 @@
+import { slugify } from '@shattered-wilds/commons';
 import {
 	ActionRow,
 	ActionRowBox,
@@ -5,8 +6,7 @@ import {
 	ActionRowValueBox,
 	ActionRowVariableBox,
 	ARCANE_SCHOOLS,
-	slugify,
-} from '@shattered-wilds/commons';
+} from '@shattered-wilds/d12';
 import React from 'react';
 import { FaDice } from 'react-icons/fa';
 

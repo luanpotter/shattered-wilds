@@ -1,3 +1,4 @@
+import { firstParagraph, slugify } from '@shattered-wilds/commons';
 import {
 	CharacterSheet,
 	CircumstancesSection,
@@ -5,11 +6,9 @@ import {
 	CONDITIONS,
 	Consequence,
 	CONSEQUENCES,
-	firstParagraph,
 	Resource,
 	RESOURCES,
-	slugify,
-} from '@shattered-wilds/commons';
+} from '@shattered-wilds/d12';
 import React, { JSX, useState } from 'react';
 import { FaCoffee, FaHourglassEnd, FaMinus, FaMoon, FaPlus, FaTrash } from 'react-icons/fa';
 

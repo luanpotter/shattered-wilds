@@ -1,14 +1,5 @@
-import {
-	Check,
-	FeatSlot,
-	FeatDefinition,
-	Condition,
-	Consequence,
-	ResourceCost,
-	Point,
-	HexCoord,
-	HexVertex,
-} from '@shattered-wilds/commons';
+import { Point, HexCoord, HexVertex } from '@shattered-wilds/commons';
+import { Check, FeatSlot, FeatDefinition, Condition, Consequence, ResourceCost } from '@shattered-wilds/d12';
 
 import { OmniBoxContext } from '../components/omni/OmniBoxContext';
 

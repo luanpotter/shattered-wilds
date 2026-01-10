@@ -1,4 +1,5 @@
-import { StatType, slugify } from '@shattered-wilds/commons';
+import { slugify } from '@shattered-wilds/commons';
+import { StatType } from '@shattered-wilds/d12';
 
 export const stats = StatType.values
 	.filter(stat => stat.name)

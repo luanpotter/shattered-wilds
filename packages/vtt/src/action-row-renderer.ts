@@ -7,7 +7,7 @@ import {
 	CharacterSheet,
 	Resource,
 	RESOURCES,
-} from '@shattered-wilds/commons';
+} from '@shattered-wilds/d12';
 import { processRichText } from './helpers/rich-text';
 
 const processCosts = ({ characterSheet, actionRow }: { characterSheet: CharacterSheet; actionRow: ActionRow }) => {

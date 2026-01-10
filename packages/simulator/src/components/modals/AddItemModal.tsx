@@ -21,7 +21,7 @@ import {
 	SlotType,
 	Trait,
 	WeaponMode,
-} from '@shattered-wilds/commons';
+} from '@shattered-wilds/d12';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useStore } from '../../store';

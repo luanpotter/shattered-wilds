@@ -1,4 +1,5 @@
-import { ARCANE_SCHOOLS, slugify } from '@shattered-wilds/commons';
+import { slugify } from '@shattered-wilds/commons';
+import { ARCANE_SCHOOLS } from '@shattered-wilds/d12';
 
 export const schools = Object.values(ARCANE_SCHOOLS).map(def => {
 	const slug = `${slugify(def.name)}`;

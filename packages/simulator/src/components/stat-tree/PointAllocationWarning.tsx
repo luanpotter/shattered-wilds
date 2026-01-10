@@ -1,4 +1,4 @@
-import { StatNode } from '@shattered-wilds/commons';
+import { StatNode } from '@shattered-wilds/d12';
 import React from 'react';
 import { FaExclamationTriangle } from 'react-icons/fa';
 

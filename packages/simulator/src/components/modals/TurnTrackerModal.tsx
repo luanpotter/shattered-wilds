@@ -1,4 +1,4 @@
-import { CharacterSheet, CheckFactory, Resource } from '@shattered-wilds/commons';
+import { CharacterSheet, CheckFactory, Resource } from '@shattered-wilds/d12';
 import React, { useCallback, useMemo, useState } from 'react';
 import { FaBackward, FaDice, FaForward, FaPlay, FaStop } from 'react-icons/fa6';
 

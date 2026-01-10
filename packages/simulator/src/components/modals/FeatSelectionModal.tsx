@@ -1,4 +1,4 @@
-import { FeatDefinition, FeatSlot, FeatInfo, CharacterSheet, FeatsSection } from '@shattered-wilds/commons';
+import { FeatDefinition, FeatSlot, FeatInfo, CharacterSheet, FeatsSection } from '@shattered-wilds/d12';
 import React from 'react';
 
 import { useModals } from '../../hooks/useModals';

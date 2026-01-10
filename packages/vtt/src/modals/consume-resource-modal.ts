@@ -1,4 +1,4 @@
-import { CharacterSheet, ResourceCost, RESOURCES } from '@shattered-wilds/commons';
+import { CharacterSheet, ResourceCost, RESOURCES } from '@shattered-wilds/d12';
 import { createHandlebarsApplicationBase, getActorById, showNotification } from '../foundry-shim.js';
 import { consumeActionResources } from '../helpers/resources.js';
 interface AdjustedCost extends ResourceCost {

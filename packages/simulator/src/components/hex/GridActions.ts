@@ -1,4 +1,4 @@
-import { Action } from '@shattered-wilds/commons';
+import { Action } from '@shattered-wilds/d12';
 
 import { Character } from '../../types/ui';
 

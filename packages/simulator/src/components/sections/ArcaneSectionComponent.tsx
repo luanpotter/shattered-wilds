@@ -10,7 +10,7 @@ import {
 	Distance,
 	FUNDAMENTAL_ARCANE_SPELL_DESCRIPTION,
 	StatType,
-} from '@shattered-wilds/commons';
+} from '@shattered-wilds/d12';
 import React, { useMemo } from 'react';
 import { FaDice } from 'react-icons/fa';
 

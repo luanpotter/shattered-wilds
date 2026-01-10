@@ -1,4 +1,4 @@
-import { CharacterSheet, Condition, CONDITIONS } from '@shattered-wilds/commons';
+import { CharacterSheet, Condition, CONDITIONS } from '@shattered-wilds/d12';
 import { ActorLike, Foundry } from '../foundry-shim';
 
 export async function syncConditionsToTokens(actor: ActorLike, characterSheet: CharacterSheet): Promise<void> {

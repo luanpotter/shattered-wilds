@@ -1,4 +1,5 @@
-import { RESOURCES, slugify } from '@shattered-wilds/commons';
+import { slugify } from '@shattered-wilds/commons';
+import { RESOURCES } from '@shattered-wilds/d12';
 
 export const resources = Object.values(RESOURCES).map(resource => {
 	const slug = slugify(resource.fullName);

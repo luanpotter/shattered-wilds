@@ -1,3 +1,4 @@
+import { firstParagraph } from '@shattered-wilds/commons';
 import {
 	ActionRow,
 	ActionRowCheckBox,
@@ -8,6 +9,7 @@ import {
 	ArcaneSectionDefaults,
 	ArcaneSectionInputValues,
 	ArcaneSpellComponentType,
+	ArmorModeOption,
 	CharacterSheet,
 	Check,
 	CheckFactory,
@@ -25,19 +27,17 @@ import {
 	DivineSection,
 	DropdownInput,
 	FeatsSection,
-	firstParagraph,
 	NodeStatModifier,
 	NumberInput,
 	PassiveCoverType,
 	Resource,
+	ResourceCost,
 	RESOURCES,
+	ShieldModeOption,
 	StatNode,
 	StatType,
 	WeaponModeOption,
-	ArmorModeOption,
-	ResourceCost,
-	ShieldModeOption,
-} from '@shattered-wilds/commons';
+} from '@shattered-wilds/d12';
 import { prepareActionRow } from '../action-row-renderer.js';
 import { ActorLike, createHandlebarsActorSheetBase, getActorById, showNotification } from '../foundry-shim.js';
 import {
@@ -48,22 +48,22 @@ import {
 	parseCharacterProps,
 	parseCharacterSheet,
 } from '../helpers/character.js';
+import { syncConditionsToTokens } from '../helpers/conditions.js';
 import { rollDice } from '../helpers/dice.js';
 import {
 	changeActorResource,
-	updateActorProps,
 	performLongRest,
 	syncResourcesToSystemData,
+	updateActorProps,
 } from '../helpers/resources.js';
 import { prepareInputForTemplate } from '../input-renderer.js';
 import { configureDefaultTokenBars } from '../token-bars.js';
-import { ConsumeResourceModal } from './consume-resource-modal.js';
-import { syncConditionsToTokens } from '../helpers/conditions.js';
-import { confirmAction } from './modals.js';
 import { addConditionModal } from './condition-modal.js';
 import { addConsequenceModal } from './consequence-modal.js';
-import { EquipmentEditorModal } from './equipment-editor-modal.js';
+import { ConsumeResourceModal } from './consume-resource-modal.js';
 import { prepareEquipmentDisplayData } from './equipment-display-data.js';
+import { EquipmentEditorModal } from './equipment-editor-modal.js';
+import { confirmAction } from './modals.js';
 
 const HandlebarsActorSheetBase = createHandlebarsActorSheetBase();
 

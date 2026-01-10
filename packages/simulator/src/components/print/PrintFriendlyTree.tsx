@@ -6,7 +6,7 @@ import {
 	StatNode,
 	StatTree,
 	StatType,
-} from '@shattered-wilds/commons';
+} from '@shattered-wilds/d12';
 import React from 'react';
 
 import { getRealmColorWithAlpha } from '../stat-tree/shared-logic';

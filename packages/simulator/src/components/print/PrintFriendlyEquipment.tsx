@@ -11,7 +11,7 @@ import {
 	ShieldModeOption,
 	WeaponMode,
 	WeaponModeOption,
-} from '@shattered-wilds/commons';
+} from '@shattered-wilds/d12';
 
 import { Bold, Dash, ValueBox } from './print-friendly-commons';
 

@@ -17,7 +17,8 @@
 		"clean": "rm -rf build/ dist/ node_modules/"
 	},
 	"dependencies": {
-		"@shattered-wilds/commons": "workspace:*"
+		"@shattered-wilds/commons": "workspace:*",
+		"@shattered-wilds/d12": "workspace:*"
 	},
 	"devDependencies": {
 		"typescript": "~5.7.2"

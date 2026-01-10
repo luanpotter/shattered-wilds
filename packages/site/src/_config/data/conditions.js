@@ -1,4 +1,5 @@
-import { CONDITIONS, slugify } from '@shattered-wilds/commons';
+import { slugify } from '@shattered-wilds/commons';
+import { CONDITIONS } from '@shattered-wilds/d12';
 
 export const conditions = Object.values(CONDITIONS).map(def => {
 	const slug = `${slugify(def.name)}`;

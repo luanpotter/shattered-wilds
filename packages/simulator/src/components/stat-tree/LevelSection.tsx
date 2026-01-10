@@ -1,4 +1,4 @@
-import { StatTree } from '@shattered-wilds/commons';
+import { StatTree } from '@shattered-wilds/d12';
 import React from 'react';
 import { FaUndo } from 'react-icons/fa';
 

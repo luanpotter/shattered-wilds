@@ -1,4 +1,4 @@
-import { CharacterSheet, Resource } from '@shattered-wilds/commons';
+import { CharacterSheet, Resource } from '@shattered-wilds/d12';
 import React from 'react';
 
 import { useStore } from '../store';

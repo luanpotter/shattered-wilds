@@ -1,4 +1,5 @@
-import { BASIC_EQUIPMENT, getItemType, MODE_TYPE_LABELS, slugify } from '@shattered-wilds/commons';
+import { slugify } from '@shattered-wilds/commons';
+import { BASIC_EQUIPMENT, getItemType, MODE_TYPE_LABELS } from '@shattered-wilds/d12';
 
 const computeTypeLabel = item => {
 	const itemType = getItemType(item);

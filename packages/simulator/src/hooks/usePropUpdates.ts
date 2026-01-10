@@ -1,4 +1,4 @@
-import { AppliedCircumstance, CharacterSheet, Condition, Consequence, Resource } from '@shattered-wilds/commons';
+import { AppliedCircumstance, CharacterSheet, Condition, Consequence, Resource } from '@shattered-wilds/d12';
 
 import { useStore } from '../store';
 import { Character } from '../types/ui';

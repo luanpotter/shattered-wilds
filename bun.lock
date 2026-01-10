@@ -27,10 +27,23 @@
         "vitest": "^3.2.4",
       },
     },
+    "packages/d12": {
+      "name": "@shattered-wilds/d12",
+      "version": "0.1.0",
+      "dependencies": {
+        "@shattered-wilds/commons": "workspace:*",
+        "type-comparator": "^0.2.10",
+      },
+      "devDependencies": {
+        "typescript": "^5.7.2",
+        "vitest": "^3.2.4",
+      },
+    },
     "packages/hexagons": {
       "name": "@shattered-wilds/hexagons",
       "version": "0.2.12",
       "dependencies": {
+        "@shattered-wilds/commons": "workspace:*",
         "emojilib": "^4.0.2",
       },
       "devDependencies": {
@@ -43,6 +56,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@shattered-wilds/commons": "workspace:*",
+        "@shattered-wilds/d12": "workspace:*",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
         "react-draggable": "^4.4.6",
@@ -69,12 +83,13 @@
       "name": "@shattered-wilds/site",
       "version": "0.1.0",
       "dependencies": {
+        "@shattered-wilds/commons": "workspace:*",
+        "@shattered-wilds/d12": "workspace:*",
         "simpledotcss": "^2.2.1",
         "type-comparator": "^0.2.10",
       },
       "devDependencies": {
         "@11ty/eleventy": "^3.1.2",
-        "@shattered-wilds/commons": "workspace:*",
         "@types/js-yaml": "^4.0.9",
         "@types/lodash": "^4.17.13",
         "@types/markdown-it": "^14.1.2",
@@ -93,6 +108,7 @@
       "version": "0.2.12",
       "dependencies": {
         "@shattered-wilds/commons": "workspace:*",
+        "@shattered-wilds/d12": "workspace:*",
       },
       "devDependencies": {
         "typescript": "~5.7.2",
@@ -438,6 +454,8 @@
     "@rtsao/scc": ["@rtsao/scc@1.1.0", "", {}, "sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g=="],
 
     "@shattered-wilds/commons": ["@shattered-wilds/commons@workspace:packages/commons"],
+
+    "@shattered-wilds/d12": ["@shattered-wilds/d12@workspace:packages/d12"],
 
     "@shattered-wilds/hexagons": ["@shattered-wilds/hexagons@workspace:packages/hexagons"],
 

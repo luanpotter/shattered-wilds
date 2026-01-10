@@ -1,4 +1,4 @@
-import { CharacterSheet, Resource, ResourceCost, RESOURCES } from '@shattered-wilds/commons';
+import { CharacterSheet, Resource, ResourceCost, RESOURCES } from '@shattered-wilds/d12';
 import React, { useState } from 'react';
 import { FaCoins, FaMinus, FaPlus, FaTimes, FaCheck } from 'react-icons/fa';
 

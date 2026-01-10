@@ -1,4 +1,4 @@
-import { CharacterSheet } from '@shattered-wilds/commons';
+import { CharacterSheet } from '@shattered-wilds/d12';
 import React from 'react';
 import { FaCopy, FaExpand } from 'react-icons/fa';
 

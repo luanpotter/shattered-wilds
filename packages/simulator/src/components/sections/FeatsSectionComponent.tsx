@@ -1,4 +1,4 @@
-import { CharacterSheet, FeatsSection } from '@shattered-wilds/commons';
+import { CharacterSheet, FeatsSection } from '@shattered-wilds/d12';
 import React from 'react';
 import { FaCog, FaExclamationTriangle } from 'react-icons/fa';
 

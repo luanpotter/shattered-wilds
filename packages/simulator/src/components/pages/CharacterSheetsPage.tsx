@@ -1,4 +1,5 @@
-import { CharacterSheet, getRecordValues } from '@shattered-wilds/commons';
+import { getRecordValues } from '@shattered-wilds/commons';
+import { CharacterSheet } from '@shattered-wilds/d12';
 import React, { useEffect, useRef, useState } from 'react';
 import { IconType } from 'react-icons';
 import { FaChevronDown, FaClipboard, FaEye, FaPlus, FaTrash } from 'react-icons/fa';

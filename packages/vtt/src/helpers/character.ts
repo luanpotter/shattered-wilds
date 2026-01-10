@@ -1,4 +1,4 @@
-import { CharacterSheet, Condition } from '@shattered-wilds/commons';
+import { CharacterSheet, Condition } from '@shattered-wilds/d12';
 import { ActorLike, showNotification } from '../foundry-shim.js';
 import { configureDefaultTokenBars } from '../token-bars.js';
 import { promptText } from '../modals/modals.js';

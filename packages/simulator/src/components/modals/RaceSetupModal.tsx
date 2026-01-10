@@ -5,7 +5,7 @@ import {
 	Race,
 	StatType,
 	Upbringing,
-} from '@shattered-wilds/commons';
+} from '@shattered-wilds/d12';
 import React from 'react';
 
 import { useStore } from '../../store';

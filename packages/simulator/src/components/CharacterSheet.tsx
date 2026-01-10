@@ -1,4 +1,4 @@
-import { CharacterSheet, FeatsSection } from '@shattered-wilds/commons';
+import { CharacterSheet, FeatsSection } from '@shattered-wilds/d12';
 import React, { useEffect } from 'react';
 import { FaCog } from 'react-icons/fa';
 

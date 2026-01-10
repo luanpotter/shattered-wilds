@@ -1,4 +1,4 @@
-import { ActionRowCost, CharacterSheet, ResourceCost } from '@shattered-wilds/commons';
+import { ActionRowCost, CharacterSheet, ResourceCost } from '@shattered-wilds/d12';
 import React from 'react';
 
 import { useModals } from '../hooks/useModals';

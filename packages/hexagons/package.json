@@ -21,6 +21,7 @@
 		"typescript": "~5.7.2"
 	},
 	"dependencies": {
+		"@shattered-wilds/commons": "workspace:*",
 		"emojilib": "^4.0.2"
 	}
 }

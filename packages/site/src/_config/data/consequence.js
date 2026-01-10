@@ -1,4 +1,5 @@
-import { CONSEQUENCES, slugify } from '@shattered-wilds/commons';
+import { slugify } from '@shattered-wilds/commons';
+import { CONSEQUENCES } from '@shattered-wilds/d12';
 
 export const consequences = Object.values(CONSEQUENCES).map(def => {
 	const slug = `${slugify(def.name)}`;

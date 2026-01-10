@@ -9,7 +9,7 @@ import {
 	DiceRollEncoder,
 	RollResults,
 	StatType,
-} from '@shattered-wilds/commons';
+} from '@shattered-wilds/d12';
 import React, { useMemo, useState } from 'react';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 

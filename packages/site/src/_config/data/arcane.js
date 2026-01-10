@@ -1,4 +1,5 @@
-import { PREDEFINED_ARCANE_SPELLS, slugify } from '@shattered-wilds/commons';
+import { slugify } from '@shattered-wilds/commons';
+import { PREDEFINED_ARCANE_SPELLS } from '@shattered-wilds/d12';
 
 export const predefinedArcaneSpells = Object.values(PREDEFINED_ARCANE_SPELLS).map((def, idx) => {
 	const slug = `${slugify(def.name)}`;

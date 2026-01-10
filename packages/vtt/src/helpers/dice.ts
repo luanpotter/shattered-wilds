@@ -1,4 +1,4 @@
-import { Check, DiceRoll, DiceRoller, EntropyProvider, RollResults } from '@shattered-wilds/commons';
+import { Check, DiceRoll, DiceRoller, EntropyProvider, RollResults } from '@shattered-wilds/d12';
 import { Foundry, FoundryRoll } from '../foundry-shim';
 import { DiceRollModal } from '../modals/dice-modal';
 

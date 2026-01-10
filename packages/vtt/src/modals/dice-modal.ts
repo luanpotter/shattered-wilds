@@ -7,7 +7,7 @@ import {
 	ModifierSource,
 	StatHierarchy,
 	StatType,
-} from '@shattered-wilds/commons';
+} from '@shattered-wilds/d12';
 import { executeEnhancedRoll } from '../helpers/dice.js';
 import { getActorById, createHandlebarsApplicationBase } from '../foundry-shim.js';
 import { getCharacterProps, parseCharacterSheet } from '../helpers/character.js';

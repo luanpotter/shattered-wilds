@@ -1,4 +1,4 @@
-import { FeatDefinition, FeatParameter, FeatSlot, FeatInfo, FeatType } from '@shattered-wilds/commons';
+import { FeatDefinition, FeatParameter, FeatSlot, FeatInfo, FeatType } from '@shattered-wilds/d12';
 import React, { useState } from 'react';
 
 import { useStore } from '../../store';

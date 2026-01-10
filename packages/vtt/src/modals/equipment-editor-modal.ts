@@ -20,12 +20,12 @@ import {
 	TRAITS,
 	WeaponMode,
 	SlotType,
-	isEnumValue,
-} from '@shattered-wilds/commons';
+} from '@shattered-wilds/d12';
 import { createHandlebarsApplicationBase, getActorById, showNotification } from '../foundry-shim.js';
 import { parseCharacterProps } from '../helpers/character.js';
 import { updateActorProps } from '../helpers/resources.js';
 import { confirmAction } from './modals.js';
+import { isEnumValue } from '@shattered-wilds/commons';
 
 // =============================================================================
 // Type Definitions

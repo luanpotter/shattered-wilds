@@ -1,4 +1,5 @@
-import { CLASS_FLAVORS, CLASS_REALMS, slugify } from '@shattered-wilds/commons';
+import { slugify } from '@shattered-wilds/commons';
+import { CLASS_FLAVORS, CLASS_REALMS } from '@shattered-wilds/d12';
 
 export const flavors = Object.values(CLASS_FLAVORS).map(def => {
 	const title = `${def.name} ${def.realm}`;

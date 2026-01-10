@@ -1,4 +1,4 @@
-import { CharacterSheet, Equipment, SlotType } from '@shattered-wilds/commons';
+import { CharacterSheet, Equipment, SlotType } from '@shattered-wilds/d12';
 import React from 'react';
 import { IconType } from 'react-icons';
 import {

@@ -1,4 +1,5 @@
-import { CLASS_ROLES, CLASS_REALMS, slugify } from '@shattered-wilds/commons';
+import { slugify } from '@shattered-wilds/commons';
+import { CLASS_ROLES, CLASS_REALMS } from '@shattered-wilds/d12';
 
 export const roles = Object.values(CLASS_ROLES).map(def => {
 	const title = `${def.name} ${def.realm}`;

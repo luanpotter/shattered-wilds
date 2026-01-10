@@ -1,4 +1,4 @@
-import { Check, FeatDefinition, FeatSlot, Condition, Consequence, ResourceCost } from '@shattered-wilds/commons';
+import { Check, FeatDefinition, FeatSlot, Condition, Consequence, ResourceCost } from '@shattered-wilds/d12';
 
 import { OmniBoxContext } from '../components/omni/OmniBoxContext';
 import { useStore } from '../store';

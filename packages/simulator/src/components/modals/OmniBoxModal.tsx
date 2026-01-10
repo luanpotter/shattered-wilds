@@ -1,4 +1,5 @@
-import { Action, getEnumKeys } from '@shattered-wilds/commons';
+import { getEnumKeys } from '@shattered-wilds/commons';
+import { Action } from '@shattered-wilds/d12';
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useModals } from '../../hooks/useModals';

@@ -1,4 +1,5 @@
-import { CLASS_FLAVORS, CLASS_ROLES, FEATS, slugify } from '@shattered-wilds/commons';
+import { slugify } from '@shattered-wilds/commons';
+import { CLASS_FLAVORS, CLASS_ROLES, FEATS } from '@shattered-wilds/d12';
 
 export const feats = Object.values(FEATS).map(feat => {
 	const slug = slugify(feat.name);

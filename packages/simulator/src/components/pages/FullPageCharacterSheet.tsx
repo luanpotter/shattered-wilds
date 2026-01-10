@@ -1,4 +1,4 @@
-import { CharacterSheet, FeatsSection, StatType } from '@shattered-wilds/commons';
+import { CharacterSheet, FeatsSection, StatType } from '@shattered-wilds/d12';
 import React from 'react';
 import {
 	FaArrowLeft,

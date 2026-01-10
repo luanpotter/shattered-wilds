@@ -11,7 +11,7 @@ import {
 	Trait,
 	WeaponMode,
 	WeaponModeOption,
-} from '@shattered-wilds/commons';
+} from '@shattered-wilds/d12';
 
 // =============================================================================
 // Type Definitions

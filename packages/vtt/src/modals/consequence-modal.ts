@@ -1,4 +1,5 @@
-import { Consequence, CONSEQUENCES, getRecordValues } from '@shattered-wilds/commons';
+import { getRecordValues } from '@shattered-wilds/commons';
+import { Consequence, CONSEQUENCES } from '@shattered-wilds/d12';
 import { getDialogV2Factory, showNotification } from '../foundry-shim';
 import { processRichText } from '../helpers/rich-text';
 

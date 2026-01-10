@@ -1,0 +1,1 @@
+{"version":3,"file":"equipment-serializer.d.ts","sourceRoot":"","sources":["../../src/character/equipment-serializer.ts"],"names":[],"mappings":"AAGA,OAAO,EAAkC,IAAI,EAA8C,MAAM,gBAAgB,CAAC;AAIlH,eAAO,MAAM,mBAAmB;yBACV,IAAI,EAAE,GAAG,MAAM;sBAKlB,MAAM,GAAG,IAAI,EAAE;CAajC,CAAC"}

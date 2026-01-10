@@ -1,4 +1,4 @@
-import { StatNode, StatType } from '@shattered-wilds/commons';
+import { StatNode, StatType } from '@shattered-wilds/d12';
 
 import { useStore } from '../../store';
 

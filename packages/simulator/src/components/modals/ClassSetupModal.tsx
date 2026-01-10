@@ -8,7 +8,7 @@ import {
 	CLASS_ROLES,
 	extractCustomCoreParameters,
 	FeatOrSlot,
-} from '@shattered-wilds/commons';
+} from '@shattered-wilds/d12';
 import React, { useState } from 'react';
 
 import { useStore } from '../../store';

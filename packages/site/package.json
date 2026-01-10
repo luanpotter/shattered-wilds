@@ -1,40 +1,41 @@
 {
-  "name": "@shattered-wilds/site",
-  "version": "0.1.0",
-  "description": "Website dedicated to host information about Shattered Wilds.",
-  "type": "module",
-  "scripts": {
-    "build": "eleventy --config=.eleventy.js",
-    "dev": "eleventy --serve --config=.eleventy.js",
-    "lint": "eslint . --ext .ts,.tsx,.js,.cjs --config eslint.config.ts --max-warnings 0",
-    "lint:fix": "eslint . --ext .ts,.tsx,.js,.cjs --fix --config eslint.config.ts --max-warnings 0",
-    "type-check": "tsc --noEmit --incremental false --project tsconfig.json",
-    "prettier:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,css,html,json}\" --ignore-path .gitignore",
-    "prettier:fix": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,html,json}\" --ignore-path .gitignore",
-    "check": "bun run lint && bun run type-check && bun run prettier:check",
-    "check:fix": "bun run lint:fix && bun run type-check && bun run prettier:fix",
-    "clean": "rm -rf _site/ node_modules/"
-  },
-  "keywords": [],
-  "author": "Luan Nico",
-  "license": "MIT",
-  "devDependencies": {
-    "@shattered-wilds/commons": "workspace:*",
-    "@11ty/eleventy": "^3.1.2",
-    "@types/js-yaml": "^4.0.9",
-    "@types/lodash": "^4.17.13",
-    "@types/markdown-it": "^14.1.2",
-    "eleventy-google-fonts": "^0.1.0",
-    "js-yaml": "^4.1.0",
-    "lodash": "^4.17.21",
-    "markdown-it": "^14.1.0",
-    "markdown-it-anchor": "^9.2.0",
-    "markdown-it-attrs": "^4.2.0",
-    "markdown-it-wikilinks": "^1.4.0",
-    "typescript": "^5.7.2"
-  },
-  "dependencies": {
-    "simpledotcss": "^2.2.1",
-    "type-comparator": "^0.2.10"
-  }
+	"name": "@shattered-wilds/site",
+	"version": "0.1.0",
+	"description": "Website dedicated to host information about Shattered Wilds.",
+	"type": "module",
+	"scripts": {
+		"build": "eleventy --config=.eleventy.js",
+		"dev": "eleventy --serve --config=.eleventy.js",
+		"lint": "eslint . --ext .ts,.tsx,.js,.cjs --config eslint.config.ts --max-warnings 0",
+		"lint:fix": "eslint . --ext .ts,.tsx,.js,.cjs --fix --config eslint.config.ts --max-warnings 0",
+		"type-check": "tsc --noEmit --incremental false --project tsconfig.json",
+		"prettier:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,css,html,json}\" --ignore-path .gitignore",
+		"prettier:fix": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,html,json}\" --ignore-path .gitignore",
+		"check": "bun run lint && bun run type-check && bun run prettier:check",
+		"check:fix": "bun run lint:fix && bun run type-check && bun run prettier:fix",
+		"clean": "rm -rf _site/ node_modules/"
+	},
+	"keywords": [],
+	"author": "Luan Nico",
+	"license": "MIT",
+	"devDependencies": {
+		"@11ty/eleventy": "^3.1.2",
+		"@types/js-yaml": "^4.0.9",
+		"@types/lodash": "^4.17.13",
+		"@types/markdown-it": "^14.1.2",
+		"eleventy-google-fonts": "^0.1.0",
+		"js-yaml": "^4.1.0",
+		"lodash": "^4.17.21",
+		"markdown-it": "^14.1.0",
+		"markdown-it-anchor": "^9.2.0",
+		"markdown-it-attrs": "^4.2.0",
+		"markdown-it-wikilinks": "^1.4.0",
+		"typescript": "^5.7.2"
+	},
+	"dependencies": {
+		"@shattered-wilds/commons": "workspace:*",
+		"@shattered-wilds/d12": "workspace:*",
+		"simpledotcss": "^2.2.1",
+		"type-comparator": "^0.2.10"
+	}
 }

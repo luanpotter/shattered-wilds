@@ -1,4 +1,4 @@
-import { CharacterSheet, StatHierarchy, StatNode, StatType } from '@shattered-wilds/commons';
+import { CharacterSheet, StatHierarchy, StatNode, StatType } from '@shattered-wilds/d12';
 import React, { ReactNode, useState } from 'react';
 import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
 

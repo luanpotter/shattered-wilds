@@ -1,4 +1,4 @@
-import { ArcaneSection, ArcaneSectionDefaults, Bonus, Value } from '@shattered-wilds/commons';
+import { ArcaneSection, ArcaneSectionDefaults, Bonus, Value } from '@shattered-wilds/d12';
 
 import { Bold, Dash, PartialComponent, PrintRichText, ValueBox } from './print-friendly-commons';
 

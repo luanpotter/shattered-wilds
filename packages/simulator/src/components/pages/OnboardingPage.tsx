@@ -1,19 +1,17 @@
+import { firstParagraph, getRecordValues, joinHumanReadableList } from '@shattered-wilds/commons';
 import {
 	CLASS_DEFINITIONS,
 	CLASS_FLAVORS,
 	CLASS_REALMS,
 	CLASS_ROLES,
 	ClassDefinition,
-	firstParagraph,
-	getRecordValues,
-	joinHumanReadableList,
 	Race,
 	RACE_DEFINITIONS,
 	RacialStatModifier,
 	StatType,
 	StatTypeName,
 	UPBRINGING_DEFINITIONS,
-} from '@shattered-wilds/commons';
+} from '@shattered-wilds/d12';
 import React, { useState } from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 import { map, desc } from 'type-comparator';

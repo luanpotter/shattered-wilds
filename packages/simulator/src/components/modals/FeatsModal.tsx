@@ -1,4 +1,4 @@
-import { CharacterSheet, FeatsSection } from '@shattered-wilds/commons';
+import { CharacterSheet, FeatsSection } from '@shattered-wilds/d12';
 import React, { useState } from 'react';
 import { FaChevronDown, FaChevronRight, FaExclamationTriangle } from 'react-icons/fa';
 

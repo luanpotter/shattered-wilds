@@ -1,5 +1,5 @@
 import { ActorLike, Foundry } from '../foundry-shim.js';
-import { CharacterSheet, Resource } from '@shattered-wilds/commons';
+import { CharacterSheet, Resource } from '@shattered-wilds/d12';
 import { parseCharacterProps, sanitizeProps } from './character.js';
 
 /**

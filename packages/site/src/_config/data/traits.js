@@ -1,4 +1,5 @@
-import { TRAITS, slugify } from '@shattered-wilds/commons';
+import { slugify } from '@shattered-wilds/commons';
+import { TRAITS } from '@shattered-wilds/d12';
 
 export const traits = Object.values(TRAITS).map(def => {
 	const slug = slugify(def.name);

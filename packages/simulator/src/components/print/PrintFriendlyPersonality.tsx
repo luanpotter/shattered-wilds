@@ -1,4 +1,4 @@
-import { Personality } from '@shattered-wilds/commons';
+import { Personality } from '@shattered-wilds/d12';
 import React from 'react';
 
 import { Bold, PrintRichText } from './print-friendly-commons';

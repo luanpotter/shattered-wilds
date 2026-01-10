@@ -1,4 +1,4 @@
-import { Action, CharacterSheet, Check, CheckMode, CheckNature, Resource, Trait } from '@shattered-wilds/commons';
+import { Action, CharacterSheet, Check, CheckMode, CheckNature, Resource, Trait } from '@shattered-wilds/d12';
 import React, { useEffect, useState } from 'react';
 import { FaDice, FaFistRaised, FaUserShield } from 'react-icons/fa';
 

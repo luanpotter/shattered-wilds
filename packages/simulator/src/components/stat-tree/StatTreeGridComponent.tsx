@@ -1,4 +1,4 @@
-import { CharacterSheet, StatNode, StatType } from '@shattered-wilds/commons';
+import { CharacterSheet, StatNode, StatType } from '@shattered-wilds/d12';
 import React from 'react';
 
 import { LevelSection } from './LevelSection';

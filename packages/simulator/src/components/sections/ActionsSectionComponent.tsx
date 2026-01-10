@@ -1,3 +1,4 @@
+import { getRecordKeys } from '@shattered-wilds/commons';
 import {
 	ActionsSection,
 	ActionTabInputValues,
@@ -5,13 +6,12 @@ import {
 	CharacterSheet,
 	DropdownInput,
 	FixedInput,
-	getRecordKeys,
 	PassiveCoverType,
 	ResourceInput,
 	StatType,
 	TextInput,
 	WeaponModeOption,
-} from '@shattered-wilds/commons';
+} from '@shattered-wilds/d12';
 import React, { useCallback } from 'react';
 import { FaDice, FaFistRaised, FaHandHolding, FaRunning, FaStar } from 'react-icons/fa';
 import { FaShield } from 'react-icons/fa6';

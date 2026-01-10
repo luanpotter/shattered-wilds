@@ -1,4 +1,4 @@
-import { CharacterSheet, Resource, RESOURCES } from '@shattered-wilds/commons';
+import { CharacterSheet, Resource, RESOURCES } from '@shattered-wilds/d12';
 import React from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 

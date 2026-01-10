@@ -1,4 +1,4 @@
-import { Consequence, CONSEQUENCES } from '@shattered-wilds/commons';
+import { Consequence, CONSEQUENCES } from '@shattered-wilds/d12';
 import React from 'react';
 
 import { AddCircumstanceModal } from './AddCircumstanceModal';

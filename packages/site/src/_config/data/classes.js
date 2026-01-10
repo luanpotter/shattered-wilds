@@ -1,4 +1,5 @@
-import { CLASS_DEFINITIONS, slugify } from '@shattered-wilds/commons';
+import { slugify } from '@shattered-wilds/commons';
+import { CLASS_DEFINITIONS } from '@shattered-wilds/d12';
 
 export const classes = Object.values(CLASS_DEFINITIONS).map(def => {
 	const slug = slugify(def.name);

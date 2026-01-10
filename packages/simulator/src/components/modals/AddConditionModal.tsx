@@ -1,4 +1,4 @@
-import { Condition, CONDITIONS } from '@shattered-wilds/commons';
+import { Condition, CONDITIONS } from '@shattered-wilds/d12';
 import React from 'react';
 
 import { AddCircumstanceModal } from './AddCircumstanceModal';

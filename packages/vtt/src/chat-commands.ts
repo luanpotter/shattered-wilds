@@ -1,5 +1,5 @@
 // Chat command system for Shattered Wilds dice rolling
-import { DiceRoll, DiceRollEncoder } from '@shattered-wilds/commons';
+import { DiceRoll, DiceRollEncoder } from '@shattered-wilds/d12';
 import { executeEnhancedRoll } from './helpers/dice.js';
 import { Foundry, showNotification } from './foundry-shim.js';
 

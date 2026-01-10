@@ -1,4 +1,4 @@
-import { CharacterSheet, CheckFactory, DerivedStatType } from '@shattered-wilds/commons';
+import { CharacterSheet, CheckFactory, DerivedStatType } from '@shattered-wilds/d12';
 import React from 'react';
 
 import { useModals } from '../hooks/useModals';

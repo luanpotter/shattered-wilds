@@ -6,7 +6,7 @@ import {
 	NumberInput,
 	ResourceInput,
 	SectionInput,
-} from '@shattered-wilds/commons';
+} from '@shattered-wilds/d12';
 
 /**
  * Prepares a SectionInput for rendering in the VTT template.
