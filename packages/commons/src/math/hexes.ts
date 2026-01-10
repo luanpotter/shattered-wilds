@@ -149,6 +149,94 @@ export const pointToSegmentDistance = (p: Point, a: Point, b: Point): number => 
 	return Math.sqrt((p.x - projX) ** 2 + (p.y - projY) ** 2);
 };
 
+/**
+ * Configuration for the A* vertex path finding algorithm.
+ */
+export interface VertexPathConfig {
+	/** Get all vertices adjacent to a given vertex (connected by edges). */
+	getAdjacentVertices: (vertex: Point) => Point[];
+	/** Check if a vertex is allowed in the path (optional filter). */
+	isVertexAllowed?: (vertex: Point) => boolean;
+}
+
+/**
+ * Generic A* pathfinding along vertices (hex edges or similar).
+ * Finds a path that stays close to the straight line between start and end.
+ *
+ * @param start - Starting vertex
+ * @param end - Ending vertex
+ * @param config - Configuration with callbacks for getting neighbors and filtering vertices
+ * @returns Array of vertices forming the path, or empty array if no path found
+ */
+export const findVertexPathAStar = (start: Point, end: Point, config: VertexPathConfig): Point[] => {
+	const { getAdjacentVertices, isVertexAllowed } = config;
+
+	if (verticesEqual(start, end)) {
+		return [start];
+	}
+
+	const line: Line = { start, end };
+	const startKey = vertexKey(start);
+	const endKey = vertexKey(end);
+
+	// A* search
+	const queue: { vertex: Point; cost: number; signedDistSum: number }[] = [
+		{ vertex: start, cost: 0, signedDistSum: 0 },
+	];
+	const visited = new Set<string>();
+	const parent = new Map<string, Point>();
+	const bestCost = new Map<string, number>([[startKey, 0]]);
+
+	while (queue.length > 0) {
+		// Find node with lowest cost
+		let minIdx = 0;
+		for (let i = 1; i < queue.length; i++) {
+			const curr = queue[i]!;
+			const min = queue[minIdx]!;
+			if (
+				curr.cost < min.cost ||
+				(Math.abs(curr.cost - min.cost) < 0.01 && Math.abs(curr.signedDistSum) < Math.abs(min.signedDistSum))
+			) {
+				minIdx = i;
+			}
+		}
+
+		const current = queue.splice(minIdx, 1)[0]!;
+		const k = vertexKey(current.vertex);
+		if (visited.has(k)) continue;
+		visited.add(k);
+
+		// Check if we reached the end
+		if (k === endKey) {
+			const path: Point[] = [];
+			let curr: Point | undefined = current.vertex;
+			while (curr) {
+				path.unshift(curr);
+				curr = parent.get(vertexKey(curr));
+			}
+			return path;
+		}
+
+		// Explore neighbors
+		for (const next of getAdjacentVertices(current.vertex)) {
+			const nextKey = vertexKey(next);
+			if (visited.has(nextKey)) continue;
+			if (isVertexAllowed && !isVertexAllowed(next)) continue;
+
+			const newCost = current.cost + distanceToLine(next, line);
+			const newSignedDistSum = current.signedDistSum + signedDistanceToLine(next, line);
+
+			if (!bestCost.has(nextKey) || newCost < bestCost.get(nextKey)!) {
+				bestCost.set(nextKey, newCost);
+				parent.set(nextKey, current.vertex);
+				queue.push({ vertex: next, cost: newCost, signedDistSum: newSignedDistSum });
+			}
+		}
+	}
+
+	return [];
+};
+
 // ============================================================================
 // HexGrid class
 // ============================================================================
@@ -469,10 +557,6 @@ export class HexGrid {
 	 * Find the shortest path along hex edges from one vertex to another.
 	 */
 	findVertexPath(start: Point, end: Point): Point[] {
-		if (verticesEqual(start, end)) {
-			return [start];
-		}
-
 		const allowedHexKeys = this.getHexesAlongLine(start, end);
 
 		const startHex = this.pixelToAxial(start);
@@ -496,93 +580,10 @@ export class HexGrid {
 			}
 		}
 
-		interface PathNode {
-			vertex: Point;
-			cost: number;
-			signedDistSum: number;
-			pathLength: number;
-		}
-
-		const queue: PathNode[] = [
-			{
-				vertex: start,
-				cost: 0,
-				signedDistSum: 0,
-				pathLength: 1,
-			},
-		];
-
-		const visited = new Set<string>();
-		const parent = new Map<string, Point>();
-		const bestCost = new Map<string, number>();
-
-		bestCost.set(vertexKey(start), 0);
-
-		while (queue.length > 0) {
-			let minIdx = 0;
-			for (let i = 1; i < queue.length; i++) {
-				const curr = queue[i]!;
-				const min = queue[minIdx]!;
-
-				if (curr.cost < min.cost) {
-					minIdx = i;
-				} else if (Math.abs(curr.cost - min.cost) < 0.01) {
-					if (Math.abs(curr.signedDistSum) < Math.abs(min.signedDistSum)) {
-						minIdx = i;
-					}
-				}
-			}
-
-			const current = queue.splice(minIdx, 1)[0];
-			if (!current) break;
-
-			const { vertex, cost: cumulativeCost, signedDistSum, pathLength } = current;
-			const k = vertexKey(vertex);
-
-			if (visited.has(k)) continue;
-			visited.add(k);
-
-			if (verticesEqual(vertex, end)) {
-				const path: Point[] = [];
-				let curr: Point | undefined = vertex;
-				while (curr) {
-					path.unshift(curr);
-					curr = parent.get(vertexKey(curr));
-				}
-				return path;
-			}
-
-			const adjacent = this.getAdjacentVertices(vertex);
-			for (const next of adjacent) {
-				const nextKey = vertexKey(next);
-
-				if (!allowedVertexKeys.has(nextKey) || visited.has(nextKey)) {
-					continue;
-				}
-
-				const line = { start, end };
-				const nextDistToLine = distanceToLine(next, line);
-				const nextSignedDist = signedDistanceToLine(next, line);
-				const newCumulativeCost = cumulativeCost + nextDistToLine;
-				const newSignedDistSum = signedDistSum + nextSignedDist;
-				const newPathLength = pathLength + 1;
-
-				const existingCost = bestCost.get(nextKey);
-				if (existingCost === undefined || newCumulativeCost < existingCost) {
-					bestCost.set(nextKey, newCumulativeCost);
-					parent.set(nextKey, vertex);
-					queue.push({
-						vertex: next,
-						cost: newCumulativeCost,
-						signedDistSum: newSignedDistSum,
-						pathLength: newPathLength,
-					});
-				}
-			}
-		}
-
-		console.error('No vertex path found between', start, 'and', end);
-		return [];
+		return findVertexPathAStar(start, end, {
+			getAdjacentVertices: v => this.getAdjacentVertices(v),
+			isVertexAllowed: v => allowedVertexKeys.has(vertexKey(v)),
+		});
 	}
 
 	/**

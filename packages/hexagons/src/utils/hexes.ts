@@ -1,5 +1,5 @@
-import { distanceToLine, signedDistanceToLine, vertexKey, verticesEqual } from '@shattered-wilds/commons';
-import type { Line, Point } from '@shattered-wilds/commons';
+import { findVertexPathAStar, vertexKey, verticesEqual } from '@shattered-wilds/commons';
+import type { Point } from '@shattered-wilds/commons';
 
 /**
  * Gets the hex size from Foundry VTT's canvas grid.
@@ -124,7 +124,6 @@ export const findVertexPath = (start: Point, end: Point): Point[] => {
 	const grid = canvas?.grid;
 	if (!grid) return [];
 
-	const line: Line = { start, end };
 	const allowedHexes = getHexesAlongLine(start, end);
 
 	// Snap start/end to exact vertices and add their hexes
@@ -169,56 +168,8 @@ export const findVertexPath = (start: Point, end: Point): Point[] => {
 	const endKey = vertexKey(snappedEnd);
 	if (!allowedVertices.has(startKey) || !allowedVertices.has(endKey)) return [start, end];
 
-	// A* search
-	const queue: { vertex: Point; cost: number; signedDistSum: number }[] = [
-		{ vertex: snappedStart, cost: 0, signedDistSum: 0 },
-	];
-	const visited = new Set<string>();
-	const parent = new Map<string, Point>();
-	const bestCost = new Map<string, number>([[startKey, 0]]);
-
-	while (queue.length > 0) {
-		let minIdx = 0;
-		for (let i = 1; i < queue.length; i++) {
-			const curr = queue[i]!;
-			const min = queue[minIdx]!;
-			if (
-				curr.cost < min.cost ||
-				(Math.abs(curr.cost - min.cost) < 0.01 && Math.abs(curr.signedDistSum) < Math.abs(min.signedDistSum))
-			) {
-				minIdx = i;
-			}
-		}
-
-		const current = queue.splice(minIdx, 1)[0]!;
-		const k = vertexKey(current.vertex);
-		if (visited.has(k)) continue;
-		visited.add(k);
-
-		if (k === endKey) {
-			const path: Point[] = [];
-			let curr: Point | undefined = current.vertex;
-			while (curr) {
-				path.unshift(curr);
-				curr = parent.get(vertexKey(curr));
-			}
-			return path;
-		}
-
-		for (const next of getAdjacentVertices(current.vertex)) {
-			const nextKey = vertexKey(next);
-			if (!allowedVertices.has(nextKey) || visited.has(nextKey)) continue;
-
-			const newCost = current.cost + distanceToLine(next, line);
-			const newSignedDistSum = current.signedDistSum + signedDistanceToLine(next, line);
-
-			if (!bestCost.has(nextKey) || newCost < bestCost.get(nextKey)!) {
-				bestCost.set(nextKey, newCost);
-				parent.set(nextKey, current.vertex);
-				queue.push({ vertex: next, cost: newCost, signedDistSum: newSignedDistSum });
-			}
-		}
-	}
-
-	return [];
+	return findVertexPathAStar(snappedStart, snappedEnd, {
+		getAdjacentVertices,
+		isVertexAllowed: v => allowedVertices.has(vertexKey(v)),
+	});
 };
