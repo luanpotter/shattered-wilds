@@ -1,3 +1,4 @@
+import type { Point } from '@shattered-wilds/commons';
 import { MODULE_ID } from '../consts';
 import { FederatedPointerEvent } from 'pixi.js';
 import { isHexGrid, rerenderSceneControls, toScenePosition } from '../utils/vtt';
@@ -51,7 +52,7 @@ export class HexLineTool {
 	private preview: PIXI.Graphics | null = null;
 	private boundStage: PIXI.Container | null = null;
 	private keyListenerBound = false;
-	private startVertex: { x: number; y: number } | null = null;
+	private startVertex: Point | null = null;
 
 	private readonly handlePointerDown = (event: FederatedPointerEvent) => {
 		void this.onPointerDown(event);
@@ -105,7 +106,7 @@ export class HexLineTool {
 		}
 	};
 
-	private async createDrawing(path: { x: number; y: number }[]): Promise<void> {
+	private async createDrawing(path: Point[]): Promise<void> {
 		if (!canvas?.scene) {
 			return;
 		}
@@ -307,7 +308,7 @@ export class HexLineTool {
 		}
 	}
 
-	private drawLine(start: { x: number; y: number }, end: { x: number; y: number }) {
+	private drawLine(start: Point, end: Point) {
 		const preview = this.preview;
 		if (!preview) {
 			return;
@@ -336,7 +337,7 @@ export class HexLineTool {
 		preview.endFill?.();
 	}
 
-	private drawClosestVertex(vertex: { x: number; y: number }) {
+	private drawClosestVertex(vertex: Point) {
 		const preview = this.preview;
 		if (!preview) {
 			return;

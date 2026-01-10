@@ -1,3 +1,4 @@
+import type { Point } from '@shattered-wilds/commons';
 import { FederatedPointerEvent } from 'pixi.js';
 import { isHexGrid, toScenePosition } from '../utils/vtt';
 import { getHexVertices, findClosestVertex } from '../utils/hexes';
@@ -44,8 +45,8 @@ class HexSelectTool {
 	private dragStart: PIXI.Point | null = null;
 	private dragRect: PIXI.Graphics | null = null;
 	private selected: Set<string> = new Set();
-	private moveStart: { [id: string]: { x: number; y: number } } = {};
-	private moveLattice: { [id: string]: { lattice: { x: number; y: number }[]; origin: { x: number; y: number } } } = {};
+	private moveStart: { [id: string]: Point } = {};
+	private moveLattice: { [id: string]: { lattice: Point[]; origin: Point } } = {};
 	private moving = false;
 	private moveOrigin: PIXI.Point | null = null;
 

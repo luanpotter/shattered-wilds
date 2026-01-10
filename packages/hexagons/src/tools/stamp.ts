@@ -1,3 +1,4 @@
+import type { Point } from '@shattered-wilds/commons';
 import { FederatedPointerEvent } from 'pixi.js';
 import { isHexGrid, toScenePosition } from '../utils/vtt';
 import { getHexVertices } from '../utils/hexes';
@@ -92,7 +93,7 @@ class HexStampTool {
 		event.preventDefault();
 	};
 
-	private openIconModal(center: { x: number; y: number }, vertices: { x: number; y: number }[]) {
+	private openIconModal(center: Point, vertices: Point[]) {
 		let inputElement: HTMLInputElement | null = null;
 		let suggestionsElement: HTMLDivElement | null = null;
 		const escapeHtml = (value: string) =>
@@ -185,11 +186,7 @@ class HexStampTool {
 		});
 	}
 
-	private async createIconDrawing(
-		center: { x: number; y: number },
-		vertices: { x: number; y: number }[],
-		icon: string,
-	) {
+	private async createIconDrawing(center: Point, vertices: Point[], icon: string) {
 		const size =
 			Math.min(
 				Math.max(...vertices.map(v => v.x)) - Math.min(...vertices.map(v => v.x)),
