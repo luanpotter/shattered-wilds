@@ -7,7 +7,7 @@ import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
 import { Character, Encounter } from '../../types/ui';
 import { isSimpleRouteDefinition, Navigator, Route, ROUTES } from '../../utils/routes';
-import { gridActionRegistry } from '../hex/GridActions';
+import { gridActionRegistry, GridActionTool } from '../hex/GridActions';
 import { OmniBoxContext } from '../omni/OmniBoxContext';
 import { OmniBoxOption, OmniBoxOptionType } from '../omni/OmniBoxOption';
 
@@ -379,13 +379,14 @@ const buildActOptions = ({
 		return [];
 	}
 	return [
+		buildActOption(character, GridActionTool.EndTurn),
 		buildActOption(character, Action.Stride),
 		buildActOption(character, Action.Run),
 		// TODO...
 	];
 };
 
-const buildActOption = (character: Character, action: Action) => ({
+const buildActOption = (character: Character, action: GridActionTool | Action) => ({
 	type: OmniBoxOptionType.Act,
 	label: `Act: ${action}`,
 	action: () => gridActionRegistry.triggerAction(character, { action }),

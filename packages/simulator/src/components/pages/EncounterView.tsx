@@ -19,7 +19,7 @@ import { FaX } from 'react-icons/fa6';
 import { useEncounters } from '../../hooks/useEncounters';
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
-import { Character, GameMap, MapMode, MapTool } from '../../types/ui';
+import { GameMap, MapMode, MapTool } from '../../types/ui';
 import { HexGridComponent } from '../hex/HexGridComponent';
 import { Button } from '../shared/Button';
 
@@ -34,7 +34,6 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 	const [selectedColor, setSelectedColor] = useState<string>('var(--accent)');
 	const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
 
-	const characters = useStore(state => state.characters);
 	const updateGridState = useStore(state => state.updateGridState);
 	const editMode = useStore(state => state.editMode);
 	const toggleEditMode = useStore(state => state.toggleEditMode);
@@ -51,10 +50,6 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 			</div>
 		);
 	}
-
-	const encounterCharacters: Character[] = Object.keys(encounter.characterPositions)
-		.map(charId => characters.find(c => c.id === charId))
-		.filter((c): c is Character => c !== undefined);
 
 	// Determine currentTurnCharacterId if turn tracker is active
 	const currentTurnCharacterId = encounter.turnTracker?.currentTurnCharacterId ?? null;
@@ -206,7 +201,7 @@ export const EncounterView: React.FC<EncounterViewProps> = ({ encounterId, onBac
 			<div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
 				<HexGridComponent
 					encounterId={encounterId}
-					encounterCharacters={encounterCharacters}
+					encounter={encounter}
 					getCharacterPosition={getCharacterPosition}
 					updateCharacterPosition={updateCharacterPosition}
 					map={encounter.map ?? { size: { width: 10, height: 10 }, drawings: [] }}

@@ -5,13 +5,15 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useErrors } from '../../hooks/useErrors';
 import { useModals } from '../../hooks/useModals';
 import { PropUpdater } from '../../hooks/usePropUpdates';
+import { useTurnTrackerHooks } from '../../hooks/useTurnTrackerHooks';
 import { useStore } from '../../store';
-import { displaceDrawing, Drawing, drawingContainsPoint, drawingIntersectsBox } from '../../types/drawings';
+import { Drawing, displaceDrawing, drawingContainsPoint, drawingIntersectsBox } from '../../types/drawings';
 import { getBasicAttacksFor } from '../../types/grid-actions';
 import {
 	AreaToolState,
 	Character,
 	DragState,
+	Encounter,
 	GameMap,
 	LineToolState,
 	MapMode,
@@ -93,7 +95,7 @@ const calculateViewBox = (width: number, height: number): string => {
 
 interface HexGridComponentProps {
 	encounterId: string;
-	encounterCharacters: Character[];
+	encounter: Encounter;
 	getCharacterPosition: (characterId: string) => HexCoord | undefined;
 	updateCharacterPosition: (characterId: string, pos: HexCoord) => void;
 	map: GameMap;
@@ -107,7 +109,7 @@ interface HexGridComponentProps {
 
 export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 	encounterId,
-	encounterCharacters,
+	encounter,
 	getCharacterPosition,
 	updateCharacterPosition,
 	map,
@@ -119,6 +121,11 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 	currentTurnCharacterId,
 }) => {
 	const isMapMode = mapMode === 'map';
+
+	const characters = useStore(state => state.characters);
+	const encounterCharacters: Character[] = Object.keys(encounter.characterPositions)
+		.map(charId => characters.find(c => c.id === charId))
+		.filter((c): c is Character => c !== undefined);
 
 	const gridRef = useRef<HTMLDivElement>(null);
 	const svgRef = useRef<SVGSVGElement>(null);
@@ -141,6 +148,7 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 			updateCharacterResource(character, cost.resource, -cost.amount);
 		}
 	};
+	const { endTurn } = useTurnTrackerHooks();
 
 	const [dragState, setDragState] = useState<DragState>({ type: 'none' });
 	const [ghostPosition, setGhostPosition] = useState<Point | null>(null);
@@ -649,7 +657,7 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 			return;
 		}
 		if (data.action === GridActionTool.EndTurn) {
-			fail('End Turn not implemented yet');
+			endTurn(encounter);
 			return;
 		}
 
