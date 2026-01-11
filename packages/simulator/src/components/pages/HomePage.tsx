@@ -1,9 +1,12 @@
 import React from 'react';
 import { FaArrowAltCircleLeft, FaMap, FaUsers } from 'react-icons/fa';
 
+import { useModals } from '../../hooks/useModals';
+import { semanticClick } from '../../utils';
 import { Navigator, Route } from '../../utils/routes';
 
 export const HomePage: React.FC = () => {
+	const { openOmniBoxModal } = useModals();
 	return (
 		<div
 			style={{
@@ -14,7 +17,9 @@ export const HomePage: React.FC = () => {
 				height: '100%',
 			}}
 		>
-			<em style={{ textEmphasis: 'italics' }}>--[Press Ctrl+O for OmniBox]--</em>
+			<em style={{ textEmphasis: 'italics' }}>
+				[Press <a {...semanticClick('button', () => openOmniBoxModal({ context: {} }))}>Ctrl+O</a> for OmniBox]
+			</em>
 			<div
 				style={{
 					display: 'flex',
