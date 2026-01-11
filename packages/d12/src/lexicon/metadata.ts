@@ -123,22 +123,25 @@ export const WikiMetadataFrom = {
 	},
 
 	source: (source: FeatSource): WikiMetadata => {
-		const sourceToSlug = (source: FeatSource): string => {
+		const sourceToSlug = (source: FeatSource): string | undefined => {
 			if (source in CLASS_FLAVORS) {
 				const flavor = CLASS_FLAVORS[source as ClassFlavor];
-				return `${flavor.name} ${flavor.realm}`;
+				return slugify(`${flavor.name} ${flavor.realm}`);
 			}
 			if (source in CLASS_ROLES) {
 				const role = CLASS_ROLES[source as ClassRole];
-				return `${role.name} ${role.realm}`;
+				return slugify(`${role.name} ${role.realm}`);
 			}
-			return source;
+			if (source === 'General') {
+				return 'Feat';
+			}
+			return undefined;
 		};
 
 		return {
 			metadataClass: MetadataClass.Source,
 			key: { text: 'Source' },
-			value: { text: source, slug: slugify(sourceToSlug(source)) },
+			value: { text: source, slug: sourceToSlug(source) },
 		};
 	},
 

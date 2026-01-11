@@ -90,7 +90,7 @@ export default function (eleventyConfig) {
 		.use(markdownItWiki, wikiOptions)
 		.use(md => {
 			const refine = (tokens, idx) => {
-				return processor.preProcessMarkdown(tokens[idx].content);
+				return processor.mdPreProcessor.process(tokens[idx].content);
 			};
 			md.renderer.rules.text = refine;
 			md.renderer.rules.html_inline = refine;
