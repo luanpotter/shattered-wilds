@@ -38,7 +38,19 @@ export const LexiconModal: React.FC<LexiconModalProps> = ({ entry, onClose }) =>
 
 				<Breadcrumb entry={entry} />
 			</div>
-			<div className='item-excerpt'>
+			<div
+				style={{
+					margin: '0.5rem 0 0 0',
+					color: 'var(--text-light)',
+					fontSize: '0.9em',
+					marginBottom: '0.5rem',
+					borderBottom: '1px solid var(--border)',
+					textAlign: 'justify',
+					padding: '0 0.5em 0.5em 0.5em',
+					maxHeight: '60vh',
+					overflowY: 'scroll',
+				}}
+			>
 				<RichTextWithLinks>{entry.content}</RichTextWithLinks>
 				{renderExtraContent(entry)}
 			</div>
