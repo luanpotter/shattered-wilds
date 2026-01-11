@@ -87,7 +87,7 @@ export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({ character, p
 				<MenuItem
 					key={`attack-${index}`}
 					icon={FaFistRaised}
-					title={`Attack: ${attack.name}`}
+					title={`Strike: ${attack.name}`}
 					onClick={() => onAction(character, { action: Action.Strike, selectedWeaponModeIndex: index })}
 				/>
 			))}

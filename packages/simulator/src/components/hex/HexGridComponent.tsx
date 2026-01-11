@@ -665,6 +665,7 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 				return { type: OverlayType.Attack, range: attackRange };
 			}
 			default:
+				fail(`No overlay defined for action type: ${data.action}`);
 				return undefined;
 		}
 	};
