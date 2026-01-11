@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import yaml from 'js-yaml';
+import { GENERATED_LEXICON } from '@shattered-wilds/d12';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -9,7 +10,8 @@ const __dirname = path.dirname(__filename);
 export const parseLexicon = () => {
 	const lexiconDir = path.join(__dirname, '../../../../docs/lexicon');
 	if (!fs.existsSync(lexiconDir)) {
-		throw new Error(`Lexicon directory not found: ${lexiconDir}`);
+		console.warn(`Lexicon directory not found: ${lexiconDir}, using only generated lexicon`);
+		return getGeneratedLexiconEntries();
 	}
 
 	function getAllMarkdownFiles(dir, basePath = '') {
@@ -79,5 +81,26 @@ export const parseLexicon = () => {
 		return results;
 	}
 
-	return getAllMarkdownFiles(lexiconDir);
+	const docsLexicon = getAllMarkdownFiles(lexiconDir);
+	const generatedLexicon = getGeneratedLexiconEntries();
+
+	// Merge: docs/lexicon files take precedence over generated ones
+	const docsSlugSet = new Set(docsLexicon.map(e => e.slug));
+	const mergedLexicon = [...docsLexicon, ...generatedLexicon.filter(e => !docsSlugSet.has(e.slug))];
+
+	return mergedLexicon;
 };
+
+/**
+ * Convert GENERATED_LEXICON from d12 into the same format as docs/lexicon entries
+ */
+function getGeneratedLexiconEntries() {
+	return Object.entries(GENERATED_LEXICON).map(([slug, content]) => ({
+		group: undefined,
+		slug,
+		title: slug.replace(/_/g, ' '),
+		url: `/wiki/${slug}/`,
+		content,
+		metadata: [],
+	}));
+}

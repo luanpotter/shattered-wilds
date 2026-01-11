@@ -16,7 +16,8 @@
 		"dist"
 	],
 	"scripts": {
-		"build": "tsc",
+		"generate": "bun scripts/generate-data.ts",
+		"build": "bun run generate && tsc",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"lint": "eslint . --ext .ts,.tsx,.js,.cjs --config eslint.config.ts --max-warnings 0",
@@ -33,6 +34,8 @@
 		"type-comparator": "^0.2.10"
 	},
 	"devDependencies": {
+		"@types/js-yaml": "^4.0.9",
+		"js-yaml": "^4.1.0",
 		"typescript": "^5.7.2",
 		"vitest": "^3.2.4"
 	}

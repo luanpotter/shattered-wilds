@@ -15,6 +15,7 @@ export * from './core/races.js';
 export * from './core/size.js';
 export * from './core/traits.js';
 export * from './engine/check-factory.js';
+export * from './generated/index.js';
 export * from './lexicon/metadata.js';
 export * from './lexicon/wiki.js';
 export * from './sections/actions/actions-section.js';
