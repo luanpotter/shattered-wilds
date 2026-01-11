@@ -9,10 +9,10 @@ import {
 	DerivedStatType,
 	Distance,
 	Resource,
+	Formula,
 } from '@shattered-wilds/d12';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Formula } from '../../../../d12/dist/stats/formula';
 import { useErrors } from '../../hooks/useErrors';
 import { useModals } from '../../hooks/useModals';
 import { PropUpdater } from '../../hooks/usePropUpdates';

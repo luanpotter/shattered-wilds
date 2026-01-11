@@ -1,21 +1,29 @@
 import { getEnumKeys, slugify } from '@shattered-wilds/commons';
-import { BASIC_EQUIPMENT, getItemType, Item, MODE_TYPE_LABELS } from '../character/equipment.js';
-import { ACTIONS } from '../core/actions.js';
-import { ARCANE_SCHOOLS, PREDEFINED_ARCANE_SPELLS } from '../core/arcane.js';
-import { CLASS_DEFINITIONS, CLASS_FLAVORS, CLASS_ROLES } from '../core/classes.js';
-import { CONDITIONS } from '../generated/conditions-data.js';
-import { CONSEQUENCES } from '../core/consequences.js';
-import { COVER_TYPES } from '../core/cover.js';
-import { FEATS } from '../core/feats.js';
-import { UPBRINGING_DEFINITIONS } from '../core/races.js';
-import { TRAITS } from '../core/traits.js';
-import { GENERATED_LEXICON } from '../generated/lexicon.js';
-import { DERIVED_STATS } from '../stats/derived-stat.js';
-import { Resource, RESOURCES } from '../stats/resources.js';
-import { StatType } from '../stats/stat-type.js';
+
+import { CONDITIONS, COVER_TYPES, LEXICON } from '../generated/index.js';
+import {
+	BASIC_EQUIPMENT,
+	getItemType,
+	Item,
+	MODE_TYPE_LABELS,
+	ACTIONS,
+	ARCANE_SCHOOLS,
+	PREDEFINED_ARCANE_SPELLS,
+	CLASS_DEFINITIONS,
+	CLASS_FLAVORS,
+	CLASS_ROLES,
+	CONSEQUENCES,
+	FEATS,
+	UPBRINGING_DEFINITIONS,
+	TRAITS,
+	DERIVED_STATS,
+	Resource,
+	RESOURCES,
+	StatType,
+} from '../types/types.js';
 import { MetadataClass, WikiMetadata, WikiMetadataFrom } from './metadata.js';
 
-export interface WikiGroup {
+interface WikiGroup {
 	group: string;
 	groupSlug: string;
 	globalDataKey: string;
@@ -466,7 +474,7 @@ const upbringings = Object.values(UPBRINGING_DEFINITIONS).map(def => {
 });
 
 // Lexicon entries from generated markdown files
-const lexicon = Object.entries(GENERATED_LEXICON).map(([slug, content]) => {
+const lexicon = Object.entries(LEXICON).map(([slug, content]) => {
 	const group = {
 		group: 'Lexicon',
 		groupSlug: 'Lexicon',

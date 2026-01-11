@@ -1,0 +1,17 @@
+covers:
+  none:
+    type: None
+    examples: No obstruction.
+    bonus: 0
+  lesser:
+    type: Lesser
+    examples: Creatures on the way, 1m-tall obstacle, etc.
+    bonus: -1
+  standard:
+    type: Standard
+    examples: Line of sight is blocked by the corners of obstacles.
+    bonus: -3
+  greater:
+    type: Greater
+    examples: Line of sight is almost completely obstructed.
+    bonus: -6

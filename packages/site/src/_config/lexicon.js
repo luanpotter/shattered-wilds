@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import yaml from 'js-yaml';
-import { GENERATED_LEXICON } from '@shattered-wilds/d12';
+import { LEXICON } from '@shattered-wilds/d12';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -92,10 +92,10 @@ export const parseLexicon = () => {
 };
 
 /**
- * Convert GENERATED_LEXICON from d12 into the same format as docs/lexicon entries
+ * Convert LEXICON from d12 into the same format as docs/lexicon entries
  */
 function getGeneratedLexiconEntries() {
-	return Object.entries(GENERATED_LEXICON).map(([slug, content]) => ({
+	return Object.entries(LEXICON).map(([slug, content]) => ({
 		group: undefined,
 		slug,
 		title: slug.replace(/_/g, ' '),

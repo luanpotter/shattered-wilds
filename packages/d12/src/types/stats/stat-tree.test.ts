@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { StatNode, StatTree, StatType } from '../index.js';
+import { StatNode, StatTree, StatType } from '../types.js';
 
 describe('StatTree', () => {
 	describe('buildRootNode', () => {

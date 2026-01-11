@@ -2,7 +2,7 @@ import { getEnumKeys, numberToOrdinal } from '@shattered-wilds/commons';
 import { CharacterSheet } from '../../character/character-sheet.js';
 import { ArmorModeOption, ShieldModeOption, WeaponModeOption } from '../../character/equipment.js';
 import { ActionType } from '../../core/actions.js';
-import { COVER_TYPES, PassiveCoverType } from '../../core/cover.js';
+import { PassiveCoverType } from '../../core/cover.js';
 import { Trait } from '../../core/traits.js';
 import { DerivedStatType } from '../../stats/derived-stat.js';
 import { Resource } from '../../stats/resources.js';
@@ -18,6 +18,7 @@ import {
 	ResourceInput,
 	SectionInput,
 } from '../common/section-inputs.js';
+import { COVER_TYPES } from '../../../generated/covers-data.js';
 
 export class ActionTabInputValues {
 	selectedWeaponMode: WeaponModeOption;

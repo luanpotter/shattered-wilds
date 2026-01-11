@@ -8,7 +8,7 @@ import {
 	RACE_DEFINITIONS,
 	StatTree,
 	StatType,
-} from '../index.js';
+} from '../types.js';
 
 describe('StatTree', () => {
 	describe('modifier calculation', () => {

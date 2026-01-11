@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { StatTree, StatType } from '../index.js';
+import { StatTree, StatType } from '../types.js';
 
 describe('StatTree', () => {
 	describe('point allocation', () => {

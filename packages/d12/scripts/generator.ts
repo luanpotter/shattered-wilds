@@ -11,6 +11,8 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from 'fs';
 import { join, basename } from 'path';
 import yaml from 'js-yaml';
+import { EnumFieldDescriptor, escapeTemplateString, FieldDescriptor } from './fields';
+import { filterInstanceOf } from '@shattered-wilds/commons';
 
 const DATA_DIR = join(import.meta.dirname, '../data');
 const DOCS_LEXICON_DIR = join(import.meta.dirname, '../../../docs/lexicon');
@@ -26,49 +28,10 @@ export const cleanGeneratedDir = (): void => {
 	mkdirSync(GENERATED_DIR, { recursive: true });
 };
 
-/**
- * Escape a string for use in a TypeScript template literal
- */
-const escapeTemplateString = (str: string): string =>
-	str.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
-
-// Field type descriptors
-type EnumFieldDescriptor = { type: 'enum'; name: string; enumName: string; key: boolean };
-type FieldDescriptor =
-	| { type: 'str'; name: string }
-	| { type: 'bool'; name: string }
-	| { type: 'num'; name: string }
-	| EnumFieldDescriptor;
-
-export const str = (name: string): FieldDescriptor => ({ type: 'str', name });
-export const bool = (name: string): FieldDescriptor => ({ type: 'bool', name });
-export const enumField = (name: string, enumName: string, options: { key?: boolean } = {}): FieldDescriptor => ({
-	type: 'enum',
-	name,
-	enumName,
-	key: options.key ?? false,
-});
-
-/**
- * Serialize a field value to TypeScript literal syntax
- */
-const serializeField = (field: FieldDescriptor, value: unknown): string => {
-	if (field.type === 'enum') {
-		return `${field.enumName}.${(value as string).replace(/ /g, '')}`;
-	}
-	if (field.type === 'bool' || field.type === 'num') {
-		return String(value);
-	}
-	// str
-	const escaped = escapeTemplateString((value as string).trim());
-	return escaped.includes('\n') ? `\`${escaped}\`` : `'${escaped}'`;
-};
-
 interface DataTypeConfig {
 	key: string;
 	exportName: string;
 	className: string;
-	imports: string[];
 	fields: FieldDescriptor[];
 }
 
@@ -92,29 +55,26 @@ export const generateDataType = (config: DataTypeConfig): void => {
 		return;
 	}
 
-	// Find the enum field to use as the map key
-	const keyField = config.fields.find((f): f is EnumFieldDescriptor => f.type === 'enum' && f.key);
+	const keyField = filterInstanceOf(config.fields, EnumFieldDescriptor).find(f => f.key);
 	if (!keyField) {
 		throw new Error(`No key enum field defined in config for ${config.key}`);
 	}
 
 	const entries = Object.values(items).map(entry => {
 		const fields = config.fields
-			.map(field => `\t\t${field.name}: ${serializeField(field, entry[field.name])}`)
+			.map(field => field.generate(entry[field.name]))
+			.map(line => `\t\t${line}`)
 			.join(',\n');
-
 		const enumKey = (entry[keyField.name] as string).replace(/ /g, '');
 		return `\t[${keyField.enumName}.${enumKey}]: new ${config.className}({\n${fields},\n\t})`;
 	});
 
-	// Collect all enum names and class name for imports
-	const enumNames = config.fields.filter(f => f.type === 'enum').map(f => (f as { enumName: string }).enumName);
-	const importSymbols = [...new Set([...enumNames, config.className])].join(', ');
+	const imports = [config.className, ...config.fields.map(f => f.import()).filter(item => item !== undefined)];
 
 	const output = `// AUTO-GENERATED FILE - DO NOT EDIT
 // Generated from data/${yamlFile} by scripts/generate-data.ts
 
-${config.imports.map(imp => `import { ${importSymbols} } from '${imp}';`).join('\n')}
+import { ${imports.join(', ')} } from '../types/types.js';
 
 export const ${config.exportName}: Record<${keyField.enumName}, ${config.className}> = {
 ${entries.join(',\n')},
@@ -135,7 +95,7 @@ export const generateLexicon = (): void => {
 		const output = `// AUTO-GENERATED FILE - DO NOT EDIT
 // No docs/lexicon directory found
 
-export const GENERATED_LEXICON: Record<string, string> = {};
+export const LEXICON: Record<string, string> = {};
 `;
 		writeFileSync(join(GENERATED_DIR, 'lexicon.ts'), output);
 		return;
@@ -157,7 +117,7 @@ export const GENERATED_LEXICON: Record<string, string> = {};
 	const output = `// AUTO-GENERATED FILE - DO NOT EDIT
 // Generated from docs/lexicon/*.md by scripts/generate-data.ts
 
-export const GENERATED_LEXICON: Record<string, string> = {
+export const LEXICON: Record<string, string> = {
 ${entries.join(',\n')},
 };
 `;

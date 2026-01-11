@@ -1,11 +1,21 @@
 import { slugify } from '@shattered-wilds/commons';
-import { Trait, TRAITS } from '../core/traits';
-import { CLASS_FLAVORS, CLASS_REALMS, CLASS_ROLES, ClassFlavor, ClassRealm, ClassRole } from '../core/classes';
-import { ResourceCost, RESOURCES } from '../stats/resources';
-import { ActionType } from '../core/actions';
-import { ArcaneSpellSchool } from '../core/arcane';
-import { FeatSource, FeatType } from '../core/feats';
-import { StatType } from '../stats/stat-type';
+import {
+	ResourceCost,
+	RESOURCES,
+	CLASS_FLAVORS,
+	CLASS_REALMS,
+	CLASS_ROLES,
+	ClassFlavor,
+	ClassRealm,
+	ClassRole,
+	Trait,
+	TRAITS,
+	ActionType,
+	ArcaneSpellSchool,
+	FeatSource,
+	FeatType,
+	StatType,
+} from '../types/types.js';
 
 export enum MetadataClass {
 	Type = 'metadata-type',
