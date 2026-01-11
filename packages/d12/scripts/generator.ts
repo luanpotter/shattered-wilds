@@ -11,7 +11,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from 'fs';
 import { join, basename } from 'path';
 import yaml from 'js-yaml';
-import { EnumFieldDescriptor, escapeTemplateString, FieldDescriptor } from './fields';
+import { EnumFieldDescriptor, FieldDescriptor, StringFieldGenerator } from './fields';
 import { filterInstanceOf } from '@shattered-wilds/commons';
 
 const DATA_DIR = join(import.meta.dirname, '../data');
@@ -110,8 +110,7 @@ export const LEXICON: Record<string, string> = {};
 	const entries = files.map(file => {
 		const slug = basename(file, '.md');
 		const content = readFileSync(join(DOCS_LEXICON_DIR, file), 'utf-8').trim();
-		const escapedContent = escapeTemplateString(content);
-		return `	'${slug}': \`${escapedContent}\``;
+		return `\t${StringFieldGenerator.generate(slug, content)}`;
 	});
 
 	const output = `// AUTO-GENERATED FILE - DO NOT EDIT

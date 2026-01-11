@@ -1,6 +1,6 @@
 import { getEnumKeys, slugify } from '@shattered-wilds/commons';
 
-import { CONDITIONS, COVER_TYPES, LEXICON } from '../generated/index.js';
+import { CONDITIONS, COVER_TYPES, LEXICON, UPBRINGING_DEFINITIONS } from '../generated/index.js';
 import {
 	BASIC_EQUIPMENT,
 	getItemType,
@@ -14,7 +14,6 @@ import {
 	CLASS_ROLES,
 	CONSEQUENCES,
 	FEATS,
-	UPBRINGING_DEFINITIONS,
 	TRAITS,
 	DERIVED_STATS,
 	Resource,

@@ -22,9 +22,17 @@ const covers = {
 	fields: [enumField('type', 'PassiveCoverType', { key: true }), str('examples'), bonus('bonus')],
 };
 
+const upbringings = {
+	key: 'upbringings',
+	exportName: 'UPBRINGING_DEFINITIONS',
+	className: 'UpbringingDefinition',
+	fields: [enumField('name', 'Upbringing', { key: true }), str('description')],
+};
+
 const types = [
 	conditions, //
 	covers, //
+	upbringings, //
 ];
 
 const main = () => {

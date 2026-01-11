@@ -4,20 +4,26 @@ export interface FieldDescriptor {
 	import(): string | undefined;
 }
 
-export const escapeTemplateString = (str: string): string => {
-	return str.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
+const safeWrapStringValue = (value: string): string => {
+	const escapeTemplateString = (str: string): string => {
+		return str.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
+	};
+	const tick = '`';
+
+	return `${tick}${escapeTemplateString(String(value).trim())}${tick}`;
+};
+
+export const StringFieldGenerator = {
+	generate(name: string, value: unknown): string {
+		return `${name}: ${safeWrapStringValue(String(value))}`;
+	},
 };
 
 export class StringFieldDescriptor implements FieldDescriptor {
 	constructor(public name: string) {}
 
 	generate(value: unknown): string {
-		return `${this.name}: ${this.generateValue(value)}`;
-	}
-
-	generateValue(value: unknown): string {
-		const escaped = escapeTemplateString(String(value).trim());
-		return escaped.includes('\n') ? `\`${escaped}\`` : `'${escaped}'`;
+		return StringFieldGenerator.generate(this.name, value);
 	}
 
 	import(): string | undefined {
