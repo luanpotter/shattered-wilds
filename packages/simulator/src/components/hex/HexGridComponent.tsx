@@ -78,6 +78,8 @@ interface ActionState {
 	hoveredPosition?: HexCoord;
 }
 
+const ATTACK_ACTIONS = [Action.Strike, Action.Stun, Action.Feint, Action.FocusedStrike];
+
 // Calculate the SVG viewBox dimensions based on map size
 // Hex dimensions: horizontal spacing = 10, vertical spacing = 8.66
 // Hex radius (pointy-top) = 5
@@ -420,7 +422,7 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 				return;
 			}
 
-			if (actionState?.data?.action === Action.Strike) {
+			if (actionState?.data?.action && ATTACK_ACTIONS.includes(actionState?.data?.action as Action)) {
 				const attackerPos = getCharacterPosition(actionState.character.id);
 				const targetPos = getCharacterPosition(character.id);
 
@@ -437,7 +439,7 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 						attackerId: actionState.character.id,
 						defenderId: character.id,
 						initialConfig: {
-							attackAction: Action.Strike,
+							attackAction: actionState.data.action as Action,
 							weaponModeIndex: selectedWeaponModeIndex,
 						},
 						onClose: () => setOverlayState(null),
@@ -653,19 +655,19 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 		if (distanceParameter) {
 			return { type: OverlayType.Movement, range: distanceParameter };
 		}
+		if (ATTACK_ACTIONS.includes(data.action as Action)) {
+			const selectedWeaponModeIndex = data.selectedWeaponModeIndex;
+			if (selectedWeaponModeIndex === undefined) {
+				fail(`No weapon mode selected for attack action.`);
+				return undefined;
+			}
+			const attackRange = getAttackRange(character, selectedWeaponModeIndex);
+			return { type: OverlayType.Attack, range: attackRange };
+		}
 
 		switch (data.action) {
 			case GridActionTool.MeasureDistance: {
 				return { type: OverlayType.Movement };
-			}
-			case Action.Strike: {
-				const selectedWeaponModeIndex = data.selectedWeaponModeIndex;
-				if (selectedWeaponModeIndex === undefined) {
-					fail(`No weapon mode selected for attack action.`);
-					return undefined;
-				}
-				const attackRange = getAttackRange(character, selectedWeaponModeIndex);
-				return { type: OverlayType.Attack, range: attackRange };
 			}
 			default:
 				fail(`No overlay defined for action type: ${data.action}`);

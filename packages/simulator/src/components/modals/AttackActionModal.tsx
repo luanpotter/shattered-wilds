@@ -1,6 +1,7 @@
 import { Action, CharacterSheet, Check, CheckMode, CheckNature, Resource, Trait } from '@shattered-wilds/d12';
 import React, { useEffect, useState } from 'react';
-import { FaDice, FaFistRaised, FaUserShield } from 'react-icons/fa';
+import { FaDice, FaFistRaised } from 'react-icons/fa';
+import { FaShield } from 'react-icons/fa6';
 
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
@@ -192,10 +193,6 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 
 	const halfStyle: React.CSSProperties = {
 		flex: 1,
-		padding: '16px',
-		border: '1px solid var(--text)',
-		borderRadius: '4px',
-		margin: '8px',
 	};
 
 	const attackButtonText = `${
@@ -206,18 +203,31 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 				: 'Roll Attack'
 	} ${defenseResult ? `(DC ${defenseResult.total})` : '(Roll Defense First)'}`;
 
+	const Header = ({ text, Icon }: { text: string; Icon: React.ComponentType }) => {
+		return (
+			<>
+				<h4
+					style={{
+						margin: '0',
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+						gap: '8px',
+					}}
+				>
+					<Icon /> {text}
+				</h4>
+				<hr />
+			</>
+		);
+	};
+
 	return (
 		<div style={modalStyle}>
-			<h3 style={{ textAlign: 'center', margin: '0 0 20px 0' }}>
-				<FaFistRaised /> Attack Action
-			</h3>
-
 			<div style={{ display: 'flex', gap: '16px' }}>
 				{/* Defender Half */}
 				<div style={halfStyle}>
-					<h4 style={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-						<FaUserShield /> Defender: {defender.props.name}
-					</h4>
+					<Header text={`Defender: ${defender.props.name}`} Icon={FaShield} />
 
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 						{defenses.map(defense => (
@@ -263,14 +273,14 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 					)}
 				</div>
 
+				<div style={{ width: '1px', backgroundColor: 'var(--text)' }} />
+
 				{/* Attacker Half */}
 				<div style={halfStyle}>
-					<h4 style={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-						<FaFistRaised /> Attacker: {attacker.props.name}
-					</h4>
+					<Header text={`Attacker: ${attacker.props.name}`} Icon={FaFistRaised} />
 
 					<p>Action: {attackAction} (WIP)</p>
-					<p>Attack: {attack.name}</p>
+					<p>Weapon: {attack.name}</p>
 					<p>Modifier: {attack.check.modifierValue.description}</p>
 
 					<Button icon={FaDice} title={attackButtonText} onClick={handleAttackRoll} disabled={!defenseResult} />
