@@ -1,5 +1,5 @@
 import { getEnumKeys, getRecordKeys } from '@shattered-wilds/commons';
-import { Action, ACTIONS, WIKI, WikiDatum } from '@shattered-wilds/d12';
+import { Action, ActionDefinition, ACTIONS, ActionType, CharacterSheet, WIKI, WikiDatum } from '@shattered-wilds/d12';
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useEncounters } from '../../hooks/useEncounters';
@@ -383,12 +383,38 @@ const buildActOptions = ({
 		return [];
 	}
 	return [
-		buildActOption(character, GridActionTool.EndTurn),
-		...getRecordKeys(ACTIONS).map(action => buildActOption(character, action)),
-	];
+		buildGridActOption(character, GridActionTool.EndTurn),
+		...getRecordKeys(ACTIONS).map(action => buildActionActOptions(character, action)),
+	].flat();
 };
 
-const buildActOption = (character: Character, action: GridActionTool | Action) => ({
+const buildActionActOptions = (character: Character, action: Action): OmniBoxOption[] => {
+	const def = ACTIONS[action];
+	const isAttack = def.type === ActionType.Attack;
+	if (isAttack) {
+		return buildAttackActOptions(character, def);
+	} else {
+		return [buildSimpleActOption(character, def)];
+	}
+};
+
+const buildAttackActOptions = (character: Character, action: ActionDefinition): OmniBoxOption[] => {
+	const sheet = CharacterSheet.from(character.props);
+	const modes = sheet.equipment.weaponModes();
+	return modes.map((mode, index) => ({
+		type: OmniBoxOptionType.Act,
+		label: `Act: ${action.name} (${mode.description})`,
+		action: () => gridActionRegistry.triggerAction(character, { action: action.key, selectedWeaponModeIndex: index }),
+	}));
+};
+
+const buildSimpleActOption = (character: Character, action: ActionDefinition): OmniBoxOption => ({
+	type: OmniBoxOptionType.Act,
+	label: `Act: ${action.name}`,
+	action: () => gridActionRegistry.triggerAction(character, { action: action.key }),
+});
+
+const buildGridActOption = (character: Character, action: GridActionTool) => ({
 	type: OmniBoxOptionType.Act,
 	label: `Act: ${action}`,
 	action: () => gridActionRegistry.triggerAction(character, { action }),
