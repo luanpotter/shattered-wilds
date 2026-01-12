@@ -185,7 +185,7 @@ const OptionRow = forwardRef<
 			}}
 		>
 			<TypeBadge type={option.type} inverted={isSelected} />
-			<span>{option.label}</span>
+			<span style={{ overflowX: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{option.label}</span>
 		</div>
 	);
 });
