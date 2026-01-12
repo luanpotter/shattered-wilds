@@ -35,6 +35,7 @@ import { CharacterToken } from '../CharacterToken';
 import { OmniBoxOptionType } from '../omni/OmniBoxOption';
 import { TokenContextMenu } from '../TokenContextMenu';
 
+import { BoxedText } from './BoxedText';
 import { DrawingComponent } from './DrawingComponent';
 import { GridActionSelectionData, GridActionTool, gridActionRegistry } from './GridActions';
 import { HexAreaComponent } from './HexAreaComponent';
@@ -781,10 +782,17 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 		}
 		const currentHex = actionState.hoveredPosition;
 
+		const distanceBox = (from: HexCoord, to: HexCoord) => {
+			const distance = hexGrid.hexDistance(from, to);
+			const toPixel = hexGrid.axialToPixel(to);
+			return <BoxedText x={toPixel.x} y={toPixel.y - 10} text={`${distance} hex${distance !== 1 ? 'es' : ''}`} />;
+		};
+
 		return (
 			<>
 				{overlay.range && highlight(overlay.type, hexGrid.getHexesInRange(pos, overlay.range.value))}
 				{currentHex && highlight(overlay.type, hexGrid.findHexPath(pos, currentHex))}
+				{currentHex && distanceBox(pos, currentHex)}
 			</>
 		);
 	};

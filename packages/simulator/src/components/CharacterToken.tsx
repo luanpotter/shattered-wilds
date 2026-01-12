@@ -3,6 +3,8 @@ import React from 'react';
 
 import { Character, getCharacterInitials } from '../types/ui';
 
+import { BoxedText } from './hex/BoxedText';
+
 export interface CharacterTokenProps {
 	character: Character;
 	onClick?: (e: React.MouseEvent) => void;
@@ -61,7 +63,7 @@ export const CharacterToken: React.FC<CharacterTokenProps> = ({
 			}}
 		>
 			{/* Character Name on Top */}
-			{boxedText({ x: 0, y: -6, text: character.props.name })}
+			<BoxedText x={0} y={-6} text={character.props.name} />
 
 			{/* Token Circle */}
 			<circle
@@ -124,32 +126,6 @@ const ResourceBar: React.FC<{
 				style={{ userSelect: 'none', pointerEvents: 'none' }}
 			>
 				{current}/{max}
-			</text>
-		</>
-	);
-};
-
-const boxedText = ({ x, y, text }: { x: number; y: number; text: string }) => {
-	const fontSize = 2.2;
-	const w = text.length * (fontSize * 0.6);
-	const h = fontSize * 1.4;
-	return (
-		<>
-			<rect x={x - w / 2} y={y - h / 2} width={w} height={h} fill='#333' rx='0.2' />
-			<text
-				x={x}
-				y={y}
-				textAnchor='middle'
-				dominantBaseline='middle'
-				fill='var(--text)'
-				fontSize={fontSize}
-				style={{
-					userSelect: 'none',
-					pointerEvents: 'none',
-					fontWeight: 'bold',
-				}}
-			>
-				{text}
 			</text>
 		</>
 	);
