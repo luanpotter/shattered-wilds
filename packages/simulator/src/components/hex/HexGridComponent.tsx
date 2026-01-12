@@ -434,6 +434,7 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 						fail('No weapon mode selected for attack action');
 						return;
 					}
+
 					setActionState(null);
 					setOverlayState({ type: OverlayType.Attack, from: attackerPos, to: targetPos });
 					openAttackActionModal({
@@ -442,6 +443,7 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 						initialConfig: {
 							attackAction: actionState.data.action as Action,
 							weaponModeIndex: selectedWeaponModeIndex,
+							range: Distance.of(hexGrid.hexDistance(attackerPos, targetPos)),
 						},
 						onClose: () => setOverlayState(null),
 					});

@@ -53,7 +53,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		};
 	};
 
-	const { attackAction, weaponModeIndex } = initialConfig;
+	const { attackAction, weaponModeIndex, range } = initialConfig;
 
 	// Automatically set results for automatic mode characters on mount
 	useEffect(() => {
@@ -281,6 +281,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 
 					<p>Action: {attackAction} (WIP)</p>
 					<p>Weapon: {attack.name}</p>
+					<p>Range: {range.description}</p>
 					<p>Modifier: {attack.check.modifierValue.description}</p>
 
 					<Button icon={FaDice} title={attackButtonText} onClick={handleAttackRoll} disabled={!defenseResult} />

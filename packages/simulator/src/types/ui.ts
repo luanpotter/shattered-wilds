@@ -8,6 +8,7 @@ import {
 	ResourceCost,
 	WikiDatum,
 	Action,
+	Distance,
 } from '@shattered-wilds/d12';
 
 import { OmniBoxContext } from '../components/omni/OmniBoxContext';
@@ -68,6 +69,7 @@ export enum ModalPositionType {
 export interface AttackActionInitialConfig {
 	attackAction: Action;
 	weaponModeIndex: number;
+	range: Distance;
 }
 
 interface BaseModal {
