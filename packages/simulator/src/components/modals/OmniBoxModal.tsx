@@ -1,5 +1,16 @@
 import { getEnumKeys, getRecordKeys } from '@shattered-wilds/commons';
-import { Action, ActionDefinition, ACTIONS, ActionType, CharacterSheet, WIKI, WikiDatum } from '@shattered-wilds/d12';
+import {
+	Action,
+	ActionDefinition,
+	ACTIONS,
+	ActionType,
+	CharacterSheet,
+	Trait,
+	WeaponMode,
+	WeaponModeOption,
+	WIKI,
+	WikiDatum,
+} from '@shattered-wilds/d12';
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useEncounters } from '../../hooks/useEncounters';
@@ -401,11 +412,26 @@ const buildActionActOptions = (character: Character, action: Action): OmniBoxOpt
 const buildAttackActOptions = (character: Character, action: ActionDefinition): OmniBoxOption[] => {
 	const sheet = CharacterSheet.from(character.props);
 	const modes = sheet.equipment.weaponModes();
-	return modes.map((mode, index) => ({
-		type: OmniBoxOptionType.Act,
-		label: `Act: ${action.name} (${mode.description})`,
-		action: () => gridActionRegistry.triggerAction(character, { action: action.key, selectedWeaponModeIndex: index }),
-	}));
+	return modes
+		.map((mode, index) => ({
+			mode,
+			type: OmniBoxOptionType.Act,
+			label: `Act: ${action.name} (${mode.description})`,
+			action: () => gridActionRegistry.triggerAction(character, { action: action.key, selectedWeaponModeIndex: index }),
+		}))
+		.filter(({ mode }) => isValidCombination(action, mode));
+};
+
+const isValidCombination = (action: ActionDefinition, mode: WeaponModeOption): boolean => {
+	const actionRangeTrait = action.traits.filter(trait => trait === Trait.Melee || trait === Trait.Ranged)[0];
+	if (!actionRangeTrait) {
+		return true;
+	}
+
+	const weaponMode = mode.mode as WeaponMode;
+	const weaponRangeTrait = weaponMode.rangeType ?? Trait.Melee;
+
+	return weaponRangeTrait === actionRangeTrait;
 };
 
 const buildSimpleActOption = (character: Character, action: ActionDefinition): OmniBoxOption => ({
