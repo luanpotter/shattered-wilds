@@ -411,7 +411,7 @@ const buildActionActOptions = (character: Character, action: Action): OmniBoxOpt
 
 const buildAttackActOptions = (character: Character, action: ActionDefinition): OmniBoxOption[] => {
 	const sheet = CharacterSheet.from(character.props);
-	const modes = sheet.equipment.weaponModes();
+	const modes = sheet.equipment.weaponOptions();
 	return modes
 		.map((mode, index) => ({
 			mode,
