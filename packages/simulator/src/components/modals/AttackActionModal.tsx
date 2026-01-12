@@ -5,12 +5,13 @@ import { FaDice, FaFistRaised, FaUserShield } from 'react-icons/fa';
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
 import { getBasicAttacksFor, getBasicDefensesForRealm } from '../../types/grid-actions';
+import { AttackActionInitialConfig } from '../../types/ui';
 import { Button } from '../shared/Button';
 
 interface AttackActionModalProps {
 	attackerId: string;
 	defenderId: string;
-	attackIndex: number;
+	initialConfig: AttackActionInitialConfig;
 	onClose: () => void;
 }
 
@@ -23,7 +24,7 @@ interface RollResult {
 export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	attackerId,
 	defenderId,
-	attackIndex,
+	initialConfig,
 	onClose,
 }) => {
 	const characters = useStore(state => state.characters);
@@ -51,12 +52,14 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		};
 	};
 
+	const { attackAction, weaponModeIndex } = initialConfig;
+
 	// Automatically set results for automatic mode characters on mount
 	useEffect(() => {
 		if (attacker && defender) {
 			const attackerSheet = CharacterSheet.from(attacker.props);
 			const defenderSheet = CharacterSheet.from(defender.props);
-			const attack = getBasicAttacksFor(attackerSheet)[attackIndex];
+			const attack = getBasicAttacksFor(attackerSheet)[weaponModeIndex];
 			const defense = getBasicDefensesForRealm(defenderSheet, Trait.BodyDefense).find(
 				defense => defense.action === Action.BasicDefense,
 			)!;
@@ -70,7 +73,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 				setAttackResult(autoResult);
 			}
 		}
-	}, [attacker, defender, attackIndex]);
+	}, [attacker, defender, weaponModeIndex]);
 
 	if (!attacker || !defender) {
 		return <div>Error: Characters not found</div>;
@@ -78,7 +81,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 
 	const attackerSheet = CharacterSheet.from(attacker.props);
 	const defenderSheet = CharacterSheet.from(defender.props);
-	const attack = getBasicAttacksFor(attackerSheet)[attackIndex];
+	const attack = getBasicAttacksFor(attackerSheet)[weaponModeIndex];
 
 	const defenses = getBasicDefensesForRealm(defenderSheet, Trait.BodyDefense);
 
@@ -266,6 +269,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 						<FaFistRaised /> Attacker: {attacker.props.name}
 					</h4>
 
+					<p>Action: {attackAction} (WIP)</p>
 					<p>Attack: {attack.name}</p>
 					<p>Modifier: {attack.check.modifierValue.description}</p>
 

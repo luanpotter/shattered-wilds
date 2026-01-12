@@ -436,7 +436,10 @@ export const HexGridComponent: React.FC<HexGridComponentProps> = ({
 					openAttackActionModal({
 						attackerId: actionState.character.id,
 						defenderId: character.id,
-						attackIndex: selectedWeaponModeIndex,
+						initialConfig: {
+							attackAction: Action.Strike,
+							weaponModeIndex: selectedWeaponModeIndex,
+						},
 						onClose: () => setOverlayState(null),
 					});
 				}

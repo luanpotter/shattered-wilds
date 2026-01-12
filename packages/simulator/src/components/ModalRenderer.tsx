@@ -178,7 +178,7 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 					<AttackActionModal
 						attackerId={modal.attackerId}
 						defenderId={modal.defenderId}
-						attackIndex={modal.attackIndex}
+						initialConfig={modal.initialConfig}
 						onClose={() => {
 							onClose();
 							modal.onClose();

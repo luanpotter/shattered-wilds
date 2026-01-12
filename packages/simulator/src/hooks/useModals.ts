@@ -3,7 +3,7 @@ import { Check, FeatDefinition, FeatSlot, Condition, Consequence, ResourceCost, 
 
 import { OmniBoxContext } from '../components/omni/OmniBoxContext';
 import { useStore } from '../store';
-import { Modal, ModalPositionType } from '../types/ui';
+import { AttackActionInitialConfig, Modal, ModalPositionType } from '../types/ui';
 import { Mouse } from '../utils/mouse';
 import { DistributiveOmit } from '../utils/types';
 
@@ -188,12 +188,12 @@ export const useModals = () => {
 	const openAttackActionModal = ({
 		attackerId,
 		defenderId,
-		attackIndex,
+		initialConfig,
 		onClose,
 	}: {
 		attackerId: string;
 		defenderId: string;
-		attackIndex: number;
+		initialConfig: AttackActionInitialConfig;
 		onClose: () => void;
 	}) => {
 		const attacker = characters.find(c => c.id === attackerId);
@@ -209,7 +209,7 @@ export const useModals = () => {
 			type: 'attack-action',
 			attackerId,
 			defenderId,
-			attackIndex,
+			initialConfig,
 			onClose,
 		});
 	};

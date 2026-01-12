@@ -1,5 +1,14 @@
 import { Point, HexCoord, Dimensions } from '@shattered-wilds/commons';
-import { Check, FeatSlot, FeatDefinition, Condition, Consequence, ResourceCost, WikiDatum } from '@shattered-wilds/d12';
+import {
+	Check,
+	FeatSlot,
+	FeatDefinition,
+	Condition,
+	Consequence,
+	ResourceCost,
+	WikiDatum,
+	Action,
+} from '@shattered-wilds/d12';
 
 import { OmniBoxContext } from '../components/omni/OmniBoxContext';
 
@@ -56,6 +65,11 @@ export enum ModalPositionType {
 	ScreenCenter,
 }
 
+export interface AttackActionInitialConfig {
+	attackAction: Action;
+	weaponModeIndex: number;
+}
+
 interface BaseModal {
 	id: string;
 	title: string;
@@ -106,7 +120,7 @@ export type Modal = BaseModal &
 				type: 'attack-action';
 				attackerId: string;
 				defenderId: string;
-				attackIndex: number;
+				initialConfig: AttackActionInitialConfig;
 				onClose: () => void;
 		  }
 		| {
