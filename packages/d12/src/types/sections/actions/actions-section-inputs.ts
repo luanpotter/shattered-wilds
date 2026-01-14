@@ -1,4 +1,4 @@
-import { getEnumKeys, numberToOrdinal } from '@shattered-wilds/commons';
+import { getEnumKeys } from '@shattered-wilds/commons';
 import { CharacterSheet } from '../../character/character-sheet.js';
 import { ArmorModeOption, ShieldModeOption, WeaponModeOption } from '../../character/equipment.js';
 import { ActionType } from '../../core/actions.js';
@@ -19,6 +19,7 @@ import {
 	SectionInput,
 } from '../common/section-inputs.js';
 import { COVER_TYPES } from '../../../generated/covers-data.js';
+import { Ranged } from '../../core/ranged.js';
 
 export class ActionTabInputValues {
 	selectedWeaponMode: WeaponModeOption;
@@ -100,17 +101,9 @@ export class ActionTabInputValues {
 			return null;
 		}
 
-		const weaponRange = this.selectedWeaponMode.mode.range;
-		const rangeIncrements = Math.max(0, Math.floor((this.selectedRangeValue - 1) / weaponRange.value));
-
-		if (rangeIncrements === 0) {
-			return null;
-		}
-
-		return new CircumstanceModifier({
-			source: ModifierSource.Circumstance,
-			name: `${numberToOrdinal(rangeIncrements)} Range Increment Penalty`,
-			value: Bonus.of(rangeIncrements * -3),
+		return Ranged.computeRangeIncrementModifier({
+			weaponModeOption: this.selectedWeaponMode,
+			range: Distance.of(this.selectedRangeValue),
 		});
 	};
 

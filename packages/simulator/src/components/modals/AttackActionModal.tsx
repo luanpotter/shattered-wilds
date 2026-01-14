@@ -1,4 +1,14 @@
-import { Action, ACTIONS, CharacterSheet, Check, CheckMode, CheckNature, Resource, Trait } from '@shattered-wilds/d12';
+import {
+	Action,
+	ACTIONS,
+	CharacterSheet,
+	Check,
+	CheckMode,
+	CheckNature,
+	Ranged,
+	Resource,
+	Trait,
+} from '@shattered-wilds/d12';
 import React, { useEffect, useState } from 'react';
 import { FaDice, FaFistRaised } from 'react-icons/fa';
 import { FaShield } from 'react-icons/fa6';
@@ -228,6 +238,11 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		);
 	};
 
+	const rangeIncrementModifier = Ranged.computeRangeIncrementModifier({
+		weaponModeOption: attack.weaponModeOption,
+		range: range,
+	});
+
 	return (
 		<div style={modalStyle}>
 			<div style={{ display: 'flex', gap: '16px' }}>
@@ -296,6 +311,12 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 					</p>
 					<p style={pStyle}>
 						<strong>Range:</strong> {range.description}
+						{rangeIncrementModifier && (
+							<>
+								&nbsp;| <strong>Inc. CM:</strong>{' '}
+								<span title={rangeIncrementModifier.description}>{rangeIncrementModifier.value.description}</span>
+							</>
+						)}
 					</p>
 					<p style={pStyle}>
 						<strong>Modifier:</strong> {attack.check.modifierValue.description}

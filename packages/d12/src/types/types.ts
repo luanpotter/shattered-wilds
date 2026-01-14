@@ -12,6 +12,7 @@ export * from './core/consequences.js';
 export * from './core/cover.js';
 export * from './core/feats.js';
 export * from './core/races.js';
+export * from './core/ranged.js';
 export * from './core/size.js';
 export * from './core/traits.js';
 export * from './engine/check-factory.js';
