@@ -12,10 +12,11 @@ import {
 	DefenseTrait,
 	Distance,
 	PassiveCoverType,
+	WeaponModeOption,
 } from '@shattered-wilds/d12';
 
 export interface BasicAttack {
-	name: string;
+	weaponModeOption: WeaponModeOption;
 	check: Check;
 	range: Distance;
 }
@@ -29,7 +30,7 @@ export interface BasicDefense {
 export const getBasicAttacksFor = (character: CharacterSheet): BasicAttack[] => {
 	const checkFactory = new CheckFactory({ characterSheet: character });
 	return character.equipment.weaponOptions().map(weaponMode => ({
-		name: weaponMode.description,
+		weaponModeOption: weaponMode,
 		check: checkFactory.weapon({ weaponMode }),
 		range: weaponMode.mode.range,
 	}));

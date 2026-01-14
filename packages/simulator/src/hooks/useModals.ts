@@ -146,24 +146,6 @@ export const useModals = () => {
 		});
 	};
 
-	const openBasicAttacksModal = ({ characterId }: { characterId: string }) => {
-		const character = characters.find(c => c.id === characterId);
-		if (!character) {
-			console.error('Character not found:', characterId);
-			return;
-		}
-
-		// Check if modal is already open
-		const existingModal = modals.find(modal => modal.type === 'basic-attacks' && modal.characterId === characterId);
-		if (existingModal) return;
-
-		addModal({
-			title: `${character.props.name}'s Basic Attacks`,
-			type: 'basic-attacks',
-			characterId,
-		});
-	};
-
 	const openDiceRollModal = ({
 		characterId,
 		check,
@@ -490,7 +472,6 @@ export const useModals = () => {
 		openRaceSetupModal,
 		openClassSetupModal,
 		openFeatsSetupModal,
-		openBasicAttacksModal,
 		openDiceRollModal,
 		openAttackActionModal,
 		openMeasureModal,

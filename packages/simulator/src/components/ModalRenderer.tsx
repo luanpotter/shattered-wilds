@@ -1,9 +1,7 @@
-import { CharacterSheet } from '@shattered-wilds/d12';
 import React from 'react';
 import { FaCopy, FaExpand } from 'react-icons/fa';
 
 import { useStore } from '../store';
-import { getBasicAttacksFor } from '../types/grid-actions';
 import { Modal as ModalType } from '../types/ui';
 import { copyCharacterDataToClipboard } from '../utils/clipboard';
 import { Navigator, Route } from '../utils/routes';
@@ -14,7 +12,6 @@ import {
 	AddConsequenceModal,
 	AddItemModal,
 	AttackActionModal,
-	BasicAttacksModal,
 	CharacterCreationModal,
 	ClassSetupModal,
 	ColorPickerModal,
@@ -147,20 +144,6 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 					return renderCharacterNotFound(modal.characterId);
 				}
 				return <FeatsModal character={character} onClose={onClose} />;
-			}
-			case 'basic-attacks': {
-				const character = characters.find(c => c.id === modal.characterId);
-				if (!character) {
-					return renderCharacterNotFound(modal.characterId);
-				}
-				const characterSheet = CharacterSheet.from(character.props);
-				return (
-					<BasicAttacksModal
-						attacks={getBasicAttacksFor(characterSheet)}
-						characterSheet={characterSheet}
-						onClose={onClose}
-					/>
-				);
 			}
 			case 'dice-roll': {
 				return (

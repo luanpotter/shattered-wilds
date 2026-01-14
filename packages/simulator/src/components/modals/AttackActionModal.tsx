@@ -1,4 +1,4 @@
-import { Action, CharacterSheet, Check, CheckMode, CheckNature, Resource, Trait } from '@shattered-wilds/d12';
+import { Action, ACTIONS, CharacterSheet, Check, CheckMode, CheckNature, Resource, Trait } from '@shattered-wilds/d12';
 import React, { useEffect, useState } from 'react';
 import { FaDice, FaFistRaised } from 'react-icons/fa';
 import { FaShield } from 'react-icons/fa6';
@@ -54,6 +54,8 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	};
 
 	const { attackAction, weaponModeIndex, range } = initialConfig;
+	const actionDef = ACTIONS[attackAction];
+	const apCost = actionDef.costs.find(cost => cost.resource === Resource.ActionPoint)?.amount || 0;
 
 	// Automatically set results for automatic mode characters on mount
 	useEffect(() => {
@@ -195,6 +197,10 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		flex: 1,
 	};
 
+	const pStyle: React.CSSProperties = {
+		margin: '2px',
+	};
+
 	const attackButtonText = `${
 		attacker.automaticMode && attackResult
 			? 'Override Attack'
@@ -279,10 +285,21 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 				<div style={halfStyle}>
 					<Header text={`Attacker: ${attacker.props.name}`} Icon={FaFistRaised} />
 
-					<p>Action: {attackAction} (WIP)</p>
-					<p>Weapon: {attack.name}</p>
-					<p>Range: {range.description}</p>
-					<p>Modifier: {attack.check.modifierValue.description}</p>
+					<p style={pStyle}>
+						<strong>Action:</strong> {attackAction} [{apCost} AP]
+					</p>
+					<p style={pStyle}>
+						<strong>Weapon:</strong> {attack.weaponModeOption.item.name}
+					</p>
+					<p style={pStyle}>
+						<strong>Mode:</strong> {attack.weaponModeOption.mode.description}
+					</p>
+					<p style={pStyle}>
+						<strong>Range:</strong> {range.description}
+					</p>
+					<p style={pStyle}>
+						<strong>Modifier:</strong> {attack.check.modifierValue.description}
+					</p>
 
 					<Button icon={FaDice} title={attackButtonText} onClick={handleAttackRoll} disabled={!defenseResult} />
 

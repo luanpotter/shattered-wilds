@@ -108,10 +108,6 @@ export type Modal = BaseModal &
 				characterId: string;
 		  }
 		| {
-				type: 'basic-attacks';
-				characterId: string;
-		  }
-		| {
 				type: 'dice-roll';
 				characterId: string;
 				check: Check;
