@@ -11,12 +11,13 @@ import {
 } from '@shattered-wilds/d12';
 import React, { useEffect, useState } from 'react';
 import { FaDice, FaFistRaised } from 'react-icons/fa';
-import { FaShield } from 'react-icons/fa6';
+import { FaGear, FaShield } from 'react-icons/fa6';
 
 import { useModals } from '../../hooks/useModals';
 import { useStore } from '../../store';
 import { getBasicAttacksFor, getBasicDefensesForRealm } from '../../types/grid-actions';
 import { AttackActionInitialConfig } from '../../types/ui';
+import { semanticClick } from '../../utils';
 import { Button } from '../shared/Button';
 
 interface AttackActionModalProps {
@@ -205,6 +206,10 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 
 	const halfStyle: React.CSSProperties = {
 		flex: 1,
+		display: 'flex',
+		flexDirection: 'column',
+		alignItems: 'flex-start',
+		justifyContent: 'center',
 	};
 
 	const pStyle: React.CSSProperties = {
@@ -242,6 +247,37 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		weaponModeOption: attack.weaponModeOption,
 		range: range,
 	});
+
+	const Element: React.FC<{ items: ({ title: string; value: string } | null)[] }> = ({ items }) => {
+		return (
+			<div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
+				<div
+					style={{
+						border: '1px solid var(--text)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						padding: '2px',
+						cursor: 'pointer',
+					}}
+					{...semanticClick('button', () => {
+						console.log(`TODO: implement this.`);
+					})}
+				>
+					<FaGear style={{ fontSize: '0.75em' }} />
+				</div>
+				<div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+					{items
+						.filter(item => item !== null)
+						.map(({ title, value }) => (
+							<div key={title}>
+								<strong>{title}:</strong> {value}
+							</div>
+						))}
+				</div>
+			</div>
+		);
+	};
 
 	return (
 		<div style={modalStyle}>
@@ -300,27 +336,27 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 				<div style={halfStyle}>
 					<Header text={`Attacker: ${attacker.props.name}`} Icon={FaFistRaised} />
 
-					<p style={pStyle}>
-						<strong>Action:</strong> {attackAction} [{apCost} AP]
-					</p>
-					<p style={pStyle}>
-						<strong>Weapon:</strong> {attack.weaponModeOption.item.name}
-					</p>
-					<p style={pStyle}>
-						<strong>Mode:</strong> {attack.weaponModeOption.mode.description}
-					</p>
-					<p style={pStyle}>
-						<strong>Range:</strong> {range.description}
-						{rangeIncrementModifier && (
-							<>
-								&nbsp;| <strong>Inc. CM:</strong>{' '}
-								<span title={rangeIncrementModifier.description}>{rangeIncrementModifier.value.description}</span>
-							</>
-						)}
-					</p>
-					<p style={pStyle}>
-						<strong>Modifier:</strong> {attack.check.modifierValue.description}
-					</p>
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
+						<Element items={[{ title: 'Action', value: `${attackAction} [${apCost} AP]` }]} />
+						<Element
+							items={[
+								{ title: 'Weapon', value: attack.weaponModeOption.item.name },
+								{ title: 'Mode', value: attack.weaponModeOption.mode.description },
+							]}
+						/>
+						<Element
+							items={[
+								{ title: 'Range', value: range.description },
+								rangeIncrementModifier && {
+									title: 'Range Increment CM',
+									value: rangeIncrementModifier.value.description,
+								},
+							]}
+						/>
+						<p style={pStyle}>
+							<strong>Modifier:</strong> {attack.check.modifierValue.description}
+						</p>
+					</div>
 
 					<Button icon={FaDice} title={attackButtonText} onClick={handleAttackRoll} disabled={!defenseResult} />
 
