@@ -313,6 +313,7 @@ export const useModals = () => {
 		}
 
 		addModal({
+			positionType: ModalPositionType.ScreenCenter,
 			title: `${attacker.props.name} attacks ${defender.props.name}`,
 			type: 'attack-action',
 			attackerId,
