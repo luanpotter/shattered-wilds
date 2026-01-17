@@ -44,7 +44,7 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 	const [isRolling, setIsRolling] = useState(false);
 	const [rollingCharacterId, setRollingCharacterId] = useState<string | null>(null);
 
-	const { openConfirmationModal, openCharacterSheetModal } = useModals();
+	const { displayConfirmationModal, openCharacterSheetModal } = useModals();
 
 	const { updateEncounter, findEncounter } = useEncounters();
 	const encounter = findEncounter(encounterId);
@@ -109,7 +109,7 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 	const handleEndEncounter = useCallback(async () => {
 		if (!encounter) return;
 
-		const confirmed = await openConfirmationModal({
+		const confirmed = await displayConfirmationModal({
 			title: 'End Encounter',
 			message: ['Are you sure you want to end this encounter?', 'This will clear all initiative values.'].join('\n\n'),
 			confirmText: 'End Encounter',
@@ -120,7 +120,7 @@ export const TurnTrackerModal: React.FC<TurnTrackerModalProps> = ({ encounterId 
 				turnTracker: null,
 			});
 		}
-	}, [encounter, openConfirmationModal, updateEncounter]);
+	}, [encounter, displayConfirmationModal, updateEncounter]);
 
 	const handleRerollCharacter = useCallback(
 		async (characterId: string) => {

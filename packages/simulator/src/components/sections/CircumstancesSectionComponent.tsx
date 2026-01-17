@@ -32,7 +32,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 	const [newOtherCircumstance, setNewOtherCircumstance] = useState('');
 
 	const propUpdater = usePropUpdates(character, characterSheet);
-	const { openAddConditionModal, openAddConsequenceModal, openConfirmationModal } = useModals();
+	const { openAddConditionModal, openAddConsequenceModal, displayConfirmationModal } = useModals();
 
 	const resourceBar = (resource: Resource): JSX.Element[] => {
 		const def = RESOURCES[resource];
@@ -191,7 +191,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 	};
 
 	const handleEndTurn = async () => {
-		const confirmed = await openConfirmationModal({
+		const confirmed = await displayConfirmationModal({
 			title: 'End Turn',
 			message: [
 				'Are you sure you want to trigger an **End of Turn**?',
@@ -205,7 +205,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 	};
 
 	const handleShortRest = async () => {
-		const confirmed = await openConfirmationModal({
+		const confirmed = await displayConfirmationModal({
 			title: 'Short Rest',
 			message: [
 				'Are you sure you want to trigger a **Short Rest**?',
@@ -222,7 +222,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 	};
 
 	const handleLongRest = async () => {
-		const confirmed = await openConfirmationModal({
+		const confirmed = await displayConfirmationModal({
 			title: 'Long Rest',
 			message: [
 				'Are you sure you want to trigger a Long Rest?',

@@ -22,13 +22,13 @@ export const LevelSection: React.FC<LevelSectionProps> = ({
 	variant = 'default',
 }) => {
 	const editMode = useStore(state => state.editMode);
-	const { openConfirmationModal } = useModals();
+	const { displayConfirmationModal } = useModals();
 
 	const fontSize = variant === 'default' ? '1.2rem' : '1rem';
 	const gap = variant === 'default' ? '1rem' : '8px';
 
 	const handleResetAllPoints = async () => {
-		const confirmed = await openConfirmationModal({
+		const confirmed = await displayConfirmationModal({
 			title: 'Reset All Points',
 			message: 'Are you sure you want to reset all stat points? This will undo all point allocations.',
 			confirmText: 'Reset',

@@ -1,11 +1,35 @@
 import { HexCoord } from '@shattered-wilds/commons';
 import { Check, FeatDefinition, FeatSlot, Condition, Consequence, ResourceCost, WikiDatum } from '@shattered-wilds/d12';
+import { ReactNode } from 'react';
 
 import { OmniBoxContext } from '../components/omni/OmniBoxContext';
+import { Button } from '../components/shared/Button';
+import { RichText } from '../components/shared/RichText';
 import { useStore } from '../store';
 import { AttackActionInitialConfig, Modal, ModalPositionType } from '../types/ui';
 import { Mouse } from '../utils/mouse';
 import { DistributiveOmit } from '../utils/types';
+
+import { calculateModalPosition, useTempModals } from './useTempModals';
+
+// Types for displayModal
+export interface DisplayModalOptions {
+	ownerModalId?: string | null;
+	title: string;
+	content: ReactNode;
+	widthPixels?: number;
+	heightPixels?: number;
+	positionType?: ModalPositionType;
+}
+
+export interface DisplayConfirmationOptions {
+	ownerModalId?: string | null;
+	title?: string;
+	message: string;
+	confirmText?: string;
+	cancelText?: string;
+	widthPixels?: number;
+}
 
 export const useModals = () => {
 	const modals = useStore(state => state.modals);
@@ -13,6 +37,9 @@ export const useModals = () => {
 	const updateModal = useStore(state => state.updateModal);
 	const removeModal = useStore(state => state.removeModal);
 	const characters = useStore(state => state.characters);
+
+	// Temp modal context for temporary modals
+	const { addTempModal, removeTempModal, closeTempModalsOwnedBy, updateTempModal } = useTempModals();
 
 	const generateModalId = () => window.crypto.randomUUID();
 
@@ -49,6 +76,105 @@ export const useModals = () => {
 			position,
 			...params,
 		});
+	};
+
+	// ============================================
+	// Temporary Modal System (displayX methods)
+	// ============================================
+
+	/**
+	 * Display a temporary modal with arbitrary React content.
+	 * Returns a promise that resolves when the modal is dismissed.
+	 * The modal is NOT persisted to Zustand and will disappear on refresh.
+	 *
+	 * @param options - Modal configuration including content and optional owner modal ID
+	 * @returns Promise that resolves with the value passed to the resolve callback, or undefined if closed
+	 */
+	const displayModal = <T = void,>(options: DisplayModalOptions): Promise<T | undefined> => {
+		const { ownerModalId = null, title, content, widthPixels, heightPixels, positionType } = options;
+
+		const position = calculateModalPosition(positionType, widthPixels, heightPixels);
+
+		return new Promise<T | undefined>(resolve => {
+			addTempModal<T | undefined>({
+				ownerModalId,
+				title,
+				position,
+				widthPixels,
+				heightPixels,
+				content,
+				resolve,
+			});
+		});
+	};
+
+	/**
+	 * Display a confirmation modal as a temporary modal.
+	 * Returns a promise that resolves to true if confirmed, false if cancelled,
+	 * or undefined if the modal was closed some other way.
+	 */
+	const displayConfirmationModal = (options: DisplayConfirmationOptions): Promise<boolean> => {
+		const {
+			ownerModalId = null,
+			title = 'Confirm',
+			message,
+			confirmText = 'Confirm',
+			cancelText = 'Cancel',
+			widthPixels = 400,
+		} = options;
+
+		const position = calculateModalPosition(ModalPositionType.MousePosition, widthPixels, undefined);
+
+		// We need a mutable ref to store the modalId for the handlers
+		const modalIdRef = { current: '' };
+
+		const handleConfirm = (resolve: (value: boolean) => void) => {
+			resolve(true);
+			removeTempModal(modalIdRef.current);
+		};
+
+		const handleCancel = (resolve: (value: boolean) => void) => {
+			resolve(false);
+			removeTempModal(modalIdRef.current);
+		};
+
+		return new Promise<boolean>(resolve => {
+			const content = (
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						justifyContent: 'space-between',
+						gap: '16px',
+						height: '100%',
+					}}
+				>
+					<div>
+						<RichText>{message}</RichText>
+					</div>
+					<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+						<Button variant='inline' onClick={() => handleCancel(resolve)} title={cancelText} />
+						<Button variant='inline' onClick={() => handleConfirm(resolve)} title={confirmText} />
+					</div>
+				</div>
+			);
+
+			modalIdRef.current = addTempModal<boolean>({
+				ownerModalId,
+				title,
+				position,
+				widthPixels,
+				content,
+				resolve,
+			});
+		});
+	};
+
+	/**
+	 * Close a temporary modal by ID
+	 */
+	const closeTempModal = (modalId: string) => {
+		removeTempModal(modalId);
 	};
 
 	const openCharacterListModal = () => {
@@ -342,35 +468,6 @@ export const useModals = () => {
 		});
 	};
 
-	const openConfirmationModal = ({
-		title,
-		message,
-		confirmText,
-		cancelText,
-	}: {
-		title?: string;
-		message: string;
-		confirmText?: string;
-		cancelText?: string;
-	}): Promise<boolean> => {
-		return new Promise(resolve => {
-			addModal({
-				title: title ?? 'Confirm',
-				type: 'confirmation',
-				message,
-				...(confirmText && { confirmText }),
-				...(cancelText && { cancelText }),
-				onConfirm: () => {
-					resolve(true);
-				},
-				onCancel: () => {
-					resolve(false);
-				},
-				widthPixels: 400,
-			});
-		});
-	};
-
 	const openErrorModal = ({ message }: { message: string }) => {
 		addModal({
 			title: 'Unexpected Error',
@@ -381,11 +478,16 @@ export const useModals = () => {
 	};
 
 	const closeModal = (modalId: string) => {
+		// Close any temporary modals owned by this modal
+		closeTempModalsOwnedBy(modalId);
+		// Then close the modal itself
 		removeModal(modalId);
 	};
 
 	const closeAllModals = () => {
 		modals.forEach(modal => {
+			// Close any temporary modals owned by each modal
+			closeTempModalsOwnedBy(modal.id);
 			removeModal(modal.id);
 		});
 	};
@@ -483,7 +585,6 @@ export const useModals = () => {
 		openViewItemModal,
 		openAddConditionModal,
 		openAddConsequenceModal,
-		openConfirmationModal,
 		openErrorModal,
 		openEncounterConfigModal,
 		openTurnTrackerModal,
@@ -494,5 +595,10 @@ export const useModals = () => {
 		closeModal,
 		closeAllModals,
 		updateModal,
+		// Temporary modal methods
+		displayModal,
+		displayConfirmationModal,
+		closeTempModal,
+		updateTempModal,
 	};
 };

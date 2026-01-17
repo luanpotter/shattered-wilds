@@ -10,8 +10,11 @@ import { OnboardingPage } from './components/pages/OnboardingPage';
 import { PrintFriendlyActions } from './components/pages/PrintFriendlyActions';
 import { PrintFriendlyCharacterSheetPage } from './components/pages/PrintFriendlyCharacterSheetPage';
 import { Button } from './components/shared/Button';
+import { TempModalRenderer } from './components/TempModalRenderer';
+import { TempModalProvider } from './contexts/TempModalProvider';
 import { useEncounters } from './hooks/useEncounters';
 import { useModals } from './hooks/useModals';
+import { useTempModals } from './hooks/useTempModals';
 import { useStore } from './store';
 import { DragState } from './types/ui';
 import { Navigator, Route, type RouteState } from './utils/routes';
@@ -30,7 +33,7 @@ const getEncounterId = (route: RouteState): string | undefined => {
 	return undefined;
 };
 
-const App = (): React.ReactElement => {
+const AppContent = (): React.ReactElement => {
 	const [currentRoute, setCurrentRoute] = useState<RouteState>(() => Navigator.parseRoute());
 	const [initialCharacterId, setInitialCharacterId] = useState<string | undefined>(() =>
 		getCharacterId(Navigator.parseRoute()),
@@ -44,6 +47,7 @@ const App = (): React.ReactElement => {
 	const updateGridState = useStore(state => state.updateGridState);
 	const modals = useStore(state => state.modals);
 	const { closeAllModals, updateModal, openOmniBoxModal } = useModals();
+	const { updateTempModal } = useTempModals();
 	const editMode = useStore(state => state.editMode);
 	const toggleEditMode = useStore(state => state.toggleEditMode);
 
@@ -85,10 +89,17 @@ const App = (): React.ReactElement => {
 				const newX = e.clientX - dragState.offset.x;
 				const newY = e.clientY - dragState.offset.y;
 
-				updateModal({
-					...modals.find(modal => modal.id === dragState.objectId)!,
-					position: { x: newX, y: newY },
-				});
+				// Try to find in regular modals first
+				const regularModal = modals.find(modal => modal.id === dragState.objectId);
+				if (regularModal) {
+					updateModal({
+						...regularModal,
+						position: { x: newX, y: newY },
+					});
+				} else {
+					// Try temp modals
+					updateTempModal(dragState.objectId, { position: { x: newX, y: newY } });
+				}
 			} else if (dragState.type === 'grid') {
 				const dx = e.movementX;
 				const dy = e.movementY;
@@ -120,7 +131,7 @@ const App = (): React.ReactElement => {
 		}
 
 		return () => {};
-	}, [dragState, gridState, updateGridState, updateModal, modals]);
+	}, [dragState, gridState, updateGridState, updateModal, modals, updateTempModal]);
 
 	const handleMouseDown = (e: React.MouseEvent) => {
 		if (e.button === 1) {
@@ -263,7 +274,28 @@ const App = (): React.ReactElement => {
 					}}
 				/>
 			))}
+			<TempModalRenderer
+				onStartDrag={(modalId: string) => (e: React.MouseEvent) => {
+					const rect = e.currentTarget.getBoundingClientRect();
+					setDragState({
+						type: 'modal',
+						objectId: modalId,
+						offset: {
+							x: e.clientX - rect.left,
+							y: e.clientY - rect.top,
+						},
+					});
+				}}
+			/>
 		</div>
+	);
+};
+
+const App = (): React.ReactElement => {
+	return (
+		<TempModalProvider>
+			<AppContent />
+		</TempModalProvider>
 	);
 };
 

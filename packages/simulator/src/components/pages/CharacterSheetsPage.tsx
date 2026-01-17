@@ -30,7 +30,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 
 	const removeCharacter = useStore(state => state.removeCharacter);
 	const addCharacter = useStore(state => state.addCharacter);
-	const { openCharacterCreationModal, openConfirmationModal } = useModals();
+	const { openCharacterCreationModal, displayConfirmationModal } = useModals();
 	const [selectedCharacterId, setSelectedCharacterId] = useState<string | undefined>(initialCharacterId);
 
 	// Update selectedCharacterId when initialCharacterId changes (for URL navigation)
@@ -103,7 +103,7 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 		const hasConflicts = predefinedCharacters.some(findExisting);
 		let overrideExisting: boolean;
 		if (hasConflicts) {
-			overrideExisting = await openConfirmationModal({
+			overrideExisting = await displayConfirmationModal({
 				title: 'Import Predefined Characters',
 				message: [
 					'Some predefined characters have the same name as your existing characters.',
