@@ -58,6 +58,15 @@ const ModifierRow: React.FC<ModifierRowProps> = ({ check }) => {
 		});
 	}
 
+	// Build complete breakdown tooltip for total
+	const totalTooltipLines: string[] = [
+		`${check.statModifier.baseValue.description} (Base ${check.statModifier.name})`,
+		...inherentModifiers.map(mod => `${mod.value.description} (${mod.name})`),
+		...equipmentModifiers.map(mod => `${mod.value.description} (${mod.name})`),
+		...circumstanceModifiers.map(mod => `${mod.value.description} (${mod.name})`),
+	];
+	const totalTooltip = totalTooltipLines.join('\n');
+
 	const total = check.statModifier.value;
 
 	const boxStyle: React.CSSProperties = {
@@ -117,7 +126,7 @@ const ModifierRow: React.FC<ModifierRowProps> = ({ check }) => {
 			))}
 
 			<span style={{ ...separatorStyle, marginLeft: 'auto' }}>=</span>
-			<div style={totalBoxStyle}>
+			<div style={totalBoxStyle} title={totalTooltip}>
 				<span style={valueStyle}>{total.description}</span>
 				<span style={labelStyle}>Total</span>
 			</div>
