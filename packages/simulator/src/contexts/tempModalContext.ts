@@ -11,6 +11,8 @@ export interface TempModal<T = void> {
 	heightPixels?: number | undefined;
 	content: ReactNode;
 	resolve: (value: T) => void;
+	/** Optional buttons to show in the title bar (e.g., close button, expand button) */
+	titleBarButtons?: ReactNode;
 }
 
 export interface TempModalContextType {

@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FaTimes } from 'react-icons/fa';
 
 import { TempModal } from '../contexts/tempModalContext';
 import { useTempModals } from '../hooks/useTempModals';
-
-import { Button } from './shared/Button';
 
 interface TempModalWrapperProps {
 	modal: TempModal<unknown>;
@@ -12,7 +9,7 @@ interface TempModalWrapperProps {
 }
 
 const TempModalWrapper: React.FC<TempModalWrapperProps> = ({ modal, onStartDrag }) => {
-	const { removeTempModal, updateTempModal } = useTempModals();
+	const { updateTempModal } = useTempModals();
 	const [isDragging, setIsDragging] = useState(false);
 
 	const handleMouseDown = (e: React.MouseEvent) => {
@@ -24,10 +21,6 @@ const TempModalWrapper: React.FC<TempModalWrapperProps> = ({ modal, onStartDrag 
 				onStartDrag(e);
 			}
 		}
-	};
-
-	const handleClose = () => {
-		removeTempModal(modal.id);
 	};
 
 	useEffect(() => {
@@ -115,9 +108,7 @@ const TempModalWrapper: React.FC<TempModalWrapperProps> = ({ modal, onStartDrag 
 					}}
 				>
 					<span>{modal.title}</span>
-					<div style={{ display: 'flex', gap: '4px' }}>
-						<Button onClick={handleClose} icon={FaTimes} tooltip='Close' variant='inline' />
-					</div>
+					{modal.titleBarButtons && <div style={{ display: 'flex', gap: '4px' }}>{modal.titleBarButtons}</div>}
 				</div>
 				<div
 					style={{

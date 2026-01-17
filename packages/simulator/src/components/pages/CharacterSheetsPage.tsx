@@ -37,7 +37,6 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 	useEffect(() => {
 		setSelectedCharacterId(initialCharacterId);
 	}, [initialCharacterId]);
-	const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 	const [importError, setImportError] = useState<string | null>(null);
 	const [showCreateDropdown, setShowCreateDropdown] = useState<boolean>(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
@@ -130,19 +129,16 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 		});
 	};
 
-	const handleDeleteCharacter = (character: Character) => {
-		setConfirmDelete(character.id);
-	};
-
-	const handleConfirmDelete = () => {
-		if (confirmDelete) {
-			removeCharacter(confirmDelete);
-			setConfirmDelete(null);
+	const handleDeleteCharacter = async (character: Character) => {
+		const confirmed = await displayConfirmationModal({
+			title: 'Confirm Deletion',
+			message: `Are you sure you want to delete ${character.props.name}?`,
+			confirmText: 'Delete',
+			cancelText: 'Cancel',
+		});
+		if (confirmed) {
+			removeCharacter(character.id);
 		}
-	};
-
-	const handleCancelDelete = () => {
-		setConfirmDelete(null);
 	};
 
 	// If a character is selected, show the full-page character sheet
@@ -195,42 +191,6 @@ export const CharacterSheetsPage: React.FC<CharacterSheetsPageProps> = ({
 						<p style={{ margin: '0 0 1rem 0' }}>{importError}</p>
 						<div style={{ display: 'flex', justifyContent: 'flex-end' }}>
 							<Button onClick={() => setImportError(null)} title='Dismiss' />
-						</div>
-					</div>
-				)}
-
-				{confirmDelete && (
-					<div
-						style={{
-							position: 'fixed',
-							top: 0,
-							left: 0,
-							right: 0,
-							bottom: 0,
-							backgroundColor: 'rgba(0, 0, 0, 0.5)',
-							display: 'flex',
-							justifyContent: 'center',
-							alignItems: 'center',
-							zIndex: 1000,
-						}}
-					>
-						<div
-							style={{
-								backgroundColor: 'var(--background)',
-								padding: '2rem',
-								borderRadius: '8px',
-								border: '1px solid var(--text)',
-								minWidth: '300px',
-							}}
-						>
-							<h3 style={{ margin: '0 0 1rem 0' }}>Confirm Deletion</h3>
-							<p style={{ margin: '0 0 1.5rem 0' }}>
-								Are you sure you want to delete {characters.find(c => c.id === confirmDelete)?.props.name}?
-							</p>
-							<div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-								<Button onClick={handleCancelDelete} title='Cancel' />
-								<Button onClick={handleConfirmDelete} title='Delete' />
-							</div>
 						</div>
 					</div>
 				)}
