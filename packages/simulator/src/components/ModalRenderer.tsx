@@ -159,6 +159,7 @@ export const ModalRenderer: React.FC<ModalRendererProps> = ({ modal, onStartDrag
 			case 'attack-action':
 				return (
 					<AttackActionModal
+						modalId={modal.id}
 						attackerId={modal.attackerId}
 						defenderId={modal.defenderId}
 						initialConfig={modal.initialConfig}

@@ -5,22 +5,194 @@ import {
 	Check,
 	CheckMode,
 	CheckNature,
+	Distance,
 	Ranged,
 	Resource,
 	Trait,
+	WeaponModeOption,
 } from '@shattered-wilds/d12';
 import React, { useEffect, useState } from 'react';
 import { FaDice, FaFistRaised } from 'react-icons/fa';
 import { FaGear, FaShield } from 'react-icons/fa6';
 
 import { useModals } from '../../hooks/useModals';
+import { useTempModals } from '../../hooks/useTempModals';
 import { useStore } from '../../store';
 import { getBasicAttacksFor, getBasicDefensesForRealm } from '../../types/grid-actions';
 import { AttackActionInitialConfig } from '../../types/ui';
 import { semanticClick } from '../../utils';
+import { ATTACK_ACTIONS } from '../hex/GridActions';
 import { Button } from '../shared/Button';
 
+interface ActionSelectionContentProps {
+	currentAction: Action;
+	onConfirm: (action: Action) => void;
+}
+
+const ActionSelectionContent: React.FC<ActionSelectionContentProps> = ({ currentAction, onConfirm }) => {
+	const [selected, setSelected] = useState<Action>(currentAction);
+	const { removeTempModal, tempModals } = useTempModals();
+
+	const handleConfirm = () => {
+		onConfirm(selected);
+		// Close the modal - find the current temp modal by looking at the last one
+		const currentModal = tempModals[tempModals.length - 1];
+		if (currentModal) {
+			removeTempModal(currentModal.id);
+		}
+	};
+
+	const handleCancel = () => {
+		const currentModal = tempModals[tempModals.length - 1];
+		if (currentModal) {
+			removeTempModal(currentModal.id);
+		}
+	};
+
+	return (
+		<div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '8px' }}>
+			<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+				{ATTACK_ACTIONS.map(action => {
+					const actionDef = ACTIONS[action];
+					const apCost = actionDef.costs.find(cost => cost.resource === Resource.ActionPoint)?.amount || 0;
+					return (
+						<div
+							key={action}
+							role='button'
+							tabIndex={0}
+							style={{
+								padding: '4px 8px',
+								cursor: 'pointer',
+								backgroundColor: selected === action ? 'var(--background-alt)' : 'transparent',
+								borderRadius: '4px',
+								border: selected === action ? '1px solid var(--text)' : '1px solid transparent',
+							}}
+							onClick={() => setSelected(action)}
+							onKeyDown={e => e.key === 'Enter' && setSelected(action)}
+						>
+							{action} [{apCost} AP]
+						</div>
+					);
+				})}
+			</div>
+			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+				<Button variant='inline' onClick={handleCancel} title='Cancel' />
+				<Button variant='inline' onClick={handleConfirm} title='Confirm' />
+			</div>
+		</div>
+	);
+};
+
+interface WeaponModeSelectionContentProps {
+	weaponModes: WeaponModeOption[];
+	currentIndex: number;
+	onConfirm: (index: number) => void;
+}
+
+const WeaponModeSelectionContent: React.FC<WeaponModeSelectionContentProps> = ({
+	weaponModes,
+	currentIndex,
+	onConfirm,
+}) => {
+	const [selected, setSelected] = useState<number>(currentIndex);
+	const { removeTempModal, tempModals } = useTempModals();
+
+	const handleConfirm = () => {
+		onConfirm(selected);
+		const currentModal = tempModals[tempModals.length - 1];
+		if (currentModal) {
+			removeTempModal(currentModal.id);
+		}
+	};
+
+	const handleCancel = () => {
+		const currentModal = tempModals[tempModals.length - 1];
+		if (currentModal) {
+			removeTempModal(currentModal.id);
+		}
+	};
+
+	return (
+		<div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '8px' }}>
+			<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+				{weaponModes.map((wm, index) => (
+					<div
+						key={index}
+						role='button'
+						tabIndex={0}
+						style={{
+							padding: '4px 8px',
+							cursor: 'pointer',
+							backgroundColor: selected === index ? 'var(--background-alt)' : 'transparent',
+							borderRadius: '4px',
+							border: selected === index ? '1px solid var(--text)' : '1px solid transparent',
+						}}
+						onClick={() => setSelected(index)}
+						onKeyDown={e => e.key === 'Enter' && setSelected(index)}
+					>
+						<strong>{wm.item.name}</strong> - {wm.mode.description}
+					</div>
+				))}
+			</div>
+			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+				<Button variant='inline' onClick={handleCancel} title='Cancel' />
+				<Button variant='inline' onClick={handleConfirm} title='Confirm' />
+			</div>
+		</div>
+	);
+};
+
+interface RangeSelectionContentProps {
+	currentRange: number;
+	onConfirm: (value: number) => void;
+}
+
+const RangeSelectionContent: React.FC<RangeSelectionContentProps> = ({ currentRange, onConfirm }) => {
+	const [value, setValue] = useState<number>(currentRange);
+	const { removeTempModal, tempModals } = useTempModals();
+
+	const handleConfirm = () => {
+		onConfirm(value);
+		const currentModal = tempModals[tempModals.length - 1];
+		if (currentModal) {
+			removeTempModal(currentModal.id);
+		}
+	};
+
+	const handleCancel = () => {
+		const currentModal = tempModals[tempModals.length - 1];
+		if (currentModal) {
+			removeTempModal(currentModal.id);
+		}
+	};
+
+	return (
+		<div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '8px' }}>
+			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+				<label htmlFor='range-input'>Range (hexes):</label>
+				<input
+					id='range-input'
+					type='number'
+					min={1}
+					value={value}
+					onChange={e => setValue(Math.max(1, parseInt(e.target.value) || 1))}
+					style={{ width: '80px', padding: '4px 8px' }}
+				/>
+			</div>
+			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+				<Button variant='inline' onClick={handleCancel} title='Cancel' />
+				<Button variant='inline' onClick={handleConfirm} title='Confirm' />
+			</div>
+		</div>
+	);
+};
+
+// ============================================
+// Main Component
+// ============================================
+
 interface AttackActionModalProps {
+	modalId: string;
 	attackerId: string;
 	defenderId: string;
 	initialConfig: AttackActionInitialConfig;
@@ -34,6 +206,7 @@ interface RollResult {
 }
 
 export const AttackActionModal: React.FC<AttackActionModalProps> = ({
+	modalId,
 	attackerId,
 	defenderId,
 	initialConfig,
@@ -41,7 +214,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 }) => {
 	const characters = useStore(state => state.characters);
 	const updateCharacterProp = useStore(state => state.updateCharacterProp);
-	const { openDiceRollModal } = useModals();
+	const { openDiceRollModal, displayModal } = useModals();
 
 	const attacker = characters.find(c => c.id === attackerId);
 	const defender = characters.find(c => c.id === defenderId);
@@ -50,6 +223,11 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	const [attackResult, setAttackResult] = useState<RollResult | null>(null);
 	const [usedDodge, setUsedDodge] = useState(false);
 	const [usedShieldBlock, setUsedShieldBlock] = useState(false);
+
+	// Configurable attack parameters (can be changed via gear icons)
+	const [selectedAction, setSelectedAction] = useState<Action>(initialConfig.attackAction);
+	const [selectedWeaponModeIndex, setSelectedWeaponModeIndex] = useState<number>(initialConfig.weaponModeIndex);
+	const [selectedRange, setSelectedRange] = useState<Distance>(initialConfig.range);
 
 	// Auto-calculate values for automatic mode characters
 	const getAutomaticResult = (check: Check): RollResult => {
@@ -64,8 +242,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		};
 	};
 
-	const { attackAction, weaponModeIndex, range } = initialConfig;
-	const actionDef = ACTIONS[attackAction];
+	const actionDef = ACTIONS[selectedAction];
 	const apCost = actionDef.costs.find(cost => cost.resource === Resource.ActionPoint)?.amount || 0;
 
 	// Automatically set results for automatic mode characters on mount
@@ -73,7 +250,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		if (attacker && defender) {
 			const attackerSheet = CharacterSheet.from(attacker.props);
 			const defenderSheet = CharacterSheet.from(defender.props);
-			const attack = getBasicAttacksFor(attackerSheet)[weaponModeIndex];
+			const attack = getBasicAttacksFor(attackerSheet)[selectedWeaponModeIndex];
 			const defense = getBasicDefensesForRealm(defenderSheet, Trait.BodyDefense).find(
 				defense => defense.action === Action.BasicDefense,
 			)!;
@@ -87,7 +264,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 				setAttackResult(autoResult);
 			}
 		}
-	}, [attacker, defender, weaponModeIndex]);
+	}, [attacker, defender, selectedWeaponModeIndex]);
 
 	if (!attacker || !defender) {
 		return <div>Error: Characters not found</div>;
@@ -95,7 +272,8 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 
 	const attackerSheet = CharacterSheet.from(attacker.props);
 	const defenderSheet = CharacterSheet.from(defender.props);
-	const attack = getBasicAttacksFor(attackerSheet)[weaponModeIndex];
+	const attack = getBasicAttacksFor(attackerSheet)[selectedWeaponModeIndex];
+	const allWeaponModes = attackerSheet.equipment.weaponOptions();
 
 	const defenses = getBasicDefensesForRealm(defenderSheet, Trait.BodyDefense);
 
@@ -196,6 +374,68 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		onClose();
 	};
 
+	// ============================================
+	// Handlers for changing attack configuration
+	// ============================================
+
+	const handleChangeAction = async () => {
+		const result = await displayModal<Action>({
+			ownerModalId: modalId,
+			title: 'Select Action',
+			widthPixels: 300,
+			content: (
+				<ActionSelectionContent
+					currentAction={selectedAction}
+					onConfirm={action => {
+						setSelectedAction(action);
+					}}
+				/>
+			),
+		});
+		if (result) {
+			setSelectedAction(result);
+		}
+	};
+
+	const handleChangeWeaponMode = async () => {
+		const result = await displayModal<number>({
+			ownerModalId: modalId,
+			title: 'Select Weapon Mode',
+			widthPixels: 400,
+			content: (
+				<WeaponModeSelectionContent
+					weaponModes={allWeaponModes}
+					currentIndex={selectedWeaponModeIndex}
+					onConfirm={index => {
+						setSelectedWeaponModeIndex(index);
+					}}
+				/>
+			),
+		});
+		if (result !== undefined) {
+			setSelectedWeaponModeIndex(result);
+		}
+	};
+
+	const handleChangeRange = async () => {
+		const result = await displayModal<number>({
+			ownerModalId: modalId,
+			title: 'Set Range',
+			widthPixels: 300,
+			content: (
+				<RangeSelectionContent
+					currentRange={selectedRange.value}
+					onConfirm={value => {
+						setSelectedRange(Distance.of(value));
+					}}
+				/>
+			),
+		});
+		if (result !== undefined) {
+			setSelectedRange(Distance.of(result));
+		}
+	};
+
 	const outcome = calculateOutcome();
 
 	const modalStyle: React.CSSProperties = {
@@ -245,7 +485,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 
 	const rangeIncrementModifier = Ranged.computeRangeIncrementModifier({
 		weaponModeOption: attack.weaponModeOption,
-		range: range,
+		range: selectedRange,
 	});
 
 	const Element: React.FC<{ items: ({ title: string; value: string } | null)[]; onClick: () => void }> = ({
@@ -339,25 +579,25 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
 						<Element
-							items={[{ title: 'Action', value: `${attackAction} [${apCost} AP]` }]}
-							onClick={() => console.log(`CHANGE ACTION`)}
+							items={[{ title: 'Action', value: `${selectedAction} [${apCost} AP]` }]}
+							onClick={handleChangeAction}
 						/>
 						<Element
 							items={[
 								{ title: 'Weapon', value: attack.weaponModeOption.item.name },
 								{ title: 'Mode', value: attack.weaponModeOption.mode.description },
 							]}
-							onClick={() => console.log(`CHANGE WM`)}
+							onClick={handleChangeWeaponMode}
 						/>
 						<Element
 							items={[
-								{ title: 'Range', value: range.description },
+								{ title: 'Range', value: selectedRange.description },
 								rangeIncrementModifier && {
 									title: 'Range Increment CM',
 									value: rangeIncrementModifier.value.description,
 								},
 							]}
-							onClick={() => console.log(`CHANGE RANGE`)}
+							onClick={handleChangeRange}
 						/>
 						<p style={pStyle}>
 							<strong>Modifier:</strong> {attack.check.modifierValue.description}
