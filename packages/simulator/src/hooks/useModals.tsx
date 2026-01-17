@@ -319,7 +319,7 @@ export const useModals = () => {
 			defenderId,
 			initialConfig,
 			onClose,
-			widthPixels: 900,
+			widthPixels: 700,
 		});
 	};
 

@@ -25,6 +25,8 @@ import { AttackActionInitialConfig } from '../../types/ui';
 import { semanticClick } from '../../utils';
 import { ATTACK_ACTIONS } from '../hex/GridActions';
 import { Button } from '../shared/Button';
+import LabeledDropdown from '../shared/LabeledDropdown';
+import LabeledInput from '../shared/LabeledInput';
 
 interface ActionSelectionContentProps {
 	currentAction: Action;
@@ -37,7 +39,6 @@ const ActionSelectionContent: React.FC<ActionSelectionContentProps> = ({ current
 
 	const handleConfirm = () => {
 		onConfirm(selected);
-		// Close the modal - find the current temp modal by looking at the last one
 		const currentModal = tempModals[tempModals.length - 1];
 		if (currentModal) {
 			removeTempModal(currentModal.id);
@@ -53,30 +54,17 @@ const ActionSelectionContent: React.FC<ActionSelectionContentProps> = ({ current
 
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '8px' }}>
-			<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-				{ATTACK_ACTIONS.map(action => {
+			<LabeledDropdown
+				label='Action'
+				value={selected}
+				options={ATTACK_ACTIONS}
+				describe={action => {
 					const actionDef = ACTIONS[action];
 					const apCost = actionDef.costs.find(cost => cost.resource === Resource.ActionPoint)?.amount || 0;
-					return (
-						<div
-							key={action}
-							role='button'
-							tabIndex={0}
-							style={{
-								padding: '4px 8px',
-								cursor: 'pointer',
-								backgroundColor: selected === action ? 'var(--background-alt)' : 'transparent',
-								borderRadius: '4px',
-								border: selected === action ? '1px solid var(--text)' : '1px solid transparent',
-							}}
-							onClick={() => setSelected(action)}
-							onKeyDown={e => e.key === 'Enter' && setSelected(action)}
-						>
-							{action} [{apCost} AP]
-						</div>
-					);
-				})}
-			</div>
+					return `${action} [${apCost} AP]`;
+				}}
+				onChange={setSelected}
+			/>
 			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
 				<Button variant='inline' onClick={handleCancel} title='Cancel' />
 				<Button variant='inline' onClick={handleConfirm} title='Confirm' />
@@ -96,11 +84,12 @@ const WeaponModeSelectionContent: React.FC<WeaponModeSelectionContentProps> = ({
 	currentIndex,
 	onConfirm,
 }) => {
-	const [selected, setSelected] = useState<number>(currentIndex);
+	const [selected, setSelected] = useState<WeaponModeOption>(weaponModes[currentIndex]);
 	const { removeTempModal, tempModals } = useTempModals();
 
 	const handleConfirm = () => {
-		onConfirm(selected);
+		const index = weaponModes.indexOf(selected);
+		onConfirm(index >= 0 ? index : currentIndex);
 		const currentModal = tempModals[tempModals.length - 1];
 		if (currentModal) {
 			removeTempModal(currentModal.id);
@@ -116,26 +105,13 @@ const WeaponModeSelectionContent: React.FC<WeaponModeSelectionContentProps> = ({
 
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '8px' }}>
-			<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-				{weaponModes.map((wm, index) => (
-					<div
-						key={index}
-						role='button'
-						tabIndex={0}
-						style={{
-							padding: '4px 8px',
-							cursor: 'pointer',
-							backgroundColor: selected === index ? 'var(--background-alt)' : 'transparent',
-							borderRadius: '4px',
-							border: selected === index ? '1px solid var(--text)' : '1px solid transparent',
-						}}
-						onClick={() => setSelected(index)}
-						onKeyDown={e => e.key === 'Enter' && setSelected(index)}
-					>
-						<strong>{wm.item.name}</strong> - {wm.mode.description}
-					</div>
-				))}
-			</div>
+			<LabeledDropdown
+				label='Weapon'
+				value={selected}
+				options={weaponModes}
+				describe={wm => `${wm.item.name} - ${wm.mode.description}`}
+				onChange={setSelected}
+			/>
 			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
 				<Button variant='inline' onClick={handleCancel} title='Cancel' />
 				<Button variant='inline' onClick={handleConfirm} title='Confirm' />
@@ -181,48 +157,23 @@ const RangedParametersSelectionContent: React.FC<RangedParametersSelectionConten
 
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '8px' }}>
-			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-				<label htmlFor='range-input' style={{ minWidth: '120px' }}>
-					Range (hexes):
-				</label>
-				<input
-					id='range-input'
-					type='number'
-					min={1}
-					value={range}
-					onChange={e => setRange(Math.max(1, parseInt(e.target.value) || 1))}
-					style={{ width: '80px', padding: '4px 8px' }}
-				/>
-			</div>
-			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-				<label htmlFor='cover-select' style={{ minWidth: '120px' }}>
-					Cover:
-				</label>
-				<select
-					id='cover-select'
-					value={cover}
-					onChange={e => setCover(e.target.value as PassiveCoverType)}
-					style={{ padding: '4px 8px' }}
-				>
-					{coverOptions.map(coverType => (
-						<option key={coverType} value={coverType}>
-							{coverType} (CM: {COVER_TYPES[coverType].bonus.value})
-						</option>
-					))}
-				</select>
-			</div>
-			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-				<label htmlFor='height-input' style={{ minWidth: '120px' }}>
-					Height Increments:
-				</label>
-				<input
-					id='height-input'
-					type='number'
-					value={heightIncrements}
-					onChange={e => setHeightIncrements(parseInt(e.target.value) || 0)}
-					style={{ width: '80px', padding: '4px 8px' }}
-				/>
-			</div>
+			<LabeledInput
+				label='Range (hexes)'
+				value={String(range)}
+				onChange={value => setRange(Math.max(1, parseInt(value) || 1))}
+			/>
+			<LabeledDropdown
+				label='Cover'
+				value={cover}
+				options={coverOptions}
+				describe={coverType => `${coverType} (CM: ${COVER_TYPES[coverType].bonus.value})`}
+				onChange={setCover}
+			/>
+			<LabeledInput
+				label='Height Increments'
+				value={String(heightIncrements)}
+				onChange={value => setHeightIncrements(parseInt(value) || 0)}
+			/>
 			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
 				<Button variant='inline' onClick={handleCancel} title='Cancel' />
 				<Button variant='inline' onClick={handleConfirm} title='Confirm' />
@@ -267,6 +218,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	const [attackResult, setAttackResult] = useState<RollResult | null>(null);
 	const [usedDodge, setUsedDodge] = useState(false);
 	const [usedShieldBlock, setUsedShieldBlock] = useState(false);
+	const [selectedDefenseAction, setSelectedDefenseAction] = useState<Action>(Action.BasicDefense);
 
 	// Configurable attack parameters (can be changed via gear icons)
 	const [selectedAction, setSelectedAction] = useState<Action>(initialConfig.attackAction);
@@ -495,8 +447,8 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		flex: 1,
 		display: 'flex',
 		flexDirection: 'column',
-		alignItems: 'flex-start',
-		justifyContent: 'center',
+		alignItems: 'stretch',
+		justifyContent: 'flex-start',
 	};
 
 	const pStyle: React.CSSProperties = {
@@ -508,7 +460,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			? 'Override Attack'
 			: attacker.automaticMode
 				? 'Use Auto Attack'
-				: 'Roll Attack'
+				: `Roll ${actionDef.name}`
 	} ${defenseResult ? `(DC ${defenseResult.total})` : '(Roll Defense First)'}`;
 
 	const Header = ({ text, Icon }: { text: string; Icon: React.ComponentType }) => {
@@ -577,25 +529,33 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 					<Header text={`Defender: ${defender.props.name}`} Icon={FaShield} />
 
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-						{defenses.map(defense => (
-							<Button
-								key={defense.action}
-								icon={FaDice}
-								title={
-									defender.automaticMode && defenseResult && !usedDodge && !usedShieldBlock
-										? `Override ${defense.name}`
-										: defender.automaticMode
-											? `Use Auto ${defense.name}`
-											: `Roll ${defense.name}`
-								}
-								onClick={() => handleDefenseRoll(defense.action)}
-								disabled={
-									(defense.action === Action.Dodge && usedDodge) ||
-									(defense.action === Action.ShieldBlock && usedShieldBlock) ||
-									(attackResult !== null && defense.action !== Action.BasicDefense)
-								}
-							/>
-						))}
+						<LabeledDropdown
+							label='Action'
+							variant='inline'
+							value={selectedDefenseAction}
+							options={defenses.map(d => d.action)}
+							describe={action => {
+								const defense = defenses.find(d => d.action === action);
+								return defense?.name ?? action;
+							}}
+							onChange={setSelectedDefenseAction}
+						/>
+						<Button
+							icon={FaDice}
+							title={
+								defender.automaticMode && defenseResult && !usedDodge && !usedShieldBlock
+									? `Override ${defenses.find(d => d.action === selectedDefenseAction)?.name}`
+									: defender.automaticMode
+										? `Use Auto ${defenses.find(d => d.action === selectedDefenseAction)?.name}`
+										: `Roll ${defenses.find(d => d.action === selectedDefenseAction)?.name}`
+							}
+							onClick={() => handleDefenseRoll(selectedDefenseAction)}
+							disabled={
+								(selectedDefenseAction === Action.Dodge && usedDodge) ||
+								(selectedDefenseAction === Action.ShieldBlock && usedShieldBlock) ||
+								(attackResult !== null && selectedDefenseAction !== Action.BasicDefense)
+							}
+						/>
 					</div>
 
 					{defenseResult && (
