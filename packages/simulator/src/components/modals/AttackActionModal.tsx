@@ -405,8 +405,15 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		display: 'flex',
 		flexDirection: 'column',
 		alignItems: 'stretch',
-		justifyContent: 'flex-start',
-		gap: 8,
+		justifyContent: 'space-between',
+		gap: '16px',
+	};
+
+	const subHalfStyle: React.CSSProperties = {
+		display: 'flex',
+		flexDirection: 'column',
+		gap: '4px',
+		alignItems: 'stretch',
 	};
 
 	const attackButtonText = `${
@@ -503,9 +510,9 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			<div style={{ display: 'flex', gap: '16px' }}>
 				{/* Defender Half */}
 				<div style={halfStyle}>
-					<Header text={`Defender: ${defender.props.name}`} Icon={FaShield} />
+					<div style={subHalfStyle}>
+						<Header text={`Defender: ${defender.props.name}`} Icon={FaShield} />
 
-					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 						<LabeledDropdown
 							label='Action'
 							variant='inline'
@@ -519,6 +526,8 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 							onChange={setSelectedDefenseAction}
 						/>
 						<NumberStepper label='CM' value={manualDefenseCM} onChange={setManualDefenseCM} />
+					</div>
+					<div style={subHalfStyle}>
 						<Bar />
 						{defenseCheck && <ModifierRow check={defenseCheck} />}
 						<Bar />
@@ -533,86 +542,90 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 							}${attackResult ? ` (DC ${attackResult.total})` : ''}`}
 							onClick={handleDefenseRoll}
 						/>
-					</div>
 
-					{defenseResult && (
-						<div
-							style={{
-								marginTop: '16px',
-								padding: '8px',
-								backgroundColor: 'var(--background-alt)',
-								borderRadius: '4px',
-							}}
-						>
-							<strong>
-								{selectedDefense?.name} Result:{' '}
-								{defender.automaticMode ? `Auto: ${defenseResult.total}` : defenseResult.total}
-							</strong>
-							{defenseResult.shifts > 0 && <div>Shifts: {defenseResult.shifts}</div>}
-						</div>
-					)}
+						{defenseResult && (
+							<div
+								style={{
+									marginTop: '16px',
+									padding: '8px',
+									backgroundColor: 'var(--background-alt)',
+									borderRadius: '4px',
+								}}
+							>
+								<strong>
+									{selectedDefense?.name} Result:{' '}
+									{defender.automaticMode ? `Auto: ${defenseResult.total}` : defenseResult.total}
+								</strong>
+								{defenseResult.shifts > 0 && <div>Shifts: {defenseResult.shifts}</div>}
+							</div>
+						)}
+					</div>
 				</div>
 
 				<div style={{ width: '1px', backgroundColor: 'var(--text)' }} />
 
 				{/* Attacker Half */}
 				<div style={halfStyle}>
-					<Header text={`Attacker: ${attacker.props.name}`} Icon={FaFistRaised} />
+					<div style={subHalfStyle}>
+						<Header text={`Attacker: ${attacker.props.name}`} Icon={FaFistRaised} />
 
-					<LabeledDropdown
-						label='Action'
-						variant='inline'
-						value={selectedAction}
-						options={ATTACK_ACTIONS}
-						describe={action => `${action} [${getApCost(action)} AP]`}
-						onChange={setSelectedAction}
-					/>
-					<Element
-						items={[
-							{ title: 'Weapon', value: attack.weaponModeOption.item.name },
-							{ title: 'Mode', value: attack.weaponModeOption.mode.description },
-						]}
-						onClick={handleChangeWeaponMode}
-					/>
-					<Element
-						items={[
-							{
-								title: 'Range',
-								value: `${selectedRange.description}${rangeIncrementModifier ? ` [CM: ${rangeIncrementModifier.value.description}]` : ''}`,
-							},
-							{
-								title: 'Cover',
-								value: `${selectedCover}${coverModifier ? ` [CM: ${coverModifier.value.description}]` : ''}`,
-							},
-							{
-								title: 'Height Δ',
-								value: `${selectedHeightIncrements}${heightIncrementsModifier ? ` [CM: ${heightIncrementsModifier.value.description}]` : ''}`,
-							},
-						]}
-						onClick={handleChangeRange}
-					/>
-					<NumberStepper label='CM' value={manualAttackCM} onChange={setManualAttackCM} />
-					<Bar />
-					<ModifierRow check={attackCheck} />
-					<Bar />
+						<LabeledDropdown
+							label='Action'
+							variant='inline'
+							value={selectedAction}
+							options={ATTACK_ACTIONS}
+							describe={action => `${action} [${getApCost(action)} AP]`}
+							onChange={setSelectedAction}
+						/>
+						<Element
+							items={[
+								{ title: 'Weapon', value: attack.weaponModeOption.item.name },
+								{ title: 'Mode', value: attack.weaponModeOption.mode.description },
+							]}
+							onClick={handleChangeWeaponMode}
+						/>
+						<Element
+							items={[
+								{
+									title: 'Range',
+									value: `${selectedRange.description}${rangeIncrementModifier ? ` [CM: ${rangeIncrementModifier.value.description}]` : ''}`,
+								},
+								{
+									title: 'Cover',
+									value: `${selectedCover}${coverModifier ? ` [CM: ${coverModifier.value.description}]` : ''}`,
+								},
+								{
+									title: 'Height Δ',
+									value: `${selectedHeightIncrements}${heightIncrementsModifier ? ` [CM: ${heightIncrementsModifier.value.description}]` : ''}`,
+								},
+							]}
+							onClick={handleChangeRange}
+						/>
+						<NumberStepper label='CM' value={manualAttackCM} onChange={setManualAttackCM} />
+					</div>
 
-					<Button icon={FaDice} title={attackButtonText} onClick={handleAttackRoll} />
+					<div style={subHalfStyle}>
+						<Bar />
+						<ModifierRow check={attackCheck} />
+						<Bar />
+						<Button icon={FaDice} title={attackButtonText} onClick={handleAttackRoll} />
 
-					{attackResult && (
-						<div
-							style={{
-								marginTop: '16px',
-								padding: '8px',
-								backgroundColor: 'var(--background-alt)',
-								borderRadius: '4px',
-							}}
-						>
-							<strong>
-								Attack Result: {attacker.automaticMode ? `Auto: ${attackResult.total}` : attackResult.total}
-							</strong>
-							{attackResult.shifts > 0 && <div>Shifts: {attackResult.shifts}</div>}
-						</div>
-					)}
+						{attackResult && (
+							<div
+								style={{
+									marginTop: '16px',
+									padding: '8px',
+									backgroundColor: 'var(--background-alt)',
+									borderRadius: '4px',
+								}}
+							>
+								<strong>
+									Attack Result: {attacker.automaticMode ? `Auto: ${attackResult.total}` : attackResult.total}
+								</strong>
+								{attackResult.shifts > 0 && <div>Shifts: {attackResult.shifts}</div>}
+							</div>
+						)}
+					</div>
 				</div>
 			</div>
 
