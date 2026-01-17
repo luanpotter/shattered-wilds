@@ -1,10 +1,13 @@
 import {
 	Action,
 	ACTIONS,
+	Bonus,
 	CharacterSheet,
 	Check,
+	CircumstanceModifier,
 	COVER_TYPES,
 	Distance,
+	ModifierSource,
 	PassiveCoverType,
 	Ranged,
 	Resource,
@@ -27,6 +30,7 @@ import { Button } from '../shared/Button';
 import LabeledDropdown from '../shared/LabeledDropdown';
 import LabeledInput from '../shared/LabeledInput';
 import ModifierRow from '../shared/ModifierRow';
+import NumberStepper from '../shared/NumberStepper';
 
 // Helper to get AP cost for an action
 const getApCost = (action: Action): number => {
@@ -188,6 +192,10 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	const [selectedCover, setSelectedCover] = useState<PassiveCoverType>(PassiveCoverType.None);
 	const [selectedHeightIncrements, setSelectedHeightIncrements] = useState<number>(0);
 
+	// Manual circumstance modifiers
+	const [manualAttackCM, setManualAttackCM] = useState<number>(0);
+	const [manualDefenseCM, setManualDefenseCM] = useState<number>(0);
+
 	// Auto-calculate values for automatic mode characters
 	const getAutomaticResult = (check: Check): RollResult => {
 		const totalModifier = check.modifierValue.value;
@@ -242,16 +250,21 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		if (!defense) {
 			throw new Error(`Defense action ${action} not found for defender`);
 		}
+
+		// Build the full check with manual CM
+		const manualCM = createManualCM(manualDefenseCM);
+		const fullDefenseCheck = manualCM ? defense.check.withAdditionalCM(manualCM) : defense.check;
+
 		if (defender.automaticMode && !defenseResult) {
 			// Use automatic value for defense (initial)
-			const autoResult = getAutomaticResult(defense.check);
+			const autoResult = getAutomaticResult(fullDefenseCheck);
 			setDefenseResult(autoResult);
 			setUsedDodge(false);
 		} else {
 			// Open dice roll modal for manual rolling (override)
 			openDiceRollModal({
 				characterId: defender.id,
-				check: defense.check,
+				check: fullDefenseCheck,
 
 				onDiceRollComplete: (result: { total: number; shifts: number }) => {
 					setDefenseResult(result);
@@ -264,15 +277,16 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 
 	// Note: handleAttackRoll uses attackCheck which is defined after render helpers
 	const handleAttackRoll = () => {
-		// attackCheck is defined below with range modifiers applied
+		// Build the full check with all modifiers including manual CM
 		const rangeModifier = Ranged.computeRangeIncrementModifier({
 			weaponModeOption: attack.weaponModeOption,
 			range: selectedRange,
 		});
 		const coverMod = Ranged.computeCoverModifier(selectedCover);
 		const heightMod = Ranged.computeHeightIncrementsModifier(selectedHeightIncrements);
+		const manualCM = createManualCM(manualAttackCM);
 
-		const fullCheck = [rangeModifier, coverMod, heightMod]
+		const fullCheck = [rangeModifier, coverMod, heightMod, manualCM]
 			.filter((cm): cm is NonNullable<typeof cm> => cm !== null)
 			.reduce((check, cm) => check.withAdditionalCM(cm), attack.check);
 
@@ -433,10 +447,28 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	const coverModifier = Ranged.computeCoverModifier(selectedCover);
 	const heightIncrementsModifier = Ranged.computeHeightIncrementsModifier(selectedHeightIncrements);
 
+	// Helper to create a manual CM
+	const createManualCM = (value: number): CircumstanceModifier | null => {
+		if (value === 0) return null;
+		return new CircumstanceModifier({
+			source: ModifierSource.Circumstance,
+			name: 'Final Adjustment',
+			value: Bonus.of(value),
+		});
+	};
+
 	// Amend the attack check with any additional modifiers
-	const attackCheck = [rangeIncrementModifier, coverModifier, heightIncrementsModifier]
+	const attackCheck = [rangeIncrementModifier, coverModifier, heightIncrementsModifier, createManualCM(manualAttackCM)]
 		.filter((cm): cm is NonNullable<typeof cm> => cm !== null)
 		.reduce((check, cm) => check.withAdditionalCM(cm), attack.check);
+
+	// Build the defense check with manual CM
+	const selectedDefense = defenses.find(d => d.action === selectedDefenseAction);
+	const defenseCheck = selectedDefense
+		? [createManualCM(manualDefenseCM)]
+				.filter((cm): cm is NonNullable<typeof cm> => cm !== null)
+				.reduce((check, cm) => check.withAdditionalCM(cm), selectedDefense.check)
+		: null;
 
 	const Element: React.FC<{ items: ({ title: string; value: string } | null)[]; onClick: () => void }> = ({
 		items,
@@ -490,19 +522,18 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 							}}
 							onChange={setSelectedDefenseAction}
 						/>
+						<NumberStepper label='CM' value={manualDefenseCM} onChange={setManualDefenseCM} />
 						<Bar />
-						{defenses.find(d => d.action === selectedDefenseAction)?.check && (
-							<ModifierRow check={defenses.find(d => d.action === selectedDefenseAction)!.check} />
-						)}
+						{defenseCheck && <ModifierRow check={defenseCheck} />}
 						<Bar />
 						<Button
 							icon={FaDice}
 							title={
 								defender.automaticMode && defenseResult && !usedDodge && !usedShieldBlock
-									? `Override ${defenses.find(d => d.action === selectedDefenseAction)?.name}`
+									? `Override ${selectedDefense?.name}`
 									: defender.automaticMode
-										? `Use Auto ${defenses.find(d => d.action === selectedDefenseAction)?.name}`
-										: `Roll ${defenses.find(d => d.action === selectedDefenseAction)?.name}`
+										? `Use Auto ${selectedDefense?.name}`
+										: `Roll ${selectedDefense?.name}`
 							}
 							onClick={() => handleDefenseRoll(selectedDefenseAction)}
 							disabled={
@@ -573,6 +604,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 						]}
 						onClick={handleChangeRange}
 					/>
+					<NumberStepper label='CM' value={manualAttackCM} onChange={setManualAttackCM} />
 					<Bar />
 					<ModifierRow check={attackCheck} />
 					<Bar />
