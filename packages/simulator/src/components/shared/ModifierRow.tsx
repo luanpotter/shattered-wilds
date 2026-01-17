@@ -1,9 +1,8 @@
-import { Bonus, CircumstanceModifier, Check, InherentModifier, ModifierSource } from '@shattered-wilds/d12';
+import { Bonus, Check, InherentModifier, ModifierSource } from '@shattered-wilds/d12';
 import React from 'react';
 
 interface ModifierRowProps {
 	check: Check;
-	additionalModifiers?: (CircumstanceModifier | null | undefined)[];
 }
 
 interface ModifierBox {
@@ -12,22 +11,15 @@ interface ModifierBox {
 	tooltip: string;
 }
 
-const ModifierRow: React.FC<ModifierRowProps> = ({ check, additionalModifiers = [] }) => {
-	const validAdditionalModifiers = additionalModifiers.filter(
-		(cm): cm is CircumstanceModifier => cm !== null && cm !== undefined,
-	);
-
+const ModifierRow: React.FC<ModifierRowProps> = ({ check }) => {
 	// Separate modifiers by type
 	const inherentModifiers = check.statModifier.appliedModifiers.filter(mod => mod instanceof InherentModifier);
 	const equipmentModifiers = check.statModifier.appliedModifiers.filter(
 		mod => !(mod instanceof InherentModifier) && mod.source === ModifierSource.Equipment,
 	);
-	const circumstanceModifiers = [
-		...check.statModifier.appliedModifiers.filter(
-			mod => !(mod instanceof InherentModifier) && mod.source !== ModifierSource.Equipment,
-		),
-		...validAdditionalModifiers,
-	];
+	const circumstanceModifiers = check.statModifier.appliedModifiers.filter(
+		mod => !(mod instanceof InherentModifier) && mod.source !== ModifierSource.Equipment,
+	);
 
 	// Build boxes
 	const boxes: ModifierBox[] = [];
@@ -66,10 +58,7 @@ const ModifierRow: React.FC<ModifierRowProps> = ({ check, additionalModifiers = 
 		});
 	}
 
-	// Calculate total
-	const additionalTotal = validAdditionalModifiers.reduce((sum, cm) => sum + cm.value.value, 0);
-	const total = check.statModifier.value.value + additionalTotal;
-	const totalFormatted = total >= 0 ? `+${total}` : `${total}`;
+	const total = check.statModifier.value;
 
 	const boxStyle: React.CSSProperties = {
 		display: 'inline-flex',
@@ -129,7 +118,7 @@ const ModifierRow: React.FC<ModifierRowProps> = ({ check, additionalModifiers = 
 
 			<span style={{ ...separatorStyle, marginLeft: 'auto' }}>=</span>
 			<div style={totalBoxStyle}>
-				<span style={valueStyle}>{totalFormatted}</span>
+				<span style={valueStyle}>{total.description}</span>
 				<span style={labelStyle}>Total</span>
 			</div>
 		</div>

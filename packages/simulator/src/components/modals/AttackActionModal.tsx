@@ -3,8 +3,6 @@ import {
 	ACTIONS,
 	CharacterSheet,
 	Check,
-	CheckMode,
-	CheckNature,
 	COVER_TYPES,
 	Distance,
 	PassiveCoverType,
@@ -306,21 +304,29 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		}
 	};
 
+	// Note: handleAttackRoll uses attackCheck which is defined after render helpers
 	const handleAttackRoll = () => {
+		// attackCheck is defined below with range modifiers applied
+		const rangeModifier = Ranged.computeRangeIncrementModifier({
+			weaponModeOption: attack.weaponModeOption,
+			range: selectedRange,
+		});
+		const coverMod = Ranged.computeCoverModifier(selectedCover);
+		const heightMod = Ranged.computeHeightIncrementsModifier(selectedHeightIncrements);
+
+		const fullCheck = [rangeModifier, coverMod, heightMod]
+			.filter((cm): cm is NonNullable<typeof cm> => cm !== null)
+			.reduce((check, cm) => check.withAdditionalCM(cm), attack.check);
+
 		if (attacker.automaticMode && !attackResult) {
 			// Use automatic value for attack (initial)
-			const autoResult = getAutomaticResult(attack.check);
+			const autoResult = getAutomaticResult(fullCheck);
 			setAttackResult(autoResult);
 		} else {
 			// Open dice roll modal for manual rolling (override)
 			openDiceRollModal({
 				characterId: attacker.id,
-				check: new Check({
-					mode: CheckMode.Contested,
-					nature: CheckNature.Active,
-					descriptor: `Attack - ${attacker.props.name}`,
-					statModifier: attack.check.statModifier,
-				}),
+				check: fullCheck,
 				onDiceRollComplete: (result: { total: number; shifts: number }) => {
 					setAttackResult(result);
 				},
@@ -487,6 +493,11 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	const coverModifier = Ranged.computeCoverModifier(selectedCover);
 	const heightIncrementsModifier = Ranged.computeHeightIncrementsModifier(selectedHeightIncrements);
 
+	// Amend the attack check with any additional modifiers
+	const attackCheck = [rangeIncrementModifier, coverModifier, heightIncrementsModifier]
+		.filter((cm): cm is NonNullable<typeof cm> => cm !== null)
+		.reduce((check, cm) => check.withAdditionalCM(cm), attack.check);
+
 	const Element: React.FC<{ items: ({ title: string; value: string } | null)[]; onClick: () => void }> = ({
 		items,
 		onClick,
@@ -620,10 +631,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 						/>
 					</div>
 					<Bar />
-					<ModifierRow
-						check={attack.check}
-						additionalModifiers={[rangeIncrementModifier, coverModifier, heightIncrementsModifier]}
-					/>
+					<ModifierRow check={attackCheck} />
 					<Bar />
 
 					<Button icon={FaDice} title={attackButtonText} onClick={handleAttackRoll} disabled={!defenseResult} />
