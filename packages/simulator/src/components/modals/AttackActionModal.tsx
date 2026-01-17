@@ -5,7 +5,9 @@ import {
 	Check,
 	CheckMode,
 	CheckNature,
+	COVER_TYPES,
 	Distance,
+	PassiveCoverType,
 	Ranged,
 	Resource,
 	Trait,
@@ -142,17 +144,26 @@ const WeaponModeSelectionContent: React.FC<WeaponModeSelectionContentProps> = ({
 	);
 };
 
-interface RangeSelectionContentProps {
+interface RangedParametersSelectionContentProps {
 	currentRange: number;
-	onConfirm: (value: number) => void;
+	currentCover: PassiveCoverType;
+	currentHeightIncrements: number;
+	onConfirm: (range: number, cover: PassiveCoverType, heightIncrements: number) => void;
 }
 
-const RangeSelectionContent: React.FC<RangeSelectionContentProps> = ({ currentRange, onConfirm }) => {
-	const [value, setValue] = useState<number>(currentRange);
+const RangedParametersSelectionContent: React.FC<RangedParametersSelectionContentProps> = ({
+	currentRange,
+	currentCover,
+	currentHeightIncrements,
+	onConfirm,
+}) => {
+	const [range, setRange] = useState<number>(currentRange);
+	const [cover, setCover] = useState<PassiveCoverType>(currentCover);
+	const [heightIncrements, setHeightIncrements] = useState<number>(currentHeightIncrements);
 	const { removeTempModal, tempModals } = useTempModals();
 
 	const handleConfirm = () => {
-		onConfirm(value);
+		onConfirm(range, cover, heightIncrements);
 		const currentModal = tempModals[tempModals.length - 1];
 		if (currentModal) {
 			removeTempModal(currentModal.id);
@@ -166,16 +177,49 @@ const RangeSelectionContent: React.FC<RangeSelectionContentProps> = ({ currentRa
 		}
 	};
 
+	const coverOptions = Object.values(PassiveCoverType);
+
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '8px' }}>
 			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-				<label htmlFor='range-input'>Range (hexes):</label>
+				<label htmlFor='range-input' style={{ minWidth: '120px' }}>
+					Range (hexes):
+				</label>
 				<input
 					id='range-input'
 					type='number'
 					min={1}
-					value={value}
-					onChange={e => setValue(Math.max(1, parseInt(e.target.value) || 1))}
+					value={range}
+					onChange={e => setRange(Math.max(1, parseInt(e.target.value) || 1))}
+					style={{ width: '80px', padding: '4px 8px' }}
+				/>
+			</div>
+			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+				<label htmlFor='cover-select' style={{ minWidth: '120px' }}>
+					Cover:
+				</label>
+				<select
+					id='cover-select'
+					value={cover}
+					onChange={e => setCover(e.target.value as PassiveCoverType)}
+					style={{ padding: '4px 8px' }}
+				>
+					{coverOptions.map(coverType => (
+						<option key={coverType} value={coverType}>
+							{coverType} (CM: {COVER_TYPES[coverType].bonus.value})
+						</option>
+					))}
+				</select>
+			</div>
+			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+				<label htmlFor='height-input' style={{ minWidth: '120px' }}>
+					Height Increments:
+				</label>
+				<input
+					id='height-input'
+					type='number'
+					value={heightIncrements}
+					onChange={e => setHeightIncrements(parseInt(e.target.value) || 0)}
 					style={{ width: '80px', padding: '4px 8px' }}
 				/>
 			</div>
@@ -228,6 +272,8 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	const [selectedAction, setSelectedAction] = useState<Action>(initialConfig.attackAction);
 	const [selectedWeaponModeIndex, setSelectedWeaponModeIndex] = useState<number>(initialConfig.weaponModeIndex);
 	const [selectedRange, setSelectedRange] = useState<Distance>(initialConfig.range);
+	const [selectedCover, setSelectedCover] = useState<PassiveCoverType>(PassiveCoverType.None);
+	const [selectedHeightIncrements, setSelectedHeightIncrements] = useState<number>(0);
 
 	// Auto-calculate values for automatic mode characters
 	const getAutomaticResult = (check: Check): RollResult => {
@@ -418,22 +464,23 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	};
 
 	const handleChangeRange = async () => {
-		const result = await displayModal<number>({
+		await displayModal<void>({
 			ownerModalId: modalId,
-			title: 'Set Range',
-			widthPixels: 300,
+			title: 'Ranged Parameters',
+			widthPixels: 350,
 			content: (
-				<RangeSelectionContent
+				<RangedParametersSelectionContent
 					currentRange={selectedRange.value}
-					onConfirm={value => {
-						setSelectedRange(Distance.of(value));
+					currentCover={selectedCover}
+					currentHeightIncrements={selectedHeightIncrements}
+					onConfirm={(range, cover, heightIncrements) => {
+						setSelectedRange(Distance.of(range));
+						setSelectedCover(cover);
+						setSelectedHeightIncrements(heightIncrements);
 					}}
 				/>
 			),
 		});
-		if (result !== undefined) {
-			setSelectedRange(Distance.of(result));
-		}
 	};
 
 	const outcome = calculateOutcome();
@@ -487,6 +534,8 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		weaponModeOption: attack.weaponModeOption,
 		range: selectedRange,
 	});
+	const coverModifier = Ranged.computeCoverModifier(selectedCover);
+	const heightIncrementsModifier = Ranged.computeHeightIncrementsModifier(selectedHeightIncrements);
 
 	const Element: React.FC<{ items: ({ title: string; value: string } | null)[]; onClick: () => void }> = ({
 		items,
@@ -591,10 +640,17 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 						/>
 						<Element
 							items={[
-								{ title: 'Range', value: selectedRange.description },
-								rangeIncrementModifier && {
-									title: 'Range Increment CM',
-									value: rangeIncrementModifier.value.description,
+								{
+									title: 'Range',
+									value: `${selectedRange.description}${rangeIncrementModifier ? ` [CM: ${rangeIncrementModifier.value.description}]` : ''}`,
+								},
+								{
+									title: 'Cover',
+									value: `${selectedCover}${coverModifier ? ` [CM: ${coverModifier.value.description}]` : ''}`,
+								},
+								{
+									title: 'Height Δ',
+									value: `${selectedHeightIncrements}${heightIncrementsModifier ? ` [CM: ${heightIncrementsModifier.value.description}]` : ''}`,
 								},
 							]}
 							onClick={handleChangeRange}

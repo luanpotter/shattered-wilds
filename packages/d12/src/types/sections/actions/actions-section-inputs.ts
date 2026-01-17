@@ -6,9 +6,9 @@ import { PassiveCoverType } from '../../core/cover.js';
 import { Trait } from '../../core/traits.js';
 import { DerivedStatType } from '../../stats/derived-stat.js';
 import { Resource } from '../../stats/resources.js';
-import { CircumstanceModifier, ModifierSource } from '../../stats/stat-tree.js';
+import { CircumstanceModifier } from '../../stats/stat-tree.js';
 import { StatType } from '../../stats/stat-type.js';
-import { Bonus, Distance } from '../../stats/value.js';
+import { Distance } from '../../stats/value.js';
 import {
 	DistanceInput,
 	DropdownInput,
@@ -108,22 +108,11 @@ export class ActionTabInputValues {
 	};
 
 	passiveCoverModifier = (): CircumstanceModifier | null => {
-		if (this.selectedPassiveCover === PassiveCoverType.None) {
-			return null;
-		}
-		return COVER_TYPES[this.selectedPassiveCover].modifier;
+		return Ranged.computeCoverModifier(this.selectedPassiveCover);
 	};
 
 	heightIncrementsModifier = (): CircumstanceModifier | null => {
-		const value = this.heightIncrements;
-		if (value === 0) {
-			return null;
-		}
-		return new CircumstanceModifier({
-			source: ModifierSource.Circumstance,
-			name: `Height Increments (${value})`,
-			value: Bonus.of(value * -3),
-		});
+		return Ranged.computeHeightIncrementsModifier(this.heightIncrements);
 	};
 }
 
