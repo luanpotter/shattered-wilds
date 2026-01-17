@@ -248,7 +248,10 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		range: range,
 	});
 
-	const Element: React.FC<{ items: ({ title: string; value: string } | null)[] }> = ({ items }) => {
+	const Element: React.FC<{ items: ({ title: string; value: string } | null)[]; onClick: () => void }> = ({
+		items,
+		onClick,
+	}) => {
 		return (
 			<div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
 				<div
@@ -260,9 +263,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 						padding: '2px',
 						cursor: 'pointer',
 					}}
-					{...semanticClick('button', () => {
-						console.log(`TODO: implement this.`);
-					})}
+					{...semanticClick('button', onClick)}
 				>
 					<FaGear style={{ fontSize: '0.75em' }} />
 				</div>
@@ -337,12 +338,16 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 					<Header text={`Attacker: ${attacker.props.name}`} Icon={FaFistRaised} />
 
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
-						<Element items={[{ title: 'Action', value: `${attackAction} [${apCost} AP]` }]} />
+						<Element
+							items={[{ title: 'Action', value: `${attackAction} [${apCost} AP]` }]}
+							onClick={() => console.log(`CHANGE ACTION`)}
+						/>
 						<Element
 							items={[
 								{ title: 'Weapon', value: attack.weaponModeOption.item.name },
 								{ title: 'Mode', value: attack.weaponModeOption.mode.description },
 							]}
+							onClick={() => console.log(`CHANGE WM`)}
 						/>
 						<Element
 							items={[
@@ -352,6 +357,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 									value: rangeIncrementModifier.value.description,
 								},
 							]}
+							onClick={() => console.log(`CHANGE RANGE`)}
 						/>
 						<p style={pStyle}>
 							<strong>Modifier:</strong> {attack.check.modifierValue.description}

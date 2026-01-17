@@ -2,6 +2,8 @@ import { Action } from '@shattered-wilds/d12';
 
 import { Character } from '../../types/ui';
 
+export const ATTACK_ACTIONS = [Action.Strike, Action.Stun, Action.Feint, Action.FocusedStrike];
+
 export enum GridActionTool {
 	OpenCharacterSheet = 'Open Character Sheet',
 	MeasureDistance = 'Measure Distance',

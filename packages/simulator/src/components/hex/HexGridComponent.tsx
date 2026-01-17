@@ -37,7 +37,7 @@ import { TokenContextMenu } from '../TokenContextMenu';
 
 import { BoxedText } from './BoxedText';
 import { DrawingComponent } from './DrawingComponent';
-import { GridActionSelectionData, GridActionTool, gridActionRegistry } from './GridActions';
+import { ATTACK_ACTIONS, GridActionSelectionData, GridActionTool, gridActionRegistry } from './GridActions';
 import { HexAreaComponent } from './HexAreaComponent';
 import { hexGrid } from './HexGrid';
 import { StaticHexGrid } from './StaticHexGrid';
@@ -78,8 +78,6 @@ interface ActionState {
 	overlay: AreaOverlay | undefined;
 	hoveredPosition?: HexCoord;
 }
-
-const ATTACK_ACTIONS = [Action.Strike, Action.Stun, Action.Feint, Action.FocusedStrike];
 
 // Calculate the SVG viewBox dimensions based on map size
 // Hex dimensions: horizontal spacing = 10, vertical spacing = 8.66
