@@ -18,6 +18,7 @@ import { useStore } from '../../store';
 import { CardSection } from '../circumstances/CardSection';
 import { ResourceBar } from '../circumstances/ResourceBar';
 import { ResourceDiamonds } from '../circumstances/ResourceDiamonds';
+import { Bar } from '../shared/Bar';
 import Block from '../shared/Block';
 import { Button } from '../shared/Button';
 import LabeledInput from '../shared/LabeledInput';
@@ -128,7 +129,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 								<RichText>{firstParagraph(item.description)}</RichText>
 								{item.ranked && (
 									<>
-										<hr />
+										<Bar />
 										<div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
 											<Button
 												variant='inline'
@@ -322,7 +323,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 				{...resourceBar(Resource.FocusPoint)}
 				{...resourceBar(Resource.SpiritPoint)}
 			</div>
-			<hr />
+			<Bar />
 			{cards({
 				label: 'Conditions',
 				items: circumstancesSection.conditions.map(c => {
@@ -333,7 +334,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 				addItem: (key, rank) => propUpdater.addCondition({ name: key as Condition, rank }),
 				removeItem: key => propUpdater.removeCondition(key as Condition),
 			})}
-			<hr />
+			<Bar />
 			{cards({
 				label: 'Consequences',
 				items: circumstancesSection.consequences.map(c => {
@@ -344,7 +345,7 @@ export const CircumstancesSectionComponent: React.FC<{ characterId: string }> = 
 				addItem: (key, rank) => propUpdater.addConsequence({ name: key as Consequence, rank }),
 				removeItem: key => propUpdater.removeConsequence(key as Consequence),
 			})}
-			<hr />
+			<Bar />
 			<div style={{ marginBottom: '8px' }}>
 				<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'center' }}>
 					<h4 style={{ margin: 0, fontSize: '1em' }}>Other Circumstances</h4>

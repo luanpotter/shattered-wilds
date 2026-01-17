@@ -20,6 +20,7 @@ import { useUIStateFactory } from '../../hooks/useUIState';
 import { useStore } from '../../store';
 import { ActionRowComponent } from '../ActionRowComponent';
 import { ResourceInputComponent } from '../ResourceInputComponent';
+import { Bar } from '../shared/Bar';
 import Block from '../shared/Block';
 import { LabeledCheckbox } from '../shared/LabeledCheckbox';
 import LabeledDropdown from '../shared/LabeledDropdown';
@@ -192,9 +193,7 @@ const ActionsSectionInner: React.FC<ActionsSectionInnerProps> = ({ characterId, 
 		return (
 			<div key={type}>
 				{Header}
-				{Header && (
-					<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '0 0 12px 0', opacity: 0.3 }} />
-				)}
+				{Header && <Bar />}
 
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 					{actions.length === 0 && (

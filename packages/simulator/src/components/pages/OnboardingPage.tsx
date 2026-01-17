@@ -317,7 +317,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ onNavigateToChar
 						However, you will always pick two to add up. The other dice still count for{' '}
 						<strong>Crit Modifiers & Auto Fails</strong>.
 					</p>
-					<hr style={{ width: '100%', margin: '0' }} />
+					<Bar />
 					<p style={{ margin: '0' }}>
 						If you roll a pair of <code>1</code>s in an <strong>Active Check</strong>, you get an{' '}
 						<strong>Auto Fail</strong>.

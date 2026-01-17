@@ -16,6 +16,7 @@ import { FaCheck, FaTimes } from 'react-icons/fa';
 import { useStore } from '../../store';
 import { exportDataToClipboard } from '../../utils/clipboard';
 import { diceRoller } from '../../utils/dice-roller';
+import { Bar } from '../shared/Bar';
 import Block from '../shared/Block';
 import { Button } from '../shared/Button';
 import { LabeledCheckbox } from '../shared/LabeledCheckbox';
@@ -343,14 +344,14 @@ const DiceRollModalContent: React.FC<{
 			{/* Base Modifier Info */}
 			<Block>
 				<div style={{ fontWeight: 'bold', marginBottom: '8px' }}>{check.descriptor}</div>
-				<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '8px 0', opacity: 0.3 }} />
+				<Bar />
 				{check.statModifier.breakdown().map(({ name, value }) => (
 					<div key={name} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
 						<span>{name}</span>
 						<span>{value}</span>
 					</div>
 				))}
-				<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '8px 0', opacity: 0.3 }} />
+				<Bar />
 				<div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
 					<span>Total Modifier</span>
 					<span>{check.modifierValue.value}</span>

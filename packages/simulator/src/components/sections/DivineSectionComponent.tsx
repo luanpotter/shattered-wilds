@@ -3,6 +3,7 @@ import React from 'react';
 
 import { useStore } from '../../store';
 import { ActionRowComponent } from '../ActionRowComponent';
+import { Bar } from '../shared/Bar';
 import Block from '../shared/Block';
 import LabeledInput from '../shared/LabeledInput';
 
@@ -48,7 +49,7 @@ const DivineSectionInner: React.FC<{
 					disabled
 				/>
 			</div>
-			<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '0 0 12px 0', opacity: 0.3 }} />
+			<Bar />
 			<ActionRowComponent actionRow={pureDivineChanneling} characterId={characterId} />
 		</Block>
 	);

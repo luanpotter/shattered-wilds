@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { FaTimes, FaCheck, FaBan } from 'react-icons/fa';
+import { FaBan, FaCheck, FaTimes } from 'react-icons/fa';
+
+import { Bar } from '../shared/Bar';
 
 interface RemovableCardProps {
 	title: string;
@@ -101,7 +103,7 @@ export const RemovableCard: React.FC<RemovableCardProps> = ({ title, tooltip, ch
 					</div>
 				)}
 			</div>
-			<hr />
+			<Bar />
 			<div style={{ display: 'flex', justifyContent: 'center' }}>{children}</div>
 		</div>
 	);

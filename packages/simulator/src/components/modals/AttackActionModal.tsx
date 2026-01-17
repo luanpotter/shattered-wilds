@@ -24,9 +24,11 @@ import { getBasicAttacksFor, getBasicDefensesForRealm } from '../../types/grid-a
 import { AttackActionInitialConfig } from '../../types/ui';
 import { semanticClick } from '../../utils';
 import { ATTACK_ACTIONS } from '../hex/GridActions';
+import { Bar } from '../shared/Bar';
 import { Button } from '../shared/Button';
 import LabeledDropdown from '../shared/LabeledDropdown';
 import LabeledInput from '../shared/LabeledInput';
+import ModifierRow from '../shared/ModifierRow';
 
 interface ActionSelectionContentProps {
 	currentAction: Action;
@@ -451,10 +453,6 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		justifyContent: 'flex-start',
 	};
 
-	const pStyle: React.CSSProperties = {
-		margin: '2px',
-	};
-
 	const attackButtonText = `${
 		attacker.automaticMode && attackResult
 			? 'Override Attack'
@@ -477,7 +475,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 				>
 					<Icon /> {text}
 				</h4>
-				<hr />
+				<Bar />
 			</>
 		);
 	};
@@ -540,6 +538,11 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 							}}
 							onChange={setSelectedDefenseAction}
 						/>
+						<Bar />
+						{defenses.find(d => d.action === selectedDefenseAction)?.check && (
+							<ModifierRow check={defenses.find(d => d.action === selectedDefenseAction)!.check} />
+						)}
+						<Bar />
 						<Button
 							icon={FaDice}
 							title={
@@ -615,10 +618,13 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 							]}
 							onClick={handleChangeRange}
 						/>
-						<p style={pStyle}>
-							<strong>Modifier:</strong> {attack.check.modifierValue.description}
-						</p>
 					</div>
+					<Bar />
+					<ModifierRow
+						check={attack.check}
+						additionalModifiers={[rangeIncrementModifier, coverModifier, heightIncrementsModifier]}
+					/>
+					<Bar />
 
 					<Button icon={FaDice} title={attackButtonText} onClick={handleAttackRoll} disabled={!defenseResult} />
 

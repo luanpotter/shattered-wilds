@@ -21,6 +21,7 @@ import { Character } from '../../types/ui';
 import { ActionRowComponent } from '../ActionRowComponent';
 import { CostBoxComponent } from '../CostBoxComponent';
 import { ParameterBoxComponent } from '../ParameterBoxComponent';
+import { Bar } from '../shared/Bar';
 import Block from '../shared/Block';
 import LabeledDropdown from '../shared/LabeledDropdown';
 import LabeledInput from '../shared/LabeledInput';
@@ -222,7 +223,7 @@ const ArcaneSectionInner: React.FC<{
 					disabled
 				/>
 			</div>
-			<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '0 0 12px 0', opacity: 0.3 }} />
+			<Bar />
 			<div style={{ display: 'flex', gap: '2px' }}>
 				<CostBoxComponent cost={arcaneSection.fundamentalSpellCost} />
 				<div
@@ -307,7 +308,7 @@ const ArcaneSectionInner: React.FC<{
 				</div>
 				<SpellCheckBox character={character} check={arcaneSection.fundamentalCheck} />
 			</div>
-			<hr style={{ border: 'none', borderTop: '1px solid var(--text)', margin: '12px 0 12px 0', opacity: 0.3 }} />
+			<Bar />
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 				{arcaneSection.spells.map(spell => (
 					<ActionRowComponent

@@ -2,6 +2,7 @@ import { CharacterSheet } from '@shattered-wilds/d12';
 import React from 'react';
 
 import { useStore } from '../../store';
+import { Bar } from '../shared/Bar';
 import Block from '../shared/Block';
 import LabeledTextArea from '../shared/LabeledTextArea';
 
@@ -27,7 +28,7 @@ export const PersonalitySectionComponent: React.FC<PersonalitySectionProps> = ({
 					onBlur={value => updateCharacterProp(character, 'backstory', value)}
 					disabled={!editMode}
 				/>
-				<hr style={{ width: '100%', color: 'white' }} />
+				<Bar />
 				<LabeledTextArea
 					label='Calling'
 					value={personality.calling ?? ''}
