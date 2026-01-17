@@ -28,49 +28,10 @@ import LabeledDropdown from '../shared/LabeledDropdown';
 import LabeledInput from '../shared/LabeledInput';
 import ModifierRow from '../shared/ModifierRow';
 
-interface ActionSelectionContentProps {
-	currentAction: Action;
-	onConfirm: (action: Action) => void;
-}
-
-const ActionSelectionContent: React.FC<ActionSelectionContentProps> = ({ currentAction, onConfirm }) => {
-	const [selected, setSelected] = useState<Action>(currentAction);
-	const { removeTempModal, tempModals } = useTempModals();
-
-	const handleConfirm = () => {
-		onConfirm(selected);
-		const currentModal = tempModals[tempModals.length - 1];
-		if (currentModal) {
-			removeTempModal(currentModal.id);
-		}
-	};
-
-	const handleCancel = () => {
-		const currentModal = tempModals[tempModals.length - 1];
-		if (currentModal) {
-			removeTempModal(currentModal.id);
-		}
-	};
-
-	return (
-		<div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '8px' }}>
-			<LabeledDropdown
-				label='Action'
-				value={selected}
-				options={ATTACK_ACTIONS}
-				describe={action => {
-					const actionDef = ACTIONS[action];
-					const apCost = actionDef.costs.find(cost => cost.resource === Resource.ActionPoint)?.amount || 0;
-					return `${action} [${apCost} AP]`;
-				}}
-				onChange={setSelected}
-			/>
-			<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-				<Button variant='inline' onClick={handleCancel} title='Cancel' />
-				<Button variant='inline' onClick={handleConfirm} title='Confirm' />
-			</div>
-		</div>
-	);
+// Helper to get AP cost for an action
+const getApCost = (action: Action): number => {
+	const actionDef = ACTIONS[action];
+	return actionDef.costs.find(cost => cost.resource === Resource.ActionPoint)?.amount || 0;
 };
 
 interface WeaponModeSelectionContentProps {
@@ -240,9 +201,6 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		};
 	};
 
-	const actionDef = ACTIONS[selectedAction];
-	const apCost = actionDef.costs.find(cost => cost.resource === Resource.ActionPoint)?.amount || 0;
-
 	// Automatically set results for automatic mode characters on mount
 	useEffect(() => {
 		if (attacker && defender) {
@@ -384,25 +342,6 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 	// Handlers for changing attack configuration
 	// ============================================
 
-	const handleChangeAction = async () => {
-		const result = await displayModal<Action>({
-			ownerModalId: modalId,
-			title: 'Select Action',
-			widthPixels: 300,
-			content: (
-				<ActionSelectionContent
-					currentAction={selectedAction}
-					onConfirm={action => {
-						setSelectedAction(action);
-					}}
-				/>
-			),
-		});
-		if (result) {
-			setSelectedAction(result);
-		}
-	};
-
 	const handleChangeWeaponMode = async () => {
 		const result = await displayModal<number>({
 			ownerModalId: modalId,
@@ -457,6 +396,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		flexDirection: 'column',
 		alignItems: 'stretch',
 		justifyContent: 'flex-start',
+		gap: 8,
 	};
 
 	const attackButtonText = `${
@@ -464,7 +404,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			? 'Override Attack'
 			: attacker.automaticMode
 				? 'Use Auto Attack'
-				: `Roll ${actionDef.name}`
+				: `Roll ${selectedAction}`
 	} ${defenseResult ? `(DC ${defenseResult.total})` : '(Roll Defense First)'}`;
 
 	const Header = ({ text, Icon }: { text: string; Icon: React.ComponentType }) => {
@@ -503,7 +443,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		onClick,
 	}) => {
 		return (
-			<div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
+			<div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
 				<div
 					style={{
 						border: '1px solid var(--text)',
@@ -545,7 +485,8 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 							options={defenses.map(d => d.action)}
 							describe={action => {
 								const defense = defenses.find(d => d.action === action);
-								return defense?.name ?? action;
+								const ap = getApCost(action);
+								return `${defense?.name ?? action} [${ap} AP]`;
 							}}
 							onChange={setSelectedDefenseAction}
 						/>
@@ -600,36 +541,38 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 				<div style={halfStyle}>
 					<Header text={`Attacker: ${attacker.props.name}`} Icon={FaFistRaised} />
 
-					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
-						<Element
-							items={[{ title: 'Action', value: `${selectedAction} [${apCost} AP]` }]}
-							onClick={handleChangeAction}
-						/>
-						<Element
-							items={[
-								{ title: 'Weapon', value: attack.weaponModeOption.item.name },
-								{ title: 'Mode', value: attack.weaponModeOption.mode.description },
-							]}
-							onClick={handleChangeWeaponMode}
-						/>
-						<Element
-							items={[
-								{
-									title: 'Range',
-									value: `${selectedRange.description}${rangeIncrementModifier ? ` [CM: ${rangeIncrementModifier.value.description}]` : ''}`,
-								},
-								{
-									title: 'Cover',
-									value: `${selectedCover}${coverModifier ? ` [CM: ${coverModifier.value.description}]` : ''}`,
-								},
-								{
-									title: 'Height Δ',
-									value: `${selectedHeightIncrements}${heightIncrementsModifier ? ` [CM: ${heightIncrementsModifier.value.description}]` : ''}`,
-								},
-							]}
-							onClick={handleChangeRange}
-						/>
-					</div>
+					<LabeledDropdown
+						label='Action'
+						variant='inline'
+						value={selectedAction}
+						options={ATTACK_ACTIONS}
+						describe={action => `${action} [${getApCost(action)} AP]`}
+						onChange={setSelectedAction}
+					/>
+					<Element
+						items={[
+							{ title: 'Weapon', value: attack.weaponModeOption.item.name },
+							{ title: 'Mode', value: attack.weaponModeOption.mode.description },
+						]}
+						onClick={handleChangeWeaponMode}
+					/>
+					<Element
+						items={[
+							{
+								title: 'Range',
+								value: `${selectedRange.description}${rangeIncrementModifier ? ` [CM: ${rangeIncrementModifier.value.description}]` : ''}`,
+							},
+							{
+								title: 'Cover',
+								value: `${selectedCover}${coverModifier ? ` [CM: ${coverModifier.value.description}]` : ''}`,
+							},
+							{
+								title: 'Height Δ',
+								value: `${selectedHeightIncrements}${heightIncrementsModifier ? ` [CM: ${heightIncrementsModifier.value.description}]` : ''}`,
+							},
+						]}
+						onClick={handleChangeRange}
+					/>
 					<Bar />
 					<ModifierRow check={attackCheck} />
 					<Bar />
