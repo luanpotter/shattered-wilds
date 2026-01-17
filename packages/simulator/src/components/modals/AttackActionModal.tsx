@@ -181,8 +181,6 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 
 	const [defenseResult, setDefenseResult] = useState<RollResult | null>(null);
 	const [attackResult, setAttackResult] = useState<RollResult | null>(null);
-	const [usedDodge, setUsedDodge] = useState(false);
-	const [usedShieldBlock, setUsedShieldBlock] = useState(false);
 	const [selectedDefenseAction, setSelectedDefenseAction] = useState<Action>(Action.BasicDefense);
 
 	// Configurable attack parameters (can be changed via gear icons)
@@ -245,10 +243,10 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 		return <div>Error: Attack not found</div>;
 	}
 
-	const handleDefenseRoll = (action: Action) => {
-		const defense = defenses.find(def => def.action === action);
+	const handleDefenseRoll = () => {
+		const defense = defenses.find(def => def.action === selectedDefenseAction);
 		if (!defense) {
-			throw new Error(`Defense action ${action} not found for defender`);
+			throw new Error(`Defense action ${selectedDefenseAction} not found for defender`);
 		}
 
 		// Build the full check with manual CM
@@ -259,17 +257,14 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			// Use automatic value for defense (initial)
 			const autoResult = getAutomaticResult(fullDefenseCheck);
 			setDefenseResult(autoResult);
-			setUsedDodge(false);
 		} else {
 			// Open dice roll modal for manual rolling (override)
 			openDiceRollModal({
 				characterId: defender.id,
 				check: fullDefenseCheck,
-
+				...(attackResult && { initialTargetDC: attackResult.total }),
 				onDiceRollComplete: (result: { total: number; shifts: number }) => {
 					setDefenseResult(result);
-					setUsedDodge(false);
-					setUsedShieldBlock(false);
 				},
 			});
 		}
@@ -299,6 +294,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			openDiceRollModal({
 				characterId: attacker.id,
 				check: fullCheck,
+				...(defenseResult && { initialTargetDC: defenseResult.total }),
 				onDiceRollComplete: (result: { total: number; shifts: number }) => {
 					setAttackResult(result);
 				},
@@ -419,7 +415,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 			: attacker.automaticMode
 				? 'Use Auto Attack'
 				: `Roll ${selectedAction}`
-	} ${defenseResult ? `(DC ${defenseResult.total})` : '(Roll Defense First)'}`;
+	}${defenseResult ? ` (DC ${defenseResult.total})` : ''}`;
 
 	const Header = ({ text, Icon }: { text: string; Icon: React.ComponentType }) => {
 		return (
@@ -528,19 +524,14 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 						<Bar />
 						<Button
 							icon={FaDice}
-							title={
-								defender.automaticMode && defenseResult && !usedDodge && !usedShieldBlock
+							title={`${
+								defender.automaticMode && defenseResult
 									? `Override ${selectedDefense?.name}`
 									: defender.automaticMode
 										? `Use Auto ${selectedDefense?.name}`
 										: `Roll ${selectedDefense?.name}`
-							}
-							onClick={() => handleDefenseRoll(selectedDefenseAction)}
-							disabled={
-								(selectedDefenseAction === Action.Dodge && usedDodge) ||
-								(selectedDefenseAction === Action.ShieldBlock && usedShieldBlock) ||
-								(attackResult !== null && selectedDefenseAction !== Action.BasicDefense)
-							}
+							}${attackResult ? ` (DC ${attackResult.total})` : ''}`}
+							onClick={handleDefenseRoll}
 						/>
 					</div>
 
@@ -554,14 +545,10 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 							}}
 						>
 							<strong>
-								{usedDodge ? 'Dodge' : usedShieldBlock ? 'Shield Block' : 'Defense'} Result:{' '}
-								{defender.automaticMode && !usedDodge && !usedShieldBlock
-									? `Auto: ${defenseResult.total}`
-									: defenseResult.total}
+								{selectedDefense?.name} Result:{' '}
+								{defender.automaticMode ? `Auto: ${defenseResult.total}` : defenseResult.total}
 							</strong>
 							{defenseResult.shifts > 0 && <div>Shifts: {defenseResult.shifts}</div>}
-							{usedDodge && <div style={{ fontSize: '0.8em', opacity: 0.8 }}>Used Dodge reaction</div>}
-							{usedShieldBlock && <div style={{ fontSize: '0.8em', opacity: 0.8 }}>Used Shield Block reaction</div>}
 						</div>
 					)}
 				</div>
@@ -609,7 +596,7 @@ export const AttackActionModal: React.FC<AttackActionModalProps> = ({
 					<ModifierRow check={attackCheck} />
 					<Bar />
 
-					<Button icon={FaDice} title={attackButtonText} onClick={handleAttackRoll} disabled={!defenseResult} />
+					<Button icon={FaDice} title={attackButtonText} onClick={handleAttackRoll} />
 
 					{attackResult && (
 						<div
