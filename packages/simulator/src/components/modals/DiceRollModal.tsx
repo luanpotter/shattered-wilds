@@ -10,7 +10,7 @@ import {
 	RollResults,
 	StatType,
 } from '@shattered-wilds/d12';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 
 import { useStore } from '../../store';
@@ -150,33 +150,37 @@ const DiceRollModalContent: React.FC<{
 	const [extraSkill, setExtraSkill] = useState<StatType>(StatType.STR);
 	const [rollResults, setRollResults] = useState<RollResults | null>(null);
 
-	// Build a DiceRoll for the DiceRoller
-	const buildDiceRoll = (): DiceRoll => ({
-		characterName: sheet.name,
-		check: check.withType(checkType),
-		targetDC: dc ?? undefined,
-		extra: useExtra
-			? {
-					name: extraSkill.name,
-					value: tree.valueOf(extraSkill).value,
-				}
-			: undefined,
-		luck: useLuck
-			? {
-					value: tree.valueOf(StatType.Fortune).value,
-				}
-			: undefined,
-	});
+	const buildDiceRoll = useCallback(
+		(): DiceRoll => ({
+			characterName: sheet.name,
+			check: check.withType(checkType),
+			targetDC: dc ?? undefined,
+			extra: useExtra
+				? {
+						name: extraSkill.name,
+						value: tree.valueOf(extraSkill).value,
+					}
+				: undefined,
+			luck: useLuck
+				? {
+						value: tree.valueOf(StatType.Fortune).value,
+					}
+				: undefined,
+		}),
+		[check, checkType, dc, extraSkill, sheet.name, tree, useExtra, useLuck],
+	);
 
 	// Memoized calculations that update when dependencies change (e.g., DC or check type)
 	const results = useMemo(() => {
-		if (!rollResults) return null;
+		if (!rollResults) {
+			return null;
+		}
+
 		// Recalculate results with current settings using commons function
 		const roll = buildDiceRoll();
 		const calculatedResults = calculateResults(rollResults.dice, roll);
 		return { ...rollResults, ...calculatedResults };
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [rollResults, checkType, dc, check.modifierValue.value]);
+	}, [rollResults, buildDiceRoll]);
 
 	const handleCheckTypeChange = (newType: CheckType) => setCheckType(newType);
 	const handleDcInputChange = (value: string) => setDc(value ? parseInt(value) : null);

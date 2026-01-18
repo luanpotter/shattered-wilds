@@ -47,7 +47,7 @@ export interface RollResults<T = void> {
  * Calculate shifts based on excess over DC
  * Shifting window: +6, then +12, then +18, ...
  */
-const calculateShifts = (excess: number): number => {
+export const calculateShifts = (excess: number): number => {
 	if (excess < 6) return 0;
 	let shifts = 0;
 	let next = 6;
