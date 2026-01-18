@@ -1,5 +1,5 @@
 import { Action, CharacterSheet } from '@shattered-wilds/d12';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FaBolt, FaFistRaised, FaRuler, FaUser, FaWalking } from 'react-icons/fa';
 
 import { getBasicAttacksFor } from '../types/grid-actions';
@@ -18,11 +18,45 @@ interface TokenContextMenuProps {
 export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({ character, position, onClose, onAction }) => {
 	const sheet = CharacterSheet.from(character.props);
 	const basicAttacks = getBasicAttacksFor(sheet);
+	const menuRef = useRef<HTMLDivElement>(null);
+	const [adjustedPosition, setAdjustedPosition] = useState(position);
+
+	// Adjust position if menu would overflow the viewport
+	useEffect(() => {
+		if (menuRef.current) {
+			const menuRect = menuRef.current.getBoundingClientRect();
+			const viewportHeight = window.innerHeight;
+			const viewportWidth = window.innerWidth;
+			const padding = 8; // Small padding from viewport edges
+
+			let newX = position.x;
+			let newY = position.y;
+
+			// Check if menu overflows bottom
+			if (position.y + menuRect.height > viewportHeight - padding) {
+				// Position menu above the click point
+				newY = position.y - menuRect.height;
+			}
+
+			// Check if menu overflows right
+			if (position.x + menuRect.width > viewportWidth - padding) {
+				newX = viewportWidth - menuRect.width - padding;
+			}
+
+			// Ensure menu doesn't go off the top or left
+			newY = Math.max(padding, newY);
+			newX = Math.max(padding, newX);
+
+			if (newX !== adjustedPosition.x || newY !== adjustedPosition.y) {
+				setAdjustedPosition({ x: newX, y: newY });
+			}
+		}
+	}, [position, adjustedPosition.x, adjustedPosition.y]);
 
 	const menuStyle: React.CSSProperties = {
 		position: 'fixed',
-		left: position.x,
-		top: position.y,
+		left: adjustedPosition.x,
+		top: adjustedPosition.y,
 		backgroundColor: 'var(--background)',
 		border: '1px solid var(--text)',
 		borderRadius: '4px',
@@ -67,7 +101,7 @@ export const TokenContextMenu: React.FC<TokenContextMenuProps> = ({ character, p
 	};
 
 	return (
-		<div className='token-context-menu' style={menuStyle} role='menu'>
+		<div ref={menuRef} className='token-context-menu' style={menuStyle} role='menu'>
 			<MenuItem
 				icon={FaUser}
 				title='See Character Sheet'
