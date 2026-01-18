@@ -481,6 +481,13 @@ export const useModals = () => {
 	const closeModal = (modalId: string) => {
 		// Close any temporary modals owned by this modal
 		closeTempModalsOwnedBy(modalId);
+
+		// Call modal's onClose callback if it exists
+		const modal = modals.find(m => m.id === modalId);
+		if (modal && 'onClose' in modal && typeof modal.onClose === 'function') {
+			modal.onClose();
+		}
+
 		// Then close the modal itself
 		removeModal(modalId);
 	};
@@ -489,6 +496,12 @@ export const useModals = () => {
 		modals.forEach(modal => {
 			// Close any temporary modals owned by each modal
 			closeTempModalsOwnedBy(modal.id);
+
+			// Call modal's onClose callback if it exists
+			if ('onClose' in modal && typeof modal.onClose === 'function') {
+				modal.onClose();
+			}
+
 			removeModal(modal.id);
 		});
 	};
