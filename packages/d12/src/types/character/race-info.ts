@@ -11,14 +11,21 @@ export class RaceInfo {
 	upbringingPlusModifier: StatType;
 	upbringingMinusModifier: StatType;
 
-	constructor(
-		primaryRace: Race,
-		upbringing: Upbringing,
-		halfRace: Race | null = null,
-		combineHalfRaceStats: boolean = false,
-		upbringingPlusModifier: StatType = StatType.INT,
-		upbringingMinusModifier: StatType = StatType.WIS,
-	) {
+	constructor({
+		primaryRace,
+		upbringing,
+		halfRace = null,
+		combineHalfRaceStats = false,
+		upbringingPlusModifier = StatType.INT,
+		upbringingMinusModifier = StatType.WIS,
+	}: {
+		primaryRace: Race;
+		upbringing: Upbringing;
+		halfRace?: Race | null;
+		combineHalfRaceStats?: boolean;
+		upbringingPlusModifier: StatType;
+		upbringingMinusModifier: StatType;
+	}) {
 		this.primaryRace = primaryRace;
 		this.halfRace = halfRace;
 		this.combineHalfRaceStats = combineHalfRaceStats;
@@ -31,6 +38,17 @@ export class RaceInfo {
 		return RACE_DEFINITIONS[this.primaryRace].size;
 	}
 
+	toProps(): Record<string, string> {
+		return {
+			race: this.primaryRace,
+			...(this.halfRace ? { 'race.half': this.halfRace } : {}),
+			...(this.combineHalfRaceStats ? { 'race.half.combined-stats': 'true' } : {}),
+			upbringing: this.upbringing,
+			'upbringing.plus': this.upbringingPlusModifier.name,
+			'upbringing.minus': this.upbringingMinusModifier.name,
+		};
+	}
+
 	static from(props: Record<string, string>): RaceInfo {
 		const primaryRace = (props['race'] as Race) ?? Race.Human;
 		const halfRace = props['race.half'] ? (props['race.half'] as Race) : null;
@@ -39,14 +57,14 @@ export class RaceInfo {
 		const upbringingPlusModifier = StatType.fromString(props['upbringing.plus'], StatType.INT);
 		const upbringingMinusModifier = StatType.fromString(props['upbringing.minus'], StatType.WIS);
 
-		return new RaceInfo(
+		return new RaceInfo({
 			primaryRace,
 			upbringing,
 			halfRace,
 			combineHalfRaceStats,
 			upbringingPlusModifier,
 			upbringingMinusModifier,
-		);
+		});
 	}
 
 	// Get the core feats that should be assigned to this race/upbringing combination

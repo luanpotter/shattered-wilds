@@ -50,6 +50,21 @@ export class Circumstances {
 		return statModifier.withAdditionalCM(exhaustionModifier);
 	}
 
+	toProps(): Record<string, string> {
+		const props = {} as Record<string, string>;
+		if (this.conditions.length > 0) {
+			props.conditions = this.conditions.map(c => `${c.name}:${c.rank}`).join(',');
+		}
+		if (this.consequences.length > 0) {
+			props.consequences = this.consequences.map(c => `${c.name}:${c.rank}`).join(',');
+		}
+		if (this.otherCircumstances.length > 0) {
+			props.otherCircumstances = this.otherCircumstances.join('\n');
+		}
+		Object.assign(props, this.currentResources.toProps());
+		return props;
+	}
+
 	static parse<T>(prop: string | undefined): AppliedCircumstance<T>[] {
 		return (prop ?? '')
 			.split(',')
@@ -70,6 +85,10 @@ export class Circumstances {
 
 		return new Circumstances({ currentResources, conditions, consequences, otherCircumstances });
 	}
+
+	static empty(): Circumstances {
+		return this.from({});
+	}
 }
 
 export class CurrentResources {
@@ -88,6 +107,17 @@ export class CurrentResources {
 		const currentResources = mapEnumToRecord(Resource, resource => parse(props[resource]));
 
 		return new CurrentResources(currentResources);
+	}
+
+	toProps(): Record<string, string> {
+		const props: Record<string, string> = {};
+		for (const resource of Object.values(Resource)) {
+			const value = this.currentResources[resource];
+			if (value !== undefined && value !== CurrentResources.MAX_VALUE) {
+				props[resource] = String(value);
+			}
+		}
+		return props;
 	}
 
 	private getCurrentValue(resource: Resource): number {

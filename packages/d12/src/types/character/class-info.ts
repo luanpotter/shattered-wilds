@@ -4,14 +4,14 @@ import { FeatInfo, FEATS, FeatType } from '../core/feats.js';
 export class ClassInfo {
 	characterClass: CharacterClass;
 
-	constructor(characterClass: CharacterClass) {
+	constructor({ characterClass }: { characterClass: CharacterClass }) {
 		this.characterClass = characterClass;
 	}
 
 	static from(props: Record<string, string>): ClassInfo {
 		const characterClass = (props['class'] as CharacterClass) ?? CharacterClass.Fighter;
 
-		return new ClassInfo(characterClass);
+		return new ClassInfo({ characterClass });
 	}
 
 	get definition(): ClassDefinition {
@@ -34,5 +34,11 @@ export class ClassInfo {
 
 	toString(): string {
 		return this.characterClass;
+	}
+
+	toProps(): Record<string, string> {
+		return {
+			class: this.characterClass,
+		};
 	}
 }

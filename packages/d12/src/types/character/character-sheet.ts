@@ -179,6 +179,22 @@ export class CharacterSheet {
 		return modifiers;
 	}
 
+	toProps(): Record<string, string> {
+		return {
+			name: this.name,
+			...this.race.toProps(),
+			...this.characterClass.toProps(),
+			...this.feats.featInfos
+				.map(info => info.toProp())
+				.filter(e => e !== undefined)
+				.reduce((acc, prop) => ({ ...acc, [prop[0]]: prop[1] }), {}),
+			...this.attributeRoot.toProps(),
+			...this.equipment.toProps(),
+			...this.circumstances.toProps(),
+			...this.personality.toProps(),
+		};
+	}
+
 	static from(props: Record<string, string>): CharacterSheet {
 		const race = RaceInfo.from(props);
 		const characterClass = ClassInfo.from(props);

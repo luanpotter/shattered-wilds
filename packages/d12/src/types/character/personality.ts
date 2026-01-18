@@ -34,6 +34,18 @@ export class Personality {
 		this.backstory = backstory;
 	}
 
+	toProps(): Record<string, string> {
+		return {
+			...(this.calling ? { calling: this.calling } : {}),
+			...(this.vice ? { vice: this.vice } : {}),
+			...(this.aversion ? { aversion: this.aversion } : {}),
+			...(this.tenet ? { tenet: this.tenet } : {}),
+			...(this.leanings ? { leanings: this.leanings } : {}),
+			...(this.protean ? this.protean.toProps() : {}),
+			...(this.backstory ? { backstory: this.backstory } : {}),
+		};
+	}
+
 	static from(props: Record<string, string>): Personality {
 		return new Personality({
 			calling: parse(props, 'calling'),
@@ -76,6 +88,19 @@ export class Protean {
 		this.name = name;
 		this.connection = connection;
 		this.domains = domains;
+	}
+
+	toProps(): Record<string, string> {
+		return {
+			'name.protean': this.name,
+			...(this.connection ? { 'protean.connection': this.connection } : {}),
+			'protean.domains': JSON.stringify(
+				this.domains.map(domain => ({
+					name: domain.name,
+					details: domain.details,
+				})),
+			),
+		};
 	}
 
 	static fromProps(props: Record<string, string>): Protean | undefined {

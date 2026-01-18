@@ -537,6 +537,12 @@ export class Equipment {
 		return new Equipment(items);
 	}
 
+	toProps(): Record<string, string> {
+		return {
+			equipment: this.toProp(),
+		};
+	}
+
 	toProp(): string {
 		return EquipmentSerializer.serialize(this.items);
 	}

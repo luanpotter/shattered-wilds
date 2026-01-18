@@ -301,6 +301,16 @@ export class StatNode {
 		}
 		return undefined;
 	}
+
+	toProps(): Record<string, string> {
+		let props: Record<string, string> = {
+			...(this.points !== 0 ? { [this.type.name]: String(this.points) } : {}),
+		};
+		for (const child of this.children) {
+			props = { ...props, ...child.toProps() };
+		}
+		return props;
+	}
 }
 
 export class StatModifier {
