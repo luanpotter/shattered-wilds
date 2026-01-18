@@ -1,6 +1,14 @@
-import { BASIC_EQUIPMENT, BasicEquipmentType, Bonus, Item, ItemMode, WeaponMode } from '@shattered-wilds/d12';
+import {
+	ArmorMode,
+	BASIC_EQUIPMENT,
+	BasicEquipmentType,
+	Bonus,
+	Item,
+	ItemMode,
+	WeaponMode,
+} from '@shattered-wilds/d12';
 
-const processModes = (modes: ItemMode[], overrides: { bonus: Bonus }): ItemMode[] => {
+const processWeaponModes = (modes: ItemMode[], overrides: { bonus: Bonus }): ItemMode[] => {
 	if (modes.length !== 1) {
 		throw new Error('Only single-mode items are supported in this shortcut function.');
 	}
@@ -16,15 +24,44 @@ const processModes = (modes: ItemMode[], overrides: { bonus: Bonus }): ItemMode[
 	];
 };
 
+const processArmorModes = (modes: ItemMode[], overrides: { bonus?: Bonus; dexPenalty?: Bonus }): ItemMode[] => {
+	if (modes.length !== 1) {
+		throw new Error('Only single-mode items are supported in this shortcut function.');
+	}
+	const mode = modes[0];
+	if (!(mode instanceof ArmorMode)) {
+		throw new Error('Only armor modes are supported in this shortcut function.');
+	}
+	return [
+		new ArmorMode({
+			type: mode.type,
+			bonus: overrides.bonus ? Bonus.add([mode.bonus, overrides.bonus]) : mode.bonus,
+			dexPenalty: overrides.dexPenalty ? Bonus.add([mode.dexPenalty, overrides.dexPenalty]) : mode.dexPenalty,
+		}),
+	];
+};
+
 const item = (
 	base: BasicEquipmentType,
-	overrides: { isEquipped: boolean; name?: string | undefined; weaponMode?: { bonus: Bonus } | undefined },
+	overrides: {
+		isEquipped: boolean;
+		name?: string | undefined;
+		weaponMode?: { bonus: Bonus } | undefined;
+		armorMode?: { bonus?: Bonus; dexPenalty?: Bonus } | undefined;
+	},
 ) => {
 	const item = BASIC_EQUIPMENT[base].generator();
+	let modes = item.modes;
+	if (overrides.weaponMode) {
+		modes = processWeaponModes(modes, overrides.weaponMode);
+	}
+	if (overrides.armorMode) {
+		modes = processArmorModes(modes, overrides.armorMode);
+	}
 	return new Item({
 		...item,
 		name: overrides.name ?? item.name,
-		modes: overrides.weaponMode ? processModes(item.modes, overrides.weaponMode) : item.modes,
+		modes,
 		isEquipped: overrides.isEquipped,
 	});
 };
