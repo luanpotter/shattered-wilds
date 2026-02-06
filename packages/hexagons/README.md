@@ -1,6 +1,8 @@
 # hexagons
 
-Hexagons is a simple Foundry VTT add-on that provides enhanced drawing capabilities for hex grids (either for Hex Crawls or for hex-based tactical encounters such as battles in the [d12 system](https://d12.nexus)).
+[Hexagons](https://foundryvtt.com/packages/hexagons) is a simple Foundry VTT add-on that provides enhanced drawing capabilities for hex grids (either for Hex Crawls or for hex-based tactical encounters such as battles in the [d12 system](https://d12.nexus)).
+
+Install by searching for "hexagons" in the Foundry VTT Add-on Modules tab, or by linking directly to the `manifest.json` of the latest GitHub release in this project.
 
 <p align="center">
   <img src="./media/hexagons-line.png" alt="Line Tool" width="45%"/>
