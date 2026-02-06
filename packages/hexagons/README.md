@@ -1,6 +1,6 @@
 # hexagons
 
-Hexagons is a simple Foundry VTT addon that provides enhanced drawing capabilities for hex grids (either for Hex Crawls or hex-based battle maps such as the ones used in the d12 system).
+Hexagons is a simple Foundry VTT addon that provides enhanced drawing capabilities for hex grids (either for Hex Crawls or hex-based battle maps such as the ones used in the [d12 system](https://d12.nexus)).
 
 <p align="center">
   <img src="./media/hexagons-line.png" alt="Line Tool" width="45%"/>
@@ -9,16 +9,20 @@ Hexagons is a simple Foundry VTT addon that provides enhanced drawing capabiliti
 
 All tools will snap features to the hex grid of the current map, making it very easy to add features, terrain and annotations to your hex maps.
 
-Note: the toolbar will only appear when a hex grid is detected on the current scene.
+Note: the toolbar will only appear when a hex grid is detected on the current scene. The package support all four configurations of hex grids available in Foundry.
 
 ## Tools
 
 - **Select Tool**: Select and manipulate existing drawings on the hex grid, allowing movement snapped to the lattice.
 
-- **Line Tool**: Draw straight lines that snap to the hex grid edges.
+- **Line Tool**: Draw "straight" lines that snap to the hex grid lattice.
 
 - **Paint Tool**: Fill individual hexes on the map (including a thin border).
 
-- **Stamp Tool**: Place icons (emoji-based) centered within hexes. Right click to choose a new stamp, left click to repeat previous stamp.
+- **Stamp Tool**: Place icons (unicode emojis) centered within hexes. Right click to choose a new stamp, left click to repeat previous stamp.
 
-- **Configuration Modal**: Easy access to change the colors used by each tool. Simpler than the default Foundry drawing configuration.
+- **Configuration Modal**: Easy access to change the colors and stroke used by each tool.
+
+## Contributing
+
+All contributions are more than welcome! Please send us a PR or use the issue tracker for any bugs or requests.
