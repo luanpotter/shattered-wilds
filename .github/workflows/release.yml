@@ -2,7 +2,7 @@ name: Release VTT
 
 on:
   push:
-    tags: ['vtt-v*']
+    tags: ["vtt-v*"]
 
 permissions:
   contents: write
@@ -67,3 +67,9 @@ jobs:
             For more information, visit the [Shattered Wilds project](https://github.com/luanpotter/shattered-wilds).
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to Foundry VTT
+        run: |
+          ./scripts/_publish_to_foundry.sh hexagons "$FOUNDRY_TOKEN_HEXAGONS" "${{ github.ref_name }}"
+        env:
+          FOUNDRY_TOKEN_HEXAGONS: ${{ secrets.FOUNDRY_TOKEN_HEXAGONS }}
